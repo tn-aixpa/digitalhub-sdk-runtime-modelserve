@@ -1,0 +1,6 @@
+FROM {{baseImage}}
+
+# Add additional instructions here
+{{additionalInstruction}}
+
+ENTRYPOINT ["{{entrypointCommand}}"]

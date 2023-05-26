@@ -40,7 +40,7 @@ public class Workflow implements BaseEntity {
     @Column(nullable = false)
     private String project;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String name;
 
     private byte[] spec;

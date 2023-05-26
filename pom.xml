@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.6</version>
+		<version>3.1.0</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.smartcommunitylabdhub</groupId>
@@ -59,17 +59,28 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>2.14.2</version>
+			<version>2.15.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-cbor</artifactId>
-			<version>2.14.2</version>
+			<version>2.15.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>
-			<version>2.14.2</version>
+			<version>2.15.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/io.fabric8/kubernetes-client -->
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>kubernetes-client</artifactId>
+			<version>6.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>io.fabric8</groupId>
+			<artifactId>kubernetes-server-mock</artifactId>
+			<version>6.6.2</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
 		<dependency>
