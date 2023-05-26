@@ -16,13 +16,16 @@ import jakarta.annotation.PreDestroy;
 @Component
 public class KubernetesEventListener {
 
-    @Autowired
-    private EventProcessor eventProcessor;
+    private final EventProcessor eventProcessor;
 
-    @Autowired(required = false)
-    private Optional<KubernetesClient> kubernetesClient;
+    private final Optional<KubernetesClient> kubernetesClient;
 
     private Watch watch;
+
+    public KubernetesEventListener(EventProcessor eventProcessor, Optional<KubernetesClient> kubernetesClient) {
+        this.eventProcessor = eventProcessor;
+        this.kubernetesClient = kubernetesClient;
+    }
 
     @PostConstruct
     public void init() {
@@ -50,7 +53,8 @@ public class KubernetesEventListener {
                 });
             });
         } catch (Exception e) {
-            System.out.println("Continue without watching kubernetes event. No configuration on .kube found");
+            System.out.println(
+                    "WARNING: Continue without watching kubernetes event. No configuration on .kube found");
         }
     }
 
