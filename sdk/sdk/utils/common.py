@@ -1,0 +1,6 @@
+import os
+
+DHUB_CORE_ENDPOINT = os.getenv("DHUB_CORE_ENDPOINT", "http://127.0.0.1:8080")
+DHUB_CORE_USER = os.getenv("DHUB_CORE_USER", "")
+DHUB_CORE_PASSWORD = os.getenv("DHUB_CORE_PASSWORD", "")
+DHUB_CORE_TOKEN = os.getenv("DHUB_CORE_TOKEN", "")
