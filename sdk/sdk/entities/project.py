@@ -1,23 +1,14 @@
 """
 Project module.
 """
+from copy import deepcopy
 
 from sdk.client.client import Client
-from sdk.utils.utils import write_yaml, read_yaml
+from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
+from sdk.entities.artifact import Artifact, delete_artifact
+from sdk.entities.function import Function, delete_function
+from sdk.entities.workflow import Workflow, delete_workflow
 
-
-# All'inizio: client.new_project(), client.load_project() ....
-# project = dhub.new_project("test") -> return obj project + context
-# ==
-# project = dhub.load_project("test", client=client) -> return obj project + context
-
-# mi aspetto di potre fare
-# project.get_artifact(),  set_function(), run_function(), save() etc.
-
-# non mi aspetto project.delete() perche operazione su struttura dati
-
-# struct_project = dhub.get_project() -> struttura dati da backend (obj)
-# struct_project = dhub.import_project() -> struttura dati da file (obj)
 
 API_CREATE = "/api/v1/projects"
 API_READ = "/api/v1/projects/{}"
@@ -32,11 +23,6 @@ OBJ_ATTR = [
     "functions",
     "artifacts",
     "workflows",
-]
-OBJ_BARE_ATTR = [
-    "name",
-    "source",
-    "description",
 ]
 
 
@@ -84,74 +70,20 @@ class Project:
     def __init__(
         self,
         name: str,
-        source: str = None,
-        description: str = None,
+        source: str = "",
+        description: str = "",
+        functions: list = None,
+        artifacts: list = None,
+        workflows: list = None,
     ) -> None:
         """Initialize the Project instance."""
         self.name = name
         self.source = source
         self.description = description
-        self.functions = []
-        self.artifacts = []
-        self.workflows = []
+        self.functions = functions if functions is not None else []
+        self.artifacts = artifacts if artifacts is not None else []
+        self.workflows = workflows if workflows is not None else []
         self.id = None
-
-    @classmethod
-    def new(
-        cls,
-        client: Client,
-        name: str,
-        source: str = None,
-        description: str = None,
-    ) -> "Project":
-        """
-        Create a new project and an execution context.
-
-        Parameters
-        ----------
-        client : Client
-            A Client object to interact with backend.
-        name : str
-            The name of the project to load.
-        source : str, optional
-            The source of the project (eg. git://repo-url).
-        description : str, optional
-            The description of the project.
-
-        Returns
-        -------
-        Project
-            A Project instance with its context.
-
-        """
-        obj = cls(name, source, description)
-        obj.save(client)
-        return obj
-
-    @classmethod
-    def load(cls, client: Client, name: str) -> "Project":
-        """
-        Load project and context from backend.
-
-        Parameters
-        ----------
-        client : Client
-            Client to interact with backend.
-        name : str
-            The name of the project to load.
-
-        Returns
-        -------
-        Project
-            A Project instance with its context.
-
-        """
-        name = get_id(name, client)
-        r = client.get_object(API_READ.format(name))
-        kwargs = {k: v for k, v in r.items() if k in OBJ_ATTR}
-        project = cls(**kwargs)
-        project.id = r["id"]
-        return project
 
     def save(self, client: Client, overwrite: bool = False) -> dict:
         """
@@ -170,8 +102,38 @@ class Project:
         except KeyError:
             raise Exception("Project already present in the backend.")
 
-    def set_artifact(self, artifact: "Artifact", client: Client) -> dict:
-        return artifact.save(client)
+    def set_artifact(self, client: Client, artifact: Artifact) -> dict:
+        r = artifact.save(client)
+        if "status" not in r:
+            self.artifacts.append(artifact)
+            return r
+        raise Exception(f"Backend error: {r['status']}")
+
+    def unset_artifact(self, client: Client, key: str) -> None:
+        delete_artifact(client, key)
+        self.artifacts = [i for i in self.artifacts if i.key != key]
+
+    def set_function(self, client: Client, function: Function) -> dict:
+        r = function.save(client)
+        if "status" not in r:
+            self.functions.append(function)
+            return r
+        raise Exception(f"Backend error: {r['status']}")
+
+    def unset_function(self, client: Client, key: str) -> None:
+        delete_function(client, key)
+        self.functions = [i for i in self.functions if i.name != key]
+
+    def set_workflow(self, client: Client, workflow: Workflow) -> dict:
+        r = workflow.save(client)
+        if "status" not in r:
+            self.workflows.append(workflow)
+            return r
+        raise Exception(f"Backend error: {r['status']}")
+
+    def unset_workflow(self, client: Client, key: str) -> None:
+        delete_workflow(client, key)
+        self.workflows = [i for i in self.workflows if i.name != key]
 
     def to_dict(self) -> dict:
         """
@@ -183,7 +145,11 @@ class Project:
             A dictionary containing the attributes of the Project instance.
 
         """
-        return {k: v for k, v in self.__dict__.items() if v is not None}
+        dict_ = deepcopy(self.__dict__)
+        dict_["functions"] = [i.to_dict() for i in dict_["functions"]]
+        dict_["artifacts"] = [i.to_dict() for i in dict_["artifacts"]]
+        dict_["workflows"] = [i.to_dict() for i in dict_["workflows"]]
+        return {k: v for k, v in dict_.items() if v is not None}
 
     def __repr__(self) -> str:
         """
@@ -196,6 +162,57 @@ class Project:
 
         """
         return str(self.to_dict())
+
+
+def new_project(
+    client: Client,
+    name: str,
+    source: str = None,
+    description: str = None,
+) -> Project:
+    """
+    Create a new project and an execution context.
+
+    Parameters
+    ----------
+    client : Client
+        A Client object to interact with backend.
+    name : str
+        The name of the project to load.
+    source : str, optional
+        The source of the project (eg. git://repo-url).
+    description : str, optional
+        The description of the project.
+
+    Returns
+    -------
+    Project
+        A Project instance with its context.
+
+    """
+    obj = Project(name, source, description)
+    obj.save(client)
+    return obj
+
+
+def load_project(client: Client, name: str) -> Project:
+    """
+    Load project and context from backend.
+
+    Parameters
+    ----------
+    client : Client
+        Client to interact with backend.
+    name : str
+        The name of the project to load.
+
+    Returns
+    -------
+    Project
+        A Project instance with its context.
+
+    """
+    return get_project(client, name)
 
 
 def create_project(
@@ -249,12 +266,9 @@ def get_project(client: Client, name: str) -> Project:
     name = get_id(name, client)
     r = client.get_object(API_READ.format(name))
     if "status" not in r:
-        kwargs = {k: v for k, v in r.items() if k in OBJ_BARE_ATTR}
+        kwargs = {k: v for k, v in r.items() if k in OBJ_ATTR}
         project = Project(**kwargs)
         project.id = r["id"]
-        project.artifacts = r["artifacts"]
-        project.functions = r["functions"]
-        project.workflows = r["workflows"]
         return project
     raise KeyError(f"Project {name} does not exists.")
 
@@ -274,29 +288,17 @@ def delete_project(client: Client, name: str) -> None:
     -------
     None
         This function does not return anything.
-
-    Raises
-    ------
-    Any exceptions raised by the client object's delete_object method.
     """
-    name = get_id(name, client)
-    client.delete_object(API_DELETE.format(name))
+    api = API_DELETE.format(get_id(name, client))
+    delete_from_backend(client, api)
 
 
 def import_project(file: str) -> Project:
-    dict_ = read_yaml(file)
-    kwargs = {k: v for k, v in dict_.items() if k in OBJ_BARE_ATTR}
-    project = Project(**kwargs)
-    try:
-        project.id = dict_["id"]
-    except:
-        ...
-    return project
+    return file_importer(file, Project, OBJ_ATTR)
 
 
 def export_project(project: Project, file: str) -> None:
-    data = project.to_dict()
-    write_yaml(data, file)
+    file_exporter(file, project.to_dict())
 
 
 def get_id(name, client):

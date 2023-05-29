@@ -3,7 +3,8 @@ Artifact module.
 """
 
 from sdk.client.client import Client
-from sdk.utils.utils import write_yaml, read_yaml, get_uiid
+from sdk.utils.utils import get_uiid
+from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
 
 
 API_CREATE = "/api/v1/artifacts"
@@ -11,7 +12,7 @@ API_READ = "/api/v1/artifacts/{}"
 API_DELETE = "/api/v1/artifacts/{}"
 API_READ_ALL = "/api/v1/artifacts"
 
-OBJ_ATTR = ["project", "key", "path", "id"]
+OBJ_ATTR = ["project", "key", "path"]
 
 
 class Artifact:
@@ -42,20 +43,25 @@ class Artifact:
 
         """
         try:
+            # todo remove name
             dict_ = {
                 "name": self.id,
                 "project": self.project,
-                "kind": "job",
+                "kind": None,
                 "spec": {
                     "type": "artifact",
                     "target": self.key,
                     "source": self.path,
                 },
-                "type": "apache-parquet",
+                "type": None,
             }
             return client.create_object(dict_, API_CREATE)
         except KeyError:
             raise Exception("Artifact already present in the backend.")
+
+    def download(self, reader) -> str: ...
+
+    def upload(self, writer) -> str: ...
 
     def to_dict(self) -> dict:
         """
@@ -119,9 +125,9 @@ def get_artifact(client: Client, key: str) -> Artifact:
     r = client.get_object(API_READ.format(key))
     if "status" not in r:
         kwargs = {
-            "project": r["project"],
-            "key": r["spec"]["target"],
-            "path": r["spec"]["source"],
+            "project": r.get("project"),
+            "key": r.get("spec", {}).get("target"),
+            "path": r.get("spec", {}).get("source"),
         }
         return Artifact(**kwargs)
     raise KeyError(f"Artifact {key} does not exists.")
@@ -129,7 +135,7 @@ def get_artifact(client: Client, key: str) -> Artifact:
 
 def delete_artifact(client: Client, key: str) -> None:
     """
-    Delete a artifact.
+    Delete a artifact from backend.
 
     Parameters
     ----------
@@ -142,29 +148,17 @@ def delete_artifact(client: Client, key: str) -> None:
     -------
     None
         This function does not return anything.
-
-    Raises
-    ------
-    Any exceptions raised by the client object's delete_object method.
     """
-    key = get_id(key, client)
-    client.delete_object(API_DELETE.format(key))
+    api = API_DELETE.format(get_id(key, client))
+    delete_from_backend(client, api)
 
 
 def import_artifact(file: str) -> Artifact:
-    dict_ = read_yaml(file)
-    kwargs = {k: v for k, v in dict_.items() if k in OBJ_ATTR}
-    artifact = Artifact(**kwargs)
-    try:
-        artifact.id = dict_["id"]
-    except:
-        ...
-    return artifact
+    return file_importer(file, Artifact, OBJ_ATTR)
 
 
 def export_artifact(artifact: Artifact, file: str) -> None:
-    data = artifact.to_dict()
-    write_yaml(data, file)
+    file_exporter(file, artifact.to_dict())
 
 
 def get_id(key, client):
