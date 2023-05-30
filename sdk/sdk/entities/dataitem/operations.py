@@ -1,11 +1,9 @@
 """
 DataItem module.
 """
-import pandas as pd
-
 from sdk.client.client import Client
-from sdk.utils.utils import get_uiid
 from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
+from sdk.entities.dataitem.dataitem import DataItem
 
 
 API_CREATE = "/api/v1/dataitems"
@@ -14,82 +12,6 @@ API_DELETE = "/api/v1/dataitems/{}"
 API_READ_ALL = "/api/v1/dataitems"
 
 OBJ_ATTR = ["project", "key", "path"]
-
-
-class DataItem:
-    """
-    A class representing a dataitem.
-    """
-
-    def __init__(
-        self,
-        project: str,
-        key: str,
-        path: str,
-    ) -> None:
-        """Initialize the DataItem instance."""
-        self.project = project
-        self.key = key
-        self.path = path
-        self.id = get_uiid()
-
-    def save(self, client: Client, overwrite: bool = False) -> dict:
-        """
-        Save dataitem into backend.
-
-        Returns
-        -------
-        dict
-            Mapping representaion of DataItem from backend.
-
-        """
-        try:
-            dict_ = {
-                "name": self.id,
-                "project": self.project,
-                "kind": "job",
-                "spec": {
-                    "type": "dataitem",
-                    "target": self.key,
-                    "source": self.path,
-                },
-                "type": "apache-parquet",
-            }
-            return client.create_object(dict_, API_CREATE)
-        except KeyError:
-            raise Exception("DataItem already present in the backend.")
-
-    def download(self, reader) -> str: ...
-
-    def upload(self, writer) -> str: ...
-
-    def get_df(self, reader) -> pd.DataFrame: ...
-
-    def log_df(self, writer) -> str: ...
-
-    def to_dict(self) -> dict:
-        """
-        Return object to dict.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the DataItem instance.
-
-        """
-        return {k: v for k, v in self.__dict__.items() if v is not None}
-
-    def __repr__(self) -> str:
-        """
-        Return string representation of the dataitem object.
-
-        Returns
-        -------
-        str
-            A string representing the DataItem instance.
-
-        """
-        return str(self.to_dict())
 
 
 def create_dataitem(
@@ -158,10 +80,39 @@ def delete_dataitem(client: Client, key: str) -> None:
 
 
 def import_dataitem(file: str) -> DataItem:
+    """
+    Import an DataItem object from a file using the specified file path.
+
+    Parameters
+    ----------
+    file : str
+        The absolute or relative path to the file containing the DataItem object.
+
+    Returns
+    -------
+    DataItem
+        The DataItem object imported from the file using the specified path.
+
+    """
     return file_importer(file, DataItem, OBJ_ATTR)
 
 
 def export_dataitem(dataitem: DataItem, file: str) -> None:
+    """
+    Export the specified DataItem object to a file in the specified location.
+
+    Parameters
+    ----------
+    dataitem : DataItem
+        The DataItem object to be exported.
+    file : str
+        The absolute or relative path to the file in which the DataItem object
+        will be exported.
+
+    Returns
+    -------
+    None
+    """
     file_exporter(file, dataitem.to_dict())
 
 

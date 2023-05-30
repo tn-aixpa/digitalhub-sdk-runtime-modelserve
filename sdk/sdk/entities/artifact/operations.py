@@ -3,8 +3,8 @@ Artifact module.
 """
 
 from sdk.client.client import Client
-from sdk.utils.utils import get_uiid
 from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
+from sdk.entities.artifact.artifact import Artifact
 
 
 API_CREATE = "/api/v1/artifacts"
@@ -13,79 +13,6 @@ API_DELETE = "/api/v1/artifacts/{}"
 API_READ_ALL = "/api/v1/artifacts"
 
 OBJ_ATTR = ["project", "key", "path"]
-
-
-class Artifact:
-    """
-    A class representing a artifact.
-    """
-
-    def __init__(
-        self,
-        project: str,
-        key: str,
-        path: str,
-    ) -> None:
-        """Initialize the Artifact instance."""
-        self.project = project
-        self.key = key
-        self.path = path
-        self.id = get_uiid()
-
-    def save(self, client: Client, overwrite: bool = False) -> dict:
-        """
-        Save artifact into backend.
-
-        Returns
-        -------
-        dict
-            Mapping representaion of Artifact from backend.
-
-        """
-        try:
-            # todo remove name
-            dict_ = {
-                "name": self.id,
-                "project": self.project,
-                "kind": None,
-                "spec": {
-                    "type": "artifact",
-                    "target": self.key,
-                    "source": self.path,
-                },
-                "type": None,
-            }
-            return client.create_object(dict_, API_CREATE)
-        except KeyError:
-            raise Exception("Artifact already present in the backend.")
-
-    def download(self, reader) -> str: ...
-
-    def upload(self, writer) -> str: ...
-
-    def to_dict(self) -> dict:
-        """
-        Return object to dict.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the Artifact instance.
-
-        """
-        return {k: v for k, v in self.__dict__.items() if v is not None}
-
-    def __repr__(self) -> str:
-        """
-        Return string representation of the artifact object.
-
-        Returns
-        -------
-        str
-            A string representing the Artifact instance.
-
-        """
-        return str(self.to_dict())
 
 
 def create_artifact(
@@ -154,10 +81,39 @@ def delete_artifact(client: Client, key: str) -> None:
 
 
 def import_artifact(file: str) -> Artifact:
+    """
+    Import an Artifact object from a file using the specified file path.
+
+    Parameters
+    ----------
+    file : str
+        The absolute or relative path to the file containing the Artifact object.
+
+    Returns
+    -------
+    Artifact
+        The Artifact object imported from the file using the specified path.
+
+    """
     return file_importer(file, Artifact, OBJ_ATTR)
 
 
 def export_artifact(artifact: Artifact, file: str) -> None:
+    """
+    Export the specified Artifact object to a file in the specified location.
+
+    Parameters
+    ----------
+    artifact : Artifact
+        The Artifact object to be exported.
+    file : str
+        The absolute or relative path to the file in which the Artifact object
+        will be exported.
+
+    Returns
+    -------
+    None
+    """
     file_exporter(file, artifact.to_dict())
 
 
