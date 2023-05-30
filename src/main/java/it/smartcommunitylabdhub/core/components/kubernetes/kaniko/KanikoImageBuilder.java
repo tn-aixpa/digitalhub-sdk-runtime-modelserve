@@ -53,7 +53,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class KanikoImageBuilder {
 
-        public static void buildDockerImage(KubernetesClient kubernetesClient, DockerBuildConfiguration buildConfig)
+        public static void buildDockerImage(
+                        KubernetesClient kubernetesClient,
+                        DockerBuildConfiguration buildConfig)
                         throws IOException {
                 // Generate the Dockerfile
                 String dockerFileContent = DockerfileGenerator.generateDockerfile(buildConfig);
@@ -83,6 +85,7 @@ public class KanikoImageBuilder {
                 KeyToPath keyToPath = new KeyToPath();
                 keyToPath.setKey(".dockerconfigjson");
                 keyToPath.setPath("config.json");
+
                 // Configure Kaniko build
                 Pod pod = new PodBuilder()
                                 .withNewMetadata().withName("kaniko-build-pod").endMetadata()
@@ -150,6 +153,12 @@ public class KanikoImageBuilder {
 
         }
 
+        /**
+         * Kaniko / Docker authentication.
+         * Is used to push the image built by kaniko on hub.docker.io
+         * 
+         * @return
+         */
         private static String getDockerConfigJson() {
                 // Replace with your Docker Hub credentials
                 String username = "ltrubbianifbk";

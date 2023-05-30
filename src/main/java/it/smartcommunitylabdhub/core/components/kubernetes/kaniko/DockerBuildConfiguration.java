@@ -15,8 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DockerBuildConfiguration {
-    private String sourcePath;
-    private String targetPath;
+    private String dockerTemplatePath;
+    private String dockerTargetPath;
     private String baseImage;
     private String entrypointCommand;
 

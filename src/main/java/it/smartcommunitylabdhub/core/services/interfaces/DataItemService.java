@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.DataItem;
 
 import java.util.List;
 

@@ -50,8 +50,8 @@ public class KanikoImageBuilderTest {
 
         // Create a sample DockerBuildConfiguration
         DockerBuildConfiguration buildConfig = new DockerBuildConfiguration();
-        buildConfig.setSourcePath(Path.of(basePath, kanikoSourcePath).toString());
-        buildConfig.setTargetPath(Path.of(basePath, kanikoTargetPath).toString());
+        buildConfig.setDockerTemplatePath(Path.of(basePath, kanikoSourcePath).toString());
+        buildConfig.setDockerTargetPath(Path.of(basePath, kanikoTargetPath).toString());
         buildConfig.setBaseImage("openjdk:11");
         buildConfig
                 .addCommand("WORKDIR /app")
