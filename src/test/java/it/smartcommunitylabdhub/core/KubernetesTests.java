@@ -7,13 +7,13 @@ import org.junit.Test;
 
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.server.mock.EnableKubernetesMockClient;
 
 @EnableKubernetesMockClient
 public class KubernetesTests {
-    KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+    KubernetesClient kubernetesClient = new KubernetesClientBuilder().build();
 
     @Test
     public void helloWorldJob() {

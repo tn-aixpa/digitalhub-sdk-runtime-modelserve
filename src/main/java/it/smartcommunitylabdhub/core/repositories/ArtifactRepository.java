@@ -12,4 +12,6 @@ public interface ArtifactRepository extends JpaRepository<Artifact, String> {
     List<Artifact> findByProject(String project);
 
     Page<Artifact> findAll(Pageable pageable);
+
+    Page<Artifact> findAllByProjectAndName(String project, String name, Pageable pageable);
 }

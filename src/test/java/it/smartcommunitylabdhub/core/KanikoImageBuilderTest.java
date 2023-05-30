@@ -1,21 +1,24 @@
 package it.smartcommunitylabdhub.core;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.server.mock.KubernetesServer;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import it.smartcommunitylabdhub.core.components.kubernetes.kaniko.DockerBuildConfiguration;
 import it.smartcommunitylabdhub.core.components.kubernetes.kaniko.KanikoImageBuilder;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 public class KanikoImageBuilderTest {
-    KubernetesClient client = new DefaultKubernetesClient();
 
     //////////////////////// TO USE THI BUILDER //////////////////////////////
     // HelloWorld.java deve essere messo in /config
@@ -31,20 +34,35 @@ public class KanikoImageBuilderTest {
     //
     //////////////////////////////////////
 
+    @Value("${kaniko.source.path}")
+    private String kanikoSourcePath;
+
+    @Value("${kaniko.target.path}")
+    private String kanikoTargetPath;
+
     @Test
     void testBuildDockerImage() throws IOException {
+
+        Config config = new ConfigBuilder().withApiVersion("v1").build();
+        KubernetesClient client = new KubernetesClientBuilder().withConfig(config).build();
+
+        String basePath = Paths.get(System.getProperty("user.dir")).getParent().toString();
+
         // Create a sample DockerBuildConfiguration
         DockerBuildConfiguration buildConfig = new DockerBuildConfiguration();
+        buildConfig.setSourcePath(Path.of(basePath, kanikoSourcePath).toString());
+        buildConfig.setTargetPath(Path.of(basePath, kanikoTargetPath).toString());
         buildConfig.setBaseImage("openjdk:11");
-        buildConfig.setAdditionalProperty("COPY", "HelloWorld.java /app");
-        buildConfig.setAdditionalProperty("WORKDIR", "/app");
-        buildConfig.setAdditionalProperty("RUN", "javac HelloWorld.java");
-        buildConfig.setEntrypointCommand("java HelloWorld");
+        buildConfig
+                .addCommand("WORKDIR /app")
+                .addCommand("COPY . /app")
+                .addCommand("RUN javac ./HelloWorld.java");
+        buildConfig.setEntrypointCommand("\"java\", \"HelloWorld\"");
 
         // Invoke the buildDockerImage method
         KanikoImageBuilder.buildDockerImage(client, buildConfig);
 
-        // Assert that the Pod and ConfigMap are created
+        // Assert th`at the Pod and ConfigMap are created
         assertEquals(1, client.pods().inNamespace("default").list().getItems().size());
         assertEquals(1, client.configMaps().inNamespace("default").list().getItems().size());
 

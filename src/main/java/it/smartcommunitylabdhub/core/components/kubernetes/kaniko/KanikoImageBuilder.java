@@ -2,24 +2,29 @@ package it.smartcommunitylabdhub.core.components.kubernetes.kaniko;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
-import io.fabric8.kubernetes.api.model.ConfigMapVolumeSource;
+import io.fabric8.kubernetes.api.model.EnvVarBuilder;
+import io.fabric8.kubernetes.api.model.KeyToPath;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
-import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
-import io.fabric8.kubernetes.api.model.storage.VolumeAttachmentSourceFluentImpl;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.PodResource;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 //////////////////////// TO USE THI BUILDER //////////////////////////////
-// HelloWorld.java deve essere messo in /config
+// HelloWorld.java deve essere messo in /target path
 //
 // FROM {{baseImage}}
 //
@@ -53,9 +58,12 @@ public class KanikoImageBuilder {
                 // Generate the Dockerfile
                 String dockerFileContent = DockerfileGenerator.generateDockerfile(buildConfig);
 
+                String javaFile = Files.readString(
+                                Path.of("/home/ltrubbiani/Labs/digitalhub-core/kubernetes/target/HelloWorld.java"));
                 // Create config map
                 ConfigMap configMap = new ConfigMapBuilder()
                                 .addToData("Dockerfile", dockerFileContent)
+                                .addToData("HelloWorld.java", javaFile) // Test purpose
                                 .withNewMetadata()
                                 .withName("kaniko-config-map")
                                 .endMetadata()
@@ -63,47 +71,55 @@ public class KanikoImageBuilder {
 
                 kubernetesClient.resource(configMap).inNamespace("default").create();
 
-                // Create the Docker Hub Secret
-                Map<String, String> dockerHubAuthData = new HashMap<>();
-                dockerHubAuthData.put("username", "ltrubbianifbk");
-                dockerHubAuthData.put("password", "aa2gcCBFys4UTx4");
-
-                Secret dockerHubSecret = new SecretBuilder()
-                                .withNewMetadata().withName("dockerhub-secret").endMetadata()
-                                .withType("kubernetes.io/basic-auth")
-                                .addToData(dockerHubAuthData)
+                Secret dockerHubSecret = new SecretBuilder().withNewMetadata()
+                                .withName("dockerhub-secret")
+                                .endMetadata()
+                                .withType("kubernetes.io/dockerconfigjson")
+                                .addToData(".dockerconfigjson", getDockerConfigJson())
                                 .build();
 
                 kubernetesClient.resource(dockerHubSecret).inNamespace("default").create();
 
+                KeyToPath keyToPath = new KeyToPath();
+                keyToPath.setKey(".dockerconfigjson");
+                keyToPath.setPath("config.json");
                 // Configure Kaniko build
                 Pod pod = new PodBuilder()
                                 .withNewMetadata().withName("kaniko-build-pod").endMetadata()
                                 .withNewSpec()
-                                .addNewVolume()
-                                .withName("config-volume")
+
+                                // Kaniko Config
+                                .addNewVolume().withName("kaniko-config")
                                 .withNewConfigMap()
                                 .withName("kaniko-config-map")
                                 .endConfigMap()
                                 .endVolume()
-                                .addNewVolume()
-                                .withName("secret-volume")
+
+                                // Kaniko Secret
+                                .addNewVolume().withName("kaniko-secret")
                                 .withNewSecret()
-                                .withSecretName("dockerhub-secret")
+                                .withSecretName("dockerhub-secret").withItems(
+                                                keyToPath)
                                 .endSecret()
                                 .endVolume()
                                 .addNewContainer()
                                 .withName("kaniko-container")
-                                .withImage("gcr.io/kaniko-project/executor:v1.6.0")
-                                .addNewEnv().withName("DOCKER_CONFIG").withValue("/kaniko/.docker").endEnv()
+                                .withImage("gcr.io/kaniko-project/executor:latest")
                                 .withVolumeMounts(
-                                                new VolumeMountBuilder().withName("config-volume")
-                                                                .withMountPath("/config").build(),
-                                                new VolumeMountBuilder().withName("secret-volume")
+                                                new VolumeMountBuilder()
+                                                                .withName("kaniko-config")
+                                                                .withMountPath("/build").build(),
+                                                new VolumeMountBuilder()
+                                                                .withName("kaniko-secret")
                                                                 .withMountPath("/kaniko/.docker").build())
+                                .withEnv(new EnvVarBuilder().withName("DOCKER_CONFIG")
+                                                .withValue("/kaniko/.docker")
+                                                .build())
+
                                 .withCommand("/kaniko/executor")
-                                .withArgs("--dockerfile=/config/Dockerfile", "--context=/config",
-                                                "--destination=docker.io/ltrubbiani/hello-java:latest")
+                                .withArgs("--dockerfile=/build/Dockerfile",
+                                                "--context=/build",
+                                                "--destination=ltrubbianifbk/hello-world:latest")
                                 .endContainer()
                                 .withRestartPolicy("Never")
                                 .endSpec()
@@ -119,7 +135,7 @@ public class KanikoImageBuilder {
                                 .withName("kaniko-build-pod");
 
                 try {
-                        podResource.waitUntilCondition(p -> p.getStatus().getPhase().equals("Succeeded"), 10,
+                        podResource.waitUntilCondition(p -> p.getStatus().getPhase().equals("Succeeded"), 2,
                                         TimeUnit.MINUTES);
                         System.out.println("Docker image build completed successfully.");
                 } catch (Exception e) {
@@ -127,9 +143,40 @@ public class KanikoImageBuilder {
                 }
 
                 // Cleanup the Pod, ConfigMap, and Secret
-                podResource.delete();
+
+                // podResource.delete();
                 kubernetesClient.configMaps().inNamespace("default").withName("kaniko-config-map").delete();
                 kubernetesClient.secrets().inNamespace("default").withName("dockerhub-secret").delete();
 
+        }
+
+        private static String getDockerConfigJson() {
+                // Replace with your Docker Hub credentials
+                String username = "ltrubbianifbk";
+                String password = "aa2gcCBFys4UTx4";
+                String email = "ltrubbiani@fbk.eu";
+
+                // Create the Docker config JSON
+                Map<String, Object> auths = new HashMap<>();
+                Map<String, String> auth = new HashMap<>();
+                auth.put("username", username);
+                auth.put("password", password);
+                auth.put("email", email);
+                auth.put("auth", Base64.getEncoder().encodeToString((username + ":" + password).getBytes()));
+                auths.put("https://index.docker.io/v1/", auth);
+
+                Map<String, Object> configData = new HashMap<>();
+                configData.put("auths", auths);
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json;
+                try {
+                        json = objectMapper.writeValueAsString(configData);
+                } catch (JsonProcessingException e) {
+                        throw new RuntimeException("Failed to create Docker config JSON.", e);
+                }
+
+                // Base64 encode the JSON
+                return Base64.getEncoder().encodeToString(json.getBytes());
         }
 }

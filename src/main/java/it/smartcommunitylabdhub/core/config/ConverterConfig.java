@@ -8,6 +8,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConverterFactoryImpl;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.ConverterFactory;
 import it.smartcommunitylabdhub.core.models.converters.types.ArtifactConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.CBORConverter;
+import it.smartcommunitylabdhub.core.models.converters.types.DataItemConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.FunctionConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.IntegerConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.LogConverter;
@@ -25,6 +26,7 @@ public class ConverterConfig {
         // Register converter
         factory.registerConverter("function", FunctionConverter::new);
         factory.registerConverter("artifact", ArtifactConverter::new);
+        factory.registerConverter("dataitem", DataItemConverter::new);
         factory.registerConverter("workflow", WorkflowConverter::new);
         factory.registerConverter("project", ProjectConverter::new);
         factory.registerConverter("cbor", CBORConverter::new);
