@@ -173,11 +173,12 @@ public class KanikoImageBuilder {
                                 .inNamespace("default")
                                 .withName("kaniko-build-job");
 
-                try {
-                        Thread.sleep(15000); // Adjust the delay as needed
-                } catch (InterruptedException e) {
-                        e.printStackTrace();
-                }
+                // HACK: delay execution to check pod activities
+                // try {
+                // Thread.sleep(15000); // Adjust the delay as needed
+                // } catch (InterruptedException e) {
+                // e.printStackTrace();
+                // }
                 try {
                         jobResource.waitUntilCondition(
                                         j -> j.getStatus().getSucceeded() != null &&
