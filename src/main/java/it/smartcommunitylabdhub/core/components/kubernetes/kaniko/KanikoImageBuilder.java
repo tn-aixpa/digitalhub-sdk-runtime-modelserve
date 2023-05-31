@@ -8,9 +8,15 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
+import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
+import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
+import io.fabric8.kubernetes.api.model.batch.v1.Job;
+import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.fabric8.kubernetes.client.dsl.ScalableResource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,13 +59,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class KanikoImageBuilder {
 
+        // [x]: DONE! this builder work for FOLDER strategy building.
         public static void buildDockerImage(
                         KubernetesClient kubernetesClient,
                         DockerBuildConfiguration buildConfig)
                         throws IOException {
                 // Generate the Dockerfile
                 String dockerFileContent = DockerfileGenerator.generateDockerfile(buildConfig);
-
                 String javaFile = Files.readString(
                                 Path.of("/home/ltrubbiani/Labs/digitalhub-core/kubernetes/target/HelloWorld.java"));
                 // Create config map
@@ -87,9 +93,55 @@ public class KanikoImageBuilder {
                 keyToPath.setPath("config.json");
 
                 // Configure Kaniko build
-                Pod pod = new PodBuilder()
-                                .withNewMetadata().withName("kaniko-build-pod").endMetadata()
+                Job job = new JobBuilder()
+                                .withNewMetadata().withName("kaniko-build-job").endMetadata()
                                 .withNewSpec()
+                                .withNewTemplate()
+                                .withNewSpec()
+
+                                // Add Init container alpine
+                                .addNewInitContainer()
+                                .withName("kaniko-retrieve-data")
+                                .withImage("alpine:latest")
+                                .withVolumeMounts(
+                                                new VolumeMountBuilder()
+                                                                .withName("shared-dir")
+                                                                .withMountPath("/shared")
+                                                                .build())
+                                .withCommand("sh")
+                                .withArgs("-c", "wget " + buildConfig.getSharedData()
+                                                + " -O /shared/data.tgz && tar xf /shared/data.tgz -C /shared")
+                                .endInitContainer()
+
+                                // Add Kaniko container
+                                .addNewContainer()
+                                .withName("kaniko-container")
+                                .withImage("gcr.io/kaniko-project/executor:latest")
+                                .withVolumeMounts(
+                                                new VolumeMountBuilder()
+                                                                .withName("kaniko-config")
+                                                                .withMountPath("/build").build(),
+                                                new VolumeMountBuilder()
+                                                                .withName("kaniko-secret")
+                                                                .withMountPath("/kaniko/.docker").build(),
+                                                new VolumeMountBuilder()
+                                                                .withName("shared-dir")
+                                                                .withMountPath("/shared")
+                                                                .build())
+                                .withEnv(new EnvVarBuilder().withName("DOCKER_CONFIG")
+                                                .withValue("/kaniko/.docker")
+                                                .build())
+
+                                .withCommand("/kaniko/executor")
+                                .withArgs("--dockerfile=/build/Dockerfile",
+                                                "--context=/build",
+                                                "--destination=ltrubbianifbk/hello-world:latest")
+                                .endContainer()
+
+                                // COMMENT: SHARED VOLUME
+                                // Shared Volume
+                                .addNewVolume().withName("shared-dir")
+                                .endVolume()
 
                                 // Kaniko Config
                                 .addNewVolume().withName("kaniko-config")
@@ -101,53 +153,43 @@ public class KanikoImageBuilder {
                                 // Kaniko Secret
                                 .addNewVolume().withName("kaniko-secret")
                                 .withNewSecret()
-                                .withSecretName("dockerhub-secret").withItems(
-                                                keyToPath)
+                                .withSecretName("dockerhub-secret")
+                                .withItems(keyToPath)
                                 .endSecret()
                                 .endVolume()
-                                .addNewContainer()
-                                .withName("kaniko-container")
-                                .withImage("gcr.io/kaniko-project/executor:latest")
-                                .withVolumeMounts(
-                                                new VolumeMountBuilder()
-                                                                .withName("kaniko-config")
-                                                                .withMountPath("/build").build(),
-                                                new VolumeMountBuilder()
-                                                                .withName("kaniko-secret")
-                                                                .withMountPath("/kaniko/.docker").build())
-                                .withEnv(new EnvVarBuilder().withName("DOCKER_CONFIG")
-                                                .withValue("/kaniko/.docker")
-                                                .build())
 
-                                .withCommand("/kaniko/executor")
-                                .withArgs("--dockerfile=/build/Dockerfile",
-                                                "--context=/build",
-                                                "--destination=ltrubbianifbk/hello-world:latest")
-                                .endContainer()
+                                // Restart Policy
                                 .withRestartPolicy("Never")
+                                .endSpec()
+                                .endTemplate()
                                 .endSpec()
                                 .build();
 
                 // Create the Pod
-                kubernetesClient.resource(pod).inNamespace("default").create();
+                kubernetesClient.resource(job).inNamespace("default").create();
 
                 // Wait for the build to complete
-                PodResource podResource = kubernetesClient
-                                .pods()
+                ScalableResource<Job> jobResource = kubernetesClient.batch().v1().jobs()
                                 .inNamespace("default")
-                                .withName("kaniko-build-pod");
+                                .withName("kaniko-build-job");
 
                 try {
-                        podResource.waitUntilCondition(p -> p.getStatus().getPhase().equals("Succeeded"), 2,
-                                        TimeUnit.MINUTES);
+                        Thread.sleep(15000); // Adjust the delay as needed
+                } catch (InterruptedException e) {
+                        e.printStackTrace();
+                }
+                try {
+                        jobResource.waitUntilCondition(
+                                        j -> j.getStatus().getSucceeded() != null &&
+                                                        job.getStatus().getSucceeded() > 0,
+                                        10, TimeUnit.MINUTES);
                         System.out.println("Docker image build completed successfully.");
                 } catch (Exception e) {
                         System.out.println("Docker image build failed or timed out: " + e.getMessage());
                 }
 
                 // Cleanup the Pod, ConfigMap, and Secret
-
-                // podResource.delete();
+                jobResource.delete();
                 kubernetesClient.configMaps().inNamespace("default").withName("kaniko-config-map").delete();
                 kubernetesClient.secrets().inNamespace("default").withName("dockerhub-secret").delete();
 
@@ -157,7 +199,7 @@ public class KanikoImageBuilder {
          * Kaniko / Docker authentication.
          * Is used to push the image built by kaniko on hub.docker.io
          * 
-         * @return
+         * @return String
          */
         private static String getDockerConfigJson() {
                 // Replace with your Docker Hub credentials
@@ -188,4 +230,5 @@ public class KanikoImageBuilder {
                 // Base64 encode the JSON
                 return Base64.getEncoder().encodeToString(json.getBytes());
         }
+
 }

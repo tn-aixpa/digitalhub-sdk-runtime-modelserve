@@ -19,6 +19,7 @@ public class DockerBuildConfiguration {
     private String dockerTargetPath;
     private String baseImage;
     private String entrypointCommand;
+    private String sharedData;
 
     @Builder.Default
     private List<String> additionalCommands = new ArrayList<>();
