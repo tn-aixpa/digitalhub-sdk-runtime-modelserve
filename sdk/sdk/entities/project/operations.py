@@ -1,12 +1,13 @@
 from sdk.entities.project.project import Project
-from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
+from sdk.entities.utils import file_importer, delete_from_backend
 from sdk.client.client import Client
-
-
-API_CREATE = "/api/v1/projects"
-API_READ = "/api/v1/projects/{}"
-API_DELETE = "/api/v1/projects/{}"
-API_READ_ALL = "/api/v1/projects"
+from sdk.utils.common import (
+    API_READ_LATEST,
+    API_READ_VERSION,
+    API_DELETE_VERSION,
+    API_DELETE_ALL,
+    DTO_PROJ,
+)
 
 
 OBJ_ATTR = [
@@ -20,24 +21,30 @@ OBJ_ATTR = [
 
 
 def new_project(
-    client: Client,
     name: str,
     source: str = None,
     description: str = None,
+    client: Client = None,
+    local: bool = False,
+    filename: str = None,
 ) -> Project:
     """
     Create a new project and an execution context.
 
     Parameters
     ----------
-    client : Client
-        A Client object to interact with backend.
     name : str
         The name of the project to load.
     source : str, optional
-        The source of the project (eg. git://repo-url).
+        The source of the project (eg. remote git://repo-url, or local "./").
     description : str, optional
         The description of the project.
+    client : Client, optional
+        A Client object to interact with backend.
+    local : bool, optional
+        Flag to determine if object wil be saved locally.
+    filename : str, optional
+        Filename to export object.
 
     Returns
     -------
@@ -46,11 +53,19 @@ def new_project(
 
     """
     obj = Project(name, source, description)
-    obj.save(client)
+    if local:
+        obj.export(filename)
+    else:
+        obj.save(client)
     return obj
 
 
-def load_project(client: Client, name: str) -> Project:
+def load_project(
+    name: str,
+    client: Client = None,
+    local: bool = False,
+    filename: str = "project.yaml",
+) -> Project:
     """
     Load project and context from backend.
 
@@ -59,7 +74,11 @@ def load_project(client: Client, name: str) -> Project:
     client : Client
         Client to interact with backend.
     name : str
-        The name of the project to load.
+        The name of the project to load from backend.
+    filename : str
+        Path to file where to load project from.
+    local : bool
+        Flag to determine if project wil be executed locally.
 
     Returns
     -------
@@ -67,36 +86,13 @@ def load_project(client: Client, name: str) -> Project:
         A Project instance with its context.
 
     """
-    return get_project(client, name)
+    if local:
+        return import_project(filename)
+    else:
+        return get_project(client, name)
 
 
-def create_project(
-    name: str,
-    source: str = None,
-    description: str = None,
-) -> Project:
-    """
-    Create a Project instance with the given parameters.
-
-    Parameters
-    ----------
-    name : str
-        The name of the project to be created.
-    source : str, optional
-        The source of the project (eg. git://repo-url).
-    description : str, optional
-        The description of the project.
-
-    Returns
-    -------
-    Project
-        A new Project instance with the specified parameters.
-
-    """
-    return Project(name, source, description)
-
-
-def get_project(client: Client, name: str) -> Project:
+def get_project(client: Client, name: str, uuid: str = None) -> Project:
     """
     Retrieves project details from the backend.
 
@@ -106,6 +102,8 @@ def get_project(client: Client, name: str) -> Project:
         The client for DHUB backend.
     name : str
         The name of the project.
+    uuid : str, optional
+        UUID of project specific version.
 
     Returns
     -------
@@ -118,34 +116,18 @@ def get_project(client: Client, name: str) -> Project:
         If the specified project does not exist.
 
     """
-    name = get_id(name, client)
-    r = client.get_object(API_READ.format(name))
+    if uuid is not None:
+        api = API_READ_VERSION.format(name, DTO_PROJ, name, uuid)
+    else:
+        api = API_READ_LATEST.format(name, DTO_PROJ, name)
+
+    r = client.get_object(api)
     if "status" not in r:
         kwargs = {k: v for k, v in r.items() if k in OBJ_ATTR}
         project = Project(**kwargs)
         project.id = r["id"]
         return project
     raise KeyError(f"Project {name} does not exists.")
-
-
-def delete_project(client: Client, name: str) -> None:
-    """
-    Delete a project.
-
-    Parameters
-    ----------
-    client : Client
-        The client for DHUB backend.
-    name : str
-        The name of the project.
-
-    Returns
-    -------
-    None
-        This function does not return anything.
-    """
-    api = API_DELETE.format(get_id(name, client))
-    delete_from_backend(client, api)
 
 
 def import_project(file: str) -> Project:
@@ -166,27 +148,24 @@ def import_project(file: str) -> Project:
     return file_importer(file, Project, OBJ_ATTR)
 
 
-def export_project(project: Project, file: str) -> None:
+def delete_project(client: Client, name: str, uuid: str = None) -> None:
     """
-    Export the specified Project object to a file in the specified location.
+    Delete a project.
 
     Parameters
     ----------
-    project : Project
-        The Project object to be exported.
-    file : str
-        The absolute or relative path to the file in which the Project object
-        will be exported.
+    client : Client
+        The client for DHUB backend.
+    name : str
+        The name of the project.
 
     Returns
     -------
     None
+        This function does not return anything.
     """
-    file_exporter(file, project.to_dict())
-
-
-def get_id(name, client):
-    for i in client.get_object(API_READ_ALL):
-        if i["name"] == name:
-            return i["id"]
-    return name
+    if uuid is not None:
+        api = API_DELETE_VERSION.format(name, DTO_PROJ, name, uuid)
+    else:
+        api = API_DELETE_ALL.format(name, DTO_PROJ, name)
+    return delete_from_backend(client, api)

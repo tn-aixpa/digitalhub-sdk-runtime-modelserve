@@ -4,28 +4,61 @@ DataItem module.
 from sdk.client.client import Client
 from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
 from sdk.entities.dataitem.dataitem import DataItem
+from sdk.utils.common import (
+    API_READ_LATEST,
+    API_READ_VERSION,
+    API_DELETE_VERSION,
+    API_DELETE_ALL,
+    DTO_DTIT,
+)
 
-
-API_CREATE = "/api/v1/dataitems"
-API_READ = "/api/v1/dataitems/{}"
-API_DELETE = "/api/v1/dataitems/{}"
-API_READ_ALL = "/api/v1/dataitems"
 
 OBJ_ATTR = ["project", "key", "path"]
 
 
-def create_dataitem(
+def new_dataitem(
     project: str,
-    key: str,
-    path: str,
+    name: str,
+    key: str = None,
+    path: str = None,
+    client: Client = None,
+    local: bool = False,
+    filename: str = None
 ) -> DataItem:
     """
     Create an DataItem instance with the given parameters.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project associated with the dataitem.
+    name : str
+        Identifier of the dataitem.
+    key : str
+        Representation of artfact like store://etc..
+    path : str
+        Path to the dataitem on local file system or remote storage.
+    client : Client, optional
+        A Client object to interact with backend.
+    local : bool, optional
+        Flag to determine if object wil be saved locally.
+    filename : str, optional
+        Filename to export object.
+
+    Returns
+    -------
+    DataItem
+        Instance of the DataItem class representing the specified dataitem.
     """
-    return DataItem(project, key, path)
+    obj = DataItem(project, name, key, path)
+    if local:
+        obj.export(filename)
+    else:
+        obj.save(client)
+    return obj
 
 
-def get_dataitem(client: Client, key: str) -> DataItem:
+def get_dataitem(client: Client, project: str, name: str, uuid: str = None) -> DataItem:
     """
     Retrieves dataitem details from the backend.
 
@@ -33,8 +66,12 @@ def get_dataitem(client: Client, key: str) -> DataItem:
     ----------
     client : Client
         The client for DHUB backend.
-    key : str
-        The key of the dataitem.
+    project : str
+        Name of the project.
+    name : str
+        The name of the dataitem.
+    uuid : str, optional
+        UUID of dataitem specific version.
 
     Returns
     -------
@@ -47,36 +84,21 @@ def get_dataitem(client: Client, key: str) -> DataItem:
         If the specified dataitem does not exist.
 
     """
-    key = get_id(key, client)
-    r = client.get_object(API_READ.format(key))
+    if uuid is not None:
+        api = API_READ_VERSION.format(project, DTO_DTIT, name, uuid)
+    else:
+        api = API_READ_LATEST.format(project, DTO_DTIT, name)
+
+    r = client.get_object(api)
     if "status" not in r:
         kwargs = {
             "project": r.get("project"),
+            "name": r.get("name"),
             "key": r.get("spec", {}).get("target"),
             "path": r.get("spec", {}).get("source"),
         }
         return DataItem(**kwargs)
-    raise KeyError(f"DataItem {key} does not exists.")
-
-
-def delete_dataitem(client: Client, key: str) -> None:
-    """
-    Delete a dataitem from backend.
-
-    Parameters
-    ----------
-    client : Client
-        The client for DHUB backend.
-    key : str
-        The key of the dataitem.
-
-    Returns
-    -------
-    None
-        This function does not return anything.
-    """
-    api = API_DELETE.format(get_id(key, client))
-    delete_from_backend(client, api)
+    raise KeyError(f"DataItem {name} does not exists.")
 
 
 def import_dataitem(file: str) -> DataItem:
@@ -97,27 +119,29 @@ def import_dataitem(file: str) -> DataItem:
     return file_importer(file, DataItem, OBJ_ATTR)
 
 
-def export_dataitem(dataitem: DataItem, file: str) -> None:
+def delete_dataitem(client: Client, project: str, name: str, uuid: str = None) -> None:
     """
-    Export the specified DataItem object to a file in the specified location.
+    Delete a dataitem from backend.
 
     Parameters
     ----------
-    dataitem : DataItem
-        The DataItem object to be exported.
-    file : str
-        The absolute or relative path to the file in which the DataItem object
-        will be exported.
+    client : Client
+        The client for DHUB backend.
+    project : str
+        Name of the project.
+    name : str
+        The name of the dataitem.
+    uuid : str, optional
+        UUID of dataitem specific version.
 
     Returns
     -------
     None
+        This function does not return anything.
     """
-    file_exporter(file, dataitem.to_dict())
+    if uuid is not None:
+        api = API_DELETE_VERSION.format(project, DTO_DTIT, name, uuid)
+    else:
+        api = API_DELETE_ALL.format(project, DTO_DTIT, name)
+    return delete_from_backend(client, api)
 
-
-def get_id(key, client):
-    for i in client.get_object(API_READ_ALL):
-        if i["spec"]["target"] == key:
-            key = i["id"]
-    return key

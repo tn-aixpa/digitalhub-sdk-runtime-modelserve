@@ -1,12 +1,13 @@
 from sdk.client.client import Client
 from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
 from sdk.entities.function.function import Function
-
-
-API_CREATE = "/api/v1/functions"
-API_READ = "/api/v1/functions/{}"
-API_DELETE = "/api/v1/functions/{}"
-API_READ_ALL = "/api/v1/functions"
+from sdk.utils.common import (
+    API_READ_LATEST,
+    API_READ_VERSION,
+    API_DELETE_VERSION,
+    API_DELETE_ALL,
+    DTO_FUNC,
+)
 
 OBJ_ATTR = [
     "project",
@@ -19,22 +20,58 @@ OBJ_ATTR = [
 ]
 
 
-def create_function(
+def new_function(
     project: str,
-    name: str = None,
+    name: str,
     kind: str = None,
     source: str = None,
     image: str = None,
     tag: str = None,
     handler: str = None,
+    client: Client = None,
+    local: bool = False,
+    filename: str = None,
 ) -> Function:
     """
     Create a Function instance with the given parameters.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+    name : str
+        Identifier of the Function.
+    kind : str, optional
+        The type of the Function.
+    source : str, optional
+        Path to the Function's source code on the local file system or remote storage.
+    image : str, optional
+        Name of the Function's Docker image.
+    tag : str, optional
+        Tag of the Function's Docker image.
+    handler : str, optional
+        Function handler name.
+    client : Client, optional
+        A Client object to interact with backend.
+    local : bool, optional
+        Flag to determine if object wil be saved locally.
+    filename : str, optional
+        Filename to export object.
+
+    Returns
+    -------
+    Function
+        Instance of the Function class representing the specified function.
     """
-    return Function(project, name, kind, source, image, tag, handler)
+    obj = Function(project, name, kind, source, image, tag, handler)
+    if local:
+        obj.export(filename)
+    else:
+        obj.save(client)
+    return obj
 
 
-def get_function(client: Client, name: str) -> Function:
+def get_function(client: Client, project: str, name: str, uuid: str = None) -> Function:
     """
     Retrieves function details from the backend.
 
@@ -42,8 +79,12 @@ def get_function(client: Client, name: str) -> Function:
     ----------
     client : Client
         The client for DHUB backend.
+    project : str
+        Name of the project.
     name : str
         The name of the function.
+    uuid : str, optional
+        UUID of function specific version.
 
     Returns
     -------
@@ -56,40 +97,24 @@ def get_function(client: Client, name: str) -> Function:
         If the specified function does not exist.
 
     """
-    key = get_id(name, client)
-    r = client.get_object(API_READ.format(key))
+    if uuid is not None:
+        api = API_READ_VERSION.format(project, DTO_FUNC, name, uuid)
+    else:
+        api = API_READ_LATEST.format(project, DTO_FUNC, name)
+
+    r = client.get_object(api)
     if "status" not in r:
         kwargs = {
             "project": r.get("project"),
-            "kind": r.get("kind"),
             "name": r.get("name"),
+            "kind": r.get("kind"),
             "source": r.get("spec", {}).get("source"),
             "image": r.get("spec", {}).get("image"),
             "tag": r.get("spec", {}).get("tag"),
             "handler": r.get("spec", {}).get("handler"),
         }
         return Function(**kwargs)
-    raise KeyError(f"Function {key} does not exists.")
-
-
-def delete_function(client: Client, name: str) -> None:
-    """
-    Delete a function.
-
-    Parameters
-    ----------
-    client : Client
-        The client for DHUB backend.
-    name : str
-        The name of the function.
-
-    Returns
-    -------
-    None
-        This function does not return anything.
-    """
-    api = API_DELETE.format(get_id(name, client))
-    delete_from_backend(client, api)
+    raise KeyError(f"Function {name} does not exists.")
 
 
 def import_function(file: str) -> Function:
@@ -110,27 +135,28 @@ def import_function(file: str) -> Function:
     return file_importer(file, Function, OBJ_ATTR)
 
 
-def export_function(function: Function, file: str) -> None:
+def delete_function(client: Client, project: str, name: str, uuid: str = None) -> None:
     """
-    Export the specified Function object to a file in the specified location.
+    Delete a function.
 
     Parameters
     ----------
-    function : Function
-        The Function object to be exported.
-    file : str
-        The absolute or relative path to the file in which the Function object
-        will be exported.
+    client : Client
+        The client for DHUB backend.
+    project : str
+        Name of the project.
+    name : str
+        The name of the function.
+    uuid : str, optional
+        UUID of function specific version.
 
     Returns
     -------
     None
+        This function does not return anything.
     """
-    file_exporter(file, function.to_dict())
-
-
-def get_id(key, client):
-    for i in client.get_object(API_READ_ALL):
-        if i["name"] == key:
-            key = i["id"]
-    return key
+    if uuid is not None:
+        api = API_DELETE_VERSION.format(project, DTO_FUNC, name, uuid)
+    else:
+        api = API_DELETE_ALL.format(project, DTO_FUNC, name)
+    return delete_from_backend(client, api)

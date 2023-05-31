@@ -3,7 +3,7 @@ Client module.
 """
 import requests
 
-from sdk.models.models import DHCoreConfig
+from sdk.models.models import DHCoreConfig, StoreConfig
 from sdk.utils.utils import get_env_dhub_cfg, get_env_store_cfg
 
 

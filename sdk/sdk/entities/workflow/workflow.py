@@ -6,14 +6,13 @@ from sdk.client.client import Client
 from sdk.utils.utils import get_uiid
 from sdk.entities.run.run import Run
 from sdk.entities.base_entity import Entity
+from sdk.utils.common import API_CREATE, DTO_WKFL
 
 
 class Workflow(Entity):
     """
     A class representing a workflow.
     """
-
-    API_CREATE = "/api/v1/workflows"
 
     def __init__(
         self, project: str, name: str = None, kind: str = None, spec: dict = None
@@ -24,6 +23,7 @@ class Workflow(Entity):
         self.kind = kind
         self.spec = spec if spec is not None else {}
         self.id = get_uiid()
+        self._api_create = API_CREATE.format(self.name, DTO_WKFL)
 
     def save(self, client: Client, overwrite: bool = False) -> dict:
         """
@@ -35,16 +35,31 @@ class Workflow(Entity):
             Mapping representaion of Workflow from backend.
 
         """
-        try:
-            dict_ = {
-                "name": self.name,
-                "project": self.project,
-                "kind": self.kind,
-                "spec": self.spec,
-            }
-            return client.create_object(dict_, self.API_CREATE)
-        except KeyError:
-            raise Exception("Workflow already present in the backend.")
+        obj = {
+            "name": self.name,
+            "project": self.project,
+            "kind": self.kind,
+            "spec": self.spec,
+        }
+        return self.save_object(client, obj, self._api_create, overwrite)
+
+    def export(self, filename: str = None) -> None:
+        """
+        Export object as a YAML file.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Name of the export YAML file. If not specified, the default value is used.
+
+        Returns
+        -------
+        None
+
+        """
+        obj = self.to_dict()
+        filename = filename if filename is not None else f"workflow_{self.name}.yaml"
+        return self.export_object(filename, obj)
 
     def run(self) -> "Run":
         ...

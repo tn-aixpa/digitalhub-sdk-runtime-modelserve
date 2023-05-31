@@ -3,14 +3,16 @@ Workflow module.
 """
 
 from sdk.client.client import Client
-from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
+from sdk.entities.utils import file_importer, delete_from_backend
 from sdk.entities.workflow.workflow import Workflow
+from sdk.utils.common import (
+    API_READ_LATEST,
+    API_READ_VERSION,
+    API_DELETE_VERSION,
+    API_DELETE_ALL,
+    DTO_WKFL,
+)
 
-
-API_CREATE = "/api/v1/workflows"
-API_READ = "/api/v1/workflows/{}"
-API_DELETE = "/api/v1/workflows/{}"
-API_READ_ALL = "/api/v1/workflows"
 
 OBJ_ATTR = [
     "project",
@@ -21,9 +23,12 @@ OBJ_ATTR = [
 
 def create_workflow(
     project: str,
-    name: str = None,
+    name: str,
     kind: str = None,
     spec: dict = None,
+    client: Client = None,
+    local: bool = False,
+    filename: str = None,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -32,12 +37,18 @@ def create_workflow(
     ----------
     project : str
         A string representing the project associated with this workflow.
-    name : str, optional
-        A string representing the name of the workflow.
+    name : str
+        The name of the workflow.
     kind : str, optional
         The kind of the workflow.
     spec : dict, optional
         The specification for the workflow.
+    client : Client, optional
+        A Client object to interact with backend.
+    local : bool, optional
+        Flag to determine if object wil be saved locally.
+    filename : str, optional
+        Filename to export object.
 
     Returns
     -------
@@ -45,10 +56,15 @@ def create_workflow(
         An instance of the created workflow.
 
     """
-    return Workflow(project, name, kind, spec)
+    obj = Workflow(project, name, kind, spec)
+    if local:
+        obj.export(filename)
+    else:
+        obj.save(client)
+    return obj
 
 
-def get_workflow(client: Client, name: str) -> Workflow:
+def get_workflow(client: Client, project: str, name: str, uuid: str = None) -> Workflow:
     """
     Retrieves workflow details from the backend.
 
@@ -56,8 +72,12 @@ def get_workflow(client: Client, name: str) -> Workflow:
     ----------
     client : Client
         The client for DHUB backend.
+    project : str
+        Name of the project.
     name : str
         The name of the workflow.
+    uuid : str, optional
+        UUID of workflow specific version.
 
     Returns
     -------
@@ -70,8 +90,12 @@ def get_workflow(client: Client, name: str) -> Workflow:
         If the specified workflow does not exist.
 
     """
-    key = get_id(name, client)
-    r = client.get_object(API_READ.format(key))
+    if uuid is not None:
+        api = API_READ_VERSION.format(project, DTO_WKFL, name, uuid)
+    else:
+        api = API_READ_LATEST.format(project, DTO_WKFL, name)
+
+    r = client.get_object(api)
     if "status" not in r:
         kwargs = {
             "project": r.get("project"),
@@ -80,27 +104,7 @@ def get_workflow(client: Client, name: str) -> Workflow:
             "spec": r.get("spec"),
         }
         return Workflow(**kwargs)
-    raise KeyError(f"Workflow {key} does not exists.")
-
-
-def delete_workflow(client: Client, name: str) -> None:
-    """
-    Delete a workflow.
-
-    Parameters
-    ----------
-    client : Client
-        The client for DHUB backend.
-    name : str
-        The name of the workflow.
-
-    Returns
-    -------
-    None
-        This function does not return anything.
-    """
-    api = API_DELETE.format(get_id(name, client))
-    delete_from_backend(client, api)
+    raise KeyError(f"Workflow {name} does not exists.")
 
 
 def import_workflow(file: str) -> Workflow:
@@ -121,27 +125,28 @@ def import_workflow(file: str) -> Workflow:
     return file_importer(file, Workflow, OBJ_ATTR)
 
 
-def export_workflow(workflow: Workflow, file: str) -> None:
+def delete_workflow(client: Client, project: str, name: str, uuid: str = None) -> None:
     """
-    Export the specified Workflow object to a file in the specified location.
+    Delete a workflow.
 
     Parameters
     ----------
-    workflow : Workflow
-        The Workflow object to be exported.
-    file : str
-        The absolute or relative path to the file in which the Workflow object
-        will be exported.
+    client : Client
+        The client for DHUB backend.
+    project : str
+        Name of the project.
+    name : str
+        The name of the workflow.
+    uuid : str, optional
+        UUID of workflow specific version.
 
     Returns
     -------
     None
+        This function does not return anything.
     """
-    file_exporter(file, workflow.to_dict())
-
-
-def get_id(key, client):
-    for i in client.get_object(API_READ_ALL):
-        if i["name"] == key:
-            key = i["id"]
-    return key
+    if uuid is not None:
+        api = API_DELETE_VERSION.format(project, DTO_WKFL, name, uuid)
+    else:
+        api = API_DELETE_ALL.format(project, DTO_WKFL, name)
+    return delete_from_backend(client, api)

@@ -9,6 +9,7 @@ from sdk.entities.function.function import Function
 from sdk.entities.function.operations import delete_function
 from sdk.entities.workflow.workflow import Workflow
 from sdk.entities.workflow.operations import delete_workflow
+from sdk.utils.common import API_CREATE, DTO_PROJ
 
 
 class Project(Entity):
@@ -52,12 +53,10 @@ class Project(Entity):
 
     """
 
-    API_CREATE = "/api/v1/projects"
-
     def __init__(
         self,
         name: str,
-        source: str = "",
+        source: str = "./",
         description: str = "",
         functions: list = None,
         artifacts: list = None,
@@ -72,6 +71,8 @@ class Project(Entity):
         self.workflows = workflows if workflows is not None else []
         self.id = None
 
+        self._api_create = API_CREATE.format(self.name, DTO_PROJ)
+
     def save(self, client: Client, overwrite: bool = False) -> dict:
         """
         Save project and context into backend.
@@ -82,12 +83,26 @@ class Project(Entity):
             Mapping representaion of Project from backend.
 
         """
-        try:
-            r = client.create_object(self.to_dict(), self.API_CREATE)
-            self.id = r["id"]
-            return r
-        except KeyError:
-            raise Exception("Project already present in the backend.")
+        obj = self.to_dict()
+        return self.save_object(client, obj, self._api_create, overwrite)
+
+    def export(self, filename: str = None) -> None:
+        """
+        Export object as a YAML file.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Name of the export YAML file. If not specified, the default value is used.
+
+        Returns
+        -------
+        None
+
+        """
+        obj = self.to_dict()
+        filename = filename if filename is not None else f"project.yaml"
+        return self.export_object(filename, obj)
 
     def set_artifact(self, client: Client, artifact: Artifact) -> dict:
         r = artifact.save(client)

@@ -5,6 +5,7 @@ Artifact object module.
 from sdk.client.client import Client
 from sdk.utils.utils import get_uiid
 from sdk.entities.base_entity import Entity
+from sdk.utils.common import API_CREATE, DTO_ARTF
 
 
 class Artifact(Entity):
@@ -12,18 +13,20 @@ class Artifact(Entity):
     A class representing a artifact.
     """
 
-    API_CREATE = "/api/v1/artifacts"
-
     def __init__(
         self,
         project: str,
-        key: str,
-        path: str,
+        name: str,
+        key: str = None,
+        path: str = None,
     ) -> None:
+        """Initialize the Artifact instance."""
         self.project = project
+        self.name = name
         self.key = key
         self.path = path
         self.id = get_uiid()
+        self._api_create = API_CREATE.format(self.name, DTO_ARTF)
 
     def save(self, client: Client, overwrite: bool = False) -> dict:
         """
@@ -35,21 +38,36 @@ class Artifact(Entity):
             Mapping representaion of Artifact from backend.
 
         """
-        try:
-            dict_ = {
-                "name": self.id,
-                "project": self.project,
-                "kind": "",
-                "spec": {
-                    "type": "artifact",
-                    "target": self.key,
-                    "source": self.path,
-                },
-                "type": "",
-            }
-            return client.create_object(dict_, self.API_CREATE)
-        except KeyError:
-            raise Exception("Artifact already present in the backend.")
+        obj = {
+            "name": self.name,
+            "project": self.project,
+            "kind": "",
+            "spec": {
+                "type": "artifact",
+                "target": self.key,
+                "source": self.path,
+            },
+            "type": "",
+        }
+        return self.save_object(client, obj, self._api_create, overwrite)
+
+    def export(self, filename: str = None) -> None:
+        """
+        Export object as a YAML file.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Name of the export YAML file. If not specified, the default value is used.
+
+        Returns
+        -------
+        None
+
+        """
+        obj = self.to_dict()
+        filename = filename if filename is not None else f"artifact_{self.name}.yaml"
+        return self.export_object(filename, obj)
 
     def download(self, reader) -> str:
         ...
