@@ -258,7 +258,10 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
                 this.artifactRepository.deleteByProjectAndNameAndId(projectName, artifactName, uuid);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "ArtifactNotFound",
+                    "The artifact you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",
@@ -275,7 +278,10 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
                 this.artifactRepository.deleteByProjectAndName(projectName, artifactName);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "ArtifactNotFound",
+                    "The artifacts you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",

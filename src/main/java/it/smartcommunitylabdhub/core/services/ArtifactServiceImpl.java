@@ -131,8 +131,14 @@ public class ArtifactServiceImpl implements ArtifactService {
     @Override
     public boolean deleteArtifact(String uuid) {
         try {
-            this.artifactRepository.deleteById(uuid);
-            return true;
+            if (this.artifactRepository.existsById(uuid)) {
+                this.artifactRepository.deleteById(uuid);
+                return true;
+            }
+            throw new CoreException(
+                    "ArtifactNotFound",
+                    "The artifact you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",

@@ -130,8 +130,14 @@ public class DataItemServiceImpl implements DataItemService {
     @Override
     public boolean deleteDataItem(String uuid) {
         try {
-            this.dataItemRepository.deleteById(uuid);
-            return true;
+            if (this.dataItemRepository.existsById(uuid)) {
+                this.dataItemRepository.deleteById(uuid);
+                return true;
+            }
+            throw new CoreException(
+                    "DataItemNotFound",
+                    "The dataItem you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",

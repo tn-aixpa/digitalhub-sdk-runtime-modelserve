@@ -138,8 +138,14 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Override
     public boolean deleteWorkflow(String uuid) {
         try {
-            this.workflowRepository.deleteById(uuid);
-            return true;
+            if (this.workflowRepository.existsById(uuid)) {
+                this.workflowRepository.deleteById(uuid);
+                return true;
+            }
+            throw new CoreException(
+                    "WorkflowNotFound",
+                    "The workflow you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",

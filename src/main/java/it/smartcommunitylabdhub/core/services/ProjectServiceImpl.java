@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.services.builders.dtos.ProjectDTOBuilder;
 import it.smartcommunitylabdhub.core.services.builders.entities.ProjectEntityBuilder;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -45,38 +47,24 @@ public class ProjectServiceImpl implements ProjectService {
         this.artifactRepository = artifactRepository;
         this.workflowRepository = workflowRepository;
         this.commandFactory = commandFactory;
-
     }
 
     @Override
-    public ProjectDTO getProject(String uuid) {
+    public ProjectDTO getProject(String uuidOrName) {
 
-        final Project project = projectRepository.findById(uuid).orElse(null);
-        if (project == null) {
-            throw new CoreException(
-                    "ProjectNotFound",
-                    "The project you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
+        return projectRepository.findById(uuidOrName)
+                .or(() -> projectRepository.findByName(uuidOrName))
+                .map(project -> {
+                    List<Function> functions = functionRepository.findByProject(project.getName());
+                    List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
+                    List<Workflow> workflows = workflowRepository.findByProject(project.getName());
 
-        try {
-            List<Function> functions = functionRepository.findByProject(project.getName());
-            List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
-            List<Workflow> workflows = workflowRepository.findByProject(project.getName());
-
-            return new ProjectDTOBuilder(
-                    commandFactory,
-                    project,
-                    artifacts,
-                    functions,
-                    workflows).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+                    return new ProjectDTOBuilder(commandFactory, project, artifacts, functions, workflows).build();
+                })
+                .orElseThrow(() -> new CoreException(
+                        "ProjectNotFound",
+                        "The project you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -101,168 +89,168 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
-        try {
-            // Build a project and store it on db
-            final Project project = new ProjectEntityBuilder(commandFactory, projectDTO).build();
-
-            if (this.projectRepository.existsByName(project.getId())) {
-                throw new CustomException("Cannot generate project with an existing project uuid", null);
-            }
-            this.projectRepository.save(project);
-
-            // Return project DTO
-            return new ProjectDTOBuilder(
-                    commandFactory,
-                    project,
-                    List.of(),
-                    List.of(),
-                    List.of()).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return Optional.of(new ProjectEntityBuilder(commandFactory, projectDTO).build())
+                .filter(project -> !projectRepository.existsByName(project.getId()))
+                .map(project -> {
+                    projectRepository.save(project);
+                    return new ProjectDTOBuilder(commandFactory, project, List.of(), List.of(), List.of()).build();
+                })
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Failed to generate the project.",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
 
     }
 
     @Override
-    public ProjectDTO updateProject(ProjectDTO projectDTO, String uuid) {
+    public ProjectDTO updateProject(ProjectDTO projectDTO, String uuidOrName) {
 
-        if (!projectDTO.getId().equals(uuid)) {
-            throw new CoreException(
-                    "ProjectNotMatch",
-                    "Trying to update a project with an uuid different from the one passed in the request.",
-                    HttpStatus.NOT_FOUND);
-        }
+        return Optional.ofNullable(projectDTO.getId())
+                .filter(id -> id.equals(uuidOrName))
+                .or(() -> Optional.ofNullable(projectDTO.getName())
+                        .filter(name -> name.equals(uuidOrName)))
+                .map(id -> projectRepository.findById(uuidOrName)
+                        .or(() -> projectRepository.findByName(uuidOrName))
+                        .orElseThrow(() -> new CoreException(
+                                "ProjectNotFound",
+                                "The project you are searching for does not exist.",
+                                HttpStatus.NOT_FOUND)))
+                .map(project -> {
+                    ProjectEntityBuilder projectBuilder = new ProjectEntityBuilder(commandFactory, projectDTO);
+                    final Project projectUpdated = projectBuilder.update(project);
+                    this.projectRepository.save(projectUpdated);
 
-        final Project project = projectRepository.findById(uuid).orElse(null);
-        if (project == null) {
-            throw new CoreException(
-                    "ProjectNotFound",
-                    "The project you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
+                    List<Function> functions = functionRepository.findByProject(projectUpdated.getName());
+                    List<Artifact> artifacts = artifactRepository.findByProject(projectUpdated.getName());
+                    List<Workflow> workflows = workflowRepository.findByProject(projectUpdated.getName());
 
-        try {
+                    return new ProjectDTOBuilder(commandFactory, projectUpdated, artifacts, functions, workflows)
+                            .build();
+                })
+                .orElseThrow(() -> new CoreException(
+                        "ProjectNotMatch",
+                        "Trying to update a project with a UUID different from the one passed in the request.",
+                        HttpStatus.NOT_FOUND));
 
-            ProjectEntityBuilder projectBuilder = new ProjectEntityBuilder(commandFactory, projectDTO);
-
-            final Project projectUpdated = projectBuilder.update(project);
-            this.projectRepository.save(projectUpdated);
-
-            // get functions, artifacts and worflows for current projects
-
-            List<Function> functions = functionRepository.findByProject(projectUpdated.getName());
-            List<Artifact> artifacts = artifactRepository.findByProject(projectUpdated.getName());
-            List<Workflow> workflows = workflowRepository.findByProject(projectUpdated.getName());
-
-            return new ProjectDTOBuilder(
-                    commandFactory,
-                    projectUpdated,
-                    artifacts,
-                    functions,
-                    workflows).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @Override
-    public boolean deleteProject(String uuid) {
-        try {
-            if (this.projectRepository.existsById(uuid)) {
-                this.projectRepository.deleteById(uuid);
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    "cannot delete project",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @Transactional
+    public boolean deleteProject(String uuidOrName) {
+        return Optional.ofNullable(uuidOrName)
+                .map(value -> {
+                    boolean deleted = false;
+                    if (projectRepository.existsById(value)) {
+                        projectRepository.deleteById(value);
+                        deleted = true;
+                    } else if (projectRepository.existsByName(value)) {
+                        projectRepository.deleteByName(value);
+                        deleted = true;
+                    }
+                    if (!deleted) {
+                        throw new CoreException(
+                                "ProjectNotFound",
+                                "The project you are trying to delete does not exist.",
+                                HttpStatus.NOT_FOUND);
+                    }
+                    return deleted;
+                })
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Cannot delete project",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override
-    public List<FunctionDTO> getProjectFunctions(String uuid) {
-        final Project project = projectRepository.findById(uuid).orElse(null);
-        if (project == null) {
-            throw new CoreException(
-                    "ProjectNotFound",
-                    "The project you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
+    public List<FunctionDTO> getProjectFunctions(String uuidOrName) {
+        return Optional.ofNullable(projectRepository.findById(uuidOrName)
+                .or(() -> projectRepository.findByName(uuidOrName)))
+                .orElseThrow(() -> new CoreException(
+                        "ProjectNotFound",
+                        "The project you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND))
+                .map(Project::getName)
+                .flatMap(projectName -> {
+                    try {
+                        List<Function> functions = functionRepository.findByProject(projectName);
+                        return Optional.of((List<FunctionDTO>) ConversionUtils.reverseIterable(
+                                functions,
+                                commandFactory,
+                                "function",
+                                FunctionDTO.class));
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error occurred while retrieving functions.",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
 
-        try {
-            List<Function> functions = functionRepository.findByProject(project.getName());
-            return (List<FunctionDTO>) ConversionUtils.reverseIterable(functions,
-                    commandFactory,
-                    "function",
-                    FunctionDTO.class);
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @Override
-    public List<ArtifactDTO> getProjectArtifacts(String uuid) {
-        final Project project = projectRepository.findById(uuid).orElse(null);
-        if (project == null) {
-            throw new CoreException(
-                    "ProjectNotFound",
-                    "The project you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
+    public List<ArtifactDTO> getProjectArtifacts(String uuidOrName) {
+        return Optional.ofNullable(projectRepository.findById(uuidOrName)
+                .or(() -> projectRepository.findByName(uuidOrName)))
+                .orElseThrow(() -> new CoreException(
+                        "ProjectNotFound",
+                        "The project you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND))
+                .map(Project::getName)
+                .flatMap(projectName -> {
+                    try {
+                        List<Artifact> artifacts = artifactRepository.findByProject(projectName);
+                        return Optional.of((List<ArtifactDTO>) ConversionUtils.reverseIterable(
+                                artifacts,
+                                commandFactory,
+                                "artifact",
+                                ArtifactDTO.class));
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error occurred while retrieving artifacts.",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
 
-        try {
-            List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
-
-            return (List<ArtifactDTO>) ConversionUtils.reverseIterable(artifacts,
-                    commandFactory,
-                    "artifact",
-                    ArtifactDTO.class);
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @Override
-    public List<WorkflowDTO> getProjectWorkflows(String uuid) {
-        final Project project = projectRepository.findById(uuid).orElse(null);
-        if (project == null) {
-            throw new CoreException(
-                    "ProjectNotFound",
-                    "The project you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-            List<Workflow> workflows = workflowRepository.findByProject(project.getName());
-
-            return (List<WorkflowDTO>) ConversionUtils.reverseIterable(workflows,
-                    commandFactory,
-                    "workflow",
-                    WorkflowDTO.class);
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public List<WorkflowDTO> getProjectWorkflows(String uuidOrName) {
+        return Optional.ofNullable(projectRepository.findById(uuidOrName)
+                .or(() -> projectRepository.findByName(uuidOrName)))
+                .orElseThrow(() -> new CoreException(
+                        "ProjectNotFound",
+                        "The project you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND))
+                .map(Project::getName)
+                .flatMap(projectName -> {
+                    try {
+                        List<Workflow> workflows = workflowRepository.findByProject(projectName);
+                        return Optional.of((List<WorkflowDTO>) ConversionUtils.reverseIterable(
+                                workflows,
+                                commandFactory,
+                                "workflow",
+                                WorkflowDTO.class));
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error occurred while retrieving workflows.",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override

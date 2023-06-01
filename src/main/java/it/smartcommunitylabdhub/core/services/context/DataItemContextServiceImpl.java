@@ -258,7 +258,10 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                 this.dataItemRepository.deleteByProjectAndNameAndId(projectName, dataItemName, uuid);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "DataItemNotFound",
+                    "The dataItem you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",
@@ -275,7 +278,10 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                 this.dataItemRepository.deleteByProjectAndName(projectName, dataItemName);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "DataItemNotFound",
+                    "The dataItems you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",

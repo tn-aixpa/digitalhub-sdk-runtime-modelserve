@@ -258,7 +258,10 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
                 this.workflowRepository.deleteByProjectAndNameAndId(projectName, workflowName, uuid);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "WorkflowNotFound",
+                    "The workflow you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",
@@ -275,7 +278,10 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
                 this.workflowRepository.deleteByProjectAndName(projectName, workflowName);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "WorkflowNotFound",
+                    "The workflows you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",

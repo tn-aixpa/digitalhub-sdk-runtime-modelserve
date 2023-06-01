@@ -258,7 +258,10 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                 this.functionRepository.deleteByProjectAndNameAndId(projectName, functionName, uuid);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "FunctionNotFound",
+                    "The function you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",
@@ -275,7 +278,10 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                 this.functionRepository.deleteByProjectAndName(projectName, functionName);
                 return true;
             }
-            return false;
+            throw new CoreException(
+                    "FunctionNotFound",
+                    "The functions you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",

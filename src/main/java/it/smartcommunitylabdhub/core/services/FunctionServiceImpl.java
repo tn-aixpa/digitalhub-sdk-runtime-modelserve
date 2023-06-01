@@ -138,8 +138,14 @@ public class FunctionServiceImpl implements FunctionService {
     @Override
     public boolean deleteFunction(String uuid) {
         try {
-            this.functionRepository.deleteById(uuid);
-            return true;
+            if (this.functionRepository.existsById(uuid)) {
+                this.functionRepository.deleteById(uuid);
+                return true;
+            }
+            throw new CoreException(
+                    "FunctionNotFound",
+                    "The function you are trying to delete does not exist.",
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",
