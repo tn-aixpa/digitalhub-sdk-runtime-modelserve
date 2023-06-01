@@ -25,7 +25,10 @@ import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.ProjectRepository;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
+import it.smartcommunitylabdhub.core.services.builders.dtos.ArtifactDTOBuilder;
+import it.smartcommunitylabdhub.core.services.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.services.builders.dtos.ProjectDTOBuilder;
+import it.smartcommunitylabdhub.core.services.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.services.builders.entities.ProjectEntityBuilder;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
 import jakarta.transaction.Transactional;
@@ -173,11 +176,16 @@ public class ProjectServiceImpl implements ProjectService {
                 .flatMap(projectName -> {
                     try {
                         List<Function> functions = functionRepository.findByProject(projectName);
-                        return Optional.of((List<FunctionDTO>) ConversionUtils.reverseIterable(
-                                functions,
-                                commandFactory,
-                                "function",
-                                FunctionDTO.class));
+                        return Optional.of(
+                                functions.stream()
+                                        .map(function -> new FunctionDTOBuilder(commandFactory, function).build())
+                                        .collect(Collectors.toList()));
+
+                        // return Optional.of((List<FunctionDTO>) ConversionUtils.reverseIterable(
+                        // functions,
+                        // commandFactory,
+                        // "function",
+                        // FunctionDTO.class));
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -204,11 +212,15 @@ public class ProjectServiceImpl implements ProjectService {
                 .flatMap(projectName -> {
                     try {
                         List<Artifact> artifacts = artifactRepository.findByProject(projectName);
-                        return Optional.of((List<ArtifactDTO>) ConversionUtils.reverseIterable(
-                                artifacts,
-                                commandFactory,
-                                "artifact",
-                                ArtifactDTO.class));
+                        return Optional.of(
+                                artifacts.stream().map(
+                                        artifact -> new ArtifactDTOBuilder(commandFactory, artifact).build())
+                                        .collect(Collectors.toList()));
+                        // return Optional.of((List<ArtifactDTO>) ConversionUtils.reverseIterable(
+                        // artifacts,
+                        // commandFactory,
+                        // "artifact",
+                        // ArtifactDTO.class));
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -235,11 +247,15 @@ public class ProjectServiceImpl implements ProjectService {
                 .flatMap(projectName -> {
                     try {
                         List<Workflow> workflows = workflowRepository.findByProject(projectName);
-                        return Optional.of((List<WorkflowDTO>) ConversionUtils.reverseIterable(
-                                workflows,
-                                commandFactory,
-                                "workflow",
-                                WorkflowDTO.class));
+                        return Optional.of(
+                                workflows.stream()
+                                        .map(workflow -> new WorkflowDTOBuilder(commandFactory, workflow).build())
+                                        .collect(Collectors.toList()));
+                        // return Optional.of((List<WorkflowDTO>) ConversionUtils.reverseIterable(
+                        // workflows,
+                        // commandFactory,
+                        // "workflow",
+                        // WorkflowDTO.class));
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
