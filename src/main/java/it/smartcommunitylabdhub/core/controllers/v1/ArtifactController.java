@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 
@@ -39,18 +40,20 @@ public class ArtifactController {
     }
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<ArtifactDTO> getArtifact(@PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<ArtifactDTO> getArtifact(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.artifactService.getArtifact(uuid));
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json")
-    public ResponseEntity<ArtifactDTO> updateArtifact(@RequestBody ArtifactDTO artifactDTO, @PathVariable String uuid) {
+    public ResponseEntity<ArtifactDTO> updateArtifact(@RequestBody ArtifactDTO artifactDTO,
+            @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.updateArtifact(artifactDTO, uuid));
     }
 
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteArtifact(@PathVariable String uuid) {
+    public ResponseEntity<Boolean> deleteArtifact(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.deleteArtifact(uuid));
     }
 

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
@@ -40,23 +41,25 @@ public class FunctionController {
     }
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<FunctionDTO> getFunction(@PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<FunctionDTO> getFunction(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.functionService.getFunction(uuid));
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json")
-    public ResponseEntity<FunctionDTO> updateFunction(@RequestBody FunctionDTO functionDTO, @PathVariable String uuid) {
+    public ResponseEntity<FunctionDTO> updateFunction(@RequestBody FunctionDTO functionDTO,
+            @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.updateFunction(functionDTO, uuid));
     }
 
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteFunction(@PathVariable String uuid) {
+    public ResponseEntity<Boolean> deleteFunction(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.deleteFunction(uuid));
     }
 
     @GetMapping(path = "/{uuid}/runs", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<RunDTO>> functionRuns(@PathVariable String uuid) {
+    public ResponseEntity<List<RunDTO>> functionRuns(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.getFunctionRuns(uuid));
     }
 

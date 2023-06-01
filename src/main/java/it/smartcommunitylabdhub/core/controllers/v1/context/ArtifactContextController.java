@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.ArtifactContextService;
 
@@ -31,7 +32,7 @@ public class ArtifactContextController extends ContextController {
     @Operation(summary = "Create an artifact in a project context", description = "First check if project exist and then create the artifact for the project (context)")
     @PostMapping(value = "/artifacts", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<ArtifactDTO> createArtifact(
-            @PathVariable String project,
+            @ValidateField @PathVariable String project,
             @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactContextService.createArtifact(project, artifactDTO));
     }
@@ -39,7 +40,7 @@ public class ArtifactContextController extends ContextController {
     @Operation(summary = "Retrive only the latest version of all artifact", description = "First check if project exist and then return a list of the latest version of each artifact related to a project)")
     @GetMapping(path = "/artifacts", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<ArtifactDTO>> getLatestArtifacts(
-            @PathVariable String project,
+            @ValidateField @PathVariable String project,
             Pageable pageable) {
 
         return ResponseEntity.ok(this.artifactContextService
@@ -49,8 +50,8 @@ public class ArtifactContextController extends ContextController {
     @Operation(summary = "Retrieve all versions of the artifact sort by creation", description = "First check if project exist and then return a list of all version of the artifact sort by creation)")
     @GetMapping(path = "/artifacts/{name}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<ArtifactDTO>> getAllArtifacts(
-            @PathVariable String project,
-            @PathVariable String name,
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
             Pageable pageable) {
 
         return ResponseEntity.ok(this.artifactContextService
@@ -61,9 +62,9 @@ public class ArtifactContextController extends ContextController {
     @Operation(summary = "Retrive a specific artifact version given the artifact uuid", description = "First check if project exist and then return a specific version of the artifact identified by the uuid)")
     @GetMapping(path = "/artifacts/{name}/{uuid}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> getArtifactByUuid(
-            @PathVariable String project,
-            @PathVariable String name,
-            @PathVariable String uuid) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
+            @ValidateField @PathVariable String uuid) {
 
         return ResponseEntity.ok(this.artifactContextService
                 .getByProjectAndArtifactAndUuid(project, name, uuid));
@@ -73,8 +74,8 @@ public class ArtifactContextController extends ContextController {
     @Operation(summary = "Retrive the latest version of an artifact", description = "First check if project exist and then return the latest version of an artifact)")
     @GetMapping(path = "/artifacts/{name}/latest", produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> getLatestArtifactByName(
-            @PathVariable String project,
-            @PathVariable String name) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name) {
 
         return ResponseEntity.ok(this.artifactContextService
                 .getLatestByProjectNameAndArtifactName(project, name));
@@ -83,8 +84,8 @@ public class ArtifactContextController extends ContextController {
     @Operation(summary = "Create an  or update an artifact in a project context", description = "First check if project exist, if artifact exist update one otherwise create a new version of the artifact")
     @PostMapping(value = "/artifacts/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<ArtifactDTO> createOrUpdateArtifact(
-            @PathVariable String project,
-            @PathVariable String name,
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
             @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactContextService.createOrUpdateArtifact(project, name, artifactDTO));
     }
@@ -93,9 +94,9 @@ public class ArtifactContextController extends ContextController {
     @PutMapping(value = "/artifacts/{name}/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" })
     public ResponseEntity<ArtifactDTO> updateUpdateArtifact(
-            @PathVariable String project,
-            @PathVariable String name,
-            @PathVariable String uuid,
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
+            @ValidateField @PathVariable String uuid,
             @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactContextService.updateArtifact(project, name, uuid, artifactDTO));
     }
@@ -103,17 +104,17 @@ public class ArtifactContextController extends ContextController {
     @Operation(summary = "Delete a specific artifact version", description = "First check if project exist, then delete a specific artifact version")
     @DeleteMapping(path = "/artifacts/{name}/{uuid}")
     public ResponseEntity<Boolean> deleteSpecificArtifactVersion(
-            @PathVariable String project,
-            @PathVariable String name,
-            @PathVariable String uuid) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
+            @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactContextService.deleteSpecificArtifactVersion(project, name, uuid));
     }
 
     @Operation(summary = "Delete all version of an artifact", description = "First check if project exist, then delete a specific artifact version")
     @DeleteMapping(path = "/artifacts/{name}")
     public ResponseEntity<Boolean> deleteArtifact(
-            @PathVariable String project,
-            @PathVariable String name) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name) {
         return ResponseEntity.ok(this.artifactContextService.deleteAllArtifactVersions(project, name));
     }
 }

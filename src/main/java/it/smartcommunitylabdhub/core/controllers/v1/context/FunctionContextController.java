@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.FunctionContextService;
 
@@ -31,7 +32,7 @@ public class FunctionContextController extends ContextController {
     @Operation(summary = "Create an function in a project context", description = "First check if project exist and then create the function for the project (context)")
     @PostMapping(value = "/functions", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<FunctionDTO> createFunction(
-            @PathVariable String project,
+            @ValidateField @PathVariable String project,
             @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionContextService.createFunction(project, functionDTO));
     }
@@ -39,7 +40,7 @@ public class FunctionContextController extends ContextController {
     @Operation(summary = "Retrive only the latest version of all function", description = "First check if project exist and then return a list of the latest version of each function related to a project)")
     @GetMapping(path = "/functions", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<FunctionDTO>> getLatestFunctions(
-            @PathVariable String project,
+            @ValidateField @PathVariable String project,
             Pageable pageable) {
 
         return ResponseEntity.ok(this.functionContextService
@@ -49,8 +50,8 @@ public class FunctionContextController extends ContextController {
     @Operation(summary = "Retrieve all versions of the function sort by creation", description = "First check if project exist and then return a list of all version of the function sort by creation)")
     @GetMapping(path = "/functions/{name}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<FunctionDTO>> getAllFunctions(
-            @PathVariable String project,
-            @PathVariable String name,
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
             Pageable pageable) {
 
         return ResponseEntity.ok(this.functionContextService
@@ -61,9 +62,9 @@ public class FunctionContextController extends ContextController {
     @Operation(summary = "Retrive a specific function version given the function uuid", description = "First check if project exist and then return a specific version of the function identified by the uuid)")
     @GetMapping(path = "/functions/{name}/{uuid}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<FunctionDTO> getFunctionByUuid(
-            @PathVariable String project,
-            @PathVariable String name,
-            @PathVariable String uuid) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
+            @ValidateField @PathVariable String uuid) {
 
         return ResponseEntity.ok(this.functionContextService
                 .getByProjectAndFunctionAndUuid(project, name, uuid));
@@ -73,8 +74,8 @@ public class FunctionContextController extends ContextController {
     @Operation(summary = "Retrive the latest version of an function", description = "First check if project exist and then return the latest version of an function)")
     @GetMapping(path = "/functions/{name}/latest", produces = "application/json; charset=UTF-8")
     public ResponseEntity<FunctionDTO> getLatestFunctionByName(
-            @PathVariable String project,
-            @PathVariable String name) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name) {
 
         return ResponseEntity.ok(this.functionContextService
                 .getLatestByProjectNameAndFunctionName(project, name));
@@ -83,8 +84,8 @@ public class FunctionContextController extends ContextController {
     @Operation(summary = "Create an  or update an function in a project context", description = "First check if project exist, if function exist update one otherwise create a new version of the function")
     @PostMapping(value = "/functions/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<FunctionDTO> createOrUpdateFunction(
-            @PathVariable String project,
-            @PathVariable String name,
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
             @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionContextService.createOrUpdateFunction(project, name, functionDTO));
     }
@@ -93,9 +94,9 @@ public class FunctionContextController extends ContextController {
     @PutMapping(value = "/functions/{name}/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" })
     public ResponseEntity<FunctionDTO> updateUpdateFunction(
-            @PathVariable String project,
-            @PathVariable String name,
-            @PathVariable String uuid,
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
+            @ValidateField @PathVariable String uuid,
             @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionContextService.updateFunction(project, name, uuid, functionDTO));
     }
@@ -103,17 +104,17 @@ public class FunctionContextController extends ContextController {
     @Operation(summary = "Delete a specific function version", description = "First check if project exist, then delete a specific function version")
     @DeleteMapping(path = "/functions/{name}/{uuid}")
     public ResponseEntity<Boolean> deleteSpecificFunctionVersion(
-            @PathVariable String project,
-            @PathVariable String name,
-            @PathVariable String uuid) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name,
+            @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionContextService.deleteSpecificFunctionVersion(project, name, uuid));
     }
 
     @Operation(summary = "Delete all version of an function", description = "First check if project exist, then delete a specific function version")
     @DeleteMapping(path = "/functions/{name}")
     public ResponseEntity<Boolean> deleteFunction(
-            @PathVariable String project,
-            @PathVariable String name) {
+            @ValidateField @PathVariable String project,
+            @ValidateField @PathVariable String name) {
         return ResponseEntity.ok(this.functionContextService.deleteAllFunctionVersions(project, name));
     }
 }

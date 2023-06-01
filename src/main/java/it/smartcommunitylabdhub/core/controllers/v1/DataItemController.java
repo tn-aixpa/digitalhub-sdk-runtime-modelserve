@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.DataItemService;
 
@@ -39,18 +40,20 @@ public class DataItemController {
     }
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<DataItemDTO> getDataItem(@PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<DataItemDTO> getDataItem(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.artifactService.getDataItem(uuid));
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json")
-    public ResponseEntity<DataItemDTO> updateDataItem(@RequestBody DataItemDTO artifactDTO, @PathVariable String uuid) {
+    public ResponseEntity<DataItemDTO> updateDataItem(@RequestBody DataItemDTO artifactDTO,
+            @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.updateDataItem(artifactDTO, uuid));
     }
 
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteDataItem(@PathVariable String uuid) {
+    public ResponseEntity<Boolean> deleteDataItem(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.deleteDataItem(uuid));
     }
 

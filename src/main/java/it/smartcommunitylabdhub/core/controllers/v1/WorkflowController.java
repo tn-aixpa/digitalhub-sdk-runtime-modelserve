@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
@@ -40,23 +41,25 @@ public class WorkflowController {
     }
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<WorkflowDTO> getWorkflow(@PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<WorkflowDTO> getWorkflow(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.workflowService.getWorkflow(uuid));
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json")
-    public ResponseEntity<WorkflowDTO> updateWorkflow(@RequestBody WorkflowDTO workflowDTO, @PathVariable String uuid) {
+    public ResponseEntity<WorkflowDTO> updateWorkflow(@RequestBody WorkflowDTO workflowDTO,
+            @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.workflowService.updateWorkflow(workflowDTO, uuid));
     }
 
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteWorkflow(@PathVariable String uuid) {
+    public ResponseEntity<Boolean> deleteWorkflow(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.workflowService.deleteWorkflow(uuid));
     }
 
     @GetMapping(path = "/{uuid}/runs", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<RunDTO>> workflowRuns(@PathVariable String uuid) {
+    public ResponseEntity<List<RunDTO>> workflowRuns(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.workflowService.getWorkflowRuns(uuid));
     }
 
