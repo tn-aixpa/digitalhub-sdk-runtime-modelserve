@@ -93,6 +93,14 @@ public class ArtifactServiceImpl implements ArtifactService {
 
     @Override
     public ArtifactDTO updateArtifact(ArtifactDTO artifactDTO, String uuid) {
+
+        if (!artifactDTO.getId().equals(uuid)) {
+            throw new CoreException(
+                    "ArtifactNotMatch",
+                    "Trying to update a artifact with an uuid different from the one passed in the request.",
+                    HttpStatus.NOT_FOUND);
+        }
+
         final Artifact artifact = artifactRepository.findById(uuid).orElse(null);
         if (artifact == null) {
             throw new CoreException(

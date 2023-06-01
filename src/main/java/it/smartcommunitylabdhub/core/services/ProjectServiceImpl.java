@@ -104,6 +104,10 @@ public class ProjectServiceImpl implements ProjectService {
         try {
             // Build a project and store it on db
             final Project project = new ProjectEntityBuilder(commandFactory, projectDTO).build();
+
+            if (this.projectRepository.existsByName(project.getId())) {
+                throw new CustomException("Cannot generate project with an existing project uuid", null);
+            }
             this.projectRepository.save(project);
 
             // Return project DTO
@@ -125,6 +129,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDTO updateProject(ProjectDTO projectDTO, String uuid) {
+
+        if (!projectDTO.getId().equals(uuid)) {
+            throw new CoreException(
+                    "ProjectNotMatch",
+                    "Trying to update a project with an uuid different from the one passed in the request.",
+                    HttpStatus.NOT_FOUND);
+        }
 
         final Project project = projectRepository.findById(uuid).orElse(null);
         if (project == null) {
@@ -165,8 +176,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean deleteProject(String uuid) {
         try {
-            this.projectRepository.deleteById(uuid);
-            return true;
+            if (this.projectRepository.existsById(uuid)) {
+                this.projectRepository.deleteById(uuid);
+                return true;
+            }
+            return false;
         } catch (Exception e) {
             throw new CoreException(
                     "InternalServerError",
@@ -247,6 +261,22 @@ public class ProjectServiceImpl implements ProjectService {
             throw new CoreException(
                     "InternalServerError",
                     e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public boolean deleteProjectByName(String name) {
+        try {
+            if (this.projectRepository.existsByName(name)) {
+                this.projectRepository.deleteByName(name);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    "cannot delete project",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

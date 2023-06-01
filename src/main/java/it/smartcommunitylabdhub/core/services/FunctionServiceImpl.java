@@ -100,6 +100,14 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Override
     public FunctionDTO updateFunction(FunctionDTO functionDTO, String uuid) {
+
+        if (!functionDTO.getId().equals(uuid)) {
+            throw new CoreException(
+                    "FunctionNotMatch",
+                    "Trying to update a function with an uuid different from the one passed in the request.",
+                    HttpStatus.NOT_FOUND);
+        }
+
         final Function function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(

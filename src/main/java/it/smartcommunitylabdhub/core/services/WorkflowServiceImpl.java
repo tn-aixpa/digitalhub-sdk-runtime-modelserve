@@ -100,6 +100,14 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Override
     public WorkflowDTO updateWorkflow(WorkflowDTO workflowDTO, String uuid) {
+
+        if (!workflowDTO.getId().equals(uuid)) {
+            throw new CoreException(
+                    "WorkflowNotMatch",
+                    "Trying to update a workflow with an uuid different from the one passed in the request.",
+                    HttpStatus.NOT_FOUND);
+        }
+
         final Workflow workflow = workflowRepository.findById(uuid).orElse(null);
         if (workflow == null) {
             throw new CoreException(

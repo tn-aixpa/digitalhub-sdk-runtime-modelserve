@@ -93,6 +93,13 @@ public class DataItemServiceImpl implements DataItemService {
 
     @Override
     public DataItemDTO updateDataItem(DataItemDTO dataItemDTO, String uuid) {
+
+        if (!dataItemDTO.getId().equals(uuid)) {
+            throw new CoreException(
+                    "DataItemNotMatch",
+                    "Trying to update a DataItem with an uuid different from the one passed in the request.",
+                    HttpStatus.NOT_FOUND);
+        }
         final DataItem dataItem = dataItemRepository.findById(uuid).orElse(null);
         if (dataItem == null) {
             throw new CoreException(

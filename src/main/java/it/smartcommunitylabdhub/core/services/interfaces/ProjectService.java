@@ -21,9 +21,12 @@ public interface ProjectService {
 
     boolean deleteProject(String uuid);
 
+    boolean deleteProjectByName(String name);
+
     List<FunctionDTO> getProjectFunctions(String uuid);
 
     List<ArtifactDTO> getProjectArtifacts(String uuid);
 
     List<WorkflowDTO> getProjectWorkflows(String uuid);
+
 }

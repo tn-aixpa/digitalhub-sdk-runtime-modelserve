@@ -9,6 +9,10 @@ import it.smartcommunitylabdhub.core.models.entities.Project;
 
 public interface ProjectRepository extends JpaRepository<Project, String> {
 
+    Boolean existsByName(String name);
+
+    void deleteByName(String name);
+
     Optional<Project> findByName(String name);
 
     Page<Project> findAll(Pageable pageable);
