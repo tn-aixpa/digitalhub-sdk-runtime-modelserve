@@ -133,39 +133,4 @@ public class ArtifactServiceImpl implements ArtifactService {
         }
     }
 
-    // Context artifact methods
-
-    @Override
-    public List<ArtifactDTO> getByProjectNameAndArtifactName(String projectName, String artifactName,
-            Pageable pageable) {
-        try {
-            Page<Artifact> artifactPage = this.artifactRepository.findAllByProjectAndName(projectName, artifactName,
-                    pageable);
-            return artifactPage.getContent().stream().map((artifact) -> {
-                return new ArtifactDTOBuilder(commandFactory, artifact).build();
-            }).collect(Collectors.toList());
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    // TODO: Finish to implement all the other methods for the context functions
-    @Override
-    public ArtifactDTO getLatestByProjectNameAndArtifactName(String projectName, String artifactName) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLatestByProjectNameAndArtifactName'");
-    }
-
-    @Override
-    public ArtifactDTO getLatestByProjectNameAndArtifactNameAndArtifactUuid(String projectName, String artifactName,
-            String uuid) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException(
-                "Unimplemented method 'getLatestByProjectNameAndArtifactNameAndArtifactUuid'");
-    }
-
 }

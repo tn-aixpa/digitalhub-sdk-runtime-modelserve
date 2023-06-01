@@ -17,14 +17,4 @@ public interface ArtifactService {
 
         boolean deleteArtifact(String uuid);
 
-        // Context artifact method
-        List<ArtifactDTO> getByProjectNameAndArtifactName(
-                        String projectName, String artifactName, Pageable pageable);
-
-        ArtifactDTO getLatestByProjectNameAndArtifactName(
-                        String projectName, String artifactName);
-
-        ArtifactDTO getLatestByProjectNameAndArtifactNameAndArtifactUuid(
-                        String projectName, String artifactName, String uuid);
-
 }

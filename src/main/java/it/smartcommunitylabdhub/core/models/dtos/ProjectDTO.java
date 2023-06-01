@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
@@ -29,7 +30,9 @@ public class ProjectDTO implements BaseEntity {
     private String source;
 
     @Builder.Default
+    @JsonIgnore
     private Map<String, Object> extra = new HashMap<>();
+
     private String state;
     private List<FunctionDTO> functions;
     private List<ArtifactDTO> artifacts;

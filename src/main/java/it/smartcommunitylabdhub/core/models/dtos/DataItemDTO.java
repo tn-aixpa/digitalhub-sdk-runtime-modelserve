@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
@@ -29,6 +30,7 @@ public class DataItemDTO implements BaseEntity {
     private Map<String, Object> spec;
 
     @Builder.Default
+    @JsonIgnore
     private Map<String, Object> extra = new HashMap<>();
 
     private Date created;

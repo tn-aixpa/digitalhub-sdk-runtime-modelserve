@@ -53,6 +53,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class KanikoImageBuilder {
 
+        // FIXME: ASYNC JOB
         // [x]: DONE! this builder work for FOLDER strategy building.
         public static void buildDockerImage(
                         KubernetesClient kubernetesClient,
@@ -88,13 +89,16 @@ public class KanikoImageBuilder {
 
                 // Configure Kaniko build
                 Job job = new JobBuilder()
-                                .withNewMetadata().withName("kaniko-build-job").endMetadata()
+                                .withNewMetadata()
+                                // FIXME: job name must be created with "kaniko-build-job" + uuid + name
+                                .withName("kaniko-build-job").endMetadata()
                                 .withNewSpec()
                                 .withNewTemplate()
                                 .withNewSpec()
 
                                 // Add Init container alpine
                                 .addNewInitContainer()
+                                // FIXME: init container name must be uuid + name
                                 .withName("kaniko-retrieve-data")
                                 .withImage("alpine:latest")
                                 .withVolumeMounts(

@@ -1,9 +1,7 @@
 package it.smartcommunitylabdhub.core.controllers.v1.context;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RequestMapping("/-/{project}")
-public class ContextController {
+public abstract class ContextController {
 }
