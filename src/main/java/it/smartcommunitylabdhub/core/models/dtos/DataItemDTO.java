@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,8 +25,11 @@ import lombok.Setter;
 public class DataItemDTO implements BaseEntity {
     private String id;
     @NotNull
+    @ValidateField
     private String name;
     private String kind;
+
+    @ValidateField
     private String project;
     private Map<String, Object> spec;
 

@@ -2,6 +2,9 @@ package it.smartcommunitylabdhub.core.models.dtos;
 
 import java.util.Date;
 import java.util.Map;
+
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
+
 import java.util.HashMap;
 
 import jakarta.validation.constraints.NotNull;
@@ -21,9 +24,11 @@ public class RunDTO {
     private String id;
 
     @NotNull
+    @ValidateField
     private String project;
 
     @NotNull
+    @ValidateField
     private String name;
 
     @NotNull
