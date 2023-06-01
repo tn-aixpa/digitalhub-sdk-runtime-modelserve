@@ -1,6 +1,6 @@
 from sdk.client.client import Client
 from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
-from sdk.entities.function.function import Function
+from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
 from sdk.utils.common import (
     API_READ_LATEST,
     API_READ_VERSION,
@@ -9,20 +9,11 @@ from sdk.utils.common import (
     DTO_FUNC,
 )
 
-OBJ_ATTR = [
-    "project",
-    "name",
-    "kind",
-    "source",
-    "image",
-    "tag",
-    "handler",
-]
-
 
 def new_function(
     project: str,
     name: str,
+    description: str = None,
     kind: str = None,
     source: str = None,
     image: str = None,
@@ -30,7 +21,6 @@ def new_function(
     handler: str = None,
     client: Client = None,
     local: bool = False,
-    filename: str = None,
 ) -> Function:
     """
     Create a Function instance with the given parameters.
@@ -41,6 +31,8 @@ def new_function(
         Name of the project.
     name : str
         Identifier of the Function.
+    description : str, optional
+        Description of the Function.
     kind : str, optional
         The type of the Function.
     source : str, optional
@@ -63,10 +55,10 @@ def new_function(
     Function
         Instance of the Function class representing the specified function.
     """
-    obj = Function(project, name, kind, source, image, tag, handler)
-    if local:
-        obj.export(filename)
-    else:
+    meta = FunctionMetadata(name=name, description=description)
+    spec = FunctionSpec(source=source, image=image, tag=tag, handler=handler)
+    obj = Function(project, name, kind, meta, spec)
+    if not local:
         obj.save(client)
     return obj
 
@@ -101,19 +93,9 @@ def get_function(client: Client, project: str, name: str, uuid: str = None) -> F
         api = API_READ_VERSION.format(project, DTO_FUNC, name, uuid)
     else:
         api = API_READ_LATEST.format(project, DTO_FUNC, name)
-
     r = client.get_object(api)
     if "status" not in r:
-        kwargs = {
-            "project": r.get("project"),
-            "name": r.get("name"),
-            "kind": r.get("kind"),
-            "source": r.get("spec", {}).get("source"),
-            "image": r.get("spec", {}).get("image"),
-            "tag": r.get("spec", {}).get("tag"),
-            "handler": r.get("spec", {}).get("handler"),
-        }
-        return Function(**kwargs)
+        return Function(**r)
     raise KeyError(f"Function {name} does not exists.")
 
 
@@ -132,7 +114,7 @@ def import_function(file: str) -> Function:
         The Function object imported from the file using the specified path.
 
     """
-    return file_importer(file, Function, OBJ_ATTR)
+    return file_importer(file, Function)
 
 
 def delete_function(client: Client, project: str, name: str, uuid: str = None) -> None:

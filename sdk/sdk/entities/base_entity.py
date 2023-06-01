@@ -3,14 +3,59 @@ Abstract entity module.
 """
 from abc import ABCMeta, abstractmethod
 
+from pydantic import BaseModel
+
 from sdk.client.client import Client
 from sdk.entities.utils import file_exporter
+
+
+class EntityMetadata(BaseModel):
+    """
+    A class representing the metadata of an entity.
+    """
+
+    name: str
+    description: str = None
+
+    def to_dict(self) -> dict:
+        """
+        Return object as dict with all keys.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+
+        """
+        return {k: v for k, v in self.__dict__.items()}
+
+
+class EntitySpec(BaseModel):
+    """
+    A class representing the specification of an entity.
+    """
+
+    def to_dict(self) -> dict:
+        """
+        Return object as dict with all keys.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+
+        """
+        return {k: v for k, v in self.__dict__.items()}
 
 
 class Entity(metaclass=ABCMeta):
     """
     Abstract class for entities.
     """
+
+    def __init__(self) -> None:
+        self.id = None
+        self._obj_attr = ["name", "kind", "metadata", "spec"]
 
     @abstractmethod
     def save(self, client: Client, overwrite: bool = False) -> dict:
@@ -20,9 +65,12 @@ class Entity(metaclass=ABCMeta):
     def export(self, filename: str = None) -> None:
         ...
 
-    @staticmethod
     def save_object(
-        client: Client, obj: "Entity", api: str, overwrite: bool = False
+        self,
+        client: Client,
+        obj: "Entity",
+        api: str,
+        overwrite: bool,
     ) -> None:
         """
         Save entity into backend.
@@ -44,10 +92,7 @@ class Entity(metaclass=ABCMeta):
         None
 
         """
-        try:
-            return client.create_object(obj, api)
-        except KeyError:
-            raise Exception("Object already present in the backend.")
+        return client.create_object(obj, api)
 
     @staticmethod
     def export_object(filename: str, obj: "Entity") -> None:
@@ -71,7 +116,31 @@ class Entity(metaclass=ABCMeta):
 
     def to_dict(self) -> dict:
         """
-        Return object to dict.
+        Return object as dict.
+
+        Returns
+        -------
+        dict
+            A dictionary containing some attributes of the entity instance.
+
+        """
+        obj = {}
+        for k in self.__dict__.keys():
+            if k.startswith("_"):
+                continue
+            val = getattr(self, k, None)
+            if (val is not None) and not (isinstance(val, dict) and not val):
+                if hasattr(val, "to_dict"):
+                    val = val.to_dict()
+                    if val:
+                        obj[k] = val
+                else:
+                    obj[k] = val
+        return obj
+
+    def to_dict_complete(self) -> dict:
+        """
+        Return object as dict with all keys.
 
         Returns
         -------
@@ -79,7 +148,7 @@ class Entity(metaclass=ABCMeta):
             A dictionary containing the attributes of the entity instance.
 
         """
-        return {k: v for k, v in self.__dict__.items() if v is not None}
+        return {k: v for k, v in self.__dict__.items()}
 
     def __repr__(self) -> str:
         """

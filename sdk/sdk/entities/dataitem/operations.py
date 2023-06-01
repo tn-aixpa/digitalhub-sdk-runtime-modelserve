@@ -2,8 +2,8 @@
 DataItem module.
 """
 from sdk.client.client import Client
-from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
-from sdk.entities.dataitem.dataitem import DataItem
+from sdk.entities.utils import file_importer, delete_from_backend
+from sdk.entities.dataitem.dataitem import DataItem, DataItemMetadata, DataItemSpec
 from sdk.utils.common import (
     API_READ_LATEST,
     API_READ_VERSION,
@@ -13,17 +13,16 @@ from sdk.utils.common import (
 )
 
 
-OBJ_ATTR = ["project", "key", "path"]
-
-
 def new_dataitem(
     project: str,
     name: str,
+    description: str = None,
+    kind: str = None,
     key: str = None,
     path: str = None,
     client: Client = None,
     local: bool = False,
-    filename: str = None
+    filename: str = None,
 ) -> DataItem:
     """
     Create an DataItem instance with the given parameters.
@@ -34,6 +33,10 @@ def new_dataitem(
         Name of the project associated with the dataitem.
     name : str
         Identifier of the dataitem.
+    description : str, optional
+        Description of the dataitem.
+    kind : str, optional
+        The type of the dataitem.
     key : str
         Representation of artfact like store://etc..
     path : str
@@ -42,18 +45,16 @@ def new_dataitem(
         A Client object to interact with backend.
     local : bool, optional
         Flag to determine if object wil be saved locally.
-    filename : str, optional
-        Filename to export object.
 
     Returns
     -------
     DataItem
         Instance of the DataItem class representing the specified dataitem.
     """
-    obj = DataItem(project, name, key, path)
-    if local:
-        obj.export(filename)
-    else:
+    meta = DataItemMetadata(name=name, description=description)
+    spec = DataItemSpec(key=key, path=path)
+    obj = DataItem(project, name, kind, meta, spec)
+    if not local:
         obj.save(client)
     return obj
 
@@ -91,13 +92,7 @@ def get_dataitem(client: Client, project: str, name: str, uuid: str = None) -> D
 
     r = client.get_object(api)
     if "status" not in r:
-        kwargs = {
-            "project": r.get("project"),
-            "name": r.get("name"),
-            "key": r.get("spec", {}).get("target"),
-            "path": r.get("spec", {}).get("source"),
-        }
-        return DataItem(**kwargs)
+        return DataItem(**r)
     raise KeyError(f"DataItem {name} does not exists.")
 
 
@@ -116,7 +111,7 @@ def import_dataitem(file: str) -> DataItem:
         The DataItem object imported from the file using the specified path.
 
     """
-    return file_importer(file, DataItem, OBJ_ATTR)
+    return file_importer(file, DataItem)
 
 
 def delete_dataitem(client: Client, project: str, name: str, uuid: str = None) -> None:
@@ -144,4 +139,3 @@ def delete_dataitem(client: Client, project: str, name: str, uuid: str = None) -
     else:
         api = API_DELETE_ALL.format(project, DTO_DTIT, name)
     return delete_from_backend(client, api)
-

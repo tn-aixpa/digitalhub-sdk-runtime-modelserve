@@ -4,7 +4,7 @@ Workflow module.
 
 from sdk.client.client import Client
 from sdk.entities.utils import file_importer, delete_from_backend
-from sdk.entities.workflow.workflow import Workflow
+from sdk.entities.workflow.workflow import Workflow, WorkflowMetadata, WorkflowSpec
 from sdk.utils.common import (
     API_READ_LATEST,
     API_READ_VERSION,
@@ -14,21 +14,13 @@ from sdk.utils.common import (
 )
 
 
-OBJ_ATTR = [
-    "project",
-    "name",
-    "kind",
-]
-
-
-def create_workflow(
+def new_workflow(
     project: str,
     name: str,
+    description: str = None,
     kind: str = None,
-    spec: dict = None,
     client: Client = None,
     local: bool = False,
-    filename: str = None,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -39,6 +31,8 @@ def create_workflow(
         A string representing the project associated with this workflow.
     name : str
         The name of the workflow.
+    description : str, optional
+        A description of the workflow.
     kind : str, optional
         The kind of the workflow.
     spec : dict, optional
@@ -47,8 +41,6 @@ def create_workflow(
         A Client object to interact with backend.
     local : bool, optional
         Flag to determine if object wil be saved locally.
-    filename : str, optional
-        Filename to export object.
 
     Returns
     -------
@@ -56,10 +48,10 @@ def create_workflow(
         An instance of the created workflow.
 
     """
-    obj = Workflow(project, name, kind, spec)
-    if local:
-        obj.export(filename)
-    else:
+    meta = WorkflowMetadata(name=name, description=description)
+    spec = WorkflowSpec()
+    obj = Workflow(project, name, kind, meta, spec, local)
+    if not local:
         obj.save(client)
     return obj
 
@@ -97,13 +89,7 @@ def get_workflow(client: Client, project: str, name: str, uuid: str = None) -> W
 
     r = client.get_object(api)
     if "status" not in r:
-        kwargs = {
-            "project": r.get("project"),
-            "kind": r.get("kind"),
-            "name": r.get("name"),
-            "spec": r.get("spec"),
-        }
-        return Workflow(**kwargs)
+        return Workflow(**r)
     raise KeyError(f"Workflow {name} does not exists.")
 
 
@@ -122,7 +108,7 @@ def import_workflow(file: str) -> Workflow:
         The Workflow object imported from the file using the specified path.
 
     """
-    return file_importer(file, Workflow, OBJ_ATTR)
+    return file_importer(file, Workflow)
 
 
 def delete_workflow(client: Client, project: str, name: str, uuid: str = None) -> None:

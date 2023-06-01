@@ -1,4 +1,4 @@
-from sdk.entities.project.project import Project
+from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
 from sdk.entities.utils import file_importer, delete_from_backend
 from sdk.client.client import Client
 from sdk.utils.common import (
@@ -10,23 +10,16 @@ from sdk.utils.common import (
 )
 
 
-OBJ_ATTR = [
-    "name",
-    "source",
-    "description",
-    "functions",
-    "artifacts",
-    "workflows",
-]
-
-
 def new_project(
     name: str,
-    source: str = None,
     description: str = None,
+    context: str = "./",
+    source: str = None,
+    functions: list = None,
+    artifacts: list = None,
+    workflows: list = None,
     client: Client = None,
     local: bool = False,
-    filename: str = None,
 ) -> Project:
     """
     Create a new project and an execution context.
@@ -43,8 +36,6 @@ def new_project(
         A Client object to interact with backend.
     local : bool, optional
         Flag to determine if object wil be saved locally.
-    filename : str, optional
-        Filename to export object.
 
     Returns
     -------
@@ -52,10 +43,16 @@ def new_project(
         A Project instance with its context.
 
     """
-    obj = Project(name, source, description)
-    if local:
-        obj.export(filename)
-    else:
+    meta = ProjectMetadata(name=name, description=description)
+    spec = ProjectSpec(
+        context=context,
+        source=source,
+        functions=functions,
+        artifacts=artifacts,
+        workflows=workflows,
+    )
+    obj = Project(name, metadata=meta, spec=spec, local=local)
+    if not local:
         obj.save(client)
     return obj
 
@@ -120,13 +117,9 @@ def get_project(client: Client, name: str, uuid: str = None) -> Project:
         api = API_READ_VERSION.format(name, DTO_PROJ, name, uuid)
     else:
         api = API_READ_LATEST.format(name, DTO_PROJ, name)
-
     r = client.get_object(api)
     if "status" not in r:
-        kwargs = {k: v for k, v in r.items() if k in OBJ_ATTR}
-        project = Project(**kwargs)
-        project.id = r["id"]
-        return project
+        return Project(**r)
     raise KeyError(f"Project {name} does not exists.")
 
 
@@ -145,7 +138,7 @@ def import_project(file: str) -> Project:
         The Project object imported from the file using the specified path.
 
     """
-    return file_importer(file, Project, OBJ_ATTR)
+    return file_importer(file, Project,)
 
 
 def delete_project(client: Client, name: str, uuid: str = None) -> None:

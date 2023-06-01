@@ -1,9 +1,21 @@
+"""
+DataItem module.
+"""
 import pandas as pd
 
 from sdk.client.client import Client
-from sdk.utils.utils import get_uiid
-from sdk.entities.base_entity import Entity
+from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.common import API_CREATE, DTO_DTIT
+from sdk.utils.utils import get_uiid
+
+
+class DataItemMetadata(EntityMetadata):
+    ...
+
+
+class DataItemSpec(EntitySpec):
+    key: str = None
+    path: str = None
 
 
 class DataItem(Entity):
@@ -15,16 +27,48 @@ class DataItem(Entity):
         self,
         project: str,
         name: str,
-        key: str,
-        path: str,
+        kind: str = "dataitem",
+        metadata: DataItemMetadata = None,
+        spec: DataItemSpec = None,
+        local: bool = False,
+        **kwargs,
     ) -> None:
-        """Initialize the DataItem instance."""
+        """
+        Initialize the DataItem instance.
+
+        Parameters
+        ----------
+        project : str
+            Name of the project.
+        name : str
+            Name of the dataitem.
+        kind : str, optional
+            Kind of the dataitem, default is 'dataitem'.
+        metadata : DataItemMetadata, optional
+            Metadata for the dataitem, default is None.
+        spec : DataItemSpec, optional
+            Specification for the dataitem, default is None.
+        local: bool, optional
+            Specify if run locally, default is False.
+        **kwargs
+            Additional keyword arguments.
+        """
+        super().__init__()
         self.project = project
         self.name = name
-        self.key = key
-        self.path = path
-        self.id = get_uiid()
-        self._api_create = API_CREATE.format(self.name, DTO_DTIT)
+        self.kind = kind
+        self.metadata = metadata if metadata is not None else {}
+        self.spec = spec if spec is not None else {}
+        self._local = local
+
+        # Set new attributes
+        for k, v in kwargs.items():
+            if k not in self._obj_attr:
+                self.__setattr__(k, v)
+
+        # Set id if None
+        if self.id is None:
+            self.id = get_uiid()
 
     def save(self, client: Client, overwrite: bool = False) -> dict:
         """
@@ -36,19 +80,10 @@ class DataItem(Entity):
             Mapping representaion of DataItem from backend.
 
         """
-
-        obj = {
-            "name": self.id,
-            "project": self.project,
-            "kind": "job",
-            "spec": {
-                "type": "dataitem",
-                "target": self.key,
-                "source": self.path,
-            },
-            "type": "apache-parquet",
-        }
-        return self.save_object(client, obj, self._api_create, overwrite)
+        if self._local:
+            self.export()
+        api = API_CREATE.format(self.name, DTO_DTIT)
+        return self.save_object(client, self.to_dict(), api, overwrite)
 
     def export(self, filename: str = None) -> None:
         """

@@ -2,78 +2,76 @@
 Project module.
 """
 from sdk.client.client import Client
-from sdk.entities.base_entity import Entity
 from sdk.entities.artifact.artifact import Artifact
 from sdk.entities.artifact.operations import delete_artifact
+from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.function.function import Function
 from sdk.entities.function.operations import delete_function
-from sdk.entities.workflow.workflow import Workflow
 from sdk.entities.workflow.operations import delete_workflow
+from sdk.entities.workflow.workflow import Workflow
 from sdk.utils.common import API_CREATE, DTO_PROJ
+from sdk.utils.utils import get_uiid
+
+
+class ProjectMetadata(EntityMetadata):
+    name: str = None
+    description: str = None
+
+
+class ProjectSpec(EntitySpec):
+    context: str = "./"
+    source: str = None
+    functions: list = None
+    artifacts: list = None
+    workflows: list = None
 
 
 class Project(Entity):
     """
     A class representing a project.
-
-    Parameters
-    ----------
-    name : str
-        The name of the project.
-    source : str, optional
-        The source of the project (eg. git://repo-url).
-    description : str, optional
-        The description of the project.
-
-    Methods
-    -------
-    new()
-        Create a new project and an execution context.
-
-    load()
-        Load project and context from backend.
-
-    save()
-        Save project and context into backend.
-
-    to_dict()
-        Return object to dict.
-
-    __repr__()
-        Return string representation of the project object.
-
-    Attributes
-    ----------
-    name : str
-        The name of the project.
-    source : str or None
-        The source of the project (eg. git://repo-url).
-    description : str or None
-        The description of the project.
-
     """
 
     def __init__(
         self,
         name: str,
-        source: str = "./",
-        description: str = "",
-        functions: list = None,
-        artifacts: list = None,
-        workflows: list = None,
+        metadata: ProjectMetadata = None,
+        spec: ProjectSpec = None,
+        local: bool = False,
+        **kwargs,
     ) -> None:
-        """Initialize the Project instance."""
+        """
+        Initialize the Project instance.
+
+        Parameters
+        ----------
+        name : str
+            Name of the project.
+        metadata : ProjectMetadata, optional
+            Metadata for the function, default is None.
+        spec : ProjectSpec, optional
+            Specification for the function, default is None.
+        local: bool, optional
+            Specify if run locally, default is False.
+        **kwargs
+            Additional keyword arguments.
+        """
+        super().__init__()
         self.name = name
-        self.source = source
-        self.description = description
-        self.functions = functions if functions is not None else []
-        self.artifacts = artifacts if artifacts is not None else []
-        self.workflows = workflows if workflows is not None else []
-        self.id = None
+        self.kind = "project"
+        self.metadata = metadata if metadata is not None else {}
+        self.spec = spec if spec is not None else {}
+        self._local = local
 
-        self._api_create = API_CREATE.format(self.name, DTO_PROJ)
+        # Set new attributes
+        for k, v in kwargs.items():
+            if k not in self._obj_attr:
+                self.__setattr__(k, v)
 
-    def save(self, client: Client, overwrite: bool = False) -> dict:
+        # Set id if None
+        if self.id is None:
+            self.id = get_uiid()
+
+    def save(self, client: Client = None, overwrite: bool = False) -> dict:
         """
         Save project and context into backend.
 
@@ -83,8 +81,10 @@ class Project(Entity):
             Mapping representaion of Project from backend.
 
         """
-        obj = self.to_dict()
-        return self.save_object(client, obj, self._api_create, overwrite)
+        if self._local:
+            self.export()
+        api = API_CREATE.format(self.name, DTO_PROJ)
+        return self.save_object(client, self.to_dict(), api, overwrite)
 
     def export(self, filename: str = None) -> None:
         """
@@ -107,7 +107,7 @@ class Project(Entity):
     def set_artifact(self, client: Client, artifact: Artifact) -> dict:
         r = artifact.save(client)
         if "status" not in r:
-            self.artifacts.append(artifact.to_dict())
+            self.artifacts.append(artifact)
             return r
         raise Exception(f"Backend error: {r['status']}")
 
@@ -118,7 +118,7 @@ class Project(Entity):
     def set_function(self, client: Client, function: Function) -> dict:
         r = function.save(client)
         if "status" not in r:
-            self.functions.append(function.to_dict())
+            self.functions.append(function)
             return r
         raise Exception(f"Backend error: {r['status']}")
 
@@ -129,7 +129,7 @@ class Project(Entity):
     def set_workflow(self, client: Client, workflow: Workflow) -> dict:
         r = workflow.save(client)
         if "status" not in r:
-            self.workflows.append(workflow.to_dict())
+            self.workflows.append(workflow)
             return r
         raise Exception(f"Backend error: {r['status']}")
 

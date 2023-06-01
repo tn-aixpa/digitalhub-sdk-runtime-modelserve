@@ -4,10 +4,9 @@ from sdk.client.client import Client
 from sdk.utils.utils import read_yaml, write_yaml
 
 
-def file_importer(path: str, obj: Any, fields: list) -> Any:
+def file_importer(path: str, obj: Any) -> Any:
     dict_ = read_yaml(path)
-    kwargs = {k: v for k, v in dict_.items() if k in fields}
-    entity = obj(**kwargs)
+    entity = obj(**dict_)
     if "id" in dict_:
         entity.id = dict_["id"]
     return entity
