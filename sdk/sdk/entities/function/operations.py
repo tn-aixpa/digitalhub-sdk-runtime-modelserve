@@ -1,7 +1,7 @@
-from sdk.client.client import Client
-from sdk.entities.utils import file_importer, file_exporter, delete_from_backend
+from sdk.client.factory import get_client
+from sdk.entities.utils import file_importer
 from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
-from sdk.utils.common import (
+from sdk.utils.api import (
     API_READ_LATEST,
     API_READ_VERSION,
     API_DELETE_VERSION,
@@ -19,7 +19,6 @@ def new_function(
     image: str = None,
     tag: str = None,
     handler: str = None,
-    client: Client = None,
     local: bool = False,
 ) -> Function:
     """
@@ -43,10 +42,8 @@ def new_function(
         Tag of the Function's Docker image.
     handler : str, optional
         Function handler name.
-    client : Client, optional
-        A Client object to interact with backend.
     local : bool, optional
-        Flag to determine if object wil be saved locally.
+        Flag to determine if object will be saved locally.
     filename : str, optional
         Filename to export object.
 
@@ -57,13 +54,15 @@ def new_function(
     """
     meta = FunctionMetadata(name=name, description=description)
     spec = FunctionSpec(source=source, image=image, tag=tag, handler=handler)
-    obj = Function(project, name, kind, meta, spec)
+    obj = Function(
+        project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
+    )
     if not local:
-        obj.save(client)
+        obj.save()
     return obj
 
 
-def get_function(client: Client, project: str, name: str, uuid: str = None) -> Function:
+def get_function(project: str, name: str, uuid: str = None) -> Function:
     """
     Retrieves function details from the backend.
 
@@ -93,6 +92,7 @@ def get_function(client: Client, project: str, name: str, uuid: str = None) -> F
         api = API_READ_VERSION.format(project, DTO_FUNC, name, uuid)
     else:
         api = API_READ_LATEST.format(project, DTO_FUNC, name)
+    client = get_client()
     r = client.get_object(api)
     if "status" not in r:
         return Function(**r)
@@ -117,7 +117,7 @@ def import_function(file: str) -> Function:
     return file_importer(file, Function)
 
 
-def delete_function(client: Client, project: str, name: str, uuid: str = None) -> None:
+def delete_function(project: str, name: str, uuid: str = None) -> None:
     """
     Delete a function.
 
@@ -137,8 +137,9 @@ def delete_function(client: Client, project: str, name: str, uuid: str = None) -
     None
         This function does not return anything.
     """
+    client = get_client()
     if uuid is not None:
         api = API_DELETE_VERSION.format(project, DTO_FUNC, name, uuid)
     else:
         api = API_DELETE_ALL.format(project, DTO_FUNC, name)
-    return delete_from_backend(client, api)
+    return client.delete_object(api)

@@ -1,31 +1,31 @@
 from sdk.client.client import Client
-from sdk.entities.project.operations import (
-    get_project,
-    new_project,
-    delete_project,
-    import_project,
-)
 from sdk.entities.artifact.operations import (
-    get_artifact,
-    new_artifact,
     delete_artifact,
+    get_artifact,
     import_artifact,
+    new_artifact,
 )
 from sdk.entities.dataitem.operations import (
-    get_dataitem,
-    new_dataitem,
     delete_dataitem,
+    get_dataitem,
     import_dataitem,
+    new_dataitem,
 )
 from sdk.entities.function.operations import (
-    get_function,
-    new_function,
     delete_function,
+    get_function,
     import_function,
+    new_function,
+)
+from sdk.entities.project.operations import (
+    delete_project,
+    get_project,
+    import_project,
+    new_project,
 )
 from sdk.entities.workflow.operations import (
-    get_workflow,
-    new_workflow,
     delete_workflow,
+    get_workflow,
     import_workflow,
+    new_workflow,
 )

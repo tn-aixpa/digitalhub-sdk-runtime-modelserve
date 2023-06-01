@@ -6,10 +6,14 @@ from abc import ABCMeta, abstractmethod
 from pydantic import BaseModel
 
 from sdk.client.client import Client
+from sdk.client.factory import get_client
 from sdk.entities.utils import file_exporter
 
+from dataclasses import dataclass
 
-class EntityMetadata(BaseModel):
+
+@dataclass
+class EntityMetadata:
     """
     A class representing the metadata of an entity.
     """
@@ -27,10 +31,23 @@ class EntityMetadata(BaseModel):
             A dictionary containing the attributes of the entity instance.
 
         """
-        return {k: v for k, v in self.__dict__.items()}
+        obj = {}
+        for k in self.__dict__.keys():
+            if k.startswith("_"):
+                continue
+            val = getattr(self, k, None)
+            if (val is not None) and not (isinstance(val, dict) and not val):
+                if hasattr(val, "to_dict"):
+                    val = val.to_dict()
+                    if val:
+                        obj[k] = val
+                else:
+                    obj[k] = val
+        return obj
 
 
-class EntitySpec(BaseModel):
+@dataclass
+class EntitySpec:
     """
     A class representing the specification of an entity.
     """
@@ -45,7 +62,19 @@ class EntitySpec(BaseModel):
             A dictionary containing the attributes of the entity instance.
 
         """
-        return {k: v for k, v in self.__dict__.items()}
+        obj = {}
+        for k in self.__dict__.keys():
+            if k.startswith("_"):
+                continue
+            val = getattr(self, k, None)
+            if (val is not None) and not (isinstance(val, dict) and not val):
+                if hasattr(val, "to_dict"):
+                    val = val.to_dict()
+                    if val:
+                        obj[k] = val
+                else:
+                    obj[k] = val
+        return obj
 
 
 class Entity(metaclass=ABCMeta):
@@ -56,9 +85,10 @@ class Entity(metaclass=ABCMeta):
     def __init__(self) -> None:
         self.id = None
         self._obj_attr = ["name", "kind", "metadata", "spec"]
+        self._client = get_client()
 
     @abstractmethod
-    def save(self, client: Client, overwrite: bool = False) -> dict:
+    def save(self, overwrite: bool = False) -> dict:
         ...
 
     @abstractmethod
@@ -67,18 +97,15 @@ class Entity(metaclass=ABCMeta):
 
     def save_object(
         self,
-        client: Client,
         obj: "Entity",
         api: str,
-        overwrite: bool,
+        overwrite: bool = False,
     ) -> None:
         """
         Save entity into backend.
 
         Parameters
         ----------
-        client : Client
-            A client instance to store the entity.
         obj : Entity
             Entity object to save.
         api : str
@@ -92,10 +119,10 @@ class Entity(metaclass=ABCMeta):
         None
 
         """
-        return client.create_object(obj, api)
+        return self._client.create_object(obj, api)
 
     @staticmethod
-    def export_object(filename: str, obj: "Entity") -> None:
+    def export_object(filename: str, obj: dict) -> None:
         """
         Export object to a file in the specified filename location.
 
@@ -137,6 +164,11 @@ class Entity(metaclass=ABCMeta):
                 else:
                     obj[k] = val
         return obj
+
+    def to_dict_not_embed(self) -> dict:
+        return {
+            k: v for k, v in self.__dict__.items() if k in ["project", "name", "kind"]
+        }
 
     def to_dict_complete(self) -> dict:
         """

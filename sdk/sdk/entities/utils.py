@@ -1,10 +1,7 @@
-from typing import Any
-
-from sdk.client.client import Client
 from sdk.utils.utils import read_yaml, write_yaml
 
 
-def file_importer(path: str, obj: Any) -> Any:
+def file_importer(path: str, obj: object) -> object:
     dict_ = read_yaml(path)
     entity = obj(**dict_)
     if "id" in dict_:
@@ -12,9 +9,5 @@ def file_importer(path: str, obj: Any) -> Any:
     return entity
 
 
-def file_exporter(path: str, obj: Any) -> None:
+def file_exporter(path: str, obj: dict) -> None:
     write_yaml(obj, path)
-
-
-def delete_from_backend(client: Client, api: str) -> None:
-    client.delete_object(api)

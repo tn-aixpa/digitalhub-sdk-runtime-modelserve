@@ -1,16 +1,18 @@
 """
 Artifact module.
 """
-from sdk.client.client import Client
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.common import API_CREATE, DTO_ARTF
+from sdk.utils.api import API_CREATE, DTO_ARTF
 from sdk.utils.utils import get_uiid
+from dataclasses import dataclass, field
 
 
+@dataclass
 class ArtifactMetadata(EntityMetadata):
     ...
 
 
+@dataclass
 class ArtifactSpec(EntitySpec):
     key: str = None
     path: str = None
@@ -68,7 +70,7 @@ class Artifact(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, client: Client = None, overwrite: bool = False) -> dict:
+    def save(self, overwrite: bool = False) -> dict:
         """
         Save artifact into backend.
 
@@ -79,9 +81,9 @@ class Artifact(Entity):
 
         """
         if self._local:
-            self.export()
-        api = API_CREATE.format(self.name, DTO_ARTF)
-        return self.save_object(client, self.to_dict(), api, overwrite)
+            return self.export()
+        api = API_CREATE.format(self.project, DTO_ARTF)
+        return self.save_object(self.to_dict(), api, overwrite)
 
     def export(self, filename: str = None) -> None:
         """

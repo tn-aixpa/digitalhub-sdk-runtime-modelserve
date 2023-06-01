@@ -1,12 +1,9 @@
 from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
-from sdk.entities.utils import file_importer, delete_from_backend
-from sdk.client.client import Client
-from sdk.utils.common import (
-    API_READ_LATEST,
-    API_READ_VERSION,
-    API_DELETE_VERSION,
-    API_DELETE_ALL,
-    DTO_PROJ,
+from sdk.entities.utils import file_importer
+from sdk.client.factory import get_client
+from sdk.utils.api import (
+    API_READ_PROJECT,
+    API_DELETE_PROJECT,
 )
 
 
@@ -18,8 +15,8 @@ def new_project(
     functions: list = None,
     artifacts: list = None,
     workflows: list = None,
-    client: Client = None,
     local: bool = False,
+    embed: bool = False,
 ) -> Project:
     """
     Create a new project and an execution context.
@@ -32,10 +29,10 @@ def new_project(
         The source of the project (eg. remote git://repo-url, or local "./").
     description : str, optional
         The description of the project.
-    client : Client, optional
-        A Client object to interact with backend.
     local : bool, optional
-        Flag to determine if object wil be saved locally.
+        Flag to determine if object will be saved locally.
+    embed : bool, optional
+        Flag to determine if object related to project will be fully embedded or not.
 
     Returns
     -------
@@ -43,6 +40,12 @@ def new_project(
         A Project instance with its context.
 
     """
+    if functions is None:
+        functions = []
+    if artifacts is None:
+        artifacts = []
+    if workflows is None:
+        workflows = []
     meta = ProjectMetadata(name=name, description=description)
     spec = ProjectSpec(
         context=context,
@@ -51,15 +54,14 @@ def new_project(
         artifacts=artifacts,
         workflows=workflows,
     )
-    obj = Project(name, metadata=meta, spec=spec, local=local)
+    obj = Project(name, metadata=meta, spec=spec, local=local, embed=embed)
     if not local:
-        obj.save(client)
+        obj.save()
     return obj
 
 
 def load_project(
     name: str,
-    client: Client = None,
     local: bool = False,
     filename: str = "project.yaml",
 ) -> Project:
@@ -68,8 +70,6 @@ def load_project(
 
     Parameters
     ----------
-    client : Client
-        Client to interact with backend.
     name : str
         The name of the project to load from backend.
     filename : str
@@ -86,17 +86,16 @@ def load_project(
     if local:
         return import_project(filename)
     else:
+        client = get_client()
         return get_project(client, name)
 
 
-def get_project(client: Client, name: str, uuid: str = None) -> Project:
+def get_project(name: str, uuid: str = None) -> Project:
     """
     Retrieves project details from the backend.
 
     Parameters
     ----------
-    client : Client
-        The client for DHUB backend.
     name : str
         The name of the project.
     uuid : str, optional
@@ -113,12 +112,19 @@ def get_project(client: Client, name: str, uuid: str = None) -> Project:
         If the specified project does not exist.
 
     """
-    if uuid is not None:
-        api = API_READ_VERSION.format(name, DTO_PROJ, name, uuid)
-    else:
-        api = API_READ_LATEST.format(name, DTO_PROJ, name)
+    api = API_READ_PROJECT.format(name)
+    client = get_client()
     r = client.get_object(api)
     if "status" not in r:
+        if "spec" not in r:
+            r["spec"] = {}
+            r["spec"]["source"] = r.get("source", None)
+            r["spec"]["context"] = r.get("context", "./")
+            r["spec"]["functions"] = r.get("functions", [])
+            r["spec"]["artifacts"] = r.get("artifacts", [])
+            r["spec"]["workflows"] = r.get("workflows", [])
+        l = ["functions", "artifacts", "workflows", "source", "context"]
+        r = {k: v for k, v in r.items() if k not in l}
         return Project(**r)
     raise KeyError(f"Project {name} does not exists.")
 
@@ -138,17 +144,18 @@ def import_project(file: str) -> Project:
         The Project object imported from the file using the specified path.
 
     """
-    return file_importer(file, Project,)
+    return file_importer(
+        file,
+        Project,
+    )
 
 
-def delete_project(client: Client, name: str, uuid: str = None) -> None:
+def delete_project(name: str, uuid: str = None) -> None:
     """
     Delete a project.
 
     Parameters
     ----------
-    client : Client
-        The client for DHUB backend.
     name : str
         The name of the project.
 
@@ -157,8 +164,6 @@ def delete_project(client: Client, name: str, uuid: str = None) -> None:
     None
         This function does not return anything.
     """
-    if uuid is not None:
-        api = API_DELETE_VERSION.format(name, DTO_PROJ, name, uuid)
-    else:
-        api = API_DELETE_ALL.format(name, DTO_PROJ, name)
-    return delete_from_backend(client, api)
+    client = get_client()
+    api = API_DELETE_PROJECT.format(name)
+    return client.delete_object(api)

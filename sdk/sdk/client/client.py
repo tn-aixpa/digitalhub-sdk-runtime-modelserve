@@ -4,7 +4,7 @@ Client module.
 import requests
 
 from sdk.models.models import DHCoreConfig, StoreConfig
-from sdk.utils.utils import get_env_dhub_cfg, get_env_store_cfg
+from sdk.client.utils import get_dhub_env, get_store_env
 
 
 class Client:
@@ -16,8 +16,8 @@ class Client:
         self._setup(dhub_cfg, store_cfg)
 
     def _setup(self, dhub_cfg: "DHCoreConfig" = None, store_cfg: "StoreConfig" = None):
-        self.dhub_cfg = dhub_cfg if dhub_cfg is not None else get_env_dhub_cfg()
-        self.store_cfg = store_cfg if store_cfg is not None else get_env_store_cfg()
+        self.dhub_cfg = dhub_cfg if dhub_cfg is not None else get_dhub_env()
+        self.store_cfg = store_cfg if store_cfg is not None else get_store_env()
 
     def create_object(self, obj: dict, api: str):
         endpoint = self._get_endpoint(api)

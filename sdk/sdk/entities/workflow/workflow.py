@@ -1,17 +1,19 @@
 """
 Workflow module.
 """
-from sdk.client.client import Client
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.run.run import Run
-from sdk.utils.common import API_CREATE, DTO_WKFL
+from sdk.utils.api import API_CREATE, DTO_WKFL
 from sdk.utils.utils import get_uiid
+from dataclasses import dataclass
 
 
+@dataclass
 class WorkflowMetadata(EntityMetadata):
     ...
 
 
+@dataclass
 class WorkflowSpec(EntitySpec):
     ...
 
@@ -68,7 +70,7 @@ class Workflow(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, client: Client, overwrite: bool = False) -> dict:
+    def save(self, overwrite: bool = False) -> dict:
         """
         Save workflow into backend.
 
@@ -79,9 +81,9 @@ class Workflow(Entity):
 
         """
         if self._local:
-            self.export()
-        api = API_CREATE.format(self.name, DTO_WKFL)
-        return self.save_object(client, self.to_dict(), api, overwrite)
+            return self.export()
+        api = API_CREATE.format(self.project, DTO_WKFL)
+        return self.save_object(self.to_dict(), api, overwrite)
 
     def export(self, filename: str = None) -> None:
         """

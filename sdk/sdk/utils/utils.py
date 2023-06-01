@@ -1,30 +1,9 @@
-import yaml
 from collections import OrderedDict
 from pathlib import Path
 from typing import Union
 from uuid import uuid4
 
-
-from sdk.utils.common import (
-    DHUB_CORE_ENDPOINT,
-    DHUB_CORE_USER,
-    DHUB_CORE_PASSWORD,
-    DHUB_CORE_TOKEN,
-)
-from sdk.models.models import DHCoreConfig
-
-
-def get_env_dhub_cfg() -> DHCoreConfig:
-    return DHCoreConfig(
-        endpoint=DHUB_CORE_ENDPOINT,
-        user=DHUB_CORE_USER,
-        password=DHUB_CORE_PASSWORD,
-        token=DHUB_CORE_TOKEN,
-    )
-
-
-def get_env_store_cfg():
-    ...
+import yaml
 
 
 def write_yaml(obj: dict, file: Union[str, Path]) -> None:

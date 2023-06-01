@@ -2,10 +2,10 @@
 Artifact module.
 """
 
-from sdk.client.client import Client
-from sdk.entities.utils import file_importer, delete_from_backend
+from sdk.client.factory import get_client
+from sdk.entities.utils import file_importer
 from sdk.entities.artifact.artifact import Artifact, ArtifactMetadata, ArtifactSpec
-from sdk.utils.common import (
+from sdk.utils.api import (
     API_READ_LATEST,
     API_READ_VERSION,
     API_DELETE_VERSION,
@@ -21,7 +21,6 @@ def new_artifact(
     kind: str = None,
     key: str = None,
     path: str = None,
-    client: Client = None,
     local: bool = False,
 ) -> Artifact:
     """
@@ -41,10 +40,8 @@ def new_artifact(
         Representation of artfact like store://etc..
     path : str
         Path to the artifact on local file system or remote storage.
-    client : Client, optional
-        A Client object to interact with backend.
     local : bool, optional
-        Flag to determine if object wil be saved locally.
+        Flag to determine if object will be saved locally.
 
     Returns
     -------
@@ -53,20 +50,20 @@ def new_artifact(
     """
     meta = ArtifactMetadata(name=name, description=description)
     spec = ArtifactSpec(key=key, path=path)
-    obj = Artifact(project, name, kind, meta, spec)
+    obj = Artifact(
+        project=project, name=name, kind=kind, meta=meta, spec=spec, local=local
+    )
     if not local:
-        obj.save(client)
+        obj.save()
     return obj
 
 
-def get_artifact(client: Client, project: str, name: str, uuid: str = None) -> Artifact:
+def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
     """
     Retrieves artifact details from the backend.
 
     Parameters
     ----------
-    client : Client
-        The client for DHUB backend.
     project : str
         Name of the project.
     name : str
@@ -89,7 +86,7 @@ def get_artifact(client: Client, project: str, name: str, uuid: str = None) -> A
         api = API_READ_VERSION.format(project, DTO_ARTF, name, uuid)
     else:
         api = API_READ_LATEST.format(project, DTO_ARTF, name)
-
+    client = get_client()
     r = client.get_object(api)
     if "status" not in r:
         return Artifact(**r)
@@ -111,17 +108,18 @@ def import_artifact(file: str) -> Artifact:
         The Artifact object imported from the file using the specified path.
 
     """
-    return file_importer(file, Artifact,)
+    return file_importer(
+        file,
+        Artifact,
+    )
 
 
-def delete_artifact(client: Client, project: str, name: str, uuid: str = None) -> None:
+def delete_artifact(project: str, name: str, uuid: str = None) -> None:
     """
     Delete a artifact from backend.
 
     Parameters
     ----------
-    client : Client
-        The client for DHUB backend.
     project : str
         Name of the project.
     name : str
@@ -134,8 +132,9 @@ def delete_artifact(client: Client, project: str, name: str, uuid: str = None) -
     None
         This function does not return anything.
     """
+    client = get_client()
     if uuid is not None:
         api = API_DELETE_VERSION.format(project, DTO_ARTF, name, uuid)
     else:
         api = API_DELETE_ALL.format(project, DTO_ARTF, name)
-    return delete_from_backend(client, api)
+    return client.delete_object(api)

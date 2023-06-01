@@ -1,22 +1,25 @@
 """
 Function module.
 """
-from sdk.client.client import Client
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.run.run import Run
-from sdk.utils.common import API_CREATE, DTO_FUNC
+from sdk.utils.api import API_CREATE, DTO_FUNC
 from sdk.utils.utils import get_uiid
 
+from dataclasses import dataclass, field
 
+
+@dataclass
 class FunctionMetadata(EntityMetadata):
     name: str
 
 
+@dataclass
 class FunctionSpec(EntitySpec):
-    source: str = ""
-    image: str = ""
-    tag: str = ""
-    handler: str = ""
+    source: str = None
+    image: str = None
+    tag: str = None
+    handler: str = None
 
 
 class Function(Entity):
@@ -71,7 +74,7 @@ class Function(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, client: Client = None, overwrite: bool = False) -> dict:
+    def save(self, overwrite: bool = False) -> dict:
         """
         Save function into backend.
 
@@ -82,9 +85,9 @@ class Function(Entity):
 
         """
         if self._local:
-            self.export()
-        api = API_CREATE.format(self.name, DTO_FUNC)
-        return self.save_object(client, self.to_dict(), api, overwrite)
+            return self.export()
+        api = API_CREATE.format(self.project, DTO_FUNC)
+        return self.save_object(self.to_dict(), api, overwrite)
 
     def export(self, filename: str = None) -> None:
         """

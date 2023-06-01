@@ -5,6 +5,7 @@ from typing import Any
 
 from sdk.models.models import DHCoreConfig, StoreConfig
 from sdk.client.client import Client
+from sdk.client.utils import get_dhub_env, get_store_env
 
 
 class ObjectFactory:
@@ -35,3 +36,9 @@ class ClientBuilder:
 
 factory = ObjectFactory()
 factory.register_builder("client", ClientBuilder())
+
+
+def get_client():
+    dh_cfg = get_dhub_env()
+    store_cfg = get_store_env()
+    return factory.create("client", dhub_cfg=dh_cfg, store_cfg=store_cfg)

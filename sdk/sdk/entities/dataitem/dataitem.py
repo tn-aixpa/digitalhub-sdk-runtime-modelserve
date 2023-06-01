@@ -3,16 +3,19 @@ DataItem module.
 """
 import pandas as pd
 
-from sdk.client.client import Client
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.common import API_CREATE, DTO_DTIT
+from sdk.utils.api import API_CREATE, DTO_DTIT
 from sdk.utils.utils import get_uiid
 
+from dataclasses import dataclass, field
 
+
+@dataclass
 class DataItemMetadata(EntityMetadata):
     ...
 
 
+@dataclass
 class DataItemSpec(EntitySpec):
     key: str = None
     path: str = None
@@ -70,7 +73,7 @@ class DataItem(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, client: Client, overwrite: bool = False) -> dict:
+    def save(self, overwrite: bool = False) -> dict:
         """
         Save dataitem into backend.
 
@@ -81,9 +84,9 @@ class DataItem(Entity):
 
         """
         if self._local:
-            self.export()
-        api = API_CREATE.format(self.name, DTO_DTIT)
-        return self.save_object(client, self.to_dict(), api, overwrite)
+            return self.export()
+        api = API_CREATE.format(self.project, DTO_DTIT)
+        return self.save_object(self.to_dict(), api, overwrite)
 
     def export(self, filename: str = None) -> None:
         """
