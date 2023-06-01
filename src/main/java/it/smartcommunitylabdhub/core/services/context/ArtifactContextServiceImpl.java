@@ -205,4 +205,43 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
         }
     }
 
+    @Override
+    public ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid, ArtifactDTO artifactDTO) {
+
+        try {
+            // Check that project context is the same as the project passed to the
+            // artifactDTO
+            if (!projectName.equals(artifactDTO.getProject())) {
+                throw new CustomException("Project Context and Artifact Project does not match", null);
+            }
+            if (!uuid.equals(artifactDTO.getId())) {
+                throw new CustomException(
+                        "Trying to update an artifact with an ID different from the one passed in the request.", null);
+            }
+            // Check project context
+            checkContext(artifactDTO.getProject());
+
+            Artifact artifact = this.artifactRepository.findById(artifactDTO.getId()).map(
+                    a -> {
+                        // Update the existing artifact version
+                        ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(commandFactory,
+                                artifactDTO);
+                        return artifactBuilder.update(a);
+                    })
+                    .orElseThrow(
+                            () -> new CustomException("The artifact does not exist.", null));
+
+            // Return artifact DTO
+            return new ArtifactDTOBuilder(
+                    commandFactory,
+                    artifact).build();
+
+        } catch (CustomException e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

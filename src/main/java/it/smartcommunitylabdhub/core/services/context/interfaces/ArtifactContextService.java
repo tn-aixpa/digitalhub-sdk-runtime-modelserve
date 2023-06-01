@@ -23,4 +23,6 @@ public interface ArtifactContextService {
                         String projectName, String artifactName);
 
         ArtifactDTO createOrUpdateArtifact(String projectName, String artifactName, ArtifactDTO artifactDTO);
+
+        ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid, ArtifactDTO artifactDTO);
 }

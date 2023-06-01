@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -85,6 +86,17 @@ public class ArtifactContextController extends ContextController {
             @PathVariable String name,
             @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactContextService.createOrUpdateArtifact(project, name, artifactDTO));
+    }
+
+    @Operation(summary = "Update if exist an artifact in a project context", description = "First check if project exist, if artifact exist update.")
+    @PutMapping(value = "/artifacts/{name}/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" })
+    public ResponseEntity<ArtifactDTO> updateUpdateArtifact(
+            @PathVariable String project,
+            @PathVariable String name,
+            @PathVariable String uuid,
+            @RequestBody ArtifactDTO artifactDTO) {
+        return ResponseEntity.ok(this.artifactContextService.updateArtifact(project, name, uuid, artifactDTO));
     }
 
 }
