@@ -84,7 +84,7 @@ class DataItem(Entity):
 
         """
         if self._local:
-            return self.export()
+            raise Exception("Use .export() for local execution.")
         api = API_CREATE.format(self.project, DTO_DTIT)
         return self.save_object(self.to_dict(), api, overwrite)
 

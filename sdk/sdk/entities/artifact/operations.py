@@ -51,7 +51,7 @@ def new_artifact(
     meta = ArtifactMetadata(name=name, description=description)
     spec = ArtifactSpec(key=key, path=path)
     obj = Artifact(
-        project=project, name=name, kind=kind, meta=meta, spec=spec, local=local
+        project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
     )
     if not local:
         obj.save()

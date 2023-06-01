@@ -47,7 +47,9 @@ def new_workflow(
     """
     meta = WorkflowMetadata(name=name, description=description)
     spec = WorkflowSpec()
-    obj = Workflow(project, name, kind, meta, spec, local)
+    obj = Workflow(
+        project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
+    )
     if not local:
         obj.save()
     return obj

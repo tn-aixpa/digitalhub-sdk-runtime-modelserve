@@ -31,7 +31,7 @@ class Function(Entity):
         self,
         project: str,
         name: str,
-        kind: str = "",
+        kind: str = None,
         metadata: FunctionMetadata = None,
         spec: FunctionSpec = None,
         local: bool = False,
@@ -47,7 +47,7 @@ class Function(Entity):
         name : str
             Name of the function.
         kind : str, optional
-            Kind of the function, default is ''.
+            Kind of the function.
         metadata : FunctionMetadata, optional
             Metadata for the function, default is None.
         spec : FunctionSpec, optional
@@ -60,7 +60,7 @@ class Function(Entity):
         super().__init__()
         self.project = project
         self.name = name
-        self.kind = kind
+        self.kind = kind if kind is not None else "local"
         self.metadata = metadata if metadata is not None else {}
         self.spec = spec if spec is not None else {}
         self._local = local
@@ -85,7 +85,7 @@ class Function(Entity):
 
         """
         if self._local:
-            return self.export()
+            raise Exception("Use .export() for local execution.")
         api = API_CREATE.format(self.project, DTO_FUNC)
         return self.save_object(self.to_dict(), api, overwrite)
 

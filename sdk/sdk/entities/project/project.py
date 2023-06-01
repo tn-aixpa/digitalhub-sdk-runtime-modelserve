@@ -72,7 +72,7 @@ class Project(Entity):
 
         # Set id if None
         if self.id is None:
-            self.id = "test"  # get_uiid()
+            self.id = "proj"  # get_uiid()
 
     def save(self, overwrite: bool = False) -> dict:
         """
@@ -85,7 +85,7 @@ class Project(Entity):
 
         """
         if self._local:
-            return self.export()
+            raise Exception("Use .export() for local execution.")
         api = API_CREATE_PROJECT
         obj = self.to_dict()
         obj["functions"] = obj.get("spec", {}).get("functions", [])
@@ -94,6 +94,7 @@ class Project(Entity):
         l = ["functions", "artifacts", "workflows"]
         if "spec" in obj:
             obj["spec"] = {k: v for k, v in obj["spec"].items() if k not in l}
+        print(obj)
         return self.save_object(obj, api, overwrite)
 
     def export(self, filename: str = None) -> None:

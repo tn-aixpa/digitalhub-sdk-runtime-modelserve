@@ -12,8 +12,46 @@ from sdk.entities.utils import file_exporter
 from dataclasses import dataclass
 
 
+class ModelObj:
+    def to_dict(self) -> dict:
+        """
+        Return object as dict with all keys.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+
+        """
+        obj = {}
+        for k in self.__dict__.keys():
+            if k.startswith("_"):
+                continue
+            val = getattr(self, k, None)
+            if val is not None:
+                if hasattr(val, "to_dict"):
+                    val = val.to_dict()
+                    if val:
+                        obj[k] = val
+                else:
+                    obj[k] = val
+        return obj
+
+    def __repr__(self) -> str:
+        """
+        Return string representation of the entity object.
+
+        Returns
+        -------
+        str
+            A string representing the entity instance.
+
+        """
+        return str(self.to_dict())
+
+
 @dataclass
-class EntityMetadata:
+class EntityMetadata(ModelObj):
     """
     A class representing the metadata of an entity.
     """
@@ -21,63 +59,15 @@ class EntityMetadata:
     name: str
     description: str = None
 
-    def to_dict(self) -> dict:
-        """
-        Return object as dict with all keys.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-
-        """
-        obj = {}
-        for k in self.__dict__.keys():
-            if k.startswith("_"):
-                continue
-            val = getattr(self, k, None)
-            if (val is not None) and not (isinstance(val, dict) and not val):
-                if hasattr(val, "to_dict"):
-                    val = val.to_dict()
-                    if val:
-                        obj[k] = val
-                else:
-                    obj[k] = val
-        return obj
-
 
 @dataclass
-class EntitySpec:
+class EntitySpec(ModelObj):
     """
     A class representing the specification of an entity.
     """
 
-    def to_dict(self) -> dict:
-        """
-        Return object as dict with all keys.
 
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-
-        """
-        obj = {}
-        for k in self.__dict__.keys():
-            if k.startswith("_"):
-                continue
-            val = getattr(self, k, None)
-            if (val is not None) and not (isinstance(val, dict) and not val):
-                if hasattr(val, "to_dict"):
-                    val = val.to_dict()
-                    if val:
-                        obj[k] = val
-                else:
-                    obj[k] = val
-        return obj
-
-
-class Entity(metaclass=ABCMeta):
+class Entity(ModelObj, metaclass=ABCMeta):
     """
     Abstract class for entities.
     """
@@ -141,30 +131,6 @@ class Entity(metaclass=ABCMeta):
         except Exception as e:
             raise e
 
-    def to_dict(self) -> dict:
-        """
-        Return object as dict.
-
-        Returns
-        -------
-        dict
-            A dictionary containing some attributes of the entity instance.
-
-        """
-        obj = {}
-        for k in self.__dict__.keys():
-            if k.startswith("_"):
-                continue
-            val = getattr(self, k, None)
-            if (val is not None) and not (isinstance(val, dict) and not val):
-                if hasattr(val, "to_dict"):
-                    val = val.to_dict()
-                    if val:
-                        obj[k] = val
-                else:
-                    obj[k] = val
-        return obj
-
     def to_dict_not_embed(self) -> dict:
         return {
             k: v for k, v in self.__dict__.items() if k in ["project", "name", "kind"]
@@ -181,15 +147,3 @@ class Entity(metaclass=ABCMeta):
 
         """
         return {k: v for k, v in self.__dict__.items()}
-
-    def __repr__(self) -> str:
-        """
-        Return string representation of the entity object.
-
-        Returns
-        -------
-        str
-            A string representing the entity instance.
-
-        """
-        return str(self.to_dict())

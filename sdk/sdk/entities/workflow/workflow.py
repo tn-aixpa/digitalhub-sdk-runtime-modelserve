@@ -15,7 +15,7 @@ class WorkflowMetadata(EntityMetadata):
 
 @dataclass
 class WorkflowSpec(EntitySpec):
-    ...
+    test: str = ""
 
 
 class Workflow(Entity):
@@ -27,7 +27,7 @@ class Workflow(Entity):
         self,
         project: str,
         name: str,
-        kind: str = "workflow",
+        kind: str = None,
         metadata: WorkflowMetadata = None,
         spec: WorkflowSpec = None,
         local: bool = False,
@@ -56,7 +56,7 @@ class Workflow(Entity):
         super().__init__()
         self.project = project
         self.name = name
-        self.kind = kind
+        self.kind = kind if kind is not None else "local"
         self.metadata = metadata if metadata is not None else {}
         self.spec = spec if spec is not None else {}
         self._local = local
@@ -81,7 +81,7 @@ class Workflow(Entity):
 
         """
         if self._local:
-            return self.export()
+            raise Exception("Use .export() for local execution.")
         api = API_CREATE.format(self.project, DTO_WKFL)
         return self.save_object(self.to_dict(), api, overwrite)
 
