@@ -18,6 +18,7 @@ import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
 import it.smartcommunitylabdhub.core.services.builders.dtos.ArtifactDTOBuilder;
 import it.smartcommunitylabdhub.core.services.builders.entities.ArtifactEntityBuilder;
 import it.smartcommunitylabdhub.core.services.context.interfaces.ArtifactContextService;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ArtifactContextServiceImpl extends ContextService implements ArtifactContextService {
@@ -160,7 +161,12 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             // Check that project context is the same as the project passed to the
             // artifactDTO
             if (!projectName.equals(artifactDTO.getProject())) {
-                throw new CustomException("Project Context and Artifact Project does not match", null);
+                throw new CustomException("Project Context and Artifact Project does not match.", null);
+            }
+            if (!artifactName.equals(artifactDTO.getName())) {
+                throw new CustomException(
+                        "Trying to create/update an artifact with name different from the one passed in the request.",
+                        null);
             }
 
             // Check project context
@@ -244,4 +250,37 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
         }
     }
 
+    @Override
+    @Transactional
+    public Boolean deleteSpecificArtifactVersion(String projectName, String artifactName, String uuid) {
+        try {
+            if (this.artifactRepository.existsByProjectAndNameAndId(projectName, artifactName, uuid)) {
+                this.artifactRepository.deleteByProjectAndNameAndId(projectName, artifactName, uuid);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    "cannot delete artifact",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Boolean deleteAllArtifactVersions(String projectName, String artifactName) {
+        try {
+            if (artifactRepository.existsByProjectAndName(projectName, artifactName)) {
+                this.artifactRepository.deleteByProjectAndName(projectName, artifactName);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    "cannot delete artifact",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

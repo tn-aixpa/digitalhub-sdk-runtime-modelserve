@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -99,4 +100,20 @@ public class ArtifactContextController extends ContextController {
         return ResponseEntity.ok(this.artifactContextService.updateArtifact(project, name, uuid, artifactDTO));
     }
 
+    @Operation(summary = "Delete a specific artifact version", description = "First check if project exist, then delete a specific artifact version")
+    @DeleteMapping(path = "/artifacts/{name}/{uuid}")
+    public ResponseEntity<Boolean> deleteSpecificArtifactVersion(
+            @PathVariable String project,
+            @PathVariable String name,
+            @PathVariable String uuid) {
+        return ResponseEntity.ok(this.artifactContextService.deleteSpecificArtifactVersion(project, name, uuid));
+    }
+
+    @Operation(summary = "Delete all version of an artifact", description = "First check if project exist, then delete a specific artifact version")
+    @DeleteMapping(path = "/artifacts/{name}")
+    public ResponseEntity<Boolean> deleteArtifact(
+            @PathVariable String project,
+            @PathVariable String name) {
+        return ResponseEntity.ok(this.artifactContextService.deleteAllArtifactVersions(project, name));
+    }
 }

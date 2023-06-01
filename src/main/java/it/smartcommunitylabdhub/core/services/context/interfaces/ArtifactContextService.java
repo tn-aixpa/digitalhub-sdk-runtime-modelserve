@@ -25,4 +25,8 @@ public interface ArtifactContextService {
         ArtifactDTO createOrUpdateArtifact(String projectName, String artifactName, ArtifactDTO artifactDTO);
 
         ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid, ArtifactDTO artifactDTO);
+
+        Boolean deleteSpecificArtifactVersion(String projectName, String artifactName, String uuid);
+
+        Boolean deleteAllArtifactVersions(String projectName, String artifactName);
 }
