@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +19,11 @@ import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.FunctionContextService;
+import jakarta.validation.Valid;
 
 @RestController
 @ApiVersion("v1")
+@Validated
 public class FunctionContextController extends ContextController {
 
     private final FunctionContextService functionContextService;
@@ -33,7 +36,7 @@ public class FunctionContextController extends ContextController {
     @PostMapping(value = "/functions", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<FunctionDTO> createFunction(
             @ValidateField @PathVariable String project,
-            @RequestBody FunctionDTO functionDTO) {
+            @Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionContextService.createFunction(project, functionDTO));
     }
 
@@ -86,7 +89,7 @@ public class FunctionContextController extends ContextController {
     public ResponseEntity<FunctionDTO> createOrUpdateFunction(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
-            @RequestBody FunctionDTO functionDTO) {
+            @Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionContextService.createOrUpdateFunction(project, name, functionDTO));
     }
 
@@ -97,7 +100,7 @@ public class FunctionContextController extends ContextController {
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid,
-            @RequestBody FunctionDTO functionDTO) {
+            @Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionContextService.updateFunction(project, name, uuid, functionDTO));
     }
 

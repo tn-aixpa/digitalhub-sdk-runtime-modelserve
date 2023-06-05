@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +19,11 @@ import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.DataItemContextService;
+import jakarta.validation.Valid;
 
 @RestController
 @ApiVersion("v1")
+@Validated
 public class DataItemContextController extends ContextController {
 
     private final DataItemContextService dataItemContextService;
@@ -33,7 +36,7 @@ public class DataItemContextController extends ContextController {
     @PostMapping(value = "/dataItems", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<DataItemDTO> createDataItem(
             @ValidateField @PathVariable String project,
-            @RequestBody DataItemDTO dataItemDTO) {
+            @Valid @RequestBody DataItemDTO dataItemDTO) {
         return ResponseEntity.ok(this.dataItemContextService.createDataItem(project, dataItemDTO));
     }
 
@@ -86,7 +89,7 @@ public class DataItemContextController extends ContextController {
     public ResponseEntity<DataItemDTO> createOrUpdateDataItem(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
-            @RequestBody DataItemDTO dataItemDTO) {
+            @Valid @RequestBody DataItemDTO dataItemDTO) {
         return ResponseEntity.ok(this.dataItemContextService.createOrUpdateDataItem(project, name, dataItemDTO));
     }
 
@@ -97,7 +100,7 @@ public class DataItemContextController extends ContextController {
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid,
-            @RequestBody DataItemDTO dataItemDTO) {
+            @Valid @RequestBody DataItemDTO dataItemDTO) {
         return ResponseEntity.ok(this.dataItemContextService.updateDataItem(project, name, uuid, dataItemDTO));
     }
 

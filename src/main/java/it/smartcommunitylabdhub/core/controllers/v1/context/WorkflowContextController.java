@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +19,11 @@ import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.WorkflowContextService;
+import jakarta.validation.Valid;
 
 @RestController
 @ApiVersion("v1")
+@Validated
 public class WorkflowContextController extends ContextController {
 
     private final WorkflowContextService workflowContextService;
@@ -33,7 +36,7 @@ public class WorkflowContextController extends ContextController {
     @PostMapping(value = "/workflows", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<WorkflowDTO> createWorkflow(
             @ValidateField @PathVariable String project,
-            @RequestBody WorkflowDTO workflowDTO) {
+            @Valid @RequestBody WorkflowDTO workflowDTO) {
         return ResponseEntity.ok(this.workflowContextService.createWorkflow(project, workflowDTO));
     }
 
@@ -86,7 +89,7 @@ public class WorkflowContextController extends ContextController {
     public ResponseEntity<WorkflowDTO> createOrUpdateWorkflow(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
-            @RequestBody WorkflowDTO workflowDTO) {
+            @Valid @RequestBody WorkflowDTO workflowDTO) {
         return ResponseEntity.ok(this.workflowContextService.createOrUpdateWorkflow(project, name, workflowDTO));
     }
 
@@ -97,7 +100,7 @@ public class WorkflowContextController extends ContextController {
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid,
-            @RequestBody WorkflowDTO workflowDTO) {
+            @Valid @RequestBody WorkflowDTO workflowDTO) {
         return ResponseEntity.ok(this.workflowContextService.updateWorkflow(project, name, uuid, workflowDTO));
     }
 

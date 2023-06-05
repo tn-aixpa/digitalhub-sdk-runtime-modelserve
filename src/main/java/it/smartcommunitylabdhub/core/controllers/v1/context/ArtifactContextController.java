@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +19,11 @@ import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.ArtifactContextService;
+import jakarta.validation.Valid;
 
 @RestController
 @ApiVersion("v1")
+@Validated
 public class ArtifactContextController extends ContextController {
 
     private final ArtifactContextService artifactContextService;
@@ -33,7 +36,7 @@ public class ArtifactContextController extends ContextController {
     @PostMapping(value = "/artifacts", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<ArtifactDTO> createArtifact(
             @ValidateField @PathVariable String project,
-            @RequestBody ArtifactDTO artifactDTO) {
+            @Valid @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactContextService.createArtifact(project, artifactDTO));
     }
 
@@ -86,7 +89,7 @@ public class ArtifactContextController extends ContextController {
     public ResponseEntity<ArtifactDTO> createOrUpdateArtifact(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
-            @RequestBody ArtifactDTO artifactDTO) {
+            @Valid @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactContextService.createOrUpdateArtifact(project, name, artifactDTO));
     }
 
@@ -97,7 +100,7 @@ public class ArtifactContextController extends ContextController {
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid,
-            @RequestBody ArtifactDTO artifactDTO) {
+            @Valid @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactContextService.updateArtifact(project, name, uuid, artifactDTO));
     }
 
