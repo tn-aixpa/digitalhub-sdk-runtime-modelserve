@@ -18,7 +18,10 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.scheduling.annotation.Async;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,12 +56,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class KanikoImageBuilder {
 
-        // FIXME: ASYNC JOB
         // [x]: DONE! this builder work for FOLDER strategy building.
-        public static void buildDockerImage(
+        @Async
+        public static CompletableFuture<?> buildDockerImage(
                         KubernetesClient kubernetesClient,
-                        DockerBuildConfiguration buildConfig)
+                        DockerBuildConfig buildConfig,
+                        JobBuildConfig jobBuildConfig)
                         throws IOException {
+
                 // Generate the Dockerfile
                 String dockerFileContent = DockerfileGenerator.generateDockerfile(buildConfig);
                 String javaFile = Files.readString(
@@ -68,14 +73,14 @@ public class KanikoImageBuilder {
                                 .addToData("Dockerfile", dockerFileContent)
                                 .addToData("HelloWorld.java", javaFile) // Test purpose
                                 .withNewMetadata()
-                                .withName("kaniko-config-map")
+                                .withName("config-map" + jobBuildConfig.getIdentifier())
                                 .endMetadata()
                                 .build();
 
                 kubernetesClient.resource(configMap).inNamespace("default").create();
 
                 Secret dockerHubSecret = new SecretBuilder().withNewMetadata()
-                                .withName("dockerhub-secret")
+                                .withName("secret" + jobBuildConfig.getIdentifier())
                                 .endMetadata()
                                 .withType("kubernetes.io/dockerconfigjson")
                                 .addToData(".dockerconfigjson", getDockerConfigJson())
@@ -90,16 +95,15 @@ public class KanikoImageBuilder {
                 // Configure Kaniko build
                 Job job = new JobBuilder()
                                 .withNewMetadata()
-                                // FIXME: job name must be created with "kaniko-build-job" + uuid + name
-                                .withName("kaniko-build-job").endMetadata()
+                                .withName("job" + jobBuildConfig.getIdentifier()).endMetadata()
                                 .withNewSpec()
                                 .withNewTemplate()
                                 .withNewSpec()
 
+                                // COMMENT: Add init container to do all init operations.
                                 // Add Init container alpine
                                 .addNewInitContainer()
-                                // FIXME: init container name must be uuid + name
-                                .withName("kaniko-retrieve-data")
+                                .withName("kaniko-init" + jobBuildConfig.getIdentifier())
                                 .withImage("alpine:latest")
                                 .withVolumeMounts(
                                                 new VolumeMountBuilder()
@@ -111,9 +115,10 @@ public class KanikoImageBuilder {
                                                 + " -O /shared/data.tgz && tar xf /shared/data.tgz -C /shared")
                                 .endInitContainer()
 
+                                // COMMENT: Kaniko container
                                 // Add Kaniko container
                                 .addNewContainer()
-                                .withName("kaniko-container")
+                                .withName("kaniko-container" + jobBuildConfig.getIdentifier())
                                 .withImage("gcr.io/kaniko-project/executor:latest")
                                 .withVolumeMounts(
                                                 new VolumeMountBuilder()
@@ -133,25 +138,25 @@ public class KanikoImageBuilder {
                                 .withCommand("/kaniko/executor")
                                 .withArgs("--dockerfile=/build/Dockerfile",
                                                 "--context=/build",
-                                                "--destination=ltrubbianifbk/hello-world:latest")
+                                                "--destination=ltrubbianifbk/dh" + jobBuildConfig.getIdentifier()
+                                                                + ":latest")
                                 .endContainer()
 
                                 // COMMENT: SHARED VOLUME
-                                // Shared Volume
                                 .addNewVolume().withName("shared-dir")
                                 .endVolume()
 
                                 // Kaniko Config
                                 .addNewVolume().withName("kaniko-config")
                                 .withNewConfigMap()
-                                .withName("kaniko-config-map")
+                                .withName("config-map" + jobBuildConfig.getIdentifier())
                                 .endConfigMap()
                                 .endVolume()
 
                                 // Kaniko Secret
                                 .addNewVolume().withName("kaniko-secret")
                                 .withNewSecret()
-                                .withSecretName("dockerhub-secret")
+                                .withSecretName("secret" + jobBuildConfig.getIdentifier())
                                 .withItems(keyToPath)
                                 .endSecret()
                                 .endVolume()
@@ -169,7 +174,7 @@ public class KanikoImageBuilder {
                 // Wait for the build to complete
                 ScalableResource<Job> jobResource = kubernetesClient.batch().v1().jobs()
                                 .inNamespace("default")
-                                .withName("kaniko-build-job");
+                                .withName("job" + jobBuildConfig.getIdentifier());
 
                 // HACK: delay execution to check pod activities
                 // try {
@@ -189,8 +194,12 @@ public class KanikoImageBuilder {
 
                 // Cleanup the Pod, ConfigMap, and Secret
                 jobResource.delete();
-                kubernetesClient.configMaps().inNamespace("default").withName("kaniko-config-map").delete();
-                kubernetesClient.secrets().inNamespace("default").withName("dockerhub-secret").delete();
+                kubernetesClient.configMaps().inNamespace("default")
+                                .withName("config-map" + jobBuildConfig.getIdentifier()).delete();
+                kubernetesClient.secrets().inNamespace("default").withName("secret" + jobBuildConfig.getIdentifier())
+                                .delete();
+
+                return null;// FIXME: FOR NOW RETURN COMPLETABLE FUTURE OF NULL
 
         }
 

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class DockerfileGenerator {
 
-    public static String generateDockerfile(DockerBuildConfiguration buildConfig) throws IOException {
+    public static String generateDockerfile(DockerBuildConfig buildConfig) throws IOException {
         Path templatePath = Path.of(buildConfig.getDockerTemplatePath(), "dockerfile-template");
         Path dockerfilePath = Path.of(buildConfig.getDockerTargetPath(), "Dockerfile");
 

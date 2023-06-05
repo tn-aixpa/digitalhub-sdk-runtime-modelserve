@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,10 +19,12 @@ import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/functions")
 @ApiVersion("v1")
+@Validated
 public class FunctionController {
 
     private final FunctionService functionService;
@@ -36,7 +39,7 @@ public class FunctionController {
     }
 
     @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
-    public ResponseEntity<FunctionDTO> createFunction(@RequestBody FunctionDTO functionDTO) {
+    public ResponseEntity<FunctionDTO> createFunction(@Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionService.createFunction(functionDTO));
     }
 
@@ -48,7 +51,7 @@ public class FunctionController {
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json")
-    public ResponseEntity<FunctionDTO> updateFunction(@RequestBody FunctionDTO functionDTO,
+    public ResponseEntity<FunctionDTO> updateFunction(@Valid @RequestBody FunctionDTO functionDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.updateFunction(functionDTO, uuid));
     }

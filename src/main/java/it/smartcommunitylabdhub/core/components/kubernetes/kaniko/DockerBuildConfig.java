@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DockerBuildConfiguration {
+public class DockerBuildConfig {
     private String dockerTemplatePath;
     private String dockerTargetPath;
     private String baseImage;
@@ -25,7 +25,7 @@ public class DockerBuildConfiguration {
     @Builder.Default
     private List<String> additionalCommands = new ArrayList<>();
 
-    public DockerBuildConfiguration addCommand(String value) {
+    public DockerBuildConfig addCommand(String value) {
         additionalCommands.add(value);
         return this;
     }

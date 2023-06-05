@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,10 +18,12 @@ import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/artifacts")
 @ApiVersion("v1")
+@Validated
 public class ArtifactController {
 
     private final ArtifactService artifactService;
@@ -35,7 +38,7 @@ public class ArtifactController {
     }
 
     @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
-    public ResponseEntity<ArtifactDTO> createArtifact(@RequestBody ArtifactDTO artifactDTO) {
+    public ResponseEntity<ArtifactDTO> createArtifact(@Valid @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactService.createArtifact(artifactDTO));
     }
 
@@ -47,7 +50,7 @@ public class ArtifactController {
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json")
-    public ResponseEntity<ArtifactDTO> updateArtifact(@RequestBody ArtifactDTO artifactDTO,
+    public ResponseEntity<ArtifactDTO> updateArtifact(@Valid @RequestBody ArtifactDTO artifactDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.updateArtifact(artifactDTO, uuid));
     }

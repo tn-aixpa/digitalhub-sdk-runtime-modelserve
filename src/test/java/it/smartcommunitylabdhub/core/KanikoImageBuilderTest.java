@@ -4,7 +4,8 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-import it.smartcommunitylabdhub.core.components.kubernetes.kaniko.DockerBuildConfiguration;
+import it.smartcommunitylabdhub.core.components.kubernetes.kaniko.DockerBuildConfig;
+import it.smartcommunitylabdhub.core.components.kubernetes.kaniko.JobBuildConfig;
 import it.smartcommunitylabdhub.core.components.kubernetes.kaniko.KanikoImageBuilder;
 
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -49,19 +52,25 @@ public class KanikoImageBuilderTest {
         String basePath = Paths.get(System.getProperty("user.dir")).getParent().toString();
 
         // Create a sample DockerBuildConfiguration
-        DockerBuildConfiguration buildConfig = new DockerBuildConfiguration();
-        buildConfig.setDockerTemplatePath(Path.of(basePath, kanikoSourcePath).toString());
-        buildConfig.setDockerTargetPath(Path.of(basePath, kanikoTargetPath).toString());
-        buildConfig.setSharedData("https://www.dwsamplefiles.com/?dl_id=557");
-        buildConfig.setBaseImage("openjdk:11");
-        buildConfig
+        DockerBuildConfig dockerBuildConfig = new DockerBuildConfig();
+        dockerBuildConfig.setDockerTemplatePath(Path.of(basePath, kanikoSourcePath).toString());
+        dockerBuildConfig.setDockerTargetPath(Path.of(basePath, kanikoTargetPath).toString());
+        dockerBuildConfig.setSharedData("https://www.dwsamplefiles.com/?dl_id=557");
+        dockerBuildConfig.setBaseImage("openjdk:11");
+        dockerBuildConfig
                 .addCommand("WORKDIR /app")
                 .addCommand("COPY . /app")
                 .addCommand("RUN javac ./HelloWorld.java");
-        buildConfig.setEntrypointCommand("\"java\", \"HelloWorld\"");
+        dockerBuildConfig.setEntrypointCommand("\"java\", \"HelloWorld\"");
 
+        JobBuildConfig jobBuildConfig = JobBuildConfig.builder()
+                .type("function")
+                .name("testfunction")
+                .uuid(UUID.randomUUID().toString()).build();
         // Invoke the buildDockerImage method
-        KanikoImageBuilder.buildDockerImage(client, buildConfig);
+        CompletableFuture<?> kaniko = KanikoImageBuilder.buildDockerImage(client, dockerBuildConfig, jobBuildConfig);
+
+        kaniko.join();
 
         // Assert th`at the Pod and ConfigMap are created
         assertEquals(1, client.pods().inNamespace("default").list().getItems().size());
