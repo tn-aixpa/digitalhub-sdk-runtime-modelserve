@@ -1,17 +1,18 @@
 """
 Function module.
 """
+from dataclasses import dataclass
+
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.run.run import Run
-from sdk.utils.api import API_CREATE, DTO_FUNC
-from sdk.utils.utils import get_uiid
 
-from dataclasses import dataclass, field
+from sdk.entities.api import API_CREATE, DTO_FUNC
+from sdk.utils.utils import get_uiid
 
 
 @dataclass
 class FunctionMetadata(EntityMetadata):
-    name: str
+    ...
 
 
 @dataclass
@@ -61,8 +62,10 @@ class Function(Entity):
         self.project = project
         self.name = name
         self.kind = kind if kind is not None else "local"
-        self.metadata = metadata if metadata is not None else {}
-        self.spec = spec if spec is not None else {}
+        self.metadata = (
+            metadata if metadata is not None else FunctionMetadata(name=name)
+        )
+        self.spec = spec if spec is not None else FunctionSpec()
         self._local = local
 
         # Set new attributes
@@ -87,7 +90,9 @@ class Function(Entity):
         if self._local:
             raise Exception("Use .export() for local execution.")
         api = API_CREATE.format(self.project, DTO_FUNC)
-        return self.save_object(self.to_dict(), api, overwrite)
+        r = self.save_object(self.to_dict(), api, overwrite)
+
+        return r
 
     def export(self, filename: str = None) -> None:
         """
@@ -104,8 +109,36 @@ class Function(Entity):
 
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"function_{self.name}.yaml"
+        filename = (
+            filename
+            if filename is not None
+            else f"function_{self.project}_{self.name}.yaml"
+        )
         return self.export_object(filename, obj)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Function":
+        """
+        Create Function instance from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            Dictionary to create Function from.
+
+        Returns
+        -------
+        Function
+            Function instance.
+
+        """
+        project = d.get("project")
+        name = d.get("name")
+        if project is None or name is None:
+            raise Exception("Project or name is not specified.")
+        metadata = FunctionMetadata.from_dict(d.get("metadata", {"name": name}))
+        spec = FunctionSpec.from_dict(d.get("spec", {}))
+        return cls(project, name, metadata=metadata, spec=spec)
 
     def run(self) -> "Run":
         ...

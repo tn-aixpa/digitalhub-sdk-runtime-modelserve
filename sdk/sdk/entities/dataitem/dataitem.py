@@ -1,13 +1,14 @@
 """
 DataItem module.
 """
+from dataclasses import dataclass
+
 import pandas as pd
 
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.api import API_CREATE, DTO_DTIT
-from sdk.utils.utils import get_uiid
 
-from dataclasses import dataclass, field
+from sdk.entities.api import API_CREATE, DTO_DTIT
+from sdk.utils.utils import get_uiid
 
 
 @dataclass
@@ -60,8 +61,10 @@ class DataItem(Entity):
         self.project = project
         self.name = name
         self.kind = kind
-        self.metadata = metadata if metadata is not None else {}
-        self.spec = spec if spec is not None else {}
+        self.metadata = (
+            metadata if metadata is not None else DataItemMetadata(name=name)
+        )
+        self.spec = spec if spec is not None else DataItemSpec()
         self._local = local
 
         # Set new attributes
@@ -86,7 +89,9 @@ class DataItem(Entity):
         if self._local:
             raise Exception("Use .export() for local execution.")
         api = API_CREATE.format(self.project, DTO_DTIT)
-        return self.save_object(self.to_dict(), api, overwrite)
+        r = self.save_object(self.to_dict(), api, overwrite)
+
+        return r
 
     def export(self, filename: str = None) -> None:
         """
@@ -103,8 +108,36 @@ class DataItem(Entity):
 
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"dataitem_{self.name}.yaml"
+        filename = (
+            filename
+            if filename is not None
+            else f"dataitem_{self.project}_{self.name}.yaml"
+        )
         return self.export_object(filename, obj)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "DataItem":
+        """
+        Create DataItem instance from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            Dictionary to create DataItem from.
+
+        Returns
+        -------
+        DataItem
+            DataItem instance.
+
+        """
+        project = d.get("project")
+        name = d.get("name")
+        if project is None or name is None:
+            raise Exception("Project or name is not specified.")
+        metadata = DataItemMetadata.from_dict(d.get("metadata", {"name": name}))
+        spec = DataItemSpec.from_dict(d.get("spec", {}))
+        return cls(project, name, metadata=metadata, spec=spec)
 
     def download(self, reader) -> str:
         ...

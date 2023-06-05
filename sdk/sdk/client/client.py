@@ -1,6 +1,8 @@
 """
 Client module.
 """
+from typing import Union
+
 import requests
 
 from sdk.models.models import DHCoreConfig, StoreConfig
@@ -22,21 +24,42 @@ class Client:
     def create_object(self, obj: dict, api: str):
         endpoint = self._get_endpoint(api)
         r = requests.post(endpoint, json=obj)
-        return self._parse_response(r)
+        d = self._dictify(r)
+        self._parse_status(d)
+        return d
 
     def get_object(self, api: str):
         endpoint = self._get_endpoint(api)
         r = requests.get(endpoint)
-        return self._parse_response(r)
+        d = self._dictify(r)
+        self._parse_status(d)
+        return d
+
+    def update_object(self, obj: dict, api: str):
+        endpoint = self._get_endpoint(api)
+        r = requests.put(endpoint, json=obj)
+        d = self._dictify(r)
+        self._parse_status(d)
+        return d
 
     def delete_object(self, api: str):
         endpoint = self._get_endpoint(api)
         r = requests.delete(endpoint)
-        return self._parse_response(r)
+        d = self._dictify(r)
+        self._parse_status(d)
+        return d
 
     @staticmethod
-    def _parse_response(r: requests.Response):
-        return r.json()
+    def _parse_status(d: Union[dict, bool]) -> None:
+        if isinstance(d, dict) and "status" in d:
+            raise Exception(d)
+
+    @staticmethod
+    def _dictify(r: requests.Response) -> dict:
+        try:
+            return r.json()
+        except Exception as ex:
+            raise ex
 
     def _get_endpoint(self, api: str) -> str:
         return self.dhub_cfg.endpoint + api

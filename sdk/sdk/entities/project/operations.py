@@ -1,9 +1,18 @@
+"""
+Project operations module.
+"""
+from sdk.client.factory import get_client
 from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
 from sdk.entities.utils import file_importer
-from sdk.client.factory import get_client
-from sdk.utils.api import (
-    API_READ_PROJECT,
+from sdk.entities.api import (
+    API_DELETE_ALL,
     API_DELETE_PROJECT,
+    API_READ_PROJECT,
+    API_READ_PROJECT_OBJECTS,
+    DTO_ARTF,
+    DTO_DTIT,
+    DTO_FUNC,
+    DTO_WKFL,
 )
 
 
@@ -16,6 +25,7 @@ def new_project(
     artifacts: list = None,
     workflows: list = None,
     local: bool = False,
+    save: bool = False,
     embed: bool = False,
 ) -> Project:
     """
@@ -30,7 +40,9 @@ def new_project(
     description : str, optional
         The description of the project.
     local : bool, optional
-        Flag to determine if object will be saved locally.
+        Flag to determine if object has local execution.
+    save : bool, optional
+        Flag to determine if object will be saved.
     embed : bool, optional
         Flag to determine if object related to project will be fully embedded or not.
 
@@ -55,8 +67,11 @@ def new_project(
         workflows=workflows,
     )
     obj = Project(name, metadata=meta, spec=spec, local=local, embed=embed)
-    if not local:
-        obj.save()
+    if save:
+        if local:
+            obj.export()
+        else:
+            obj.save()
     return obj
 
 
@@ -113,20 +128,26 @@ def get_project(name: str, uuid: str = None) -> Project:
 
     """
     api = API_READ_PROJECT.format(name)
-    client = get_client()
-    r = client.get_object(api)
-    if "status" not in r:
-        if "spec" not in r:
-            r["spec"] = {}
-            r["spec"]["source"] = r.get("source", None)
-            r["spec"]["context"] = r.get("context", "./")
-            r["spec"]["functions"] = r.get("functions", [])
-            r["spec"]["artifacts"] = r.get("artifacts", [])
-            r["spec"]["workflows"] = r.get("workflows", [])
-        l = ["functions", "artifacts", "workflows", "source", "context"]
-        r = {k: v for k, v in r.items() if k not in l}
-        return Project(**r)
-    raise KeyError(f"Project {name} does not exists.")
+    r = get_client().get_object(api)
+
+    spec = {}
+    spec["source"] = r.get("source", None)
+    spec["context"] = r.get("context", "./")
+    spec["functions"] = r.get("functions", [])
+    spec["artifacts"] = r.get("artifacts", [])
+    spec["workflows"] = r.get("workflows", [])
+    l = [
+        "functions",
+        "artifacts",
+        "workflows",
+        "source",
+        "context",
+        "metadata",
+        "spec",
+    ]
+    r = {k: v for k, v in r.items() if k not in l}
+    r["spec"] = spec
+    return Project.from_dict(r)
 
 
 def import_project(file: str) -> Project:
@@ -144,13 +165,11 @@ def import_project(file: str) -> Project:
         The Project object imported from the file using the specified path.
 
     """
-    return file_importer(
-        file,
-        Project,
-    )
+    d = file_importer(file)
+    return Project.from_dict(d)
 
 
-def delete_project(name: str, uuid: str = None) -> None:
+def delete_project(name: str, delete_all: bool = False) -> None:
     """
     Delete a project.
 
@@ -165,5 +184,25 @@ def delete_project(name: str, uuid: str = None) -> None:
         This function does not return anything.
     """
     client = get_client()
-    api = API_DELETE_PROJECT.format(name)
-    return client.delete_object(api)
+    responses = []
+    # Delete all objects related to project
+    if delete_all:
+        for a in [DTO_ARTF, DTO_FUNC, DTO_WKFL]:
+            api_obj = API_READ_PROJECT_OBJECTS.format(name, a)
+            try:
+                r = client.get_object(api_obj)
+                for o in r:
+                    api = API_DELETE_ALL.format(name, a, o["name"])
+                    r = client.delete_object(api)
+                    responses.append(r)
+            except Exception:
+                pass
+    # Delete project
+    try:
+        api = API_DELETE_PROJECT.format(name)
+        r = client.delete_object(api)
+        responses.append(r)
+    except Exception:
+        pass
+    return responses
+

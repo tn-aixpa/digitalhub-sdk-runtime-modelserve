@@ -1,10 +1,12 @@
 """
 Artifact module.
 """
+from dataclasses import dataclass
+
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.api import API_CREATE, DTO_ARTF
+
+from sdk.entities.api import API_CREATE, DTO_ARTF
 from sdk.utils.utils import get_uiid
-from dataclasses import dataclass, field
 
 
 @dataclass
@@ -57,8 +59,10 @@ class Artifact(Entity):
         self.project = project
         self.name = name
         self.kind = kind if kind is not None else "artifact"
-        self.metadata = metadata if metadata is not None else {}
-        self.spec = spec if spec is not None else {}
+        self.metadata = (
+            metadata if metadata is not None else ArtifactMetadata(name=name)
+        )
+        self.spec = spec if spec is not None else ArtifactSpec()
         self._local = local
 
         # Set new attributes
@@ -83,7 +87,9 @@ class Artifact(Entity):
         if self._local:
             raise Exception("Use .export() for local execution.")
         api = API_CREATE.format(self.project, DTO_ARTF)
-        return self.save_object(self.to_dict(), api, overwrite)
+        r = self.save_object(self.to_dict(), api, overwrite)
+
+        return r
 
     def export(self, filename: str = None) -> None:
         """
@@ -100,8 +106,36 @@ class Artifact(Entity):
 
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"artifact_{self.name}.yaml"
+        filename = (
+            filename
+            if filename is not None
+            else f"artifact_{self.project}_{self.name}.yaml"
+        )
         return self.export_object(filename, obj)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Artifact":
+        """
+        Create Artifact instance from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            Dictionary to create Artifact from.
+
+        Returns
+        -------
+        Artifact
+            Artifact instance.
+
+        """
+        project = d.get("project")
+        name = d.get("name")
+        if project is None or name is None:
+            raise Exception("Project or name is not specified.")
+        metadata = ArtifactMetadata.from_dict(d.get("metadata", {"name": name}))
+        spec = ArtifactSpec.from_dict(d.get("spec", {}))
+        return cls(project, name, metadata=metadata, spec=spec)
 
     def as_file(self, reader) -> str:
         ...

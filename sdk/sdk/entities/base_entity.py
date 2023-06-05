@@ -2,14 +2,10 @@
 Abstract entity module.
 """
 from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
 
-from pydantic import BaseModel
-
-from sdk.client.client import Client
 from sdk.client.factory import get_client
 from sdk.entities.utils import file_exporter
-
-from dataclasses import dataclass
 
 
 class ModelObj:
@@ -59,6 +55,24 @@ class EntityMetadata(ModelObj):
     name: str
     description: str = None
 
+    @classmethod
+    def from_dict(cls, obj: dict) -> "EntityMetadata":
+        """
+        Return entity metadata object from dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            A dictionary containing the attributes of the entity metadata.
+
+        Returns
+        -------
+        EntityMetadata
+            An entity metadata object.
+
+        """
+        return cls(**obj)
+
 
 @dataclass
 class EntitySpec(ModelObj):
@@ -66,15 +80,33 @@ class EntitySpec(ModelObj):
     A class representing the specification of an entity.
     """
 
+    @classmethod
+    def from_dict(cls, obj: dict) -> "EntitySpec":
+        """
+        Return entity specification object from dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            A dictionary containing the attributes of the entity specification.
+
+        Returns
+        -------
+        EntitySpec
+            An entity specification object.
+
+        """
+        return cls(**obj)
+
 
 class Entity(ModelObj, metaclass=ABCMeta):
     """
     Abstract class for entities.
     """
+    _obj_attr = ["name", "kind", "metadata", "spec"]
 
     def __init__(self) -> None:
         self.id = None
-        self._obj_attr = ["name", "kind", "metadata", "spec"]
         self._client = get_client()
 
     @abstractmethod
@@ -89,7 +121,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         self,
         obj: "Entity",
         api: str,
-        overwrite: bool = False,
+        overwrite: bool,
     ) -> None:
         """
         Save entity into backend.
@@ -109,6 +141,8 @@ class Entity(ModelObj, metaclass=ABCMeta):
         None
 
         """
+        if overwrite:
+            return self._client.update_object(obj, api)
         return self._client.create_object(obj, api)
 
     @staticmethod
@@ -131,12 +165,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         except Exception as e:
             raise e
 
-    def to_dict_not_embed(self) -> dict:
-        return {
-            k: v for k, v in self.__dict__.items() if k in ["project", "name", "kind"]
-        }
-
-    def to_dict_complete(self) -> dict:
+    def to_dict(self) -> dict:
         """
         Return object as dict with all keys.
 
@@ -146,4 +175,15 @@ class Entity(ModelObj, metaclass=ABCMeta):
             A dictionary containing the attributes of the entity instance.
 
         """
-        return {k: v for k, v in self.__dict__.items()}
+        d = super().to_dict()
+        return {k: v for k, v in d.items() if k in self._obj_attr}
+
+    def to_dict_not_embed(self) -> dict:
+        return {
+            k: v for k, v in self.__dict__.items() if k in ["project", "name", "kind"]
+        }
+
+    @classmethod
+    @abstractmethod
+    def from_dict(cls, *args, **kwargs) -> None:
+        ...

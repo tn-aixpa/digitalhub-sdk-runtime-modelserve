@@ -1,15 +1,14 @@
 """
-Workflow module.
+Workflow operations module.
 """
-
 from sdk.client.factory import get_client
 from sdk.entities.utils import file_importer
 from sdk.entities.workflow.workflow import Workflow, WorkflowMetadata, WorkflowSpec
-from sdk.utils.api import (
+from sdk.entities.api import (
+    API_DELETE_ALL,
+    API_DELETE_VERSION,
     API_READ_LATEST,
     API_READ_VERSION,
-    API_DELETE_VERSION,
-    API_DELETE_ALL,
     DTO_WKFL,
 )
 
@@ -19,7 +18,9 @@ def new_workflow(
     name: str,
     description: str = None,
     kind: str = None,
+    test: str = None,
     local: bool = False,
+    save: bool = False,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -37,7 +38,9 @@ def new_workflow(
     spec : dict, optional
         The specification for the workflow.
     local : bool, optional
-        Flag to determine if object will be saved locally.
+        Flag to determine if object has local execution.
+    save : bool, optional
+        Flag to determine if object will be saved.
 
     Returns
     -------
@@ -46,12 +49,15 @@ def new_workflow(
 
     """
     meta = WorkflowMetadata(name=name, description=description)
-    spec = WorkflowSpec()
+    spec = WorkflowSpec(test=test)
     obj = Workflow(
         project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
     )
-    if not local:
-        obj.save()
+    if save:
+        if local:
+            obj.export()
+        else:
+            obj.save()
     return obj
 
 
@@ -84,11 +90,9 @@ def get_workflow(project: str, name: str, uuid: str = None) -> Workflow:
         api = API_READ_VERSION.format(project, DTO_WKFL, name, uuid)
     else:
         api = API_READ_LATEST.format(project, DTO_WKFL, name)
-    client = get_client()
-    r = client.get_object(api)
-    if "status" not in r:
-        return Workflow(**r)
-    raise KeyError(f"Workflow {name} does not exists.")
+    r = get_client().get_object(api)
+
+    return Workflow.from_dict(r)
 
 
 def import_workflow(file: str) -> Workflow:
@@ -106,7 +110,8 @@ def import_workflow(file: str) -> Workflow:
         The Workflow object imported from the file using the specified path.
 
     """
-    return file_importer(file, Workflow)
+    d = file_importer(file)
+    return Workflow.from_dict(d)
 
 
 def delete_workflow(project: str, name: str, uuid: str = None) -> None:

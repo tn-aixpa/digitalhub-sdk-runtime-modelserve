@@ -1,15 +1,14 @@
 """
-Artifact module.
+Artifact operations module.
 """
-
 from sdk.client.factory import get_client
-from sdk.entities.utils import file_importer
 from sdk.entities.artifact.artifact import Artifact, ArtifactMetadata, ArtifactSpec
-from sdk.utils.api import (
+from sdk.entities.utils import file_importer
+from sdk.entities.api import (
+    API_DELETE_ALL,
+    API_DELETE_VERSION,
     API_READ_LATEST,
     API_READ_VERSION,
-    API_DELETE_VERSION,
-    API_DELETE_ALL,
     DTO_ARTF,
 )
 
@@ -22,6 +21,7 @@ def new_artifact(
     key: str = None,
     path: str = None,
     local: bool = False,
+    save: bool = False,
 ) -> Artifact:
     """
     Create an instance of the Artifact class with the provided parameters.
@@ -41,7 +41,9 @@ def new_artifact(
     path : str
         Path to the artifact on local file system or remote storage.
     local : bool, optional
-        Flag to determine if object will be saved locally.
+        Flag to determine if object has local execution.
+    save : bool, optional
+        Flag to determine if object will be saved.
 
     Returns
     -------
@@ -53,8 +55,11 @@ def new_artifact(
     obj = Artifact(
         project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
     )
-    if not local:
-        obj.save()
+    if save:
+        if local:
+            obj.export()
+        else:
+            obj.save()
     return obj
 
 
@@ -86,11 +91,9 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
         api = API_READ_VERSION.format(project, DTO_ARTF, name, uuid)
     else:
         api = API_READ_LATEST.format(project, DTO_ARTF, name)
-    client = get_client()
-    r = client.get_object(api)
-    if "status" not in r:
-        return Artifact(**r)
-    raise KeyError(f"Artifact {name} does not exists.")
+    r = get_client().get_object(api)
+
+    return Artifact.from_dict(r)
 
 
 def import_artifact(file: str) -> Artifact:
@@ -108,10 +111,8 @@ def import_artifact(file: str) -> Artifact:
         The Artifact object imported from the file using the specified path.
 
     """
-    return file_importer(
-        file,
-        Artifact,
-    )
+    d = file_importer(file)
+    return Artifact.from_dict(d)
 
 
 def delete_artifact(project: str, name: str, uuid: str = None) -> None:

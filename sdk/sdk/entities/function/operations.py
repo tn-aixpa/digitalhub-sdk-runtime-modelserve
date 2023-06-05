@@ -1,11 +1,14 @@
+"""
+Function operations module.
+"""
 from sdk.client.factory import get_client
-from sdk.entities.utils import file_importer
 from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
-from sdk.utils.api import (
+from sdk.entities.utils import file_importer
+from sdk.entities.api import (
+    API_DELETE_ALL,
+    API_DELETE_VERSION,
     API_READ_LATEST,
     API_READ_VERSION,
-    API_DELETE_VERSION,
-    API_DELETE_ALL,
     DTO_FUNC,
 )
 
@@ -20,6 +23,7 @@ def new_function(
     tag: str = None,
     handler: str = None,
     local: bool = False,
+    save: bool = False,
 ) -> Function:
     """
     Create a Function instance with the given parameters.
@@ -43,9 +47,9 @@ def new_function(
     handler : str, optional
         Function handler name.
     local : bool, optional
-        Flag to determine if object will be saved locally.
-    filename : str, optional
-        Filename to export object.
+        Flag to determine if object has local execution.
+    save : bool, optional
+        Flag to determine if object will be saved.
 
     Returns
     -------
@@ -57,8 +61,11 @@ def new_function(
     obj = Function(
         project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
     )
-    if not local:
-        obj.save()
+    if save:
+        if local:
+            obj.export()
+        else:
+            obj.save()
     return obj
 
 
@@ -92,11 +99,9 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
         api = API_READ_VERSION.format(project, DTO_FUNC, name, uuid)
     else:
         api = API_READ_LATEST.format(project, DTO_FUNC, name)
-    client = get_client()
-    r = client.get_object(api)
-    if "status" not in r:
-        return Function(**r)
-    raise KeyError(f"Function {name} does not exists.")
+    r = get_client().get_object(api)
+
+    return Function.from_dict(r)
 
 
 def import_function(file: str) -> Function:
@@ -114,7 +119,8 @@ def import_function(file: str) -> Function:
         The Function object imported from the file using the specified path.
 
     """
-    return file_importer(file, Function)
+    d = file_importer(file)
+    return Function.from_dict(d)
 
 
 def delete_function(project: str, name: str, uuid: str = None) -> None:
