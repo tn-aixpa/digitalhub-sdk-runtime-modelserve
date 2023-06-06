@@ -29,11 +29,11 @@ public class WorkflowEntityBuilder {
                                 ConversionUtils.convert(workflowDTO, commandFactory, "workflow"), workflowDTO,
                                 builder -> {
                                         builder
-                                                        .with(w -> w.setExtra(
+                                                        .withIf(workflowDTO.getEmbedded(), w -> w.setExtra(
                                                                         ConversionUtils.convert(workflowDTO.getExtra(),
                                                                                         commandFactory,
                                                                                         "cbor")))
-                                                        .with(w -> w.setSpec(
+                                                        .withIf(workflowDTO.getEmbedded(), w -> w.setSpec(
                                                                         ConversionUtils.convert(workflowDTO.getSpec(),
                                                                                         commandFactory,
                                                                                         "cbor")));

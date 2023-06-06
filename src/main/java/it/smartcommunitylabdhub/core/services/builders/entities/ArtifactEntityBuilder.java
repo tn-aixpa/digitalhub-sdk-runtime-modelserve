@@ -29,11 +29,11 @@ public class ArtifactEntityBuilder {
                                 ConversionUtils.convert(artifactDTO, commandFactory, "artifact"), artifactDTO,
                                 builder -> {
                                         builder
-                                                        .with(a -> a.setExtra(
+                                                        .withIf(artifactDTO.getEmbedded(), a -> a.setExtra(
                                                                         ConversionUtils.convert(artifactDTO.getExtra(),
                                                                                         commandFactory,
                                                                                         "cbor")))
-                                                        .with(a -> a.setSpec(
+                                                        .withIf(artifactDTO.getEmbedded(), a -> a.setSpec(
                                                                         ConversionUtils.convert(artifactDTO.getSpec(),
                                                                                         commandFactory,
                                                                                         "cbor")));

@@ -29,11 +29,11 @@ public class FunctionEntityBuilder {
                                 ConversionUtils.convert(functionDTO, commandFactory, "function"), functionDTO,
                                 builder -> {
                                         builder
-                                                        .with(f -> f.setExtra(
+                                                        .withIf(functionDTO.getEmbedded(), f -> f.setExtra(
                                                                         ConversionUtils.convert(functionDTO.getExtra(),
                                                                                         commandFactory,
                                                                                         "cbor")))
-                                                        .with(f -> f.setSpec(
+                                                        .withIf(functionDTO.getEmbedded(), f -> f.setSpec(
                                                                         ConversionUtils.convert(functionDTO.getSpec(),
                                                                                         commandFactory,
                                                                                         "cbor")));

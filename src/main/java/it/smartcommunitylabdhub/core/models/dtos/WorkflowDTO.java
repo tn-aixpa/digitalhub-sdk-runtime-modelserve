@@ -39,7 +39,9 @@ public class WorkflowDTO implements BaseEntity {
 
     private Date created;
     private Date updated;
-    private Boolean embedded;
+    @Builder.Default
+    private Boolean embedded = true;
+
     private String state;
 
     @JsonAnyGetter
