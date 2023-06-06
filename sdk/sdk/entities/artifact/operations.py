@@ -1,14 +1,11 @@
 """
 Artifact operations module.
 """
-from sdk.client.factory import get_client
+from sdk.entities.project.context import get_context
 from sdk.entities.artifact.artifact import Artifact, ArtifactMetadata, ArtifactSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
-    API_DELETE_ALL,
-    API_DELETE_VERSION,
-    API_READ_LATEST,
-    API_READ_VERSION,
+    read_api, delete_api,
     DTO_ARTF,
 )
 
@@ -87,12 +84,9 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
         If the specified artifact does not exist.
 
     """
-    if uuid is not None:
-        api = API_READ_VERSION.format(project, DTO_ARTF, name, uuid)
-    else:
-        api = API_READ_LATEST.format(project, DTO_ARTF, name)
-    r = get_client().get_object(api)
-
+    context = get_context(project)
+    api = read_api(project, DTO_ARTF, name, uuid=uuid)
+    r = context.client.get_object(api)
     return Artifact.from_dict(r)
 
 
@@ -133,9 +127,7 @@ def delete_artifact(project: str, name: str, uuid: str = None) -> None:
     None
         This function does not return anything.
     """
-    client = get_client()
-    if uuid is not None:
-        api = API_DELETE_VERSION.format(project, DTO_ARTF, name, uuid)
-    else:
-        api = API_DELETE_ALL.format(project, DTO_ARTF, name)
-    return client.delete_object(api)
+    context = get_context(project)
+    api = delete_api(project, DTO_ARTF, name, uuid=uuid)
+    r = context.client.delete_object(api)
+    return r

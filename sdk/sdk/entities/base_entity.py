@@ -4,7 +4,6 @@ Abstract entity module.
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 
-from sdk.client.factory import get_client
 from sdk.entities.utils import file_exporter
 
 
@@ -103,11 +102,11 @@ class Entity(ModelObj, metaclass=ABCMeta):
     """
     Abstract class for entities.
     """
+
     _obj_attr = ["name", "kind", "metadata", "spec"]
 
     def __init__(self) -> None:
         self.id = None
-        self._client = get_client()
 
     @abstractmethod
     def save(self, overwrite: bool = False) -> dict:
@@ -116,34 +115,6 @@ class Entity(ModelObj, metaclass=ABCMeta):
     @abstractmethod
     def export(self, filename: str = None) -> None:
         ...
-
-    def save_object(
-        self,
-        obj: "Entity",
-        api: str,
-        overwrite: bool,
-    ) -> None:
-        """
-        Save entity into backend.
-
-        Parameters
-        ----------
-        obj : Entity
-            Entity object to save.
-        api : str
-            Endpoint to call.
-        overwrite : bool, optional
-            A boolean flag indicating whether to overwrite existing entities in the same location.
-            Default is False.
-
-        Returns
-        -------
-        None
-
-        """
-        if overwrite:
-            return self._client.update_object(obj, api)
-        return self._client.create_object(obj, api)
 
     @staticmethod
     def export_object(filename: str, obj: dict) -> None:

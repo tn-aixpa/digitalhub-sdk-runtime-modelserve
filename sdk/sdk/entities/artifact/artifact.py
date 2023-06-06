@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 
-from sdk.entities.api import API_CREATE, DTO_ARTF
+from sdk.entities.api import create_api, DTO_ARTF
 from sdk.utils.utils import get_uiid
 
 
@@ -86,7 +86,7 @@ class Artifact(Entity):
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
-        api = API_CREATE.format(self.project, DTO_ARTF)
+        api = create_api(self.project, DTO_ARTF)
         r = self.save_object(self.to_dict(), api, overwrite)
 
         return r

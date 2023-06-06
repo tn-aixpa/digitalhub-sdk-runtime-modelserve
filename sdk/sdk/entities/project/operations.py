@@ -205,4 +205,3 @@ def delete_project(name: str, delete_all: bool = False) -> None:
     except Exception:
         pass
     return responses
-

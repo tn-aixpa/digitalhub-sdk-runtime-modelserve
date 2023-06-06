@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.run.run import Run
 
-from sdk.entities.api import API_CREATE, DTO_WKFL
+from sdk.entities.api import create_api, DTO_WKFL
 from sdk.utils.utils import get_uiid
 
 
@@ -86,7 +86,7 @@ class Workflow(Entity):
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
-        api = API_CREATE.format(self.project, DTO_WKFL)
+        api = create_api(self.project, DTO_WKFL)
         r = self.save_object(self.to_dict(), api, overwrite)
 
         return r

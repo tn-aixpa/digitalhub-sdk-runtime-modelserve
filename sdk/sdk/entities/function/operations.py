@@ -1,14 +1,11 @@
 """
 Function operations module.
 """
-from sdk.client.factory import get_client
+from sdk.entities.project.context import get_context
 from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
-    API_DELETE_ALL,
-    API_DELETE_VERSION,
-    API_READ_LATEST,
-    API_READ_VERSION,
+    read_api, delete_api,
     DTO_FUNC,
 )
 
@@ -75,8 +72,6 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
 
     Parameters
     ----------
-    client : Client
-        The client for DHUB backend.
     project : str
         Name of the project.
     name : str
@@ -95,12 +90,9 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
         If the specified function does not exist.
 
     """
-    if uuid is not None:
-        api = API_READ_VERSION.format(project, DTO_FUNC, name, uuid)
-    else:
-        api = API_READ_LATEST.format(project, DTO_FUNC, name)
-    r = get_client().get_object(api)
-
+    context = get_context(project)
+    api = read_api(project, DTO_FUNC, name, uuid=uuid)
+    r = context.client.get_object(api)
     return Function.from_dict(r)
 
 
@@ -143,9 +135,7 @@ def delete_function(project: str, name: str, uuid: str = None) -> None:
     None
         This function does not return anything.
     """
-    client = get_client()
-    if uuid is not None:
-        api = API_DELETE_VERSION.format(project, DTO_FUNC, name, uuid)
-    else:
-        api = API_DELETE_ALL.format(project, DTO_FUNC, name)
-    return client.delete_object(api)
+    context = get_context(project)
+    api = delete_api(project, DTO_FUNC, name, uuid=uuid)
+    r = context.client.get_object(api)
+    return r

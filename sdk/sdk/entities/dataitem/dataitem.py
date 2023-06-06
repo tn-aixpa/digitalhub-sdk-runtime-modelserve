@@ -7,7 +7,7 @@ import pandas as pd
 
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 
-from sdk.entities.api import API_CREATE, DTO_DTIT
+from sdk.entities.api import create_api, DTO_DTIT
 from sdk.utils.utils import get_uiid
 
 
@@ -88,7 +88,7 @@ class DataItem(Entity):
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
-        api = API_CREATE.format(self.project, DTO_DTIT)
+        api = create_api(self.project, DTO_DTIT)
         r = self.save_object(self.to_dict(), api, overwrite)
 
         return r

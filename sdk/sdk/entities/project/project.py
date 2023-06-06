@@ -1,18 +1,34 @@
 """
 Project module.
 """
+from __future__ import annotations
+
+import typing
 from dataclasses import dataclass, field
 
+from sdk.client.factory import get_client
+from sdk.entities.api import (
+    create_api_proj,
+    update_api_proj,
+    DTO_ARTF,
+    DTO_DTIT,
+    DTO_FUNC,
+    DTO_WKFL,
+)
 from sdk.entities.artifact.artifact import Artifact
 from sdk.entities.artifact.operations import delete_artifact
+from sdk.entities.dataitem.dataitem import DataItem
+from sdk.entities.dataitem.operations import delete_dataitem
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.function.function import Function
 from sdk.entities.function.operations import delete_function
-
+from sdk.entities.project.context import set_context
 from sdk.entities.workflow.operations import delete_workflow
 from sdk.entities.workflow.workflow import Workflow
-from sdk.entities.api import API_CREATE_PROJECT, API_UPDATE_PROJECT, DTO_ARTF, DTO_DTIT, DTO_FUNC, DTO_WKFL
 from sdk.utils.utils import get_uiid
+
+if typing.TYPE_CHECKING:
+    from sdk.client.client import Client
 
 
 @dataclass
@@ -66,6 +82,7 @@ class Project(Entity):
         self.spec = spec if spec is not None else ProjectSpec()
         self._local = local
         self._embed = embed
+        self._client = get_client()
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -75,6 +92,9 @@ class Project(Entity):
         # Set id if None
         if self.id is None:
             self.id = get_uiid()
+
+        # Set context
+        set_context(self)
 
     def save(self, save_object: bool = False, overwrite: bool = False) -> dict:
         """
@@ -93,15 +113,15 @@ class Project(Entity):
             Mapping representaion of Project from backend.
 
         """
+        responses = []
         if self._local:
             raise Exception("Use .export() for local execution.")
 
         if overwrite:
-            api = API_UPDATE_PROJECT.format(self.name)
+            api = update_api_proj(self.name)
         else:
-            api = API_CREATE_PROJECT
+            api = create_api_proj()
 
-        responses = []
         obj = self._parse_obj(self.to_dict())
         r = self.save_object(obj, api, overwrite)
         responses.append(r)
@@ -170,6 +190,17 @@ class Project(Entity):
         spec.workflows = [Workflow.from_dict(i) for i in spec.workflows]
         return cls(name, metadata=metadata, spec=spec)
 
+    #############################
+    #  CRUD operations
+    #############################
+
+    @property
+    def client(self) -> Client:
+        """
+        Get client.
+        """
+        return self._client
+
     def _parse_obj(self, obj: dict) -> None:
         l = [DTO_ARTF, DTO_FUNC, DTO_WKFL]
         for i in l:
@@ -199,6 +230,10 @@ class Project(Entity):
         if not self._local:
             delete_function(self._client, name)
 
+    #############################
+    #  Artifacts
+    #############################
+
     def set_artifact(self, artifact: Artifact, save: bool = False, **kwargs) -> dict:
         r = self._set_spec_objects(artifact, "artifacts", save, **kwargs)
         return r
@@ -213,6 +248,10 @@ class Project(Entity):
 
     def get_artifacts(self) -> list:
         return self._get_spec_objects("artifacts")
+
+    #############################
+    #  Functions
+    #############################
 
     def set_function(self, function: Function, save: bool = False, **kwargs) -> dict:
         r = self._set_spec_objects(function, "functions", save, **kwargs)
@@ -229,6 +268,10 @@ class Project(Entity):
     def get_functions(self) -> list:
         return self._get_spec_objects("functions")
 
+    #############################
+    #  Workflows
+    #############################
+
     def set_workflow(self, workflow: Workflow, save: bool = False, **kwargs) -> dict:
         r = self._set_spec_objects(workflow, "workflows", save, **kwargs)
         return r
@@ -243,3 +286,22 @@ class Project(Entity):
 
     def get_workflows(self) -> list:
         return self._get_spec_objects("workflows")
+
+    #############################
+    #  DataItems
+    #############################
+
+    def set_workflow(self, workflow: DataItem, save: bool = False, **kwargs) -> dict:
+        r = self._set_spec_objects(workflow, "dataitem", save, **kwargs)
+        return r
+
+    def remove_workflow(self, name: str) -> None:
+        self._remove_spec_object(name, "dataitem")
+        if not self._local:
+            delete_workflow(self._client, name)
+
+    def get_workflow(self, name: str) -> DataItem:
+        return self._get_spec_object(name, "dataitem")
+
+    def get_workflows(self) -> list:
+        return self._get_spec_objects("dataitem")

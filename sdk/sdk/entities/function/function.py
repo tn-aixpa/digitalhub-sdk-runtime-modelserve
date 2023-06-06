@@ -3,10 +3,11 @@ Function module.
 """
 from dataclasses import dataclass
 
+from sdk.entities.project.context import get_project_context
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.run.run import Run
 
-from sdk.entities.api import API_CREATE, DTO_FUNC
+from sdk.entities.api import create_api, DTO_FUNC, API_UPDATE_VERSION
 from sdk.utils.utils import get_uiid
 
 
@@ -77,9 +78,18 @@ class Function(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, overwrite: bool = False) -> dict:
+        self.context = get_project_context(self.project)
+
+    def save(self, overwrite: bool = False, uuid: str = None) -> dict:
         """
         Save function into backend.
+
+        Parameters
+        ----------
+        overwrite : bool, optional
+            Specify if overwrite existing function, default is False.
+        uuid : str, optional
+            Specify uuid for the function update, default is None.
 
         Returns
         -------
@@ -89,10 +99,15 @@ class Function(Entity):
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
-        api = API_CREATE.format(self.project, DTO_FUNC)
-        r = self.save_object(self.to_dict(), api, overwrite)
 
-        return r
+        obj = self.to_dict()
+
+        if overwrite:
+            api = API_UPDATE_VERSION.format(self.project, DTO_FUNC, uuid)
+            return self.context._client.update_object(obj, api)
+
+        api = create_api(self.project, DTO_FUNC)
+        return self.context._client.create_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
