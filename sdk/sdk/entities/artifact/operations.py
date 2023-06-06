@@ -20,7 +20,7 @@ def new_artifact(
     source: str = None,
     target_path: str = None,
     local: bool = False,
-    embed: bool = True,
+    embed: bool = False,
 ) -> Artifact:
     """
     Create an instance of the Artifact class with the provided parameters.
@@ -52,6 +52,8 @@ def new_artifact(
         Instance of the Artifact class representing the specified artifact.
     """
     context = get_context(project)
+    if context.local != local:
+        raise Exception("Context local flag does not match local flag of artifact")
     meta = ArtifactMetadata(name=name, description=description)
     spec = ArtifactSpec(key=key, source=source, target_path=target_path)
     obj = Artifact(

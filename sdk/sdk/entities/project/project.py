@@ -199,6 +199,13 @@ class Project(Entity):
         """
         return self._client
 
+    @property
+    def local(self) -> bool:
+        """
+        Get local flag.
+        """
+        return self._local
+
     def _parse_obj(self, obj: dict) -> None:
         l = [DTO_ARTF, DTO_FUNC, DTO_WKFL]
         for i in l:
@@ -236,7 +243,7 @@ class Project(Entity):
         source: str = None,
         target_path: str = None,
         local: bool = False,
-        embed: bool = True,
+        embed: bool = False,
     ) -> Artifact:
         """
         Create an instance of the Artifact class with the provided parameters.
@@ -308,7 +315,7 @@ class Project(Entity):
         tag: str = None,
         handler: str = None,
         local: bool = False,
-        embed: bool = True,
+        embed: bool = False,
     ) -> Function:
         """
         Create a Function instance with the given parameters.
@@ -380,7 +387,7 @@ class Project(Entity):
         kind: str = None,
         test: str = None,
         local: bool = False,
-        embed: bool = True,
+        embed: bool = False,
     ) -> Workflow:
         """
         Create a new Workflow instance with the specified parameters.
@@ -444,7 +451,7 @@ class Project(Entity):
         key: str = None,
         path: str = None,
         local: bool = False,
-        embed: bool = True,
+        embed: bool = False,
     ) -> DataItem:
         """
         Create an DataItem instance with the given parameters.

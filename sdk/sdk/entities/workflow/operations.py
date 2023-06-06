@@ -18,7 +18,7 @@ def new_workflow(
     kind: str = None,
     test: str = None,
     local: bool = False,
-    embed: bool = True,
+    embed: bool = False,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -47,6 +47,8 @@ def new_workflow(
 
     """
     context = get_context(project)
+    if context.local != local:
+        raise Exception("Context local flag does not match local flag of workflow")
     meta = WorkflowMetadata(name=name, description=description)
     spec = WorkflowSpec(test=test)
     obj = Workflow(

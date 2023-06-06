@@ -19,7 +19,7 @@ def new_dataitem(
     key: str = None,
     path: str = None,
     local: bool = False,
-    embed: bool = True,
+    embed: bool = False,
 ) -> DataItem:
     """
     Create an DataItem instance with the given parameters.
@@ -49,6 +49,8 @@ def new_dataitem(
         Instance of the DataItem class representing the specified dataitem.
     """
     context = get_context(project)
+    if context.local != local:
+        raise Exception("Context local flag does not match local flag of dataitem")
     meta = DataItemMetadata(name=name, description=description)
     spec = DataItemSpec(key=key, path=path)
     obj = DataItem(

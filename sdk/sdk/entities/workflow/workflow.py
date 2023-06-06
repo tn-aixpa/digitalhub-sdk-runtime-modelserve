@@ -33,7 +33,7 @@ class Workflow(Entity):
         metadata: WorkflowMetadata = None,
         spec: WorkflowSpec = None,
         local: bool = False,
-        embed: bool = True,
+        embed: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -101,10 +101,7 @@ class Workflow(Entity):
         if self._local:
             raise Exception("Use .export() for local execution.")
 
-        if self._embed:
-            obj = self.to_dict()
-        else:
-            obj = self.to_dict_not_embed()
+        obj = self.to_dict()
 
         if overwrite:
             api = update_api(self.project, DTO_WKFL, uuid)

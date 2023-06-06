@@ -21,7 +21,7 @@ def new_function(
     tag: str = None,
     handler: str = None,
     local: bool = False,
-    embed: bool = True,
+    embed: bool = False,
 ) -> Function:
     """
     Create a Function instance with the given parameters.
@@ -55,6 +55,8 @@ def new_function(
         Instance of the Function class representing the specified function.
     """
     context = get_context(project)
+    if context.local != local:
+        raise Exception("Context local flag does not match local flag of function")
     meta = FunctionMetadata(name=name, description=description)
     spec = FunctionSpec(source=source, image=image, tag=tag, handler=handler)
     obj = Function(

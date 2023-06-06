@@ -35,7 +35,7 @@ def set_context(project: Project) -> None:
 def get_context(project_name: str) -> Project:
     ctx = project_instances.get(project_name)
     if ctx is None:
-        raise ValueError(f"Project {project_name} not found in context.")
+        raise ValueError(f"Context '{project_name}' not found.")
     return ctx
 
 
