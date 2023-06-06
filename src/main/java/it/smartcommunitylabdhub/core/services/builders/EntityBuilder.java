@@ -17,6 +17,13 @@ public class EntityBuilder<T extends BaseEntity, U extends BaseEntity> {
         return this;
     }
 
+    public EntityBuilder<T, U> withIf(boolean condition, Consumer<T> fieldSetter) {
+        if (condition) {
+            fieldSetter.accept(result);
+        }
+        return this;
+    }
+
     public T build() {
         return result;
     }
