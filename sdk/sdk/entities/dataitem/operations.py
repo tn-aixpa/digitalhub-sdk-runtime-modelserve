@@ -1,8 +1,8 @@
 """
-DataItem operations module.
+Dataitem operations module.
 """
 from sdk.entities.project.context import get_context
-from sdk.entities.dataitem.dataitem import DataItem, DataItemMetadata, DataItemSpec
+from sdk.entities.dataitem.dataitem import Dataitem, DataitemMetadata, DataitemSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
     read_api,
@@ -20,9 +20,9 @@ def new_dataitem(
     path: str = None,
     local: bool = False,
     embed: bool = False,
-) -> DataItem:
+) -> Dataitem:
     """
-    Create an DataItem instance with the given parameters.
+    Create an Dataitem instance with the given parameters.
 
     Parameters
     ----------
@@ -45,15 +45,15 @@ def new_dataitem(
 
     Returns
     -------
-    DataItem
-        Instance of the DataItem class representing the specified dataitem.
+    Dataitem
+        Instance of the Dataitem class representing the specified dataitem.
     """
     context = get_context(project)
     if context.local != local:
         raise Exception("Context local flag does not match local flag of dataitem")
-    meta = DataItemMetadata(name=name, description=description)
-    spec = DataItemSpec(key=key, path=path)
-    obj = DataItem(
+    meta = DataitemMetadata(name=name, description=description)
+    spec = DataitemSpec(key=key, path=path)
+    obj = Dataitem(
         project=project,
         name=name,
         kind=kind,
@@ -70,7 +70,7 @@ def new_dataitem(
     return obj
 
 
-def get_dataitem(project: str, name: str, uuid: str = None) -> DataItem:
+def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
     """
     Retrieves dataitem details from the backend.
 
@@ -85,7 +85,7 @@ def get_dataitem(project: str, name: str, uuid: str = None) -> DataItem:
 
     Returns
     -------
-    DataItem
+    Dataitem
         An object that contains details about the specified dataitem.
 
     Raises
@@ -97,26 +97,26 @@ def get_dataitem(project: str, name: str, uuid: str = None) -> DataItem:
     context = get_context(project)
     api = read_api(project, DTO_DTIT, name, uuid=uuid)
     r = context.client.get_object(api)
-    return DataItem.from_dict(r)
+    return Dataitem.from_dict(r)
 
 
-def import_dataitem(file: str) -> DataItem:
+def import_dataitem(file: str) -> Dataitem:
     """
-    Import an DataItem object from a file using the specified file path.
+    Import an Dataitem object from a file using the specified file path.
 
     Parameters
     ----------
     file : str
-        The absolute or relative path to the file containing the DataItem object.
+        The absolute or relative path to the file containing the Dataitem object.
 
     Returns
     -------
-    DataItem
-        The DataItem object imported from the file using the specified path.
+    Dataitem
+        The Dataitem object imported from the file using the specified path.
 
     """
     d = file_importer(file)
-    return DataItem.from_dict(d)
+    return Dataitem.from_dict(d)
 
 
 def delete_dataitem(project: str, name: str, uuid: str = None) -> None:

@@ -64,7 +64,7 @@ class Function(Entity):
         super().__init__()
         self.project = project
         self.name = name
-        self.kind = kind if kind is not None else "local"
+        self.kind = kind if kind is not None else "function"
         self.metadata = (
             metadata if metadata is not None else FunctionMetadata(name=name)
         )

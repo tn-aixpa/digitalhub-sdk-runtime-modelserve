@@ -17,7 +17,7 @@ from sdk.entities.api import (
 )
 from sdk.entities.artifact.artifact import Artifact
 from sdk.entities.artifact.operations import delete_artifact, new_artifact
-from sdk.entities.dataitem.dataitem import DataItem
+from sdk.entities.dataitem.dataitem import Dataitem
 from sdk.entities.dataitem.operations import delete_dataitem, new_dataitem
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.function.function import Function
@@ -185,7 +185,7 @@ class Project(Entity):
         spec.functions = [Function.from_dict(i) for i in spec.functions]
         spec.artifacts = [Artifact.from_dict(i) for i in spec.artifacts]
         spec.workflows = [Workflow.from_dict(i) for i in spec.workflows]
-        spec.dataitems = [DataItem.from_dict(i) for i in spec.dataitems]
+        spec.dataitems = [Dataitem.from_dict(i) for i in spec.dataitems]
         return cls(name, metadata=metadata, spec=spec)
 
     #############################
@@ -250,8 +250,6 @@ class Project(Entity):
 
         Parameters
         ----------
-        project : str
-            Name of the project associated with the artifact.
         name : str
             Identifier of the artifact.
         description : str, optional
@@ -440,7 +438,7 @@ class Project(Entity):
         return self._get_spec_objects(DTO_WKFL)
 
     #############################
-    #  DataItems
+    #  Dataitems
     #############################
 
     def new_dataitem(
@@ -452,14 +450,12 @@ class Project(Entity):
         path: str = None,
         local: bool = False,
         embed: bool = False,
-    ) -> DataItem:
+    ) -> Dataitem:
         """
-        Create an DataItem instance with the given parameters.
+        Create an Dataitem instance with the given parameters.
 
         Parameters
         ----------
-        project : str
-            Name of the project associated with the dataitem.
         name : str
             Identifier of the dataitem.
         description : str, optional
@@ -477,8 +473,8 @@ class Project(Entity):
 
         Returns
         -------
-        DataItem
-            Instance of the DataItem class representing the specified dataitem.
+        Dataitem
+            Instance of the Dataitem class representing the specified dataitem.
         """
         return new_dataitem(
             project=self.name,
@@ -491,7 +487,7 @@ class Project(Entity):
             embed=embed,
         )
 
-    def add_dataitem(self, dataitem: DataItem) -> dict:
+    def add_dataitem(self, dataitem: Dataitem) -> dict:
         r = self._set_spec_object(dataitem, DTO_DTIT)
         return r
 
@@ -500,7 +496,7 @@ class Project(Entity):
         if not self._local:
             delete_dataitem(self._client, name)
 
-    def get_dataitem(self, name: str) -> DataItem:
+    def get_dataitem(self, name: str) -> Dataitem:
         return self._get_spec_object(name, DTO_DTIT)
 
     def get_dataitems(self) -> list:
