@@ -5,7 +5,8 @@ from sdk.entities.project.context import get_context
 from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
-    read_api, delete_api,
+    read_api,
+    delete_api,
     DTO_FUNC,
 )
 
@@ -20,7 +21,7 @@ def new_function(
     tag: str = None,
     handler: str = None,
     local: bool = False,
-    save: bool = False,
+    embed: bool = True,
 ) -> Function:
     """
     Create a Function instance with the given parameters.
@@ -45,24 +46,31 @@ def new_function(
         Function handler name.
     local : bool, optional
         Flag to determine if object has local execution.
-    save : bool, optional
-        Flag to determine if object will be saved.
+    embed : bool, optional
+        Flag to determine if object must be embedded in project.
 
     Returns
     -------
     Function
         Instance of the Function class representing the specified function.
     """
+    context = get_context(project)
     meta = FunctionMetadata(name=name, description=description)
     spec = FunctionSpec(source=source, image=image, tag=tag, handler=handler)
     obj = Function(
-        project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
+        project=project,
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        embed=embed,
     )
-    if save:
-        if local:
-            obj.export()
-        else:
-            obj.save()
+    context.add_function(obj)
+    if local:
+        obj.export()
+    else:
+        obj.save()
     return obj
 
 
@@ -117,7 +125,7 @@ def import_function(file: str) -> Function:
 
 def delete_function(project: str, name: str, uuid: str = None) -> None:
     """
-    Delete a function.
+    Delete function from the backend. If the uuid is not specified, delete all versions.
 
     Parameters
     ----------

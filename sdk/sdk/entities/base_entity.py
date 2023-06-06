@@ -103,7 +103,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
     Abstract class for entities.
     """
 
-    _obj_attr = ["name", "kind", "metadata", "spec"]
+    _obj_attr = ["name", "kind", "metadata", "spec", "project"]
 
     def __init__(self) -> None:
         self.id = None

@@ -3,9 +3,9 @@ Artifact module.
 """
 from dataclasses import dataclass
 
+from sdk.entities.api import DTO_ARTF, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-
-from sdk.entities.api import create_api, DTO_ARTF
+from sdk.entities.project.context import get_context
 from sdk.utils.utils import get_uiid
 
 
@@ -17,7 +17,8 @@ class ArtifactMetadata(EntityMetadata):
 @dataclass
 class ArtifactSpec(EntitySpec):
     key: str = None
-    path: str = None
+    source: str = None
+    target_path: str = None
 
 
 class Artifact(Entity):
@@ -33,6 +34,7 @@ class Artifact(Entity):
         metadata: ArtifactMetadata = None,
         spec: ArtifactSpec = None,
         local: bool = False,
+        embed: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -52,6 +54,8 @@ class Artifact(Entity):
             Specification for the artifact, default is None.
         local: bool, optional
             Specify if run locally, default is False.
+        embed: bool, optional
+            Specify if embed, default is False.
         **kwargs
             Additional keyword arguments.
         """
@@ -64,6 +68,7 @@ class Artifact(Entity):
         )
         self.spec = spec if spec is not None else ArtifactSpec()
         self._local = local
+        self._embed = embed
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -74,21 +79,40 @@ class Artifact(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, overwrite: bool = False) -> dict:
+        # Set context
+        self.context = get_context(self.project)
+
+    def save(self, overwrite: bool = False, uuid: str = None) -> dict:
         """
         Save artifact into backend.
+
+        Parameters
+        ----------
+        overwrite : bool, optional
+            Specify if overwrite, default is False.
+        uuid : str, optional
+            UUID of the artifact for update, default is None.
 
         Returns
         -------
         dict
-            Mapping representaion of Artifact from backend.
+            Mapping representation of Artifact from backend.
 
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
-        api = create_api(self.project, DTO_ARTF)
-        r = self.save_object(self.to_dict(), api, overwrite)
 
+        if self._embed:
+            obj = self.to_dict()
+        else:
+            obj = self.to_dict_not_embed()
+
+        if overwrite:
+            api = update_api(self.project, DTO_ARTF, uuid)
+            r = self.context.client.update_object(obj, api)
+        else:
+            api = create_api(self.project, DTO_ARTF)
+            r = self.context.client.create_object(obj, api)
         return r
 
     def export(self, filename: str = None) -> None:

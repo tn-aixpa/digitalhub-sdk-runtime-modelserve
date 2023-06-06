@@ -5,7 +5,8 @@ from sdk.entities.project.context import get_context
 from sdk.entities.dataitem.dataitem import DataItem, DataItemMetadata, DataItemSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
-    read_api, delete_api,
+    read_api,
+    delete_api,
     DTO_DTIT,
 )
 
@@ -18,7 +19,7 @@ def new_dataitem(
     key: str = None,
     path: str = None,
     local: bool = False,
-    save: bool = False,
+    embed: bool = True,
 ) -> DataItem:
     """
     Create an DataItem instance with the given parameters.
@@ -39,22 +40,31 @@ def new_dataitem(
         Path to the dataitem on local file system or remote storage.
     local : bool, optional
         Flag to determine if object has local execution.
-    save : bool, optional
-        Flag to determine if object will be saved.
+    embed : bool, optional
+        Flag to determine if object must be embedded in project.
 
     Returns
     -------
     DataItem
         Instance of the DataItem class representing the specified dataitem.
     """
+    context = get_context(project)
     meta = DataItemMetadata(name=name, description=description)
     spec = DataItemSpec(key=key, path=path)
-    obj = DataItem(project, name, kind, meta, spec)
-    if save:
-        if local:
-            obj.export()
-        else:
-            obj.save()
+    obj = DataItem(
+        project=project,
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        embed=embed,
+    )
+    context.add_dataitem(obj)
+    if local:
+        obj.export()
+    else:
+        obj.save()
     return obj
 
 
@@ -109,7 +119,7 @@ def import_dataitem(file: str) -> DataItem:
 
 def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
     """
-    Delete a dataitem from backend.
+    Delete dataitem from the backend. If the uuid is not specified, delete all versions.
 
     Parameters
     ----------

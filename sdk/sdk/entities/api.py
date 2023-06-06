@@ -6,6 +6,7 @@
 # POST
 # -----------------
 
+
 def create_api(
     proj: str,
     dto: str,
@@ -26,6 +27,7 @@ def create_api_proj() -> str:
 # -----------------
 # GET
 # -----------------
+
 
 def read_api(
     proj: str,
@@ -59,7 +61,6 @@ def read_api_project(
     proj: str,
     dto: str = None,
 ) -> str:
-
     if dto is None:
         # PROJ_NAME/UUID
         API_READ_PROJECT = "/api/v1/projects/{}"
@@ -70,9 +71,11 @@ def read_api_project(
         api = API_READ_PROJECT_OBJECTS.format(proj, dto)
     return api
 
+
 # -----------------
 # PUT
 # -----------------
+
 
 def update_api(
     proj: str,
@@ -86,7 +89,7 @@ def update_api(
     return api
 
 
-def update_api_proj(proj: str) -> str:
+def update_api_project(proj: str) -> str:
     # PROJ_NAME/UUID
     API_UPDATE_PROJECT = "/api/v1/projects/{}"
     api = API_UPDATE_PROJECT.format(proj)
@@ -111,7 +114,7 @@ def delete_api(
     return api
 
 
-def delete_api_proj(proj: str) -> str:
+def delete_api_project(proj: str) -> str:
     # PROJ_NAME/UUID
     API_DELETE_PROJECT = "/api/v1/projects/{}"
     api = API_DELETE_PROJECT.format(proj)

@@ -18,7 +18,7 @@ class Context:
         return self._instances.get(name)
 
     def remove(self, name: str) -> None:
-        del self._instances[name]
+        self._instances.pop(name, None)
 
     def set_current(self, name: str) -> None:
         self._current = name
@@ -37,3 +37,7 @@ def get_context(project_name: str) -> Project:
     if ctx is None:
         raise ValueError(f"Project {project_name} not found in context.")
     return ctx
+
+
+def delete_context(project_name: str) -> None:
+    project_instances.remove(project_name)

@@ -1,14 +1,14 @@
 """
 Project operations module.
 """
+from sdk.entities.project.context import delete_context, get_context, set_context
 from sdk.client.factory import get_client
 from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
-    API_DELETE_ALL,
-    API_DELETE_PROJECT,
-    API_READ_PROJECT,
-    API_READ_PROJECT_OBJECTS,
+    delete_api,
+    delete_api_project,
+    read_api_project,
     DTO_ARTF,
     DTO_DTIT,
     DTO_FUNC,
@@ -24,9 +24,8 @@ def new_project(
     functions: list = None,
     artifacts: list = None,
     workflows: list = None,
+    dataitems: list = None,
     local: bool = False,
-    save: bool = False,
-    embed: bool = False,
 ) -> Project:
     """
     Create a new project and an execution context.
@@ -35,16 +34,22 @@ def new_project(
     ----------
     name : str
         The name of the project to load.
-    source : str, optional
-        The source of the project (eg. remote git://repo-url, or local "./").
-    description : str, optional
+    description : str
         The description of the project.
-    local : bool, optional
-        Flag to determine if object has local execution.
-    save : bool, optional
-        Flag to determine if object will be saved.
-    embed : bool, optional
-        Flag to determine if object related to project will be fully embedded or not.
+    context : str
+        The path to the project's execution context.
+    source : str
+        The path to the project's source code.
+    functions : list
+        A list of functions assigned to the project.
+    artifacts : list
+        A list of artifacts assigned to the project.
+    workflows : list
+        A list of workflows assigned to the project.
+    dataitems : list
+        A list of dataitems assigned to the project.
+    local : bool
+        Flag to determine if project wil be executed locally.
 
     Returns
     -------
@@ -58,6 +63,8 @@ def new_project(
         artifacts = []
     if workflows is None:
         workflows = []
+    if dataitems is None:
+        dataitems = []
     meta = ProjectMetadata(name=name, description=description)
     spec = ProjectSpec(
         context=context,
@@ -65,20 +72,21 @@ def new_project(
         functions=functions,
         artifacts=artifacts,
         workflows=workflows,
+        dataitems=dataitems,
     )
-    obj = Project(name, metadata=meta, spec=spec, local=local, embed=embed)
-    if save:
-        if local:
-            obj.export()
-        else:
-            obj.save()
+    obj = Project(name, metadata=meta, spec=spec, local=local)
+    set_context(obj)
+    if local:
+        obj.export()
+    else:
+        obj.save()
     return obj
 
 
 def load_project(
     name: str,
-    local: bool = False,
     filename: str = "project.yaml",
+    local: bool = False,
 ) -> Project:
     """
     Load project and context from backend.
@@ -99,43 +107,38 @@ def load_project(
 
     """
     if local:
-        return import_project(filename)
+        obj = import_project(filename)
     else:
         client = get_client()
-        return get_project(client, name)
+        obj = get_project(client, name)
+    set_context(obj)
+    return obj
 
 
-def get_project(name: str, uuid: str = None) -> Project:
+def get_project(name: str) -> Project:
     """
     Retrieves project details from the backend.
 
     Parameters
     ----------
     name : str
-        The name of the project.
-    uuid : str, optional
-        UUID of project specific version.
+        The name or UUID of the project.
 
     Returns
     -------
     Project
         An object that contains details about the specified project.
 
-    Raises
-    ------
-    KeyError
-        If the specified project does not exist.
-
     """
-    api = API_READ_PROJECT.format(name)
+    api = read_api_project(name)
     r = get_client().get_object(api)
-
     spec = {}
     spec["source"] = r.get("source", None)
     spec["context"] = r.get("context", "./")
     spec["functions"] = r.get("functions", [])
     spec["artifacts"] = r.get("artifacts", [])
     spec["workflows"] = r.get("workflows", [])
+    spec["dataitems"] = r.get("dataitems", [])
     l = [
         "functions",
         "artifacts",
@@ -147,7 +150,9 @@ def get_project(name: str, uuid: str = None) -> Project:
     ]
     r = {k: v for k, v in r.items() if k not in l}
     r["spec"] = spec
-    return Project.from_dict(r)
+    obj = Project.from_dict(r)
+    set_context(obj)
+    return obj
 
 
 def import_project(file: str) -> Project:
@@ -166,7 +171,9 @@ def import_project(file: str) -> Project:
 
     """
     d = file_importer(file)
-    return Project.from_dict(d)
+    obj = Project.from_dict(d)
+    set_context(obj)
+    return obj
 
 
 def delete_project(name: str, delete_all: bool = False) -> None:
@@ -188,20 +195,23 @@ def delete_project(name: str, delete_all: bool = False) -> None:
     # Delete all objects related to project
     if delete_all:
         for a in [DTO_ARTF, DTO_FUNC, DTO_WKFL]:
-            api_obj = API_READ_PROJECT_OBJECTS.format(name, a)
+            api_obj = read_api_project(name, a)
             try:
                 r = client.get_object(api_obj)
                 for o in r:
-                    api = API_DELETE_ALL.format(name, a, o["name"])
+                    api = delete_api(name, a, o["name"])
                     r = client.delete_object(api)
                     responses.append(r)
             except Exception:
                 pass
     # Delete project
     try:
-        api = API_DELETE_PROJECT.format(name)
+        api = delete_api_project(name)
         r = client.delete_object(api)
         responses.append(r)
     except Exception:
         pass
+
+    delete_context(name)
+
     return responses

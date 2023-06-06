@@ -5,7 +5,8 @@ from sdk.entities.project.context import get_context
 from sdk.entities.artifact.artifact import Artifact, ArtifactMetadata, ArtifactSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
-    read_api, delete_api,
+    read_api,
+    delete_api,
     DTO_ARTF,
 )
 
@@ -16,9 +17,10 @@ def new_artifact(
     description: str = None,
     kind: str = None,
     key: str = None,
-    path: str = None,
+    source: str = None,
+    target_path: str = None,
     local: bool = False,
-    save: bool = False,
+    embed: bool = True,
 ) -> Artifact:
     """
     Create an instance of the Artifact class with the provided parameters.
@@ -35,28 +37,37 @@ def new_artifact(
         The type of the artifact.
     key : str
         Representation of artfact like store://etc..
-    path : str
+    source : str
         Path to the artifact on local file system or remote storage.
+    targeth_path : str
+        Destination path of the artifact.
     local : bool, optional
         Flag to determine if object has local execution.
-    save : bool, optional
-        Flag to determine if object will be saved.
+    embed : bool, optional
+        Flag to determine if object must be embedded in project.
 
     Returns
     -------
     Artifact
         Instance of the Artifact class representing the specified artifact.
     """
+    context = get_context(project)
     meta = ArtifactMetadata(name=name, description=description)
-    spec = ArtifactSpec(key=key, path=path)
+    spec = ArtifactSpec(key=key, source=source, target_path=target_path)
     obj = Artifact(
-        project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
+        project=project,
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        embed=embed,
     )
-    if save:
-        if local:
-            obj.export()
-        else:
-            obj.save()
+    context.add_artifact(obj)
+    if local:
+        obj.export()
+    else:
+        obj.save()
     return obj
 
 
@@ -111,7 +122,7 @@ def import_artifact(file: str) -> Artifact:
 
 def delete_artifact(project: str, name: str, uuid: str = None) -> None:
     """
-    Delete a artifact from backend.
+    Delete artifact from the backend. If the uuid is not specified, delete all versions.
 
     Parameters
     ----------

@@ -3,10 +3,10 @@ Workflow module.
 """
 from dataclasses import dataclass
 
+from sdk.entities.api import DTO_WKFL, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
+from sdk.entities.project.context import get_context
 from sdk.entities.run.run import Run
-
-from sdk.entities.api import create_api, DTO_WKFL
 from sdk.utils.utils import get_uiid
 
 
@@ -33,6 +33,7 @@ class Workflow(Entity):
         metadata: WorkflowMetadata = None,
         spec: WorkflowSpec = None,
         local: bool = False,
+        embed: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -52,6 +53,8 @@ class Workflow(Entity):
             Specification for the workflow, default is None.
         local: bool, optional
             Specify if run locally, default is False.
+        embed: bool, optional
+            Specify if embed, default is False.
         **kwargs
             Additional keyword arguments.
         """
@@ -64,6 +67,7 @@ class Workflow(Entity):
         )
         self.spec = spec if spec is not None else WorkflowSpec()
         self._local = local
+        self._embed = embed
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -74,21 +78,40 @@ class Workflow(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, overwrite: bool = False) -> dict:
+        # Set context
+        self.context = get_context(self.project)
+
+    def save(self, overwrite: bool = False, uuid: str = None) -> dict:
         """
         Save workflow into backend.
+
+        Parameters
+        ----------
+        overwrite : bool, optional
+            Specify if overwrite, default is False.
+        uuid : str, optional
+            UUID of the workflow to update, default is None.
 
         Returns
         -------
         dict
-            Mapping representaion of Workflow from backend.
+            Mapping representation of Workflow from backend.
 
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
-        api = create_api(self.project, DTO_WKFL)
-        r = self.save_object(self.to_dict(), api, overwrite)
 
+        if self._embed:
+            obj = self.to_dict()
+        else:
+            obj = self.to_dict_not_embed()
+
+        if overwrite:
+            api = update_api(self.project, DTO_WKFL, uuid)
+            r = self.context.client.update_object(obj, api)
+        else:
+            api = create_api(self.project, DTO_WKFL)
+            r = self.context.client.create_object(obj, api)
         return r
 
     def export(self, filename: str = None) -> None:

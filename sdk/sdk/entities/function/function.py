@@ -3,11 +3,10 @@ Function module.
 """
 from dataclasses import dataclass
 
-from sdk.entities.project.context import get_project_context
+from sdk.entities.api import DTO_FUNC, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
+from sdk.entities.project.context import get_context
 from sdk.entities.run.run import Run
-
-from sdk.entities.api import create_api, DTO_FUNC, API_UPDATE_VERSION
 from sdk.utils.utils import get_uiid
 
 
@@ -37,6 +36,7 @@ class Function(Entity):
         metadata: FunctionMetadata = None,
         spec: FunctionSpec = None,
         local: bool = False,
+        embed: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -56,6 +56,8 @@ class Function(Entity):
             Specification for the function, default is None.
         local: bool, optional
             Specify if run locally, default is False.
+        embed: bool, optional
+            Specify if embed the function, default is False.
         **kwargs
             Additional keyword arguments.
         """
@@ -68,6 +70,7 @@ class Function(Entity):
         )
         self.spec = spec if spec is not None else FunctionSpec()
         self._local = local
+        self._embed = embed
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -78,7 +81,7 @@ class Function(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-        self.context = get_project_context(self.project)
+        self.context = get_context(self.project)
 
     def save(self, overwrite: bool = False, uuid: str = None) -> dict:
         """
@@ -94,20 +97,24 @@ class Function(Entity):
         Returns
         -------
         dict
-            Mapping representaion of Function from backend.
+            Mapping representation of Function from backend.
 
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
 
-        obj = self.to_dict()
+        if self._embed:
+            obj = self.to_dict()
+        else:
+            obj = self.to_dict_not_embed()
 
         if overwrite:
-            api = API_UPDATE_VERSION.format(self.project, DTO_FUNC, uuid)
-            return self.context._client.update_object(obj, api)
-
-        api = create_api(self.project, DTO_FUNC)
-        return self.context._client.create_object(obj, api)
+            api = update_api(self.project, DTO_FUNC, uuid)
+            r = self.context.client.update_object(obj, api)
+        else:
+            api = create_api(self.project, DTO_FUNC)
+            r = self.context.client.create_object(obj, api)
+        return r
 
     def export(self, filename: str = None) -> None:
         """

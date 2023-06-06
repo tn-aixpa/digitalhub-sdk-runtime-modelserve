@@ -5,7 +5,8 @@ from sdk.entities.project.context import get_context
 from sdk.entities.utils import file_importer
 from sdk.entities.workflow.workflow import Workflow, WorkflowMetadata, WorkflowSpec
 from sdk.entities.api import (
-    read_api, delete_api,
+    read_api,
+    delete_api,
     DTO_WKFL,
 )
 
@@ -17,7 +18,7 @@ def new_workflow(
     kind: str = None,
     test: str = None,
     local: bool = False,
-    save: bool = False,
+    embed: bool = True,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -36,8 +37,8 @@ def new_workflow(
         The specification for the workflow.
     local : bool, optional
         Flag to determine if object has local execution.
-    save : bool, optional
-        Flag to determine if object will be saved.
+    embed : bool, optional
+        Flag to determine if object must be embedded in project.
 
     Returns
     -------
@@ -45,16 +46,23 @@ def new_workflow(
         An instance of the created workflow.
 
     """
+    context = get_context(project)
     meta = WorkflowMetadata(name=name, description=description)
     spec = WorkflowSpec(test=test)
     obj = Workflow(
-        project=project, name=name, kind=kind, metadata=meta, spec=spec, local=local
+        project=project,
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        embed=embed,
     )
-    if save:
-        if local:
-            obj.export()
-        else:
-            obj.save()
+    context.add_workflow(obj)
+    if local:
+        obj.export()
+    else:
+        obj.save()
     return obj
 
 
@@ -110,7 +118,7 @@ def import_workflow(file: str) -> Workflow:
 
 def delete_workflow(project: str, name: str, uuid: str = None) -> None:
     """
-    Delete a workflow.
+    Delete workflow from the backend. If the uuid is not specified, delete all versions.
 
     Parameters
     ----------

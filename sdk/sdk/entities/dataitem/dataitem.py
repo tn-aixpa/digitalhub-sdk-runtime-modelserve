@@ -5,9 +5,9 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from sdk.entities.api import DTO_DTIT, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-
-from sdk.entities.api import create_api, DTO_DTIT
+from sdk.entities.project.context import get_context
 from sdk.utils.utils import get_uiid
 
 
@@ -35,6 +35,7 @@ class DataItem(Entity):
         metadata: DataItemMetadata = None,
         spec: DataItemSpec = None,
         local: bool = False,
+        embed: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -54,6 +55,8 @@ class DataItem(Entity):
             Specification for the dataitem, default is None.
         local: bool, optional
             Specify if run locally, default is False.
+        embed: bool, optional
+            Specify if embed, default is False.
         **kwargs
             Additional keyword arguments.
         """
@@ -66,6 +69,7 @@ class DataItem(Entity):
         )
         self.spec = spec if spec is not None else DataItemSpec()
         self._local = local
+        self._embed = embed
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -76,21 +80,40 @@ class DataItem(Entity):
         if self.id is None:
             self.id = get_uiid()
 
-    def save(self, overwrite: bool = False) -> dict:
+        # Set context
+        self.context = get_context(self.project)
+
+    def save(self, overwrite: bool = False, uuid: str = None) -> dict:
         """
         Save dataitem into backend.
+
+        Parameters
+        ----------
+        overwrite : bool, optional
+            Specify if overwrite existing dataitem, default is False.
+        uuid : str, optional
+            Specify uuid for the dataitem to update, default is None.
 
         Returns
         -------
         dict
-            Mapping representaion of DataItem from backend.
+            Mapping representation of DataItem from backend.
 
         """
         if self._local:
             raise Exception("Use .export() for local execution.")
-        api = create_api(self.project, DTO_DTIT)
-        r = self.save_object(self.to_dict(), api, overwrite)
 
+        if self._embed:
+            obj = self.to_dict()
+        else:
+            obj = self.to_dict_not_embed()
+
+        if overwrite:
+            api = update_api(self.project, DTO_DTIT, uuid)
+            r = self.context.client.update_object(obj, api)
+        else:
+            api = create_api(self.project, DTO_DTIT)
+            r = self.context.client.create_object(obj, api)
         return r
 
     def export(self, filename: str = None) -> None:
