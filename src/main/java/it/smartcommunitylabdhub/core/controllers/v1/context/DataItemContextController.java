@@ -33,7 +33,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Create an dataItem in a project context", description = "First check if project exist and then create the dataItem for the project (context)")
-    @PostMapping(value = "/dataItems", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "/dataitems", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<DataItemDTO> createDataItem(
             @ValidateField @PathVariable String project,
             @Valid @RequestBody DataItemDTO dataItemDTO) {
@@ -41,7 +41,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Retrive only the latest version of all dataItem", description = "First check if project exist and then return a list of the latest version of each dataItem related to a project)")
-    @GetMapping(path = "/dataItems", produces = "application/json; charset=UTF-8")
+    @GetMapping(path = "/dataitems", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<DataItemDTO>> getLatestDataItems(
             @ValidateField @PathVariable String project,
             Pageable pageable) {
@@ -51,7 +51,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Retrieve all versions of the dataItem sort by creation", description = "First check if project exist and then return a list of all version of the dataItem sort by creation)")
-    @GetMapping(path = "/dataItems/{name}", produces = "application/json; charset=UTF-8")
+    @GetMapping(path = "/dataitems/{name}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<DataItemDTO>> getAllDataItems(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
@@ -63,7 +63,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Retrive a specific dataItem version given the dataItem uuid", description = "First check if project exist and then return a specific version of the dataItem identified by the uuid)")
-    @GetMapping(path = "/dataItems/{name}/{uuid}", produces = "application/json; charset=UTF-8")
+    @GetMapping(path = "/dataitems/{name}/{uuid}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> getDataItemByUuid(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
@@ -75,7 +75,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Retrive the latest version of an dataItem", description = "First check if project exist and then return the latest version of an dataItem)")
-    @GetMapping(path = "/dataItems/{name}/latest", produces = "application/json; charset=UTF-8")
+    @GetMapping(path = "/dataitems/{name}/latest", produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> getLatestDataItemByName(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name) {
@@ -85,7 +85,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Create an  or update an dataItem in a project context", description = "First check if project exist, if dataItem exist update one otherwise create a new version of the dataItem")
-    @PostMapping(value = "/dataItems/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "/dataitems/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
     public ResponseEntity<DataItemDTO> createOrUpdateDataItem(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
@@ -94,7 +94,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Update if exist an dataItem in a project context", description = "First check if project exist, if dataItem exist update.")
-    @PutMapping(value = "/dataItems/{name}/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "/dataitems/{name}/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" })
     public ResponseEntity<DataItemDTO> updateUpdateDataItem(
             @ValidateField @PathVariable String project,
@@ -105,7 +105,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Delete a specific dataItem version", description = "First check if project exist, then delete a specific dataItem version")
-    @DeleteMapping(path = "/dataItems/{name}/{uuid}")
+    @DeleteMapping(path = "/dataitems/{name}/{uuid}")
     public ResponseEntity<Boolean> deleteSpecificDataItemVersion(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
@@ -114,7 +114,7 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Delete all version of an dataItem", description = "First check if project exist, then delete a specific dataItem version")
-    @DeleteMapping(path = "/dataItems/{name}")
+    @DeleteMapping(path = "/dataitems/{name}")
     public ResponseEntity<Boolean> deleteDataItem(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name) {

@@ -40,7 +40,7 @@ public class FunctionDTO implements BaseEntity {
     private Date created;
     private Date updated;
     @Builder.Default
-    private Boolean embedded = true;
+    private Boolean embedded = false;
 
     private String state;
 

@@ -41,7 +41,7 @@ public class DataItemDTO implements BaseEntity {
     private Date updated;
 
     @Builder.Default
-    private Boolean embedded = true;
+    private Boolean embedded = false;
     private String state;
 
     @JsonAnyGetter
