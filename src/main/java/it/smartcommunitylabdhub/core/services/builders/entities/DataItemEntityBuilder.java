@@ -29,11 +29,11 @@ public class DataItemEntityBuilder {
                                 ConversionUtils.convert(dataItemDTO, commandFactory, "dataitem"), dataItemDTO,
                                 builder -> {
                                         builder
-                                                        .withIf(dataItemDTO.getEmbedded(), a -> a.setExtra(
+                                                        .with(a -> a.setExtra(
                                                                         ConversionUtils.convert(dataItemDTO.getExtra(),
                                                                                         commandFactory,
                                                                                         "cbor")))
-                                                        .withIf(dataItemDTO.getEmbedded(), a -> a.setSpec(
+                                                        .with(a -> a.setSpec(
                                                                         ConversionUtils.convert(dataItemDTO.getSpec(),
                                                                                         commandFactory,
                                                                                         "cbor")));

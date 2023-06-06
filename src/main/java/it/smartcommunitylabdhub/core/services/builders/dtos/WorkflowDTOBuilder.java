@@ -26,11 +26,11 @@ public class WorkflowDTOBuilder {
                                         .with(dto -> dto.setKind(workflow.getKind()))
                                         .with(dto -> dto.setProject(workflow.getProject()))
                                         .with(dto -> dto.setName(workflow.getName()))
-                                        .withIf(workflow.getEmbedded(), dto -> dto.setSpec(ConversionUtils.reverse(
+                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(
                                                         workflow.getSpec(),
                                                         commandFactory,
                                                         "cbor")))
-                                        .withIf(workflow.getEmbedded(), dto -> dto.setExtra(ConversionUtils.reverse(
+                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(
                                                         workflow.getExtra(),
                                                         commandFactory,
                                                         "cbor")))

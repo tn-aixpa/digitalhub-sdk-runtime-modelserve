@@ -38,6 +38,7 @@ Same thing is applied for workflow, dataitem, artifact.
 
 // TODO:
 Define .....Artifact, Function, Workflow, DataItem, Project scheme. Function of type: 'job', 'nuclio', 'serving' -> define the spec fields.
+For the Spec mapping define Accessor (Pattern) following this solution : https://github.com/spring-projects/spring-security/blob/main/oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/ClaimAccessor.java
 
 // TODO: SYNC WITH MLRUN
 

@@ -26,11 +26,11 @@ public class FunctionDTOBuilder {
                                         .with(dto -> dto.setKind(function.getKind()))
                                         .with(dto -> dto.setProject(function.getProject()))
                                         .with(dto -> dto.setName(function.getName()))
-                                        .withIf(function.getEmbedded(), dto -> dto.setSpec(ConversionUtils.reverse(
+                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(
                                                         function.getSpec(),
                                                         commandFactory,
                                                         "cbor")))
-                                        .withIf(function.getEmbedded(), dto -> dto.setExtra(ConversionUtils.reverse(
+                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(
                                                         function.getExtra(),
                                                         commandFactory,
                                                         "cbor")))

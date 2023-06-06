@@ -26,11 +26,11 @@ public class DataItemDTOBuilder {
                                         .with(dto -> dto.setKind(dataItem.getKind()))
                                         .with(dto -> dto.setProject(dataItem.getProject()))
                                         .with(dto -> dto.setName(dataItem.getName()))
-                                        .withIf(dataItem.getEmbedded(), dto -> dto.setSpec(ConversionUtils.reverse(
+                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(
                                                         dataItem.getSpec(),
                                                         commandFactory,
                                                         "cbor")))
-                                        .withIf(dataItem.getEmbedded(), dto -> dto.setExtra(ConversionUtils.reverse(
+                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(
                                                         dataItem.getExtra(),
                                                         commandFactory,
                                                         "cbor")))

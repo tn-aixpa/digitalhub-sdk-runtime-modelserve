@@ -26,11 +26,11 @@ public class ArtifactDTOBuilder {
                                         .with(dto -> dto.setKind(artifact.getKind()))
                                         .with(dto -> dto.setProject(artifact.getProject()))
                                         .with(dto -> dto.setName(artifact.getName()))
-                                        .withIf(artifact.getEmbedded(), dto -> dto.setSpec(ConversionUtils.reverse(
+                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(
                                                         artifact.getSpec(),
                                                         commandFactory,
                                                         "cbor")))
-                                        .withIf(artifact.getEmbedded(),
+                                        .with(
                                                         dto -> dto.setExtra(ConversionUtils.reverse(
                                                                         artifact.getExtra(),
                                                                         commandFactory,
