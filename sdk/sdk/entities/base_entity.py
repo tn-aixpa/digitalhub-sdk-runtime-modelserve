@@ -1,8 +1,8 @@
 """
 Abstract entity module.
 """
+from inspect import signature
 from abc import ABCMeta, abstractmethod
-from dataclasses import dataclass
 
 from sdk.entities.utils import file_exporter
 
@@ -45,14 +45,14 @@ class ModelObj:
         return str(self.to_dict())
 
 
-@dataclass
 class EntityMetadata(ModelObj):
     """
     A class representing the metadata of an entity.
     """
 
-    name: str
-    description: str = None
+    def __init__(self, name: str, description: str = None) -> None:
+        self.name = name
+        self.description = description
 
     @classmethod
     def from_dict(cls, obj: dict) -> "EntityMetadata":
@@ -73,7 +73,6 @@ class EntityMetadata(ModelObj):
         return cls(**obj)
 
 
-@dataclass
 class EntitySpec(ModelObj):
     """
     A class representing the specification of an entity.
@@ -97,13 +96,16 @@ class EntitySpec(ModelObj):
         """
         return cls(**obj)
 
+    def get_sig(self) -> dict:
+        return signature(self.__init__).parameters.keys()
+
 
 class Entity(ModelObj, metaclass=ABCMeta):
     """
     Abstract class for entities.
     """
 
-    _obj_attr = ["name", "kind", "metadata", "spec", "project"]
+    _obj_attr = ["name", "kind", "metadata", "spec", "project", "id"]
 
     def __init__(self) -> None:
         self.id = None
@@ -149,7 +151,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         d = super().to_dict()
         return {k: v for k, v in d.items() if k in self._obj_attr}
 
-    def to_dict_not_embed(self) -> dict:
+    def to_dict_essential(self) -> dict:
         return {
             k: v for k, v in self.__dict__.items() if k in ["project", "name", "kind"]
         }

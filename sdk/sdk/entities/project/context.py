@@ -6,38 +6,141 @@ if typing.TYPE_CHECKING:
 
 
 class Context:
+    """
+    The context for a project.
+    """
+
+    def __init__(self, project: Project) -> None:
+        """
+        Initialize the context.
+
+        Parameters
+        ----------
+
+        project : Project
+            The project to create the context for.
+
+        Returns
+        -------
+        None
+        """
+        self.name = project.name
+        self.client = project.client
+        self.local = project.local
+
+
+class ContextRegistry:
+    """
+    A registry of contexts.
+    """
+
     def __init__(self) -> None:
+        """
+        Initialize the registry.
+        """
         self._instances = {}
-        self._current = None
 
     def add(self, project: Project) -> None:
-        if project.name not in self._instances:
-            self._instances[project.name] = project
+        """
+        Add a context to the registry.
 
-    def get(self, name: str) -> Project:
-        return self._instances.get(name)
+        Parameters
+        ----------
+        project : Project
+            The project to add to the registry.
+
+        Returns
+        -------
+        None
+        """
+        if project.name not in self._instances:
+            self._instances[project.name] = Context(project)
+
+    def get(self, name: str) -> Context:
+        """
+        Get the context for the given project name.
+
+        Parameters
+        ----------
+        name : str
+            The name of the project to get the context for.
+
+        Returns
+        -------
+
+        Context
+            The context for the given project name.
+        """
+        ctx = self._instances.get(name)
+        if ctx is None:
+            raise ValueError(f"Context '{name}' not found.")
+        return ctx
 
     def remove(self, name: str) -> None:
+        """
+        Remove the context for the given project name.
+
+        Parameters
+        ----------
+        name : str
+            The name of the project to remove the context for.
+
+        Returns
+        -------
+        None
+        """
         self._instances.pop(name, None)
 
-    def set_current(self, name: str) -> None:
-        self._current = name
 
-
-project_instances = Context()
+project_instances = ContextRegistry()
 
 
 def set_context(project: Project) -> None:
+    """
+    Set the current context to the given project.
+
+    Parameters
+    ----------
+    project : Project
+        The project to set as the current context.
+
+    Returns
+    -------
+    None
+
+    """
     project_instances.add(project)
-    project_instances.set_current(project.name)
 
 
-def get_context(project_name: str) -> Project:
-    ctx = project_instances.get(project_name)
-    if ctx is None:
-        raise ValueError(f"Context '{project_name}' not found.")
-    return ctx
+def get_context(project_name: str) -> Context:
+    """
+    Get the specific context.
+
+    Parameters
+    ----------
+    project_name : str
+        The name of the project to get the context for.
+
+    Returns
+    -------
+    Context
+        The context for the given project name.
+
+    """
+    return project_instances.get(project_name)
 
 
 def delete_context(project_name: str) -> None:
+    """
+    Delete the context for the given project name.
+
+    Parameters
+    ----------
+    project_name : str
+        The name of the project to delete the context for.
+
+    Returns
+    -------
+    None
+    """
     project_instances.remove(project_name)

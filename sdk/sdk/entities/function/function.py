@@ -1,8 +1,6 @@
 """
 Function module.
 """
-from dataclasses import dataclass
-
 from sdk.entities.api import DTO_FUNC, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.project.context import get_context
@@ -10,17 +8,28 @@ from sdk.entities.run.run import Run
 from sdk.utils.utils import get_uiid
 
 
-@dataclass
 class FunctionMetadata(EntityMetadata):
     ...
 
 
-@dataclass
 class FunctionSpec(EntitySpec):
-    source: str = None
-    image: str = None
-    tag: str = None
-    handler: str = None
+    def __init__(
+        self,
+        source: str = None,
+        image: str = None,
+        tag: str = None,
+        handler: str = None,
+        **kwargs,
+    ) -> None:
+        self.source = source
+        self.image = image
+        self.tag = tag
+        self.handler = handler
+
+        # Set new attributes
+        for k, v in kwargs.items():
+            if k not in self.get_sig():
+                self.__setattr__(k, v)
 
 
 class Function(Entity):
@@ -37,6 +46,7 @@ class Function(Entity):
         spec: FunctionSpec = None,
         local: bool = False,
         embed: bool = False,
+        uuid: str = None,
         **kwargs,
     ) -> None:
         """
@@ -64,11 +74,13 @@ class Function(Entity):
         super().__init__()
         self.project = project
         self.name = name
-        self.kind = kind if kind is not None else "function"
+        self.kind = kind if kind is not None else "local"
         self.metadata = (
             metadata if metadata is not None else FunctionMetadata(name=name)
         )
         self.spec = spec if spec is not None else FunctionSpec()
+        self.id = uuid if uuid is not None else get_uiid()
+
         self._local = local
         self._embed = embed
 
@@ -77,20 +89,18 @@ class Function(Entity):
             if k not in self._obj_attr:
                 self.__setattr__(k, v)
 
-        # Set id if None
-        if self.id is None:
-            self.id = get_uiid()
-
         self.context = get_context(self.project)
 
-    def save(self, overwrite: bool = False, uuid: str = None) -> dict:
+    #############################
+    #  Save / Export
+    #############################
+
+    def save(self, uuid: str = None) -> dict:
         """
         Save function into backend.
 
         Parameters
         ----------
-        overwrite : bool, optional
-            Specify if overwrite existing function, default is False.
         uuid : str, optional
             Specify uuid for the function update, default is None.
 
@@ -105,13 +115,15 @@ class Function(Entity):
 
         obj = self.to_dict()
 
-        if overwrite:
-            api = update_api(self.project, DTO_FUNC, uuid)
-            r = self.context.client.update_object(obj, api)
-        else:
-            api = create_api(self.project, DTO_FUNC)
-            r = self.context.client.create_object(obj, api)
-        return r
+        if uuid is not None:
+            self.id = uuid
+            try:
+                api = update_api(self.project, DTO_FUNC, uuid)
+                return self.context.client.update_object(obj, api)
+            except Exception:
+                ...
+        api = create_api(self.project, DTO_FUNC)
+        return self.context.client.create_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
@@ -135,6 +147,41 @@ class Function(Entity):
         )
         return self.export_object(filename, obj)
 
+    #############################
+    #  Function Methods
+    #############################
+
+    def run(self) -> "Run":
+        ...
+
+    def build(self) -> "Run":
+        ...
+
+    def deploy(self) -> "Run":
+        ...
+
+    #############################
+    #  Getters and Setters
+    #############################
+
+    @property
+    def local(self) -> bool:
+        """
+        Get local flag.
+        """
+        return self._local
+
+    @property
+    def embed(self) -> bool:
+        """
+        Get embed flag.
+        """
+        return self._embed
+
+    #############################
+    #  Generic Methods
+    #############################
+
     @classmethod
     def from_dict(cls, d: dict) -> "Function":
         """
@@ -153,17 +200,9 @@ class Function(Entity):
         """
         project = d.get("project")
         name = d.get("name")
+        uuid = d.get("id")
         if project is None or name is None:
-            raise Exception("Project or name is not specified.")
+            raise Exception("Project or name are not specified.")
         metadata = FunctionMetadata.from_dict(d.get("metadata", {"name": name}))
         spec = FunctionSpec.from_dict(d.get("spec", {}))
-        return cls(project, name, metadata=metadata, spec=spec)
-
-    def run(self) -> "Run":
-        ...
-
-    def build(self) -> "Run":
-        ...
-
-    def deploy(self) -> "Run":
-        ...
+        return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

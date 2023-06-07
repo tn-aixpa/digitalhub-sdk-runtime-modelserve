@@ -62,7 +62,6 @@ def new_dataitem(
         local=local,
         embed=embed,
     )
-    context.add_dataitem(obj)
     if local:
         obj.export()
     else:

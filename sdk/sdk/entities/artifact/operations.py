@@ -65,7 +65,6 @@ def new_artifact(
         local=local,
         embed=embed,
     )
-    context.add_artifact(obj)
     if local:
         obj.export()
     else:

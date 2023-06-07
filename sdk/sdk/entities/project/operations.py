@@ -19,7 +19,7 @@ from sdk.entities.api import (
 def new_project(
     name: str,
     description: str = None,
-    context: str = "./",
+    context: str = None,
     source: str = None,
     functions: list = None,
     artifacts: list = None,
@@ -34,21 +34,21 @@ def new_project(
     ----------
     name : str
         The name of the project to load.
-    description : str
+    description : str, optional
         The description of the project.
-    context : str
+    context : str, optional
         The path to the project's execution context.
-    source : str
+    source : str, optional
         The path to the project's source code.
-    functions : list
+    functions : list, optional
         A list of functions assigned to the project.
-    artifacts : list
+    artifacts : list, optional
         A list of artifacts assigned to the project.
-    workflows : list
+    workflows : list, optional
         A list of workflows assigned to the project.
-    dataitems : list
+    dataitems : list, optional
         A list of dataitems assigned to the project.
-    local : bool
+    local : bool, optional
         Flag to determine if project wil be executed locally.
 
     Returns
@@ -192,9 +192,9 @@ def delete_project(name: str, delete_all: bool = False) -> None:
     """
     client = get_client()
     responses = []
-    # Delete all objects related to project
+    # Delete all objects related to project -> must be done by backend
     if delete_all:
-        for a in [DTO_ARTF, DTO_FUNC, DTO_WKFL]:
+        for a in [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]:
             api_obj = read_api_project(name, a)
             try:
                 r = client.get_object(api_obj)

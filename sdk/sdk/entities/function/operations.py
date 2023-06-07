@@ -68,7 +68,6 @@ def new_function(
         local=local,
         embed=embed,
     )
-    context.add_function(obj)
     if local:
         obj.export()
     else:

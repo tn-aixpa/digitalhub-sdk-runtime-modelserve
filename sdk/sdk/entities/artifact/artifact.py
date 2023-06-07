@@ -1,24 +1,28 @@
 """
 Artifact module.
 """
-from dataclasses import dataclass
-
 from sdk.entities.api import DTO_ARTF, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.entities.project.context import get_context
 from sdk.utils.utils import get_uiid
 
 
-@dataclass
 class ArtifactMetadata(EntityMetadata):
     ...
 
 
-@dataclass
 class ArtifactSpec(EntitySpec):
-    key: str = None
-    source: str = None
-    target_path: str = None
+    def __init__(
+        self, key: str = None, source: str = None, target_path: str = None, **kwargs
+    ) -> None:
+        self.key = key
+        self.source = source
+        self.target_path = target_path
+
+        # Set new attributes
+        for k, v in kwargs.items():
+            if k not in self.get_sig():
+                self.__setattr__(k, v)
 
 
 class Artifact(Entity):
@@ -35,6 +39,7 @@ class Artifact(Entity):
         spec: ArtifactSpec = None,
         local: bool = False,
         embed: bool = False,
+        uuid: str = None,
         **kwargs,
     ) -> None:
         """
@@ -67,6 +72,8 @@ class Artifact(Entity):
             metadata if metadata is not None else ArtifactMetadata(name=name)
         )
         self.spec = spec if spec is not None else ArtifactSpec()
+        self.id = uuid if uuid is not None else get_uiid()
+
         self._local = local
         self._embed = embed
 
@@ -75,21 +82,19 @@ class Artifact(Entity):
             if k not in self._obj_attr:
                 self.__setattr__(k, v)
 
-        # Set id if None
-        if self.id is None:
-            self.id = get_uiid()
-
         # Set context
         self.context = get_context(self.project)
 
-    def save(self, overwrite: bool = False, uuid: str = None) -> dict:
+    #############################
+    #  Save / Export
+    #############################
+
+    def save(self, uuid: str = None) -> dict:
         """
         Save artifact into backend.
 
         Parameters
         ----------
-        overwrite : bool, optional
-            Specify if overwrite, default is False.
         uuid : str, optional
             UUID of the artifact for update, default is None.
 
@@ -104,13 +109,15 @@ class Artifact(Entity):
 
         obj = self.to_dict()
 
-        if overwrite:
-            api = update_api(self.project, DTO_ARTF, uuid)
-            r = self.context.client.update_object(obj, api)
-        else:
-            api = create_api(self.project, DTO_ARTF)
-            r = self.context.client.create_object(obj, api)
-        return r
+        if uuid is not None:
+            self.id = uuid
+            try:
+                api = update_api(self.project, DTO_ARTF, uuid)
+                return self.context.client.update_object(obj, api)
+            except Exception:
+                ...
+        api = create_api(self.project, DTO_ARTF)
+        return self.context.client.create_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
@@ -134,6 +141,42 @@ class Artifact(Entity):
         )
         return self.export_object(filename, obj)
 
+    #############################
+    #  Artifacts Methods
+    #############################
+
+    def as_file(self, reader) -> str:
+        ...
+
+    def write_file(self):
+        ...
+
+    def upload(self, writer) -> str:
+        # fare hashing
+        ...
+
+    #############################
+    #  Getters and Setters
+    #############################
+
+    @property
+    def local(self) -> bool:
+        """
+        Get local flag.
+        """
+        return self._local
+
+    @property
+    def embed(self) -> bool:
+        """
+        Get embed flag.
+        """
+        return self._embed
+
+    #############################
+    #  Generic Methods
+    #############################
+
     @classmethod
     def from_dict(cls, d: dict) -> "Artifact":
         """
@@ -152,18 +195,9 @@ class Artifact(Entity):
         """
         project = d.get("project")
         name = d.get("name")
+        uuid = d.get("id")
         if project is None or name is None:
-            raise Exception("Project or name is not specified.")
+            raise Exception("Project or name are not specified.")
         metadata = ArtifactMetadata.from_dict(d.get("metadata", {"name": name}))
         spec = ArtifactSpec.from_dict(d.get("spec", {}))
-        return cls(project, name, metadata=metadata, spec=spec)
-
-    def as_file(self, reader) -> str:
-        ...
-
-    def write_file(self):
-        ...
-
-    def upload(self, writer) -> str:
-        # fare hashing
-        ...
+        return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

@@ -60,7 +60,6 @@ def new_workflow(
         local=local,
         embed=embed,
     )
-    context.add_workflow(obj)
     if local:
         obj.export()
     else:
@@ -86,12 +85,6 @@ def get_workflow(project: str, name: str, uuid: str = None) -> Workflow:
     -------
     Workflow
         An object that contains details about the specified workflow.
-
-    Raises
-    ------
-    KeyError
-        If the specified workflow does not exist.
-
     """
     context = get_context(project)
     api = read_api(project, DTO_WKFL, name, uuid=uuid)
