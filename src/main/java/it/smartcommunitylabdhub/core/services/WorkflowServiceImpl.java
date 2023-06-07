@@ -77,62 +77,50 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Override
     public WorkflowDTO getWorkflow(String uuid) {
-        final Workflow workflow = workflowRepository.findById(uuid).orElse(null);
-        if (workflow == null) {
-            throw new CoreException(
-                    "WorkflowNotFound",
-                    "The workflow you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-            return new WorkflowDTOBuilder(
-                    commandFactory,
-                    workflow, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return workflowRepository.findById(uuid)
+                .map(workflow -> {
+                    try {
+                        return new WorkflowDTOBuilder(commandFactory, workflow, false).build();
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "WorkflowNotFound",
+                        "The workflow you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
     public WorkflowDTO updateWorkflow(WorkflowDTO workflowDTO, String uuid) {
-
         if (!workflowDTO.getId().equals(uuid)) {
             throw new CoreException(
                     "WorkflowNotMatch",
-                    "Trying to update a workflow with an uuid different from the one passed in the request.",
+                    "Trying to update a workflow with a UUID different from the one passed in the request.",
                     HttpStatus.NOT_FOUND);
         }
 
-        final Workflow workflow = workflowRepository.findById(uuid).orElse(null);
-        if (workflow == null) {
-            throw new CoreException(
-                    "WorkflowNotFound",
-                    "The workflow you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-
-            WorkflowEntityBuilder workflowBuilder = new WorkflowEntityBuilder(commandFactory, workflowDTO);
-
-            final Workflow workflowUpdated = workflowBuilder.update(workflow);
-            this.workflowRepository.save(workflowUpdated);
-
-            return new WorkflowDTOBuilder(
-                    commandFactory,
-                    workflowUpdated, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return workflowRepository.findById(uuid)
+                .map(workflow -> {
+                    try {
+                        WorkflowEntityBuilder workflowBuilder = new WorkflowEntityBuilder(commandFactory, workflowDTO);
+                        Workflow workflowUpdated = workflowBuilder.update(workflow);
+                        workflowRepository.save(workflowUpdated);
+                        return new WorkflowDTOBuilder(commandFactory, workflowUpdated, false).build();
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "WorkflowNotFound",
+                        "The workflow you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override

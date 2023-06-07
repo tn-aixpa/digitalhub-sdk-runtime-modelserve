@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.core.services.builders.dtos;
 
 import java.util.Optional;
-import java.util.function.BiConsumer;
 
 import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;

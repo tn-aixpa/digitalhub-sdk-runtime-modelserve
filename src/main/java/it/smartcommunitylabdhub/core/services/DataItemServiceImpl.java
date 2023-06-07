@@ -70,61 +70,50 @@ public class DataItemServiceImpl implements DataItemService {
 
     @Override
     public DataItemDTO getDataItem(String uuid) {
-        final DataItem dataItem = dataItemRepository.findById(uuid).orElse(null);
-        if (dataItem == null) {
-            throw new CoreException(
-                    "DataItemNotFound",
-                    "The dataItem you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-            return new DataItemDTOBuilder(
-                    commandFactory,
-                    dataItem, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return dataItemRepository.findById(uuid)
+                .map(dataItem -> {
+                    try {
+                        return new DataItemDTOBuilder(commandFactory, dataItem, false).build();
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "DataItemNotFound",
+                        "The dataItem you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
     public DataItemDTO updateDataItem(DataItemDTO dataItemDTO, String uuid) {
-
         if (!dataItemDTO.getId().equals(uuid)) {
             throw new CoreException(
                     "DataItemNotMatch",
-                    "Trying to update a DataItem with an uuid different from the one passed in the request.",
-                    HttpStatus.NOT_FOUND);
-        }
-        final DataItem dataItem = dataItemRepository.findById(uuid).orElse(null);
-        if (dataItem == null) {
-            throw new CoreException(
-                    "DataItemNotFound",
-                    "The dataItem you are searching for does not exist.",
+                    "Trying to update a DataItem with a UUID different from the one passed in the request.",
                     HttpStatus.NOT_FOUND);
         }
 
-        try {
-
-            DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(commandFactory, dataItemDTO);
-
-            final DataItem dataItemUpdated = dataItemBuilder.update(dataItem);
-            this.dataItemRepository.save(dataItemUpdated);
-
-            return new DataItemDTOBuilder(
-                    commandFactory,
-                    dataItemUpdated, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return dataItemRepository.findById(uuid)
+                .map(dataItem -> {
+                    try {
+                        DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(commandFactory, dataItemDTO);
+                        DataItem dataItemUpdated = dataItemBuilder.update(dataItem);
+                        dataItemRepository.save(dataItemUpdated);
+                        return new DataItemDTOBuilder(commandFactory, dataItemUpdated, false).build();
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "DataItemNotFound",
+                        "The dataItem you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override

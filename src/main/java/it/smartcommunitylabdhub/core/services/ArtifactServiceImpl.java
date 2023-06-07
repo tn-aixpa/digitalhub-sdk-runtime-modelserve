@@ -70,62 +70,50 @@ public class ArtifactServiceImpl implements ArtifactService {
 
     @Override
     public ArtifactDTO getArtifact(String uuid) {
-        final Artifact artifact = artifactRepository.findById(uuid).orElse(null);
-        if (artifact == null) {
-            throw new CoreException(
-                    "ArtifactNotFound",
-                    "The artifact you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-            return new ArtifactDTOBuilder(
-                    commandFactory,
-                    artifact, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return artifactRepository.findById(uuid)
+                .map(artifact -> {
+                    try {
+                        return new ArtifactDTOBuilder(commandFactory, artifact, false).build();
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "ArtifactNotFound",
+                        "The artifact you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
     public ArtifactDTO updateArtifact(ArtifactDTO artifactDTO, String uuid) {
-
         if (!artifactDTO.getId().equals(uuid)) {
             throw new CoreException(
                     "ArtifactNotMatch",
-                    "Trying to update a artifact with an uuid different from the one passed in the request.",
+                    "Trying to update an artifact with a UUID different from the one passed in the request.",
                     HttpStatus.NOT_FOUND);
         }
 
-        final Artifact artifact = artifactRepository.findById(uuid).orElse(null);
-        if (artifact == null) {
-            throw new CoreException(
-                    "ArtifactNotFound",
-                    "The artifact you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-
-            ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(commandFactory, artifactDTO);
-
-            final Artifact artifactUpdated = artifactBuilder.update(artifact);
-            this.artifactRepository.save(artifactUpdated);
-
-            return new ArtifactDTOBuilder(
-                    commandFactory,
-                    artifactUpdated, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return artifactRepository.findById(uuid)
+                .map(artifact -> {
+                    try {
+                        ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(commandFactory, artifactDTO);
+                        Artifact artifactUpdated = artifactBuilder.update(artifact);
+                        artifactRepository.save(artifactUpdated);
+                        return new ArtifactDTOBuilder(commandFactory, artifactUpdated, false).build();
+                    } catch (CustomException e) {
+                        throw new CoreException(
+                                "InternalServerError",
+                                e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException(
+                        "ArtifactNotFound",
+                        "The artifact you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
