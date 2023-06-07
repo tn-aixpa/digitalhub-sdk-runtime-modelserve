@@ -1,5 +1,7 @@
 package it.smartcommunitylabdhub.core.services.builders.dtos;
 
+import java.util.Optional;
+
 import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
@@ -11,12 +13,15 @@ public class WorkflowDTOBuilder {
 
         private CommandFactory commandFactory;
         private Workflow workflow;
+        private boolean embeddable;
 
         public WorkflowDTOBuilder(
                         CommandFactory commandFactory,
-                        Workflow workflow) {
+                        Workflow workflow,
+                        boolean embeddable) {
                 this.workflow = workflow;
                 this.commandFactory = commandFactory;
+                this.embeddable = embeddable;
         }
 
         public WorkflowDTO build() {
@@ -26,21 +31,60 @@ public class WorkflowDTOBuilder {
                                         .with(dto -> dto.setKind(workflow.getKind()))
                                         .with(dto -> dto.setProject(workflow.getProject()))
                                         .with(dto -> dto.setName(workflow.getName()))
-                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(
-                                                        workflow.getSpec(),
-                                                        commandFactory,
-                                                        "cbor")))
-                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(
-                                                        workflow.getExtra(),
-                                                        commandFactory,
-                                                        "cbor")))
-                                        .with(dto -> dto.setState(workflow.getState() == null ? State.CREATED.name()
-                                                        : workflow.getState().name()))
-                                        .with(dto -> dto.setCreated(workflow.getCreated()))
-                                        .with(dto -> dto.setUpdated(workflow.getUpdated()))
-                                        .with(dto -> dto.setEmbedded(workflow.getEmbedded()))
-                                        .with(dto -> dto.setState(workflow.getState() == null ? State.CREATED.name()
-                                                        : workflow.getState().name()));
+
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(workflow.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setSpec(ConversionUtils.reverse(
+                                                                                                workflow.getSpec(),
+                                                                                                commandFactory,
+                                                                                                "cbor")));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(workflow.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setExtra(ConversionUtils.reverse(
+                                                                                                workflow.getExtra(),
+                                                                                                commandFactory,
+                                                                                                "cbor")));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(workflow.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setCreated(workflow.getCreated()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(workflow.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setUpdated(workflow.getUpdated()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(workflow.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setEmbedded(workflow.getEmbedded()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+
+                                                Optional.ofNullable(workflow.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setState(workflow.getState() == null
+                                                                                                ? State.CREATED.name()
+                                                                                                : workflow.getState()
+                                                                                                                .name()));
+
+                                        });
 
                 });
         }

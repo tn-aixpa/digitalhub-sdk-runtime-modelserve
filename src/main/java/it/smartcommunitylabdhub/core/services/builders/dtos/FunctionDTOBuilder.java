@@ -1,5 +1,7 @@
 package it.smartcommunitylabdhub.core.services.builders.dtos;
 
+import java.util.Optional;
+
 import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
@@ -11,12 +13,15 @@ public class FunctionDTOBuilder {
 
         private CommandFactory commandFactory;
         private Function function;
+        private boolean embeddable;
 
         public FunctionDTOBuilder(
                         CommandFactory commandFactory,
-                        Function function) {
+                        Function function,
+                        boolean embeddable) {
                 this.function = function;
                 this.commandFactory = commandFactory;
+                this.embeddable = embeddable;
         }
 
         public FunctionDTO build() {
@@ -26,21 +31,60 @@ public class FunctionDTOBuilder {
                                         .with(dto -> dto.setKind(function.getKind()))
                                         .with(dto -> dto.setProject(function.getProject()))
                                         .with(dto -> dto.setName(function.getName()))
-                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(
-                                                        function.getSpec(),
-                                                        commandFactory,
-                                                        "cbor")))
-                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(
-                                                        function.getExtra(),
-                                                        commandFactory,
-                                                        "cbor")))
-                                        .with(dto -> dto.setState(function.getState() == null ? State.CREATED.name()
-                                                        : function.getState().name()))
-                                        .with(dto -> dto.setCreated(function.getCreated()))
-                                        .with(dto -> dto.setUpdated(function.getUpdated()))
-                                        .with(dto -> dto.setEmbedded(function.getEmbedded()))
-                                        .with(dto -> dto.setState(function.getState() == null ? State.CREATED.name()
-                                                        : function.getState().name()));
+
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(function.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setSpec(ConversionUtils.reverse(
+                                                                                                function.getSpec(),
+                                                                                                commandFactory,
+                                                                                                "cbor")));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(function.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setExtra(ConversionUtils.reverse(
+                                                                                                function.getExtra(),
+                                                                                                commandFactory,
+                                                                                                "cbor")));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(function.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setCreated(function.getCreated()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(function.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setUpdated(function.getUpdated()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(function.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setEmbedded(function.getEmbedded()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+
+                                                Optional.ofNullable(function.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setState(function.getState() == null
+                                                                                                ? State.CREATED.name()
+                                                                                                : function.getState()
+                                                                                                                .name()));
+
+                                        });
 
                 });
         }

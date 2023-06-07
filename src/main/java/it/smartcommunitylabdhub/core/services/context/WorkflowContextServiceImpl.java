@@ -62,7 +62,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             // Return workflow DTO
             return new WorkflowDTOBuilder(
                     commandFactory,
-                    workflow).build();
+                    workflow, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -83,7 +83,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             return workflowPage.getContent()
                     .stream()
                     .map((workflow) -> {
-                        return new WorkflowDTOBuilder(commandFactory, workflow).build();
+                        return new WorkflowDTOBuilder(commandFactory, workflow, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -105,7 +105,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             return workflowPage.getContent()
                     .stream()
                     .map((workflow) -> {
-                        return new WorkflowDTOBuilder(commandFactory, workflow).build();
+                        return new WorkflowDTOBuilder(commandFactory, workflow, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -124,7 +124,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             checkContext(projectName);
 
             return this.workflowRepository.findByProjectAndNameAndId(projectName, workflowName, uuid).map(
-                    workflow -> new WorkflowDTOBuilder(commandFactory, workflow).build())
+                    workflow -> new WorkflowDTOBuilder(commandFactory, workflow, false).build())
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
@@ -143,7 +143,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             checkContext(projectName);
 
             return this.workflowRepository.findLatestWorkflowByProjectAndName(projectName, workflowName).map(
-                    workflow -> new WorkflowDTOBuilder(commandFactory, workflow).build())
+                    workflow -> new WorkflowDTOBuilder(commandFactory, workflow, false).build())
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
@@ -201,7 +201,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             // Return workflow DTO
             return new WorkflowDTOBuilder(
                     commandFactory,
-                    workflow).build();
+                    workflow, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -240,7 +240,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             // Return workflow DTO
             return new WorkflowDTOBuilder(
                     commandFactory,
-                    workflow).build();
+                    workflow, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(

@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.services.builders;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -21,6 +22,11 @@ public class EntityBuilder<T extends BaseEntity, U extends BaseEntity> {
         if (condition) {
             fieldSetter.accept(result);
         }
+        return this;
+    }
+
+    public EntityBuilder<T, U> withIfElse(boolean condition, BiConsumer<T, Boolean> fieldSetter) {
+        fieldSetter.accept(result, condition);
         return this;
     }
 

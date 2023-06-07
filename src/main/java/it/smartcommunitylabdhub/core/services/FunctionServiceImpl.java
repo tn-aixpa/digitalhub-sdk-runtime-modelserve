@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.enums.kinds.FunctionKind;
+import it.smartcommunitylabdhub.core.models.accessors.interfaces.FunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
@@ -44,7 +47,7 @@ public class FunctionServiceImpl implements FunctionService {
         try {
             Page<Function> functionPage = this.functionRepository.findAll(pageable);
             return functionPage.getContent().stream().map((function) -> {
-                return new FunctionDTOBuilder(commandFactory, function).build();
+                return new FunctionDTOBuilder(commandFactory, function, false).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -57,6 +60,10 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Override
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
+
+        // HACK: TESTING FUNCTION of kind job field accessor
+        // FunctionFieldAccessor f = FunctionKind.JOB.createAccessor(Map.of());
+
         try {
             // Build a function and store it on db
             final Function function = new FunctionEntityBuilder(commandFactory, functionDTO).build();
@@ -65,7 +72,7 @@ public class FunctionServiceImpl implements FunctionService {
             // Return function DTO
             return new FunctionDTOBuilder(
                     commandFactory,
-                    function).build();
+                    function, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -88,7 +95,7 @@ public class FunctionServiceImpl implements FunctionService {
         try {
             return new FunctionDTOBuilder(
                     commandFactory,
-                    function).build();
+                    function, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -125,7 +132,7 @@ public class FunctionServiceImpl implements FunctionService {
 
             return new FunctionDTOBuilder(
                     commandFactory,
-                    functionUpdated).build();
+                    functionUpdated, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(

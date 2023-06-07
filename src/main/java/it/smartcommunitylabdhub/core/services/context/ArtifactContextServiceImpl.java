@@ -62,7 +62,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             // Return artifact DTO
             return new ArtifactDTOBuilder(
                     commandFactory,
-                    artifact).build();
+                    artifact, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -83,7 +83,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             return artifactPage.getContent()
                     .stream()
                     .map((artifact) -> {
-                        return new ArtifactDTOBuilder(commandFactory, artifact).build();
+                        return new ArtifactDTOBuilder(commandFactory, artifact, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -105,7 +105,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             return artifactPage.getContent()
                     .stream()
                     .map((artifact) -> {
-                        return new ArtifactDTOBuilder(commandFactory, artifact).build();
+                        return new ArtifactDTOBuilder(commandFactory, artifact, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -124,7 +124,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             checkContext(projectName);
 
             return this.artifactRepository.findByProjectAndNameAndId(projectName, artifactName, uuid).map(
-                    artifact -> new ArtifactDTOBuilder(commandFactory, artifact).build())
+                    artifact -> new ArtifactDTOBuilder(commandFactory, artifact, false).build())
                     .orElseThrow(
                             () -> new CustomException("The artifact does not exist.", null));
 
@@ -143,7 +143,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             checkContext(projectName);
 
             return this.artifactRepository.findLatestArtifactByProjectAndName(projectName, artifactName).map(
-                    artifact -> new ArtifactDTOBuilder(commandFactory, artifact).build())
+                    artifact -> new ArtifactDTOBuilder(commandFactory, artifact, false).build())
                     .orElseThrow(
                             () -> new CustomException("The artifact does not exist.", null));
 
@@ -201,7 +201,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             // Return artifact DTO
             return new ArtifactDTOBuilder(
                     commandFactory,
-                    artifact).build();
+                    artifact, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -240,7 +240,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             // Return artifact DTO
             return new ArtifactDTOBuilder(
                     commandFactory,
-                    artifact).build();
+                    artifact, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(

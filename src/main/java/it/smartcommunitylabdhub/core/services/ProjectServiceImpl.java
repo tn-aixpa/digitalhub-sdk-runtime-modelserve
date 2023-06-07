@@ -61,7 +61,8 @@ public class ProjectServiceImpl implements ProjectService {
                     List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
                     List<Workflow> workflows = workflowRepository.findByProject(project.getName());
 
-                    return new ProjectDTOBuilder(commandFactory, project, artifacts, functions, workflows).build();
+                    return new ProjectDTOBuilder(commandFactory, project, artifacts, functions, workflows, true)
+                            .build();
                 })
                 .orElseThrow(() -> new CoreException(
                         "ProjectNotFound",
@@ -78,7 +79,7 @@ public class ProjectServiceImpl implements ProjectService {
                 List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
                 List<Workflow> workflows = workflowRepository.findByProject(project.getName());
 
-                return new ProjectDTOBuilder(commandFactory, project, artifacts, functions, workflows).build();
+                return new ProjectDTOBuilder(commandFactory, project, artifacts, functions, workflows, true).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -95,7 +96,8 @@ public class ProjectServiceImpl implements ProjectService {
                 .filter(project -> !projectRepository.existsByName(project.getId()))
                 .map(project -> {
                     projectRepository.save(project);
-                    return new ProjectDTOBuilder(commandFactory, project, List.of(), List.of(), List.of()).build();
+                    return new ProjectDTOBuilder(commandFactory, project, List.of(), List.of(), List.of(), true)
+                            .build();
                 })
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
@@ -126,7 +128,7 @@ public class ProjectServiceImpl implements ProjectService {
                     List<Artifact> artifacts = artifactRepository.findByProject(projectUpdated.getName());
                     List<Workflow> workflows = workflowRepository.findByProject(projectUpdated.getName());
 
-                    return new ProjectDTOBuilder(commandFactory, projectUpdated, artifacts, functions, workflows)
+                    return new ProjectDTOBuilder(commandFactory, projectUpdated, artifacts, functions, workflows, true)
                             .build();
                 })
                 .orElseThrow(() -> new CoreException(
@@ -165,6 +167,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<FunctionDTO> getProjectFunctions(String uuidOrName) {
+
         return Optional.ofNullable(projectRepository.findById(uuidOrName)
                 .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
@@ -177,7 +180,8 @@ public class ProjectServiceImpl implements ProjectService {
                         List<Function> functions = functionRepository.findByProject(projectName);
                         return Optional.of(
                                 functions.stream()
-                                        .map(function -> new FunctionDTOBuilder(commandFactory, function).build())
+                                        .map(function -> new FunctionDTOBuilder(commandFactory, function, false)
+                                                .build())
                                         .collect(Collectors.toList()));
 
                         // return Optional.of((List<FunctionDTO>) ConversionUtils.reverseIterable(
@@ -213,7 +217,7 @@ public class ProjectServiceImpl implements ProjectService {
                         List<Artifact> artifacts = artifactRepository.findByProject(projectName);
                         return Optional.of(
                                 artifacts.stream().map(
-                                        artifact -> new ArtifactDTOBuilder(commandFactory, artifact).build())
+                                        artifact -> new ArtifactDTOBuilder(commandFactory, artifact, false).build())
                                         .collect(Collectors.toList()));
                         // return Optional.of((List<ArtifactDTO>) ConversionUtils.reverseIterable(
                         // artifacts,
@@ -248,7 +252,8 @@ public class ProjectServiceImpl implements ProjectService {
                         List<Workflow> workflows = workflowRepository.findByProject(projectName);
                         return Optional.of(
                                 workflows.stream()
-                                        .map(workflow -> new WorkflowDTOBuilder(commandFactory, workflow).build())
+                                        .map(workflow -> new WorkflowDTOBuilder(commandFactory, workflow, false)
+                                                .build())
                                         .collect(Collectors.toList()));
                         // return Optional.of((List<WorkflowDTO>) ConversionUtils.reverseIterable(
                         // workflows,

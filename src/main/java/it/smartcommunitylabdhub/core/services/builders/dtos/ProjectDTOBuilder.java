@@ -20,18 +20,21 @@ public class ProjectDTOBuilder {
         private List<Artifact> artifacts;
         private List<Function> functions;
         private List<Workflow> workflows;
+        private boolean embeddable;
 
         public ProjectDTOBuilder(
                         CommandFactory commandFactory,
                         Project project,
                         List<Artifact> artifacts,
                         List<Function> functions,
-                        List<Workflow> workflows) {
+                        List<Workflow> workflows,
+                        boolean embeddable) {
                 this.project = project;
                 this.commandFactory = commandFactory;
                 this.functions = functions;
                 this.workflows = workflows;
                 this.artifacts = artifacts;
+                this.embeddable = embeddable;
         }
 
         public ProjectDTO build() {
@@ -51,17 +54,17 @@ public class ProjectDTOBuilder {
                                         .with(dto -> dto.setFunctions(
                                                         functions.stream()
                                                                         .map(f -> new FunctionDTOBuilder(commandFactory,
-                                                                                        f).build())
+                                                                                        f, embeddable).build())
                                                                         .collect(Collectors.toList())))
                                         .with(dto -> dto.setArtifacts(
                                                         artifacts.stream()
                                                                         .map(a -> new ArtifactDTOBuilder(commandFactory,
-                                                                                        a).build())
+                                                                                        a, embeddable).build())
                                                                         .collect(Collectors.toList())))
                                         .with(dto -> dto.setWorkflows(
                                                         workflows.stream()
                                                                         .map(w -> new WorkflowDTOBuilder(commandFactory,
-                                                                                        w).build())
+                                                                                        w, embeddable).build())
                                                                         .collect(Collectors.toList())))
                                         .with(dto -> dto.setCreated(project.getCreated()))
                                         .with(dto -> dto.setUpdated(project.getUpdated()));

@@ -37,7 +37,7 @@ public class ArtifactServiceImpl implements ArtifactService {
         try {
             Page<Artifact> artifactPage = this.artifactRepository.findAll(pageable);
             return artifactPage.getContent().stream().map((artifact) -> {
-                return new ArtifactDTOBuilder(commandFactory, artifact).build();
+                return new ArtifactDTOBuilder(commandFactory, artifact, false).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -58,7 +58,7 @@ public class ArtifactServiceImpl implements ArtifactService {
             // Return artifact DTO
             return new ArtifactDTOBuilder(
                     commandFactory,
-                    artifact).build();
+                    artifact, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -81,7 +81,7 @@ public class ArtifactServiceImpl implements ArtifactService {
         try {
             return new ArtifactDTOBuilder(
                     commandFactory,
-                    artifact).build();
+                    artifact, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -118,7 +118,7 @@ public class ArtifactServiceImpl implements ArtifactService {
 
             return new ArtifactDTOBuilder(
                     commandFactory,
-                    artifactUpdated).build();
+                    artifactUpdated, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(

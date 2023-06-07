@@ -40,6 +40,47 @@ Same thing is applied for workflow, dataitem, artifact.
 Define .....Artifact, Function, Workflow, DataItem, Project scheme. Function of type: 'job', 'nuclio', 'serving' -> define the spec fields.
 For the Spec mapping define Accessor (Pattern) following this solution : https://github.com/spring-projects/spring-security/blob/main/oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/ClaimAccessor.java
 
+Map all yaml data coming from mlrun
+
+<!--
+kind: job
+metadata:
+  credentials:
+    access_key: $generate
+  labels:
+    color: blue
+  name: test-func
+  project: default
+  tag: latest
+  hash: c482bd8bcaffbb15b5557d89bfddb4e496bfa32e
+  updated: '2023-06-06T13:15:08.851869+00:00'
+spec:
+  args: []
+  build:
+    base_image: ''
+    commands: ''
+    functionSourceCode: ZGVmIGhhbmRsZXIoY29udGV4dCk6CiAgICBjb250ZXh0LmxvZ2dlci5pbmZvKCdIZWxsbyB3b3JsZCcp
+    image: ''
+  description: Test description
+  env:
+    - name: LocalVariable
+      value: '111'
+  image: mlrun/mlrun
+  priority_class_name: ''
+  preemption_mode: ''
+  volume_mounts: []
+  volumes: []
+  resources:
+    limits:
+      cpu: '4'
+      memory: 3Mi
+      nvidia.com/gpu: '5'
+    requests:
+      cpu: '2'
+      memory: 1Mi
+  default_handler: ''
+status: {} -->
+
 // TODO: SYNC WITH MLRUN
 
 - CAll mlrun api to sync data

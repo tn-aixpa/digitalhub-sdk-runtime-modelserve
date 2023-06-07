@@ -62,7 +62,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             // Return function DTO
             return new FunctionDTOBuilder(
                     commandFactory,
-                    function).build();
+                    function, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -83,7 +83,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             return functionPage.getContent()
                     .stream()
                     .map((function) -> {
-                        return new FunctionDTOBuilder(commandFactory, function).build();
+                        return new FunctionDTOBuilder(commandFactory, function, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -105,7 +105,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             return functionPage.getContent()
                     .stream()
                     .map((function) -> {
-                        return new FunctionDTOBuilder(commandFactory, function).build();
+                        return new FunctionDTOBuilder(commandFactory, function, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -124,7 +124,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             checkContext(projectName);
 
             return this.functionRepository.findByProjectAndNameAndId(projectName, functionName, uuid).map(
-                    function -> new FunctionDTOBuilder(commandFactory, function).build())
+                    function -> new FunctionDTOBuilder(commandFactory, function, false).build())
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -143,7 +143,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             checkContext(projectName);
 
             return this.functionRepository.findLatestFunctionByProjectAndName(projectName, functionName).map(
-                    function -> new FunctionDTOBuilder(commandFactory, function).build())
+                    function -> new FunctionDTOBuilder(commandFactory, function, false).build())
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -201,7 +201,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             // Return function DTO
             return new FunctionDTOBuilder(
                     commandFactory,
-                    function).build();
+                    function, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -240,7 +240,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             // Return function DTO
             return new FunctionDTOBuilder(
                     commandFactory,
-                    function).build();
+                    function, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(

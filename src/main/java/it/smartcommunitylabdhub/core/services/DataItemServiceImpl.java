@@ -37,7 +37,7 @@ public class DataItemServiceImpl implements DataItemService {
         try {
             Page<DataItem> dataItemPage = this.dataItemRepository.findAll(pageable);
             return dataItemPage.getContent().stream().map((dataItem) -> {
-                return new DataItemDTOBuilder(commandFactory, dataItem).build();
+                return new DataItemDTOBuilder(commandFactory, dataItem, false).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -58,7 +58,7 @@ public class DataItemServiceImpl implements DataItemService {
             // Return dataItem DTO
             return new DataItemDTOBuilder(
                     commandFactory,
-                    dataItem).build();
+                    dataItem, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -81,7 +81,7 @@ public class DataItemServiceImpl implements DataItemService {
         try {
             return new DataItemDTOBuilder(
                     commandFactory,
-                    dataItem).build();
+                    dataItem, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -117,7 +117,7 @@ public class DataItemServiceImpl implements DataItemService {
 
             return new DataItemDTOBuilder(
                     commandFactory,
-                    dataItemUpdated).build();
+                    dataItemUpdated, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(

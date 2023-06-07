@@ -44,7 +44,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         try {
             Page<Workflow> workflowPage = this.workflowRepository.findAll(pageable);
             return workflowPage.getContent().stream().map((workflow) -> {
-                return new WorkflowDTOBuilder(commandFactory, workflow).build();
+                return new WorkflowDTOBuilder(commandFactory, workflow, false).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -65,7 +65,7 @@ public class WorkflowServiceImpl implements WorkflowService {
             // Return workflow DTO
             return new WorkflowDTOBuilder(
                     commandFactory,
-                    workflow).build();
+                    workflow, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -88,7 +88,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         try {
             return new WorkflowDTOBuilder(
                     commandFactory,
-                    workflow).build();
+                    workflow, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -125,7 +125,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
             return new WorkflowDTOBuilder(
                     commandFactory,
-                    workflowUpdated).build();
+                    workflowUpdated, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(

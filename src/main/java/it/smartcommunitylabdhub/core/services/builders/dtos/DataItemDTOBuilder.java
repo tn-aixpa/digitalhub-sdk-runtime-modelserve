@@ -1,5 +1,7 @@
 package it.smartcommunitylabdhub.core.services.builders.dtos;
 
+import java.util.Optional;
+
 import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
@@ -11,12 +13,15 @@ public class DataItemDTOBuilder {
 
         private CommandFactory commandFactory;
         private DataItem dataItem;
+        private boolean embeddable;
 
         public DataItemDTOBuilder(
                         CommandFactory commandFactory,
-                        DataItem dataItem) {
+                        DataItem dataItem,
+                        boolean embeddable) {
                 this.dataItem = dataItem;
                 this.commandFactory = commandFactory;
+                this.embeddable = embeddable;
         }
 
         public DataItemDTO build() {
@@ -26,22 +31,60 @@ public class DataItemDTOBuilder {
                                         .with(dto -> dto.setKind(dataItem.getKind()))
                                         .with(dto -> dto.setProject(dataItem.getProject()))
                                         .with(dto -> dto.setName(dataItem.getName()))
-                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(
-                                                        dataItem.getSpec(),
-                                                        commandFactory,
-                                                        "cbor")))
-                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(
-                                                        dataItem.getExtra(),
-                                                        commandFactory,
-                                                        "cbor")))
-                                        .with(dto -> dto.setState(dataItem.getState() == null ? State.CREATED.name()
-                                                        : dataItem.getState().name()))
-                                        .with(dto -> dto.setCreated(dataItem.getCreated()))
-                                        .with(dto -> dto.setUpdated(dataItem.getUpdated()))
-                                        .with(dto -> dto.setEmbedded(dataItem.getEmbedded()))
-                                        .with(dto -> dto.setState(dataItem.getState() == null ? State.CREATED.name()
-                                                        : dataItem.getState().name()));
 
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(dataItem.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setSpec(ConversionUtils.reverse(
+                                                                                                dataItem.getSpec(),
+                                                                                                commandFactory,
+                                                                                                "cbor")));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(dataItem.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setExtra(ConversionUtils.reverse(
+                                                                                                dataItem.getExtra(),
+                                                                                                commandFactory,
+                                                                                                "cbor")));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(dataItem.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setCreated(dataItem.getCreated()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(dataItem.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setUpdated(dataItem.getUpdated()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                Optional.ofNullable(dataItem.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setEmbedded(dataItem.getEmbedded()));
+                                        })
+                                        .withIfElse(embeddable, (dto, condition) -> {
+
+                                                Optional.ofNullable(dataItem.getEmbedded())
+                                                                .filter(embedded -> !condition
+                                                                                || (condition && embedded))
+                                                                .ifPresent(embedded -> dto
+                                                                                .setState(dataItem.getState() == null
+                                                                                                ? State.CREATED.name()
+                                                                                                : dataItem.getState()
+                                                                                                                .name()));
+
+                                        });
                 });
         }
 }
