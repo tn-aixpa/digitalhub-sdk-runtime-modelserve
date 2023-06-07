@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.services.builders.entities;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
@@ -9,14 +8,11 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class FunctionEntityBuilder {
 
-        private CommandFactory commandFactory;
         private FunctionDTO functionDTO;
 
         public FunctionEntityBuilder(
-                        CommandFactory commandFactory,
                         FunctionDTO functionDTO) {
                 this.functionDTO = functionDTO;
-                this.commandFactory = commandFactory;
         }
 
         /**
@@ -26,16 +22,14 @@ public class FunctionEntityBuilder {
          */
         public Function build() {
                 Function function = EntityFactory.combine(
-                                ConversionUtils.convert(functionDTO, commandFactory, "function"), functionDTO,
+                                ConversionUtils.convert(functionDTO, "function"), functionDTO,
                                 builder -> {
                                         builder
                                                         .with(f -> f.setExtra(
                                                                         ConversionUtils.convert(functionDTO.getExtra(),
-                                                                                        commandFactory,
                                                                                         "cbor")))
                                                         .with(f -> f.setSpec(
                                                                         ConversionUtils.convert(functionDTO.getSpec(),
-                                                                                        commandFactory,
                                                                                         "cbor")));
                                 });
 
@@ -60,11 +54,11 @@ public class FunctionEntityBuilder {
                                                                         : State.valueOf(functionDTO.getState())))
                                                         .with(f -> f.setExtra(
                                                                         ConversionUtils.convert(functionDTO.getExtra(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(f -> f.setSpec(
                                                                         ConversionUtils.convert(functionDTO.getSpec(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(f -> f.setEmbedded(functionDTO.getEmbedded()));
                                 });

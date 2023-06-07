@@ -1,7 +1,5 @@
 package it.smartcommunitylabdhub.core.models.converters.interfaces;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
-
 /**
  * The command factory is passed down because there will be the case that we
  * have nested object to convert:
@@ -12,5 +10,5 @@ import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
  * ConversionUtils.
  */
 public interface ConverterCommand<T, R> {
-    R execute(CommandFactory commandFactory);
+    R execute();
 }

@@ -2,7 +2,6 @@ package it.smartcommunitylabdhub.core.services.builders.dtos;
 
 import java.util.Optional;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
@@ -11,17 +10,14 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class ArtifactDTOBuilder {
 
-        private CommandFactory commandFactory;
         private Artifact artifact;
         private boolean embeddable;
 
         public ArtifactDTOBuilder(
-                        CommandFactory commandFactory,
                         Artifact artifact,
                         boolean embeddable) {
                 this.artifact = artifact;
                 this.embeddable = embeddable;
-                this.commandFactory = commandFactory;
         }
 
         public ArtifactDTO build() {
@@ -39,7 +35,6 @@ public class ArtifactDTOBuilder {
                                                                 .ifPresent(embedded -> dto
                                                                                 .setSpec(ConversionUtils.reverse(
                                                                                                 artifact.getSpec(),
-                                                                                                commandFactory,
                                                                                                 "cbor")));
                                         })
                                         .withIfElse(embeddable, (dto, condition) -> {
@@ -49,7 +44,6 @@ public class ArtifactDTOBuilder {
                                                                 .ifPresent(embedded -> dto
                                                                                 .setExtra(ConversionUtils.reverse(
                                                                                                 artifact.getExtra(),
-                                                                                                commandFactory,
                                                                                                 "cbor")));
                                         })
                                         .withIfElse(embeddable, (dto, condition) -> {

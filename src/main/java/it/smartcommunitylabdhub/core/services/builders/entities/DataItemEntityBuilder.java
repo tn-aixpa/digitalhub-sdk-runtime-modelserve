@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.services.builders.entities;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.DataItem;
@@ -9,14 +8,11 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class DataItemEntityBuilder {
 
-        private CommandFactory commandFactory;
         private DataItemDTO dataItemDTO;
 
         public DataItemEntityBuilder(
-                        CommandFactory commandFactory,
                         DataItemDTO dataItemDTO) {
                 this.dataItemDTO = dataItemDTO;
-                this.commandFactory = commandFactory;
         }
 
         /**
@@ -26,16 +22,14 @@ public class DataItemEntityBuilder {
          */
         public DataItem build() {
                 DataItem dataItem = EntityFactory.combine(
-                                ConversionUtils.convert(dataItemDTO, commandFactory, "dataitem"), dataItemDTO,
+                                ConversionUtils.convert(dataItemDTO, "dataitem"), dataItemDTO,
                                 builder -> {
                                         builder
                                                         .with(a -> a.setExtra(
                                                                         ConversionUtils.convert(dataItemDTO.getExtra(),
-                                                                                        commandFactory,
                                                                                         "cbor")))
                                                         .with(a -> a.setSpec(
                                                                         ConversionUtils.convert(dataItemDTO.getSpec(),
-                                                                                        commandFactory,
                                                                                         "cbor")));
                                 });
 
@@ -60,11 +54,11 @@ public class DataItemEntityBuilder {
                                                                         : State.valueOf(dataItemDTO.getState())))
                                                         .with(a -> a.setExtra(
                                                                         ConversionUtils.convert(dataItemDTO.getExtra(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(a -> a.setSpec(
                                                                         ConversionUtils.convert(dataItemDTO.getSpec(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(a -> a.setEmbedded(dataItemDTO.getEmbedded()));
                                 });

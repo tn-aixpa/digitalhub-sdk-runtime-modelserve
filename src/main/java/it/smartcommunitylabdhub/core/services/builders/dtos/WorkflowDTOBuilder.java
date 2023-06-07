@@ -2,7 +2,6 @@ package it.smartcommunitylabdhub.core.services.builders.dtos;
 
 import java.util.Optional;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
@@ -11,16 +10,13 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class WorkflowDTOBuilder {
 
-        private CommandFactory commandFactory;
         private Workflow workflow;
         private boolean embeddable;
 
         public WorkflowDTOBuilder(
-                        CommandFactory commandFactory,
                         Workflow workflow,
                         boolean embeddable) {
                 this.workflow = workflow;
-                this.commandFactory = commandFactory;
                 this.embeddable = embeddable;
         }
 
@@ -39,7 +35,7 @@ public class WorkflowDTOBuilder {
                                                                 .ifPresent(embedded -> dto
                                                                                 .setSpec(ConversionUtils.reverse(
                                                                                                 workflow.getSpec(),
-                                                                                                commandFactory,
+
                                                                                                 "cbor")));
                                         })
                                         .withIfElse(embeddable, (dto, condition) -> {
@@ -49,7 +45,7 @@ public class WorkflowDTOBuilder {
                                                                 .ifPresent(embedded -> dto
                                                                                 .setExtra(ConversionUtils.reverse(
                                                                                                 workflow.getExtra(),
-                                                                                                commandFactory,
+
                                                                                                 "cbor")));
                                         })
                                         .withIfElse(embeddable, (dto, condition) -> {

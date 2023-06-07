@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
 import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
@@ -22,13 +21,10 @@ import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 public class ArtifactServiceImpl implements ArtifactService {
 
     private final ArtifactRepository artifactRepository;
-    private final CommandFactory commandFactory;
 
     public ArtifactServiceImpl(
-            ArtifactRepository artifactRepository,
-            CommandFactory commandFactory) {
+            ArtifactRepository artifactRepository) {
         this.artifactRepository = artifactRepository;
-        this.commandFactory = commandFactory;
 
     }
 
@@ -37,7 +33,7 @@ public class ArtifactServiceImpl implements ArtifactService {
         try {
             Page<Artifact> artifactPage = this.artifactRepository.findAll(pageable);
             return artifactPage.getContent().stream().map((artifact) -> {
-                return new ArtifactDTOBuilder(commandFactory, artifact, false).build();
+                return new ArtifactDTOBuilder(artifact, false).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -52,13 +48,11 @@ public class ArtifactServiceImpl implements ArtifactService {
     public ArtifactDTO createArtifact(ArtifactDTO artifactDTO) {
         try {
             // Build a artifact and store it on db
-            final Artifact artifact = new ArtifactEntityBuilder(commandFactory, artifactDTO).build();
+            final Artifact artifact = new ArtifactEntityBuilder(artifactDTO).build();
             this.artifactRepository.save(artifact);
 
             // Return artifact DTO
-            return new ArtifactDTOBuilder(
-                    commandFactory,
-                    artifact, false).build();
+            return new ArtifactDTOBuilder(artifact, false).build();
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -73,7 +67,7 @@ public class ArtifactServiceImpl implements ArtifactService {
         return artifactRepository.findById(uuid)
                 .map(artifact -> {
                     try {
-                        return new ArtifactDTOBuilder(commandFactory, artifact, false).build();
+                        return new ArtifactDTOBuilder(artifact, false).build();
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -99,10 +93,10 @@ public class ArtifactServiceImpl implements ArtifactService {
         return artifactRepository.findById(uuid)
                 .map(artifact -> {
                     try {
-                        ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(commandFactory, artifactDTO);
+                        ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(artifactDTO);
                         Artifact artifactUpdated = artifactBuilder.update(artifact);
                         artifactRepository.save(artifactUpdated);
-                        return new ArtifactDTOBuilder(commandFactory, artifactUpdated, false).build();
+                        return new ArtifactDTOBuilder(artifactUpdated, false).build();
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",

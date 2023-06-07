@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.services.builders.entities;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.Project;
@@ -9,14 +8,11 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class ProjectEntityBuilder {
 
-        private CommandFactory commandFactory;
         private ProjectDTO projectDTO;
 
         public ProjectEntityBuilder(
-                        CommandFactory commandFactory,
                         ProjectDTO projectDTO) {
                 this.projectDTO = projectDTO;
-                this.commandFactory = commandFactory;
         }
 
         /**
@@ -26,9 +22,9 @@ public class ProjectEntityBuilder {
          */
         public Project build() {
                 Project project = EntityFactory.combine(
-                                ConversionUtils.convert(projectDTO, commandFactory, "project"), projectDTO, builder -> {
+                                ConversionUtils.convert(projectDTO, "project"), projectDTO, builder -> {
                                         builder.with(p -> p.setExtra(
-                                                        ConversionUtils.convert(projectDTO.getExtra(), commandFactory,
+                                                        ConversionUtils.convert(projectDTO.getExtra(),
                                                                         "cbor")));
                                 });
 
@@ -53,7 +49,7 @@ public class ProjectEntityBuilder {
                                                                         : State.valueOf(projectDTO.getState())))
                                                         .with(p -> p.setExtra(
                                                                         ConversionUtils.convert(projectDTO.getExtra(),
-                                                                                        commandFactory, "cbor")));
+                                                                                        "cbor")));
                                 });
         }
 }

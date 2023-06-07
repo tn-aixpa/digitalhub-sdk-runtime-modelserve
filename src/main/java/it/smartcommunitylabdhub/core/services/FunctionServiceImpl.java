@@ -13,7 +13,6 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.enums.kinds.FunctionKind;
 import it.smartcommunitylabdhub.core.models.accessors.interfaces.FunctionFieldAccessor;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
@@ -30,16 +29,12 @@ public class FunctionServiceImpl implements FunctionService {
 
     private final FunctionRepository functionRepository;
     private final RunRepository runRepository;
-    private final CommandFactory commandFactory;
 
     public FunctionServiceImpl(
             FunctionRepository functionRepository,
-            RunRepository runRepository,
-            CommandFactory commandFactory) {
+            RunRepository runRepository) {
         this.functionRepository = functionRepository;
         this.runRepository = runRepository;
-        this.commandFactory = commandFactory;
-
     }
 
     @Override
@@ -47,7 +42,7 @@ public class FunctionServiceImpl implements FunctionService {
         try {
             Page<Function> functionPage = this.functionRepository.findAll(pageable);
             return functionPage.getContent().stream().map((function) -> {
-                return new FunctionDTOBuilder(commandFactory, function, false).build();
+                return new FunctionDTOBuilder(function, false).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -62,16 +57,17 @@ public class FunctionServiceImpl implements FunctionService {
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
 
         // HACK: TESTING FUNCTION of kind job field accessor
-        // FunctionFieldAccessor f = FunctionKind.JOB.createAccessor(Map.of());
+        // FunctionFieldAccessor f = FunctionKind.JOB.createAccessor(Map.of(),
+        // commandFactory);
 
         try {
             // Build a function and store it on db
-            final Function function = new FunctionEntityBuilder(commandFactory, functionDTO).build();
+            final Function function = new FunctionEntityBuilder(functionDTO).build();
             this.functionRepository.save(function);
 
             // Return function DTO
             return new FunctionDTOBuilder(
-                    commandFactory,
+
                     function, false).build();
 
         } catch (CustomException e) {
@@ -94,7 +90,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         try {
             return new FunctionDTOBuilder(
-                    commandFactory,
+
                     function, false).build();
 
         } catch (CustomException e) {
@@ -125,13 +121,13 @@ public class FunctionServiceImpl implements FunctionService {
 
         try {
 
-            FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(commandFactory, functionDTO);
+            FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(functionDTO);
 
             final Function functionUpdated = functionBuilder.update(function);
             this.functionRepository.save(functionUpdated);
 
             return new FunctionDTOBuilder(
-                    commandFactory,
+
                     functionUpdated, false).build();
 
         } catch (CustomException e) {
@@ -173,7 +169,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         try {
             List<Run> runs = this.runRepository.findByName(function.getName());
-            return (List<RunDTO>) ConversionUtils.reverseIterable(runs, commandFactory, "run", RunDTO.class);
+            return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);
 
         } catch (CustomException e) {
             throw new CoreException(

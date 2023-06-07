@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
@@ -24,13 +23,11 @@ import jakarta.transaction.Transactional;
 public class FunctionContextServiceImpl extends ContextService implements FunctionContextService {
 
     private final FunctionRepository functionRepository;
-    private final CommandFactory commandFactory;
 
     public FunctionContextServiceImpl(
-            FunctionRepository functionRepository, CommandFactory commandFactory) {
+            FunctionRepository functionRepository) {
         super();
         this.functionRepository = functionRepository;
-        this.commandFactory = commandFactory;
     }
 
     @Override
@@ -55,13 +52,13 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             }))
                     .orElseGet(() -> {
                         // Build an function and store it in the database
-                        Function newFunction = new FunctionEntityBuilder(commandFactory, functionDTO).build();
+                        Function newFunction = new FunctionEntityBuilder(functionDTO).build();
                         return functionRepository.save(newFunction);
                     });
 
             // Return function DTO
             return new FunctionDTOBuilder(
-                    commandFactory,
+
                     function, false).build();
 
         } catch (CustomException e) {
@@ -83,7 +80,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             return functionPage.getContent()
                     .stream()
                     .map((function) -> {
-                        return new FunctionDTOBuilder(commandFactory, function, false).build();
+                        return new FunctionDTOBuilder(function, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -105,7 +102,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             return functionPage.getContent()
                     .stream()
                     .map((function) -> {
-                        return new FunctionDTOBuilder(commandFactory, function, false).build();
+                        return new FunctionDTOBuilder(function, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -124,7 +121,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             checkContext(projectName);
 
             return this.functionRepository.findByProjectAndNameAndId(projectName, functionName, uuid).map(
-                    function -> new FunctionDTOBuilder(commandFactory, function, false).build())
+                    function -> new FunctionDTOBuilder(function, false).build())
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -143,7 +140,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             checkContext(projectName);
 
             return this.functionRepository.findLatestFunctionByProjectAndName(projectName, functionName).map(
-                    function -> new FunctionDTOBuilder(commandFactory, function, false).build())
+                    function -> new FunctionDTOBuilder(function, false).build())
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -181,26 +178,26 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             Function existingFunction = optionalFunction.get();
 
                             // Update the existing function version
-                            FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(commandFactory,
+                            FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(
                                     functionDTO);
                             final Function functionUpdated = functionBuilder.update(existingFunction);
                             return Optional.of(this.functionRepository.save(functionUpdated));
 
                         } else {
                             // Build a new function and store it in the database
-                            Function newFunction = new FunctionEntityBuilder(commandFactory, functionDTO).build();
+                            Function newFunction = new FunctionEntityBuilder(functionDTO).build();
                             return Optional.of(functionRepository.save(newFunction));
                         }
                     })
                     .orElseGet(() -> {
                         // Build a new function and store it in the database
-                        Function newFunction = new FunctionEntityBuilder(commandFactory, functionDTO).build();
+                        Function newFunction = new FunctionEntityBuilder(functionDTO).build();
                         return functionRepository.save(newFunction);
                     });
 
             // Return function DTO
             return new FunctionDTOBuilder(
-                    commandFactory,
+
                     function, false).build();
 
         } catch (CustomException e) {
@@ -230,7 +227,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             Function function = this.functionRepository.findById(functionDTO.getId()).map(
                     a -> {
                         // Update the existing function version
-                        FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(commandFactory,
+                        FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(
                                 functionDTO);
                         return functionBuilder.update(a);
                     })
@@ -239,7 +236,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
 
             // Return function DTO
             return new FunctionDTOBuilder(
-                    commandFactory,
+
                     function, false).build();
 
         } catch (CustomException e) {

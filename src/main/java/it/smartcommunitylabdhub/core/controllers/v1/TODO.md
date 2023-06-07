@@ -15,7 +15,7 @@ Artifact:
 /api/v1/-/ProjectName/artifacts/ArtifactName/90i23o-fdkfjl-fdkjfkld-fjdhfkn -> Artifact
 /api/v1/-/ProjectName/artifacts/ArtifactName/latest -> Artifact
 
-// FIXME: Project with embedded function, workflow, dataItem
+// [x] Done
 Project : When I get the project, if a function for instance is embedded = True I get all the fields in function otherwise I get only kind and name.
 
 <!--
@@ -35,6 +35,8 @@ Project -> {
 } -->
 
 Same thing is applied for workflow, dataitem, artifact.
+
+// TODO: On project delete ...cascade functions, workflows, artifacts, dataitems
 
 // TODO:
 Define .....Artifact, Function, Workflow, DataItem, Project scheme. Function of type: 'job', 'nuclio', 'serving' -> define the spec fields.

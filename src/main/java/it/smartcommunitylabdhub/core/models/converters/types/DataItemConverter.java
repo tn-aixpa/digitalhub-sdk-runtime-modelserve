@@ -3,7 +3,6 @@ package it.smartcommunitylabdhub.core.models.converters.types;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.DataItem;
@@ -13,7 +12,7 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 public class DataItemConverter implements Converter<DataItemDTO, DataItem> {
 
     @Override
-    public DataItem convert(DataItemDTO dataItemDTO, CommandFactory commandFactory) throws CustomException {
+    public DataItem convert(DataItemDTO dataItemDTO) throws CustomException {
         return DataItem.builder()
                 .id(dataItemDTO.getId())
                 .name(dataItemDTO.getName())
@@ -25,7 +24,7 @@ public class DataItemConverter implements Converter<DataItemDTO, DataItem> {
     }
 
     @Override
-    public DataItemDTO reverseConvert(DataItem dataItem, CommandFactory commandFactory) throws CustomException {
+    public DataItemDTO reverseConvert(DataItem dataItem) throws CustomException {
         return DataItemDTO.builder()
                 .id(dataItem.getId())
                 .name(dataItem.getName())

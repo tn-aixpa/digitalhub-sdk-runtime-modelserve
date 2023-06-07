@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.entities.Log;
@@ -21,11 +20,9 @@ import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 public class LogSerivceImpl implements LogService {
 
     private final LogRepository logRepository;
-    private final CommandFactory commandFactory;
 
-    public LogSerivceImpl(LogRepository logRepository, CommandFactory commandFactory) {
+    public LogSerivceImpl(LogRepository logRepository) {
         this.logRepository = logRepository;
-        this.commandFactory = commandFactory;
     }
 
     @Override
@@ -33,7 +30,7 @@ public class LogSerivceImpl implements LogService {
         try {
             Page<Log> logPage = this.logRepository.findAll(pageable);
             return logPage.getContent().stream()
-                    .map(log -> (LogDTO) ConversionUtils.reverse(log, commandFactory, "log"))
+                    .map(log -> (LogDTO) ConversionUtils.reverse(log, "log"))
                     .collect(Collectors.toList());
 
         } catch (CustomException e) {
@@ -55,7 +52,7 @@ public class LogSerivceImpl implements LogService {
         }
 
         try {
-            return ConversionUtils.reverse(log, commandFactory, "log");
+            return ConversionUtils.reverse(log, "log");
 
         } catch (CustomException e) {
             throw new CoreException(

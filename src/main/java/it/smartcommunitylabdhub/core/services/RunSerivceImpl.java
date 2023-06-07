@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
@@ -21,11 +20,9 @@ import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 public class RunSerivceImpl implements RunService {
 
     private final RunRepository runRepository;
-    private final CommandFactory commandFactory;
 
-    public RunSerivceImpl(RunRepository runRepository, CommandFactory commandFactory) {
+    public RunSerivceImpl(RunRepository runRepository) {
         this.runRepository = runRepository;
-        this.commandFactory = commandFactory;
     }
 
     @Override
@@ -33,7 +30,7 @@ public class RunSerivceImpl implements RunService {
         try {
             Page<Run> runPage = this.runRepository.findAll(pageable);
             return runPage.getContent().stream()
-                    .map(run -> (RunDTO) ConversionUtils.reverse(run, commandFactory, "run"))
+                    .map(run -> (RunDTO) ConversionUtils.reverse(run, "run"))
                     .collect(Collectors.toList());
 
         } catch (CustomException e) {
@@ -55,7 +52,7 @@ public class RunSerivceImpl implements RunService {
         }
 
         try {
-            return ConversionUtils.reverse(run, commandFactory, "run");
+            return ConversionUtils.reverse(run, "run");
 
         } catch (CustomException e) {
             throw new CoreException(

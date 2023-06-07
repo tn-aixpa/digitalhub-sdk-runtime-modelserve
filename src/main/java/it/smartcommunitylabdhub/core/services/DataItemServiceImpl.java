@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.DataItem;
 import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
@@ -22,13 +21,10 @@ import it.smartcommunitylabdhub.core.services.interfaces.DataItemService;
 public class DataItemServiceImpl implements DataItemService {
 
     private final DataItemRepository dataItemRepository;
-    private final CommandFactory commandFactory;
 
     public DataItemServiceImpl(
-            DataItemRepository dataItemRepository,
-            CommandFactory commandFactory) {
+            DataItemRepository dataItemRepository) {
         this.dataItemRepository = dataItemRepository;
-        this.commandFactory = commandFactory;
 
     }
 
@@ -37,7 +33,7 @@ public class DataItemServiceImpl implements DataItemService {
         try {
             Page<DataItem> dataItemPage = this.dataItemRepository.findAll(pageable);
             return dataItemPage.getContent().stream().map((dataItem) -> {
-                return new DataItemDTOBuilder(commandFactory, dataItem, false).build();
+                return new DataItemDTOBuilder(dataItem, false).build();
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -52,12 +48,12 @@ public class DataItemServiceImpl implements DataItemService {
     public DataItemDTO createDataItem(DataItemDTO dataItemDTO) {
         try {
             // Build a dataItem and store it on db
-            final DataItem dataItem = new DataItemEntityBuilder(commandFactory, dataItemDTO).build();
+            final DataItem dataItem = new DataItemEntityBuilder(dataItemDTO).build();
             this.dataItemRepository.save(dataItem);
 
             // Return dataItem DTO
             return new DataItemDTOBuilder(
-                    commandFactory,
+
                     dataItem, false).build();
 
         } catch (CustomException e) {
@@ -73,7 +69,7 @@ public class DataItemServiceImpl implements DataItemService {
         return dataItemRepository.findById(uuid)
                 .map(dataItem -> {
                     try {
-                        return new DataItemDTOBuilder(commandFactory, dataItem, false).build();
+                        return new DataItemDTOBuilder(dataItem, false).build();
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -99,10 +95,10 @@ public class DataItemServiceImpl implements DataItemService {
         return dataItemRepository.findById(uuid)
                 .map(dataItem -> {
                     try {
-                        DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(commandFactory, dataItemDTO);
+                        DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(dataItemDTO);
                         DataItem dataItemUpdated = dataItemBuilder.update(dataItem);
                         dataItemRepository.save(dataItemUpdated);
-                        return new DataItemDTOBuilder(commandFactory, dataItemUpdated, false).build();
+                        return new DataItemDTOBuilder(dataItemUpdated, false).build();
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",

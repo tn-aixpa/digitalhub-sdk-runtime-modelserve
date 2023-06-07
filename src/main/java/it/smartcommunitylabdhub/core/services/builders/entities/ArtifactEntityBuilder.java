@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.services.builders.entities;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
@@ -9,14 +8,11 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class ArtifactEntityBuilder {
 
-        private CommandFactory commandFactory;
         private ArtifactDTO artifactDTO;
 
         public ArtifactEntityBuilder(
-                        CommandFactory commandFactory,
                         ArtifactDTO artifactDTO) {
                 this.artifactDTO = artifactDTO;
-                this.commandFactory = commandFactory;
         }
 
         /**
@@ -26,16 +22,16 @@ public class ArtifactEntityBuilder {
          */
         public Artifact build() {
                 Artifact artifact = EntityFactory.combine(
-                                ConversionUtils.convert(artifactDTO, commandFactory, "artifact"), artifactDTO,
+                                ConversionUtils.convert(artifactDTO, "artifact"), artifactDTO,
                                 builder -> {
                                         builder
                                                         .with(a -> a.setExtra(
                                                                         ConversionUtils.convert(artifactDTO.getExtra(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(a -> a.setSpec(
                                                                         ConversionUtils.convert(artifactDTO.getSpec(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")));
                                 });
 
@@ -60,11 +56,11 @@ public class ArtifactEntityBuilder {
                                                                         : State.valueOf(artifactDTO.getState())))
                                                         .with(a -> a.setExtra(
                                                                         ConversionUtils.convert(artifactDTO.getExtra(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(a -> a.setSpec(
                                                                         ConversionUtils.convert(artifactDTO.getSpec(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(a -> a.setEmbedded(artifactDTO.getEmbedded()));
                                 });

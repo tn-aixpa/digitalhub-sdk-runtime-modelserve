@@ -3,7 +3,6 @@ package it.smartcommunitylabdhub.core.models.converters.types;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
@@ -13,7 +12,7 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 public class WorkflowConverter implements Converter<WorkflowDTO, Workflow> {
 
     @Override
-    public Workflow convert(WorkflowDTO workflowDTO, CommandFactory commandFactory) throws CustomException {
+    public Workflow convert(WorkflowDTO workflowDTO) throws CustomException {
         return Workflow.builder()
                 .id(workflowDTO.getId())
                 .name(workflowDTO.getName())
@@ -25,7 +24,7 @@ public class WorkflowConverter implements Converter<WorkflowDTO, Workflow> {
     }
 
     @Override
-    public WorkflowDTO reverseConvert(Workflow workflow, CommandFactory commandFactory) throws CustomException {
+    public WorkflowDTO reverseConvert(Workflow workflow) throws CustomException {
         return WorkflowDTO.builder()
                 .id(workflow.getId())
                 .name(workflow.getName())

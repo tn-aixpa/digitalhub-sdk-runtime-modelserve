@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.DataItem;
 import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
@@ -24,13 +23,11 @@ import jakarta.transaction.Transactional;
 public class DataItemContextServiceImpl extends ContextService implements DataItemContextService {
 
     private final DataItemRepository dataItemRepository;
-    private final CommandFactory commandFactory;
 
     public DataItemContextServiceImpl(
-            DataItemRepository dataItemRepository, CommandFactory commandFactory) {
+            DataItemRepository dataItemRepository) {
         super();
         this.dataItemRepository = dataItemRepository;
-        this.commandFactory = commandFactory;
     }
 
     @Override
@@ -55,13 +52,13 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                             }))
                     .orElseGet(() -> {
                         // Build an dataItem and store it in the database
-                        DataItem newDataItem = new DataItemEntityBuilder(commandFactory, dataItemDTO).build();
+                        DataItem newDataItem = new DataItemEntityBuilder(dataItemDTO).build();
                         return dataItemRepository.save(newDataItem);
                     });
 
             // Return dataItem DTO
             return new DataItemDTOBuilder(
-                    commandFactory,
+
                     dataItem, false).build();
 
         } catch (CustomException e) {
@@ -83,7 +80,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             return dataItemPage.getContent()
                     .stream()
                     .map((dataItem) -> {
-                        return new DataItemDTOBuilder(commandFactory, dataItem, false).build();
+                        return new DataItemDTOBuilder(dataItem, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -105,7 +102,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             return dataItemPage.getContent()
                     .stream()
                     .map((dataItem) -> {
-                        return new DataItemDTOBuilder(commandFactory, dataItem, false).build();
+                        return new DataItemDTOBuilder(dataItem, false).build();
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -124,7 +121,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             checkContext(projectName);
 
             return this.dataItemRepository.findByProjectAndNameAndId(projectName, dataItemName, uuid).map(
-                    dataItem -> new DataItemDTOBuilder(commandFactory, dataItem, false).build())
+                    dataItem -> new DataItemDTOBuilder(dataItem, false).build())
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
@@ -143,7 +140,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             checkContext(projectName);
 
             return this.dataItemRepository.findLatestDataItemByProjectAndName(projectName, dataItemName).map(
-                    dataItem -> new DataItemDTOBuilder(commandFactory, dataItem, false).build())
+                    dataItem -> new DataItemDTOBuilder(dataItem, false).build())
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
@@ -181,26 +178,26 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                             DataItem existingDataItem = optionalDataItem.get();
 
                             // Update the existing dataItem version
-                            DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(commandFactory,
+                            DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(
                                     dataItemDTO);
                             final DataItem dataItemUpdated = dataItemBuilder.update(existingDataItem);
                             return Optional.of(this.dataItemRepository.save(dataItemUpdated));
 
                         } else {
                             // Build a new dataItem and store it in the database
-                            DataItem newDataItem = new DataItemEntityBuilder(commandFactory, dataItemDTO).build();
+                            DataItem newDataItem = new DataItemEntityBuilder(dataItemDTO).build();
                             return Optional.of(dataItemRepository.save(newDataItem));
                         }
                     })
                     .orElseGet(() -> {
                         // Build a new dataItem and store it in the database
-                        DataItem newDataItem = new DataItemEntityBuilder(commandFactory, dataItemDTO).build();
+                        DataItem newDataItem = new DataItemEntityBuilder(dataItemDTO).build();
                         return dataItemRepository.save(newDataItem);
                     });
 
             // Return dataItem DTO
             return new DataItemDTOBuilder(
-                    commandFactory,
+
                     dataItem, false).build();
 
         } catch (CustomException e) {
@@ -230,7 +227,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             DataItem dataItem = this.dataItemRepository.findById(dataItemDTO.getId()).map(
                     a -> {
                         // Update the existing dataItem version
-                        DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(commandFactory,
+                        DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(
                                 dataItemDTO);
                         return dataItemBuilder.update(a);
                     })
@@ -239,7 +236,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
 
             // Return dataItem DTO
             return new DataItemDTOBuilder(
-                    commandFactory,
+
                     dataItem, false).build();
 
         } catch (CustomException e) {

@@ -8,18 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 
 @SpringBootTest
 class ConvertFunctionTests {
-
-    @Autowired
-    private CommandFactory commandFactory;
 
     @Mock
     private Converter<String, Integer> functionConverter;
@@ -36,8 +31,7 @@ class ConvertFunctionTests {
 
         // Perform the conversion
         Integer output = ConversionUtils.convert(
-                input, // Source object
-                commandFactory, // Mocked CommandFactory instance
+                input, // Source object // Mocked CommandFactory instance
                 "integer");
 
         // Assert the output is of type Integer
@@ -51,7 +45,6 @@ class ConvertFunctionTests {
 
         String output = ConversionUtils.reverse(
                 input,
-                commandFactory,
                 "integer");
 
         // Assert that result is equal to integer.
@@ -65,7 +58,7 @@ class ConvertFunctionTests {
         strings.add("1");
         strings.add("2");
 
-        List<Integer> integers = (List<Integer>) ConversionUtils.convertIterable(strings, commandFactory, "integer",
+        List<Integer> integers = (List<Integer>) ConversionUtils.convertIterable(strings, "integer",
                 Integer.class);
 
         Assertions.assertEquals(2, integers.size()); // Assert the size of the converted list
@@ -82,7 +75,6 @@ class ConvertFunctionTests {
 
         List<String> strings = (List<String>) ConversionUtils.reverseIterable(
                 integers,
-                commandFactory,
                 "integer",
                 String.class);
 

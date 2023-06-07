@@ -3,7 +3,6 @@ package it.smartcommunitylabdhub.core.models.converters.types;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
@@ -13,7 +12,7 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 public class FunctionConverter implements Converter<FunctionDTO, Function> {
 
     @Override
-    public Function convert(FunctionDTO functionDTO, CommandFactory commandFactory) throws CustomException {
+    public Function convert(FunctionDTO functionDTO) throws CustomException {
         return Function.builder()
                 .id(functionDTO.getId())
                 .name(functionDTO.getName())
@@ -25,7 +24,7 @@ public class FunctionConverter implements Converter<FunctionDTO, Function> {
     }
 
     @Override
-    public FunctionDTO reverseConvert(Function function, CommandFactory commandFactory) throws CustomException {
+    public FunctionDTO reverseConvert(Function function) throws CustomException {
         return FunctionDTO.builder()
                 .id(function.getId())
                 .name(function.getName())

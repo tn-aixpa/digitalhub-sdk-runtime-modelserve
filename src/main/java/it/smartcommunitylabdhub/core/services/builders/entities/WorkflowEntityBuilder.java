@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.services.builders.entities;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
@@ -9,14 +8,11 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class WorkflowEntityBuilder {
 
-        private CommandFactory commandFactory;
         private WorkflowDTO workflowDTO;
 
         public WorkflowEntityBuilder(
-                        CommandFactory commandFactory,
                         WorkflowDTO workflowDTO) {
                 this.workflowDTO = workflowDTO;
-                this.commandFactory = commandFactory;
         }
 
         /**
@@ -26,16 +22,16 @@ public class WorkflowEntityBuilder {
          */
         public Workflow build() {
                 Workflow workflow = EntityFactory.combine(
-                                ConversionUtils.convert(workflowDTO, commandFactory, "workflow"), workflowDTO,
+                                ConversionUtils.convert(workflowDTO, "workflow"), workflowDTO,
                                 builder -> {
                                         builder
                                                         .with(w -> w.setExtra(
                                                                         ConversionUtils.convert(workflowDTO.getExtra(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(w -> w.setSpec(
                                                                         ConversionUtils.convert(workflowDTO.getSpec(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")));
                                 });
 
@@ -60,11 +56,11 @@ public class WorkflowEntityBuilder {
                                                                         : State.valueOf(workflowDTO.getState())))
                                                         .with(w -> w.setExtra(
                                                                         ConversionUtils.convert(workflowDTO.getExtra(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(w -> w.setSpec(
                                                                         ConversionUtils.convert(workflowDTO.getSpec(),
-                                                                                        commandFactory,
+
                                                                                         "cbor")))
                                                         .with(w -> w.setEmbedded(workflowDTO.getEmbedded()));
                                 });

@@ -9,6 +9,7 @@ import it.smartcommunitylabdhub.core.models.converters.interfaces.ConverterFacto
 import it.smartcommunitylabdhub.core.models.converters.types.ArtifactConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.CBORConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.DataItemConverter;
+import it.smartcommunitylabdhub.core.models.converters.types.DateTimeConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.FunctionConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.IntegerConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.LogConverter;
@@ -31,6 +32,7 @@ public class ConverterConfig {
         factory.registerConverter("project", ProjectConverter::new);
         factory.registerConverter("cbor", CBORConverter::new);
         factory.registerConverter("integer", IntegerConverter::new);
+        factory.registerConverter("datetime", DateTimeConverter::new);
         factory.registerConverter("run", RunConverter::new);
         factory.registerConverter("log", LogConverter::new);
 

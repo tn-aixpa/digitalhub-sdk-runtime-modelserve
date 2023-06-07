@@ -2,7 +2,6 @@ package it.smartcommunitylabdhub.core.services.builders.dtos;
 
 import java.util.Optional;
 
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
@@ -11,16 +10,13 @@ import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class FunctionDTOBuilder {
 
-        private CommandFactory commandFactory;
         private Function function;
         private boolean embeddable;
 
         public FunctionDTOBuilder(
-                        CommandFactory commandFactory,
                         Function function,
                         boolean embeddable) {
                 this.function = function;
-                this.commandFactory = commandFactory;
                 this.embeddable = embeddable;
         }
 
@@ -39,7 +35,7 @@ public class FunctionDTOBuilder {
                                                                 .ifPresent(embedded -> dto
                                                                                 .setSpec(ConversionUtils.reverse(
                                                                                                 function.getSpec(),
-                                                                                                commandFactory,
+
                                                                                                 "cbor")));
                                         })
                                         .withIfElse(embeddable, (dto, condition) -> {
@@ -49,7 +45,7 @@ public class FunctionDTOBuilder {
                                                                 .ifPresent(embedded -> dto
                                                                                 .setExtra(ConversionUtils.reverse(
                                                                                                 function.getExtra(),
-                                                                                                commandFactory,
+
                                                                                                 "cbor")));
                                         })
                                         .withIfElse(embeddable, (dto, condition) -> {
