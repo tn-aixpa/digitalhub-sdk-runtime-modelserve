@@ -19,18 +19,25 @@ public class PollingService {
     }
 
     public void startPolling(long interval) {
-        executorService.scheduleWithFixedDelay(this::pollWorkflows, 0, interval, TimeUnit.MILLISECONDS);
+        executorService.schedule(this::pollWorkflows, interval, TimeUnit.SECONDS);
     }
 
     private void pollWorkflows() {
-        while (!workflowQueue.isEmpty()) {
+        if (!workflowQueue.isEmpty()) {
             Workflow workflow = workflowQueue.poll();
-            CompletableFuture<Object> future = CompletableFuture.completedFuture(null);
-            final Workflow currentWorkflow = workflow;
+            CompletableFuture<Object> future = workflow.executeAsync(null);
+            future.whenComplete((result, exception) -> {
+                if (exception != null) {
+                    // TODO: manage exception
+                }
 
-            future = future.thenComposeAsync(result -> currentWorkflow.executeAsync(result));
-            future.join();
-            workflowQueue.offer(currentWorkflow);
+                // Schedule the next workflow after a delay
+                executorService.schedule(() -> enqueueWorkflow(workflow), 5, TimeUnit.SECONDS);
+                pollWorkflows(); // Trigger the next iteration immediately
+            });
+        } else {
+            // Queue is empty, schedule the next workflow after a delay
+            executorService.schedule(this::pollWorkflows, 5, TimeUnit.SECONDS);
         }
     }
 

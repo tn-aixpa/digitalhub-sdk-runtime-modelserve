@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import it.smartcommunitylabdhub.core.services.workflows.FunctionWorflowBuilder;
 import it.smartcommunitylabdhub.core.services.workflows.PollingService;
 
 @Configuration
@@ -34,13 +35,14 @@ public class AsyncConfig implements AsyncConfigurer {
         PollingService pollingService = new PollingService();
 
         // Configure Function Workflow
+        pollingService.enqueueWorkflow(FunctionWorflowBuilder.buildWorkflow());
 
         // Configure Artifact Workflow
 
         // Configure DataItem Workflow
 
         // Start the polling service
-        pollingService.startPolling(5000); // Start polling every 5 seconds
+        pollingService.startPolling(5); // Start polling every 5 seconds
 
         return pollingService;
     }

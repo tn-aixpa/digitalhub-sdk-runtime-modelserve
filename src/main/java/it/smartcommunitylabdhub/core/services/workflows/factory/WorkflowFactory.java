@@ -25,6 +25,11 @@ public class WorkflowFactory {
         return this;
     }
 
+    public WorkflowFactory step(Function<Object, Object> step, Object argument) {
+        steps.add(input -> step.apply(argument));
+        return this;
+    }
+
     public Workflow build() {
         return new Workflow(steps);
     }
