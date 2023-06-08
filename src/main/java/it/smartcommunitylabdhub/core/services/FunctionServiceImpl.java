@@ -57,8 +57,7 @@ public class FunctionServiceImpl implements FunctionService {
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
 
         // HACK: TESTING FUNCTION of kind job field accessor
-        // FunctionFieldAccessor f = FunctionKind.JOB.createAccessor(Map.of(),
-        // commandFactory);
+        FunctionFieldAccessor f = FunctionKind.JOB.createAccessor(Map.of());
 
         try {
             // Build a function and store it on db

@@ -13,9 +13,9 @@ public enum FunctionKind {
     SERVING("serving", ServingFunctionFieldAccessor::new);
 
     private final String value;
-    private final FunctionAccessorFactory accessorFactory;
+    private final AccessorFactoryKind<FunctionFieldAccessor> accessorFactory;
 
-    FunctionKind(String value, FunctionAccessorFactory accessorFactory) {
+    FunctionKind(String value, AccessorFactoryKind<FunctionFieldAccessor> accessorFactory) {
         this.value = value;
         this.accessorFactory = accessorFactory;
     }
@@ -26,10 +26,5 @@ public enum FunctionKind {
 
     public FunctionFieldAccessor createAccessor(Map<String, Object> fields) {
         return accessorFactory.create(fields);
-    }
-
-    @FunctionalInterface
-    private interface FunctionAccessorFactory {
-        FunctionFieldAccessor create(Map<String, Object> fields);
     }
 }
