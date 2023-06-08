@@ -10,19 +10,45 @@ class LocalStore(Store):
         self,
         name: str,
         type: str,
-        uri: str,
-        tmp: str,
         config: Optional[dict] = None,
     ) -> None:
-        super().__init__(name, type, uri, tmp, config)
+        super().__init__(name, type, config)
 
-    def fetch_artifact(self, src: str, dst: str) -> None:
+    def fetch_artifact(self, src: str, dst: str = None) -> str:
+        """
+        Method to fetch an artifact from the backend and to register it on the paths registry.
+
+        Parameters
+        ----------
+        src : str
+            The source location of the artifact.
+        dst : str
+            The destination of the artifact.
+
+        Returns
+        -------
+        str
+            Returns a file path.
+        """
         self._register_resource(f"{src}", src)
         return src
 
     def persist_artifact(self, src: str, dst: str, src_name: str) -> None:
         """
-        Method to persist artifact in storage.
+        Method to persist an artifact on local filesystem.
+
+        Parameters
+        ----------
+        src : str
+            The source location of the artifact.
+        dst : str
+            The destination of the artifact.
+        src_name : str
+            The name of the artifact.
+
+        Returns
+        -------
+        None
         """
         self._check_access_to_storage(dst, write=True)
 

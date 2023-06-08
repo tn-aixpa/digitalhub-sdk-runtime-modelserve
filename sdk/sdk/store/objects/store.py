@@ -32,14 +32,10 @@ class Store(metaclass=ABCMeta):
         self,
         name: str,
         type: str,
-        uri: str,
-        tmp: str,
         config: Optional[dict] = None,
     ) -> None:
         self.name = name
         self.type = type
-        self.uri = uri
-        self.tmp = tmp
         self.config = config
         self.registry = ResourceRegistry()
 

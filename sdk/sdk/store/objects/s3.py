@@ -1,3 +1,4 @@
+from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Optional, Type
 
@@ -23,11 +24,9 @@ class S3Store(Store):
         self,
         name: str,
         type: str,
-        uri: str,
-        tmp: str,
         config: Optional[dict] = None,
     ) -> None:
-        super().__init__(name, type, uri, tmp, config)
+        super().__init__(name, type, config)
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
@@ -38,7 +37,7 @@ class S3Store(Store):
         src : str
             The source location of the artifact.
         dst : str, optional
-            The destination of the artifact.
+            The destination of the artifact on local filesystem.
 
         Returns:
         --------
@@ -46,10 +45,10 @@ class S3Store(Store):
             Returns a file path.
         """
         if dst is None:
-            dst = self.tmp
+            dst = TemporaryDirectory().name
 
         client = self._get_client()
-        bucket = get_uri_netloc(self.uri)
+        bucket = get_uri_netloc(src)
         self._check_access_to_storage(client, bucket)
         key = get_uri_path(src)
 
@@ -84,7 +83,7 @@ class S3Store(Store):
         None
         """
         client = self._get_client()
-        bucket = get_uri_netloc(self.uri)
+        bucket = get_uri_netloc(dst)
         self._check_access_to_storage(client, bucket)
 
         # Build the key for the artifact
