@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.client.factory import get_client
+from sdk.utils.factories import get_client
 from sdk.entities.api import (
     DTO_ARTF,
     DTO_DTIT,

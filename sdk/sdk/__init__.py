@@ -1,4 +1,3 @@
-from sdk.client.client import Client
 from sdk.entities.artifact.operations import (
     delete_artifact,
     get_artifact,
@@ -29,3 +28,6 @@ from sdk.entities.workflow.operations import (
     import_workflow,
     new_workflow,
 )
+from sdk.store.models import StoreConfig
+from sdk.client.models import DHCoreConfig
+from sdk.utils.factories import set_store

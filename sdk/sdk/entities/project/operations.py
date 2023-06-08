@@ -2,7 +2,7 @@
 Project operations module.
 """
 from sdk.entities.project.context import delete_context, get_context, set_context
-from sdk.client.factory import get_client
+from sdk.utils.factories import get_client
 from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
 from sdk.entities.utils import file_importer
 from sdk.entities.api import (
