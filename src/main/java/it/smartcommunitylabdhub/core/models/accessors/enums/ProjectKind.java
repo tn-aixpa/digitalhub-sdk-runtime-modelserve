@@ -1,9 +1,9 @@
-package it.smartcommunitylabdhub.core.models.accessors.enums.kinds;
+package it.smartcommunitylabdhub.core.models.accessors.enums;
 
 import java.util.Map;
 
-import it.smartcommunitylabdhub.core.models.accessors.interfaces.ProjectFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.projects.MlrunProjectFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.ProjectFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.projects.MlrunProjectFieldAccessor;
 
 public enum ProjectKind {
     MLRUN("mlrun", MlrunProjectFieldAccessor::new);

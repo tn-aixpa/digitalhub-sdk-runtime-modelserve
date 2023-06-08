@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.accessors.enums.kinds.FunctionKind;
-import it.smartcommunitylabdhub.core.models.accessors.interfaces.FunctionFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.JobFunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
@@ -55,10 +55,6 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Override
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
-
-        // HACK: TESTING FUNCTION of kind job field accessor
-        FunctionFieldAccessor f = FunctionKind.JOB.createAccessor(Map.of());
-
         try {
             // Build a function and store it on db
             final Function function = new FunctionEntityBuilder(functionDTO).build();
@@ -79,6 +75,11 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Override
     public FunctionDTO getFunction(String uuid) {
+
+        // // HACK: TESTING FUNCTION of kind job field accessor
+        // JobFunctionFieldAccessor f = (JobFunctionFieldAccessor)
+        // FunctionKind.JOB.createAccessor(Map.of());
+
         final Function function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(

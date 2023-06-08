@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.accessors.enums.kinds;
+package it.smartcommunitylabdhub.core.models.accessors.enums;
 
 public enum DataItemKind {
 

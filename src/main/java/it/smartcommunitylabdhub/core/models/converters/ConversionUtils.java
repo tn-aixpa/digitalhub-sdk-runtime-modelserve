@@ -45,4 +45,9 @@ public class ConversionUtils {
         }).collect(Collectors.toList());
     }
 
+    // ** return command factory if needed */
+    public static CommandFactory getCommandFactory() {
+        return ConversionUtils.commandFactory;
+    }
+
 }

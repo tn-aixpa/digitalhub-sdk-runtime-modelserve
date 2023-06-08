@@ -1,11 +1,11 @@
-package it.smartcommunitylabdhub.core.models.accessors.enums.kinds;
+package it.smartcommunitylabdhub.core.models.accessors.enums;
 
 import java.util.Map;
 
-import it.smartcommunitylabdhub.core.models.accessors.functions.JobFunctionFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.functions.NuclioFunctionFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.functions.ServingFunctionFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.interfaces.FunctionFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.JobFunctionFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.NuclioFunctionFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.ServingFunctionFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 
 public enum FunctionKind {
     JOB("job", JobFunctionFieldAccessor::new),

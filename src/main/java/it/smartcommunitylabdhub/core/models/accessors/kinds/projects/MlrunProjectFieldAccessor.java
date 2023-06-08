@@ -1,20 +1,14 @@
-package it.smartcommunitylabdhub.core.models.accessors.projects;
+package it.smartcommunitylabdhub.core.models.accessors.kinds.projects;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import it.smartcommunitylabdhub.core.models.accessors.interfaces.ProjectFieldAccessor;
-import it.smartcommunitylabdhub.core.models.converters.CommandFactory;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.ProjectFieldAccessor;
 
 public class MlrunProjectFieldAccessor implements ProjectFieldAccessor {
 
     private final Map<String, Object> fields;
-
-    @Autowired
-    private CommandFactory commandFactory;
 
     public MlrunProjectFieldAccessor(Map<String, Object> fields) {
         this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
