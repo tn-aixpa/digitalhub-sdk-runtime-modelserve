@@ -10,7 +10,7 @@ import java.util.function.Function;
  * to speak with Some external services.
  */
 public class WorkflowFactory {
-    private final List<Function<Object, Object>> steps;
+    private final List<Function<?, ?>> steps;
 
     private WorkflowFactory() {
         this.steps = new ArrayList<>();
@@ -20,13 +20,31 @@ public class WorkflowFactory {
         return new WorkflowFactory();
     }
 
-    public WorkflowFactory step(Function<Object, Object> step) {
+    public <I, O> WorkflowFactory step(Function<I, O> step) {
         steps.add(step);
         return this;
     }
 
-    public WorkflowFactory step(Function<Object, Object> step, Object argument) {
+    public <I, O> WorkflowFactory step(Function<I, O> step, I argument) {
         steps.add(input -> step.apply(argument));
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <I, O> WorkflowFactory step(Function<I, O> step, I... argument) {
+        steps.add(input -> step.apply((I) argument));
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <I, O> WorkflowFactory conditionalStep(Function<I, Boolean> condition, Function<I, O> step) {
+        steps.add((Function<Object, Object>) (input) -> {
+            if (condition.apply((I) input)) {
+                return step.apply((I) input);
+            } else {
+                return input; // Skip the step
+            }
+        });
         return this;
     }
 

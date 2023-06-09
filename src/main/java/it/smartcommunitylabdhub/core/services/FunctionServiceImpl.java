@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -11,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
-import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.JobFunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
@@ -75,10 +72,6 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Override
     public FunctionDTO getFunction(String uuid) {
-
-        // // HACK: TESTING FUNCTION of kind job field accessor
-        // JobFunctionFieldAccessor f = (JobFunctionFieldAccessor)
-        // FunctionKind.JOB.createAccessor(Map.of());
 
         final Function function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {

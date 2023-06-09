@@ -36,7 +36,7 @@ public class PollingService {
                 pollWorkflows(); // Trigger the next iteration immediately
             });
         } else {
-            // Queue is empty, schedule the next workflow after a delay
+            // Queue is empty for this reason schedule the next workflow after a delay
             executorService.schedule(this::pollWorkflows, 5, TimeUnit.SECONDS);
         }
     }
@@ -47,7 +47,7 @@ public class PollingService {
             if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
                 if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
-                    System.err.println("Unable to shutdown executor service.");
+                    System.err.println("Unable to shutdown executor service :(");
                 }
             }
         } catch (InterruptedException e) {

@@ -6,65 +6,39 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class Workflow {
-    private final List<Function<Object, Object>> steps;
+    private final List<Step<?, ?>> steps;
 
-    public Workflow(List<Function<Object, Object>> steps) {
+    public Workflow(List<Step<?, ?>> steps) {
         this.steps = steps;
     }
 
-    /**
-     * Execute step
-     *
-     * @param input
-     * @return
-     */
-    public Object execute(Object input) {
-        return steps.stream()
-                .reduce(Function.identity(), Function::andThen)
-                .apply(input);
+    @SuppressWarnings("unchecked")
+    public <I, O> O execute(I input) {
+        Object result = input;
+        for (Step<?, ?> step : steps) {
+            if (step instanceof ConditionalStep) {
+                ConditionalStep<I, O> conditionalStep = (ConditionalStep<I, O>) step;
+                if (!conditionalStep.getCondition().test(input)) {
+                    continue; // Skip this step if the condition is not met
+                }
+            }
+            result = step.execute(result);
+        }
+        return (O) result;
     }
 
-    /**
-     * Execute step async every step pass the result to the next function.
-     *
-     * @param input
-     * @return
-     */
-    public CompletableFuture<Object> executeAsync(Object input) {
+    @SuppressWarnings("unchecked")
+    public <I, O> CompletableFuture<O> executeAsync(I input) {
         CompletableFuture<Object> future = CompletableFuture.completedFuture(input);
-        for (Function<Object, Object> step : steps) {
-            future = future.thenComposeAsync(result -> CompletableFuture.supplyAsync(() -> step.apply(result)));
+        for (Step<?, ?> step : steps) {
+            if (step instanceof ConditionalStep) {
+                ConditionalStep<I, O> conditionalStep = (ConditionalStep<I, O>) step;
+                if (!conditionalStep.getCondition().test(input)) {
+                    continue; // Skip this step if the condition is not met
+                }
+            }
+            future = future.thenComposeAsync(result -> CompletableFuture.supplyAsync(() -> step.execute(result)));
         }
-        return future;
+        return future.thenApply(result -> (O) result);
     }
 }
-
-// package it.smartcommunitylabdhub.core.services.workflows.factory;
-
-// import java.util.List;
-// import java.util.concurrent.CompletableFuture;
-// import java.util.function.Function;
-
-// public class Workflow {
-// private final List<Function<Object, Object>> steps;
-
-// public Workflow(List<Function<Object, Object>> steps) {
-// this.steps = steps;
-// }
-
-// public Object execute(Object input) {
-// Object result = null;
-// for (Function<Object, Object> step : steps) {
-// result = step.apply(result);
-// }
-// return result;
-// }
-
-// public CompletableFuture<Object> executeAsync(Object input) {
-// CompletableFuture<Object> future = CompletableFuture.completedFuture(input);
-// for (Function<Object, Object> step : steps) {
-// future = future.thenApplyAsync(step);
-// }
-// return future;
-// }
-// }
