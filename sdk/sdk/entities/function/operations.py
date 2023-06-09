@@ -1,14 +1,10 @@
 """
 Function operations module.
 """
-from sdk.entities.project.context import get_context
+from sdk.entities.api import DTO_FUNC, delete_api, read_api
 from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
-from sdk.entities.utils import file_importer
-from sdk.entities.api import (
-    read_api,
-    delete_api,
-    DTO_FUNC,
-)
+from sdk.utils.context_utils import get_context
+from sdk.utils.io_utils import file_importer
 
 
 def new_function(

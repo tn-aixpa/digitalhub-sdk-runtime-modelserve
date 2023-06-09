@@ -5,14 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.utils.factories import get_client
-from sdk.entities.api import (
-    DTO_ARTF,
-    DTO_DTIT,
-    DTO_FUNC,
-    DTO_WKFL,
-    create_api_proj,
-)
+from sdk.entities.api import DTO_ARTF, DTO_DTIT, DTO_FUNC, DTO_WKFL, create_api_proj
 from sdk.entities.artifact.artifact import Artifact
 from sdk.entities.artifact.operations import delete_artifact, get_artifact, new_artifact
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
@@ -22,6 +15,7 @@ from sdk.entities.function.function import Function
 from sdk.entities.function.operations import delete_function, get_function, new_function
 from sdk.entities.workflow.operations import delete_workflow, get_workflow, new_workflow
 from sdk.entities.workflow.workflow import Workflow
+from sdk.utils.context_utils import get_client
 from sdk.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
@@ -187,7 +181,18 @@ class Project(Entity):
 
     def _add_object(self, obj: Entity | list[Entity], kind: str) -> None:
         """
-        Add object to project.
+        Add object to project as class object and spec.
+
+        Parameters
+        ----------
+        obj : Entity | list[Entity]
+            Object to be added to project.
+        kind : str
+            Kind of object to be added to project.
+
+        Returns
+        -------
+        None
         """
 
         # Add to project spec
@@ -204,6 +209,19 @@ class Project(Entity):
     def _delete_object(self, name: str, kind: str, uuid: str = None) -> None:
         """
         Delete object from project.
+
+        Parameters
+        ----------
+        name : str
+            Name of object to be deleted.
+        kind : str
+            Kind of object to be deleted.
+        uuid : str, optional
+            UUID of object to be deleted.
+
+        Returns
+        -------
+        None
         """
         if uuid is None:
             attr_name = "name"
@@ -225,6 +243,16 @@ class Project(Entity):
     def _get_objects(self, kind: str) -> object:
         """
         Get objects related to project.
+
+        Parameters
+        ----------
+        kind : str
+            Kind of object to be retrieved.
+
+        Returns
+        -------
+        object
+            Object related to project.
         """
         if kind in DTO_LIST:
             kind = f"_{kind}"
@@ -691,7 +719,7 @@ class Project(Entity):
         """
         Get client.
         """
-        if self._client is None:
+        if self._client is None and not self.local:
             raise Exception("Client is not specified.")
         return self._client
 

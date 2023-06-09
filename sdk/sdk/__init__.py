@@ -30,4 +30,4 @@ from sdk.entities.workflow.operations import (
 )
 from sdk.store.models import StoreConfig
 from sdk.client.models import DHCoreConfig
-from sdk.utils.factories import set_store
+from sdk.utils.context_utils import set_store

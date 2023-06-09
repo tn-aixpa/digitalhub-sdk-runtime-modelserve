@@ -1,5 +1,5 @@
 """
-Module for models.
+Store models module.
 """
 from typing import Literal, Optional
 

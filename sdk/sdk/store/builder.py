@@ -1,3 +1,6 @@
+"""
+Store builder module.
+"""
 from __future__ import annotations
 
 import typing
@@ -11,10 +14,20 @@ if typing.TYPE_CHECKING:
 
 
 class StoreBuilder:
-    def __init__(self):
+    """
+    Store builder class.
+    """
+
+    def __init__(self) -> None:
+        """
+        Constructor.
+        """
         self._instance = None
 
-    def __call__(self, store_cfg: StoreConfig = None):
+    def __call__(self, store_cfg: StoreConfig = None) -> Store:
+        """
+        Call method.
+        """
         if self._instance is None:
             if store_cfg is None:
                 store_cfg = StoreConfig(name="dummy", type="dummy", config={})
@@ -23,7 +36,22 @@ class StoreBuilder:
 
     def build_store(self, cfg: StoreConfig) -> Store:
         """
-        Method to create stores.
+        Build a store instance.
+
+        Parameters
+        ----------
+        cfg : StoreConfig
+            Store configuration.
+
+        Returns
+        -------
+        Store
+            The store instance.
+
+        Raises
+        ------
+        NotImplementedError
+            If the store type is not implemented.
         """
         try:
             return STORES[cfg.type](cfg.name, cfg.type, cfg.config)
@@ -33,9 +61,23 @@ class StoreBuilder:
     @staticmethod
     def _check_config(config: Union[StoreConfig, dict]) -> StoreConfig:
         """
-        Try to convert a dictionary in a StoreConfig model.
-        In case the config parameter is None, return a dummy store basic
+        Try to convert a dictionary in a StoreConfig model. In case the config parameter is None, return a dummy store basic
         config.
+
+        Parameters
+        ----------
+        config : Union[StoreConfig, dict]
+            The store configuration.
+
+        Returns
+        -------
+        StoreConfig
+            The store configuration.
+
+        Raises
+        ------
+        TypeError
+            If the config parameter is not a StoreConfig instance or a well formed dictionary.
         """
         if not isinstance(config, StoreConfig):
             try:

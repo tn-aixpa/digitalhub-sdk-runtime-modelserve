@@ -1,3 +1,6 @@
+"""
+Environment variables utilities for DHub Core configuration.
+"""
 import os
 
 from sdk.client.models import DHCoreConfig

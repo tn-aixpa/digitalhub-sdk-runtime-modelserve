@@ -1,14 +1,10 @@
 """
 Workflow operations module.
 """
-from sdk.entities.project.context import get_context
-from sdk.entities.utils import file_importer
+from sdk.entities.api import DTO_WKFL, delete_api, read_api
 from sdk.entities.workflow.workflow import Workflow, WorkflowMetadata, WorkflowSpec
-from sdk.entities.api import (
-    read_api,
-    delete_api,
-    DTO_WKFL,
-)
+from sdk.utils.context_utils import get_context
+from sdk.utils.io_utils import file_importer
 
 
 def new_workflow(

@@ -3,7 +3,7 @@ Artifact module.
 """
 from sdk.entities.api import DTO_ARTF, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.entities.project.context import get_context
+from sdk.utils.context_utils import get_context
 from sdk.utils.utils import get_uiid
 
 

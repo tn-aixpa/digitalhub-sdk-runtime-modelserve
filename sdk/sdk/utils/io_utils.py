@@ -3,9 +3,17 @@ Common IO utils.
 """
 import json
 import shutil
-from io import BufferedReader, BytesIO, StringIO, TextIOWrapper, TextIOBase
+from collections import OrderedDict
+from io import BufferedReader, BytesIO, StringIO, TextIOBase, TextIOWrapper
 from pathlib import Path
 from typing import IO, Union
+
+import yaml
+
+
+####################
+# Wrappers
+####################
 
 
 #  https://stackoverflow.com/questions/55889474/convert-io-stringio-to-io-bytesio
@@ -147,6 +155,11 @@ def wrap_string(src: IO) -> BytesIO:
     return src
 
 
+####################
+# Writers
+####################
+
+
 def write_stringio(src: str) -> StringIO:
     """
     Write string in TextStream StringIO.
@@ -263,3 +276,119 @@ def write_object(buff: IO, dst: str) -> None:
     write_mode = "wb" if isinstance(buff, BytesIO) else "w"
     with open(dst, write_mode) as file:
         shutil.copyfileobj(buff, file)
+
+
+def write_yaml(obj: dict, file: Union[str, Path]) -> None:
+    """
+    Write a dict to a yaml file.
+
+    Parameters
+    ----------
+    obj : dict
+        The dict to write.
+    file : Union[str, Path]
+        The yaml file path to write.
+
+    Returns
+    -------
+    None
+    """
+
+    # Function needed to preserve the order of the keys in the yaml file.
+    def ordered_dict_representer(self, value: OrderedDict) -> dict:
+        """
+        Represent an OrderedDict as a dict.
+
+        Parameters
+        ----------
+        self : yaml.representer
+            The yaml representer.
+        value : OrderedDict
+            The OrderedDict to represent.
+
+        Returns
+        -------
+        dict
+            The OrderedDict as a dict.
+        """
+        return self.represent_mapping("tag:yaml.org,2002:map", value.items())
+
+    yaml.add_representer(OrderedDict, ordered_dict_representer)
+
+    obj = OrderedDict(obj)
+    with open(file, "w") as f:
+        yaml.dump(obj, f)
+
+
+####################
+# Readers
+####################
+
+
+def read_yaml(file: Union[str, Path]) -> dict:
+    """
+    Read a yaml file and return a dict.
+
+    Parameters
+    ----------
+    file : Union[str, Path]
+        The yaml file path to read.
+
+    Returns
+    -------
+    dict
+        The yaml file content.
+    """
+    with open(file, "r") as f:
+        data = yaml.load(f, Loader=yaml.SafeLoader)
+    return data
+
+
+####################
+# Utils
+####################
+
+
+def file_importer(path: str, filetype: str = "yaml") -> dict:
+    """
+    Import an object from a file using the specified file path.
+
+    Parameters
+    ----------
+    path : str
+        The absolute or relative path to the file containing the object.
+    filetype : str, optional
+        The type of file from which the object is imported. The default value is "yaml".
+
+    Returns
+    -------
+    dict
+        The object imported from the file using the specified path.
+    """
+    if filetype == "yaml":
+        return read_yaml(path)
+    else:
+        raise NotImplementedError
+
+
+def file_exporter(path: str, obj: dict, filetype: str = "yaml") -> None:
+    """
+    Export an object to a file using the specified file path.
+
+    Parameters
+    ----------
+    path : str
+        Path to the file to which the object is exported.
+    obj : dict
+        The object to be exported.
+    filetype : str, optional
+        The type of file to which the object is exported. The default value is "yaml".
+
+    Returns
+    -------
+    None
+    """
+    if filetype == "yaml":
+        write_yaml(obj, path)
+    else:
+        raise NotImplementedError

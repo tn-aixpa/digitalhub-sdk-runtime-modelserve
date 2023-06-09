@@ -1,10 +1,10 @@
 """
 Abstract entity module.
 """
-from inspect import signature
 from abc import ABCMeta, abstractmethod
+from inspect import signature
 
-from sdk.entities.utils import file_exporter
+from sdk.utils.io_utils import file_exporter
 
 
 class ModelObj:

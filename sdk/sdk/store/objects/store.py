@@ -1,39 +1,87 @@
+"""
+Store module.
+"""
 from abc import ABCMeta, abstractmethod
 from typing import Optional, Any
 
 
 class ResourceRegistry(dict):
     """
-    Generic registry object to keep track of resources.
+    Registry object to keep track of resources fetched from a backend and their temporary local paths.
     """
 
     def set_resource(self, res_name: str, path: str) -> None:
         """
-        Register a resource path.
+        Register resource.
+
+        Parameters
+        ----------
+        res_name : str
+            Resource name.
+        path : str
+            Resource path.
+
+        Returns
+        -------
+        None
         """
         if res_name not in self:
             self[res_name] = path
 
     def get_resource(self, res_name: str) -> str:
         """
-        Return resource path.
+        Get resource path.
+
+        Parameters
+        ----------
+        res_name : str
+            Resource name.
+
+        Returns
+        -------
+        str
+            Resource path.
         """
         return self.get(res_name)
 
     def clean_all(self) -> None:
         """
-        Remove resource from registry.
+        Clean all resources.
+
+        Returns
+        -------
+        None
         """
         self.clear()
 
 
 class Store(metaclass=ABCMeta):
+    """
+    Store abstract class.
+    """
+
     def __init__(
         self,
         name: str,
         type: str,
         config: Optional[dict] = None,
     ) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        name : str
+            Store name.
+        type : str
+            Store type.
+        config : Optional[dict], optional
+            Store configuration, by default None
+
+        Returns
+        -------
+        None
+        """
         self.name = name
         self.type = type
         self.config = config
@@ -41,6 +89,9 @@ class Store(metaclass=ABCMeta):
 
     @abstractmethod
     def fetch_artifact(self, src: str, dst: str) -> None:
+        """
+        Method to fetch artifact from storage.
+        """
         ...
 
     @abstractmethod
@@ -58,23 +109,23 @@ class Store(metaclass=ABCMeta):
     @abstractmethod
     def _store_data(self, *args) -> str:
         """
-        Store data locally in temporary folder and return tmp path.
+        Store data locally and return path.
         """
 
     @abstractmethod
     def _check_access_to_storage(self) -> None:
         """
-        Check if there is access to the storage.
+        Check if the store is accessible.
         """
 
     def _register_resource(self, key: str, path: str) -> None:
         """
-        Method to register a resource into the path registry.
+        Register a resource in the registry.
         """
         self.registry.set_resource(key, path)
 
     def _get_resource(self, key: str) -> str:
         """
-        Method to return temporary path of a registered resource.
+        Get a resource from the registry.
         """
         return self.registry.get_resource(key)

@@ -8,9 +8,17 @@ from sdk.store.objects.store import Store
 
 class DummyStore(Store):
     """
-    DummyStore class.
+    DummyStore class. It implements the Store interface and provides dummy methods.
     """
+
     def __init__(self, name: str, type: str, config: Optional[dict] = None) -> None:
+        """
+        Constructor.
+
+        See Also
+        --------
+        Store.__init__
+        """
         super().__init__(name, type, config)
 
     def fetch_artifact(self, *args) -> None:

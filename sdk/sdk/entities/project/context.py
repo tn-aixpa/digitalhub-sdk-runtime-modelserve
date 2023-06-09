@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import typing
+from typing import Literal
 
 if typing.TYPE_CHECKING:
     from sdk.entities.project.project import Project
@@ -29,118 +31,41 @@ class Context:
         self.local = project.local
 
 
-class ContextRegistry:
+class ContextBuilder:
     """
-    A registry of contexts.
+    The context builder.
     """
 
-    def __init__(self) -> None:
+    def __init__(self):
         """
-        Initialize the registry.
+        Constructor.
         """
         self._instances = {}
 
-    def add(self, project: Project) -> None:
+    def __call__(
+        self,
+        options: Literal["add", "get", "remove"],
+        project: Project = None,
+        project_name: str = None,
+    ):
         """
-        Add a context to the registry.
+        Call method.
 
         Parameters
         ----------
-        project : Project
-            The project to add to the registry.
-
-        Returns
-        -------
-        None
+        options : Literal["add", "get", "remove"]
+            The options to call the method with.
         """
-        if project.name not in self._instances:
-            self._instances[project.name] = Context(project)
-
-    def get(self, name: str) -> Context:
-        """
-        Get the context for the given project name.
-
-        Parameters
-        ----------
-        name : str
-            The name of the project to get the context for.
-
-        Returns
-        -------
-
-        Context
-            The context for the given project name.
-        """
-        ctx = self._instances.get(name)
-        if ctx is None:
-            raise ValueError(f"Context '{name}' not found.")
-        return ctx
-
-    def remove(self, name: str) -> None:
-        """
-        Remove the context for the given project name.
-
-        Parameters
-        ----------
-        name : str
-            The name of the project to remove the context for.
-
-        Returns
-        -------
-        None
-        """
-        self._instances.pop(name, None)
-
-
-project_instances = ContextRegistry()
-
-
-def set_context(project: Project) -> None:
-    """
-    Set the current context to the given project.
-
-    Parameters
-    ----------
-    project : Project
-        The project to set as the current context.
-
-    Returns
-    -------
-    None
-
-    """
-    project_instances.add(project)
-
-
-def get_context(project_name: str) -> Context:
-    """
-    Get the specific context.
-
-    Parameters
-    ----------
-    project_name : str
-        The name of the project to get the context for.
-
-    Returns
-    -------
-    Context
-        The context for the given project name.
-
-    """
-    return project_instances.get(project_name)
-
-
-def delete_context(project_name: str) -> None:
-    """
-    Delete the context for the given project name.
-
-    Parameters
-    ----------
-    project_name : str
-        The name of the project to delete the context for.
-
-    Returns
-    -------
-    None
-    """
-    project_instances.remove(project_name)
+        if options == "add":
+            if project.name not in self._instances:
+                self._instances[project.name] = Context(project)
+            return
+        if options == "get":
+            ctx = self._instances.get(project_name)
+            if ctx is None:
+                raise ValueError(f"Context '{project_name}' not found.")
+            return ctx
+        if options == "remove":
+            self._instances.pop(project_name, None)
+            return
+        raise ValueError(f"Invalid option '{options}'.")

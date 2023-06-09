@@ -142,6 +142,16 @@ def rebuild_uri(uri: str, *args) -> str:
 def check_url(url: str) -> str:
     """
     Parse an URL and clean it from double '/' character.
+
+    Parameters
+    ----------
+    url : str
+        URL.
+
+    Returns
+    -------
+    str
+        Cleaned URL.
     """
     parsed = get_uri_path(url).replace("//", "/")
     return urljoin(url, parsed)

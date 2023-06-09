@@ -1,3 +1,6 @@
+"""
+S3Store module.
+"""
 from tempfile import TemporaryDirectory
 from pathlib import Path
 from typing import Optional, Type
@@ -16,21 +19,34 @@ from sdk.utils.uri_utils import (
     get_uri_path,
 )
 
+# Type aliases
 S3Client = Type["botocore.client.S3"]
 
 
 class S3Store(Store):
+    """
+    S3 store class. It implements the Store interface and provides methods to fetch and persist
+    artifacts on S3 based storage.
+    """
+
     def __init__(
         self,
         name: str,
         type: str,
         config: Optional[dict] = None,
     ) -> None:
+        """
+        Constructor.
+
+        See Also
+        --------
+        Store.__init__
+        """
         super().__init__(name, type, config)
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
-        Method to fetch an artifact from the backend and to register it on the paths registry.
+        Fetch an artifact from S3 based storage.
 
         Parameters:
         -----------
@@ -76,7 +92,7 @@ class S3Store(Store):
         Raises:
         -------
         NotImplementedError :
-            If the source object is not a file path, dictionary, StringIO/BytesIO buffer.
+            If the source object is not a file path.
 
         Returns:
         --------
@@ -98,7 +114,7 @@ class S3Store(Store):
 
     def _get_client(self) -> S3Client:
         """
-        Return a boto client.
+        Get an S3 client object.
 
         Returns:
         --------
@@ -163,7 +179,7 @@ class S3Store(Store):
     @staticmethod
     def _get_data(client: S3Client, bucket: str, key: str) -> bytes:
         """
-        Download an object from S3.
+        Download an object from S3 and return the binary data.
 
         Parameters
         ----------
@@ -177,7 +193,7 @@ class S3Store(Store):
         Returns
         -------
         bytes
-            A bytes object representing the downloaded object.
+            Bynary data of the object.
 
         """
         obj = client.get_object(Bucket=bucket, Key=key)
@@ -185,7 +201,7 @@ class S3Store(Store):
 
     def _store_data(self, obj: bytes, dst: str, key: str) -> str:
         """
-        Store binary data in a temporary directory and return the file path.
+        Store binary data in a local directory and return the file path.
 
         Parameters
         ----------

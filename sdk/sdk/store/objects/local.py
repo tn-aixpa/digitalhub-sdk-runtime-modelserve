@@ -1,3 +1,6 @@
+"""
+Local store module.
+"""
 from pathlib import Path
 from typing import Optional
 
@@ -6,12 +9,24 @@ from sdk.utils.file_utils import check_dir, check_path, copy_file, get_path, mak
 
 
 class LocalStore(Store):
+    """
+    S3 store class. It implements the Store interface and provides methods to fetch and persist
+    artifacts on local filesystem based storage.
+    """
+
     def __init__(
         self,
         name: str,
         type: str,
         config: Optional[dict] = None,
     ) -> None:
+        """
+        Constructor.
+
+        See Also
+        --------
+        Store.__init__
+        """
         super().__init__(name, type, config)
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
@@ -28,14 +43,14 @@ class LocalStore(Store):
         Returns
         -------
         str
-            Returns a file path.
+            Returns the path of the artifact.
         """
         self._register_resource(f"{src}", src)
         return src
 
     def persist_artifact(self, src: str, dst: str, src_name: str) -> None:
         """
-        Method to persist an artifact on local filesystem.
+        Method to persist (copy) an artifact on local filesystem.
 
         Parameters
         ----------

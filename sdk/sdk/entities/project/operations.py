@@ -1,19 +1,18 @@
 """
 Project operations module.
 """
-from sdk.entities.project.context import delete_context, get_context, set_context
-from sdk.utils.factories import get_client
-from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
-from sdk.entities.utils import file_importer
 from sdk.entities.api import (
-    delete_api,
-    delete_api_project,
-    read_api_project,
     DTO_ARTF,
     DTO_DTIT,
     DTO_FUNC,
     DTO_WKFL,
+    delete_api,
+    delete_api_project,
+    read_api_project,
 )
+from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
+from sdk.utils.context_utils import delete_context, get_client, set_context
+from sdk.utils.io_utils import file_importer
 
 
 def new_project(
