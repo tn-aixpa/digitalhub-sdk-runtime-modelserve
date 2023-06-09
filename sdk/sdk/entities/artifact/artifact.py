@@ -21,7 +21,7 @@ class ArtifactSpec(EntitySpec):
 
         # Set new attributes
         for k, v in kwargs.items():
-            if k not in self.get_sig():
+            if k not in self.__dict__.keys():
                 self.__setattr__(k, v)
 
 
@@ -73,6 +73,7 @@ class Artifact(Entity):
         )
         self.spec = spec if spec is not None else ArtifactSpec()
         self.id = uuid if uuid is not None else get_uiid()
+        self.embedded = embed
 
         self._local = local
         self._embed = embed

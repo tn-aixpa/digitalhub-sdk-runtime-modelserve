@@ -15,7 +15,7 @@ from sdk.entities.function.function import Function
 from sdk.entities.function.operations import delete_function, get_function, new_function
 from sdk.entities.workflow.operations import delete_workflow, get_workflow, new_workflow
 from sdk.entities.workflow.workflow import Workflow
-from sdk.utils.context_utils import get_client
+from sdk.utils.context_utils import get_client, set_context
 from sdk.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
@@ -49,7 +49,7 @@ class ProjectSpec(EntitySpec):
 
         # Set new attributes
         for k, v in kwargs.items():
-            if k not in self.get_sig():
+            if k not in self.__dict__.keys():
                 self.__setattr__(k, v)
 
 
@@ -172,20 +172,20 @@ class Project(Entity):
         # Export objects related to project if not embedded
         for i in DTO_LIST:
             for o in self._get_objects(i):
-                if not o.embed:
+                if not o.embedded:
                     o.export()
 
     #############################
     #  Generic operations for objects (artifacts, functions, workflows, dataitems)
     #############################
 
-    def _add_object(self, obj: Entity | list[Entity], kind: str) -> None:
+    def _add_object(self, obj: Entity, kind: str) -> None:
         """
         Add object to project as class object and spec.
 
         Parameters
         ----------
-        obj : Entity | list[Entity]
+        obj : Entity
             Object to be added to project.
         kind : str
             Kind of object to be added to project.
@@ -194,9 +194,8 @@ class Project(Entity):
         -------
         None
         """
-
         # Add to project spec
-        d = obj.to_dict_essential() if obj.embed else obj.to_dict()
+        d = obj.to_dict_essential() if obj.embedded else obj.to_dict()
         attr = getattr(self.spec, kind, []) + [d]
         setattr(self.spec, kind, attr)
 
@@ -753,10 +752,25 @@ class Project(Entity):
         name = d.get("name")
         if name is None:
             raise Exception("Project or name are not specified.")
+        spec = d.get("spec")
+        if spec is None:
+            spec = {}
         metadata = ProjectMetadata.from_dict(d.get("metadata", {"name": name}))
-        spec = ProjectSpec.from_dict(d.get("spec", {}))
-        spec.functions = [Function.from_dict(i) for i in spec.functions]
-        spec.artifacts = [Artifact.from_dict(i) for i in spec.artifacts]
-        spec.workflows = [Workflow.from_dict(i) for i in spec.workflows]
-        spec.dataitems = [Dataitem.from_dict(i) for i in spec.dataitems]
-        return cls(name, metadata=metadata, spec=spec)
+
+        # Process spec
+        new_spec = {k: v for k, v in spec.items() if k not in DTO_LIST}
+        new_spec = ProjectSpec.from_dict(new_spec)
+        obj = cls(name, metadata=metadata, spec=new_spec)
+        set_context(obj)
+
+        # Add objects to project from spec
+        for i in [Function.from_dict(i) for i in spec.get(DTO_FUNC, [])]:
+            obj._add_object(i, DTO_FUNC)
+        for i in [Artifact.from_dict(i) for i in spec.get(DTO_ARTF, [])]:
+            obj._add_object(i, DTO_ARTF)
+        for i in [Workflow.from_dict(i) for i in spec.get(DTO_WKFL, [])]:
+            obj._add_object(i, DTO_WKFL)
+        for i in [Dataitem.from_dict(i) for i in spec.get(DTO_DTIT, [])]:
+            obj._add_object(i, DTO_DTIT)
+
+        return obj

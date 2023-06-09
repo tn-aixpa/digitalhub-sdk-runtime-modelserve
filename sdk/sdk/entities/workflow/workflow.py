@@ -13,12 +13,12 @@ class WorkflowMetadata(EntityMetadata):
 
 
 class WorkflowSpec(EntitySpec):
-    def __init__(self, test: str, **kwargs) -> None:
+    def __init__(self, test: str = None, **kwargs) -> None:
         self.test = test
 
         # Set new attributes
         for k, v in kwargs.items():
-            if k not in self.get_sig():
+            if k not in self.__dict__.keys():
                 self.__setattr__(k, v)
 
 
@@ -70,6 +70,7 @@ class Workflow(Entity):
         )
         self.spec = spec if spec is not None else WorkflowSpec()
         self.id = uuid if uuid is not None else get_uiid()
+        self.embedded = embed
 
         self._local = local
         self._embed = embed
