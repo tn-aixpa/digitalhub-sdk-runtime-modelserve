@@ -11,6 +11,26 @@ from pathlib import Path
 ####################
 
 
+def get_dir(path: str) -> str:
+    """
+    Return directory path.
+
+    Parameters
+    ----------
+    path : str
+        The path.
+
+    Returns
+    -------
+    str
+        The directory path.
+    """
+    pth = Path(path)
+    if pth.suffix != "":
+        return str(pth.parent)
+    return str(pth)
+
+
 def check_dir(path: str) -> bool:
     """
     Check if a directory exists.
@@ -165,6 +185,26 @@ def check_path(path: str) -> bool:
 ####################
 
 
+def check_file(path: str) -> bool:
+    """
+    Check if a path is a file.
+
+    Parameters
+    ----------
+    path : str
+        The file path.
+
+    Returns
+    -------
+    bool
+        True if the file exists, False otherwise.
+    """
+    try:
+        return Path(path).is_file()
+    except OSError:
+        return False
+
+
 def copy_file(src: str, dst: str) -> None:
     """
     Copy local file to destination.
@@ -174,7 +214,7 @@ def copy_file(src: str, dst: str) -> None:
     src : str
         The source file.
     dst : str
-        The destination file.
+        The destination file/directory.
 
     Returns
     -------

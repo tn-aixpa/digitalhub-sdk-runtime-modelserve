@@ -69,11 +69,10 @@ class Workflow(Entity):
             metadata if metadata is not None else WorkflowMetadata(name=name)
         )
         self.spec = spec if spec is not None else WorkflowSpec()
-        self.id = uuid if uuid is not None else get_uiid()
         self.embedded = embed
+        self.id = uuid if uuid is not None else get_uiid()
 
         self._local = local
-        self._embed = embed
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -159,13 +158,6 @@ class Workflow(Entity):
         Get local flag.
         """
         return self._local
-
-    @property
-    def embed(self) -> bool:
-        """
-        Get embed flag.
-        """
-        return self._embed
 
     #############################
     #  Generic Methods

@@ -13,7 +13,7 @@ def new_artifact(
     description: str = None,
     kind: str = None,
     key: str = None,
-    source: str = None,
+    source_path: str = None,
     target_path: str = None,
     local: bool = False,
     embed: bool = False,
@@ -33,7 +33,7 @@ def new_artifact(
         The type of the artifact.
     key : str
         Representation of artfact like store://etc..
-    source : str
+    source_path : str
         Path to the artifact on local file system or remote storage.
     targeth_path : str
         Destination path of the artifact.
@@ -51,7 +51,7 @@ def new_artifact(
     if context.local != local:
         raise Exception("Context local flag does not match local flag of artifact")
     meta = ArtifactMetadata(name=name, description=description)
-    spec = ArtifactSpec(key=key, source=source, target_path=target_path)
+    spec = ArtifactSpec(key=key, source_path=source_path, target_path=target_path)
     obj = Artifact(
         project=project,
         name=name,

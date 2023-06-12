@@ -267,7 +267,7 @@ class Project(Entity):
         description: str = None,
         kind: str = None,
         key: str = None,
-        source: str = None,
+        source_path: str = None,
         target_path: str = None,
         local: bool = False,
         embed: bool = False,
@@ -285,7 +285,7 @@ class Project(Entity):
             The type of the artifact.
         key : str
             Representation of artfact like store://etc..
-        source : str
+        source_path : str
             Path to the artifact on local file system or remote storage.
         target_path : str
             Path of destionation for the artifact.
@@ -305,7 +305,7 @@ class Project(Entity):
             description=description,
             kind=kind,
             key=key,
-            source=source,
+            source_path=source_path,
             target_path=target_path,
             local=local,
             embed=embed,

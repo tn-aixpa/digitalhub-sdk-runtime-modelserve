@@ -3,8 +3,10 @@ Artifact module.
 """
 from sdk.entities.api import DTO_ARTF, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.context_utils import get_context
+from sdk.utils.context_utils import get_context, get_store, get_default_store
 from sdk.utils.utils import get_uiid
+from sdk.utils.uri_utils import get_name_from_uri, rebuild_uri, get_uri_scheme
+from sdk.utils.file_utils import check_file, get_dir
 
 
 class ArtifactMetadata(EntityMetadata):
@@ -13,10 +15,10 @@ class ArtifactMetadata(EntityMetadata):
 
 class ArtifactSpec(EntitySpec):
     def __init__(
-        self, key: str = None, source: str = None, target_path: str = None, **kwargs
+        self, key: str = None, source_path: str = None, target_path: str = None, **kwargs
     ) -> None:
         self.key = key
-        self.source = source
+        self.source_path = source_path
         self.target_path = target_path
 
         # Set new attributes
@@ -72,11 +74,10 @@ class Artifact(Entity):
             metadata if metadata is not None else ArtifactMetadata(name=name)
         )
         self.spec = spec if spec is not None else ArtifactSpec()
-        self.id = uuid if uuid is not None else get_uiid()
         self.embedded = embed
+        self.id = uuid if uuid is not None else get_uiid()
 
         self._local = local
-        self._embed = embed
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -146,15 +147,76 @@ class Artifact(Entity):
     #  Artifacts Methods
     #############################
 
-    def as_file(self, reader) -> str:
-        ...
+    def download(self, dst: str = None, overwrite: bool = False) -> str:
+        """
+        Download artifact from backend. If dst is None, the artifact is downloaded in the current directory.
 
-    def write_file(self):
-        ...
+        Parameters
+        ----------
+        dst : str, optional
+            Destination path as filename    , default is None.
+        overwrite : bool, optional
+            Specify if overwrite, default is False.
 
-    def upload(self, writer) -> str:
-        # fare hashing
-        ...
+        Returns
+        -------
+        str
+            Path of the downloaded artifact.
+        """
+        store = get_default_store()
+
+        if dst is None:
+            filename = get_name_from_uri(self.spec.source_path)
+            dst = f"./{filename}"
+
+        if check_file(dst) and not overwrite:
+            raise Exception(f"File {dst} already exists.")
+
+        return store.fetch_artifact(self.spec.source_path, dst)
+
+    def as_file(self) -> str:
+        """
+        Get artifact as file. The artifact is downloaded in a temporary directory.
+
+        Returns
+        -------
+        str
+            Temporary path of the artifact.
+        """
+        store = get_default_store()
+        return store.fetch_artifact(self.spec.source_path)
+
+    def upload(self) -> str:
+        """
+        Upload artifact to backend.
+
+        Returns
+        -------
+        str
+            Path of the uploaded artifact.
+        """
+        # TODO: hashing of the file
+        store = get_default_store()
+
+        # Check if source path is local
+        if get_uri_scheme(self.src_pth) not in ["", "file"]:
+            raise Exception(
+                "Only local source paths are supported for upload."
+            )
+
+        # Check if target path is provided.
+        # Rebuild if not provided and update spec.
+        if self.trg_pth is None:
+            path = get_dir(self.src_pth)
+            filename = get_name_from_uri(self.src_pth)
+            target_path = rebuild_uri(f"{path}/{filename}")
+            target_uri = store.persist_artifact(self.src_pth, target_path)
+
+            # Update target path
+            self.spec.target_path = target_uri
+            return self.trg_pth
+
+        return store.persist_artifact(self.src_pth, self.trg_pth)
 
     #############################
     #  Getters and Setters
@@ -168,11 +230,28 @@ class Artifact(Entity):
         return self._local
 
     @property
-    def embed(self) -> bool:
+    def src_pth(self) -> str:
         """
-        Get embed flag.
+        Get source path of the artifact from spec.
+
+        Returns
+        -------
+        str
+            Source path of the artifact.
         """
-        return self._embed
+        return self.spec.source_path
+
+    @property
+    def trg_pth(self) -> str:
+        """
+        Get target path of the artifact from spec.
+
+        Returns
+        -------
+        str
+            Destination path of the artifact.
+        """
+        return self.spec.target_path
 
     #############################
     #  Generic Methods

@@ -1,11 +1,11 @@
 """
 Local store module.
 """
-from pathlib import Path
 from typing import Optional
 
 from sdk.store.objects.store import Store
-from sdk.utils.file_utils import check_dir, check_path, copy_file, get_path, make_dir
+from sdk.utils.file_utils import check_dir, copy_file, get_dir, make_dir
+from sdk.utils.uri_utils import get_name_from_uri
 
 
 class LocalStore(Store):
@@ -18,6 +18,7 @@ class LocalStore(Store):
         self,
         name: str,
         type: str,
+        uri: str,
         config: Optional[dict] = None,
     ) -> None:
         """
@@ -27,7 +28,7 @@ class LocalStore(Store):
         --------
         Store.__init__
         """
-        super().__init__(name, type, config)
+        super().__init__(name, type, uri, config)
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
@@ -37,7 +38,7 @@ class LocalStore(Store):
         ----------
         src : str
             The source location of the artifact.
-        dst : str
+        dst : str, optional
             The destination of the artifact.
 
         Returns
@@ -45,10 +46,26 @@ class LocalStore(Store):
         str
             Returns the path of the artifact.
         """
-        self._register_resource(f"{src}", src)
+        if dst is not None:
+            # Check access to destination
+            self._check_dir(get_dir(dst))
+
+            # Copy file and register resource
+            copy_file(src, dst)
+            self._register_resource(f"{src}", dst)
+
+            # In case of a directory, return the filename
+            # from source path, because we simply copied
+            # the file into the destination directory
+            if get_name_from_uri(dst) == "":
+                dst = f"{dst}/{get_name_from_uri(src)}"
+            return dst
+
+        # If destination is not provided, return the source path
+        # we don't copy the file anywhere
         return src
 
-    def persist_artifact(self, src: str, dst: str, src_name: str) -> None:
+    def persist_artifact(self, src: str, dst: str = None) -> None:
         """
         Method to persist (copy) an artifact on local filesystem.
 
@@ -65,52 +82,31 @@ class LocalStore(Store):
         -------
         None
         """
-        self._check_access_to_storage(dst, write=True)
+        # Set destination if not provided
+        if dst is None:
+            file = get_name_from_uri(src)
+            base_path = get_dir(self.uri)
+            dst = f"{base_path}/artifacts/{file}"
 
-        if src_name is not None:
-            dst = get_path(dst, src_name)
+        # Check access to destination
+        self._check_dir(get_dir(dst))
 
         # Local file or dump string
-        if isinstance(src, (str, Path)) and check_path(src):
-            copy_file(src, dst)
+        copy_file(src, dst)
+        return dst
 
-        else:
-            raise NotImplementedError
-
-    def _check_access_to_storage(self, dst: str, write: bool = False) -> None:
+    def _check_dir(self, dst: str) -> None:
         """
         Check if there is access to the path.
 
         Parameters
         ----------
         dst : str
-            The path being checked.
-        write : bool, optional
-            Whether we want to check for writing permission. Default is False.
+            The path to check.
 
         Returns
         -------
         None
         """
-        if write and not check_dir(dst):
+        if not check_dir(dst):
             make_dir(dst)
-
-    def _get_data(self, *args) -> None:
-        """
-        Placeholder method.
-
-        Returns:
-        --------
-        None
-        """
-        ...
-
-    def _store_data(self, *args) -> None:
-        """
-        Placeholder method.
-
-        Returns:
-        --------
-        None
-        """
-        ...

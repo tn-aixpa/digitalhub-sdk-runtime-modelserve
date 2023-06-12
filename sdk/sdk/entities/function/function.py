@@ -79,11 +79,10 @@ class Function(Entity):
             metadata if metadata is not None else FunctionMetadata(name=name)
         )
         self.spec = spec if spec is not None else FunctionSpec()
-        self.id = uuid if uuid is not None else get_uiid()
         self.embedded = embed
+        self.id = uuid if uuid is not None else get_uiid()
 
         self._local = local
-        self._embed = embed
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -171,13 +170,6 @@ class Function(Entity):
         Get local flag.
         """
         return self._local
-
-    @property
-    def embed(self) -> bool:
-        """
-        Get embed flag.
-        """
-        return self._embed
 
     #############################
     #  Generic Methods

@@ -49,19 +49,36 @@ def set_store(store_cfg: StoreConfig) -> None:
     -------
     None
     """
-    factory.create("store", store_cfg=store_cfg)
+    factory.create("store", options="add", store_cfg=store_cfg)
 
 
-def get_store() -> Store:
+def get_store(store_name: str) -> Store:
     """
-    Get the store instance.
+    Get store instance.
+
+    Parameters
+    ---------
+    store_name : str
+        The name of the registered store.
 
     Returns
     -------
     Store
         The store instance.
     """
-    return factory.create("store")
+    return factory.create("store", options="get", store_name=store_name)
+
+
+def get_default_store() -> Store:
+    """
+    Get the default writer store instance.
+
+    Returns
+    -------
+    Store
+        The default store instance.
+    """
+    return factory.create("store", options="default")
 
 
 ####################

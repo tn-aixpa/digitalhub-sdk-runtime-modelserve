@@ -153,9 +153,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         return {k: v for k, v in d.items() if k in self._obj_attr}
 
     def to_dict_essential(self) -> dict:
-        return {
-            k: v for k, v in self.__dict__.items() if k in self._essential_attr
-        }
+        return {k: v for k, v in self.__dict__.items() if k in self._essential_attr}
 
     @classmethod
     @abstractmethod

@@ -4,7 +4,7 @@ Store builder module.
 from __future__ import annotations
 
 import typing
-from typing import Union
+from typing import Literal, Union
 
 from sdk.store.models import StoreConfig
 from sdk.store.registry import STORES
@@ -22,17 +22,30 @@ class StoreBuilder:
         """
         Constructor.
         """
-        self._instance = None
+        self._instances = {}
+        self._default = None
 
-    def __call__(self, store_cfg: StoreConfig = None) -> Store:
+    def __call__(
+        self,
+        options: Literal["add", "get", "default"],
+        store_cfg: StoreConfig = None,
+        store_name: str = None,
+    ) -> Store:
         """
         Call method.
         """
-        if self._instance is None:
-            if store_cfg is None:
-                store_cfg = StoreConfig(name="dummy", type="dummy", config={})
-            self._instance = self.build_store(store_cfg)
-        return self._instance
+        if options == "add":
+            if store_cfg.name not in self._instances:
+                self._instances[store_cfg.name] = self.build_store(store_cfg)
+            return
+
+        if options == "get":
+            return self._instances[store_name]
+
+        if options == "default":
+            if self._default is None:
+                raise Exception("No default store setted.")
+            return self._default
 
     def build_store(self, cfg: StoreConfig) -> Store:
         """
@@ -54,7 +67,13 @@ class StoreBuilder:
             If the store type is not implemented.
         """
         try:
-            return STORES[cfg.type](cfg.name, cfg.type, cfg.config)
+            obj = STORES[cfg.type](cfg.name, cfg.type, cfg.uri, cfg.config)
+            if cfg.is_default:
+                if self._default is not None:
+                    raise Exception("Only one default store!")
+                else:
+                    self._default = obj
+            return obj
         except KeyError:
             raise NotImplementedError
 

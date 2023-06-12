@@ -155,3 +155,28 @@ def check_url(url: str) -> str:
     """
     parsed = get_uri_path(url).replace("//", "/")
     return urljoin(url, parsed)
+
+
+def as_uri(path: str) -> str:
+    """
+    Convert a path to an URI.
+
+    Parameters
+    ----------
+    path : str
+        Path.
+
+    Returns
+    -------
+    str
+        URI.
+
+    Notes
+    -----
+    If path is a relative path, it will be returned as is.
+    """
+    try:
+        return Path(path).as_uri()
+    except ValueError as ve:
+        if "relative path can't be expressed as a file URI" in ve.args[0]:
+            return path

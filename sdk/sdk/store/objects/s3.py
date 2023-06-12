@@ -1,8 +1,7 @@
 """
 S3Store module.
 """
-from tempfile import TemporaryDirectory
-from pathlib import Path
+from tempfile import mkdtemp
 from typing import Optional, Type
 
 import boto3
@@ -10,14 +9,10 @@ import botocore.client
 from botocore.exceptions import ClientError
 
 from sdk.store.objects.store import Store
-from sdk.utils.file_utils import check_make_dir, check_path, get_path
-from sdk.utils.io_utils import write_bytes
-from sdk.utils.uri_utils import (
-    build_key,
-    get_name_from_uri,
-    get_uri_netloc,
-    get_uri_path,
-)
+from sdk.utils.file_utils import check_make_dir, get_dir
+from sdk.utils.uri_utils import (get_name_from_uri, get_uri_netloc,
+                                 get_uri_path, get_uri_scheme, rebuild_uri)
+
 
 # Type aliases
 S3Client = Type["botocore.client.S3"]
@@ -33,6 +28,7 @@ class S3Store(Store):
         self,
         name: str,
         type: str,
+        uri: str,
         config: Optional[dict] = None,
     ) -> None:
         """
@@ -42,7 +38,7 @@ class S3Store(Store):
         --------
         Store.__init__
         """
-        super().__init__(name, type, config)
+        super().__init__(name, type, uri, config)
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
@@ -61,20 +57,26 @@ class S3Store(Store):
             Returns a file path.
         """
         if dst is None:
-            dst = TemporaryDirectory().name
+            dir = mkdtemp()
+            dst = f"{dir}/{get_name_from_uri(src)}"
+            self._register_resource(f"{src}_{dst}", dst)
 
+        # Get client
         client = self._get_client()
-        bucket = get_uri_netloc(src)
+        bucket = get_uri_netloc(self.uri)
+
+        # Check store access
         self._check_access_to_storage(client, bucket)
         key = get_uri_path(src)
 
-        # Get the file from S3 and save it locally
-        obj = self._get_data(client, bucket, key)
-        filepath = self._store_data(obj, dst, key)
-        self._register_resource(f"{src}_{dst}", filepath)
-        return filepath
+        # Check if local destination exists
+        self._check_local_dst(dst)
 
-    def persist_artifact(self, src: str, dst: str, src_name: str) -> None:
+        # Get the file from S3 and save it locally
+        client.download_file(bucket, key, dst)
+        return dst
+
+    def persist_artifact(self, src: str, dst: str = None) -> str:
         """
         Persist an artifact on S3 based storage.
 
@@ -83,34 +85,29 @@ class S3Store(Store):
         src : Any
             The source object to be persisted. It can be a file path as a string or Path object.
 
-        dst : str
+        dst : str, optional
             The destination partition for the artifact.
-
-        src_name : str
-            The name of the source object.
-
-        Raises:
-        -------
-        NotImplementedError :
-            If the source object is not a file path.
 
         Returns:
         --------
-        None
+        str
+            Returns the URI of the artifact on S3 based storage.
         """
+        # Set destination if not provided
+        if dst is None:
+            file = get_name_from_uri(src)
+            dst = f"artifacts/{file}"
+
+        # Get client
         client = self._get_client()
-        bucket = get_uri_netloc(dst)
+        bucket = get_uri_netloc(self.uri)
+
+        # Check store access
         self._check_access_to_storage(client, bucket)
 
-        # Build the key for the artifact
-        key = build_key(dst, src_name)
-
-        # Local file
-        if isinstance(src, (str, Path)) and check_path(src):
-            self._upload_file(client, bucket, str(src), key)
-
-        else:
-            raise NotImplementedError
+        # Upload file to S3
+        client.upload_file(Filename=src, Bucket=bucket, Key=dst)
+        return rebuild_uri(f"s3://{bucket}/{dst}")
 
     def _get_client(self) -> S3Client:
         """
@@ -123,7 +120,8 @@ class S3Store(Store):
         """
         return boto3.client("s3", **self.config)
 
-    def _check_access_to_storage(self, client: S3Client, bucket: str) -> None:
+    @staticmethod
+    def _check_access_to_storage(client: S3Client, bucket: str) -> None:
         """
         Check if the S3 bucket is accessible by sending a head_bucket request.
 
@@ -150,73 +148,16 @@ class S3Store(Store):
             raise Exception("No access to s3 bucket!")
 
     @staticmethod
-    def _upload_file(
-        client: S3Client,
-        bucket: str,
-        src: str,
-        key: str,
-    ) -> None:
+    def _check_local_dst(dst: str) -> None:
         """
-        Upload file to S3.
+        Check if the local destination directory exists. Create in case it does not.
 
         Parameters
         ----------
-        client : S3Client
-            An instance of the S3 Client used for uploading the file.
-        bucket : str
-            The name of the S3 bucket where the file will be uploaded.
-        src : str
-            The path to the file that needs to be uploaded to S3.
-        key : str
-            The key under which the file needs to be saved in S3.
-
-        Returns
-        -------
-        None
-        """
-        client.upload_file(Filename=src, Bucket=bucket, Key=key)
-
-    @staticmethod
-    def _get_data(client: S3Client, bucket: str, key: str) -> bytes:
-        """
-        Download an object from S3 and return the binary data.
-
-        Parameters
-        ----------
-        client : S3Client
-            An instance of the S3 Client used for downloading the object.
-        bucket : str
-            The name of the S3 bucket where the object resides.
-        key : str
-            The key under which the object is stored in the specified bucket.
-
-        Returns
-        -------
-        bytes
-            Bynary data of the object.
+        dst : str
+            The destination directory.
 
         """
-        obj = client.get_object(Bucket=bucket, Key=key)
-        return obj["Body"].read()
-
-    def _store_data(self, obj: bytes, dst: str, key: str) -> str:
-        """
-        Store binary data in a local directory and return the file path.
-
-        Parameters
-        ----------
-        obj : bytes
-            Binary data to store in a temporary directory.
-        key : str
-            Key of the S3 object to store.
-
-        Returns
-        -------
-        str
-            Path of the stored data file.
-        """
-        check_make_dir(dst)
-        name = get_name_from_uri(key)
-        filepath = get_path(dst, name)
-        write_bytes(obj, filepath)
-        return filepath
+        if get_uri_scheme(dst) in ["", "file"]:
+            dst_dir = get_dir(dst)
+            check_make_dir(dst_dir)

@@ -2,7 +2,7 @@
 Store module.
 """
 from abc import ABCMeta, abstractmethod
-from typing import Optional, Any
+from typing import Optional
 
 
 class ResourceRegistry(dict):
@@ -64,6 +64,7 @@ class Store(metaclass=ABCMeta):
         self,
         name: str,
         type: str,
+        uri: str,
         config: Optional[dict] = None,
     ) -> None:
         """
@@ -75,6 +76,8 @@ class Store(metaclass=ABCMeta):
             Store name.
         type : str
             Store type.
+        uri : str
+            Store URI.
         config : Optional[dict], optional
             Store configuration, by default None
 
@@ -84,38 +87,21 @@ class Store(metaclass=ABCMeta):
         """
         self.name = name
         self.type = type
+        self.uri = uri
         self.config = config
         self.registry = ResourceRegistry()
 
     @abstractmethod
-    def fetch_artifact(self, src: str, dst: str) -> None:
+    def fetch_artifact(self, src: str, dst: str = None) -> None:
         """
         Method to fetch artifact from storage.
         """
         ...
 
     @abstractmethod
-    def persist_artifact(self, src: str, dst: str) -> None:
+    def persist_artifact(self, src: str, dst: str = None) -> None:
         """
         Method to persist artifact in storage.
-        """
-
-    @abstractmethod
-    def _get_data(self, *args) -> Any:
-        """
-        Method that retrieve data from a storage.
-        """
-
-    @abstractmethod
-    def _store_data(self, *args) -> str:
-        """
-        Store data locally and return path.
-        """
-
-    @abstractmethod
-    def _check_access_to_storage(self) -> None:
-        """
-        Check if the store is accessible.
         """
 
     def _register_resource(self, key: str, path: str) -> None:
