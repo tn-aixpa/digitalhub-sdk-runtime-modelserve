@@ -15,7 +15,7 @@ from sdk.entities.function.function import Function
 from sdk.entities.function.operations import delete_function, get_function, new_function
 from sdk.entities.workflow.operations import delete_workflow, get_workflow, new_workflow
 from sdk.entities.workflow.workflow import Workflow
-from sdk.utils.context_utils import get_client, set_context
+from sdk.utils.factories import get_client, set_context
 from sdk.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
@@ -153,7 +153,7 @@ class Project(Entity):
 
     def export(self, filename: str = None) -> None:
         """
-        Export object as a YAML file.
+        Export object as a YAML file. If the objects are not embedded, the objects are exported as a YAML file.
 
         Parameters
         ----------
@@ -195,7 +195,7 @@ class Project(Entity):
         None
         """
         # Add to project spec
-        d = obj.to_dict_essential() if obj.embedded else obj.to_dict()
+        d = obj.to_dict_essential() if not obj.embedded else obj.to_dict()
         attr = getattr(self.spec, kind, []) + [d]
         setattr(self.spec, kind, attr)
 

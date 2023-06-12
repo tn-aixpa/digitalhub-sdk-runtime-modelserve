@@ -3,7 +3,7 @@ Abstract entity module.
 """
 from abc import ABCMeta, abstractmethod
 
-from sdk.utils.io_utils import file_exporter
+from sdk.utils.io_utils import write_yaml
 
 
 class ModelObj:
@@ -106,7 +106,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
     """
 
     _obj_attr = ["name", "kind", "metadata", "spec", "project", "id", "embedded"]
-    _essential_attr = ["project", "name", "kind", "embedded"]
+    _essential_attr = ["name", "kind"]
 
     def __init__(self) -> None:
         self.id = None
@@ -135,7 +135,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         None
         """
         try:
-            return file_exporter(filename, obj)
+            return write_yaml(obj, filename)
         except Exception as e:
             raise e
 

@@ -25,27 +25,55 @@ class StoreBuilder:
         self._instances = {}
         self._default = None
 
-    def __call__(
-        self,
-        options: Literal["add", "get", "default"],
-        store_cfg: StoreConfig = None,
-        store_name: str = None,
-    ) -> Store:
+    def build(self, store_cfg: StoreConfig) -> None:
         """
-        Call method.
+        Build a store instance and register it.
+
+        Parameters
+        ----------
+        store_cfg : StoreConfig
+            Store configuration.
+
+        Returns
+        -------
+        None
         """
-        if options == "add":
-            if store_cfg.name not in self._instances:
-                self._instances[store_cfg.name] = self.build_store(store_cfg)
-            return
+        if store_cfg.name not in self._instances:
+            self._instances[store_cfg.name] = self.build_store(store_cfg)
 
-        if options == "get":
-            return self._instances[store_name]
+    def get(self, store_name: str) -> Store:
+        """
+        Get a store instance.
 
-        if options == "default":
-            if self._default is None:
-                raise Exception("No default store setted.")
-            return self._default
+        Parameters
+        ----------
+        store_name : str
+            Store name.
+
+        Returns
+        -------
+        Store
+            The store instance.
+        """
+        return self._instances[store_name]
+
+    def default(self) -> Store:
+        """
+        Get the default store instance.
+
+        Returns
+        -------
+        Store
+            The default store instance.
+
+        Raises
+        ------
+        Exception
+            If no default store is setted.
+        """
+        if self._default is None:
+            raise Exception("No default store setted.")
+        return self._default
 
     def build_store(self, cfg: StoreConfig) -> Store:
         """

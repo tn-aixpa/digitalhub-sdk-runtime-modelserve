@@ -5,7 +5,7 @@ import pandas as pd
 
 from sdk.entities.api import DTO_DTIT, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.context_utils import get_context
+from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
 
 

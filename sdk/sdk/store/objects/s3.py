@@ -10,8 +10,13 @@ from botocore.exceptions import ClientError
 
 from sdk.store.objects.store import Store
 from sdk.utils.file_utils import check_make_dir, get_dir
-from sdk.utils.uri_utils import (get_name_from_uri, get_uri_netloc,
-                                 get_uri_path, get_uri_scheme, rebuild_uri)
+from sdk.utils.uri_utils import (
+    get_name_from_uri,
+    get_uri_netloc,
+    get_uri_path,
+    get_uri_scheme,
+    rebuild_uri,
+)
 
 
 # Type aliases

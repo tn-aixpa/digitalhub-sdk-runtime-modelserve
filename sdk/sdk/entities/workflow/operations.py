@@ -3,8 +3,8 @@ Workflow operations module.
 """
 from sdk.entities.api import DTO_WKFL, delete_api, read_api
 from sdk.entities.workflow.workflow import Workflow, WorkflowMetadata, WorkflowSpec
-from sdk.utils.context_utils import get_context
-from sdk.utils.io_utils import file_importer
+from sdk.utils.factories import get_context
+from sdk.utils.io_utils import read_yaml
 
 
 def new_workflow(
@@ -103,7 +103,7 @@ def import_workflow(file: str) -> Workflow:
         The Workflow object imported from the file using the specified path.
 
     """
-    d = file_importer(file)
+    d = read_yaml(file)
     return Workflow.from_dict(d)
 
 

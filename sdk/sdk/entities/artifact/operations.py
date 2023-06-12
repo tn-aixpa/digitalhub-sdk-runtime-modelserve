@@ -3,8 +3,8 @@ Artifact operations module.
 """
 from sdk.entities.api import DTO_ARTF, delete_api, read_api
 from sdk.entities.artifact.artifact import Artifact, ArtifactMetadata, ArtifactSpec
-from sdk.utils.context_utils import get_context
-from sdk.utils.io_utils import file_importer
+from sdk.utils.factories import get_context
+from sdk.utils.io_utils import read_yaml
 
 
 def new_artifact(
@@ -113,7 +113,7 @@ def import_artifact(file: str) -> Artifact:
         The Artifact object imported from the file using the specified path.
 
     """
-    d = file_importer(file)
+    d = read_yaml(file)
     return Artifact.from_dict(d)
 
 

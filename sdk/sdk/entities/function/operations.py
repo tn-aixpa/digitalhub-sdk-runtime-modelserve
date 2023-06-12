@@ -3,8 +3,8 @@ Function operations module.
 """
 from sdk.entities.api import DTO_FUNC, delete_api, read_api
 from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
-from sdk.utils.context_utils import get_context
-from sdk.utils.io_utils import file_importer
+from sdk.utils.factories import get_context
+from sdk.utils.io_utils import read_yaml
 
 
 def new_function(
@@ -116,7 +116,7 @@ def import_function(file: str) -> Function:
         The Function object imported from the file using the specified path.
 
     """
-    d = file_importer(file)
+    d = read_yaml(file)
     return Function.from_dict(d)
 
 

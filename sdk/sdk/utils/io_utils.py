@@ -10,7 +10,6 @@ from typing import IO, Union
 
 import yaml
 
-
 ####################
 # Wrappers
 ####################
@@ -18,6 +17,7 @@ import yaml
 
 #  https://stackoverflow.com/questions/55889474/convert-io-stringio-to-io-bytesio
 #  made by foobarna, improved by imporsen
+#  Documentation added with copilot
 class BytesIOWrapper(BufferedReader):
     """
     Wrap a buffered bytes stream over TextIOBase string stream.
@@ -342,53 +342,3 @@ def read_yaml(file: Union[str, Path]) -> dict:
     with open(file, "r") as f:
         data = yaml.load(f, Loader=yaml.SafeLoader)
     return data
-
-
-####################
-# Utils
-####################
-
-
-def file_importer(path: str, filetype: str = "yaml") -> dict:
-    """
-    Import an object from a file using the specified file path.
-
-    Parameters
-    ----------
-    path : str
-        The absolute or relative path to the file containing the object.
-    filetype : str, optional
-        The type of file from which the object is imported. The default value is "yaml".
-
-    Returns
-    -------
-    dict
-        The object imported from the file using the specified path.
-    """
-    if filetype == "yaml":
-        return read_yaml(path)
-    else:
-        raise NotImplementedError
-
-
-def file_exporter(path: str, obj: dict, filetype: str = "yaml") -> None:
-    """
-    Export an object to a file using the specified file path.
-
-    Parameters
-    ----------
-    path : str
-        Path to the file to which the object is exported.
-    obj : dict
-        The object to be exported.
-    filetype : str, optional
-        The type of file to which the object is exported. The default value is "yaml".
-
-    Returns
-    -------
-    None
-    """
-    if filetype == "yaml":
-        write_yaml(obj, path)
-    else:
-        raise NotImplementedError

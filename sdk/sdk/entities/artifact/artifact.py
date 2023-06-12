@@ -3,7 +3,7 @@ Artifact module.
 """
 from sdk.entities.api import DTO_ARTF, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.context_utils import get_context, get_store, get_default_store
+from sdk.utils.factories import get_context, get_store, get_default_store
 from sdk.utils.utils import get_uiid
 from sdk.utils.uri_utils import get_name_from_uri, rebuild_uri, get_uri_scheme
 from sdk.utils.file_utils import check_file, get_dir
@@ -15,7 +15,11 @@ class ArtifactMetadata(EntityMetadata):
 
 class ArtifactSpec(EntitySpec):
     def __init__(
-        self, key: str = None, source_path: str = None, target_path: str = None, **kwargs
+        self,
+        key: str = None,
+        source_path: str = None,
+        target_path: str = None,
+        **kwargs,
     ) -> None:
         self.key = key
         self.source_path = source_path
@@ -200,9 +204,7 @@ class Artifact(Entity):
 
         # Check if source path is local
         if get_uri_scheme(self.src_pth) not in ["", "file"]:
-            raise Exception(
-                "Only local source paths are supported for upload."
-            )
+            raise Exception("Only local source paths are supported for upload.")
 
         # Check if target path is provided.
         # Rebuild if not provided and update spec.

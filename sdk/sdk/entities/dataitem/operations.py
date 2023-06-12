@@ -3,8 +3,8 @@ Dataitem operations module.
 """
 from sdk.entities.api import DTO_DTIT, delete_api, read_api
 from sdk.entities.dataitem.dataitem import Dataitem, DataitemMetadata, DataitemSpec
-from sdk.utils.context_utils import get_context
-from sdk.utils.io_utils import file_importer
+from sdk.utils.factories import get_context
+from sdk.utils.io_utils import read_yaml
 
 
 def new_dataitem(
@@ -110,7 +110,7 @@ def import_dataitem(file: str) -> Dataitem:
         The Dataitem object imported from the file using the specified path.
 
     """
-    d = file_importer(file)
+    d = read_yaml(file)
     return Dataitem.from_dict(d)
 
 

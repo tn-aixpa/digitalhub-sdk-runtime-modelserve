@@ -11,8 +11,8 @@ from sdk.entities.api import (
     read_api_project,
 )
 from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
-from sdk.utils.context_utils import delete_context, get_client, set_context
-from sdk.utils.io_utils import file_importer
+from sdk.utils.factories import delete_context, get_client, set_context
+from sdk.utils.io_utils import read_yaml
 
 
 def new_project(
@@ -169,7 +169,7 @@ def import_project(file: str) -> Project:
         The Project object imported from the file using the specified path.
 
     """
-    d = file_importer(file)
+    d = read_yaml(file)
     obj = Project.from_dict(d)
     set_context(obj)
     return obj
