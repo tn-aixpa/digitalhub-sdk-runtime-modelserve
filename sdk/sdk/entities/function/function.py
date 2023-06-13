@@ -115,15 +115,13 @@ class Function(Entity):
 
         obj = self.to_dict()
 
-        if uuid is not None:
-            self.id = uuid
-            try:
-                api = update_api(self.project, DTO_FUNC, uuid)
-                return self.context.client.update_object(obj, api)
-            except Exception:
-                ...
-        api = create_api(self.project, DTO_FUNC)
-        return self.context.client.create_object(obj, api)
+        if uuid is None:
+            api = create_api(self.project, DTO_FUNC)
+            return self.context.client.create_object(obj, api)
+
+        self.id = uuid
+        api = update_api(self.project, DTO_FUNC, self.name, uuid)
+        return self.context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """

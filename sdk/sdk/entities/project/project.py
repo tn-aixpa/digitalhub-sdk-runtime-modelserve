@@ -133,6 +133,7 @@ class Project(Entity):
         obj = self.to_dict()
 
         # Try to create project
+        # (try to avoid error response if project already exists)
         try:
             api = create_api_proj()
             r = self.client.create_object(obj, api)
@@ -141,6 +142,7 @@ class Project(Entity):
             ...
 
         # Try to save objects related to project
+        # (try to avoid error response if object does not exists)
         for i in DTO_LIST:
             for o in self._get_objects(i):
                 try:

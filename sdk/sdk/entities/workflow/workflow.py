@@ -106,15 +106,13 @@ class Workflow(Entity):
 
         obj = self.to_dict()
 
-        if uuid is not None:
-            self.id = uuid
-            try:
-                api = update_api(self.project, DTO_WKFL, uuid)
-                return self.context.client.update_object(obj, api)
-            except Exception:
-                ...
-        api = create_api(self.project, DTO_WKFL)
-        return self.context.client.create_object(obj, api)
+        if uuid is None:
+            api = create_api(self.project, DTO_WKFL)
+            return self.context.client.create_object(obj, api)
+
+        self.id = uuid
+        api = update_api(self.project, DTO_WKFL, self.name, uuid)
+        return self.context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
