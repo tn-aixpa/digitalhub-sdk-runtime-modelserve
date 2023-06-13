@@ -92,11 +92,22 @@ class Store(metaclass=ABCMeta):
         self.registry = ResourceRegistry()
 
     @abstractmethod
+    def upload(self, src: str, dst: str = None) -> None:
+        """
+        Method to upload artifact to storage.
+        """
+
+    @abstractmethod
+    def download(self, src: str, dst: str = None) -> None:
+        """
+        Method to download artifact from storage.
+        """
+
+    @abstractmethod
     def fetch_artifact(self, src: str, dst: str = None) -> None:
         """
         Method to fetch artifact from storage.
         """
-        ...
 
     @abstractmethod
     def persist_artifact(self, src: str, dst: str = None) -> None:

@@ -181,7 +181,7 @@ class Artifact(Entity):
         store = get_default_store()
 
         # Download artifact and return path
-        self._temp_path = store.fetch_artifact(self.spec.target_path)
+        self._temp_path = store.download(self.spec.target_path)
         return self._temp_path
 
     def download(
@@ -221,7 +221,7 @@ class Artifact(Entity):
         store = get_default_store()
 
         # Download artifact and return path
-        return store.fetch_artifact(self.spec.target_path, dst)
+        return store.download(self.spec.target_path, dst)
 
     def upload(self, source: str = None, target: str = None) -> str:
         """
@@ -255,7 +255,7 @@ class Artifact(Entity):
         store = get_default_store()
 
         # Upload artifact and return remote path
-        return store.persist_artifact(self.spec.src_path, self.spec.target_path)
+        return store.upload(self.spec.src_path, self.spec.target_path)
 
     #############################
     #  Private Helpers

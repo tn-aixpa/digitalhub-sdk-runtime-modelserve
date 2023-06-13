@@ -46,6 +46,26 @@ class S3Store(Store):
         """
         super().__init__(name, type, uri, config)
 
+    def upload(self, src: str, dst: str = None) -> str:
+        """
+        Upload an artifact to S3 based storage.
+
+        See Also
+        --------
+        self.persist_artifact
+        """
+        return self.persist_artifact(src, dst)
+
+    def download(self, src: str, dst: str = None) -> str:
+        """
+        Download an artifact from S3 based storage.
+
+        See Also
+        --------
+        self.fetch_artifact
+        """
+        return self.fetch_artifact(src, dst)
+
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
         Fetch an artifact from S3 based storage.

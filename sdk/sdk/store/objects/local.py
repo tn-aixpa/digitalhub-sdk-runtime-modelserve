@@ -30,6 +30,52 @@ class LocalStore(Store):
         """
         super().__init__(name, type, uri, config)
 
+    def upload(self, *args, **kwargs) -> None:
+        """
+        Method to upload an artifact to the backend. Please note that this method is not implemented
+        since the local store is not meant to upload artifacts.
+
+        Parameters
+        ----------
+        *args
+            Variable length argument list.
+        **kwargs
+            Arbitrary keyword arguments.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        NotImplementedError
+            This method is not implemented.
+        """
+        raise NotImplementedError("Local store does not support upload.")
+
+    def download(self, *args, **kwargs) -> None:
+        """
+        Method to download an artifact from the backend. Please note that this method is not implemented
+        since the local store is not meant to download artifacts.
+
+        Parameters
+        ----------
+        *args
+            Variable length argument list.
+        **kwargs
+            Arbitrary keyword arguments.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        NotImplementedError
+            This method is not implemented.
+        """
+        raise NotImplementedError("Local store does not support download.")
+
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
         Method to fetch an artifact from the backend and to register it on the paths registry.
@@ -46,6 +92,23 @@ class LocalStore(Store):
         str
             Returns the path of the artifact.
         """
+        if dst is not None:
+            # Check access to destination
+            self._check_dir(get_dir(dst))
+
+            # Copy file and register resource
+            copy_file(src, dst)
+            self._register_resource(f"{src}", dst)
+
+            # In case of a directory, return the filename
+            # from source path, because we simply copied
+            # the file into the destination directory
+            if get_name_from_uri(dst) == "":
+                dst = f"{dst}/{get_name_from_uri(src)}"
+            return dst
+
+        # If destination is not provided, return the source path
+        # we don't copy the file anywhere
         return src
 
     def persist_artifact(self, src: str, dst: str = None) -> None:
@@ -72,7 +135,7 @@ class LocalStore(Store):
             dst = f"{base_path}/{file}"
 
         # Check access to destination
-        self._check_dir(base_path)
+        self._check_dir(get_dir(dst))
 
         # Local file or dump string
         copy_file(src, dst)
