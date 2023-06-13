@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 
+@Component
 public class FunctionToMlrunConverter implements Converter<FunctionDTO, Map<String, Object>> {
 
     @Override

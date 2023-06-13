@@ -136,7 +136,6 @@ public class FunctionServiceImpl implements FunctionService {
             this.functionRepository.save(functionUpdated);
 
             return new FunctionDTOBuilder(
-
                     functionUpdated, false).build();
 
         } catch (CustomException e) {

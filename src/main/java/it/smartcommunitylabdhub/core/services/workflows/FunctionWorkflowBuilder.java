@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.services.workflows;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -92,7 +91,7 @@ public class FunctionWorkflowBuilder {
         };
 
         // COMMENT: For each function on list update or create a new function in mlrun.
-        Function<List<FunctionDTO>, Object> storeFunctions = functions -> {
+        Function<List<FunctionDTO>, List<FunctionDTO>> storeFunctions = functions -> {
 
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
@@ -102,8 +101,8 @@ public class FunctionWorkflowBuilder {
             };
 
             // TODO: return a list of updated function
-            functions.stream()
-                    .forEach(function -> {
+            return functions.stream()
+                    .map(function -> {
                         try {
                             String requestUrl = FUNCTION_URL
                                     .replace("{project}", function.getProject())
@@ -126,12 +125,18 @@ public class FunctionWorkflowBuilder {
                                                 (String) Optional.ofNullable(b.get("hash_key")).orElse("")));
 
                                 // Update function with hash.
-                                functionService.updateFunction(function, function.getId());
+                                return functionService.updateFunction(function, function.getId());
                             }
+                            return null;
                         } catch (HttpClientErrorException ex) {
-                            System.out.println(ex.getMessage());
+                            return null;
                         }
-                    });
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        };
+
+        Function<List<FunctionDTO>, Object> updateProject = functions -> {
 
             return null;
         };
@@ -139,7 +144,9 @@ public class FunctionWorkflowBuilder {
         // Define workflow steps
         WorkflowFactory workflowFactory = WorkflowFactory.builder()
                 .step(compareMlrunCoreFunctions, FUNCTION_URL)
-                .step(storeFunctions);
+                .step(storeFunctions)
+                .step(updateProject);
+
         // .conditionalStep((List<FunctionFieldAccessor> s) -> s.size() > 0,
         // upsertFunction);
 
