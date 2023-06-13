@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 public interface FunctionService {
     List<FunctionDTO> getFunctions(Pageable pageable);
 
+    List<FunctionDTO> getFunctions();
+
     FunctionDTO createFunction(FunctionDTO functionDTO);
 
     FunctionDTO getFunction(String uuid);
@@ -19,4 +21,6 @@ public interface FunctionService {
     boolean deleteFunction(String uuid);
 
     List<RunDTO> getFunctionRuns(String uuid);
+
+    List<FunctionDTO> getAllLatestFunctions();
 }

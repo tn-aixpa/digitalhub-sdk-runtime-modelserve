@@ -51,6 +51,22 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
+    public List<FunctionDTO> getFunctions() {
+        try {
+            List<Function> functions = this.functionRepository.findAll();
+            return functions.stream().map((function) -> {
+                return new FunctionDTOBuilder(function, false).build();
+            }).collect(Collectors.toList());
+        } catch (CustomException e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @Override
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
         try {
             // Build a function and store it on db
@@ -164,6 +180,24 @@ public class FunctionServiceImpl implements FunctionService {
             List<Run> runs = this.runRepository.findByName(function.getName());
             return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);
 
+        } catch (CustomException e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<FunctionDTO> getAllLatestFunctions() {
+        try {
+
+            List<Function> functionList = this.functionRepository.findAllLatestFunctions();
+            return functionList
+                    .stream()
+                    .map((function) -> {
+                        return new FunctionDTOBuilder(function, false).build();
+                    }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",

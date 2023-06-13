@@ -6,38 +6,38 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class Workflow {
-    private final List<Step<?, ?>> steps;
+    private final List<Function<?, ?>> steps;
 
-    public Workflow(List<Step<?, ?>> steps) {
+    public Workflow(List<Function<?, ?>> steps) {
         this.steps = steps;
     }
 
+    /**
+     * Execute step
+     *
+     * @param input
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public <I, O> O execute(I input) {
         Object result = input;
-        for (Step<?, ?> step : steps) {
-            if (step instanceof ConditionalStep) {
-                ConditionalStep<I, O> conditionalStep = (ConditionalStep<I, O>) step;
-                if (!conditionalStep.getCondition().test(input)) {
-                    continue; // Skip this step if the condition is not met
-                }
-            }
-            result = step.execute(result);
+        for (Function<?, ?> step : steps) {
+            result = ((Function<Object, Object>) step).apply(result);
         }
         return (O) result;
     }
 
+    /**
+     * Execute step async every step pass the result to the next function.
+     *
+     * @param input
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public <I, O> CompletableFuture<O> executeAsync(I input) {
         CompletableFuture<Object> future = CompletableFuture.completedFuture(input);
-        for (Step<?, ?> step : steps) {
-            if (step instanceof ConditionalStep) {
-                ConditionalStep<I, O> conditionalStep = (ConditionalStep<I, O>) step;
-                if (!conditionalStep.getCondition().test(input)) {
-                    continue; // Skip this step if the condition is not met
-                }
-            }
-            future = future.thenComposeAsync(result -> CompletableFuture.supplyAsync(() -> step.execute(result)));
+        for (Function<Object, Object> step : (List<Function<Object, Object>>) (List<?>) steps) {
+            future = future.thenComposeAsync(result -> CompletableFuture.supplyAsync(() -> step.apply(result)));
         }
         return future.thenApply(result -> (O) result);
     }

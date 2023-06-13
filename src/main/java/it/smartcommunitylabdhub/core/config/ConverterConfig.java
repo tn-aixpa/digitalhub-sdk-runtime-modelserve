@@ -11,6 +11,7 @@ import it.smartcommunitylabdhub.core.models.converters.types.CBORConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.DataItemConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.DateTimeConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.FunctionConverter;
+import it.smartcommunitylabdhub.core.models.converters.types.FunctionToMlrunConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.IntegerConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.LogConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.ProjectConverter;
@@ -35,6 +36,7 @@ public class ConverterConfig {
         factory.registerConverter("datetime", DateTimeConverter::new);
         factory.registerConverter("run", RunConverter::new);
         factory.registerConverter("log", LogConverter::new);
+        factory.registerConverter("mlrunFunction", FunctionToMlrunConverter::new);
 
         return factory;
     }
