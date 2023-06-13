@@ -115,6 +115,12 @@ class Store(metaclass=ABCMeta):
         Method to persist artifact in storage.
         """
 
+    @abstractmethod
+    def is_local(self) -> bool:
+        """
+        Method to check if store is local.
+        """
+
     def _register_resource(self, key: str, path: str) -> None:
         """
         Register a resource in the registry.

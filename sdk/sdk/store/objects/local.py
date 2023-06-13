@@ -74,7 +74,7 @@ class LocalStore(Store):
         NotImplementedError
             This method is not implemented.
         """
-        raise NotImplementedError("Local store does not support download.")
+        raise NotImplementedError("Local store does not support download. Use as_file() instead.")
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
@@ -156,3 +156,14 @@ class LocalStore(Store):
         """
         if not check_dir(dst):
             make_dir(dst)
+
+    def is_local(self) -> bool:
+        """
+        Check if the store is local.
+
+        Returns
+        -------
+        bool
+            True
+        """
+        return True

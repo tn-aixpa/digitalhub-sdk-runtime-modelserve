@@ -158,7 +158,9 @@ class Artifact(Entity):
 
     def as_file(self, target: str = None) -> str:
         """
-        Get artifact as file. The artifact is downloaded in a temporary directory.
+        Get artifact as file. In the case of a local store, the store returns the current
+        path of the artifact. In the case of a remote store, the artifact is downloaded in
+        a temporary directory.
 
         Parameters
         ----------
@@ -170,15 +172,19 @@ class Artifact(Entity):
         str
             Temporary path of the artifact.
         """
+        # Get store
+        store = get_default_store()
+
+        # If local store, return local artifact path
+        if store.is_local():
+            self._check_src()
+            return self.spec.src_path
 
         # Check if target path is specified
         self._check_target(target)
 
         # Check if target path is remote
-        self._check_remote(self.spec.target_path)
-
-        # Get store
-        store = get_default_store()
+        self._check_remote()
 
         # Download artifact and return path
         self._temp_path = store.download(self.spec.target_path)
@@ -316,6 +322,11 @@ class Artifact(Entity):
     def _check_remote(self) -> None:
         """
         Check if target path is remote.
+
+        Parameters
+        ----------
+        ignore_raise : bool, optional
+            Specify if raise an exception if target path is not remote, default is True.
 
         Returns
         -------

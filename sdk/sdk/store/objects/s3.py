@@ -188,3 +188,14 @@ class S3Store(Store):
         if get_uri_scheme(dst) in ["", "file"]:
             dst_dir = get_dir(dst)
             check_make_dir(dst_dir)
+
+    def is_local(self) -> bool:
+        """
+        Check if the store is local.
+
+        Returns
+        -------
+        bool
+            False
+        """
+        return False
