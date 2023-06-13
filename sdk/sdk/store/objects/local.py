@@ -46,23 +46,6 @@ class LocalStore(Store):
         str
             Returns the path of the artifact.
         """
-        if dst is not None:
-            # Check access to destination
-            self._check_dir(get_dir(dst))
-
-            # Copy file and register resource
-            copy_file(src, dst)
-            self._register_resource(f"{src}", dst)
-
-            # In case of a directory, return the filename
-            # from source path, because we simply copied
-            # the file into the destination directory
-            if get_name_from_uri(dst) == "":
-                dst = f"{dst}/{get_name_from_uri(src)}"
-            return dst
-
-        # If destination is not provided, return the source path
-        # we don't copy the file anywhere
         return src
 
     def persist_artifact(self, src: str, dst: str = None) -> None:
@@ -86,10 +69,10 @@ class LocalStore(Store):
         if dst is None:
             file = get_name_from_uri(src)
             base_path = get_dir(self.uri)
-            dst = f"{base_path}/artifacts/{file}"
+            dst = f"{base_path}/{file}"
 
         # Check access to destination
-        self._check_dir(get_dir(dst))
+        self._check_dir(base_path)
 
         # Local file or dump string
         copy_file(src, dst)

@@ -16,6 +16,7 @@ from sdk.utils.uri_utils import (
     get_uri_path,
     get_uri_scheme,
     rebuild_uri,
+    build_key
 )
 
 
@@ -98,10 +99,8 @@ class S3Store(Store):
         str
             Returns the URI of the artifact on S3 based storage.
         """
-        # Set destination if not provided
         if dst is None:
-            file = get_name_from_uri(src)
-            dst = f"artifacts/{file}"
+            dst = get_name_from_uri(src)
 
         # Get client
         client = self._get_client()
@@ -110,9 +109,12 @@ class S3Store(Store):
         # Check store access
         self._check_access_to_storage(client, bucket)
 
+        # Rebuild key from target path
+        key = build_key(get_uri_path(dst))
+
         # Upload file to S3
-        client.upload_file(Filename=src, Bucket=bucket, Key=dst)
-        return rebuild_uri(f"s3://{bucket}/{dst}")
+        client.upload_file(Filename=src, Bucket=bucket, Key=key)
+        return rebuild_uri(f"s3://{bucket}/{key}")
 
     def _get_client(self) -> S3Client:
         """

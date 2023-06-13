@@ -139,9 +139,9 @@ def rebuild_uri(uri: str, *args) -> str:
     return new_uri
 
 
-def check_url(url: str) -> str:
+def clean_uri(url: str) -> str:
     """
-    Parse an URL and clean it from double '/' character.
+    Parse an URI and clean it from double '/' character.
 
     Parameters
     ----------
