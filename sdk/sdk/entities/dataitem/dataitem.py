@@ -7,6 +7,7 @@ from sdk.entities.api import DTO_DTIT, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
+from sdk.utils.uri_utils import get_extension
 
 
 class DataitemMetadata(EntityMetadata):
@@ -155,17 +156,17 @@ class Dataitem(Entity):
     #  Dataitem Methods
     #############################
 
-    def download(self, reader) -> str:
-        ...
-
-    def upload(self, writer) -> str:
-        ...
-
-    def get_df(self, reader) -> pd.DataFrame:
-        ...
-
-    def log_df(self, writer) -> str:
-        ...
+    def as_df(self, path: str, df_args: dict = None) -> pd.DataFrame:
+        """
+        Read dataitem as a pandas DataFrame.
+        """
+        if df_args is None:
+            df_args = {}
+        extension = get_extension(path)
+        if extension == "csv":
+            return pd.read_csv(path, **df_args)
+        elif extension == "parquet":
+            return pd.read_parquet(path, **df_args)
 
     #############################
     #  Getters and Setters

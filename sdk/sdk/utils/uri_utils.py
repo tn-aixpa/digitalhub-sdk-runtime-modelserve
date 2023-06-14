@@ -41,7 +41,7 @@ def get_uri_scheme(uri: str) -> str:
 
 def get_uri_netloc(uri: str) -> str:
     """
-    Return URI netloc.
+    Return URI netloc/bucket.
 
     Parameters
     ----------
@@ -88,6 +88,23 @@ def get_name_from_uri(uri: str) -> str:
         Filename.
     """
     return Path(uri).name
+
+
+def get_extension(uri: str) -> str:
+    """
+    Return extension from uri.
+
+    Parameters
+    ----------
+    uri : str
+        URI.
+
+    Returns
+    -------
+    str
+        Extension.
+    """
+    return Path(uri).suffix
 
 
 def build_key(dst: str, *args) -> str:
