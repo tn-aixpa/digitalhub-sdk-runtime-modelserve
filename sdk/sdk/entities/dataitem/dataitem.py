@@ -5,9 +5,10 @@ import pandas as pd
 
 from sdk.entities.api import DTO_DTIT, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.factories import get_context
-from sdk.utils.utils import get_uiid
+from sdk.utils.factories import get_context, get_default_store
+from sdk.utils.file_utils import clean_all
 from sdk.utils.uri_utils import get_extension
+from sdk.utils.utils import get_uiid
 
 
 class DataitemMetadata(EntityMetadata):
@@ -98,6 +99,9 @@ class Dataitem(Entity):
         # Set context
         self.context = get_context(self.project)
 
+        # Set key in spec store://<project>/dataitems/<kind>/<name>:<uuid>
+        self.spec.key = f"store://{self.project}/dataitems/{self.kind}/{self.name}:{self.id}"
+
     #############################
     #  Save / Export
     #############################
@@ -156,17 +160,104 @@ class Dataitem(Entity):
     #  Dataitem Methods
     #############################
 
-    def as_df(self, path: str, df_args: dict = None) -> pd.DataFrame:
+    def as_df(self, format: str = None, **kwargs) -> pd.DataFrame:
         """
         Read dataitem as a pandas DataFrame.
+
+        Parameters
+        ----------
+        format : str, optional
+            Format of the file, e.g. csv, parquet, default is None.
+        **kwargs
+            Additional keyword arguments for pandas read_csv or read_parquet.
+
+        Returns
+        -------
+        pd.DataFrame
+            Pandas DataFrame.
         """
-        if df_args is None:
-            df_args = {}
-        extension = get_extension(path)
+
+        # Get store
+        store = get_default_store()
+
+        # Download artifact in temp folder if not local
+        if store.is_local():
+            path = self.spec.path
+        else:
+            path = store.download(self.spec.path)
+
+        # Read DataFrame
+        extension = format if format is not None else get_extension(path)
+        df = self._read_df(path, extension, **kwargs)
+
+        # Clean temp folder
+        if not store.is_local():
+            clean_all(path)
+
+        return df
+
+    def write_df(self, df: pd.DataFrame, target_path: str = None, **kwargs) -> str:
+        """
+        Write pandas DataFrame as parquet.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            DataFrame to write.
+        target_path : str, optional
+            Path to write the dataframe to, default is None.
+        **kwargs
+            Additional keyword arguments for pandas.
+
+        Returns
+        -------
+        str
+            Path to the written dataframe.
+        """
+
+        # Get store
+        store = get_default_store()
+
+        # Get target path
+        if target_path is None:
+            target_path = f"{store.get_root_uri()}/{self.name}.parquet"
+
+        # Write DataFrame
+        df.to_parquet(target_path, **kwargs)
+        return target_path
+
+    #############################
+    #  Helper Methods
+    #############################
+
+    def _read_df(self, path: str, extension: str, **kwargs) -> pd.DataFrame:
+        """
+        Read DataFrame from path.
+
+        Parameters
+        ----------
+        path : str
+            Path to read DataFrame from.
+        extension : str
+            Extension of the file.
+        **kwargs
+            Additional keyword arguments for pandas read_csv or read_parquet.
+
+        Returns
+        -------
+        pd.DataFrame
+            Pandas DataFrame.
+
+        Raises
+        ------
+        Exception
+            If format is not supported.
+        """
         if extension == "csv":
-            return pd.read_csv(path, **df_args)
+            return pd.read_csv(path, **kwargs)
         elif extension == "parquet":
-            return pd.read_parquet(path, **df_args)
+            return pd.read_parquet(path, **kwargs)
+        raise Exception(f"Format {extension} not supported.")
 
     #############################
     #  Getters and Setters

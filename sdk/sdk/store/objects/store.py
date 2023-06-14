@@ -91,6 +91,10 @@ class Store(metaclass=ABCMeta):
         self.config = config
         self.registry = ResourceRegistry()
 
+    ############################
+    # IO methods
+    ############################
+
     @abstractmethod
     def upload(self, src: str, dst: str = None) -> None:
         """
@@ -115,11 +119,26 @@ class Store(metaclass=ABCMeta):
         Method to persist artifact in storage.
         """
 
+    ############################
+    # Interface helpers methods
+    ############################
+
+    @staticmethod
     @abstractmethod
-    def is_local(self) -> bool:
+    def is_local() -> bool:
         """
         Method to check if store is local.
         """
+
+    @abstractmethod
+    def get_root_uri(self) -> str:
+        """
+        Method to get root URI.
+        """
+
+    ############################
+    # Resource registry methods
+    ############################
 
     def _register_resource(self, key: str, path: str) -> None:
         """

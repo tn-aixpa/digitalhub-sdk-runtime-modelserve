@@ -45,6 +45,11 @@ class S3Store(Store):
         Store.__init__
         """
         super().__init__(name, type, uri, config)
+        self._validate_uri()
+
+    ############################
+    # IO methods
+    ############################
 
     def upload(self, src: str, dst: str = None) -> str:
         """
@@ -70,15 +75,15 @@ class S3Store(Store):
         """
         Fetch an artifact from S3 based storage.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         src : str
             The source location of the artifact.
         dst : str, optional
             The destination of the artifact on local filesystem.
 
-        Returns:
-        --------
+        Returns
+        -------
         str
             Returns a file path.
         """
@@ -106,16 +111,16 @@ class S3Store(Store):
         """
         Persist an artifact on S3 based storage.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         src : Any
             The source object to be persisted. It can be a file path as a string or Path object.
 
         dst : str, optional
             The destination partition for the artifact.
 
-        Returns:
-        --------
+        Returns
+        -------
         str
             Returns the URI of the artifact on S3 based storage.
         """
@@ -136,12 +141,39 @@ class S3Store(Store):
         client.upload_file(Filename=src, Bucket=bucket, Key=key)
         return rebuild_uri(f"s3://{bucket}/{key}")
 
+    ############################
+    # Private helper methods
+    ############################
+
+    def _validate_uri(self) -> None:
+        """
+        Validate the URI of the store.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        Exception
+            If the URI scheme is not 's3'.
+
+        Exception
+            If no bucket is specified in the URI.
+        """
+        scheme = get_uri_scheme(self.uri)
+        if scheme != "s3":
+            raise Exception(f"Invalid URI scheme for s3 store: {scheme}. Should be 's3'")
+        bucket = get_uri_netloc(self.uri)
+        if bucket == "":
+            raise Exception("No bucket specified in the URI for s3 store!")
+
     def _get_client(self) -> S3Client:
         """
         Get an S3 client object.
 
-        Returns:
-        --------
+        Returns
+        -------
         S3Client
             Returns a client object that interacts with the S3 storage service.
         """
@@ -152,18 +184,18 @@ class S3Store(Store):
         """
         Check if the S3 bucket is accessible by sending a head_bucket request.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         client: S3Client
             An instance of 'S3Client' class that provides client interfaces to S3 service.
         bucket: string
             A string representing the name of the S3 bucket for which access needs to be checked.
 
-        Returns:
-        --------
+        Returns
+        -------
         None
 
-        Raises:
+        Raises
         -------
         StoreError:
             If access to the specified bucket is not available.
@@ -189,7 +221,12 @@ class S3Store(Store):
             dst_dir = get_dir(dst)
             check_make_dir(dst_dir)
 
-    def is_local(self) -> bool:
+    ############################
+    # Store interface methods
+    ############################
+
+    @staticmethod
+    def is_local() -> bool:
         """
         Check if the store is local.
 
@@ -199,3 +236,14 @@ class S3Store(Store):
             False
         """
         return False
+
+    def get_root_uri(self) -> str:
+        """
+        Get the root URI of the store.
+
+        Returns
+        -------
+        str
+            The root URI of the store.
+        """
+        return f"s3://{get_uri_netloc(self.uri)}"

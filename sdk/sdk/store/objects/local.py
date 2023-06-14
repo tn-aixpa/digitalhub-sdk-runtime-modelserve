@@ -30,6 +30,10 @@ class LocalStore(Store):
         """
         super().__init__(name, type, uri, config)
 
+    ############################
+    # IO methods
+    ############################
+
     def upload(self, *args, **kwargs) -> None:
         """
         Method to upload an artifact to the backend. Please note that this method is not implemented
@@ -141,7 +145,12 @@ class LocalStore(Store):
         copy_file(src, dst)
         return dst
 
-    def _check_dir(self, dst: str) -> None:
+    ############################
+    # Private helper methods
+    ############################
+
+    @staticmethod
+    def _check_dir(dst: str) -> None:
         """
         Check if there is access to the path.
 
@@ -157,7 +166,12 @@ class LocalStore(Store):
         if not check_dir(dst):
             make_dir(dst)
 
-    def is_local(self) -> bool:
+    ############################
+    # Store interface methods
+    ############################
+
+    @staticmethod
+    def is_local() -> bool:
         """
         Check if the store is local.
 
@@ -167,3 +181,14 @@ class LocalStore(Store):
             True
         """
         return True
+
+    def get_root_uri(self) -> str:
+        """
+        Get the root URI of the store.
+
+        Returns
+        -------
+        str
+            The root URI of the store.
+        """
+        return get_dir(self.uri)

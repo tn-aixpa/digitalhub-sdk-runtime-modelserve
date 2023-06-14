@@ -104,7 +104,7 @@ def get_extension(uri: str) -> str:
     str
         Extension.
     """
-    return Path(uri).suffix
+    return Path(uri).suffix[1:]
 
 
 def build_key(dst: str, *args) -> str:
