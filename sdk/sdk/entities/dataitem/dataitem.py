@@ -15,6 +15,19 @@ class DataitemMetadata(EntityMetadata):
 
 class DataitemSpec(EntitySpec):
     def __init__(self, key: str = None, path: str = None, **kwargs) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments.
+
+        Notes
+        -----
+        If some of the attributes are not in the signature,
+        they will be added as new attributes.
+        """
         self.key = key
         self.path = path
 

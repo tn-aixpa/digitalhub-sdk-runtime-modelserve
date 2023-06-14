@@ -40,6 +40,19 @@ class ProjectSpec(EntitySpec):
         dataitems: list[dict] = None,
         **kwargs,
     ) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments.
+
+        Notes
+        -----
+        If some of the attributes are not in the signature,
+        they will be added as new attributes.
+        """
         self.context = context
         self.source = source
         self.functions = functions if functions is not None else []

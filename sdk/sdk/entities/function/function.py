@@ -21,6 +21,19 @@ class FunctionSpec(EntitySpec):
         handler: str = None,
         **kwargs,
     ) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments.
+
+        Notes
+        -----
+        If some of the attributes are not in the signature,
+        they will be added as new attributes.
+        """
         self.source = source
         self.image = image
         self.tag = tag

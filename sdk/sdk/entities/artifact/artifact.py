@@ -98,6 +98,9 @@ class Artifact(Entity):
         # Set context
         self.context = get_context(self.project)
 
+        # Set key in spec store://<project>/artifacts/<kind>/<name>:<uuid>
+        self.spec.key = f"store://{self.project}/artifacts/{self.kind}/{self.name}:{self.id}"
+
     #############################
     #  Save / Export
     #############################
@@ -287,7 +290,7 @@ class Artifact(Entity):
         if self.spec.target_path is None:
             if target is None:
                 if not upload:
-                    return
+                    raise Exception("Target path is not specified.")
                 path = get_dir(self.spec.src_path)
                 filename = get_name_from_uri(self.spec.src_path)
                 target_path = rebuild_uri(f"{path}/{filename}")

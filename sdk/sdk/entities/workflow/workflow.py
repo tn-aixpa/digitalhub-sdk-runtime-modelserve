@@ -14,6 +14,19 @@ class WorkflowMetadata(EntityMetadata):
 
 class WorkflowSpec(EntitySpec):
     def __init__(self, test: str = None, **kwargs) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments.
+
+        Notes
+        -----
+        If some of the attributes are not in the signature,
+        they will be added as new attributes.
+        """
         self.test = test
 
         # Set new attributes
