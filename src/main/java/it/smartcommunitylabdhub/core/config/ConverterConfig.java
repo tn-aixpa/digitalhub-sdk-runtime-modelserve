@@ -11,12 +11,12 @@ import it.smartcommunitylabdhub.core.models.converters.types.CBORConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.DataItemConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.DateTimeConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.FunctionConverter;
-import it.smartcommunitylabdhub.core.models.converters.types.FunctionToMlrunConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.IntegerConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.LogConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.ProjectConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.RunConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.WorkflowConverter;
+import it.smartcommunitylabdhub.core.models.converters.types.mlrun.FunctionToMlrunConverter;
 
 @Configuration
 public class ConverterConfig {

@@ -56,43 +56,47 @@ public interface FunctionFieldAccessor extends CommonFieldAccessor {
     // env:List<Map<String, String>>
 
     default String getCommand() {
-        return mapHasField(getMetadata(), "command") ? (String) getMetadata().get("command") : null;
+        return mapHasField(getSpecs(), "command") ? (String) getSpecs().get("command") : null;
     }
 
     @SuppressWarnings("unchecked")
     default List<String> getArgs() {
-        return mapHasField(getMetadata(), "args") ? (List<String>) getMetadata().get("args") : null;
+        return mapHasField(getSpecs(), "args") ? (List<String>) getSpecs().get("args") : null;
     }
 
     @SuppressWarnings("unchecked")
     default Map<String, Object> getBuild() {
-        return mapHasField(getMetadata(), "build") ? (Map<String, Object>) getMetadata().get("build") : null;
+        return mapHasField(getSpecs(), "build") ? (Map<String, Object>) getSpecs().get("build") : null;
     }
 
     default String getImage() {
-        return mapHasField(getMetadata(), "image") ? (String) getMetadata().get("image") : null;
+        return mapHasField(getSpecs(), "image") ? (String) getSpecs().get("image") : null;
     }
 
     default String getDescription() {
-        return mapHasField(getMetadata(), "description") ? (String) getMetadata().get("description") : null;
+        return mapHasField(getSpecs(), "description") ? (String) getSpecs().get("description") : null;
+    }
+
+    default String getDefaultHandler() {
+        return mapHasField(getSpecs(), "default_handler") ? (String) getSpecs().get("default_handler") : null;
     }
 
     @SuppressWarnings("unchecked")
     default List<Map<String, Object>> getVolumes() {
-        return mapHasField(getMetadata(), "volumes") ? (List<Map<String, Object>>) getMetadata().get("volumes") : null;
+        return mapHasField(getSpecs(), "volumes") ? (List<Map<String, Object>>) getSpecs().get("volumes") : null;
     }
 
     @SuppressWarnings("unchecked")
     default List<Map<String, Object>> getVolumeMounts() {
-        return mapHasField(getMetadata(), "volume_mounts")
-                ? (List<Map<String, Object>>) getMetadata().get("volume_mounts")
+        return mapHasField(getSpecs(), "volume_mounts")
+                ? (List<Map<String, Object>>) getSpecs().get("volume_mounts")
                 : null;
     }
 
     @SuppressWarnings("unchecked")
     default List<Map<String, String>> getEnv() {
-        return mapHasField(getMetadata(), "env")
-                ? (List<Map<String, String>>) getMetadata().get("env")
+        return mapHasField(getSpecs(), "env")
+                ? (List<Map<String, String>>) getSpecs().get("env")
                 : null;
     }
 }

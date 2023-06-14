@@ -6,12 +6,13 @@ import java.util.Map;
 
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 
-public class ServingFunctionFieldAccessor implements FunctionFieldAccessor {
+public class ServingFunctionFieldAccessor
+        implements FunctionFieldAccessor {
 
     private final Map<String, Object> fields;
 
     public ServingFunctionFieldAccessor(Map<String, Object> fields) {
-        this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
+        this.fields = new LinkedHashMap<>(fields);
 
     }
 

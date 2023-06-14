@@ -27,4 +27,5 @@ public enum FunctionKind {
     public FunctionFieldAccessor createAccessor(Map<String, Object> fields) {
         return accessorFactory.create(fields);
     }
+
 }

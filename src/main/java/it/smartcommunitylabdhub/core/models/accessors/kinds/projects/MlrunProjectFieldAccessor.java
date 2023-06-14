@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.models.accessors.kinds.projects;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,7 +10,7 @@ public class MlrunProjectFieldAccessor implements ProjectFieldAccessor {
     private final Map<String, Object> fields;
 
     public MlrunProjectFieldAccessor(Map<String, Object> fields) {
-        this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
+        this.fields = new LinkedHashMap<>(fields);
     }
 
     @Override

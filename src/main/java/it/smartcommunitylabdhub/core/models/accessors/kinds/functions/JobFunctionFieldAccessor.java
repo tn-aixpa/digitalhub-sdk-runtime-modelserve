@@ -16,7 +16,7 @@ public class JobFunctionFieldAccessor implements FunctionFieldAccessor {
     // private CommandFactory commandFactory;
 
     public JobFunctionFieldAccessor(Map<String, Object> fields) {
-        this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
+        this.fields = new LinkedHashMap<>(fields);
         // this.commandFactory = ConversionUtils.getCommandFactory();
     }
 
@@ -25,5 +25,13 @@ public class JobFunctionFieldAccessor implements FunctionFieldAccessor {
         return this.fields;
     }
 
-    //
+    // get code origin
+    public String getCodeOrigin() {
+        return mapHasField(getBuild(), "code_origin") ? (String) getBuild().get("code_origin") : null;
+    }
+
+    public String getOriginFilename() {
+        return mapHasField(getBuild(), "origin_filename") ? (String) getBuild().get("origin_filename") : null;
+    }
+
 }

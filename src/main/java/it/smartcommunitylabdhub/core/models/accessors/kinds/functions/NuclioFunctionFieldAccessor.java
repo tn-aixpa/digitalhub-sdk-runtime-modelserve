@@ -11,7 +11,7 @@ public class NuclioFunctionFieldAccessor implements FunctionFieldAccessor {
     private final Map<String, Object> fields;
 
     public NuclioFunctionFieldAccessor(Map<String, Object> fields) {
-        this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
+        this.fields = new LinkedHashMap<>(fields);
 
     }
 
