@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.accessors.enums;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.JobFunctionFieldAccessor;
@@ -8,16 +9,19 @@ import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.ServingFun
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 
 public enum FunctionKind {
-    JOB("job", JobFunctionFieldAccessor::new),
-    NUCLIO("nuclio", NuclioFunctionFieldAccessor::new),
-    SERVING("serving", ServingFunctionFieldAccessor::new);
+    JOB("job", JobFunctionFieldAccessor::new, JobFunctionFieldAccessor.class),
+    NUCLIO("nuclio", NuclioFunctionFieldAccessor::new, NuclioFunctionFieldAccessor.class),
+    SERVING("serving", ServingFunctionFieldAccessor::new, ServingFunctionFieldAccessor.class);
 
     private final String value;
     private final AccessorFactoryKind<FunctionFieldAccessor> accessorFactory;
+    private final Class<? extends FunctionFieldAccessor> accessorClass;
 
-    FunctionKind(String value, AccessorFactoryKind<FunctionFieldAccessor> accessorFactory) {
+    FunctionKind(String value, AccessorFactoryKind<FunctionFieldAccessor> accessorFactory,
+            Class<? extends FunctionFieldAccessor> accessorClass) {
         this.value = value;
         this.accessorFactory = accessorFactory;
+        this.accessorClass = accessorClass;
     }
 
     public String getValue() {
@@ -28,4 +32,17 @@ public enum FunctionKind {
         return accessorFactory.create(fields);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T invokeMethod(FunctionFieldAccessor accessor, String methodName) {
+        if (accessorClass != null) {
+            try {
+                Method method = accessorClass.getMethod(methodName);
+                return (T) method.invoke(accessor);
+            } catch (Exception e) {
+                // Handle any exceptions that occur during method invocation
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 }

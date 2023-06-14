@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.models.accessors.kinds.functions;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

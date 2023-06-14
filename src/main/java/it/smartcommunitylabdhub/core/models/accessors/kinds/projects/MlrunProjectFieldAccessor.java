@@ -17,6 +17,4 @@ public class MlrunProjectFieldAccessor implements ProjectFieldAccessor {
     public Map<String, Object> getFields() {
         return this.fields;
     }
-
-    //
 }

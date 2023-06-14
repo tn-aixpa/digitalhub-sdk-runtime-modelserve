@@ -173,12 +173,16 @@ public class FunctionWorkflowBuilder {
 
                     Optional.ofNullable(response.getBody()).ifPresent(body -> {
                         ProjectFieldAccessor projectFieldAccessor = ProjectKind.MLRUN.createAccessor(body);
-                        FunctionFieldAccessor functionFieldAccessor = FunctionKind.valueOf(
-                                function.getKind().toUpperCase())
+
+                        FunctionKind functionKind = FunctionKind.valueOf(
+                                function.getKind().toUpperCase());
+                        FunctionFieldAccessor functionFieldAccessor = functionKind
                                 .createAccessor(ConversionUtils.convert(function, "mlrunFunction"));
 
                         // Create a new function into project
                         Map<String, Object> newFunction = Stream.of(
+                                new AbstractMap.SimpleEntry<>("url",
+                                        functionKind.invokeMethod(functionFieldAccessor, "getCodeOrigin")),
                                 new AbstractMap.SimpleEntry<>("name", functionFieldAccessor.getName()),
                                 new AbstractMap.SimpleEntry<>("kind", functionFieldAccessor.getKind()),
                                 new AbstractMap.SimpleEntry<>("image", functionFieldAccessor.getImage()),
