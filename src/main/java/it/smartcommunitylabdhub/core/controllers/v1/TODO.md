@@ -86,7 +86,7 @@ status: {} -->
 // TODO: SYNC WITH MLRUN
 
 - CAll mlrun api to sync data
-  - Mlrun -> DHCORE
+  - DHCORE -> Mlrun // [x]
   - DHCORE <- Mlrun
 
 Check DB and API for DATA sync, write service for sync
