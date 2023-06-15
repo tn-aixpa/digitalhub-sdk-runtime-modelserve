@@ -15,6 +15,7 @@ import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
+import jakarta.validation.Valid;
 
 @Service
 public class RunSerivceImpl implements RunService {
@@ -75,4 +76,24 @@ public class RunSerivceImpl implements RunService {
         }
     }
 
+    @Override
+    public RunDTO createRun(@Valid RunDTO runDTO) {
+        try {
+            // Build a function and store it on db
+            // final Run run = new RunEntityBuilder(runDTO).build();
+            // this.runRepository.save(function);
+
+            // // Return function DTO
+            // return new RunToDTOBuilder(
+            // function, false).build();
+
+            return null;
+
+        } catch (CustomException e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

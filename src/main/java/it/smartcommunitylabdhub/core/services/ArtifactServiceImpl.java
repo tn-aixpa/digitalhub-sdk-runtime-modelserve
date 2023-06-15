@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dtos.ArtifactDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.ArtifactEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
 import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
-import it.smartcommunitylabdhub.core.services.builders.dtos.ArtifactDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.entities.ArtifactEntityBuilder;
 import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 
 @Service

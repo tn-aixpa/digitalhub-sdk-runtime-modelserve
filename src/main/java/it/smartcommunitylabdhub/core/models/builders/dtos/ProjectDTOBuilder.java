@@ -1,8 +1,9 @@
-package it.smartcommunitylabdhub.core.services.builders.dtos;
+package it.smartcommunitylabdhub.core.models.builders.dtos;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
@@ -10,7 +11,6 @@ import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Project;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
-import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class ProjectDTOBuilder {
 

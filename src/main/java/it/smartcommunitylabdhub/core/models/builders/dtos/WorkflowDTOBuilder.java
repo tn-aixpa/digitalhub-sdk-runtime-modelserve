@@ -1,12 +1,12 @@
-package it.smartcommunitylabdhub.core.services.builders.dtos;
+package it.smartcommunitylabdhub.core.models.builders.dtos;
 
 import java.util.Optional;
 
+import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
-import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class WorkflowDTOBuilder {
 

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
@@ -17,8 +19,6 @@ import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
-import it.smartcommunitylabdhub.core.services.builders.dtos.WorkflowDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.entities.WorkflowEntityBuilder;
 import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
 
 @Service

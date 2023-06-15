@@ -14,8 +14,8 @@ import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.DataItem;
 import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
-import it.smartcommunitylabdhub.core.services.builders.dtos.DataItemDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.entities.DataItemEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.DataItemDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.DataItemEntityBuilder;
 import it.smartcommunitylabdhub.core.services.context.interfaces.DataItemContextService;
 import jakarta.transaction.Transactional;
 

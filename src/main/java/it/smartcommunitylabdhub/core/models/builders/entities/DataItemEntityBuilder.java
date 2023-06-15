@@ -1,10 +1,10 @@
-package it.smartcommunitylabdhub.core.services.builders.entities;
+package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.DataItem;
 import it.smartcommunitylabdhub.core.models.enums.State;
-import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class DataItemEntityBuilder {
 

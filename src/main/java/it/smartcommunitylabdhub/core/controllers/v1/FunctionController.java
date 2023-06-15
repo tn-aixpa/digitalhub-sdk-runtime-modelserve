@@ -66,4 +66,11 @@ public class FunctionController {
         return ResponseEntity.ok(this.functionService.getFunctionRuns(uuid));
     }
 
+    @PostMapping(path = "/{uuidOrName}/run", produces = "application/json; charset=UTF-8")
+    public ResponseEntity<RunDTO> run(
+            @ValidateField @PathVariable(name = "uuidOrName", required = true) String uuidOrName) {
+
+        return ResponseEntity.ok(this.functionService.run(uuidOrName));
+    }
+
 }

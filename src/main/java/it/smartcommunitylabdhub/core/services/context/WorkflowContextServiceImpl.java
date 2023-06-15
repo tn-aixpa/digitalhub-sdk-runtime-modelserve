@@ -14,8 +14,8 @@ import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
-import it.smartcommunitylabdhub.core.services.builders.dtos.WorkflowDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.entities.WorkflowEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
 import it.smartcommunitylabdhub.core.services.context.interfaces.WorkflowContextService;
 import jakarta.transaction.Transactional;
 

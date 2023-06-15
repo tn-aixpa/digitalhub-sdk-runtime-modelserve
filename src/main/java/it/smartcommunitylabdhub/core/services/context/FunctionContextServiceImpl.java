@@ -14,8 +14,8 @@ import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
-import it.smartcommunitylabdhub.core.services.builders.dtos.FunctionDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.entities.FunctionEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.services.context.interfaces.FunctionContextService;
 import jakarta.transaction.Transactional;
 

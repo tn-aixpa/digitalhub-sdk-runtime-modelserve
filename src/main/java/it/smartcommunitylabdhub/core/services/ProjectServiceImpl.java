@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dtos.ArtifactDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.ProjectDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.ProjectEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.ProjectDTO;
@@ -23,11 +28,6 @@ import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.ProjectRepository;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
-import it.smartcommunitylabdhub.core.services.builders.dtos.ArtifactDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.dtos.FunctionDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.dtos.ProjectDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.dtos.WorkflowDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.entities.ProjectEntityBuilder;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
 import jakarta.transaction.Transactional;
 

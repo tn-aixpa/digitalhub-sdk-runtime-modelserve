@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.services.builders;
+package it.smartcommunitylabdhub.core.models.builders;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;

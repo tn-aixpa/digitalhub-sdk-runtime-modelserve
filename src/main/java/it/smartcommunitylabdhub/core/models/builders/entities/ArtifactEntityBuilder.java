@@ -1,10 +1,10 @@
-package it.smartcommunitylabdhub.core.services.builders.entities;
+package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
 import it.smartcommunitylabdhub.core.models.enums.State;
-import it.smartcommunitylabdhub.core.services.factory.EntityFactory;
 
 public class ArtifactEntityBuilder {
 

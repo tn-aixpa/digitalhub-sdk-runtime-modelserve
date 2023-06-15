@@ -8,8 +8,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import it.smartcommunitylabdhub.core.components.runnables.dispatcher.MessageDispatcher;
+import it.smartcommunitylabdhub.core.components.runnables.events.JobMessage;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
@@ -17,8 +21,6 @@ import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
-import it.smartcommunitylabdhub.core.services.builders.dtos.FunctionDTOBuilder;
-import it.smartcommunitylabdhub.core.services.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 
 @Service
@@ -26,12 +28,14 @@ public class FunctionServiceImpl implements FunctionService {
 
     private final FunctionRepository functionRepository;
     private final RunRepository runRepository;
+    private final MessageDispatcher messageDispatcher;
 
     public FunctionServiceImpl(
             FunctionRepository functionRepository,
-            RunRepository runRepository) {
+            RunRepository runRepository, MessageDispatcher messageDispatcher) {
         this.functionRepository = functionRepository;
         this.runRepository = runRepository;
+        this.messageDispatcher = messageDispatcher;
     }
 
     @Override
@@ -203,6 +207,19 @@ public class FunctionServiceImpl implements FunctionService {
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Override
+    public RunDTO run(String uuidOrName) {
+        // 1. get function get if exist otherwise throw exeception.
+        // 2. produce event with the run object
+
+        String threadName = Thread.currentThread().getName();
+        System.out.println("SERVICE THREAD NAME :" + threadName);
+        JobMessage jobMessage = new JobMessage(RunDTO.builder().name("Test job").build());
+        messageDispatcher.dispatch(jobMessage);
+
+        throw new UnsupportedOperationException("Unimplemented method 'run'");
     }
 
 }
