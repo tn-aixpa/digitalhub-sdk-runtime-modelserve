@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.services.workflows.interfaces;
+package it.smartcommunitylabdhub.core.components.workflows.interfaces;
 
 import java.util.function.Function;
 

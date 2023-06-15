@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.services.workflows;
+package it.smartcommunitylabdhub.core.components.workflows;
 
 import java.util.AbstractMap;
 import java.util.List;
@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
 import it.smartcommunitylabdhub.core.models.accessors.enums.ProjectKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
@@ -27,8 +29,6 @@ import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.ProjectFi
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
-import it.smartcommunitylabdhub.core.services.workflows.factory.Workflow;
-import it.smartcommunitylabdhub.core.services.workflows.factory.WorkflowFactory;
 
 @Component
 public class FunctionWorkflowBuilder {

@@ -35,8 +35,7 @@ Project -> {
 } -->
 
 Same thing is applied for workflow, dataitem, artifact.
-
-// TODO: On project delete ...cascade functions, workflows, artifacts, dataitems
+// [x] DONE. On project delete ...cascade functions, workflows, artifacts, dataitems
 
 // TODO:
 Define .....Artifact, Function, Workflow, DataItem, Project scheme. Function of type: 'job', 'nuclio', 'serving' -> define the spec fields.

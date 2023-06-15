@@ -1,9 +1,9 @@
-package it.smartcommunitylabdhub.core.services.workflows;
-
-import it.smartcommunitylabdhub.core.services.workflows.factory.Workflow;
+package it.smartcommunitylabdhub.core.components.workflows;
 
 import java.util.Queue;
 import java.util.concurrent.*;
+
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 
 public class PollingService {
     private final Queue<Workflow> workflowQueue;
