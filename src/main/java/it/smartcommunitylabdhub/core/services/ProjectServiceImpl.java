@@ -25,6 +25,7 @@ import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Project;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
+import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.ProjectRepository;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
@@ -37,14 +38,17 @@ public class ProjectServiceImpl implements ProjectService {
     private final FunctionRepository functionRepository;
     private final ArtifactRepository artifactRepository;
     private final WorkflowRepository workflowRepository;
+    private final DataItemRepository dataItemRepository;
 
     public ProjectServiceImpl(
             ProjectRepository projectRepository, FunctionRepository functionRepository,
-            ArtifactRepository artifactRepository, WorkflowRepository workflowRepository) {
+            ArtifactRepository artifactRepository, WorkflowRepository workflowRepository,
+            DataItemRepository dataItemRepository) {
         this.projectRepository = projectRepository;
         this.functionRepository = functionRepository;
         this.artifactRepository = artifactRepository;
         this.workflowRepository = workflowRepository;
+        this.dataItemRepository = dataItemRepository;
     }
 
     @Override
@@ -141,9 +145,23 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(value -> {
                     boolean deleted = false;
                     if (projectRepository.existsById(value)) {
+                        projectRepository.findById(value).ifPresent(project -> {
+                            // delete functions, artifacts, workflow, dataitems
+                            this.artifactRepository.deleteByProjectName(project.getName());
+                            this.dataItemRepository.deleteByProjectName(project.getName());
+                            this.workflowRepository.deleteByProjectName(project.getName());
+                            this.functionRepository.deleteByProjectName(project.getName());
+                        });
                         projectRepository.deleteById(value);
                         deleted = true;
                     } else if (projectRepository.existsByName(value)) {
+                        projectRepository.findByName(value).ifPresent(project -> {
+                            // delete functions, artifacts, workflow, dataitems
+                            this.artifactRepository.deleteByProjectName(project.getName());
+                            this.dataItemRepository.deleteByProjectName(project.getName());
+                            this.workflowRepository.deleteByProjectName(project.getName());
+                            this.functionRepository.deleteByProjectName(project.getName());
+                        });
                         projectRepository.deleteByName(value);
                         deleted = true;
                     }

@@ -56,4 +56,8 @@ public interface FunctionRepository extends JpaRepository<Function, String> {
         @Modifying
         @Query("DELETE FROM Function a WHERE a.project = :project AND a.name = :name ")
         void deleteByProjectAndName(@Param("project") String project, @Param("name") String name);
+
+        @Modifying
+        @Query("DELETE FROM Function a WHERE a.project = :project ")
+        void deleteByProjectName(@Param("project") String project);
 }
