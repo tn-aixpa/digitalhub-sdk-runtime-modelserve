@@ -97,6 +97,7 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void handleMatch(RequestMappingInfo info, String lookupPath, HttpServletRequest request) {
         String version = (String) request.getAttribute(VERSION_ATTRIBUTE);
         if (version != null) {

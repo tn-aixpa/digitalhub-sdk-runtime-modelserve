@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import it.smartcommunitylabdhub.core.handlers.VersionedHandlerMapping;
+import it.smartcommunitylabdhub.core.config.handlers.VersionedHandlerMapping;
 
 @Configuration
 public class ApiVersioningMappingConfig implements WebMvcRegistrations {
