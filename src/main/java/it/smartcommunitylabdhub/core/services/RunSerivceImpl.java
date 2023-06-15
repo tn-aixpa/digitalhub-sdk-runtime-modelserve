@@ -79,16 +79,12 @@ public class RunSerivceImpl implements RunService {
     @Override
     public RunDTO createRun(@Valid RunDTO runDTO) {
         try {
-            // Build a function and store it on db
-            // final Run run = new RunEntityBuilder(runDTO).build();
-            // this.runRepository.save(function);
+            // Build a run and store it on db
 
-            // // Return function DTO
-            // return new RunToDTOBuilder(
-            // function, false).build();
+            final Run run = ConversionUtils.convert(runDTO, "run");
+            this.runRepository.save(run);
 
-            return null;
-
+            return ConversionUtils.reverse(run, "run");
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",

@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.handlers;
+package it.smartcommunitylabdhub.core.config.handlers;
 
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.MediaType;
