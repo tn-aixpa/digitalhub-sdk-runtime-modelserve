@@ -15,6 +15,7 @@ import it.smartcommunitylabdhub.core.models.converters.types.IntegerConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.LogConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.ProjectConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.RunConverter;
+import it.smartcommunitylabdhub.core.models.converters.types.TaskConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.WorkflowConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.mlrun.FunctionToMlrunConverter;
 
@@ -35,6 +36,7 @@ public class ConverterConfig {
         factory.registerConverter("integer", IntegerConverter::new);
         factory.registerConverter("datetime", DateTimeConverter::new);
         factory.registerConverter("run", RunConverter::new);
+        factory.registerConverter("task", TaskConverter::new);
         factory.registerConverter("log", LogConverter::new);
         factory.registerConverter("mlrunFunction", FunctionToMlrunConverter::new);
 
