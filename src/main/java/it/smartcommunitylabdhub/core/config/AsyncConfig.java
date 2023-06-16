@@ -2,10 +2,8 @@ package it.smartcommunitylabdhub.core.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.Function;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +13,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import it.smartcommunitylabdhub.core.components.workflows.PollingService;
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
-import it.smartcommunitylabdhub.core.components.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.components.workflows.functions.FunctionWorkflowBuilder;
 
 @Configuration
