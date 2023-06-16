@@ -42,7 +42,7 @@ public class Poller implements Runnable {
 
             if (reschedule) {
                 System.out.println("Poller [" + name + "] reschedule: " + Thread.currentThread().getName());
-                System.out.println("----------------------------------------------------");
+                System.out.println("-------------------------------------------------------------------");
 
                 // Delay the rescheduling to ensure all workflows have completed
                 executorService.schedule(() -> startPolling(), delay, TimeUnit.SECONDS);

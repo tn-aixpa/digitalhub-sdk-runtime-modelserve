@@ -2,6 +2,7 @@ package it.smartcommunitylabdhub.core.services.interfaces;
 
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 
 import java.util.List;
 
@@ -24,5 +25,5 @@ public interface FunctionService {
 
     List<FunctionDTO> getAllLatestFunctions();
 
-    RunDTO run(String uuidOrName);
+    RunDTO task(String uuidOrName, TaskDTO taskDTO);
 }

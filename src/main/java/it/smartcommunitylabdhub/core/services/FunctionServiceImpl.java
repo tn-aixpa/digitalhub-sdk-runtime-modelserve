@@ -14,13 +14,17 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Run;
+import it.smartcommunitylabdhub.core.models.entities.Task;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
+import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 
 @Service
@@ -28,12 +32,16 @@ public class FunctionServiceImpl implements FunctionService {
 
     private final FunctionRepository functionRepository;
     private final RunRepository runRepository;
+    private final TaskRepository taskRepository;
     private final MessageDispatcher messageDispatcher;
 
     public FunctionServiceImpl(
             FunctionRepository functionRepository,
-            RunRepository runRepository, MessageDispatcher messageDispatcher) {
+            RunRepository runRepository,
+            TaskRepository taskRepository,
+            MessageDispatcher messageDispatcher) {
         this.functionRepository = functionRepository;
+        this.taskRepository = taskRepository;
         this.runRepository = runRepository;
         this.messageDispatcher = messageDispatcher;
     }
@@ -210,16 +218,37 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public RunDTO run(String uuidOrName) {
+    public RunDTO task(String uuidOrName, TaskDTO taskDTO) {
+
         // 1. get function get if exist otherwise throw exeception.
-        // 2. produce event with the run object
+        return functionRepository.findById(uuidOrName)
+                .or(() -> functionRepository.findLatestByName(uuidOrName))
+                .map(function -> {
 
-        String threadName = Thread.currentThread().getName();
-        System.out.println("SERVICE THREAD NAME :" + threadName);
-        JobMessage jobMessage = new JobMessage(RunDTO.builder().name("Test job").build());
-        messageDispatcher.dispatch(jobMessage);
+                    // 2. store task and create run object
+                    taskDTO.setType(function.getKind());
+                    // FIXME: maybe set task name and task project????
 
-        throw new UnsupportedOperationException("Unimplemented method 'run'");
+                    Task task = new TaskEntityBuilder(taskDTO).build();
+                    taskRepository.save(task);
+
+                    // 3. produce a run object and store it
+
+                    // 4. produce event with the run object
+
+                    String threadName = Thread.currentThread().getName();
+                    System.out.println("SERVICE THREAD NAME :" + threadName);
+                    JobMessage jobMessage = new JobMessage(RunDTO.builder().name("Test job").build());
+                    messageDispatcher.dispatch(jobMessage);
+
+                    // return the run
+                    return new RunDTO();
+
+                }).orElseThrow(() -> new CoreException(
+                        "FunctionNotFound",
+                        "The function you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
+
     }
 
 }

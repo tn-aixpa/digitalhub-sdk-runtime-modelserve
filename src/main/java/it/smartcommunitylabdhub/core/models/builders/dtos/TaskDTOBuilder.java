@@ -8,27 +8,27 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 
 public class TaskDTOBuilder {
 
-        private Task Task;
+        private Task task;
 
         public TaskDTOBuilder(
-                        Task Task) {
-                this.Task = Task;
+                        Task task) {
+                this.task = task;
         }
 
         public TaskDTO build() {
-                return EntityFactory.create(TaskDTO::new, Task, builder -> {
+                return EntityFactory.create(TaskDTO::new, task, builder -> {
                         builder
-                                        .with(dto -> dto.setId(Task.getId()))
-                                        .with(dto -> dto.setType(Task.getType()))
-                                        .with(dto -> dto.setProject(Task.getProject()))
-                                        .with(dto -> dto.setName(Task.getName()))
-                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(Task.getSpec(), "cbor")))
-                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(Task.getExtra(), "cbor")))
-                                        .with(dto -> dto.setCreated(Task.getCreated()))
-                                        .with(dto -> dto.setUpdated(Task.getUpdated()))
-                                        .with(dto -> dto.setState(Task.getState() == null
+                                        .with(dto -> dto.setId(task.getId()))
+                                        .with(dto -> dto.setType(task.getType()))
+                                        .with(dto -> dto.setProject(task.getProject()))
+                                        .with(dto -> dto.setName(task.getName()))
+                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(task.getSpec(), "cbor")))
+                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(task.getExtra(), "cbor")))
+                                        .with(dto -> dto.setCreated(task.getCreated()))
+                                        .with(dto -> dto.setUpdated(task.getUpdated()))
+                                        .with(dto -> dto.setState(task.getState() == null
                                                         ? State.CREATED.name()
-                                                        : Task.getState()
+                                                        : task.getState()
                                                                         .name()));
 
                 });

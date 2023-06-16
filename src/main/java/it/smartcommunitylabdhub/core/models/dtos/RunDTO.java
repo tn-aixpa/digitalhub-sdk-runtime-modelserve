@@ -3,7 +3,12 @@ package it.smartcommunitylabdhub.core.models.dtos;
 import java.util.Date;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
+import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 import java.util.HashMap;
 
@@ -19,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class RunDTO {
+public class RunDTO implements BaseEntity {
     @NotNull
     private String id;
 
@@ -37,9 +42,24 @@ public class RunDTO {
     @Builder.Default
     private Map<String, Object> body = new HashMap<>();
 
+    @Builder.Default
+    @JsonIgnore
+    private Map<String, Object> extra = new HashMap<>();
+
     private Date created;
 
     private Date updated;
 
     private String state;
+
+    @JsonAnyGetter
+    public Map<String, Object> getExtra() {
+        return extra;
+    }
+
+    @JsonAnySetter
+    public void setExtra(String key, Object value) {
+        extra.put(key, value);
+    }
+
 }

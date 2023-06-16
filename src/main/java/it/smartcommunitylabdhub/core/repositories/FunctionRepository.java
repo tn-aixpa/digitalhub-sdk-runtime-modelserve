@@ -2,6 +2,7 @@ package it.smartcommunitylabdhub.core.repositories;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,10 @@ import it.smartcommunitylabdhub.core.models.entities.Function;
 public interface FunctionRepository extends JpaRepository<Function, String> {
 
         List<Function> findByProject(String project);
+
+        @Query("SELECT a FROM Function a WHERE a.name = :name " +
+                        "AND a.created = (SELECT MAX(a2.created) FROM Function a2 WHERE a2.name = :name)")
+        Optional<Function> findLatestByName(@Param("name") String name);
 
         Page<Function> findAll(Pageable pageable);
 

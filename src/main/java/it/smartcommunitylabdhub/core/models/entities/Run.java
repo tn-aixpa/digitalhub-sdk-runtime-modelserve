@@ -46,6 +46,9 @@ public class Run implements BaseEntity {
     @Lob
     private byte[] body;
 
+    @Lob
+    private byte[] extra;
+
     @CreationTimestamp
     @Column(updatable = false)
     private Date created;

@@ -8,11 +8,11 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 
 public class TaskEntityBuilder {
 
-        private TaskDTO TaskDTO;
+        private TaskDTO taskDTO;
 
         public TaskEntityBuilder(
-                        TaskDTO TaskDTO) {
-                this.TaskDTO = TaskDTO;
+                        TaskDTO taskDTO) {
+                this.taskDTO = taskDTO;
         }
 
         /**
@@ -22,14 +22,14 @@ public class TaskEntityBuilder {
          */
         public Task build() {
                 Task Task = EntityFactory.combine(
-                                ConversionUtils.convert(TaskDTO, "task"), TaskDTO,
+                                ConversionUtils.convert(taskDTO, "task"), taskDTO,
                                 builder -> {
                                         builder
                                                         .with(f -> f.setExtra(
-                                                                        ConversionUtils.convert(TaskDTO.getExtra(),
+                                                                        ConversionUtils.convert(taskDTO.getExtra(),
                                                                                         "cbor")))
                                                         .with(f -> f.setSpec(
-                                                                        ConversionUtils.convert(TaskDTO.getSpec(),
+                                                                        ConversionUtils.convert(taskDTO.getSpec(),
                                                                                         "cbor")));
                                 });
 
@@ -45,19 +45,20 @@ public class TaskEntityBuilder {
          */
         public Task update(Task Task) {
                 return EntityFactory.combine(
-                                Task, TaskDTO, builder -> {
+                                Task, taskDTO, builder -> {
                                         builder
-                                                        .with(f -> f.setType(TaskDTO.getType()))
-                                                        .with(f -> f.setProject(TaskDTO.getProject()))
-                                                        .with(f -> f.setState(TaskDTO.getState() == null
+                                                        .with(f -> f.setType(taskDTO.getType()))
+                                                        .with(f -> f.setProject(taskDTO.getProject()))
+                                                        .with(f -> f.setName(taskDTO.getName()))
+                                                        .with(f -> f.setState(taskDTO.getState() == null
                                                                         ? State.CREATED
-                                                                        : State.valueOf(TaskDTO.getState())))
+                                                                        : State.valueOf(taskDTO.getState())))
                                                         .with(f -> f.setExtra(
-                                                                        ConversionUtils.convert(TaskDTO.getExtra(),
+                                                                        ConversionUtils.convert(taskDTO.getExtra(),
 
                                                                                         "cbor")))
                                                         .with(f -> f.setSpec(
-                                                                        ConversionUtils.convert(TaskDTO.getSpec(),
+                                                                        ConversionUtils.convert(taskDTO.getSpec(),
 
                                                                                         "cbor")));
                                 });

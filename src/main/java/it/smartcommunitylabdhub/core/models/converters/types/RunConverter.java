@@ -19,7 +19,6 @@ public class RunConverter implements Converter<RunDTO, Run> {
                 .project(runDTO.getProject())
                 .name(runDTO.getName())
                 .type(runDTO.getType())
-                .body(ConversionUtils.convert(runDTO.getBody(), "cbor"))
                 .state(runDTO.getState() == null ? State.CREATED : State.valueOf(runDTO.getState()))
                 .build();
     }
@@ -31,7 +30,6 @@ public class RunConverter implements Converter<RunDTO, Run> {
                 .project(run.getProject())
                 .name(run.getName())
                 .type(run.getType())
-                .body(ConversionUtils.reverse(run.getBody(), "cbor"))
                 .state(run.getState() == null ? State.CREATED.name() : run.getState().name())
                 .created(run.getCreated())
                 .updated(run.getUpdated())
