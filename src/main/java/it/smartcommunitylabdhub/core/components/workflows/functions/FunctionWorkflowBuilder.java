@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.workflows;
+package it.smartcommunitylabdhub.core.components.workflows.functions;
 
 import java.util.AbstractMap;
 import java.util.List;
@@ -106,6 +106,7 @@ public class FunctionWorkflowBuilder {
                 @SuppressWarnings("unchecked")
                 Function<List<FunctionDTO>, List<FunctionDTO>> storeFunctions = functions -> {
 
+                        System.out.println("Second function");
                         HttpHeaders headers = new HttpHeaders();
                         headers.setContentType(MediaType.APPLICATION_JSON);
 
