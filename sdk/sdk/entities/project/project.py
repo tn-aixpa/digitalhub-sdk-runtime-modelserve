@@ -766,7 +766,7 @@ class Project(Entity):
         """
         name = d.get("name")
         if name is None:
-            raise Exception("Project or name are not specified.")
+            raise Exception("Project name not specified.")
         spec = d.get("spec")
         if spec is None:
             spec = {}

@@ -146,7 +146,7 @@ class Store(metaclass=ABCMeta):
         """
         self.registry.set_resource(key, path)
 
-    def _get_resource(self, key: str) -> str:
+    def get_resource(self, key: str) -> str:
         """
         Get a resource from the registry.
         """

@@ -20,10 +20,6 @@ def new_project(
     description: str = None,
     context: str = None,
     source: str = None,
-    functions: list = None,
-    artifacts: list = None,
-    workflows: list = None,
-    dataitems: list = None,
     local: bool = False,
 ) -> Project:
     """
@@ -39,14 +35,6 @@ def new_project(
         The path to the project's execution context.
     source : str, optional
         The path to the project's source code.
-    functions : list, optional
-        A list of functions assigned to the project.
-    artifacts : list, optional
-        A list of artifacts assigned to the project.
-    workflows : list, optional
-        A list of workflows assigned to the project.
-    dataitems : list, optional
-        A list of dataitems assigned to the project.
     local : bool, optional
         Flag to determine if project wil be executed locally.
 
@@ -56,22 +44,14 @@ def new_project(
         A Project instance with its context.
 
     """
-    if functions is None:
-        functions = []
-    if artifacts is None:
-        artifacts = []
-    if workflows is None:
-        workflows = []
-    if dataitems is None:
-        dataitems = []
     meta = ProjectMetadata(name=name, description=description)
     spec = ProjectSpec(
         context=context,
         source=source,
-        functions=functions,
-        artifacts=artifacts,
-        workflows=workflows,
-        dataitems=dataitems,
+        functions=[],
+        artifacts=[],
+        workflows=[],
+        dataitems=[],
     )
     obj = Project(name, metadata=meta, spec=spec, local=local)
     set_context(obj)

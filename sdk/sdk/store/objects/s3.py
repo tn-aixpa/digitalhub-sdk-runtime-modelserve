@@ -1,6 +1,10 @@
 """
 S3Store module.
 """
+from __future__ import annotations
+
+import typing
+from io import BytesIO
 from tempfile import mkdtemp
 from typing import Optional, Type
 
@@ -16,8 +20,11 @@ from sdk.utils.uri_utils import (
     get_uri_path,
     get_uri_scheme,
     rebuild_uri,
-    build_key
+    build_key,
 )
+
+if typing.TYPE_CHECKING:
+    import pandas as pd
 
 
 # Type aliases
@@ -90,7 +97,7 @@ class S3Store(Store):
         if dst is None:
             dir = mkdtemp()
             dst = f"{dir}/{get_name_from_uri(src)}"
-            self._register_resource(f"{src}_{dst}", dst)
+            self._register_resource(f"{src}", dst)
 
         # Get client
         client = self._get_client()
@@ -141,6 +148,40 @@ class S3Store(Store):
         client.upload_file(Filename=src, Bucket=bucket, Key=key)
         return rebuild_uri(f"s3://{bucket}/{key}")
 
+    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> None:
+        """
+        Write a dataframe to S3 based storage.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe to be written.
+        dst : str
+            The destination path on S3 based storage.
+        **kwargs
+            Keyword arguments to pass to to_parquet() method.
+
+        Returns
+        -------
+        None
+        """
+        # Get client and bucket
+        client = self._get_client()
+        bucket = get_uri_netloc(self.uri)
+
+        # Check store access
+        self._check_access_to_storage(client, bucket)
+
+        # Rebuild key from target path
+        key = get_uri_path(dst)
+
+        # Write dataframe to buffer
+        out_buffer = BytesIO()
+        df.to_parquet(out_buffer, index=False, **kwargs)
+
+        # Write buffer to S3 as parquet
+        client.put_object(Bucket=bucket, Key=key, Body=out_buffer.getvalue())
+
     ############################
     # Private helper methods
     ############################
@@ -163,7 +204,9 @@ class S3Store(Store):
         """
         scheme = get_uri_scheme(self.uri)
         if scheme != "s3":
-            raise Exception(f"Invalid URI scheme for s3 store: {scheme}. Should be 's3'")
+            raise Exception(
+                f"Invalid URI scheme for s3 store: {scheme}. Should be 's3'"
+            )
         bucket = get_uri_netloc(self.uri)
         if bucket == "":
             raise Exception("No bucket specified in the URI for s3 store!")

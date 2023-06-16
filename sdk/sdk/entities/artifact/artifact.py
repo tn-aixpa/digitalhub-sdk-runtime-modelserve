@@ -99,7 +99,9 @@ class Artifact(Entity):
         self.context = get_context(self.project)
 
         # Set key in spec store://<project>/artifacts/<kind>/<name>:<uuid>
-        self.spec.key = f"store://{self.project}/artifacts/{self.kind}/{self.name}:{self.id}"
+        self.spec.key = (
+            f"store://{self.project}/artifacts/{self.kind}/{self.name}:{self.id}"
+        )
 
     #############################
     #  Save / Export

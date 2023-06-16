@@ -1,11 +1,17 @@
 """
 Local store module.
 """
+from __future__ import annotations
+
+import typing
 from typing import Optional
 
 from sdk.store.objects.store import Store
 from sdk.utils.file_utils import check_dir, copy_file, get_dir, make_dir
 from sdk.utils.uri_utils import get_name_from_uri
+
+if typing.TYPE_CHECKING:
+    import pandas as pd
 
 
 class LocalStore(Store):
@@ -78,7 +84,9 @@ class LocalStore(Store):
         NotImplementedError
             This method is not implemented.
         """
-        raise NotImplementedError("Local store does not support download. Use as_file() instead.")
+        raise NotImplementedError(
+            "Local store does not support download. Use as_file() instead."
+        )
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
@@ -144,6 +152,29 @@ class LocalStore(Store):
         # Local file or dump string
         copy_file(src, dst)
         return dst
+
+    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> None:
+        """
+        Method to write a dataframe to a file.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe to write.
+        dst : str
+            The destination of the dataframe.
+        **kwargs
+            Keyword arguments to pass to to_parquet() method.
+
+        Returns
+        -------
+        None
+        """
+        # Check access to destination
+        self._check_dir(get_dir(dst))
+
+        # Write dataframe to file
+        df.to_parquet(dst, index=False, **kwargs)
 
     ############################
     # Private helper methods

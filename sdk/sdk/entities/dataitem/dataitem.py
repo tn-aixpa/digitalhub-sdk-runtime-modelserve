@@ -6,8 +6,8 @@ import pandas as pd
 from sdk.entities.api import DTO_DTIT, create_api, update_api
 from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.factories import get_context, get_default_store
-from sdk.utils.file_utils import clean_all
-from sdk.utils.uri_utils import get_extension
+from sdk.utils.file_utils import clean_all, check_file, get_dir
+from sdk.utils.uri_utils import get_extension, get_uri_scheme
 from sdk.utils.utils import get_uiid
 
 
@@ -100,7 +100,9 @@ class Dataitem(Entity):
         self.context = get_context(self.project)
 
         # Set key in spec store://<project>/dataitems/<kind>/<name>:<uuid>
-        self.spec.key = f"store://{self.project}/dataitems/{self.kind}/{self.name}:{self.id}"
+        self.spec.key = (
+            f"store://{self.project}/dataitems/{self.kind}/{self.name}:{self.id}"
+        )
 
     #############################
     #  Save / Export
@@ -162,7 +164,13 @@ class Dataitem(Entity):
 
     def as_df(self, format: str = None, **kwargs) -> pd.DataFrame:
         """
-        Read dataitem as a pandas DataFrame.
+        Read dataitem as a pandas DataFrame. If the dataitem is not local,
+        it will be downloaded to a temporary folder and deleted after the
+        method is executed.
+        The path of the dataitem is specified in the spec attribute, and
+        must be a store aware path, so for example,
+        if the dataitem is store on an s3 bucket, the path must be
+        s3://<bucket>/<path_to_dataitem>.
 
         Parameters
         ----------
@@ -179,19 +187,22 @@ class Dataitem(Entity):
 
         # Get store
         store = get_default_store()
+        tmp_path = False
 
-        # Download artifact in temp folder if not local
-        if store.is_local():
+        if self._check_local():
             path = self.spec.path
         else:
             path = store.download(self.spec.path)
+            tmp_path = True
 
         # Read DataFrame
         extension = format if format is not None else get_extension(path)
         df = self._read_df(path, extension, **kwargs)
 
         # Clean temp folder
-        if not store.is_local():
+        if tmp_path:
+            if check_file(path):
+                path = get_dir(path)
             clean_all(path)
 
         return df
@@ -223,12 +234,23 @@ class Dataitem(Entity):
             target_path = f"{store.get_root_uri()}/{self.name}.parquet"
 
         # Write DataFrame
-        df.to_parquet(target_path, **kwargs)
+        store.write_df(df, target_path, **kwargs)
         return target_path
 
     #############################
     #  Helper Methods
     #############################
+
+    def _check_local(self) -> bool:
+        """
+        Check if source path is local.
+
+        Returns
+        -------
+        bool
+            True if local, False otherwise.
+        """
+        return get_uri_scheme(self.spec.path) in ["", "file"]
 
     def _read_df(self, path: str, extension: str, **kwargs) -> pd.DataFrame:
         """
