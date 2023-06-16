@@ -79,7 +79,7 @@ public class FunctionWorkflowBuilder {
                                                                 if (!mlrunFunctionAccessor.getHash()
                                                                                 .equals(Optional.ofNullable(function
                                                                                                 .getExtra()
-                                                                                                .get("mlrunHash"))
+                                                                                                .get("mlrun_hash"))
                                                                                                 .orElse(""))) {
                                                                         // Function need to be updated in mlrun
                                                                         return function;
@@ -136,7 +136,7 @@ public class FunctionWorkflowBuilder {
                                                                 // Set mlrun -> core : hash
                                                                 Optional.ofNullable(response.getBody())
                                                                                 .ifPresent(b -> function.setExtra(
-                                                                                                "mlrunHash",
+                                                                                                "mlrun_hash",
                                                                                                 (String) Optional
                                                                                                                 .ofNullable(b.get(
                                                                                                                                 "hash_key"))

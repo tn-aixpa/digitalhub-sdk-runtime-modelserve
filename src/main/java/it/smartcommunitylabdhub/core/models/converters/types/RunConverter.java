@@ -3,7 +3,6 @@ package it.smartcommunitylabdhub.core.models.converters.types;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;

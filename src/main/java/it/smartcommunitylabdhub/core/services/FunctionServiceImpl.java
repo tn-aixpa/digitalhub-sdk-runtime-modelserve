@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -13,7 +14,9 @@ import it.smartcommunitylabdhub.core.components.runnables.events.JobMessage;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
@@ -233,16 +236,24 @@ public class FunctionServiceImpl implements FunctionService {
                     taskRepository.save(task);
 
                     // 3. produce a run object and store it
+                    Run run = new RunEntityBuilder(
+                            RunDTO.builder()
+                                    .type(function.getKind())
+                                    .project(function.getProject())
+                                    .name(taskDTO.getName() + "-task@" + task.getId())
+                                    .body(Map.of())
+                                    .extra(Map.of("task_id", taskDTO))
+                                    .build())
+                            .build();
+                    this.runRepository.save(run);
 
-                    // 4. produce event with the run object
-
-                    String threadName = Thread.currentThread().getName();
-                    System.out.println("SERVICE THREAD NAME :" + threadName);
-                    JobMessage jobMessage = new JobMessage(RunDTO.builder().name("Test job").build());
+                    // 4. produce event with the runDTO object
+                    RunDTO runDTO = new RunDTOBuilder(run).build();
+                    JobMessage jobMessage = new JobMessage(runDTO);
                     messageDispatcher.dispatch(jobMessage);
 
-                    // return the run
-                    return new RunDTO();
+                    // 5. return the runDTO object to client
+                    return runDTO;
 
                 }).orElseThrow(() -> new CoreException(
                         "FunctionNotFound",

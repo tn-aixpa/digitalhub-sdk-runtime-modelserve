@@ -2,7 +2,6 @@ package it.smartcommunitylabdhub.core.repositories;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
