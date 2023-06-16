@@ -15,6 +15,7 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
@@ -78,7 +79,6 @@ public class FunctionServiceImpl implements FunctionService {
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @Override
@@ -224,8 +224,9 @@ public class FunctionServiceImpl implements FunctionService {
     public RunDTO task(String uuidOrName, TaskDTO taskDTO) {
 
         // 1. get function get if exist otherwise throw exeception.
-        return functionRepository.findById(uuidOrName)
-                .or(() -> functionRepository.findLatestByName(uuidOrName))
+        return functionRepository.findLatestFunctionByProjectAndId(taskDTO.getProject(), uuidOrName)
+                .or(() -> functionRepository.findLatestFunctionByProjectAndName(
+                        taskDTO.getProject(), uuidOrName))
                 .map(function -> {
 
                     // 2. store task and create run object
@@ -240,16 +241,16 @@ public class FunctionServiceImpl implements FunctionService {
                             RunDTO.builder()
                                     .type(function.getKind())
                                     .project(function.getProject())
-                                    .name(taskDTO.getName() + "-task@" + task.getId())
+                                    .name(taskDTO.getName() + "@task:" + task.getId())
                                     .body(Map.of())
-                                    .extra(Map.of("task_id", taskDTO))
+                                    .extra(Map.of("task_id", task.getId()))
                                     .build())
                             .build();
                     this.runRepository.save(run);
 
                     // 4. produce event with the runDTO object
                     RunDTO runDTO = new RunDTOBuilder(run).build();
-                    JobMessage jobMessage = new JobMessage(runDTO);
+                    JobMessage jobMessage = new JobMessage(runDTO, new TaskDTOBuilder(task).build());
                     messageDispatcher.dispatch(jobMessage);
 
                     // 5. return the runDTO object to client
@@ -259,7 +260,5 @@ public class FunctionServiceImpl implements FunctionService {
                         "FunctionNotFound",
                         "The function you are searching for does not exist.",
                         HttpStatus.NOT_FOUND));
-
     }
-
 }

@@ -16,10 +16,6 @@ public interface FunctionRepository extends JpaRepository<Function, String> {
 
         List<Function> findByProject(String project);
 
-        @Query("SELECT a FROM Function a WHERE a.name = :name " +
-                        "AND a.created = (SELECT MAX(a2.created) FROM Function a2 WHERE a2.name = :name)")
-        Optional<Function> findLatestByName(@Param("name") String name);
-
         Page<Function> findAll(Pageable pageable);
 
         @Query("SELECT a FROM Function a WHERE (a.name, a.created) IN " +
@@ -47,6 +43,11 @@ public interface FunctionRepository extends JpaRepository<Function, String> {
                         "AND a.created = (SELECT MAX(a2.created) FROM Function a2 WHERE a2.project = :project AND a2.name = :name)")
         Optional<Function> findLatestFunctionByProjectAndName(@Param("project") String project,
                         @Param("name") String name);
+
+        @Query("SELECT a FROM Function a WHERE a.project = :project AND a.id = :id " +
+                        "AND a.created = (SELECT MAX(a2.created) FROM Function a2 WHERE a2.project = :project AND a2.id = :id)")
+        Optional<Function> findLatestFunctionByProjectAndId(@Param("project") String project,
+                        @Param("id") String id);
 
         boolean existsByProjectAndNameAndId(String project, String name, String id);
 

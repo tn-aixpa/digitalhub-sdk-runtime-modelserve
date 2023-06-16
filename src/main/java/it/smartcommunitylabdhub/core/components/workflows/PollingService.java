@@ -26,4 +26,12 @@ public class PollingService {
     public void stopPolling() {
         pollerMap.entrySet().stream().forEach(e -> e.getValue().stopPolling());
     }
+
+    public void startOne(String name) {
+        pollerMap.get(name).startPolling();
+    }
+
+    public void stopOne(String name) {
+        pollerMap.get(name).stopPolling();
+    }
 }

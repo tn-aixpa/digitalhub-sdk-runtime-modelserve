@@ -21,13 +21,14 @@ public class JobEventListener implements MessageHandler<JobMessage> {
     public CompletableFuture<Void> handle(JobMessage message) {
         return CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(3000);
                 String threadName = Thread.currentThread().getName();
-                System.out.println("Handling JobMessage asynchronously on thread: " + threadName + ", Run ID: "
+                System.out.println("JobService receive [" + threadName + "] task@"
+                        + message.getRunDTO().getExtra().get("task_id") + ":Job@"
                         + message.getRunDTO().getId());
 
-                jobService.run(message.getRunDTO());
-            } catch (InterruptedException e) {
+                // Call runnable job service
+                jobService.run(message.getRunDTO(), message.getTaskDTO());
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         });
