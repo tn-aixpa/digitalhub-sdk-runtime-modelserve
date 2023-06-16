@@ -2,8 +2,10 @@ package it.smartcommunitylabdhub.core.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +15,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import it.smartcommunitylabdhub.core.components.workflows.PollingService;
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.components.workflows.functions.FunctionWorkflowBuilder;
 
 @Configuration
@@ -49,7 +52,7 @@ public class AsyncConfig implements AsyncConfigurer {
         // List<Workflow> test = new ArrayList<>();
         // Function<Integer, Integer> doubleFunction = num -> {
         // Random randomno = new Random();
-        // long randomDelay = (long) (randomno.nextDouble() * 7 + 3); // Random delay
+        // long randomDelay = (long) (randomno.nextDouble() * 40 + 20); // Random delay
         // between 3 and 10
         // // seconds
         // System.out.println("RANDOM DELAY TEST WORKFLOW " + randomDelay);

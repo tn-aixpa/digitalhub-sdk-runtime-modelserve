@@ -106,7 +106,6 @@ public class FunctionWorkflowBuilder {
                 @SuppressWarnings("unchecked")
                 Function<List<FunctionDTO>, List<FunctionDTO>> storeFunctions = functions -> {
 
-                        System.out.println("Second function");
                         HttpHeaders headers = new HttpHeaders();
                         headers.setContentType(MediaType.APPLICATION_JSON);
 
