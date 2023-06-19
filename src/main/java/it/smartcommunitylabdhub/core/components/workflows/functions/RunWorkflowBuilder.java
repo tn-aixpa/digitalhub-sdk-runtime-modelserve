@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.components.workflows.factory.WorkflowFactory;
+import it.smartcommunitylabdhub.core.exceptions.StopPoller;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 
@@ -23,6 +24,8 @@ public class RunWorkflowBuilder {
     private static RunService runService;
     private static RestTemplate restTemplate;
     private static ParameterizedTypeReference<Map<String, Object>> responseType;
+
+    private static Integer i = 0;
 
     public RunWorkflowBuilder(RunService runService) {
         RunWorkflowBuilder.runService = runService;
@@ -35,30 +38,32 @@ public class RunWorkflowBuilder {
     public static Workflow buildWorkflow(RunDTO runDTO) {
         final String RUN_URL = "http://192.168.49.2:30070/api/v1/run/{project}/{uid}";
 
-        Function<Object[], Void> getRunUpdate = params -> {
+        Function<Object[], Object> getRunUpdate = params -> {
 
-            try {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<String> entity = new HttpEntity<>(headers);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-                String requestUrl = params[0].toString()
-                        .replace("{project}", ((RunDTO) params[1]).getProject())
-                        .replace("{uid}", ((RunDTO) params[1]).getExtra()
-                                .get("mlrun_run_uid").toString());
+            String requestUrl = params[0].toString()
+                    .replace("{project}", ((RunDTO) params[1]).getProject())
+                    .replace("{uid}", ((RunDTO) params[1]).getExtra()
+                            .get("mlrun_run_uid").toString());
 
-                ResponseEntity<Map<String, Object>> response = restTemplate
-                        .exchange(requestUrl, HttpMethod.GET, entity,
-                                responseType);
+            ResponseEntity<Map<String, Object>> response = restTemplate
+                    .exchange(requestUrl, HttpMethod.GET, entity,
+                            responseType);
 
-                return (Void) Optional.ofNullable(response.getBody()).map(body -> {
+            return Optional.ofNullable(response.getBody()).map(body -> {
 
-                    // System.out.println("the body :" + body.toString());
-                    return null;
-                }).orElseGet(() -> null);
-            } catch (Exception e) {
-                return null;
-            }
+                i++;
+
+                if (i >= 5) {
+                    throw new StopPoller("Poller stop");
+                }
+
+                // System.out.println("the body :" + body.toString());
+                return "Stocazzo!";
+            }).orElseGet(() -> null);
 
         };
 

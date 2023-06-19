@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.swing.text.html.Option;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import it.smartcommunitylabdhub.core.components.runnables.dispatcher.MessageDispatcher;
 import it.smartcommunitylabdhub.core.components.runnables.events.RunMessage;
 import it.smartcommunitylabdhub.core.components.runnables.services.interfaces.JobService;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
@@ -33,12 +33,12 @@ public class JobServiceImpl implements JobService {
     @Value("${mlrun.api.submit-job}")
     private String MLRUN_API_SUBMIT_JOB;
 
-    private final MessageDispatcher messageDispatcher;
+    private final ApplicationEventPublisher eventPublisher;
     private final RestTemplate restTemplate;
     private final RunRepository runRepository;
 
-    public JobServiceImpl(MessageDispatcher messageDispatcher, RunRepository runRepository) {
-        this.messageDispatcher = messageDispatcher;
+    public JobServiceImpl(ApplicationEventPublisher eventPublisher, RunRepository runRepository) {
+        this.eventPublisher = eventPublisher;
         this.restTemplate = new RestTemplate();
         this.runRepository = runRepository;
     }
@@ -90,7 +90,7 @@ public class JobServiceImpl implements JobService {
                     Run run = runRepository.save(new RunEntityBuilder(runDTO).build());
 
                     System.out.println("2. Dispatch event to runEventListener");
-                    messageDispatcher.dispatch(
+                    eventPublisher.publishEvent(
                             RunMessage.builder().runDTO(new RunDTOBuilder(run).build())
                                     .build());
                 });

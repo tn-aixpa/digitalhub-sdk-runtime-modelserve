@@ -25,6 +25,7 @@ public class PollingService {
 
     public void stopPolling() {
         pollerMap.entrySet().stream().forEach(e -> e.getValue().stopPolling());
+        pollerMap.clear();
     }
 
     public void startOne(String name) {
@@ -33,5 +34,10 @@ public class PollingService {
 
     public void stopOne(String name) {
         pollerMap.get(name).stopPolling();
+        pollerMap.remove(name);
+    }
+
+    public void remove(String name) {
+        pollerMap.remove(name);
     }
 }

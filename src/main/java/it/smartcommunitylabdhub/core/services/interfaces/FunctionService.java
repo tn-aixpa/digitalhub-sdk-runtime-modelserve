@@ -24,6 +24,4 @@ public interface FunctionService {
     List<RunDTO> getFunctionRuns(String uuid);
 
     List<FunctionDTO> getAllLatestFunctions();
-
-    RunDTO task(String uuidOrName, TaskDTO taskDTO);
 }
