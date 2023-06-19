@@ -43,6 +43,9 @@ public class Run implements BaseEntity {
     @Column(nullable = false)
     private String type;
 
+    @Column(nullable = false, name = "task_id")
+    private String taskId;
+
     @Lob
     private byte[] body;
 

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
@@ -31,7 +33,7 @@ public class RunSerivceImpl implements RunService {
         try {
             Page<Run> runPage = this.runRepository.findAll(pageable);
             return runPage.getContent().stream()
-                    .map(run -> (RunDTO) ConversionUtils.reverse(run, "run"))
+                    .map(run -> new RunDTOBuilder(run).build())
                     .collect(Collectors.toList());
 
         } catch (CustomException e) {
@@ -44,23 +46,12 @@ public class RunSerivceImpl implements RunService {
 
     @Override
     public RunDTO getRun(String uuid) {
-        final Run run = runRepository.findById(uuid).orElse(null);
-        if (run == null) {
-            throw new CoreException(
-                    "RunNotFound",
-                    "The run you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-            return ConversionUtils.reverse(run, "run");
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return runRepository.findById(uuid)
+                .map(run -> new RunDTOBuilder(run).build())
+                .orElseThrow(() -> new CoreException(
+                        "RunNotFound",
+                        "The run you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -81,7 +72,7 @@ public class RunSerivceImpl implements RunService {
         try {
             // Build a run and store it on db
 
-            final Run run = ConversionUtils.convert(runDTO, "run");
+            final Run run = new RunEntityBuilder(runDTO).build();
             this.runRepository.save(run);
 
             return ConversionUtils.reverse(run, "run");

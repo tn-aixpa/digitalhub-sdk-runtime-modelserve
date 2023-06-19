@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Task;
@@ -31,7 +33,7 @@ public class TaskServiceImpl implements TaskService {
         try {
             Page<Task> TaskPage = this.taskRepository.findAll(pageable);
             return TaskPage.getContent().stream()
-                    .map(Task -> (TaskDTO) ConversionUtils.reverse(Task, "task"))
+                    .map(task -> new TaskDTOBuilder(task).build())
                     .collect(Collectors.toList());
 
         } catch (CustomException e) {
@@ -44,23 +46,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO getTask(String uuid) {
-        final Task Task = taskRepository.findById(uuid).orElse(null);
-        if (Task == null) {
-            throw new CoreException(
-                    "TaskNotFound",
-                    "The Task you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
-
-        try {
-            return ConversionUtils.reverse(Task, "task");
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return taskRepository.findById(uuid).map(task -> new TaskDTOBuilder(task).build())
+                .orElseThrow(() -> new CoreException(
+                        "TaskNotFound",
+                        "The Task you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -77,11 +67,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDTO createTask(@Valid TaskDTO TaskDTO) {
+    public TaskDTO createTask(@Valid TaskDTO taskDTO) {
         try {
             // Build a Task and store it on db
 
-            final Task Task = ConversionUtils.convert(TaskDTO, "task");
+            final Task Task = new TaskEntityBuilder(taskDTO).build();
             this.taskRepository.save(Task);
 
             return ConversionUtils.reverse(Task, "task");

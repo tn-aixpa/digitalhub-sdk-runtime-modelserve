@@ -230,9 +230,6 @@ public class FunctionServiceImpl implements FunctionService {
                 .map(function -> {
 
                     // 2. store task and create run object
-                    taskDTO.setType(function.getKind());
-                    // FIXME: maybe set task name and task project????
-
                     Task task = new TaskEntityBuilder(taskDTO).build();
                     taskRepository.save(task);
 
@@ -240,10 +237,10 @@ public class FunctionServiceImpl implements FunctionService {
                     Run run = new RunEntityBuilder(
                             RunDTO.builder()
                                     .type(function.getKind())
+                                    .taskId(task.getId())
                                     .project(function.getProject())
                                     .name(taskDTO.getName() + "@task:" + task.getId())
                                     .body(Map.of())
-                                    .extra(Map.of("task_id", task.getId()))
                                     .build())
                             .build();
                     this.runRepository.save(run);

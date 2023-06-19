@@ -18,6 +18,7 @@ public class RunConverter implements Converter<RunDTO, Run> {
                 .project(runDTO.getProject())
                 .name(runDTO.getName())
                 .type(runDTO.getType())
+                .taskId(runDTO.getTaskId())
                 .state(runDTO.getState() == null ? State.CREATED : State.valueOf(runDTO.getState()))
                 .build();
     }
@@ -29,6 +30,7 @@ public class RunConverter implements Converter<RunDTO, Run> {
                 .project(run.getProject())
                 .name(run.getName())
                 .type(run.getType())
+                .taskId(run.getTaskId())
                 .state(run.getState() == null ? State.CREATED.name() : run.getState().name())
                 .created(run.getCreated())
                 .updated(run.getUpdated())

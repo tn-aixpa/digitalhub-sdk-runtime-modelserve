@@ -1,6 +1,10 @@
 package it.smartcommunitylabdhub.core.components.runnables.services;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import javax.swing.text.html.Option;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -14,12 +18,12 @@ import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylabdhub.core.components.runnables.dispatcher.MessageDispatcher;
 import it.smartcommunitylabdhub.core.components.runnables.services.interfaces.JobService;
+import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
-import it.smartcommunitylabdhub.core.models.entities.Task;
+import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import jakarta.transaction.Transactional;
-import kotlin.sequences.TakeSequence;
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -30,45 +34,82 @@ public class JobServiceImpl implements JobService {
     private final MessageDispatcher messageDispatcher;
     private final RestTemplate restTemplate;
     private final TaskRepository taskRepository;
+    private final RunRepository runRepository;
 
-    public JobServiceImpl(MessageDispatcher messageDispatcher, TaskRepository taskRepository) {
+    public JobServiceImpl(MessageDispatcher messageDispatcher,
+            TaskRepository taskRepository, RunRepository runRepository) {
         this.messageDispatcher = messageDispatcher;
         this.restTemplate = new RestTemplate();
         this.taskRepository = taskRepository;
+        this.runRepository = runRepository;
     }
 
     @Override
     @Transactional
     public void run(RunDTO runDTO, TaskDTO taskDTO) {
-        // TODO Auto-generated method stub
-        System.out.println("1. Call api to get run status");
+        try {
 
-        ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {
-        };
+            System.out.println("1. Call api to get run status");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+            ParameterizedTypeReference<Map<String, Object>> responseType = new ParameterizedTypeReference<Map<String, Object>>() {
+            };
 
-        Map<String, Object> requestBody = Map.of(
-                "task", Map.of(
-                        "spec", taskDTO.getSpec(),
-                        "metadata", Map.of(
-                                "name", taskDTO.getName(),
-                                "project", taskDTO.getProject())));
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
-                requestBody, headers);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Get response from job submit
-        ResponseEntity<Map<String, Object>> response = restTemplate
-                .exchange(MLRUN_API_SUBMIT_JOB,
-                        HttpMethod.POST, entity,
-                        responseType);
+            Map<String, Object> requestBody = Map.of(
+                    "task", Map.of(
+                            "spec", taskDTO.getSpec(),
+                            "metadata", Map.of(
+                                    "name", taskDTO.getName(),
+                                    "project", taskDTO.getProject())));
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
+                    requestBody, headers);
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            System.out.println(response.getBody().toString());
+            // Get response from job submit
+            ResponseEntity<Map<String, Object>> response = restTemplate
+                    .exchange(MLRUN_API_SUBMIT_JOB,
+                            HttpMethod.POST, entity,
+                            responseType);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> body = Optional.ofNullable(response.getBody()).orElse(new HashMap<>());
+
+                getNestedFieldValue(body, "data").ifPresent(data -> {
+                    getNestedFieldValue(data, "spec").ifPresent(spec -> {
+                        runDTO.setBody(spec);
+                    });
+
+                    getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
+                        runDTO.setExtra("mlrun_run_uid", metadata.get("uid"));
+                    });
+
+                    getNestedFieldValue(data, "status").ifPresent(status -> {
+                        runDTO.setExtra("status", status);
+                    });
+
+                    runRepository.save(new RunEntityBuilder(runDTO).build());
+
+                    System.out.println("2. Dispatch event to event BUS");
+                });
+
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-        System.out.println("2. Dispatch event to event BUS");
+    }
 
+    private static Optional<Map<String, Object>> getNestedFieldValue(Map<String, Object> map, String field) {
+        Object value = ((Map<?, ?>) map).get(field);
+
+        if (value instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> nestedMap = (Map<String, Object>) value;
+            return Optional.of(nestedMap);
+        } else {
+            return Optional.empty(); // Field path doesn't lead to a nested map
+        }
     }
 
 }

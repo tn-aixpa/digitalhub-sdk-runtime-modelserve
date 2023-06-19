@@ -6,12 +6,14 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 import java.util.HashMap;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +40,9 @@ public class RunDTO implements BaseEntity {
 
     @NotNull
     private String type;
+
+    @JsonProperty("task_id")
+    private String taskId;
 
     @Builder.Default
     private Map<String, Object> body = new HashMap<>();

@@ -48,6 +48,7 @@ public class RunEntityBuilder {
                                 Run, runDTO, builder -> {
                                         builder
                                                         .with(f -> f.setType(runDTO.getType()))
+                                                        .with(f -> f.setTaskId(runDTO.getTaskId()))
                                                         .with(f -> f.setProject(runDTO.getProject()))
                                                         .with(f -> f.setName(runDTO.getName()))
                                                         .with(f -> f.setState(runDTO.getState() == null
