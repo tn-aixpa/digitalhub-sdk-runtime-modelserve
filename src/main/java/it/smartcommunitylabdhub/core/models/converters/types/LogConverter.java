@@ -3,10 +3,10 @@ package it.smartcommunitylabdhub.core.models.converters.types;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.entities.Log;
+import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
 public class LogConverter implements Converter<LogDTO, Log> {
@@ -17,7 +17,8 @@ public class LogConverter implements Converter<LogDTO, Log> {
                 .id(logDTO.getId())
                 .project(logDTO.getProject())
                 .run(logDTO.getRun())
-                .body(ConversionUtils.convert(logDTO.getBody(), "cbor"))
+                .state(logDTO.getState() == null ? State.CREATED : State.valueOf(logDTO.getState()))
+
                 .build();
     }
 
@@ -27,7 +28,7 @@ public class LogConverter implements Converter<LogDTO, Log> {
                 .id(log.getId())
                 .project(log.getProject())
                 .run(log.getRun())
-                .body(ConversionUtils.reverse(log.getBody(), "cbor"))
+                .state(log.getState() == null ? State.CREATED.name() : log.getState().name())
                 .created(log.getCreated())
                 .updated(log.getUpdated())
                 .build();

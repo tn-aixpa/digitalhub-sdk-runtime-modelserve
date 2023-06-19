@@ -6,9 +6,12 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
@@ -39,6 +42,12 @@ public class Log implements BaseEntity {
 
     @Lob
     private byte[] body;
+
+    @Lob
+    private byte[] extra;
+
+    @Enumerated(EnumType.STRING)
+    private State state;
 
     @CreationTimestamp
     @Column(updatable = false)
