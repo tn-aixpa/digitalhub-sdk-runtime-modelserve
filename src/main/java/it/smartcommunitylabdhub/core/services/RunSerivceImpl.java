@@ -14,6 +14,7 @@ import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
@@ -68,14 +69,16 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public RunDTO createRun(@Valid RunDTO runDTO) {
+    public RunDTO createRun(TaskDTO taskDTO) {
         try {
             // Build a run and store it on db
 
-            final Run run = new RunEntityBuilder(runDTO).build();
-            this.runRepository.save(run);
+            // final Run run = new RunEntityBuilder(runDTO).build();
+            // this.runRepository.save(run);
 
-            return ConversionUtils.reverse(run, "run");
+            // return ConversionUtils.reverse(run, "run");
+
+            return null;
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",
@@ -83,4 +86,48 @@ public class RunSerivceImpl implements RunService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Override
+    public RunDTO executeRun(String uuid) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+    }
+
+    // // 1. get function get if exist otherwise throw exeception.
+    // return
+    // functionRepository.findLatestFunctionByProjectAndId(taskDTO.getProject(),
+    // uuidOrName)
+    // .or(() -> functionRepository.findLatestFunctionByProjectAndName(
+    // taskDTO.getProject(), uuidOrName))
+    // .map(function -> {
+
+    // // 2. store task and create run object
+    // Task task = new TaskEntityBuilder(taskDTO).build();
+    // taskRepository.save(task);
+
+    // // 3. produce a run object and store it
+    // Run run = new RunEntityBuilder(
+    // RunDTO.builder()
+    // .type(function.getKind())
+    // .taskId(task.getId())
+    // .project(function.getProject())
+    // .name(taskDTO.getName() + "@task:" + task.getId())
+    // .body(Map.of())
+    // .build())
+    // .build();
+    // this.runRepository.save(run);
+
+    // // 4. produce event with the runDTO object
+    // RunDTO runDTO = new RunDTOBuilder(run).build();
+    // JobMessage jobMessage = new JobMessage(runDTO, new
+    // TaskDTOBuilder(task).build());
+    // messageDispatcher.dispatch(jobMessage);
+
+    // // 5. return the runDTO object to client
+    // return runDTO;
+
+    // }).orElseThrow(() -> new CoreException(
+    // "FunctionNotFound",
+    // "The function you are searching for does not exist.",
+    // HttpStatus.NOT_FOUND));
 }

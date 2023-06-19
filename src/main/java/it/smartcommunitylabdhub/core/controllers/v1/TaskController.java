@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import jakarta.validation.Valid;
@@ -29,7 +30,7 @@ public class TaskController {
     }
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<TaskDTO> getTask(@PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<TaskDTO> getTask(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.taskService.getTask(uuid));
     }
 
@@ -44,7 +45,8 @@ public class TaskController {
     }
 
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteArtifact(@PathVariable String uuid) {
+    public ResponseEntity<Boolean> deleteTask(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.taskService.deleteTask(uuid));
     }
 }

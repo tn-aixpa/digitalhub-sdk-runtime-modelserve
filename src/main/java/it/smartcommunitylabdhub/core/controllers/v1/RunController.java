@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import jakarta.validation.Valid;
 
@@ -29,7 +31,7 @@ public class RunController {
     }
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<RunDTO> getRun(@PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<RunDTO> getRun(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.runService.getRun(uuid));
     }
 
@@ -39,12 +41,18 @@ public class RunController {
     }
 
     @PostMapping(path = "", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<RunDTO> createRun(@Valid @RequestBody RunDTO runDTO) {
-        return ResponseEntity.ok(this.runService.createRun(runDTO));
+    public ResponseEntity<RunDTO> createRun(@Valid @RequestBody TaskDTO taskDTO) {
+        return ResponseEntity.ok(this.runService.createRun(taskDTO));
+    }
+
+    @PostMapping(path = "", produces = "application/json; charset=UTF-8")
+    public ResponseEntity<RunDTO> executeRun(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
+        return ResponseEntity.ok(this.runService.executeRun(uuid));
     }
 
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteArtifact(@PathVariable String uuid) {
+    public ResponseEntity<Boolean> deleteRun(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.runService.deleteRun(uuid));
     }
 }

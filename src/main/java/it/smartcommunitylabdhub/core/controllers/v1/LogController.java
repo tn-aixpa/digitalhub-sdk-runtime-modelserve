@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 
@@ -24,7 +25,7 @@ public class LogController {
     }
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<LogDTO> getLog(@PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<LogDTO> getLog(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.logService.getLog(uuid));
     }
 
@@ -34,7 +35,7 @@ public class LogController {
     }
 
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteArtifact(@PathVariable String uuid) {
+    public ResponseEntity<Boolean> deleteLog(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.logService.deleteLog(uuid));
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 
 public interface RunService {
 
@@ -14,6 +15,8 @@ public interface RunService {
 
     boolean deleteRun(String uuid);
 
-    RunDTO createRun(RunDTO runDTO);
+    RunDTO createRun(TaskDTO taskDTO);
+
+    RunDTO executeRun(String uuid);
 
 }
