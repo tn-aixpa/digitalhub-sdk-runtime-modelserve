@@ -57,7 +57,6 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                 }
 
                 // System.out.println("the body :" + body.toString());
-                return "Stocazzo!";
             }).orElseGet(() -> null);
 
         };
