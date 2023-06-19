@@ -13,7 +13,6 @@ import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 import java.util.HashMap;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

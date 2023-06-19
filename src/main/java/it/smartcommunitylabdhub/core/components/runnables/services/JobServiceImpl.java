@@ -17,12 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylabdhub.core.components.runnables.dispatcher.MessageDispatcher;
+import it.smartcommunitylabdhub.core.components.runnables.events.RunMessage;
 import it.smartcommunitylabdhub.core.components.runnables.services.interfaces.JobService;
+import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
-import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -33,14 +35,11 @@ public class JobServiceImpl implements JobService {
 
     private final MessageDispatcher messageDispatcher;
     private final RestTemplate restTemplate;
-    private final TaskRepository taskRepository;
     private final RunRepository runRepository;
 
-    public JobServiceImpl(MessageDispatcher messageDispatcher,
-            TaskRepository taskRepository, RunRepository runRepository) {
+    public JobServiceImpl(MessageDispatcher messageDispatcher, RunRepository runRepository) {
         this.messageDispatcher = messageDispatcher;
         this.restTemplate = new RestTemplate();
-        this.taskRepository = taskRepository;
         this.runRepository = runRepository;
     }
 
@@ -88,9 +87,12 @@ public class JobServiceImpl implements JobService {
                         runDTO.setExtra("status", status);
                     });
 
-                    runRepository.save(new RunEntityBuilder(runDTO).build());
+                    Run run = runRepository.save(new RunEntityBuilder(runDTO).build());
 
-                    System.out.println("2. Dispatch event to event BUS");
+                    System.out.println("2. Dispatch event to runEventListener");
+                    messageDispatcher.dispatch(
+                            RunMessage.builder().runDTO(new RunDTOBuilder(run).build())
+                                    .build());
                 });
 
             }

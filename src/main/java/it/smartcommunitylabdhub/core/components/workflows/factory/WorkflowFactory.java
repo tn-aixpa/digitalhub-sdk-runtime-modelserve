@@ -31,8 +31,8 @@ public class WorkflowFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public <I, O> WorkflowFactory step(Function<I, O> step, I... argument) {
-        steps.add(input -> step.apply((I) argument));
+    public <I, O> WorkflowFactory step(Function<I[], O> step, I... argument) {
+        steps.add(input -> step.apply(argument));
         return this;
     }
 
