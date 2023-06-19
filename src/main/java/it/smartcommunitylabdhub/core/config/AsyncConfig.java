@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -18,6 +19,9 @@ import it.smartcommunitylabdhub.core.components.workflows.functions.FunctionWork
 @Configuration
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
+
+    @Autowired
+    FunctionWorkflowBuilder functionWorkflowBuilder;
 
     @Bean
     Executor taskExecutor() {
@@ -39,7 +43,7 @@ public class AsyncConfig implements AsyncConfigurer {
 
         // Create and configure the first poller
         List<Workflow> coreMlrunSyncWorkflow = new ArrayList<>();
-        coreMlrunSyncWorkflow.add(FunctionWorkflowBuilder.buildWorkflow());
+        coreMlrunSyncWorkflow.add(functionWorkflowBuilder.buildWorkflow());
         // Add workflows to workflowList1
 
         pollingService.createPoller("DHCore-Mlrun-Sync", coreMlrunSyncWorkflow, 5, true);

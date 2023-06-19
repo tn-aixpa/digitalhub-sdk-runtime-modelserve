@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.components.workflows.factory.WorkflowFactory;
@@ -31,24 +30,21 @@ import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 
 @Component
-public class FunctionWorkflowBuilder {
+public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
 
-        private static FunctionService functionService;
-        private static RestTemplate restTemplate;
-        private static ParameterizedTypeReference<Map<String, Object>> responseType;
+        @Value("${mlrun.api.function-url}")
+        private String functionUrl;
+
+        @Value("${mlrun.api.project-url}")
+        private String projectUrl;
+
+        private FunctionService functionService;
 
         public FunctionWorkflowBuilder(FunctionService functionService) {
-                FunctionWorkflowBuilder.functionService = functionService;
-                FunctionWorkflowBuilder.restTemplate = new RestTemplate();
-                FunctionWorkflowBuilder.responseType = new ParameterizedTypeReference<Map<String, Object>>() {
-                };
-
+                this.functionService = functionService;
         }
 
-        public static Workflow buildWorkflow() {
-
-                final String FUNCTION_URL = "http://192.168.49.2:30070/api/v1/func/{project}/{function}";
-                final String PROJECT_URL = "http://192.168.49.2:30070/api/v1/projects/{project}";
+        public Workflow buildWorkflow() {
 
                 // COMMENT: call /{project}/{function} api and iterate over them..try to check
                 @SuppressWarnings("unchecked")
@@ -112,7 +108,7 @@ public class FunctionWorkflowBuilder {
                         return functions.stream()
                                         .map(function -> {
                                                 try {
-                                                        String requestUrl = FUNCTION_URL
+                                                        String requestUrl = functionUrl
                                                                         .replace("{project}", function.getProject())
                                                                         .replace("{function}", function.getName());
 
@@ -182,7 +178,7 @@ public class FunctionWorkflowBuilder {
 
                         functions.stream().forEach(function -> {
                                 try {
-                                        String requestUrl = PROJECT_URL
+                                        String requestUrl = projectUrl
                                                         .replace("{project}", function.getProject());
 
                                         // Get the project
@@ -242,16 +238,13 @@ public class FunctionWorkflowBuilder {
                 };
 
                 // Define workflow steps
-                WorkflowFactory workflowFactory = WorkflowFactory.builder()
-                                .step(compareMlrunCoreFunctions, FUNCTION_URL)
+                return WorkflowFactory.builder()
+                                .step(compareMlrunCoreFunctions, functionUrl)
                                 .step(storeFunctions)
-                                .step(updateProject);
+                                .step(updateProject).build();
 
                 // .conditionalStep((List<FunctionFieldAccessor> s) -> s.size() > 0,
                 // upsertFunction);
-
-                Workflow workflow = workflowFactory.build();
-                return workflow;
         }
 
 }

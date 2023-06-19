@@ -18,7 +18,6 @@ import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import jakarta.validation.Valid;
 
@@ -65,14 +64,6 @@ public class FunctionController {
     @GetMapping(path = "/{uuid}/runs", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<RunDTO>> functionRuns(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.getFunctionRuns(uuid));
-    }
-
-    @PostMapping(path = "/{uuidOrName}/task", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<RunDTO> task(
-            @Valid @RequestBody TaskDTO taskDTO,
-            @ValidateField @PathVariable(name = "uuidOrName", required = true) String uuidOrName) {
-
-        return ResponseEntity.ok(this.functionService.task(uuidOrName, taskDTO));
     }
 
 }

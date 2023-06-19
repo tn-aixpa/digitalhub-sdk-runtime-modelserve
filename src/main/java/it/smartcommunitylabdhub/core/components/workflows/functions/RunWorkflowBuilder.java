@@ -20,22 +20,18 @@ import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 
 @Component
-public class RunWorkflowBuilder {
-    private static RunService runService;
-    private static RestTemplate restTemplate;
-    private static ParameterizedTypeReference<Map<String, Object>> responseType;
+public class RunWorkflowBuilder extends BaseWorkflowBuilder {
+    private final RunService runService;
+    private final RestTemplate restTemplate;
 
     private static Integer i = 0;
 
     public RunWorkflowBuilder(RunService runService) {
-        RunWorkflowBuilder.runService = runService;
-        RunWorkflowBuilder.restTemplate = new RestTemplate();
-        RunWorkflowBuilder.responseType = new ParameterizedTypeReference<Map<String, Object>>() {
-        };
-
+        this.runService = runService;
+        this.restTemplate = new RestTemplate();
     }
 
-    public static Workflow buildWorkflow(RunDTO runDTO) {
+    public Workflow buildWorkflow(RunDTO runDTO) {
         final String RUN_URL = "http://192.168.49.2:30070/api/v1/run/{project}/{uid}";
 
         Function<Object[], Object> getRunUpdate = params -> {
