@@ -11,14 +11,11 @@ import org.springframework.stereotype.Service;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
-import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
-import jakarta.validation.Valid;
 
 @Service
 public class RunSerivceImpl implements RunService {
