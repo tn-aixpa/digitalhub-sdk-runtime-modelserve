@@ -44,7 +44,7 @@ public class RunDTO implements BaseEntity {
     private String taskId;
 
     @Builder.Default
-    private Map<String, Object> body = new HashMap<>();
+    private Map<String, Object> spec = new HashMap<>();
 
     @Builder.Default
     @JsonIgnore

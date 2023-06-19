@@ -74,7 +74,7 @@ public class JobServiceImpl implements JobService {
 
                 getNestedFieldValue(body, "data").ifPresent(data -> {
                     getNestedFieldValue(data, "spec").ifPresent(spec -> {
-                        runDTO.setBody(spec);
+                        runDTO.setSpec(spec);
                     });
 
                     getNestedFieldValue(data, "metadata").ifPresent(metadata -> {

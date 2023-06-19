@@ -23,7 +23,7 @@ public class RunDTOBuilder {
                                         .with(dto -> dto.setTaskId(run.getTaskId()))
                                         .with(dto -> dto.setProject(run.getProject()))
                                         .with(dto -> dto.setName(run.getName()))
-                                        .with(dto -> dto.setBody(ConversionUtils.reverse(run.getBody(), "cbor")))
+                                        .with(dto -> dto.setSpec(ConversionUtils.reverse(run.getSpec(), "cbor")))
                                         .with(dto -> dto.setExtra(ConversionUtils.reverse(run.getExtra(), "cbor")))
                                         .with(dto -> dto.setCreated(run.getCreated()))
                                         .with(dto -> dto.setUpdated(run.getUpdated()))

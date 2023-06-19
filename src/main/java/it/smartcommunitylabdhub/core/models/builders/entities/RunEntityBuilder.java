@@ -28,8 +28,8 @@ public class RunEntityBuilder {
                                                         .with(f -> f.setExtra(
                                                                         ConversionUtils.convert(runDTO.getExtra(),
                                                                                         "cbor")))
-                                                        .with(f -> f.setBody(
-                                                                        ConversionUtils.convert(runDTO.getBody(),
+                                                        .with(f -> f.setSpec(
+                                                                        ConversionUtils.convert(runDTO.getSpec(),
                                                                                         "cbor")));
                                 });
 
@@ -58,8 +58,8 @@ public class RunEntityBuilder {
                                                                         ConversionUtils.convert(runDTO.getExtra(),
 
                                                                                         "cbor")))
-                                                        .with(f -> f.setBody(
-                                                                        ConversionUtils.convert(runDTO.getBody(),
+                                                        .with(f -> f.setSpec(
+                                                                        ConversionUtils.convert(runDTO.getSpec(),
 
                                                                                         "cbor")));
                                 });

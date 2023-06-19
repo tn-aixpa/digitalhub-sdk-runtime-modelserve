@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
+import it.smartcommunitylabdhub.core.models.dtos.ExtraDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
@@ -85,7 +86,7 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public RunDTO executeRun(String uuid) {
+    public RunDTO executeRun(String uuid, ExtraDTO extraDTO) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'execute'");
     }

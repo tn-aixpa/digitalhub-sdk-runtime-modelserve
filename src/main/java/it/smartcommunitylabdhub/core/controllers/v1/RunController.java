@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
+import it.smartcommunitylabdhub.core.models.dtos.ExtraDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
@@ -47,8 +48,9 @@ public class RunController {
 
     @PostMapping(path = "{uuid}/execute", produces = "application/json; charset=UTF-8")
     public ResponseEntity<RunDTO> executeRun(
+            @RequestBody ExtraDTO extraDTO,
             @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
-        return ResponseEntity.ok(this.runService.executeRun(uuid));
+        return ResponseEntity.ok(this.runService.executeRun(uuid, extraDTO));
     }
 
     @DeleteMapping(path = "/{uuid}")
