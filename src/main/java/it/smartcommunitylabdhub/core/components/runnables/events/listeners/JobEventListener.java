@@ -1,12 +1,12 @@
-package it.smartcommunitylabdhub.core.components.runnables.listeners;
+package it.smartcommunitylabdhub.core.components.runnables.events.listeners;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylabdhub.core.components.runnables.events.JobMessage;
-import it.smartcommunitylabdhub.core.components.runnables.services.interfaces.JobService;
+import it.smartcommunitylabdhub.core.components.runnables.events.messages.JobMessage;
+import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.JobService;
 
 @Component
 public class JobEventListener {

@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.services.interfaces;
+package it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces;
 
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;

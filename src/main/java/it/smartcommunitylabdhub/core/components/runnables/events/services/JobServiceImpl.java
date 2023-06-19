@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.services;
+package it.smartcommunitylabdhub.core.components.runnables.events.services;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import it.smartcommunitylabdhub.core.components.runnables.events.RunMessage;
-import it.smartcommunitylabdhub.core.components.runnables.services.interfaces.JobService;
+import it.smartcommunitylabdhub.core.components.runnables.events.messages.RunMessage;
+import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.JobService;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;

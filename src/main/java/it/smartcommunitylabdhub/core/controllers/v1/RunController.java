@@ -45,7 +45,7 @@ public class RunController {
         return ResponseEntity.ok(this.runService.createRun(taskDTO));
     }
 
-    @PostMapping(path = "", produces = "application/json; charset=UTF-8")
+    @PostMapping(path = "{uuid}/execute", produces = "application/json; charset=UTF-8")
     public ResponseEntity<RunDTO> executeRun(
             @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.runService.executeRun(uuid));

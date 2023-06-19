@@ -1,6 +1,6 @@
-package it.smartcommunitylabdhub.core.components.runnables.events;
+package it.smartcommunitylabdhub.core.components.runnables.events.messages;
 
-import it.smartcommunitylabdhub.core.components.runnables.interfaces.Message;
+import it.smartcommunitylabdhub.core.components.runnables.events.messages.interfaces.Message;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

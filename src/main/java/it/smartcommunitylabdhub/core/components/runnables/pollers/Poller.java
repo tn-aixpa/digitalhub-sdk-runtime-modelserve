@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.workflows.factory;
+package it.smartcommunitylabdhub.core.components.runnables.pollers;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
 
 public class Poller implements Runnable {
@@ -65,7 +66,6 @@ public class Poller implements Runnable {
             }
 
             if (reschedule && active) {
-                // System.out.println("Poller result : " + result);
                 System.out.println("Poller [" + name + "] reschedule: " + Thread.currentThread().getName());
                 System.out.println("-------------------------------------------------------------------");
 

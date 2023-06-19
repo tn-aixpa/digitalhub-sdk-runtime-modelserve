@@ -12,9 +12,9 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import it.smartcommunitylabdhub.core.components.workflows.PollingService;
-import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
-import it.smartcommunitylabdhub.core.components.workflows.functions.FunctionWorkflowBuilder;
+import it.smartcommunitylabdhub.core.components.runnables.pollers.PollingService;
+import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.FunctionWorkflowBuilder;
 
 @Configuration
 @EnableAsync
