@@ -23,6 +23,6 @@ public class JobEventListener {
                 + message.getRunDTO().getId());
 
         // Call runnable job service
-        jobService.run(message.getRunDTO(), message.getTaskDTO());
+        jobService.run(message.getRunDTO());
     }
 }

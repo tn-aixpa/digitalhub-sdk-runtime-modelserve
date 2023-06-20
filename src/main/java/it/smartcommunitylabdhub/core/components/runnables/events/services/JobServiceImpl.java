@@ -20,7 +20,6 @@ import it.smartcommunitylabdhub.core.components.runnables.events.services.interf
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import jakarta.transaction.Transactional;
@@ -34,16 +33,21 @@ public class JobServiceImpl implements JobService {
     private final ApplicationEventPublisher eventPublisher;
     private final RestTemplate restTemplate;
     private final RunRepository runRepository;
+    private final RunDTOBuilder runDTOBuilder;
+    private final RunEntityBuilder runEntityBuilder;
 
-    public JobServiceImpl(ApplicationEventPublisher eventPublisher, RunRepository runRepository) {
+    public JobServiceImpl(ApplicationEventPublisher eventPublisher, RunRepository runRepository,
+            RunDTOBuilder runDTOBuilder, RunEntityBuilder runEntityBuilder) {
         this.eventPublisher = eventPublisher;
         this.restTemplate = new RestTemplate();
         this.runRepository = runRepository;
+        this.runDTOBuilder = runDTOBuilder;
+        this.runEntityBuilder = runEntityBuilder;
     }
 
     @Override
     @Transactional
-    public void run(RunDTO runDTO, TaskDTO taskDTO) {
+    public void run(RunDTO runDTO) {
         try {
 
             System.out.println("1. Call api to get run status");
@@ -56,10 +60,10 @@ public class JobServiceImpl implements JobService {
 
             Map<String, Object> requestBody = Map.of(
                     "task", Map.of(
-                            "spec", taskDTO.getSpec(),
+                            "spec", runDTO.getSpec(),
                             "metadata", Map.of(
-                                    "name", taskDTO.getName(),
-                                    "project", taskDTO.getProject())));
+                                    "name", runDTO.getName(),
+                                    "project", runDTO.getProject())));
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(
                     requestBody, headers);
 
@@ -85,11 +89,11 @@ public class JobServiceImpl implements JobService {
                         runDTO.setExtra("status", status);
                     });
 
-                    Run run = runRepository.save(new RunEntityBuilder(runDTO).build());
+                    Run run = runRepository.save(runEntityBuilder.build(runDTO));
 
                     System.out.println("2. Dispatch event to runEventListener");
                     eventPublisher.publishEvent(
-                            RunMessage.builder().runDTO(new RunDTOBuilder(run).build())
+                            RunMessage.builder().runDTO(runDTOBuilder.build(run))
                                     .build());
                 });
 

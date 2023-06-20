@@ -1,26 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class RunEntityBuilder {
-
-        private RunDTO runDTO;
-
-        public RunEntityBuilder(
-                        RunDTO runDTO) {
-                this.runDTO = runDTO;
-        }
 
         /**
          * Build a Run from a RunDTO and store extra values as a cbor
          * 
          * @return
          */
-        public Run build() {
+        public Run build(RunDTO runDTO) {
                 Run Run = EntityFactory.combine(
                                 ConversionUtils.convert(runDTO, "run"), runDTO,
                                 builder -> {
@@ -43,7 +39,7 @@ public class RunEntityBuilder {
          * @param Run
          * @return
          */
-        public Run update(Run Run) {
+        public Run update(Run Run, RunDTO runDTO) {
                 return EntityFactory.combine(
                                 Run, runDTO, builder -> {
                                         builder

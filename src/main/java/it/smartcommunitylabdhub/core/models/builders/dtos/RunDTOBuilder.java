@@ -1,21 +1,17 @@
 package it.smartcommunitylabdhub.core.models.builders.dtos;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class RunDTOBuilder {
 
-        private Run run;
-
-        public RunDTOBuilder(
-                        Run run) {
-                this.run = run;
-        }
-
-        public RunDTO build() {
+        public RunDTO build(Run run) {
                 return EntityFactory.create(RunDTO::new, run, builder -> {
                         builder
                                         .with(dto -> dto.setId(run.getId()))
