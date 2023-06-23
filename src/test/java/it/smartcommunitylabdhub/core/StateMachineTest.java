@@ -1,9 +1,14 @@
 package it.smartcommunitylabdhub.core;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
+import it.smartcommunitylabdhub.core.components.fsm.*;
 
 @SpringBootTest
 public class StateMachineTest {
@@ -13,49 +18,100 @@ public class StateMachineTest {
     @Test
     public void fsm() {
 
-        enum RegistrationState {
-            START,
-            PROCESSING,
-            COMPLETED,
-            ARCHIVED
-        }
+        // Create the state machine
+        StateMachine<String, String, Map<String, Object>> stateMachine = new StateMachine<>("State1",
+                new HashMap<>());
 
-        enum RegistrationEvent {
-            START_REGISTRATION,
-            SUBMIT_REGISTRATION
-        }
+        // Create states
+        State<String, String, Map<String, Object>> state1 = new State<>();
+        State<String, String, Map<String, Object>> state2 = new State<>();
+        State<String, String, Map<String, Object>> state3 = new State<>();
+        State<String, String, Map<String, Object>> state4 = new State<>();
+        State<String, String, Map<String, Object>> errorState = new State<>(); // Error state
 
-        StateMachine<RegistrationState, RegistrationEvent, String> stateMachine = new StateMachine<>(
-                RegistrationState.START);
+        // Add states to the state machine
+        stateMachine.addState("State1", state1);
+        stateMachine.addState("State2", state2);
+        stateMachine.addState("State3", state3);
+        stateMachine.addState("State4", state4);
 
-        // Add transitions
-        stateMachine.addTransition(RegistrationState.START, RegistrationEvent.START_REGISTRATION,
-                RegistrationState.PROCESSING, state -> true, state -> {
-                    System.out.println("Executing logic for START_REGISTRATION event in state: " + state);
-                    return "REGISTRATION_DATA";
-                });
+        // Define transactions for state 1
+        state1.addTransaction(new Transaction<>("Event1", "State2",
+                (input, context) -> input.isPresent(), false));
 
-        stateMachine.addTransition(RegistrationState.PROCESSING, RegistrationEvent.SUBMIT_REGISTRATION,
-                RegistrationState.COMPLETED, state -> true, state -> {
-                    System.out.println("Executing logic for SUBMIT_REGISTRATION event in state: " + state);
-                    return "SUCCESS";
-                });
+        // Define transactions for state 2
+        state2.addTransaction(new Transaction<>("Event2", "State3",
+                (input, context) -> input.isPresent(), false));
 
-        // Add an auto transition
-        stateMachine.addAutoTransition(RegistrationState.COMPLETED, RegistrationState.ARCHIVED,
-                state -> true, state -> {
-                    System.out.println("Executing logic for auto transition in state: " + state);
-                    return null; // No result needed for auto transition
-                });
+        // Define transactions for state 3
+        state3.addTransaction(new Transaction<>("Event3", "State4",
+                (input, context) -> input.isPresent(), false));
 
-        // Add a change listener specifically for the SUBMIT_REGISTRATION event
-        stateMachine.addChangeListener(RegistrationEvent.SUBMIT_REGISTRATION, (fromState, toState, event) -> {
-            System.out.println("Event change: " + fromState + " -> " + toState + " (Event: " + event + ")");
+        // Define transactions for state 4
+        state4.addTransaction(new Transaction<>("Event4", "State1",
+                (input, context) -> input.isPresent(), false));
+
+        // Set internal logic for state 2
+        state1.setInternalLogic((String input, Map<String, Object> context) -> {
+            System.out.println("Executing internal logic of State1 with input: " + input + ", context: " + context);
+            context.put("value", 1);
+            return Optional.of("State1 Result");
+        });
+        state1.setExitAction((Map<String, Object> context) -> {
+            System.out.println("exit action for state 1");
         });
 
-        // Simulate the user registration process
-        stateMachine.processEvent(RegistrationEvent.START_REGISTRATION);
-        stateMachine.processEvent(RegistrationEvent.SUBMIT_REGISTRATION);
+        state2.setInternalLogic((String input, Map<String, Object> context) -> {
+            System.out.println("Executing internal logic of State2 with input: " + input + ", context: " + context);
+            context.put("value", 2);
+            return Optional.of("State2 Result");
+        });
+
+        // Set internal logic for state 3
+        state3.setInternalLogic((String input, Map<String, Object> context) -> {
+            System.out.println("Executing internal logic of State3 with input: " + input + ", context: " + context);
+            context.put("value", 3);
+            return Optional.of("State3 Result");
+        });
+
+        // Set internal logic for state 4
+        state4.setInternalLogic((String input, Map<String, Object> context) -> {
+            System.out.println("Executing internal logic of State4 with input: " + input + ", context: " + context);
+            context.put("value", 4);
+            return Optional.of("State4 Result");
+        });
+
+        // Set internal logic for the error state
+        errorState.setInternalLogic((String input, Map<String, Object> context) -> {
+            System.out.println("Error state reached. Input: " + input + ", context: " + context);
+            // Handle error logic here
+            return Optional.empty(); // No result for error state
+        });
+
+        // Add event listeners
+        stateMachine.addEventListener("Event1",
+                (String input, Map<String, Object> context) -> System.out
+                        .println("Event1 Listener: " + input + ", context: " + context));
+        stateMachine.addEventListener("Event2",
+                (String input, Map<String, Object> context) -> System.out
+                        .println("Event2 Listener: " + input + ", context: " + context));
+        stateMachine.addEventListener("Event3",
+                (String input, Map<String, Object> context) -> System.out
+                        .println("Event3 Listener: " + input + ", context: " + context));
+        stateMachine.addEventListener("Event4",
+                (String input, Map<String, Object> context) -> System.out
+                        .println("Event4 Listener: " + input + ", context: " + context));
+
+        // Set state change listener
+        stateMachine.setStateChangeListener((String newState, Map<String, Object> context) -> System.out
+                .println("State Change Listener: " + newState + ", context: " + context));
+
+        // Set the error state
+        stateMachine.setErrorState("ErrorState", errorState);
+
+        // Trigger events to test the state machine
+        stateMachine.processEvent("Event1", Optional.of("Input1"));
+        stateMachine.processEvent("Event4", Optional.of("Input2"));
 
     }
 }

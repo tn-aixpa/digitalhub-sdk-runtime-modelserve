@@ -20,4 +20,6 @@ public interface RunService {
 
     RunDTO executeRun(String uuid, ExtraDTO extraDTO);
 
+    RunDTO save(RunDTO runDTO);
+
 }

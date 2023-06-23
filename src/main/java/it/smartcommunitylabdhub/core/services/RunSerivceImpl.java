@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,20 +102,31 @@ public class RunSerivceImpl implements RunService {
     @Override
     public RunDTO executeRun(String uuid, ExtraDTO extraDTO) {
 
-        return this.runRepository.findById(uuid).map(run -> {
+        return this.runRepository.findById(uuid)
+                .map(run -> {
 
-            RunDTO runDTO = runDTOBuilder.build(run);
+                    RunDTO runDTO = runDTOBuilder.build(run);
 
-            // 4. produce event with the runDTO object
-            JobMessage jobMessage = new JobMessage(runDTO);
-            applicationEventPublisher.publishEvent(jobMessage);
+                    // 4. produce event with the runDTO object
+                    JobMessage jobMessage = new JobMessage(runDTO);
+                    applicationEventPublisher.publishEvent(jobMessage);
 
-            return runDTO;
+                    return runDTO;
+                }).orElseThrow(() -> new CoreException(
+                        "RunNotFound",
+                        "The run you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
 
-        }).orElseThrow(() -> new CoreException(
-                "RunNotFound",
-                "The run you are searching for does not exist.",
-                HttpStatus.NOT_FOUND));
+    }
 
+    @Override
+    public RunDTO save(RunDTO runDTO) {
+
+        return Optional.ofNullable(this.runRepository.save(runEntityBuilder.build(runDTO)))
+                .map(run -> runDTOBuilder.build(run))
+                .orElseThrow(() -> new CoreException(
+                        "RunSaveError",
+                        "Problem while saving the run.",
+                        HttpStatus.NOT_FOUND));
     }
 }

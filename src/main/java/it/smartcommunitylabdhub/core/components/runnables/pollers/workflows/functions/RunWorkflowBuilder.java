@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
@@ -22,13 +25,14 @@ import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 @Component
 public class RunWorkflowBuilder extends BaseWorkflowBuilder {
 
-    @Value("${mlrun.api.submit-job}")
+    @Value("${mlrun.api.run-url}")
     private String runUrl;
 
     private final RunService runService;
     private final RestTemplate restTemplate;
 
     private static Integer i = 0;
+    ObjectMapper objectMapper = new ObjectMapper();
 
     public RunWorkflowBuilder(RunService runService) {
         this.runService = runService;
@@ -52,6 +56,12 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                             responseType);
 
             return Optional.ofNullable(response.getBody()).map(body -> {
+                try {
+                    System.out.println(objectMapper.writeValueAsString(body));
+                } catch (JsonProcessingException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
                 i++;
 

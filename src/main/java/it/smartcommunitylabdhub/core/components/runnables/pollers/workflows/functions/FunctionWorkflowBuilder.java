@@ -84,6 +84,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                                         }).orElseGet(() -> null);
 
                                                 } catch (HttpClientErrorException e) {
+                                                        System.out.println(e.getMessage());
                                                         HttpStatusCode statusCode = e.getStatusCode();
                                                         if (statusCode.is4xxClientError()) {
                                                                 // Function will be created on mlrun
@@ -163,6 +164,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                                         }
                                                         return null;
                                                 } catch (HttpClientErrorException ex) {
+                                                        System.out.println(ex.getMessage());
                                                         return null;
                                                 }
                                         })
@@ -230,7 +232,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                         });
 
                                 } catch (HttpClientErrorException ex) {
-
+                                        System.out.println(ex.getMessage());
                                 }
                         });
 
@@ -240,9 +242,9 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                 // Define workflow steps
                 return WorkflowFactory.builder()
                                 .step(compareMlrunCoreFunctions, functionUrl)
-                                .step(storeFunctions)
-                                .step(updateProject).build();
+                                .step(storeFunctions).build();
 
+                // .step(updateProject)
                 // .conditionalStep((List<FunctionFieldAccessor> s) -> s.size() > 0,
                 // upsertFunction);
         }

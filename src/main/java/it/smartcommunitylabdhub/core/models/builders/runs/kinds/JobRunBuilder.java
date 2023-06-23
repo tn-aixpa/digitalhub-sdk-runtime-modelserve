@@ -1,18 +1,13 @@
 package it.smartcommunitylabdhub.core.models.builders.runs.kinds;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.builders.runs.RunBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
-import it.smartcommunitylabdhub.core.models.entities.Run;
-import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 
 @RunBuilderComponent(type = "job")
@@ -28,7 +23,6 @@ public class JobRunBuilder implements RunBuilder {
                 return taskRepository.findById(taskDTO.getId())
                                 .map(task -> {
                                         // 3. produce a run object and store it
-
                                         return RunDTO.builder()
                                                         .type(task.getType())
                                                         .taskId(task.getId())
