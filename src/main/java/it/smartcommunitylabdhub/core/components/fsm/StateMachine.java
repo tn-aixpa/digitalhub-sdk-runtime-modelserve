@@ -26,30 +26,65 @@ public class StateMachine<S, E, C> implements Serializable {
         this.context = initialContext;
     }
 
+    public static <S, E, C> StateMachineBuilder<S, E, C> builder(S initialState, C initialContext) {
+        return new StateMachineBuilder<>(initialState, initialContext);
+    }
+
     // Builder
-    public void addState(S state, State<S, E, C> stateDefinition) {
-        states.put(state, stateDefinition);
-    }
+    public static class StateMachineBuilder<S, E, C> {
+        private S currentState;
+        private S errorState;
+        private Map<S, State<S, E, C>> states;
+        private Map<E, BiConsumer<?, C>> eventListeners;
+        private BiConsumer<S, C> stateChangeListener;
+        private C context;
 
-    public void setErrorState(S errorState, State<S, E, C> stateDefinition) {
-        this.errorState = errorState;
-
-        // Add the error state to the states map if it doesn't exist
-        if (!states.containsKey(errorState)) {
-            states.put(errorState, stateDefinition);
+        private StateMachineBuilder(S initialState, C initialContext) {
+            this.currentState = initialState;
+            this.context = initialContext;
+            this.states = new HashMap<>();
+            this.eventListeners = new HashMap<>();
         }
-    }
 
-    public <T> void addEventListener(E eventName, BiConsumer<T, C> listener) {
-        eventListeners.put(eventName, listener);
-    }
+        public StateMachineBuilder<S, E, C> withState(S state, State<S, E, C> stateDefinition) {
+            states.put(state, stateDefinition);
+            return this;
+        }
 
-    public void setStateChangeListener(BiConsumer<S, C> listener) {
-        stateChangeListener = listener;
-    }
+        public StateMachineBuilder<S, E, C> withErrorState(S errorState, State<S, E, C> stateDefinition) {
+            this.errorState = errorState;
 
-    public void addExternalEventListener(E eventName, Consumer<Optional<?>> listener) {
-        eventListeners.put(eventName, (input, context) -> listener.accept((Optional<?>) input));
+            // Add the error state to the states map if it doesn't exist
+            if (!states.containsKey(errorState)) {
+                states.put(errorState, stateDefinition);
+            }
+            return this;
+        }
+
+        public <T> StateMachineBuilder<S, E, C> withEventListener(E eventName, BiConsumer<T, C> listener) {
+            eventListeners.put(eventName, listener);
+            return this;
+        }
+
+        public StateMachineBuilder<S, E, C> withStateChangeListener(BiConsumer<S, C> listener) {
+            stateChangeListener = listener;
+            return this;
+        }
+
+        public StateMachineBuilder<S, E, C> withExternalEventListener(E eventName, Consumer<Optional<?>> listener) {
+            eventListeners.put(eventName, (input, context) -> listener.accept((Optional<?>) input));
+            return this;
+        }
+
+        public StateMachine<S, E, C> build() {
+            StateMachine<S, E, C> stateMachine = new StateMachine<>(currentState, context);
+            stateMachine.states = states;
+            stateMachine.errorState = errorState;
+            stateMachine.eventListeners = eventListeners;
+            stateMachine.stateChangeListener = stateChangeListener;
+            return stateMachine;
+        }
+
     }
 
     // Logic
