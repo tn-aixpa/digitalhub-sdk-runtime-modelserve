@@ -114,7 +114,19 @@ public class StateMachineTest {
 
                 // Trigger events to test the state machine
                 stateMachine.processEvent("Event1", Optional.of("Input1"));
-                stateMachine.processEvent("Event4", Optional.of("Input2"));
+                stateMachine.processEvent("Event2", Optional.of("Input2"));
+
+                // try {
+                // String ser = stateMachine.serialize();
+
+                // System.out.println(ser);
+
+                // StateMachine<String, String, Map<String, Object>> stateMachine2 =
+                // StateMachine.deserialize(ser);
+                // System.out.println("Deserialize");
+                // } catch (Exception e) {
+                // System.out.println("Error");
+                // }
 
         }
 }

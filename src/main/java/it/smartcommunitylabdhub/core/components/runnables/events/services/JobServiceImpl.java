@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.core.components.runnables.events.services;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -9,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.JobService;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 
 import java.util.*;

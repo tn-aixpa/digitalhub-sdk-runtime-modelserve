@@ -8,8 +8,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class State<S, E, C> implements Serializable {
-    private Optional<Consumer<C>> entryAction;
 
+    private Optional<Consumer<C>> entryAction;
     private Optional<Consumer<C>> exitAction;
     private Optional<BiFunction<?, C, ?>> internalLogic;
     private Map<E, Transaction<S, E, C>> transactions;

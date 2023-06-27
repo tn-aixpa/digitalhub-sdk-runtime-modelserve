@@ -10,6 +10,11 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class StateMachine<S, E, C> implements Serializable {
     private S currentState;
     private S errorState;
@@ -17,6 +22,9 @@ public class StateMachine<S, E, C> implements Serializable {
     private Map<E, BiConsumer<?, C>> eventListeners;
     private BiConsumer<S, C> stateChangeListener;
     private C context;
+
+    public StateMachine() {
+    }
 
     public StateMachine(S initialState, C initialContext) {
         this.currentState = initialState;
@@ -30,8 +38,7 @@ public class StateMachine<S, E, C> implements Serializable {
         return new StateMachineBuilder<>(initialState, initialContext);
     }
 
-    // Builder
-    public static class StateMachineBuilder<S, E, C> {
+    public static class StateMachineBuilder<S, E, C> implements Serializable {
         private S currentState;
         private S errorState;
         private Map<S, State<S, E, C>> states;
