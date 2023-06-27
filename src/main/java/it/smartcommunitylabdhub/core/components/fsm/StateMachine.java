@@ -1,5 +1,8 @@
 package it.smartcommunitylabdhub.core.components.fsm;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +41,15 @@ public class StateMachine<S, E, C> implements Serializable {
         return new StateMachineBuilder<>(initialState, initialContext);
     }
 
+    public String serialize() throws IOException {
+        return null;
+    }
+
+    public static <S, E, C> StateMachine<S, E, C> deserialize(String data) throws IOException {
+        return null;
+    }
+
+    // Builder
     public static class StateMachineBuilder<S, E, C> implements Serializable {
         private S currentState;
         private S errorState;

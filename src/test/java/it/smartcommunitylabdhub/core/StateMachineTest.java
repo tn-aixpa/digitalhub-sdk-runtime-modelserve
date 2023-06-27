@@ -125,7 +125,7 @@ public class StateMachineTest {
                 // StateMachine.deserialize(ser);
                 // System.out.println("Deserialize");
                 // } catch (Exception e) {
-                // System.out.println("Error");
+                // System.out.println(e.getMessage());
                 // }
 
         }
