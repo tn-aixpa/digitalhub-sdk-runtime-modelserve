@@ -4,14 +4,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class State<S, E, C> implements Serializable {
 
     private Optional<Consumer<C>> entryAction;
     private Optional<Consumer<C>> exitAction;
-    private Optional<BiFunction<?, C, ?>> internalLogic;
+    private Optional<StateLogic<S, E, C, ?>> internalLogic;
     private Map<E, Transaction<S, E, C>> transactions;
 
     public State() {
@@ -21,11 +20,11 @@ public class State<S, E, C> implements Serializable {
         this.transactions = new HashMap<>();
     }
 
-    public Optional<BiFunction<?, C, ?>> getInternalLogic() {
+    public Optional<StateLogic<S, E, C, ?>> getInternalLogic() {
         return internalLogic;
     }
 
-    public <T> void setInternalLogic(BiFunction<T, C, ?> internalLogic) {
+    public <T> void setInternalLogic(StateLogic<S, E, C, T> internalLogic) {
         this.internalLogic = Optional.ofNullable(internalLogic);
     }
 

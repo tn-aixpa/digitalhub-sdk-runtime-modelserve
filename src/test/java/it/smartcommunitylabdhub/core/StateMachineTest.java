@@ -58,7 +58,7 @@ public class StateMachineTest {
                                 new Transaction<>("Event4", "State1", (input, context) -> input.isPresent(), false));
 
                 // Set internal logic for state 1
-                state1.setInternalLogic((input, context) -> {
+                state1.setInternalLogic((input, context, stateMachine) -> {
                         System.out.println("Executing internal logic of State1 with input: " + input + ", context: "
                                         + context);
                         context.put("value", 1);
@@ -69,7 +69,7 @@ public class StateMachineTest {
                 });
 
                 // Set internal logic for state 2
-                state2.setInternalLogic((input, context) -> {
+                state2.setInternalLogic((input, context, stateMachine) -> {
                         System.out.println("Executing internal logic of State2 with input: " + input + ", context: "
                                         + context);
                         context.put("value", 2);
@@ -77,7 +77,7 @@ public class StateMachineTest {
                 });
 
                 // Set internal logic for state 3
-                state3.setInternalLogic((input, context) -> {
+                state3.setInternalLogic((input, context, stateMachine) -> {
                         System.out.println("Executing internal logic of State3 with input: " + input + ", context: "
                                         + context);
                         context.put("value", 3);
@@ -85,7 +85,7 @@ public class StateMachineTest {
                 });
 
                 // Set internal logic for state 4
-                state4.setInternalLogic((input, context) -> {
+                state4.setInternalLogic((input, context, stateMachine) -> {
                         System.out.println("Executing internal logic of State4 with input: " + input + ", context: "
                                         + context);
                         context.put("value", 4);
@@ -93,7 +93,7 @@ public class StateMachineTest {
                 });
 
                 // Set internal logic for the error state
-                errorState.setInternalLogic((input, context) -> {
+                errorState.setInternalLogic((input, context, stateMachine) -> {
                         System.out.println("Error state reached. Input: " + input + ", context: " + context);
                         // Handle error logic here
                         return Optional.empty(); // No result for error state

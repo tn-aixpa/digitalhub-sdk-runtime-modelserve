@@ -25,6 +25,8 @@ public class RunEventListener {
     @EventListener
     @Async
     public void handle(RunMessage message) {
+
+        // Build workflow
         List<Workflow> workflows = new ArrayList<>();
         workflows.add(runWorkflowBuilder.buildWorkflow(message.getRunDTO()));
 

@@ -65,5 +65,4 @@ public class RunDTO implements BaseEntity {
     public void setExtra(String key, Object value) {
         extra.put(key, value);
     }
-
 }

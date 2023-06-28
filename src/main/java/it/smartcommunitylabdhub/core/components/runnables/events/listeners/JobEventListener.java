@@ -79,7 +79,6 @@ public class JobEventListener {
         });
 
         optionalData.orElseGet(() -> {
-
             handleFailedResponse("DataNotPresent", "Data is not present in MLRun Run response.");
             return null;
         });

@@ -1,7 +1,5 @@
 package it.smartcommunitylabdhub.core.components.fsm;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -107,6 +105,7 @@ public class StateMachine<S, E, C> implements Serializable {
     }
 
     // Logic
+    @SuppressWarnings("unchecked")
     public <T, R> void processEvent(E eventName, Optional<?> input) {
         State<S, E, C> currentStateDefinition = states.get(currentState);
         if (currentStateDefinition == null) {
@@ -141,8 +140,12 @@ public class StateMachine<S, E, C> implements Serializable {
                 notifyStateChangeListener(currentState);
 
                 nextStateDefinition.getInternalLogic().ifPresent(internalFunc -> {
-                    Optional<?> result = input
-                            .flatMap(value -> applyInternalFunc((BiFunction<?, C, Optional<T>>) internalFunc, value));
+                    Optional<T> result = (Optional<T>) applyInternalFunc(
+                            (inputValue, contextValue, stateMachineValue) -> internalFunc.applyLogic(inputValue,
+                                    contextValue, stateMachineValue),
+                            input.orElse(null));
+
+                    // TODO: Use the 'result' if needed
                 });
 
                 // Apply auto transition passing the input
@@ -166,10 +169,8 @@ public class StateMachine<S, E, C> implements Serializable {
         }
     }
 
-    private <T> Optional<T> applyInternalFunc(BiFunction<?, C, Optional<T>> internalFunc, Object value) {
-        @SuppressWarnings("unchecked")
-        BiFunction<Object, C, Optional<T>> func = (BiFunction<Object, C, Optional<T>>) internalFunc;
-        return func.apply(value, context);
+    private <T> Optional<T> applyInternalFunc(StateLogic<S, E, C, T> stateLogic, Object value) {
+        return stateLogic.applyLogic(value, context, this);
     }
 
     private void handleTransactionError(Transaction<S, E, C> transaction, Optional<?> input) {
@@ -208,12 +209,14 @@ public class StateMachine<S, E, C> implements Serializable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void applyErrorLogic(Object errorLogic, Object value) {
         BiFunction<Object, C, ?> errorFunction = (arg0, arg1) -> ((BiFunction<Object, C, ?>) errorLogic).apply(arg0,
                 arg1);
         errorFunction.apply(value, context);
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void notifyEventListeners(E eventName, T input) {
         BiConsumer<T, C> listener = (BiConsumer<T, C>) eventListeners.get(eventName);
         if (listener != null) {
