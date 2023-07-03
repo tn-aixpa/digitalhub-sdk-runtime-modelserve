@@ -11,7 +11,7 @@ from sdk.entities.api import (
     read_api_project,
 )
 from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
-from sdk.utils.factories import delete_context, get_client, set_context
+from sdk.utils.factories import delete_context, get_client
 from sdk.utils.io_utils import read_yaml
 
 

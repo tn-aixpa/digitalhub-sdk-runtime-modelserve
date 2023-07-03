@@ -757,13 +757,13 @@ class Project(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj_dict: dict) -> "Project":
+    def from_dict(cls, obj: dict) -> "Project":
         """
         Create Project instance from a dictionary.
 
         Parameters
         ----------
-        obj_dict : dict
+        obj : dict
             Dictionary to create Project from.
 
         Returns
@@ -772,30 +772,30 @@ class Project(Entity):
             Project instance.
 
         """
-        name = obj_dict.get("name")
+        name = obj.get("name")
         if name is None:
             raise Exception("Project name not specified.")
 
-        spec = obj_dict.get("spec")
+        spec = obj.get("spec")
         if spec is None:
             spec = {}
 
-        metadata = ProjectMetadata.from_dict(obj_dict.get("metadata", {"name": name}))
+        metadata = ProjectMetadata.from_dict(obj.get("metadata", {"name": name}))
 
         # Process spec
         spec_list = DTO_LIST + ["source", "context"]
         new_spec = {k: v for k, v in spec.items() if k in spec_list}
         new_spec = ProjectSpec.from_dict(new_spec)
-        obj = cls(name, metadata=metadata, spec=new_spec)
+        obj_ = cls(name, metadata=metadata, spec=new_spec)
 
         # Add objects to project from spec
         for i in [Function.from_dict(i) for i in spec.get(DTO_FUNC, [])]:
-            obj._add_object(i, DTO_FUNC)
+            obj_._add_object(i, DTO_FUNC)
         for i in [Artifact.from_dict(i) for i in spec.get(DTO_ARTF, [])]:
-            obj._add_object(i, DTO_ARTF)
+            obj_._add_object(i, DTO_ARTF)
         for i in [Workflow.from_dict(i) for i in spec.get(DTO_WKFL, [])]:
-            obj._add_object(i, DTO_WKFL)
+            obj_._add_object(i, DTO_WKFL)
         for i in [Dataitem.from_dict(i) for i in spec.get(DTO_DTIT, [])]:
-            obj._add_object(i, DTO_DTIT)
+            obj_._add_object(i, DTO_DTIT)
 
-        return obj
+        return obj_
