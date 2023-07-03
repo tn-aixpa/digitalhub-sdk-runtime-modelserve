@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import javax.swing.text.html.Option;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
@@ -81,6 +78,7 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                 } else if (stateMachine.getCurrentState().equals(RunState.COMPLETED)) {
                     System.out.println("Poller complete SUCCESSFULLY. Get log and stop poller now");
 
+                    // TODO: Store log from mlrun.
                     throw new StopPoller("Poller complete successful!");
                 }
                 return null;

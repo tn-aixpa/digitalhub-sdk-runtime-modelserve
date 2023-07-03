@@ -106,7 +106,7 @@ public class StateMachine<S, E, C> implements Serializable {
 
     // Logic
     @SuppressWarnings("unchecked")
-    public <T, R> void processEvent(E eventName, Optional<?> input) {
+    public <T, R> Optional<T> processEvent(E eventName, Optional<?> input) {
         State<S, E, C> currentStateDefinition = states.get(currentState);
         if (currentStateDefinition == null) {
             throw new IllegalStateException("Invalid current state: " + currentState);
@@ -139,33 +139,33 @@ public class StateMachine<S, E, C> implements Serializable {
                 // Notify state change listener
                 notifyStateChangeListener(currentState);
 
-                nextStateDefinition.getInternalLogic().ifPresent(internalFunc -> {
-                    Optional<T> result = (Optional<T>) applyInternalFunc(
-                            (inputValue, contextValue, stateMachineValue) -> internalFunc.applyLogic(inputValue,
-                                    contextValue, stateMachineValue),
-                            input.orElse(null));
+                Optional<T> result = (Optional<T>) nextStateDefinition.getInternalLogic()
+                        .map(internalFunc -> applyInternalFunc(
+                                (inputValue, contextValue, stateMachineValue) -> internalFunc.applyLogic(inputValue,
+                                        contextValue, stateMachineValue),
+                                input.orElse(null))
 
-                    // TODO: Use the 'result' if needed
-                });
+                        ).orElse(Optional.empty());
 
                 // Apply auto transition passing the input
                 List<Transaction<S, E, C>> autoTransactions = nextStateDefinition.getTransactions()
                         .entrySet().stream().filter(entry -> entry.getValue().isAuto())
                         .map(Map.Entry::getValue).collect(Collectors.toList());
                 for (Transaction<S, E, C> autoTransaction : autoTransactions) {
-                    if (autoTransaction.getGuard().test(input, context)) {
+                    if (autoTransaction.getGuard().test(result, context)) {
                         processEvent(autoTransaction.getEvent(), input);
                     }
                 }
+                return result;
             } else {
                 System.out.println("Guard condition not met for transaction: " + transaction);
                 // Handle error scenario
-                handleTransactionError(transaction, input);
+                return (Optional<T>) handleTransactionError(transaction, input);
             }
         } else {
             System.out.println("Invalid transaction for event: " + eventName);
             // Handle error scenario
-            handleInvalidTransactionError(eventName, input);
+            return (Optional<T>) handleInvalidTransactionError(eventName, input);
         }
     }
 
@@ -173,16 +173,15 @@ public class StateMachine<S, E, C> implements Serializable {
         return stateLogic.applyLogic(value, context, this);
     }
 
-    private void handleTransactionError(Transaction<S, E, C> transaction, Optional<?> input) {
+    private Optional<?> handleTransactionError(Transaction<S, E, C> transaction, Optional<?> input) {
         if (errorState != null) {
             // Transition to the error state
             currentState = errorState;
             State<S, E, C> errorStateDefinition = states.get(errorState);
             if (errorStateDefinition != null) {
                 // Execute error logic
-                errorStateDefinition.getInternalLogic().ifPresent(errorLogic -> {
-                    applyErrorLogic(errorLogic, input.orElse(null));
-                });
+                return errorStateDefinition.getInternalLogic()
+                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null))).orElse(Optional.empty());
             } else {
                 throw new IllegalStateException("Invalid error state: " + errorState);
             }
@@ -191,16 +190,16 @@ public class StateMachine<S, E, C> implements Serializable {
         }
     }
 
-    private void handleInvalidTransactionError(E eventName, Optional<?> input) {
+    private Optional<?> handleInvalidTransactionError(E eventName, Optional<?> input) {
         if (errorState != null) {
             // Transition to the error state
             currentState = errorState;
             State<S, E, C> errorStateDefinition = states.get(errorState);
             if (errorStateDefinition != null) {
                 // Execute error logic
-                errorStateDefinition.getInternalLogic().ifPresent(errorLogic -> {
-                    applyErrorLogic(errorLogic, input.orElse(null));
-                });
+                return errorStateDefinition.getInternalLogic()
+                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null))).orElse(Optional.empty());
+
             } else {
                 throw new IllegalStateException("Invalid error state: " + errorState);
             }
@@ -210,10 +209,10 @@ public class StateMachine<S, E, C> implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    private void applyErrorLogic(Object errorLogic, Object value) {
+    private Optional<?> applyErrorLogic(Object errorLogic, Object value) {
         BiFunction<Object, C, ?> errorFunction = (arg0, arg1) -> ((BiFunction<Object, C, ?>) errorLogic).apply(arg0,
                 arg1);
-        errorFunction.apply(value, context);
+        return Optional.of(errorFunction.apply(value, context));
     }
 
     @SuppressWarnings("unchecked")
