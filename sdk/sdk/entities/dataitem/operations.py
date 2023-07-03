@@ -91,8 +91,8 @@ def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
     """
     context = get_context(project)
     api = read_api(project, DTO_DTIT, name, uuid=uuid)
-    r = context.client.get_object(api)
-    return Dataitem.from_dict(r)
+    obj = context.client.get_object(api)
+    return Dataitem.from_dict(obj)
 
 
 def import_dataitem(file: str) -> Dataitem:
@@ -110,8 +110,8 @@ def import_dataitem(file: str) -> Dataitem:
         The Dataitem object imported from the file using the specified path.
 
     """
-    d = read_yaml(file)
-    return Dataitem.from_dict(d)
+    obj = read_yaml(file)
+    return Dataitem.from_dict(obj)
 
 
 def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
@@ -134,5 +134,5 @@ def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = delete_api(project, DTO_DTIT, name, uuid=uuid)
-    r = context.client.get_object(api)
-    return r
+    obj = context.client.get_object(api)
+    return obj

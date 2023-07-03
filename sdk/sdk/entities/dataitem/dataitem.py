@@ -12,10 +12,15 @@ from sdk.utils.utils import get_uiid
 
 
 class DataitemMetadata(EntityMetadata):
-    ...
+    """
+    Dataitem metadata.
+    """
 
 
 class DataitemSpec(EntitySpec):
+    """
+    Dataitem specifications.
+    """
     def __init__(self, key: str = None, path: str = None, **kwargs) -> None:
         """
         Constructor.
@@ -35,7 +40,7 @@ class DataitemSpec(EntitySpec):
 
         # Set new attributes
         for k, v in kwargs.items():
-            if k not in self.__dict__.keys():
+            if k not in self.__dict__:
                 self.__setattr__(k, v)
 
 
@@ -162,7 +167,7 @@ class Dataitem(Entity):
     #  Dataitem Methods
     #############################
 
-    def as_df(self, format: str = None, **kwargs) -> pd.DataFrame:
+    def as_df(self, file_format: str = None, **kwargs) -> pd.DataFrame:
         """
         Read dataitem as a pandas DataFrame. If the dataitem is not local,
         it will be downloaded to a temporary folder and deleted after the
@@ -174,7 +179,7 @@ class Dataitem(Entity):
 
         Parameters
         ----------
-        format : str, optional
+        file_format : str, optional
             Format of the file, e.g. csv, parquet, default is None.
         **kwargs
             Additional keyword arguments for pandas read_csv or read_parquet.
@@ -196,7 +201,7 @@ class Dataitem(Entity):
             tmp_path = True
 
         # Read DataFrame
-        extension = format if format is not None else get_extension(path)
+        extension = file_format if file_format is not None else get_extension(path)
         df = self._read_df(path, extension, **kwargs)
 
         # Clean temp folder
@@ -277,7 +282,7 @@ class Dataitem(Entity):
         """
         if extension == "csv":
             return pd.read_csv(path, **kwargs)
-        elif extension == "parquet":
+        if extension == "parquet":
             return pd.read_parquet(path, **kwargs)
         raise Exception(f"Format {extension} not supported.")
 
@@ -297,7 +302,7 @@ class Dataitem(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Dataitem":
+    def from_dict(cls, obj: dict) -> "Dataitem":
         """
         Create Dataitem instance from a dictionary.
 
@@ -312,11 +317,11 @@ class Dataitem(Entity):
             Dataitem instance.
 
         """
-        project = d.get("project")
-        name = d.get("name")
-        uuid = d.get("id")
+        project = obj.get("project")
+        name = obj.get("name")
+        uuid = obj.get("id")
         if project is None or name is None:
             raise Exception("Project or name are not specified.")
-        metadata = DataitemMetadata.from_dict(d.get("metadata", {"name": name}))
-        spec = DataitemSpec.from_dict(d.get("spec", {}))
+        metadata = DataitemMetadata.from_dict(obj.get("metadata", {"name": name}))
+        spec = DataitemSpec.from_dict(obj.get("spec", {}))
         return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

@@ -97,8 +97,8 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
     """
     context = get_context(project)
     api = read_api(project, DTO_FUNC, name, uuid=uuid)
-    r = context.client.get_object(api)
-    return Function.from_dict(r)
+    obj = context.client.get_object(api)
+    return Function.from_dict(obj)
 
 
 def import_function(file: str) -> Function:
@@ -116,8 +116,8 @@ def import_function(file: str) -> Function:
         The Function object imported from the file using the specified path.
 
     """
-    d = read_yaml(file)
-    return Function.from_dict(d)
+    obj = read_yaml(file)
+    return Function.from_dict(obj)
 
 
 def delete_function(project: str, name: str, uuid: str = None) -> None:
@@ -142,5 +142,5 @@ def delete_function(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = delete_api(project, DTO_FUNC, name, uuid=uuid)
-    r = context.client.get_object(api)
-    return r
+    obj = context.client.get_object(api)
+    return obj

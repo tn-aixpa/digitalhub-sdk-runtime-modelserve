@@ -215,7 +215,7 @@ def write_json(data: dict, path: Union[str, Path]) -> None:
     -------
     None
     """
-    with open(path, "w") as file:
+    with open(path, "w", encoding="utf-8") as file:
         json.dump(data, file)
 
 
@@ -234,7 +234,7 @@ def write_text(string: str, path: Union[str, Path]) -> None:
     -------
     None
     """
-    with open(path, "w") as file:
+    with open(path, "w", encoding="utf-8") as file:
         file.write(string)
 
 
@@ -316,8 +316,8 @@ def write_yaml(obj: dict, file: Union[str, Path]) -> None:
     yaml.add_representer(OrderedDict, ordered_dict_representer)
 
     obj = OrderedDict(obj)
-    with open(file, "w") as f:
-        yaml.dump(obj, f)
+    with open(file, "w", encoding="utf-8") as out_file:
+        yaml.dump(obj, out_file)
 
 
 ####################
@@ -339,6 +339,6 @@ def read_yaml(file: Union[str, Path]) -> dict:
     dict
         The yaml file content.
     """
-    with open(file, "r") as f:
-        data = yaml.load(f, Loader=yaml.SafeLoader)
+    with open(file, "r", encoding="utf-8") as in_file:
+        data = yaml.load(in_file, Loader=yaml.SafeLoader)
     return data

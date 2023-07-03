@@ -4,7 +4,6 @@ Local store module.
 from __future__ import annotations
 
 import typing
-from typing import Optional
 
 from sdk.store.objects.store import Store
 from sdk.utils.file_utils import check_dir, copy_file, get_dir, make_dir
@@ -19,22 +18,6 @@ class LocalStore(Store):
     S3 store class. It implements the Store interface and provides methods to fetch and persist
     artifacts on local filesystem based storage.
     """
-
-    def __init__(
-        self,
-        name: str,
-        type: str,
-        uri: str,
-        config: Optional[dict] = None,
-    ) -> None:
-        """
-        Constructor.
-
-        See Also
-        --------
-        Store.__init__
-        """
-        super().__init__(name, type, uri, config)
 
     ############################
     # IO methods
@@ -65,8 +48,8 @@ class LocalStore(Store):
 
     def download(self, *args, **kwargs) -> None:
         """
-        Method to download an artifact from the backend. Please note that this method is not implemented
-        since the local store is not meant to download artifacts.
+        Method to download an artifact from the backend. Please note that this method is not
+        implemented since the local store is not meant to download artifacts.
 
         Parameters
         ----------

@@ -4,7 +4,7 @@ Store builder module.
 from __future__ import annotations
 
 import typing
-from typing import Literal, Union
+from typing import Union
 
 from sdk.store.models import StoreConfig
 from sdk.store.registry import STORES
@@ -99,17 +99,15 @@ class StoreBuilder:
             if cfg.is_default:
                 if self._default is not None:
                     raise Exception("Only one default store!")
-                else:
-                    self._default = obj
+                self._default = obj
             return obj
-        except KeyError:
-            raise NotImplementedError
+        except KeyError as exc:
+            raise NotImplementedError from exc
 
     @staticmethod
     def _check_config(config: Union[StoreConfig, dict]) -> StoreConfig:
         """
-        Try to convert a dictionary in a StoreConfig model. In case the config parameter is None, return a dummy store basic
-        config.
+        Check the store configuration validity.
 
         Parameters
         ----------
@@ -129,6 +127,6 @@ class StoreBuilder:
         if not isinstance(config, StoreConfig):
             try:
                 return StoreConfig(**config)
-            except TypeError:
-                raise TypeError("Malformed store configuration.")
+            except TypeError as exc:
+                raise TypeError("Malformed store configuration.") from exc
         return config

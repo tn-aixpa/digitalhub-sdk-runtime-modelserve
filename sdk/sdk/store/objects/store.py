@@ -7,7 +7,8 @@ from typing import Optional
 
 class ResourceRegistry(dict):
     """
-    Registry object to keep track of resources fetched from a backend and their temporary local paths.
+    Registry object to keep track of resources fetched from a backend
+    and their temporary local paths.
     """
 
     def set_resource(self, res_name: str, path: str) -> None:
@@ -63,7 +64,7 @@ class Store(metaclass=ABCMeta):
     def __init__(
         self,
         name: str,
-        type: str,
+        store_type: str,
         uri: str,
         config: Optional[dict] = None,
     ) -> None:
@@ -74,7 +75,7 @@ class Store(metaclass=ABCMeta):
         ----------
         name : str
             Store name.
-        type : str
+        store_type : str
             Store type.
         uri : str
             Store URI.
@@ -86,7 +87,7 @@ class Store(metaclass=ABCMeta):
         None
         """
         self.name = name
-        self.type = type
+        self.type = store_type
         self.uri = uri
         self.config = config
         self.registry = ResourceRegistry()

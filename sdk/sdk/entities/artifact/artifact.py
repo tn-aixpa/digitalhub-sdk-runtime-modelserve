@@ -14,10 +14,15 @@ from sdk.utils.utils import get_uiid
 
 
 class ArtifactMetadata(EntityMetadata):
-    ...
+    """
+    Artifact metadata.
+    """
 
 
 class ArtifactSpec(EntitySpec):
+    """
+    Artifact specification.
+    """
     def __init__(
         self,
         key: str = None,
@@ -31,7 +36,7 @@ class ArtifactSpec(EntitySpec):
 
         # Set new attributes
         for k, v in kwargs.items():
-            if k not in self.__dict__.keys():
+            if k not in self.__dict__:
                 self.__setattr__(k, v)
 
 
@@ -424,7 +429,7 @@ class Artifact(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Artifact":
+    def from_dict(cls, obj: dict) -> "Artifact":
         """
         Create Artifact instance from a dictionary.
 
@@ -439,11 +444,11 @@ class Artifact(Entity):
             Artifact instance.
 
         """
-        project = d.get("project")
-        name = d.get("name")
-        uuid = d.get("id")
+        project = obj.get("project")
+        name = obj.get("name")
+        uuid = obj.get("id")
         if project is None or name is None:
             raise Exception("Project or name are not specified.")
-        metadata = ArtifactMetadata.from_dict(d.get("metadata", {"name": name}))
-        spec = ArtifactSpec.from_dict(d.get("spec", {}))
+        metadata = ArtifactMetadata.from_dict(obj.get("metadata", {"name": name}))
+        spec = ArtifactSpec.from_dict(obj.get("spec", {}))
         return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

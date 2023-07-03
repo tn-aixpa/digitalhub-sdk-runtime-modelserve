@@ -194,6 +194,9 @@ def as_uri(path: str) -> str:
     """
     try:
         return Path(path).as_uri()
-    except ValueError as ve:
-        if "relative path can't be expressed as a file URI" in ve.args[0]:
+    except ValueError as ver:
+        if "relative path can't be expressed as a file URI" in ver.args[0]:
             return path
+        raise ver
+    except Exception as exc:
+        raise exc

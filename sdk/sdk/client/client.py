@@ -1,8 +1,6 @@
 """
 Client module.
 """
-from typing import Union
-
 import requests
 
 from sdk.client.env_utils import get_dhub_env
@@ -10,7 +8,8 @@ from sdk.client.env_utils import get_dhub_env
 
 class Client:
     """
-    The client. It's a singleton. Use the builder to get an instance. It is used to make requests to the DHCore API.
+    The client. It's a singleton. Use the builder to get an instance.
+    It is used to make requests to the DHCore API.
     """
 
     def create_object(self, obj: dict, api: str) -> dict:
@@ -29,11 +28,7 @@ class Client:
         dict
             The created object.
         """
-        endpoint = self._get_endpoint(api)
-        r = requests.post(endpoint, json=obj)
-        d = self._dictify(r)
-        self._parse_status(d)
-        return d
+        return self.call("POST", api, json=obj)
 
     def get_object(self, api: str) -> dict:
         """
@@ -49,11 +44,7 @@ class Client:
         dict
             The object.
         """
-        endpoint = self._get_endpoint(api)
-        r = requests.get(endpoint)
-        d = self._dictify(r)
-        self._parse_status(d)
-        return d
+        return self.call("GET", api)
 
     def update_object(self, obj: dict, api: str) -> dict:
         """
@@ -71,13 +62,9 @@ class Client:
         dict
             The updated object.
         """
-        endpoint = self._get_endpoint(api)
-        r = requests.put(endpoint, json=obj)
-        d = self._dictify(r)
-        self._parse_status(d)
-        return d
+        return self.call("PUT", api, json=obj)
 
-    def delete_object(self, api: str) -> bool:
+    def delete_object(self, api: str) -> dict:
         """
         Delete an object.
 
@@ -88,23 +75,43 @@ class Client:
 
         Returns
         -------
-        bool
-            Always true.
+        dict
+            A generic dictionary.
         """
-        endpoint = self._get_endpoint(api)
-        r = requests.delete(endpoint)
-        d = self._dictify(r)
-        self._parse_status(d)
-        return d
+        return self.call("DELETE", api)
 
-    @staticmethod
-    def _parse_status(d: Union[dict, bool]) -> None:
+    def call(self, call_type: str, api: str, **kwargs) -> dict:
         """
-        Parse the status of a response.
+        Make a call to the DHCore API.
 
         Parameters
         ----------
-        d : Union[dict, bool]
+        call_type : str
+            The type of call to make.
+        api : str
+            The api to call.
+        **kwargs
+            The arguments to pass to the call.
+
+        Returns
+        -------
+        dict
+            The response object.
+        """
+        endpoint = self._get_endpoint(api)
+        response = requests.request(call_type, endpoint, timeout=60, **kwargs)
+        obj = self._dictify(response)
+        self._raise_if_status(obj)
+        return obj
+
+    @staticmethod
+    def _raise_if_status(obj: dict) -> None:
+        """
+        Parse the status of a response and raise an exception if it contains the status key.
+
+        Parameters
+        ----------
+        obj : dict
             The response.
 
         Returns
@@ -116,17 +123,17 @@ class Client:
         Exception
             If the response is not valid (a dict that contains the status key).
         """
-        if isinstance(d, dict) and "status" in d:
-            raise Exception(d)
+        if isinstance(obj, dict) and "status" in obj:
+            raise Exception(obj)
 
     @staticmethod
-    def _dictify(r: requests.Response) -> dict:
+    def _dictify(response: requests.Response) -> dict:
         """
         Convert a response to a dict.
 
         Parameters
         ----------
-        r : requests.Response
+        response : requests.Response
             The response.
 
         Returns
@@ -140,7 +147,10 @@ class Client:
             If the response is not convertible to a dict.
         """
         try:
-            return r.json()
+            obj = response.json()
+            if isinstance(obj, bool):
+                obj = {"result": obj}
+            return obj
         except Exception as ex:
             raise ex
 

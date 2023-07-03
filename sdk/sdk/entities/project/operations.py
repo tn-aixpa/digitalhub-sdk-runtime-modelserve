@@ -54,7 +54,6 @@ def new_project(
         dataitems=[],
     )
     obj = Project(name, metadata=meta, spec=spec, local=local)
-    set_context(obj)
     if local:
         obj.export()
     else:
@@ -82,16 +81,12 @@ def load_project(
     Returns
     -------
     Project
-        A Project instance with its context.
+        A Project instance with setted context.
 
     """
     if local:
-        obj = import_project(filename)
-    else:
-        client = get_client()
-        obj = get_project(client, name)
-    set_context(obj)
-    return obj
+        return import_project(filename)
+    return get_project(name)
 
 
 def get_project(name: str) -> Project:
@@ -110,15 +105,19 @@ def get_project(name: str) -> Project:
 
     """
     api = read_api_project(name)
-    r = get_client().get_object(api)
+    obj_be = get_client().get_object(api)
+
+    # Extract spec
     spec = {}
-    spec["source"] = r.get("source", None)
-    spec["context"] = r.get("context", "./")
-    spec["functions"] = r.get("functions", [])
-    spec["artifacts"] = r.get("artifacts", [])
-    spec["workflows"] = r.get("workflows", [])
-    spec["dataitems"] = r.get("dataitems", [])
-    l = [
+    spec["source"] = obj_be.get("source", None)
+    spec["context"] = obj_be.get("context", "./")
+    spec["functions"] = obj_be.get("functions", [])
+    spec["artifacts"] = obj_be.get("artifacts", [])
+    spec["workflows"] = obj_be.get("workflows", [])
+    spec["dataitems"] = obj_be.get("dataitems", [])
+
+    # Filter out spec from object
+    fields = [
         "functions",
         "artifacts",
         "workflows",
@@ -127,11 +126,11 @@ def get_project(name: str) -> Project:
         "metadata",
         "spec",
     ]
-    r = {k: v for k, v in r.items() if k not in l}
-    r["spec"] = spec
-    obj = Project.from_dict(r)
-    set_context(obj)
-    return obj
+
+    # Set spec for new object and create Project instance
+    obj = {k: v for k, v in obj_be.items() if k not in fields}
+    obj["spec"] = spec
+    return Project.from_dict(obj)
 
 
 def import_project(file: str) -> Project:
@@ -149,10 +148,8 @@ def import_project(file: str) -> Project:
         The Project object imported from the file using the specified path.
 
     """
-    d = read_yaml(file)
-    obj = Project.from_dict(d)
-    set_context(obj)
-    return obj
+    obj = read_yaml(file)
+    return Project.from_dict(obj)
 
 
 def delete_project(name: str, delete_all: bool = False) -> None:
@@ -171,25 +168,25 @@ def delete_project(name: str, delete_all: bool = False) -> None:
     """
     client = get_client()
     responses = []
+
     # Delete all objects related to project -> must be done by backend
     if delete_all:
-        for a in [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]:
-            api_obj = read_api_project(name, a)
+        for dto in [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]:
+            api_proj = read_api_project(name, dto)
             try:
-                r = client.get_object(api_obj)
-                for o in r:
-                    api = delete_api(name, a, o["name"])
-                    r = client.delete_object(api)
-                    responses.append(r)
+                objs = client.get_object(api_proj)
+                for obj in objs:
+                    api = delete_api(name, dto, obj["name"])
+                    responses.append(client.delete_object(api))
             except Exception:
-                pass
+                ...
+
     # Delete project
     try:
         api = delete_api_project(name)
-        r = client.delete_object(api)
-        responses.append(r)
+        responses.append(client.delete_object(api))
     except Exception:
-        pass
+        ...
 
     delete_context(name)
 

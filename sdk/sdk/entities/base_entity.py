@@ -2,11 +2,16 @@
 Abstract entity module.
 """
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 from sdk.utils.io_utils import write_yaml
 
 
 class ModelObj:
+    """
+    Base entity model.
+    """
+
     def to_dict(self) -> dict:
         """
         Return object as dict with all keys.
@@ -18,7 +23,7 @@ class ModelObj:
 
         """
         obj = {}
-        for k in self.__dict__.keys():
+        for k in self.__dict__:
             if k.startswith("_"):
                 continue
             val = getattr(self, k, None)
@@ -112,12 +117,16 @@ class Entity(ModelObj, metaclass=ABCMeta):
         self.id = None
 
     @abstractmethod
-    def save(self, overwrite: bool = False) -> dict:
-        ...
+    def save(self, uuid: bool = False) -> dict:
+        """
+        Abstract save method.
+        """
 
     @abstractmethod
     def export(self, filename: str = None) -> None:
-        ...
+        """
+        Abstract save method.
+        """
 
     @staticmethod
     def export_object(filename: str, obj: dict) -> None:
@@ -136,8 +145,8 @@ class Entity(ModelObj, metaclass=ABCMeta):
         """
         try:
             return write_yaml(obj, filename)
-        except Exception as e:
-            raise e
+        except Exception as exc:
+            raise exc
 
     def to_dict(self) -> dict:
         """
@@ -149,13 +158,25 @@ class Entity(ModelObj, metaclass=ABCMeta):
             A dictionary containing the attributes of the entity instance.
 
         """
-        d = super().to_dict()
-        return {k: v for k, v in d.items() if k in self._obj_attr}
+        dict_ = super().to_dict()
+        return {k: v for k, v in dict_.items() if k in self._obj_attr}
 
     def to_dict_essential(self) -> dict:
-        return {k: v for k, v in self.__dict__.items() if k in self._essential_attr}
+        """
+        Return object as dict with some attributes.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+
+        """
+        dict_ = super().to_dict()
+        return {k: v for k, v in dict_.items() if k in self._essential_attr}
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, *args, **kwargs) -> None:
-        ...
+    def from_dict(cls, obj: dict) -> Any:
+        """
+        Abstract method for creating objects from a dictionary.
+        """

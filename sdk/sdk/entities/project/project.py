@@ -26,10 +26,15 @@ DTO_LIST = [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]
 
 
 class ProjectMetadata(EntityMetadata):
-    ...
+    """
+    Project metadata.
+    """
 
 
 class ProjectSpec(EntitySpec):
+    """
+    Project specification.
+    """
     def __init__(
         self,
         context: str = None,
@@ -62,9 +67,10 @@ class ProjectSpec(EntitySpec):
 
         # Set new attributes
         for k, v in kwargs.items():
-            if k not in self.__dict__.keys():
+            if k not in self.__dict__:
                 self.__setattr__(k, v)
 
+        set_context(self)
 
 class Project(Entity):
     """
@@ -122,7 +128,7 @@ class Project(Entity):
     #  Save / Export
     #############################
 
-    def save(self) -> dict:
+    def save(self, uuid: bool = None) -> dict:
         """
         Save project and context into backend.
 
@@ -130,8 +136,9 @@ class Project(Entity):
         ----------
         save_object : bool, optional
             Flag to determine if object related to project will be saved.
-        overwrite : bool, optional
-            Flag to determine if object will be overwritten.
+
+        uuid : bool, optional
+            Ignored, placed for compatibility with other objects.
 
         Returns
         -------
@@ -149,18 +156,18 @@ class Project(Entity):
         # (try to avoid error response if project already exists)
         try:
             api = create_api_proj()
-            r = self.client.create_object(obj, api)
-            responses.append(r)
+            response = self.client.create_object(obj, api)
+            responses.append(response)
         except Exception:
             ...
 
         # Try to save objects related to project
         # (try to avoid error response if object does not exists)
         for i in DTO_LIST:
-            for o in self._get_objects(i):
+            for j in self._get_objects(i):
                 try:
-                    r = o.save(uuid=o.id)
-                    responses.append(r)
+                    obj = j.save(uuid=j.id)
+                    responses.append(obj)
                 except Exception:
                     ...
 
@@ -168,7 +175,8 @@ class Project(Entity):
 
     def export(self, filename: str = None) -> None:
         """
-        Export object as a YAML file. If the objects are not embedded, the objects are exported as a YAML file.
+        Export object as a YAML file. If the objects are not embedded, the objects are
+        exported as a YAML file.
 
         Parameters
         ----------
@@ -181,14 +189,14 @@ class Project(Entity):
 
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"project.yaml"
+        filename = filename if filename is not None else "project.yaml"
         self.export_object(filename, obj)
 
         # Export objects related to project if not embedded
         for i in DTO_LIST:
-            for o in self._get_objects(i):
-                if not o.embedded:
-                    o.export()
+            for obj in self._get_objects(i):
+                if not obj.embedded:
+                    obj.export()
 
     #############################
     #  Generic operations for objects (artifacts, functions, workflows, dataitems)
@@ -210,8 +218,8 @@ class Project(Entity):
         None
         """
         # Add to project spec
-        d = obj.to_dict_essential() if not obj.embedded else obj.to_dict()
-        attr = getattr(self.spec, kind, []) + [d]
+        obj_dict = obj.to_dict_essential() if not obj.embedded else obj.to_dict()
+        attr = getattr(self.spec, kind, []) + [obj_dict]
         setattr(self.spec, kind, attr)
 
         # Add to project objects
@@ -749,13 +757,13 @@ class Project(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Project":
+    def from_dict(cls, obj_dict: dict) -> "Project":
         """
         Create Project instance from a dictionary.
 
         Parameters
         ----------
-        d : dict
+        obj_dict : dict
             Dictionary to create Project from.
 
         Returns
@@ -764,19 +772,21 @@ class Project(Entity):
             Project instance.
 
         """
-        name = d.get("name")
+        name = obj_dict.get("name")
         if name is None:
             raise Exception("Project name not specified.")
-        spec = d.get("spec")
+
+        spec = obj_dict.get("spec")
         if spec is None:
             spec = {}
-        metadata = ProjectMetadata.from_dict(d.get("metadata", {"name": name}))
+
+        metadata = ProjectMetadata.from_dict(obj_dict.get("metadata", {"name": name}))
 
         # Process spec
-        new_spec = {k: v for k, v in spec.items() if k not in DTO_LIST}
+        spec_list = DTO_LIST + ["source", "context"]
+        new_spec = {k: v for k, v in spec.items() if k in spec_list}
         new_spec = ProjectSpec.from_dict(new_spec)
         obj = cls(name, metadata=metadata, spec=new_spec)
-        set_context(obj)
 
         # Add objects to project from spec
         for i in [Function.from_dict(i) for i in spec.get(DTO_FUNC, [])]:

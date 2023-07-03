@@ -94,8 +94,8 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
     """
     context = get_context(project)
     api = read_api(project, DTO_ARTF, name, uuid=uuid)
-    r = context.client.get_object(api)
-    return Artifact.from_dict(r)
+    obj = context.client.get_object(api)
+    return Artifact.from_dict(obj)
 
 
 def import_artifact(file: str) -> Artifact:
@@ -113,8 +113,8 @@ def import_artifact(file: str) -> Artifact:
         The Artifact object imported from the file using the specified path.
 
     """
-    d = read_yaml(file)
-    return Artifact.from_dict(d)
+    obj = read_yaml(file)
+    return Artifact.from_dict(obj)
 
 
 def delete_artifact(project: str, name: str, uuid: str = None) -> None:
@@ -137,5 +137,5 @@ def delete_artifact(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = delete_api(project, DTO_ARTF, name, uuid=uuid)
-    r = context.client.delete_object(api)
-    return r
+    obj = context.client.delete_object(api)
+    return obj

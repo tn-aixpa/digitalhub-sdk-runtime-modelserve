@@ -31,7 +31,7 @@ class WorkflowSpec(EntitySpec):
 
         # Set new attributes
         for k, v in kwargs.items():
-            if k not in self.__dict__.keys():
+            if k not in self.__dict__:
                 self.__setattr__(k, v)
 
 
@@ -175,7 +175,7 @@ class Workflow(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Workflow":
+    def from_dict(cls, obj: dict) -> "Workflow":
         """
         Create Workflow instance from a dictionary.
 
@@ -190,11 +190,11 @@ class Workflow(Entity):
             Workflow instance.
 
         """
-        project = d.get("project")
-        name = d.get("name")
-        uuid = d.get("id")
+        project = obj.get("project")
+        name = obj.get("name")
+        uuid = obj.get("id")
         if project is None or name is None:
             raise Exception("Project or name are not specified.")
-        metadata = WorkflowMetadata.from_dict(d.get("metadata", {"name": name}))
-        spec = WorkflowSpec.from_dict(d.get("spec", {}))
+        metadata = WorkflowMetadata.from_dict(obj.get("metadata", {"name": name}))
+        spec = WorkflowSpec.from_dict(obj.get("spec", {}))
         return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

@@ -40,7 +40,7 @@ class S3Store(Store):
     def __init__(
         self,
         name: str,
-        type: str,
+        store_type: str,
         uri: str,
         config: Optional[dict] = None,
     ) -> None:
@@ -51,7 +51,7 @@ class S3Store(Store):
         --------
         Store.__init__
         """
-        super().__init__(name, type, uri, config)
+        super().__init__(name, store_type, uri, config)
         self._validate_uri()
 
     ############################
@@ -80,7 +80,8 @@ class S3Store(Store):
 
     def fetch_artifact(self, src: str, dst: str = None) -> str:
         """
-        Fetch an artifact from S3 based storage.
+        Fetch an artifact from S3 based storage. If the destination is not provided,
+        a temporary directory will be created and the artifact will be saved there.
 
         Parameters
         ----------
@@ -95,8 +96,8 @@ class S3Store(Store):
             Returns a file path.
         """
         if dst is None:
-            dir = mkdtemp()
-            dst = f"{dir}/{get_name_from_uri(src)}"
+            tmpdir = mkdtemp()
+            dst = f"{tmpdir}/{get_name_from_uri(src)}"
             self._register_resource(f"{src}", dst)
 
         # Get client
@@ -246,8 +247,8 @@ class S3Store(Store):
         """
         try:
             client.head_bucket(Bucket=bucket)
-        except ClientError:
-            raise Exception("No access to s3 bucket!")
+        except ClientError as exc:
+            raise Exception("No access to s3 bucket!") from exc
 
     @staticmethod
     def _check_local_dst(dst: str) -> None:

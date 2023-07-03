@@ -84,8 +84,8 @@ def get_workflow(project: str, name: str, uuid: str = None) -> Workflow:
     """
     context = get_context(project)
     api = read_api(project, DTO_WKFL, name, uuid=uuid)
-    r = context.client.get_object(api)
-    return Workflow.from_dict(r)
+    obj = context.client.get_object(api)
+    return Workflow.from_dict(obj)
 
 
 def import_workflow(file: str) -> Workflow:
@@ -103,8 +103,8 @@ def import_workflow(file: str) -> Workflow:
         The Workflow object imported from the file using the specified path.
 
     """
-    d = read_yaml(file)
-    return Workflow.from_dict(d)
+    obj = read_yaml(file)
+    return Workflow.from_dict(obj)
 
 
 def delete_workflow(project: str, name: str, uuid: str = None) -> None:
@@ -128,5 +128,5 @@ def delete_workflow(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = delete_api(project, DTO_WKFL, name, uuid=uuid)
-    r = context.client.delete_object(api)
-    return r
+    obj = context.client.delete_object(api)
+    return obj
