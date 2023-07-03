@@ -43,10 +43,10 @@ public class RunEntityBuilder {
                 return EntityFactory.combine(
                                 Run, runDTO, builder -> {
                                         builder
-                                                        .with(f -> f.setType(runDTO.getType()))
+                                                        .with(f -> f.setKind(runDTO.getKind()))
                                                         .with(f -> f.setTaskId(runDTO.getTaskId()))
                                                         .with(f -> f.setProject(runDTO.getProject()))
-                                                        .with(f -> f.setName(runDTO.getName()))
+                                                        .with(f -> f.setTask(runDTO.getTask()))
                                                         .with(f -> f.setState(runDTO.getState() == null
                                                                         ? State.CREATED
                                                                         : State.valueOf(runDTO.getState())))

@@ -65,5 +65,4 @@ public class FunctionController {
     public ResponseEntity<List<RunDTO>> functionRuns(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.getFunctionRuns(uuid));
     }
-
 }

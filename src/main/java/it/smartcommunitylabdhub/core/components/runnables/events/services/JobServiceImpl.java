@@ -36,7 +36,7 @@ public class JobServiceImpl implements JobService<Map<String, Object>> {
                 "task", Map.of(
                         "spec", runDTO.getSpec(),
                         "metadata", Map.of(
-                                "name", runDTO.getName(),
+                                "name", runDTO.getTask(),
                                 "project", runDTO.getProject())));
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);

@@ -35,13 +35,16 @@ public class Run implements BaseEntity {
     private String id;
 
     @Column(nullable = false)
+    // FIXME: {kind}://{project_name}/{function_name}:{version(uuid)} kind ='job'(
+    // kind del tipo di
+    // funzione)
+    private String task;
+
+    @Column(nullable = false)
+    private String kind;
+
+    @Column(nullable = false)
     private String project;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private String type;
 
     @Column(nullable = false, name = "task_id")
     private String taskId;

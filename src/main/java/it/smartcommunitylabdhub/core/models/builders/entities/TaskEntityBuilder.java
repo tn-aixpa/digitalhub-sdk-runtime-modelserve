@@ -47,9 +47,9 @@ public class TaskEntityBuilder {
                 return EntityFactory.combine(
                                 Task, taskDTO, builder -> {
                                         builder
-                                                        .with(f -> f.setType(taskDTO.getType()))
+                                                        .with(f -> f.setKind(taskDTO.getKind()))
                                                         .with(f -> f.setProject(taskDTO.getProject()))
-                                                        .with(f -> f.setName(taskDTO.getName()))
+                                                        .with(f -> f.setTask(taskDTO.getTask()))
                                                         .with(f -> f.setState(taskDTO.getState() == null
                                                                         ? State.CREATED
                                                                         : State.valueOf(taskDTO.getState())))

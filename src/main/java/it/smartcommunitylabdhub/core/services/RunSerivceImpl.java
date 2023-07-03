@@ -3,7 +3,6 @@ package it.smartcommunitylabdhub.core.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -16,13 +15,13 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
-import it.smartcommunitylabdhub.core.models.builders.runs.RunBuilderFactory;
-import it.smartcommunitylabdhub.core.models.dtos.ExtraDTO;
+import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilderFactory;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.dtos.custom.RunExecDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
+import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 
 @Service
 public class RunSerivceImpl implements RunService {
@@ -31,16 +30,18 @@ public class RunSerivceImpl implements RunService {
     RunDTOBuilder runDTOBuilder;
 
     private final RunRepository runRepository;
-    private final RunBuilderFactory runBuilderFactory;
+    private final TaskService taskService;
+    private final KindBuilderFactory runBuilderFactory;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RunEntityBuilder runEntityBuilder;
 
-    public RunSerivceImpl(RunRepository runRepository, RunBuilderFactory runBuilderFactory,
+    public RunSerivceImpl(RunRepository runRepository, TaskService taskService, KindBuilderFactory runBuilderFactory,
             ApplicationEventPublisher applicationEventPublisher, RunEntityBuilder runEntityBuilder) {
         this.runRepository = runRepository;
         this.runBuilderFactory = runBuilderFactory;
         this.applicationEventPublisher = applicationEventPublisher;
         this.runEntityBuilder = runEntityBuilder;
+        this.taskService = taskService;
     }
 
     @Override
@@ -83,43 +84,6 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public RunDTO createRun(TaskDTO taskDTO) {
-        try {
-
-            RunDTO runDTO = runBuilderFactory.getBuilder("job").build(taskDTO);
-
-            Run run = runRepository.save(runEntityBuilder.build(runDTO));
-
-            return runDTOBuilder.build(run);
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public RunDTO executeRun(String uuid, ExtraDTO extraDTO) {
-
-        return this.runRepository.findById(uuid)
-                .map(run -> {
-
-                    RunDTO runDTO = runDTOBuilder.build(run);
-
-                    // 4. produce event with the runDTO object
-                    JobMessage jobMessage = new JobMessage(runDTO);
-                    applicationEventPublisher.publishEvent(jobMessage);
-
-                    return runDTO;
-                }).orElseThrow(() -> new CoreException(
-                        "RunNotFound",
-                        "The run you are searching for does not exist.",
-                        HttpStatus.NOT_FOUND));
-
-    }
-
-    @Override
     public RunDTO save(RunDTO runDTO) {
 
         return Optional.ofNullable(this.runRepository.save(runEntityBuilder.build(runDTO)))
@@ -128,5 +92,37 @@ public class RunSerivceImpl implements RunService {
                         "RunSaveError",
                         "Problem while saving the run.",
                         HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public RunDTO createRun(RunExecDTO runExecDTO) {
+
+        return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskID()))
+                .map(taskDTO -> {
+                    // build run from task
+                    RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder("job").build(taskDTO);
+
+                    // Save run
+                    Run run = runRepository.save(runEntityBuilder.build(runDTO));
+
+                    // exec run and return run dto
+
+                    return Optional.ofNullable(runDTOBuilder.build(run)).map(
+                            r -> {
+
+                                // Override all spec
+                                r.getExtra().putAll(runExecDTO.getSpecDTO().getExtra());
+
+                                // produce event with the runDTO object
+                                JobMessage jobMessage = new JobMessage(runDTO);
+                                applicationEventPublisher.publishEvent(jobMessage);
+
+                                return runDTO;
+                            }).orElseThrow(() -> new CoreException("", "", HttpStatus.INTERNAL_SERVER_ERROR));
+                }).orElseThrow(() -> new CoreException(
+                        "RunNotFound",
+                        "The run you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
+
     }
 }

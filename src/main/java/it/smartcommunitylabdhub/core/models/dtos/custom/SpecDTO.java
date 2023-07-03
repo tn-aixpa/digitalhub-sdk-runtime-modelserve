@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.dtos;
+package it.smartcommunitylabdhub.core.models.dtos.custom;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ExtraDTO {
+public class SpecDTO {
     @Builder.Default
     @JsonIgnore
     private Map<String, Object> extra = new HashMap<>();

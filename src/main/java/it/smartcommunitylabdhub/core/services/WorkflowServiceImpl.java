@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
@@ -149,7 +150,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
 
         try {
-            List<Run> runs = this.runRepository.findByName(workflow.getName());
+            List<Run> runs = this.runRepository.findByTask(TaskUtils.buildTaskString(workflow));
             return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);
 
         } catch (CustomException e) {

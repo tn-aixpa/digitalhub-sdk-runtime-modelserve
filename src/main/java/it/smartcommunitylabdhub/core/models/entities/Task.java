@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,20 +29,25 @@ import lombok.Setter;
 @Setter
 @Builder
 @Entity
-@Table(name = "tasks")
+@Table(name = "tasks", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "task", "kind" })
+
+})
 public class Task implements BaseEntity {
 
     @Id
     private String id;
 
     @Column(nullable = false)
-    private String type;
+    // FIXME: {kind}://{project}/{function}:{version} kind ='job'( kind del tipo di
+    // funzione)
+    private String task;
+
+    @Column(nullable = false)
+    private String kind;
 
     @Column(nullable = false)
     private String project;
-
-    @Column(nullable = false)
-    private String name;
 
     @Lob
     private byte[] spec;

@@ -1,17 +1,17 @@
-package it.smartcommunitylabdhub.core.models.builders.runs.kinds;
+package it.smartcommunitylabdhub.core.models.builders.kinds;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.models.builders.runs.RunBuilder;
+import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 
 @RunBuilderComponent(type = "job")
-public class JobRunBuilder implements RunBuilder {
+public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
         // Implementation of the builder
 
         @Autowired
@@ -24,10 +24,10 @@ public class JobRunBuilder implements RunBuilder {
                                 .map(task -> {
                                         // 3. produce a run object and store it
                                         return RunDTO.builder()
-                                                        .type(task.getType())
+                                                        .kind(task.getKind())
                                                         .taskId(task.getId())
                                                         .project(task.getProject())
-                                                        .name(task.getName())
+                                                        .task(task.getTask())
                                                         .spec(taskDTO.getSpec())
                                                         .build();
 

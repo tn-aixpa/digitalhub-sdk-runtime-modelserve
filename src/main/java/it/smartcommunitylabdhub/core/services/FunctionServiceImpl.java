@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
@@ -177,7 +178,7 @@ public class FunctionServiceImpl implements FunctionService {
         }
 
         try {
-            List<Run> runs = this.runRepository.findByName(function.getName());
+            List<Run> runs = this.runRepository.findByTask(TaskUtils.buildTaskString(function));
             return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);
 
         } catch (CustomException e) {

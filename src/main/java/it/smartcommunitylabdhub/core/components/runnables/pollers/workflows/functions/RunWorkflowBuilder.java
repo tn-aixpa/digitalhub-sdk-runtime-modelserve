@@ -75,8 +75,20 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                                     .orElseGet(() -> RunEvent.ERROR),
                             Optional.empty());
 
+                    // Update run state
+                    runDTO.setState(stateMachine.getCurrentState().name());
+
+                    // Store change
+                    this.runService.save(runDTO);
+
                 } else if (stateMachine.getCurrentState().equals(RunState.COMPLETED)) {
                     System.out.println("Poller complete SUCCESSFULLY. Get log and stop poller now");
+
+                    // Update run state
+                    runDTO.setState(RunState.COMPLETED.name());
+
+                    // Store change
+                    this.runService.save(runDTO);
 
                     // TODO: Store log from mlrun.
                     throw new StopPoller("Poller complete successful!");

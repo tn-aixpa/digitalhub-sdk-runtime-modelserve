@@ -15,8 +15,8 @@ public class TaskConverter implements Converter<TaskDTO, Task> {
     public Task convert(TaskDTO TaskDTO) throws CustomException {
         return Task.builder()
                 .id(TaskDTO.getId())
-                .name(TaskDTO.getName())
-                .type(TaskDTO.getType())
+                .task(TaskDTO.getTask())
+                .kind(TaskDTO.getKind())
                 .project(TaskDTO.getProject())
                 .state(TaskDTO.getState() == null ? State.CREATED : State.valueOf(TaskDTO.getState()))
                 .build();
@@ -26,8 +26,8 @@ public class TaskConverter implements Converter<TaskDTO, Task> {
     public TaskDTO reverseConvert(Task Task) throws CustomException {
         return TaskDTO.builder()
                 .id(Task.getId())
-                .name(Task.getName())
-                .type(Task.getType())
+                .task(Task.getTask())
+                .kind(Task.getKind())
                 .project(Task.getProject())
                 .state(Task.getState() == null ? State.CREATED.name() : Task.getState().name())
                 .created(Task.getCreated())

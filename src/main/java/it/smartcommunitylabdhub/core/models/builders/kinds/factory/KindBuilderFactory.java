@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.builders.runs;
+package it.smartcommunitylabdhub.core.models.builders.kinds.factory;
 
 import java.util.List;
 import java.util.Map;
@@ -7,15 +7,15 @@ import java.util.stream.Collectors;
 
 import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
 
-public class RunBuilderFactory {
-    private final Map<String, RunBuilder> builderMap;
+public class KindBuilderFactory {
+    private final Map<String, KindBuilder<?, ?>> builderMap;
 
-    public RunBuilderFactory(List<RunBuilder> builders) {
+    public KindBuilderFactory(List<KindBuilder<?, ?>> builders) {
         builderMap = builders.stream()
                 .collect(Collectors.toMap(this::getTypeFromAnnotation, Function.identity()));
     }
 
-    private String getTypeFromAnnotation(RunBuilder builder) {
+    private String getTypeFromAnnotation(KindBuilder<?, ?> builder) {
         Class<?> builderClass = builder.getClass();
         if (builderClass.isAnnotationPresent(RunBuilderComponent.class)) {
             RunBuilderComponent annotation = builderClass.getAnnotation(RunBuilderComponent.class);
@@ -25,8 +25,9 @@ public class RunBuilderFactory {
                 "No @RunBuilderComponent annotation found for builder: " + builderClass.getName());
     }
 
-    public RunBuilder getBuilder(String type) {
-        RunBuilder builder = builderMap.get(type);
+    public <I, O> KindBuilder<I, O> getBuilder(String type) {
+        @SuppressWarnings("unchecked")
+        KindBuilder<I, O> builder = (KindBuilder<I, O>) builderMap.get(type);
         if (builder == null) {
             throw new IllegalArgumentException("No builder found for type: " + type);
         }

@@ -1,13 +1,11 @@
 package it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions;
 
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -22,9 +20,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
-import it.smartcommunitylabdhub.core.models.accessors.enums.ProjectKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.ProjectFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
@@ -172,72 +168,75 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                         .collect(Collectors.toList());
                 };
 
-                // COMMENT: Update project with function in mlrun
-                @SuppressWarnings("unchecked")
-                Function<List<FunctionDTO>, Object> updateProject = functions -> {
-                        HttpHeaders headers = new HttpHeaders();
-                        headers.setContentType(MediaType.APPLICATION_JSON);
-
-                        functions.stream().forEach(function -> {
-                                try {
-                                        String requestUrl = projectUrl
-                                                        .replace("{project}", function.getProject());
-
-                                        // Get the project
-                                        HttpEntity<String> entityGet = new HttpEntity<>(headers);
-                                        ResponseEntity<Map<String, Object>> response = restTemplate
-                                                        .exchange(requestUrl, HttpMethod.GET, entityGet, responseType);
-
-                                        Optional.ofNullable(response.getBody()).ifPresent(body -> {
-                                                ProjectFieldAccessor projectFieldAccessor = ProjectKind.MLRUN
-                                                                .createAccessor(body);
-
-                                                FunctionKind functionKind = FunctionKind.valueOf(
-                                                                function.getKind().toUpperCase());
-                                                FunctionFieldAccessor functionFieldAccessor = functionKind
-                                                                .createAccessor(ConversionUtils.convert(function,
-                                                                                "mlrunFunction"));
-
-                                                // Create a new function into project
-                                                Map<String, Object> newFunction = Stream.of(
-                                                                new AbstractMap.SimpleEntry<>("url",
-                                                                                functionKind.invokeMethod(
-                                                                                                functionFieldAccessor,
-                                                                                                "getCodeOrigin")),
-                                                                new AbstractMap.SimpleEntry<>("name",
-                                                                                functionFieldAccessor.getName()),
-                                                                new AbstractMap.SimpleEntry<>("kind",
-                                                                                functionFieldAccessor.getKind()),
-                                                                new AbstractMap.SimpleEntry<>("image",
-                                                                                functionFieldAccessor.getImage()),
-                                                                new AbstractMap.SimpleEntry<>("handler",
-                                                                                functionFieldAccessor
-                                                                                                .getDefaultHandler()))
-                                                                .filter(entry -> entry.getValue() != null) // exclude
-                                                                                                           // null
-                                                                                                           // values
-                                                                .collect(Collectors.toMap(Map.Entry::getKey,
-                                                                                Map.Entry::getValue));
-
-                                                ((List<Map<String, Object>>) projectFieldAccessor
-                                                                .getSpecs().get("functions")).add(newFunction);
-
-                                                HttpEntity<Map<String, Object>> entityPut = new HttpEntity<>(
-                                                                projectFieldAccessor.getFields(),
-                                                                headers);
-
-                                                restTemplate.exchange(requestUrl,
-                                                                HttpMethod.PUT, entityPut, responseType);
-
-                                        });
-
-                                } catch (HttpClientErrorException ex) {
-                                        System.out.println(ex.getMessage());
-                                }
-                        });
-
-                        return null;
-                };
+                /*
+                 * // COMMENT: Update project with function in mlrun
+                 * 
+                 * @SuppressWarnings("unchecked")
+                 * Function<List<FunctionDTO>, Object> updateProject = functions -> {
+                 * HttpHeaders headers = new HttpHeaders();
+                 * headers.setContentType(MediaType.APPLICATION_JSON);
+                 * 
+                 * functions.stream().forEach(function -> {
+                 * try {
+                 * String requestUrl = projectUrl
+                 * .replace("{project}", function.getProject());
+                 * 
+                 * // Get the project
+                 * HttpEntity<String> entityGet = new HttpEntity<>(headers);
+                 * ResponseEntity<Map<String, Object>> response = restTemplate
+                 * .exchange(requestUrl, HttpMethod.GET, entityGet, responseType);
+                 * 
+                 * Optional.ofNullable(response.getBody()).ifPresent(body -> {
+                 * ProjectFieldAccessor projectFieldAccessor = ProjectKind.MLRUN
+                 * .createAccessor(body);
+                 * 
+                 * FunctionKind functionKind = FunctionKind.valueOf(
+                 * function.getKind().toUpperCase());
+                 * FunctionFieldAccessor functionFieldAccessor = functionKind
+                 * .createAccessor(ConversionUtils.convert(function,
+                 * "mlrunFunction"));
+                 * 
+                 * // Create a new function into project
+                 * Map<String, Object> newFunction = Stream.of(
+                 * new AbstractMap.SimpleEntry<>("url",
+                 * functionKind.invokeMethod(
+                 * functionFieldAccessor,
+                 * "getCodeOrigin")),
+                 * new AbstractMap.SimpleEntry<>("name",
+                 * functionFieldAccessor.getName()),
+                 * new AbstractMap.SimpleEntry<>("kind",
+                 * functionFieldAccessor.getKind()),
+                 * new AbstractMap.SimpleEntry<>("image",
+                 * functionFieldAccessor.getImage()),
+                 * new AbstractMap.SimpleEntry<>("handler",
+                 * functionFieldAccessor
+                 * .getDefaultHandler()))
+                 * .filter(entry -> entry.getValue() != null) // exclude
+                 * // null
+                 * // values
+                 * .collect(Collectors.toMap(Map.Entry::getKey,
+                 * Map.Entry::getValue));
+                 * 
+                 * ((List<Map<String, Object>>) projectFieldAccessor
+                 * .getSpecs().get("functions")).add(newFunction);
+                 * 
+                 * HttpEntity<Map<String, Object>> entityPut = new HttpEntity<>(
+                 * projectFieldAccessor.getFields(),
+                 * headers);
+                 * 
+                 * restTemplate.exchange(requestUrl,
+                 * HttpMethod.PUT, entityPut, responseType);
+                 * 
+                 * });
+                 * 
+                 * } catch (HttpClientErrorException ex) {
+                 * System.out.println(ex.getMessage());
+                 * }
+                 * });
+                 * 
+                 * return null;
+                 * };
+                 */
 
                 // Define workflow steps
                 return WorkflowFactory.builder()

@@ -15,10 +15,10 @@ public class RunDTOBuilder {
                 return EntityFactory.create(RunDTO::new, run, builder -> {
                         builder
                                         .with(dto -> dto.setId(run.getId()))
-                                        .with(dto -> dto.setType(run.getType()))
+                                        .with(dto -> dto.setKind(run.getKind()))
                                         .with(dto -> dto.setTaskId(run.getTaskId()))
                                         .with(dto -> dto.setProject(run.getProject()))
-                                        .with(dto -> dto.setName(run.getName()))
+                                        .with(dto -> dto.setTask(run.getTask()))
                                         .with(dto -> dto.setSpec(ConversionUtils.reverse(run.getSpec(), "cbor")))
                                         .with(dto -> dto.setExtra(ConversionUtils.reverse(run.getExtra(), "cbor")))
                                         .with(dto -> dto.setCreated(run.getCreated()))

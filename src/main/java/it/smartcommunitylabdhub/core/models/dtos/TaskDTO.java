@@ -25,14 +25,15 @@ import lombok.Setter;
 public class TaskDTO implements BaseEntity {
     private String id;
 
-    private String type;
+    // FIXME: {kind}:/{project}/{function}@{version} kind ='job'...
+    @ValidateField
+    private String task;
 
     @ValidateField
     private String project;
 
     @NotNull
-    @ValidateField
-    private String name;
+    private String kind; // for instance build
 
     @Builder.Default
     private Map<String, Object> spec = new HashMap<>();

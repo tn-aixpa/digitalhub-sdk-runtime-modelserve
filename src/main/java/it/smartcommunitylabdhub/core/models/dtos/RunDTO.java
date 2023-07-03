@@ -29,16 +29,15 @@ public class RunDTO implements BaseEntity {
     @NotNull
     private String id;
 
+    // FIXME: {kind}:/{project}/{function}@{version} kind ='job'...
+    private String task;
+
     @NotNull
     @ValidateField
     private String project;
 
     @NotNull
-    @ValidateField
-    private String name;
-
-    @NotNull
-    private String type;
+    private String kind; // for instance run
 
     @JsonProperty("task_id")
     private String taskId;

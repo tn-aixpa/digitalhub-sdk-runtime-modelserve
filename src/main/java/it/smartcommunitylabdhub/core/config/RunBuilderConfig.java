@@ -5,14 +5,14 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import it.smartcommunitylabdhub.core.models.builders.runs.RunBuilder;
-import it.smartcommunitylabdhub.core.models.builders.runs.RunBuilderFactory;
+import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilder;
+import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilderFactory;
 
 @Configuration
 public class RunBuilderConfig {
 
     @Bean
-    public RunBuilderFactory runBuilderFactory(List<RunBuilder> builders) {
-        return new RunBuilderFactory(builders);
+    public KindBuilderFactory runBuilderFactory(List<KindBuilder<?, ?>> builders) {
+        return new KindBuilderFactory(builders);
     }
 }

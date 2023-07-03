@@ -10,5 +10,5 @@ public interface RunRepository extends JpaRepository<Run, String> {
 
     List<Run> findByProject(String uuid);
 
-    List<Run> findByName(String name);
+    List<Run> findByTask(String task);
 }
