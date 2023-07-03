@@ -1,8 +1,9 @@
 """
 Dataitem operations module.
 """
-from sdk.entities.api import DTO_DTIT, delete_api, read_api
-from sdk.entities.dataitem.dataitem import Dataitem, DataitemMetadata, DataitemSpec
+from sdk.entities.dataitem.entity import Dataitem, DataitemMetadata, DataitemSpec
+from sdk.utils.api import DTO_DTIT, delete_api, read_api
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
 
@@ -46,7 +47,7 @@ def new_dataitem(
     """
     context = get_context(project)
     if context.local != local:
-        raise Exception("Context local flag does not match local flag of dataitem")
+        raise EntityError("Context local flag does not match local flag of dataitem")
     meta = DataitemMetadata(name=name, description=description)
     spec = DataitemSpec(key=key, path=path)
     obj = Dataitem(

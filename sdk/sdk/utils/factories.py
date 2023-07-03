@@ -11,8 +11,8 @@ from sdk.store.builder import StoreBuilder
 
 if typing.TYPE_CHECKING:
     from sdk.client.client import Client
-    from sdk.entities.context.context import Context
-    from sdk.entities.project.project import Project
+    from sdk.entities.context.entity import Context
+    from sdk.entities.project.entity import Project
     from sdk.store.models import StoreConfig
     from sdk.store.objects.store import Store
 

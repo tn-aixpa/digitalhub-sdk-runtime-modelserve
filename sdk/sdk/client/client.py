@@ -4,6 +4,7 @@ Client module.
 import requests
 
 from sdk.client.env_utils import get_dhub_env
+from sdk.utils.exceptions import BackendError
 
 
 class Client:
@@ -124,7 +125,7 @@ class Client:
             If the response is not valid (a dict that contains the status key).
         """
         if isinstance(obj, dict) and "status" in obj:
-            raise Exception(obj)
+            raise BackendError(obj)
 
     @staticmethod
     def _dictify(response: requests.Response) -> dict:
@@ -177,6 +178,6 @@ class Client:
         endpoint = get_dhub_env().endpoint
         if endpoint is not None:
             return endpoint + api
-        raise Exception(
+        raise BackendError(
             "Endpoint not setted. Please set env variables with 'set_dhub_env()' function."
         )

@@ -8,6 +8,7 @@ from typing import Union
 
 from sdk.store.models import StoreConfig
 from sdk.store.registry import STORES
+from sdk.utils.exceptions import StoreError
 
 if typing.TYPE_CHECKING:
     from sdk.store.objects.store import Store
@@ -68,11 +69,11 @@ class StoreBuilder:
 
         Raises
         ------
-        Exception
+        StoreError
             If no default store is setted.
         """
         if self._default is None:
-            raise Exception("No default store setted.")
+            raise StoreError("No default store setted.")
         return self._default
 
     def build_store(self, cfg: StoreConfig) -> Store:
@@ -98,7 +99,7 @@ class StoreBuilder:
             obj = STORES[cfg.type](cfg.name, cfg.type, cfg.uri, cfg.config)
             if cfg.is_default:
                 if self._default is not None:
-                    raise Exception("Only one default store!")
+                    raise StoreError("Only one default store!")
                 self._default = obj
             return obj
         except KeyError as exc:

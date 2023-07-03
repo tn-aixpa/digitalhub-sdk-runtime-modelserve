@@ -1,8 +1,9 @@
 """
 Artifact module.
 """
-from sdk.entities.api import DTO_ARTF, create_api, update_api
-from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
+from sdk.utils.api import DTO_ARTF, create_api, update_api
+from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store, get_store
 from sdk.utils.file_utils import check_file, get_dir
 from sdk.utils.uri_utils import (
@@ -23,6 +24,7 @@ class ArtifactSpec(EntitySpec):
     """
     Artifact specification.
     """
+
     def __init__(
         self,
         key: str = None,
@@ -128,7 +130,7 @@ class Artifact(Entity):
 
         """
         if self._local:
-            raise Exception("Use .export() for local execution.")
+            raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
 
@@ -297,7 +299,7 @@ class Artifact(Entity):
         if self.spec.target_path is None:
             if target is None:
                 if not upload:
-                    raise Exception("Target path is not specified.")
+                    raise EntityError("Target path is not specified.")
                 path = get_dir(self.spec.src_path)
                 filename = get_name_from_uri(self.spec.src_path)
                 target_path = rebuild_uri(f"{path}/{filename}")
@@ -326,7 +328,7 @@ class Artifact(Entity):
         """
         if self.spec.src_path is None:
             if src is None:
-                raise Exception("Source path is not specified.")
+                raise EntityError("Source path is not specified.")
             self.spec.src_path = src
 
     def _check_remote(self) -> None:
@@ -350,7 +352,7 @@ class Artifact(Entity):
         if self.spec.target_path is None:
             return
         if get_uri_scheme(self.spec.target_path) in ["", "file"]:
-            raise Exception("Only remote source URIs are supported for target paths")
+            raise EntityError("Only remote source URIs are supported for target paths")
 
     def _check_local(self) -> None:
         """
@@ -366,7 +368,7 @@ class Artifact(Entity):
             If source path is not local.
         """
         if get_uri_scheme(self.spec.src_path) not in ["", "file"]:
-            raise Exception("Only local paths are supported for source paths.")
+            raise EntityError("Only local paths are supported for source paths.")
 
     def _rebuild_dst(self, dst: str = None) -> None:
         """
@@ -404,7 +406,7 @@ class Artifact(Entity):
             If destination path exists and overwrite is False.
         """
         if check_file(dst) and not overwrite:
-            raise Exception(f"File {dst} already exists.")
+            raise EntityError(f"File {dst} already exists.")
 
     #############################
     #  Getters and Setters
@@ -448,7 +450,7 @@ class Artifact(Entity):
         name = obj.get("name")
         uuid = obj.get("id")
         if project is None or name is None:
-            raise Exception("Project or name are not specified.")
+            raise EntityError("Project or name are not specified.")
         metadata = ArtifactMetadata.from_dict(obj.get("metadata", {"name": name}))
         spec = ArtifactSpec.from_dict(obj.get("spec", {}))
         return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

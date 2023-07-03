@@ -3,10 +3,11 @@ Dataitem module.
 """
 import pandas as pd
 
-from sdk.entities.api import DTO_DTIT, create_api, update_api
-from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
+from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.utils.api import DTO_DTIT, create_api, update_api
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
-from sdk.utils.file_utils import clean_all, check_file, get_dir
+from sdk.utils.file_utils import check_file, clean_all, get_dir
 from sdk.utils.uri_utils import get_extension, get_uri_scheme
 from sdk.utils.utils import get_uiid
 
@@ -21,6 +22,7 @@ class DataitemSpec(EntitySpec):
     """
     Dataitem specifications.
     """
+
     def __init__(self, key: str = None, path: str = None, **kwargs) -> None:
         """
         Constructor.
@@ -129,7 +131,7 @@ class Dataitem(Entity):
 
         """
         if self._local:
-            raise Exception("Use .export() for local execution.")
+            raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
 
@@ -277,14 +279,14 @@ class Dataitem(Entity):
 
         Raises
         ------
-        Exception
+        RuntimeError
             If format is not supported.
         """
         if extension == "csv":
             return pd.read_csv(path, **kwargs)
         if extension == "parquet":
             return pd.read_parquet(path, **kwargs)
-        raise Exception(f"Format {extension} not supported.")
+        raise RuntimeError(f"Format {extension} not supported.")
 
     #############################
     #  Getters and Setters
@@ -321,7 +323,7 @@ class Dataitem(Entity):
         name = obj.get("name")
         uuid = obj.get("id")
         if project is None or name is None:
-            raise Exception("Project or name are not specified.")
+            raise EntityError("Project or name are not specified.")
         metadata = DataitemMetadata.from_dict(obj.get("metadata", {"name": name}))
         spec = DataitemSpec.from_dict(obj.get("spec", {}))
         return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

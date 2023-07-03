@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.project.project import Project
+    from sdk.entities.project.entity import Project
 
 
 class Context:

@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.context.context import Context
+from sdk.entities.context.entity import Context
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.project.project import Project
+    from sdk.entities.project.entity import Project
 
 
 class ContextBuilder:

@@ -1,8 +1,9 @@
 """
 Workflow operations module.
 """
-from sdk.entities.api import DTO_WKFL, delete_api, read_api
 from sdk.entities.workflow.workflow import Workflow, WorkflowMetadata, WorkflowSpec
+from sdk.utils.api import DTO_WKFL, delete_api, read_api
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
 
@@ -44,7 +45,7 @@ def new_workflow(
     """
     context = get_context(project)
     if context.local != local:
-        raise Exception("Context local flag does not match local flag of workflow")
+        raise EntityError("Context local flag does not match local flag of workflow")
     meta = WorkflowMetadata(name=name, description=description)
     spec = WorkflowSpec(test=test)
     obj = Workflow(

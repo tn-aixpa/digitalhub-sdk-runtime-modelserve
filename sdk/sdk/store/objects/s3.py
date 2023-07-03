@@ -13,14 +13,15 @@ import botocore.client
 from botocore.exceptions import ClientError
 
 from sdk.store.objects.store import Store
+from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import check_make_dir, get_dir
 from sdk.utils.uri_utils import (
+    build_key,
     get_name_from_uri,
     get_uri_netloc,
     get_uri_path,
     get_uri_scheme,
     rebuild_uri,
-    build_key,
 )
 
 if typing.TYPE_CHECKING:
@@ -197,20 +198,20 @@ class S3Store(Store):
 
         Raises
         ------
-        Exception
+        StoreError
             If the URI scheme is not 's3'.
 
-        Exception
+        StoreError
             If no bucket is specified in the URI.
         """
         scheme = get_uri_scheme(self.uri)
         if scheme != "s3":
-            raise Exception(
+            raise StoreError(
                 f"Invalid URI scheme for s3 store: {scheme}. Should be 's3'"
             )
         bucket = get_uri_netloc(self.uri)
         if bucket == "":
-            raise Exception("No bucket specified in the URI for s3 store!")
+            raise StoreError("No bucket specified in the URI for s3 store!")
 
     def _get_client(self) -> S3Client:
         """
@@ -248,7 +249,7 @@ class S3Store(Store):
         try:
             client.head_bucket(Bucket=bucket)
         except ClientError as exc:
-            raise Exception("No access to s3 bucket!") from exc
+            raise StoreError("No access to s3 bucket!") from exc
 
     @staticmethod
     def _check_local_dst(dst: str) -> None:

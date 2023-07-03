@@ -1,18 +1,24 @@
 """
 Workflow module.
 """
-from sdk.entities.api import DTO_WKFL, create_api, update_api
-from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.entities.run.run import Run
+from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.utils.api import DTO_WKFL, create_api, update_api
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
 
 
 class WorkflowMetadata(EntityMetadata):
-    ...
+    """
+    Workflow metadata.
+    """
 
 
 class WorkflowSpec(EntitySpec):
+    """
+    Workflow specifications.
+    """
+
     def __init__(self, test: str = None, **kwargs) -> None:
         """
         Constructor.
@@ -115,7 +121,7 @@ class Workflow(Entity):
 
         """
         if self._local:
-            raise Exception("Use .export() for local execution.")
+            raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
 
@@ -153,10 +159,7 @@ class Workflow(Entity):
     #  Workflow Methods
     #############################
 
-    def run(self) -> "Run":
-        ...
-
-    def schedule(self) -> "Run":
+    def run(self):
         ...
 
     #############################
@@ -194,7 +197,7 @@ class Workflow(Entity):
         name = obj.get("name")
         uuid = obj.get("id")
         if project is None or name is None:
-            raise Exception("Project or name are not specified.")
+            raise EntityError("Project or name are not specified.")
         metadata = WorkflowMetadata.from_dict(obj.get("metadata", {"name": name}))
         spec = WorkflowSpec.from_dict(obj.get("spec", {}))
         return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)

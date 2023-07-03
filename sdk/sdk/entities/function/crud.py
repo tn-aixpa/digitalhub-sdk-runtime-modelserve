@@ -1,8 +1,9 @@
 """
 Function operations module.
 """
-from sdk.entities.api import DTO_FUNC, delete_api, read_api
-from sdk.entities.function.function import Function, FunctionMetadata, FunctionSpec
+from sdk.entities.function.entity import Function, FunctionMetadata, FunctionSpec
+from sdk.utils.api import DTO_FUNC, delete_api, read_api
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
 
@@ -52,7 +53,7 @@ def new_function(
     """
     context = get_context(project)
     if context.local != local:
-        raise Exception("Context local flag does not match local flag of function")
+        raise EntityError("Context local flag does not match local flag of function")
     meta = FunctionMetadata(name=name, description=description)
     spec = FunctionSpec(source=source, image=image, tag=tag, handler=handler)
     obj = Function(

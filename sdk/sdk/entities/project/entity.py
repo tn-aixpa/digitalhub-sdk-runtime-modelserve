@@ -5,16 +5,17 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.api import DTO_ARTF, DTO_DTIT, DTO_FUNC, DTO_WKFL, create_api_proj
-from sdk.entities.artifact.artifact import Artifact
-from sdk.entities.artifact.operations import delete_artifact, get_artifact, new_artifact
-from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.entities.dataitem.dataitem import Dataitem
-from sdk.entities.dataitem.operations import delete_dataitem, get_dataitem, new_dataitem
-from sdk.entities.function.function import Function
-from sdk.entities.function.operations import delete_function, get_function, new_function
+from sdk.entities.artifact.crud import delete_artifact, get_artifact, new_artifact
+from sdk.entities.artifact.entity import Artifact
+from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.entities.dataitem.crud import delete_dataitem, get_dataitem, new_dataitem
+from sdk.entities.dataitem.entity import Dataitem
+from sdk.entities.function.crud import delete_function, get_function, new_function
+from sdk.entities.function.entity import Function
 from sdk.entities.workflow.operations import delete_workflow, get_workflow, new_workflow
 from sdk.entities.workflow.workflow import Workflow
+from sdk.utils.api import DTO_ARTF, DTO_DTIT, DTO_FUNC, DTO_WKFL, create_api_proj
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_client, set_context
 from sdk.utils.utils import get_uiid
 
@@ -35,6 +36,7 @@ class ProjectSpec(EntitySpec):
     """
     Project specification.
     """
+
     def __init__(
         self,
         context: str = None,
@@ -70,7 +72,6 @@ class ProjectSpec(EntitySpec):
             if k not in self.__dict__:
                 self.__setattr__(k, v)
 
-        set_context(self)
 
 class Project(Entity):
     """
@@ -124,6 +125,8 @@ class Project(Entity):
             if k not in self._obj_attr:
                 self.__setattr__(k, v)
 
+        set_context(self)
+
     #############################
     #  Save / Export
     #############################
@@ -148,7 +151,7 @@ class Project(Entity):
         """
         responses = []
         if self.local:
-            raise Exception("Use .export() for local execution.")
+            raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
 
@@ -742,7 +745,7 @@ class Project(Entity):
         Get client.
         """
         if self._client is None and not self.local:
-            raise Exception("Client is not specified.")
+            raise EntityError("Client is not specified.")
         return self._client
 
     @property
@@ -774,7 +777,7 @@ class Project(Entity):
         """
         name = obj.get("name")
         if name is None:
-            raise Exception("Project name not specified.")
+            raise EntityError("Project name not specified.")
 
         spec = obj.get("spec")
         if spec is None:

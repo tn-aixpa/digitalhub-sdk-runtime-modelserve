@@ -2,6 +2,19 @@
 APIs module.
 """
 
+API_PROJECT = "/api/v1/projects"
+API_CONTEXT = "/api/v1/-"
+
+####################
+# DTO TYPES
+####################
+
+DTO_PROJ = "projects"
+DTO_ARTF = "artifacts"
+DTO_FUNC = "functions"
+DTO_WKFL = "workflows"
+DTO_DTIT = "dataitems"
+
 ####################
 # POST
 ####################
@@ -27,9 +40,7 @@ def create_api(
         The API string formatted.
     """
     # PROJ_NAME + DTO
-    API_CREATE = "/api/v1/-/{}/{}"
-    api = API_CREATE.format(proj, dto)
-    return api
+    return f"{API_CONTEXT}/{proj}/{dto}"
 
 
 def create_api_proj() -> str:
@@ -42,9 +53,7 @@ def create_api_proj() -> str:
         The API string formatted.
     """
     # PROJ_NAME/UUID
-    API_CREATE_PROJECT = "/api/v1/projects"
-    api = API_CREATE_PROJECT
-    return api
+    return f"{API_PROJECT}"
 
 
 ####################
@@ -79,12 +88,9 @@ def read_api(
     """
     if uuid is not None:
         # PROJ_NAME + DTO + DTO_NAME + UUID
-        API_READ_VERSION = "/api/v1/-/{}/{}/{}/{}"
-        api = API_READ_VERSION.format(proj, dto, name, uuid)
-    else:
-        API_READ_LATEST = "/api/v1/-/{}/{}/{}/latest"
-        api = API_READ_LATEST.format(proj, dto, name)
-    return api
+        return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
+    # PROJ_NAME + DTO + DTO_NAME + LATEST
+    return f"{API_CONTEXT}/{proj}/{dto}/{name}/latest"
 
 
 def read_api_all(proj: str, dto: str, name: str = None) -> str:
@@ -107,13 +113,9 @@ def read_api_all(proj: str, dto: str, name: str = None) -> str:
     """
     if name is not None:
         # PROJ_NAME + DTO + DTO_NAME
-        API_READ_ALL = "/api/v1/-/{}/{}/{}"
-        api = API_READ_ALL.format(proj, dto, name)
-    else:
-        # PROJ_NAME + DTO
-        API_READ_DTO_LATEST = "/api/v1/-/{}/{}"
-        api = API_READ_DTO_LATEST.format(proj, dto, name)
-    return api
+        return f"{API_CONTEXT}/{proj}/{dto}/{name}"
+    # PROJ_NAME + DTO
+    return f"{API_CONTEXT}/{proj}/{dto}"
 
 
 def read_api_project(
@@ -121,7 +123,8 @@ def read_api_project(
     dto: str = None,
 ) -> str:
     """
-    Read API for projects.
+    Read API for projects. If dto is provided, dhcore returns the specific DTO types
+    of the project.
 
     Parameters
     ----------
@@ -137,13 +140,9 @@ def read_api_project(
     """
     if dto is None:
         # PROJ_NAME/UUID
-        API_READ_PROJECT = "/api/v1/projects/{}"
-        api = API_READ_PROJECT.format(proj)
-    else:
-        # PROJ_NAME/UUID + DTO
-        API_READ_PROJECT_OBJECTS = "/api/v1/projects/{}/{}"
-        api = API_READ_PROJECT_OBJECTS.format(proj, dto)
-    return api
+        return f"{API_PROJECT}/{proj}"
+    # PROJ_NAME/UUID + DTO
+    return f"{API_PROJECT}/{proj}/{dto}"
 
 
 ####################
@@ -177,9 +176,7 @@ def update_api(
         The API string formatted.
     """
     # PROJ_NAME + DTO + DTO_NAME + UUID
-    API_UPDATE_VERSION = "/api/v1/-/{}/{}/{}/{}"
-    api = API_UPDATE_VERSION.format(proj, dto, name, uuid)
-    return api
+    return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
 
 
 def update_api_project(proj: str) -> str:
@@ -197,9 +194,7 @@ def update_api_project(proj: str) -> str:
         The API string formatted.
     """
     # PROJ_NAME/UUID
-    API_UPDATE_PROJECT = "/api/v1/projects/{}"
-    api = API_UPDATE_PROJECT.format(proj)
-    return api
+    return f"{API_PROJECT}/{proj}"
 
 
 ####################
@@ -234,13 +229,9 @@ def delete_api(
     """
     if uuid is not None:
         # PROJ_NAME + DTO + DTO_NAME + UUID
-        API_DELETE_VERSION = "/api/v1/-/{}/{}/{}/{}"
-        api = API_DELETE_VERSION.format(proj, dto, name, uuid)
-    else:
-        # PROJ_NAME + DTO + DTO_NAME
-        API_DELETE_ALL = "/api/v1/-/{}/{}/{}"
-        api = API_DELETE_ALL.format(proj, dto, name)
-    return api
+        return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
+    # PROJ_NAME + DTO + DTO_NAME
+    return f"{API_CONTEXT}/{proj}/{dto}/{name}"
 
 
 def delete_api_project(proj: str) -> str:
@@ -258,17 +249,4 @@ def delete_api_project(proj: str) -> str:
         The API string formatted.
     """
     # PROJ_NAME/UUID
-    API_DELETE_PROJECT = "/api/v1/projects/{}"
-    api = API_DELETE_PROJECT.format(proj)
-    return api
-
-
-####################
-# DTO TYPES
-####################
-
-DTO_PROJ = "projects"
-DTO_ARTF = "artifacts"
-DTO_FUNC = "functions"
-DTO_WKFL = "workflows"
-DTO_DTIT = "dataitems"
+    return f"{API_PROJECT}/{proj}"

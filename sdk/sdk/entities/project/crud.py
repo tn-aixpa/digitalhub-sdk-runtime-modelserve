@@ -1,7 +1,7 @@
 """
 Project operations module.
 """
-from sdk.entities.api import (
+from sdk.utils.api import (
     DTO_ARTF,
     DTO_DTIT,
     DTO_FUNC,
@@ -10,7 +10,7 @@ from sdk.entities.api import (
     delete_api_project,
     read_api_project,
 )
-from sdk.entities.project.project import Project, ProjectMetadata, ProjectSpec
+from sdk.entities.project.entity import Project, ProjectMetadata, ProjectSpec
 from sdk.utils.factories import delete_context, get_client
 from sdk.utils.io_utils import read_yaml
 

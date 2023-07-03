@@ -1,9 +1,9 @@
 """
 Function module.
 """
-from sdk.entities.api import DTO_FUNC, create_api, update_api
-from sdk.entities.base_entity import Entity, EntityMetadata, EntitySpec
-from sdk.entities.run.run import Run
+from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.utils.api import DTO_FUNC, create_api, update_api
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
 
@@ -18,6 +18,7 @@ class FunctionSpec(EntitySpec):
     """
     Function specification.
     """
+
     def __init__(
         self,
         source: str = None,
@@ -129,7 +130,7 @@ class Function(Entity):
 
         """
         if self._local:
-            raise Exception("Use .export() for local execution.")
+            raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
 
@@ -167,13 +168,7 @@ class Function(Entity):
     #  Function Methods
     #############################
 
-    def run(self) -> "Run":
-        ...
-
-    def build(self) -> "Run":
-        ...
-
-    def deploy(self) -> "Run":
+    def run(self):
         ...
 
     #############################
@@ -211,7 +206,7 @@ class Function(Entity):
         name = obj.get("name")
         uuid = obj.get("id")
         if project is None or name is None:
-            raise Exception("Project or name are not specified.")
+            raise EntityError("Project or name are not specified.")
         metadata = FunctionMetadata.from_dict(obj.get("metadata", {"name": name}))
         spec = FunctionSpec.from_dict(obj.get("spec", {}))
         return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)
