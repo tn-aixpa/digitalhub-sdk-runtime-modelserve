@@ -2,7 +2,8 @@
 Function module.
 """
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.api import DTO_FUNC, create_api, update_api
+from sdk.entities.task.entity import Task
+from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
@@ -109,6 +110,7 @@ class Function(Entity):
                 self.__setattr__(k, v)
 
         self.context = get_context(self.project)
+        self.task = None
 
     #############################
     #  Save / Export
@@ -135,11 +137,11 @@ class Function(Entity):
         obj = self.to_dict()
 
         if uuid is None:
-            api = create_api(self.project, DTO_FUNC)
+            api = api_ctx_create(self.project, DTO_FUNC)
             return self.context.client.create_object(obj, api)
 
         self.id = uuid
-        api = update_api(self.project, DTO_FUNC, self.name, uuid)
+        api = api_ctx_update(self.project, DTO_FUNC, self.name, uuid)
         return self.context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
@@ -169,7 +171,11 @@ class Function(Entity):
     #############################
 
     def run(self):
-        ...
+        """
+        Run function.
+        """
+        if self.task is None:
+            self.task = Task(self.project, self.name, self.id)
 
     #############################
     #  Getters and Setters

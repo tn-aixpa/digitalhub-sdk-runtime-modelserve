@@ -2,7 +2,7 @@
 Artifact operations module.
 """
 from sdk.entities.artifact.entity import Artifact, ArtifactMetadata, ArtifactSpec
-from sdk.utils.api import DTO_ARTF, delete_api, read_api
+from sdk.utils.api import DTO_ARTF, api_ctx_delete, api_ctx_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
@@ -94,7 +94,7 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
 
     """
     context = get_context(project)
-    api = read_api(project, DTO_ARTF, name, uuid=uuid)
+    api = api_ctx_read(project, DTO_ARTF, name, uuid=uuid)
     obj = context.client.get_object(api)
     return Artifact.from_dict(obj)
 
@@ -137,5 +137,5 @@ def delete_artifact(project: str, name: str, uuid: str = None) -> None:
         This function does not return anything.
     """
     context = get_context(project)
-    api = delete_api(project, DTO_ARTF, name, uuid=uuid)
+    api = api_ctx_delete(project, DTO_ARTF, name, uuid=uuid)
     return context.client.delete_object(api)

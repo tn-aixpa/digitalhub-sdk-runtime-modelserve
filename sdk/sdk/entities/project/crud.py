@@ -5,10 +5,11 @@ from sdk.utils.api import (
     DTO_ARTF,
     DTO_DTIT,
     DTO_FUNC,
+    DTO_PROJ,
     DTO_WKFL,
-    delete_api,
-    delete_api_project,
-    read_api_project,
+    api_ctx_delete,
+    api_base_delete,
+    api_base_read,
 )
 from sdk.entities.project.entity import Project, ProjectMetadata, ProjectSpec
 from sdk.utils.factories import delete_context, get_client
@@ -104,7 +105,7 @@ def get_project(name: str) -> Project:
         An object that contains details about the specified project.
 
     """
-    api = read_api_project(name)
+    api = api_base_read(DTO_PROJ, name)
     obj_be = get_client().get_object(api)
 
     # Extract spec
@@ -172,18 +173,18 @@ def delete_project(name: str, delete_all: bool = False) -> None:
     # Delete all objects related to project -> must be done by backend
     if delete_all:
         for dto in [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]:
-            api_proj = read_api_project(name, dto)
+            api_proj = f"/api/v1/{DTO_PROJ}/{name}/{dto}"
             try:
                 objs = client.get_object(api_proj)
                 for obj in objs:
-                    api = delete_api(name, dto, obj["name"])
+                    api = api_ctx_delete(name, dto, obj["name"])
                     responses.append(client.delete_object(api))
             except Exception:
                 ...
 
     # Delete project
     try:
-        api = delete_api_project(name)
+        api = api_base_delete(DTO_PROJ, name)
         responses.append(client.delete_object(api))
     except Exception:
         ...

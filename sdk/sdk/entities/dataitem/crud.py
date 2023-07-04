@@ -2,7 +2,7 @@
 Dataitem operations module.
 """
 from sdk.entities.dataitem.entity import Dataitem, DataitemMetadata, DataitemSpec
-from sdk.utils.api import DTO_DTIT, delete_api, read_api
+from sdk.utils.api import DTO_DTIT, api_ctx_delete, api_ctx_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
@@ -91,7 +91,7 @@ def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
 
     """
     context = get_context(project)
-    api = read_api(project, DTO_DTIT, name, uuid=uuid)
+    api = api_ctx_read(project, DTO_DTIT, name, uuid=uuid)
     obj = context.client.get_object(api)
     return Dataitem.from_dict(obj)
 
@@ -134,5 +134,5 @@ def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
         This function does not return anything.
     """
     context = get_context(project)
-    api = delete_api(project, DTO_DTIT, name, uuid=uuid)
+    api = api_ctx_delete(project, DTO_DTIT, name, uuid=uuid)
     return context.client.delete_object(api)

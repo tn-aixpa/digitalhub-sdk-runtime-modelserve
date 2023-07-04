@@ -2,7 +2,7 @@
 Function operations module.
 """
 from sdk.entities.function.entity import Function, FunctionMetadata, FunctionSpec
-from sdk.utils.api import DTO_FUNC, delete_api, read_api
+from sdk.utils.api import DTO_FUNC, api_ctx_delete, api_ctx_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
@@ -97,7 +97,7 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
 
     """
     context = get_context(project)
-    api = read_api(project, DTO_FUNC, name, uuid=uuid)
+    api = api_ctx_read(project, DTO_FUNC, name, uuid=uuid)
     obj = context.client.get_object(api)
     return Function.from_dict(obj)
 
@@ -142,5 +142,5 @@ def delete_function(project: str, name: str, uuid: str = None) -> None:
         This function does not return anything.
     """
     context = get_context(project)
-    api = delete_api(project, DTO_FUNC, name, uuid=uuid)
+    api = api_ctx_delete(project, DTO_FUNC, name, uuid=uuid)
     return context.client.delete_object(api)

@@ -2,7 +2,7 @@
 Workflow module.
 """
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.api import DTO_WKFL, create_api, update_api
+from sdk.utils.api import DTO_WKFL, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
@@ -126,11 +126,11 @@ class Workflow(Entity):
         obj = self.to_dict()
 
         if uuid is None:
-            api = create_api(self.project, DTO_WKFL)
+            api = api_ctx_create(self.project, DTO_WKFL)
             return self.context.client.create_object(obj, api)
 
         self.id = uuid
-        api = update_api(self.project, DTO_WKFL, self.name, uuid)
+        api = api_ctx_update(self.project, DTO_WKFL, self.name, uuid)
         return self.context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:

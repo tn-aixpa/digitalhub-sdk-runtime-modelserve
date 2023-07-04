@@ -14,7 +14,14 @@ from sdk.entities.function.crud import delete_function, get_function, new_functi
 from sdk.entities.function.entity import Function
 from sdk.entities.workflow.crud import delete_workflow, get_workflow, new_workflow
 from sdk.entities.workflow.entity import Workflow
-from sdk.utils.api import DTO_ARTF, DTO_DTIT, DTO_FUNC, DTO_WKFL, create_api_proj
+from sdk.utils.api import (
+    DTO_ARTF,
+    DTO_DTIT,
+    DTO_FUNC,
+    DTO_PROJ,
+    DTO_WKFL,
+    api_base_create,
+)
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_client, set_context
 from sdk.utils.utils import get_uiid
@@ -137,9 +144,6 @@ class Project(Entity):
 
         Parameters
         ----------
-        save_object : bool, optional
-            Flag to determine if object related to project will be saved.
-
         uuid : bool, optional
             Ignored, placed for compatibility with other objects.
 
@@ -158,7 +162,7 @@ class Project(Entity):
         # Try to create project
         # (try to avoid error response if project already exists)
         try:
-            api = create_api_proj()
+            api = api_base_create(DTO_PROJ)
             response = self.client.create_object(obj, api)
             responses.append(response)
         except Exception:

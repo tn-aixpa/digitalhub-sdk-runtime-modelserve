@@ -2,8 +2,8 @@
 APIs module.
 """
 
-API_PROJECT = "/api/v1/projects"
-API_CONTEXT = "/api/v1/-"
+API_BASE = "/api/v1"
+API_CONTEXT = f"{API_BASE}/-"
 
 ####################
 # DTO TYPES
@@ -14,18 +14,20 @@ DTO_ARTF = "artifacts"
 DTO_FUNC = "functions"
 DTO_WKFL = "workflows"
 DTO_DTIT = "dataitems"
+DTO_TASK = "tasks"
+DTO_RUNS = "runs"
 
 ####################
-# POST
+# Context APIs
 ####################
 
 
-def create_api(
+def api_ctx_create(
     proj: str,
     dto: str,
 ) -> str:
     """
-    Create API for a DTO.
+    Create context API.
 
     Parameters
     ----------
@@ -39,36 +41,17 @@ def create_api(
     str
         The API string formatted.
     """
-    # PROJ_NAME + DTO
     return f"{API_CONTEXT}/{proj}/{dto}"
 
 
-def create_api_proj() -> str:
-    """
-    Create API for projects.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    # PROJ_NAME/UUID
-    return f"{API_PROJECT}"
-
-
-####################
-# GET
-####################
-
-
-def read_api(
+def api_ctx_read(
     proj: str,
     dto: str,
     name: str,
     uuid: str = None,
 ) -> str:
     """
-    Read API for a DTO.
+    Read context API.
 
     Parameters
     ----------
@@ -86,78 +69,18 @@ def read_api(
     str
         The API string formatted.
     """
-    if uuid is not None:
-        # PROJ_NAME + DTO + DTO_NAME + UUID
-        return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
-    # PROJ_NAME + DTO + DTO_NAME + LATEST
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}/latest"
+    version = f"/{uuid}" if uuid is not None else "/latest"
+    return f"{API_CONTEXT}/{proj}/{dto}/{name}{version}"
 
 
-def read_api_all(proj: str, dto: str, name: str = None) -> str:
-    """
-    Read API for a DTO.
-
-    Parameters
-    ----------
-    proj : str
-        The name of the project.
-    dto : str
-        The type of the DTO.
-    name : str, optional
-        The name of the DTO. If not provided, all DTOs of the type are returned.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    if name is not None:
-        # PROJ_NAME + DTO + DTO_NAME
-        return f"{API_CONTEXT}/{proj}/{dto}/{name}"
-    # PROJ_NAME + DTO
-    return f"{API_CONTEXT}/{proj}/{dto}"
-
-
-def read_api_project(
-    proj: str,
-    dto: str = None,
-) -> str:
-    """
-    Read API for projects. If dto is provided, dhcore returns the specific DTO types
-    of the project.
-
-    Parameters
-    ----------
-    proj : str
-        The name of the project.
-    dto : str, optional
-        The type of the DTO. If not provided, the project is returned.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    if dto is None:
-        # PROJ_NAME/UUID
-        return f"{API_PROJECT}/{proj}"
-    # PROJ_NAME/UUID + DTO
-    return f"{API_PROJECT}/{proj}/{dto}"
-
-
-####################
-# PUT
-####################
-
-
-def update_api(
+def api_ctx_update(
     proj: str,
     dto: str,
     name: str,
     uuid: str,
 ) -> str:
     """
-    Update API for a DTO.
+    Update context API.
 
     Parameters
     ----------
@@ -175,41 +98,17 @@ def update_api(
     str
         The API string formatted.
     """
-    # PROJ_NAME + DTO + DTO_NAME + UUID
     return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
 
 
-def update_api_project(proj: str) -> str:
-    """
-    Update API for projects. Not used.
-
-    Parameters
-    ----------
-    proj : str
-        The name of the project.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    # PROJ_NAME/UUID
-    return f"{API_PROJECT}/{proj}"
-
-
-####################
-# DELETE
-####################
-
-
-def delete_api(
+def api_ctx_delete(
     proj: str,
     dto: str,
     name: str,
     uuid: str = None,
 ) -> str:
     """
-    Delete API for a DTO.
+    Delete context API.
 
     Parameters
     ----------
@@ -227,26 +126,87 @@ def delete_api(
     str
         The API string formatted.
     """
-    if uuid is not None:
-        # PROJ_NAME + DTO + DTO_NAME + UUID
-        return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
-    # PROJ_NAME + DTO + DTO_NAME
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}"
+    version = f"/{uuid}" if uuid is not None else ""
+    return f"{API_CONTEXT}/{proj}/{dto}/{name}{version}"
 
 
-def delete_api_project(proj: str) -> str:
+####################
+# Base controller APIs
+####################
+
+
+def api_base_create(dto: str) -> str:
     """
-    Delete API for projects.
+    Create base API.
 
     Parameters
     ----------
-    proj : str
-        The name of the project.
+    dto : str
+        The type of the DTO.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    # PROJ_NAME/UUID
-    return f"{API_PROJECT}/{proj}"
+    return f"{API_BASE}/{dto}"
+
+
+def api_base_read(
+    dto: str,
+    name: str,
+) -> str:
+    """
+    Read base API.
+
+    Parameters
+    ----------
+    dto : str
+        The type of the DTO.
+    name : str
+        The name of the DTO.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_BASE}/{dto}/{name}"
+
+
+def api_base_update(dto: str, name: str) -> str:
+    """
+    Update base API.
+
+    Parameters
+    ----------
+    dto : str
+        The type of the DTO.
+    name : str
+        The name of the DTO.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_BASE}/{dto}/{name}"
+
+
+def api_base_delete(dto: str, name: str) -> str:
+    """
+    Delete base API.
+
+    Parameters
+    ----------
+    dto : str
+        The type of the DTO.
+    name : str
+        The name of the DTO.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_BASE}/{dto}/{name}"

@@ -7,7 +7,7 @@ import typing
 from warnings import warn
 
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
-from sdk.utils.api import DTO_DTIT, create_api, update_api
+from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
 from sdk.utils.file_utils import check_file, clean_all, get_dir
@@ -142,11 +142,11 @@ class Dataitem(Entity):
         obj = self.to_dict()
 
         if uuid is None:
-            api = create_api(self.project, DTO_DTIT)
+            api = api_ctx_create(self.project, DTO_DTIT)
             return self.context.client.create_object(obj, api)
 
         self.id = uuid
-        api = update_api(self.project, DTO_DTIT, self.name, uuid)
+        api = api_ctx_update(self.project, DTO_DTIT, self.name, uuid)
         return self.context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:

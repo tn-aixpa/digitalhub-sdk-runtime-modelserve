@@ -1,7 +1,7 @@
 """
 Artifact module.
 """
-from sdk.utils.api import DTO_ARTF, create_api, update_api
+from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
@@ -135,11 +135,11 @@ class Artifact(Entity):
         obj = self.to_dict()
 
         if uuid is None:
-            api = create_api(self.project, DTO_ARTF)
+            api = api_ctx_create(self.project, DTO_ARTF)
             return self.context.client.create_object(obj, api)
 
         self.id = uuid
-        api = update_api(self.project, DTO_ARTF, self.name, uuid)
+        api = api_ctx_update(self.project, DTO_ARTF, self.name, uuid)
         return self.context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
