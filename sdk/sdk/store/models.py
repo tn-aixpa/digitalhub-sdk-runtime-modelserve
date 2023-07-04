@@ -3,7 +3,7 @@ Store models module.
 """
 from typing import Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 
 class StoreConfig(BaseModel):
@@ -14,7 +14,7 @@ class StoreConfig(BaseModel):
     name: str
     """Store id."""
 
-    type: Literal["s3", "local"]
+    type: Literal["s3", "local", "remote"]
     """Store type to instantiate."""
 
     uri: str

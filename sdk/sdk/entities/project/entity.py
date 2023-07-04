@@ -12,8 +12,8 @@ from sdk.entities.dataitem.crud import delete_dataitem, get_dataitem, new_datait
 from sdk.entities.dataitem.entity import Dataitem
 from sdk.entities.function.crud import delete_function, get_function, new_function
 from sdk.entities.function.entity import Function
-from sdk.entities.workflow.operations import delete_workflow, get_workflow, new_workflow
-from sdk.entities.workflow.workflow import Workflow
+from sdk.entities.workflow.crud import delete_workflow, get_workflow, new_workflow
+from sdk.entities.workflow.entity import Workflow
 from sdk.utils.api import DTO_ARTF, DTO_DTIT, DTO_FUNC, DTO_WKFL, create_api_proj
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_client, set_context
@@ -193,7 +193,7 @@ class Project(Entity):
         """
         obj = self.to_dict()
         filename = filename if filename is not None else "project.yaml"
-        self.export_object(filename, obj)
+        self._export_object(filename, obj)
 
         # Export objects related to project if not embedded
         for i in DTO_LIST:

@@ -1,7 +1,7 @@
 """
 Workflow operations module.
 """
-from sdk.entities.workflow.workflow import Workflow, WorkflowMetadata, WorkflowSpec
+from sdk.entities.workflow.entity import Workflow, WorkflowMetadata, WorkflowSpec
 from sdk.utils.api import DTO_WKFL, delete_api, read_api
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
@@ -129,5 +129,4 @@ def delete_workflow(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = delete_api(project, DTO_WKFL, name, uuid=uuid)
-    obj = context.client.delete_object(api)
-    return obj
+    return context.client.delete_object(api)

@@ -6,8 +6,9 @@ from __future__ import annotations
 import typing
 
 from sdk.store.objects.store import Store
+from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import check_dir, copy_file, get_dir, make_dir
-from sdk.utils.uri_utils import get_name_from_uri
+from sdk.utils.uri_utils import get_name_from_uri, get_uri_scheme
 
 if typing.TYPE_CHECKING:
     import pandas as pd
@@ -15,36 +16,13 @@ if typing.TYPE_CHECKING:
 
 class LocalStore(Store):
     """
-    S3 store class. It implements the Store interface and provides methods to fetch and persist
+    Local store class. It implements the Store interface and provides methods to fetch and persist
     artifacts on local filesystem based storage.
     """
 
     ############################
     # IO methods
     ############################
-
-    def upload(self, *args, **kwargs) -> None:
-        """
-        Method to upload an artifact to the backend. Please note that this method is not implemented
-        since the local store is not meant to upload artifacts.
-
-        Parameters
-        ----------
-        *args
-            Variable length argument list.
-        **kwargs
-            Arbitrary keyword arguments.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        NotImplementedError
-            This method is not implemented.
-        """
-        raise NotImplementedError("Local store does not support upload.")
 
     def download(self, *args, **kwargs) -> None:
         """
@@ -105,6 +83,29 @@ class LocalStore(Store):
         # If destination is not provided, return the source path
         # we don't copy the file anywhere
         return src
+
+    def upload(self, *args, **kwargs) -> None:
+        """
+        Method to upload an artifact to the backend. Please note that this method is not implemented
+        since the local store is not meant to upload artifacts.
+
+        Parameters
+        ----------
+        *args
+            Variable length argument list.
+        **kwargs
+            Arbitrary keyword arguments.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        NotImplementedError
+            This method is not implemented.
+        """
+        raise NotImplementedError("Local store does not support upload.")
 
     def persist_artifact(self, src: str, dst: str = None) -> None:
         """
@@ -183,6 +184,26 @@ class LocalStore(Store):
     ############################
     # Store interface methods
     ############################
+
+    def _validate_uri(self) -> None:
+        """
+        Validate the URI of the store.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        StoreError
+            If the URI scheme is not '' or 'file'.
+
+        """
+        scheme = get_uri_scheme(self.uri)
+        if scheme not in ["", "file"]:
+            raise StoreError(
+                f"Invalid URI scheme for local store: {scheme}. Should be '' or 'file'."
+            )
 
     @staticmethod
     def is_local() -> bool:

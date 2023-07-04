@@ -129,7 +129,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         """
 
     @staticmethod
-    def export_object(filename: str, obj: dict) -> None:
+    def _export_object(filename: str, obj: dict) -> None:
         """
         Export object to a file in the specified filename location.
 

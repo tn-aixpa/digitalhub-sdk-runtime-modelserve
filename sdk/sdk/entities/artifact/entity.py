@@ -4,7 +4,7 @@ Artifact module.
 from sdk.utils.api import DTO_ARTF, create_api, update_api
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context, get_default_store, get_store
+from sdk.utils.factories import get_context, get_default_store
 from sdk.utils.file_utils import check_file, get_dir
 from sdk.utils.uri_utils import (
     get_name_from_uri,
@@ -162,7 +162,7 @@ class Artifact(Entity):
             if filename is not None
             else f"artifact_{self.project}_{self.name}.yaml"
         )
-        return self.export_object(filename, obj)
+        self._export_object(filename, obj)
 
     #############################
     #  Artifacts Methods

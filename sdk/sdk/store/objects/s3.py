@@ -6,10 +6,10 @@ from __future__ import annotations
 import typing
 from io import BytesIO
 from tempfile import mkdtemp
-from typing import Optional, Type
+from typing import Type
 
 import boto3
-import botocore.client
+import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 
 from sdk.store.objects.store import Store
@@ -38,36 +38,9 @@ class S3Store(Store):
     artifacts on S3 based storage.
     """
 
-    def __init__(
-        self,
-        name: str,
-        store_type: str,
-        uri: str,
-        config: Optional[dict] = None,
-    ) -> None:
-        """
-        Constructor.
-
-        See Also
-        --------
-        Store.__init__
-        """
-        super().__init__(name, store_type, uri, config)
-        self._validate_uri()
-
     ############################
     # IO methods
     ############################
-
-    def upload(self, src: str, dst: str = None) -> str:
-        """
-        Upload an artifact to S3 based storage.
-
-        See Also
-        --------
-        self.persist_artifact
-        """
-        return self.persist_artifact(src, dst)
 
     def download(self, src: str, dst: str = None) -> str:
         """
@@ -115,6 +88,16 @@ class S3Store(Store):
         # Get the file from S3 and save it locally
         client.download_file(bucket, key, dst)
         return dst
+
+    def upload(self, src: str, dst: str = None) -> str:
+        """
+        Upload an artifact to S3 based storage.
+
+        See Also
+        --------
+        self.persist_artifact
+        """
+        return self.persist_artifact(src, dst)
 
     def persist_artifact(self, src: str, dst: str = None) -> str:
         """
@@ -188,31 +171,6 @@ class S3Store(Store):
     # Private helper methods
     ############################
 
-    def _validate_uri(self) -> None:
-        """
-        Validate the URI of the store.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        StoreError
-            If the URI scheme is not 's3'.
-
-        StoreError
-            If no bucket is specified in the URI.
-        """
-        scheme = get_uri_scheme(self.uri)
-        if scheme != "s3":
-            raise StoreError(
-                f"Invalid URI scheme for s3 store: {scheme}. Should be 's3'"
-            )
-        bucket = get_uri_netloc(self.uri)
-        if bucket == "":
-            raise StoreError("No bucket specified in the URI for s3 store!")
-
     def _get_client(self) -> S3Client:
         """
         Get an S3 client object.
@@ -269,6 +227,31 @@ class S3Store(Store):
     ############################
     # Store interface methods
     ############################
+
+    def _validate_uri(self) -> None:
+        """
+        Validate the URI of the store.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        StoreError
+            If the URI scheme is not 's3'.
+
+        StoreError
+            If no bucket is specified in the URI.
+        """
+        scheme = get_uri_scheme(self.uri)
+        if scheme != "s3":
+            raise StoreError(
+                f"Invalid URI scheme for s3 store: {scheme}. Should be 's3'"
+            )
+        bucket = get_uri_netloc(self.uri)
+        if bucket == "":
+            raise StoreError("No bucket specified in the URI for s3 store!")
 
     @staticmethod
     def is_local() -> bool:

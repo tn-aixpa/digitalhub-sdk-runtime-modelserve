@@ -153,7 +153,7 @@ class Workflow(Entity):
             if filename is not None
             else f"workflow_{self.project}_{self.name}.yaml"
         )
-        return self.export_object(filename, obj)
+        self._export_object(filename, obj)
 
     #############################
     #  Workflow Methods

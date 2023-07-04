@@ -1,7 +1,10 @@
 """
 Dataitem module.
 """
-import pandas as pd
+from __future__ import annotations
+
+import typing
+from warnings import warn
 
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.api import DTO_DTIT, create_api, update_api
@@ -10,6 +13,9 @@ from sdk.utils.factories import get_context, get_default_store
 from sdk.utils.file_utils import check_file, clean_all, get_dir
 from sdk.utils.uri_utils import get_extension, get_uri_scheme
 from sdk.utils.utils import get_uiid
+
+if typing.TYPE_CHECKING:
+    import pandas as pd
 
 
 class DataitemMetadata(EntityMetadata):
@@ -163,7 +169,7 @@ class Dataitem(Entity):
             if filename is not None
             else f"dataitem_{self.project}_{self.name}.yaml"
         )
-        return self.export_object(filename, obj)
+        self._export_object(filename, obj)
 
     #############################
     #  Dataitem Methods
@@ -196,15 +202,22 @@ class Dataitem(Entity):
         store = get_default_store()
         tmp_path = False
 
+        # Download dataitem if not local
         if self._check_local():
             path = self.spec.path
         else:
+            # Check file format then download
+            path_ext = get_extension(self.spec.path)
+            if path_ext not in ["csv", "parquet"] and file_format is None:
+                raise EntityError(
+                    "Unknown file format, please specify file_format, e.g. file_format='csv'"
+                )
             path = store.download(self.spec.path)
             tmp_path = True
 
         # Read DataFrame
         extension = file_format if file_format is not None else get_extension(path)
-        df = self._read_df(path, extension, **kwargs)
+        df = store.read_df(path, extension, **kwargs)
 
         # Clean temp folder
         if tmp_path:
@@ -258,35 +271,6 @@ class Dataitem(Entity):
             True if local, False otherwise.
         """
         return get_uri_scheme(self.spec.path) in ["", "file"]
-
-    def _read_df(self, path: str, extension: str, **kwargs) -> pd.DataFrame:
-        """
-        Read DataFrame from path.
-
-        Parameters
-        ----------
-        path : str
-            Path to read DataFrame from.
-        extension : str
-            Extension of the file.
-        **kwargs
-            Additional keyword arguments for pandas read_csv or read_parquet.
-
-        Returns
-        -------
-        pd.DataFrame
-            Pandas DataFrame.
-
-        Raises
-        ------
-        RuntimeError
-            If format is not supported.
-        """
-        if extension == "csv":
-            return pd.read_csv(path, **kwargs)
-        if extension == "parquet":
-            return pd.read_parquet(path, **kwargs)
-        raise RuntimeError(f"Format {extension} not supported.")
 
     #############################
     #  Getters and Setters

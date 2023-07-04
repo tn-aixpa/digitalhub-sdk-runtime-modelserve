@@ -162,7 +162,7 @@ class Function(Entity):
             if filename is not None
             else f"function_{self.project}_{self.name}.yaml"
         )
-        return self.export_object(filename, obj)
+        self._export_object(filename, obj)
 
     #############################
     #  Function Methods

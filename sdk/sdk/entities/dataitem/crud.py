@@ -135,5 +135,4 @@ def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = delete_api(project, DTO_DTIT, name, uuid=uuid)
-    obj = context.client.get_object(api)
-    return obj
+    return context.client.delete_object(api)

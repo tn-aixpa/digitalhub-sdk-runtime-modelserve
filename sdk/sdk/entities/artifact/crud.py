@@ -138,5 +138,4 @@ def delete_artifact(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = delete_api(project, DTO_ARTF, name, uuid=uuid)
-    obj = context.client.delete_object(api)
-    return obj
+    return context.client.delete_object(api)

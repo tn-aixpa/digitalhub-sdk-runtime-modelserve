@@ -1,3 +1,6 @@
+"""
+Import modules from submodules.
+"""
 from sdk.entities.artifact.crud import (
     delete_artifact,
     get_artifact,
@@ -22,7 +25,7 @@ from sdk.entities.project.crud import (
     import_project,
     new_project,
 )
-from sdk.entities.workflow.operations import (
+from sdk.entities.workflow.crud import (
     delete_workflow,
     get_workflow,
     import_workflow,

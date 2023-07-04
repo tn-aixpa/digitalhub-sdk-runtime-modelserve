@@ -4,6 +4,8 @@ Store module.
 from abc import ABCMeta, abstractmethod
 from typing import Optional
 
+import pandas as pd
+
 
 class ResourceRegistry(dict):
     """
@@ -92,6 +94,8 @@ class Store(metaclass=ABCMeta):
         self.config = config
         self.registry = ResourceRegistry()
 
+        self._validate_uri()
+
     ############################
     # IO methods
     ############################
@@ -120,9 +124,51 @@ class Store(metaclass=ABCMeta):
         Method to persist artifact in storage.
         """
 
+    @abstractmethod
+    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
+        """
+        Write pandas DataFrame as parquet or csv.
+        """
+
+    @staticmethod
+    def read_df(path: str, extension: str, **kwargs) -> pd.DataFrame:
+        """
+        Read DataFrame from path.
+
+        Parameters
+        ----------
+        path : str
+            Path to read DataFrame from.
+        extension : str
+            Extension of the file.
+        **kwargs
+            Additional keyword arguments for pandas read_csv or read_parquet.
+
+        Returns
+        -------
+        pd.DataFrame
+            Pandas DataFrame.
+
+        Raises
+        ------
+        RuntimeError
+            If format is not supported.
+        """
+        if extension == "csv":
+            return pd.read_csv(path, **kwargs)
+        if extension == "parquet":
+            return pd.read_parquet(path, **kwargs)
+        raise RuntimeError(f"Format {extension} not supported.")
+
     ############################
     # Interface helpers methods
     ############################
+
+    @abstractmethod
+    def _validate_uri(self) -> None:
+        """
+        Method to validate URI.
+        """
 
     @staticmethod
     @abstractmethod
