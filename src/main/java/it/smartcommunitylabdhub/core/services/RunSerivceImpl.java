@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import it.smartcommunitylabdhub.core.components.runnables.events.messages.JobMessage;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilderFactory;
@@ -97,10 +99,14 @@ public class RunSerivceImpl implements RunService {
     @Override
     public RunDTO createRun(RunExecDTO runExecDTO) {
 
-        return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskID()))
+        return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskId()))
                 .map(taskDTO -> {
+
+                    TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
+
                     // build run from task
-                    RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder("job").build(taskDTO);
+                    RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder(taskAccessor.getKind())
+                            .build(taskDTO);
 
                     // Save run
                     Run run = runRepository.save(runEntityBuilder.build(runDTO));

@@ -7,10 +7,8 @@ import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 

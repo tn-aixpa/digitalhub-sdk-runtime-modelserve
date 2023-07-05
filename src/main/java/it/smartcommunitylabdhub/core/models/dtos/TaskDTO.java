@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,10 +25,10 @@ public class TaskDTO implements BaseEntity {
     private String id;
 
     // FIXME: {kind}:/{project}/{function}@{version} kind ='job'...
-    @ValidateField
+    @NotNull
     private String task;
 
-    @ValidateField
+    @NotNull
     private String project;
 
     @NotNull

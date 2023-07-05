@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.dtos.custom.RunExecDTO;
-import it.smartcommunitylabdhub.core.models.dtos.custom.SpecDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import jakarta.validation.Valid;
 

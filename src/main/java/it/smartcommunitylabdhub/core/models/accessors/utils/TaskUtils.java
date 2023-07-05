@@ -11,7 +11,7 @@ import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 public class TaskUtils {
-    private static final Pattern TASK_PATTERN = Pattern.compile("(\\w+)://(\\w+)/(\\w+):(\\w+)");
+    private static final Pattern TASK_PATTERN = Pattern.compile("([^:/]+)://([^/]+)/([^:]+):(.+)");
 
     public static TaskAccessor parseTask(String taskString) {
         Matcher matcher = TASK_PATTERN.matcher(taskString);

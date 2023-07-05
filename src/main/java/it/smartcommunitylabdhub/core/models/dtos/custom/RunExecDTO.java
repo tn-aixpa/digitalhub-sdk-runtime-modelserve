@@ -1,5 +1,7 @@
 package it.smartcommunitylabdhub.core.models.dtos.custom;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +16,10 @@ import lombok.Setter;
 @Builder
 public class RunExecDTO {
     @NotNull
-    String taskID;
-    SpecDTO specDTO;
+    @JsonProperty("task_id")
+    String taskId;
+
+    @NotNull
+    @Builder.Default
+    SpecDTO specDTO = SpecDTO.builder().build();
 }

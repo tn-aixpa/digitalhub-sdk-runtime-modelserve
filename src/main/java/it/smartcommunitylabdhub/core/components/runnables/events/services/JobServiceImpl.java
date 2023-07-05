@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.JobService;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 
 import java.util.*;
@@ -32,11 +34,15 @@ public class JobServiceImpl implements JobService<Map<String, Object>> {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        TaskAccessor taskAccessor = TaskUtils.parseTask(runDTO.getTask());
         Map<String, Object> requestBody = Map.of(
                 "task", Map.of(
                         "spec", runDTO.getSpec(),
                         "metadata", Map.of(
-                                "name", runDTO.getTask(),
+                                "name",
+                                taskAccessor.getProject() +
+                                        "-" +
+                                        taskAccessor.getFunction(),
                                 "project", runDTO.getProject())));
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);

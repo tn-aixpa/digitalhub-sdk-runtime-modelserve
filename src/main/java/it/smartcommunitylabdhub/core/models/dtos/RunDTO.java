@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 import java.util.HashMap;
@@ -33,7 +32,6 @@ public class RunDTO implements BaseEntity {
     private String task;
 
     @NotNull
-    @ValidateField
     private String project;
 
     @NotNull
