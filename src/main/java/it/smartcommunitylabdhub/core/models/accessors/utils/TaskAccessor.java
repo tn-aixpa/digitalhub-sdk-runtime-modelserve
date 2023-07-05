@@ -8,13 +8,13 @@ import lombok.Setter;
 public class TaskAccessor {
     private String kind;
     private String project;
-    private String function;
+    private String name;
     private String version;
 
     public TaskAccessor(String kind, String project, String function, String version) {
         this.kind = kind;
         this.project = project;
-        this.function = function;
+        this.name = function;
         this.version = version;
     }
 }

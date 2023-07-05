@@ -102,6 +102,8 @@ public class RunSerivceImpl implements RunService {
         return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskId()))
                 .map(taskDTO -> {
 
+                    System.out.println(runExecDTO.getSpec().toString());
+
                     TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
 
                     // build run from task
@@ -117,10 +119,9 @@ public class RunSerivceImpl implements RunService {
                             r -> {
 
                                 // Override all spec
-                                r.getExtra().putAll(runExecDTO.getSpecDTO().getExtra());
-
+                                r.getSpec().putAll(runExecDTO.getSpec());
                                 // produce event with the runDTO object
-                                JobMessage jobMessage = new JobMessage(runDTO);
+                                JobMessage jobMessage = new JobMessage(r);
                                 applicationEventPublisher.publishEvent(jobMessage);
 
                                 return runDTO;

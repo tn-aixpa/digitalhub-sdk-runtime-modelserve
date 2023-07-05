@@ -42,9 +42,12 @@ public class JobServiceImpl implements JobService<Map<String, Object>> {
                                 "name",
                                 taskAccessor.getProject() +
                                         "-" +
-                                        taskAccessor.getFunction(),
+                                        taskAccessor.getName(),
                                 "project", runDTO.getProject())));
 
+        System.out.println("-----------------  REQUEST BODY ----------------");
+        System.out.println(requestBody.toString());
+        System.out.println("-----------------  end REQUEST BODY ----------------");
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(

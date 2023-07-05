@@ -62,6 +62,11 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                     .exchange(requestUrl, HttpMethod.GET, entity,
                             responseType);
 
+            try {
+                System.out.println(objectMapper.writeValueAsString(response));
+            } catch (Exception e) {
+            }
+
             return Optional.ofNullable(response.getBody()).map(body -> {
                 Map<String, Object> status = (Map<String, Object>) ((Map<String, Object>) body.get("data"))
                         .get("status");
@@ -84,14 +89,14 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                 } else if (stateMachine.getCurrentState().equals(RunState.COMPLETED)) {
                     System.out.println("Poller complete SUCCESSFULLY. Get log and stop poller now");
 
-                    // Update run state
-                    runDTO.setState(RunState.COMPLETED.name());
-
-                    // Store change
-                    this.runService.save(runDTO);
-
                     // TODO: Store log from mlrun.
                     throw new StopPoller("Poller complete successful!");
+                } else if (stateMachine.getCurrentState().equals(RunState.ERROR)) {
+                    System.out.println("Poller complete with ERROR. Get log and stop poller now");
+
+                    // TODO: Store log from mlrun.
+                    throw new StopPoller("Error state reached stop poller");
+
                 }
                 return null;
             }).orElseGet(() -> null);

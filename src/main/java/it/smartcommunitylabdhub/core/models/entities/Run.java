@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.persistence.Column;
@@ -63,7 +64,7 @@ public class Run implements BaseEntity {
     private Date updated;
 
     @Enumerated(EnumType.STRING)
-    private State state;
+    private RunState state;
 
     @PrePersist
     public void prePersist() {

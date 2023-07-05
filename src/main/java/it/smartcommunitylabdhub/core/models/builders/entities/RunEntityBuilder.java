@@ -2,11 +2,11 @@ package it.smartcommunitylabdhub.core.models.builders.entities;
 
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
-import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
 public class RunEntityBuilder {
@@ -48,8 +48,8 @@ public class RunEntityBuilder {
                                                         .with(f -> f.setProject(runDTO.getProject()))
                                                         .with(f -> f.setTask(runDTO.getTask()))
                                                         .with(f -> f.setState(runDTO.getState() == null
-                                                                        ? State.CREATED
-                                                                        : State.valueOf(runDTO.getState())))
+                                                                        ? RunState.CREATED
+                                                                        : RunState.valueOf(runDTO.getState())))
                                                         .with(f -> f.setExtra(
                                                                         ConversionUtils.convert(runDTO.getExtra(),
 

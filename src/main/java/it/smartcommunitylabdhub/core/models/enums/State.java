@@ -11,4 +11,5 @@ public enum State {
     DELETED,
     ONLINE,
     IDLE,
+    ERROR
 }
