@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -10,6 +11,10 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dtos.LogDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.ProjectDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.LogEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.entities.ProjectEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.entities.Log;
@@ -75,4 +80,14 @@ public class LogSerivceImpl implements LogService {
         }
     }
 
+    @Override
+    public LogDTO createLog(LogDTO logDTO) {
+        return Optional.of(new LogEntityBuilder(logDTO).build())
+                .map(log -> new LogDTOBuilder(logRepository.save(log))
+                        .build())
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Failed to generate log.",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
+    }
 }

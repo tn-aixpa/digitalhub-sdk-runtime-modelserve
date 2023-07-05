@@ -18,7 +18,6 @@ public class LogConverter implements Converter<LogDTO, Log> {
                 .project(logDTO.getProject())
                 .run(logDTO.getRun())
                 .state(logDTO.getState() == null ? State.CREATED : State.valueOf(logDTO.getState()))
-
                 .build();
     }
 

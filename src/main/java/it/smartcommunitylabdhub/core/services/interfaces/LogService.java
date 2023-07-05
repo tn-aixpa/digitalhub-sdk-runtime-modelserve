@@ -14,4 +14,6 @@ public interface LogService {
 
     boolean deleteLog(String uuid);
 
+    LogDTO createLog(LogDTO logDTO);
+
 }

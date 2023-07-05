@@ -24,7 +24,9 @@ import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.fact
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
+import it.smartcommunitylabdhub.core.utils.MapUtils;
 
 @Component
 public class RunWorkflowBuilder extends BaseWorkflowBuilder {
@@ -32,15 +34,23 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
     @Value("${mlrun.api.run-url}")
     private String runUrl;
 
+    @Value("${mlrun.api.log-url}")
+    private String logUrl;
+
     private final RunService runService;
+    private final LogService logService;
     private final RunStateMachine runStateMachine;
     private final RestTemplate restTemplate;
     private StateMachine<RunState, RunEvent, Map<String, Object>> stateMachine;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public RunWorkflowBuilder(RunService runService, RunStateMachine runStateMachine) {
+    public RunWorkflowBuilder(
+            RunService runService,
+            LogService logService,
+            RunStateMachine runStateMachine) {
         this.runService = runService;
+        this.logService = logService;
         this.restTemplate = new RestTemplate();
         this.runStateMachine = runStateMachine;
     }
@@ -90,6 +100,29 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                     System.out.println("Poller complete SUCCESSFULLY. Get log and stop poller now");
 
                     // TODO: Store log from mlrun.
+                    Optional.ofNullable(response.getBody()).ifPresent(b -> {
+                        // Get run uid from mlrun.
+                        MapUtils.getNestedFieldValue(b, "data").ifPresent(data -> {
+                            MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
+                                String uid = (String) metadata.get("uid");
+
+                                // Call mlrun api to get log of specific run uid.
+                                ResponseEntity<String> logResponse = restTemplate
+                                        .exchange(
+                                                logUrl.replace("{project}", runDTO.getProject()).replace("{uid}", uid),
+                                                HttpMethod.GET, entity,
+                                                String.class);
+
+                                // Create and store log
+                                System.out.println(logResponse.getBody());
+
+                                // TODO: Store log information in logs table
+                                // FIXME
+                            });
+                        });
+
+                    });
+
                     throw new StopPoller("Poller complete successful!");
                 } else if (stateMachine.getCurrentState().equals(RunState.ERROR)) {
                     System.out.println("Poller complete with ERROR. Get log and stop poller now");
