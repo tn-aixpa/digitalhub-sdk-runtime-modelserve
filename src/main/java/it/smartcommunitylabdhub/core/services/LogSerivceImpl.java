@@ -33,7 +33,7 @@ public class LogSerivceImpl implements LogService {
         try {
             Page<Log> logPage = this.logRepository.findAll(pageable);
             return logPage.getContent().stream()
-                    .map(log -> (LogDTO) ConversionUtils.reverse(log, "log"))
+                    .map(log -> new LogDTOBuilder(log).build())
                     .collect(Collectors.toList());
 
         } catch (CustomException e) {
@@ -46,23 +46,18 @@ public class LogSerivceImpl implements LogService {
 
     @Override
     public LogDTO getLog(String uuid) {
-        final Log log = logRepository.findById(uuid).orElse(null);
-        if (log == null) {
-            throw new CoreException(
-                    "LogNotFound",
-                    "The log you are searching for does not exist.",
-                    HttpStatus.NOT_FOUND);
-        }
+        return logRepository.findById(uuid)
+                .map(log -> {
+                    try {
+                        return new LogDTOBuilder(log).build();
+                    } catch (CustomException e) {
+                        throw new CoreException("InternalServerError", e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .orElseThrow(() -> new CoreException("LogNotFound", "The log you are searching for does not exist.",
+                        HttpStatus.NOT_FOUND));
 
-        try {
-            return ConversionUtils.reverse(log, "log");
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @Override
