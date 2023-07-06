@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylabdhub.core.annotations.RunWorkflowComponent;
 import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
-import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.components.fsm.types.RunStateMachine;
@@ -28,9 +27,7 @@ import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.fact
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.BaseWorkflowBuilder;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
 import it.smartcommunitylabdhub.core.models.accessors.enums.DataItemKind;
-import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.DataItemFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;

@@ -5,7 +5,6 @@ import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
-import it.smartcommunitylabdhub.core.models.enums.State;
 
 public class ArtifactEntityBuilder {
 
