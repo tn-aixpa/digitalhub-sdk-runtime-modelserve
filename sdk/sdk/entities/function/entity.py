@@ -94,7 +94,7 @@ class Function(Entity):
         super().__init__()
         self.project = project
         self.name = name
-        self.kind = kind if kind is not None else "local"
+        self.kind = kind if kind is not None else "job"
         self.metadata = (
             metadata if metadata is not None else FunctionMetadata(name=name)
         )
@@ -188,12 +188,12 @@ class Function(Entity):
         if self.task is None:
             tasc_spec = TaskSpec.from_dict(self.spec.to_dict())
             self.task = Task(
-                "task", tasc_spec, self.project, self.name, local=self._local
+                self.kind, tasc_spec, self.project, self.name
             )
             self.task.save()
 
         # Run function from task
-        return self.task.run(**kwargs)
+        return self.task.run(self.task.id, self.task.to_dict())
 
     def update_task(self, new_spec: dict) -> None:
         """

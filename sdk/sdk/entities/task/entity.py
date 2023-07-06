@@ -7,6 +7,7 @@ from sdk.utils.api import DTO_TASK, api_base_update, api_base_create
 from sdk.utils.exceptions import EntityError, BackendError
 from sdk.utils.factories import get_context
 from sdk.utils.uri_utils import get_uri_path
+from sdk.utils.utils import get_uiid
 
 
 class TaskSpec(EntitySpec):
@@ -70,6 +71,7 @@ class Task(Entity):
         self.kind = kind if kind is not None else "job"
         self.spec = spec
         self.function = function
+        self.id = get_uiid()
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -80,6 +82,8 @@ class Task(Entity):
 
         self.task = f"{self.kind}://{self.project}/{self.function}"
         self.context = get_context(self.project)
+
+        self._obj_attr += ["task"]
 
     #############################
     #  Save / Export
@@ -109,7 +113,8 @@ class Task(Entity):
             api = api_base_create(DTO_TASK)
             return self.context.client.create_object(obj, api)
         except BackendError:
-            api = api_base_update(DTO_TASK, self.task)
+            return
+            api = api_base_update(DTO_TASK, self.id)
             return self.context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
@@ -138,7 +143,7 @@ class Task(Entity):
     #  Task methods
     #############################
 
-    def run(self, **kwargs) -> None:
+    def run(self, task_id: str, spec: dict) -> None:
         """
         Run task.
 
@@ -153,6 +158,19 @@ class Task(Entity):
             Run object.
 
         """
+        if self._local:
+            raise EntityError("Use .run_local() for local execution.")
+
+        # Create run
+        run = {
+            "task_id": task_id,
+            "spec": spec,
+        }
+
+        api = api_base_create("runs")
+        run_obj = self.context.client.create_object(run, api)
+
+        return run_obj
 
     #############################
     # Generic Methods

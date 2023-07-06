@@ -110,11 +110,10 @@ class Entity(ModelObj, metaclass=ABCMeta):
     Abstract class for entities.
     """
 
-    _obj_attr = ["name", "kind", "metadata", "spec", "project", "id", "embedded"]
-    _essential_attr = ["name", "kind"]
-
     def __init__(self) -> None:
         self.id = None
+        self._obj_attr = ["id", "name", "kind", "metadata", "spec", "project", "embedded"]
+        self._essential_attr = ["name", "kind"]
 
     @abstractmethod
     def save(self, uuid: bool = False) -> dict:
