@@ -342,3 +342,41 @@ def read_yaml(file: Union[str, Path]) -> dict:
     with open(file, "r", encoding="utf-8") as in_file:
         data = yaml.load(in_file, Loader=yaml.SafeLoader)
     return data
+
+
+def read_bytes(file: Union[str, Path]) -> bytes:
+    """
+    Read a file and return the bytes.
+
+    Parameters
+    ----------
+    file : Union[str, Path]
+        The file path to read.
+
+    Returns
+    -------
+    bytes
+        The file content.
+    """
+    with open(file, "rb") as in_file:
+        data = in_file.read()
+    return data
+
+
+def read_text(file: Union[str, Path]) -> str:
+    """
+    Read a file and return the text.
+
+    Parameters
+    ----------
+    file : Union[str, Path]
+        The file path to read.
+
+    Returns
+    -------
+    str
+        The file content.
+    """
+    with open(file, "r", encoding="utf-8") as in_file:
+        data = in_file.read()
+    return data

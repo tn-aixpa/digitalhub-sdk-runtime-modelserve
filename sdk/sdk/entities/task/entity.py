@@ -48,6 +48,7 @@ class Task(Entity):
         spec: TaskSpec,
         project: str,
         function: str,
+        local: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -63,12 +64,14 @@ class Task(Entity):
             The specification of the task.
         function : str
             The function of the task.
+        local : bool, optional
+            Flag to indicate if the task is local or not.
         **kwargs
             Additional keyword arguments.
         """
         super().__init__()
         self.project = project
-        self.kind = kind if kind is not None else "job"
+        self.kind = kind if kind is not None else "task"
         self.spec = spec
         self.function = function
         self.id = get_uiid()
@@ -78,7 +81,7 @@ class Task(Entity):
             if k not in self._obj_attr:
                 self.__setattr__(k, v)
 
-        self._local = kind == "local"
+        self._local = local
 
         self.task = f"{self.kind}://{self.project}/{self.function}"
         self.context = get_context(self.project)
@@ -109,11 +112,13 @@ class Task(Entity):
 
         obj = self.to_dict()
 
+        api = api_base_create(DTO_TASK)
+        return self.context.client.create_object(obj, api)
+
         try:
             api = api_base_create(DTO_TASK)
             return self.context.client.create_object(obj, api)
         except BackendError:
-            return
             api = api_base_update(DTO_TASK, self.id)
             return self.context.client.update_object(obj, api)
 
@@ -143,12 +148,16 @@ class Task(Entity):
     #  Task methods
     #############################
 
-    def run(self, task_id: str, spec: dict) -> None:
+    def run(self, task_id: str, inputs: dict, parameters: dict) -> dict:
         """
         Run task.
 
         Parameters
         ----------
+        task_id : str
+            The task id.
+
+
         **kwargs
             Additional keyword arguments.
 
@@ -164,7 +173,10 @@ class Task(Entity):
         # Create run
         run = {
             "task_id": task_id,
-            "spec": spec,
+            "spec": {
+                "inputs": inputs,
+                "parameters": parameters,
+            },
         }
 
         api = api_base_create("runs")

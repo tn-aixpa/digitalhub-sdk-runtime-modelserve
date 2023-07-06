@@ -17,6 +17,8 @@ def new_function(
     image: str = None,
     tag: str = None,
     handler: str = None,
+    command: str = None,
+    requirements: list = None,
     local: bool = False,
     embed: bool = False,
 ) -> Function:
@@ -34,13 +36,17 @@ def new_function(
     kind : str, optional
         The type of the Function.
     source : str, optional
-        Path to the Function's source code on the local file system or remote storage.
+        Path to the Function's source code on the local file system.
     image : str, optional
-        Name of the Function's Docker image.
+        Name of the Function's container image.
     tag : str, optional
-        Tag of the Function's Docker image.
+        Tag of the Function's container image.
     handler : str, optional
         Function handler name.
+    command : str, optional
+        Command to run inside the container.
+    requirements : list, optional
+        List of requirements for the Function.
     local : bool, optional
         Flag to determine if object has local execution.
     embed : bool, optional
@@ -55,7 +61,14 @@ def new_function(
     if context.local != local:
         raise EntityError("Context local flag does not match local flag of function")
     meta = FunctionMetadata(name=name, description=description)
-    spec = FunctionSpec(source=source, image=image, tag=tag, handler=handler)
+    spec = FunctionSpec(
+        source=source,
+        image=image,
+        tag=tag,
+        handler=handler,
+        command=command,
+        requirements=requirements,
+    )
     obj = Function(
         project=project,
         name=name,

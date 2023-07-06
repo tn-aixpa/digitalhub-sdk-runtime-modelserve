@@ -112,7 +112,15 @@ class Entity(ModelObj, metaclass=ABCMeta):
 
     def __init__(self) -> None:
         self.id = None
-        self._obj_attr = ["id", "name", "kind", "metadata", "spec", "project", "embedded"]
+        self._obj_attr = [
+            "id",
+            "name",
+            "kind",
+            "metadata",
+            "spec",
+            "project",
+            "embedded",
+        ]
         self._essential_attr = ["name", "kind"]
 
     @abstractmethod

@@ -6,7 +6,8 @@ from sdk.entities.task.entity import Task, TaskSpec
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
-from sdk.utils.utils import get_uiid
+from sdk.utils.uri_utils import get_name_from_uri
+from sdk.utils.utils import encode_source, get_uiid
 
 
 class FunctionMetadata(EntityMetadata):
@@ -26,6 +27,8 @@ class FunctionSpec(EntitySpec):
         image: str = None,
         tag: str = None,
         handler: str = None,
+        command: str = None,
+        requirements: list = None,
         **kwargs,
     ) -> None:
         """
@@ -33,6 +36,18 @@ class FunctionSpec(EntitySpec):
 
         Parameters
         ----------
+        source : str, optional
+            Path to the Function's source code on the local file system.
+        image : str, optional
+            Name of the Function's container image.
+        tag : str, optional
+            Tag of the Function's container image.
+        handler : str, optional
+            Function handler name.
+        command : str, optional
+            Command to run inside the container.
+        requirements : list, optional
+            List of requirements for the Function.
         **kwargs
             Additional keyword arguments.
 
@@ -45,6 +60,15 @@ class FunctionSpec(EntitySpec):
         self.image = image
         self.tag = tag
         self.handler = handler
+        self.command = command
+        self.requirements = requirements if requirements is not None else []
+
+        if self.source is not None:
+            self.build = {
+                "functionSourceCode": encode_source(source),
+                "code_origin": source,
+                "origin_filename": get_name_from_uri(source),
+            }
 
         # Set new attributes
         for k, v in kwargs.items():
@@ -170,12 +194,16 @@ class Function(Entity):
     #  Function Methods
     #############################
 
-    def run(self, **kwargs) -> None:
+    def run(self, parameters: dict = None, inputs: dict = None, **kwargs) -> None:
         """
         Run function.
 
         Parameters
         ----------
+        parameters : dict
+            Function parameters.
+        inputs : dict
+            Function inputs.
         **kwargs
             Additional keyword arguments.
 
@@ -188,12 +216,14 @@ class Function(Entity):
         if self.task is None:
             tasc_spec = TaskSpec.from_dict(self.spec.to_dict())
             self.task = Task(
-                self.kind, tasc_spec, self.project, self.name
+                "task", tasc_spec, self.project, self.name, local=self._local
             )
             self.task.save()
 
         # Run function from task
-        return self.task.run(self.task.id, self.task.to_dict())
+        parameters = parameters if parameters is not None else {}
+        inputs = inputs if inputs is not None else {}
+        return self.task.run(self.task.id, inputs, parameters, **kwargs)
 
     def update_task(self, new_spec: dict) -> None:
         """
