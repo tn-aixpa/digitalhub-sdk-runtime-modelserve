@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilderFactory;
+import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPublisherFactory;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
@@ -23,7 +24,6 @@ import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
-import it.smartcommunitylabdhub.mlrun.components.runnables.events.messages.JobMessage;
 
 @Service
 public class RunSerivceImpl implements RunService {
@@ -34,14 +34,19 @@ public class RunSerivceImpl implements RunService {
     private final RunRepository runRepository;
     private final TaskService taskService;
     private final KindBuilderFactory runBuilderFactory;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final KindPublisherFactory runPublisherFactory;
     private final RunEntityBuilder runEntityBuilder;
 
-    public RunSerivceImpl(RunRepository runRepository, TaskService taskService, KindBuilderFactory runBuilderFactory,
-            ApplicationEventPublisher applicationEventPublisher, RunEntityBuilder runEntityBuilder) {
+    public RunSerivceImpl(
+            RunRepository runRepository,
+            TaskService taskService,
+            KindBuilderFactory runBuilderFactory,
+            KindPublisherFactory publisherFactory,
+            ApplicationEventPublisher applicationEventPublisher,
+            RunEntityBuilder runEntityBuilder) {
         this.runRepository = runRepository;
         this.runBuilderFactory = runBuilderFactory;
-        this.applicationEventPublisher = applicationEventPublisher;
+        this.runPublisherFactory = publisherFactory;
         this.runEntityBuilder = runEntityBuilder;
         this.taskService = taskService;
     }
@@ -102,18 +107,18 @@ public class RunSerivceImpl implements RunService {
         return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskId()))
                 .map(taskDTO -> {
 
-                    System.out.println(runExecDTO.getSpec().toString());
-
+                    // parse task to get accessor
                     TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
 
                     // build run from task
                     RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder(taskAccessor.getKind())
                             .build(taskDTO);
+
                     // set runDTO to correct kind, because I pass the task that contain the kind
                     // task I have to override the kind to the right signature
                     runDTO.setKind(taskAccessor.getKind());
 
-                    // Save run
+                    // save run
                     Run run = runRepository.save(runEntityBuilder.build(runDTO));
 
                     // exec run and return run dto
@@ -122,12 +127,7 @@ public class RunSerivceImpl implements RunService {
 
                                 // Override all spec
                                 r.getSpec().putAll(runExecDTO.getSpec());
-
-                                // FIXME: MOVE THIS CONTENT INTO A JOBPUBLISHER
-                                // produce event with the runDTO object
-                                JobMessage jobMessage = new JobMessage(r);
-                                applicationEventPublisher.publishEvent(jobMessage);
-
+                                runPublisherFactory.getPublisher(runDTO.getKind()).publish(r);
                                 return r;
                             }).orElseThrow(() -> new CoreException(
                                     "",
