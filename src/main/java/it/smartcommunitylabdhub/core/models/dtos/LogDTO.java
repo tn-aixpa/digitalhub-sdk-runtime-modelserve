@@ -24,7 +24,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class LogDTO implements BaseEntity {
-    @NotNull
     private String id;
 
     @NotNull

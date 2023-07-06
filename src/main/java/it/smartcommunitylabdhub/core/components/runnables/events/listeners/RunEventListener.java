@@ -8,10 +8,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflowFactory;
 import it.smartcommunitylabdhub.core.components.runnables.events.messages.RunMessage;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.PollingService;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.RunWorkflowBuilder;
+import it.smartcommunitylabdhub.mlrun.components.pollers.functions.JobWorkflowBuilder;
 
 @Component
 public class RunEventListener {
@@ -20,7 +21,7 @@ public class RunEventListener {
     private PollingService pollingService;
 
     @Autowired
-    RunWorkflowBuilder runWorkflowBuilder;
+    KindWorkflowFactory kindWorkflowFactory;
 
     @EventListener
     @Async
@@ -28,7 +29,10 @@ public class RunEventListener {
 
         // Build workflow
         List<Workflow> workflows = new ArrayList<>();
-        workflows.add(runWorkflowBuilder.buildWorkflow(message.getRunDTO()));
+
+        workflows.add((Workflow) kindWorkflowFactory
+                .getWorkflow(message.getRunDTO().getKind())
+                .build(message.getRunDTO()));
 
         pollingService.createPoller("run:" + message.getRunDTO().getId(),
                 workflows, 2, true);

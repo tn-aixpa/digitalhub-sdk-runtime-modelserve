@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.events.messages;
+package it.smartcommunitylabdhub.mlrun.components.runnables.events.messages;
 
 import it.smartcommunitylabdhub.core.components.runnables.events.messages.interfaces.Message;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;

@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.builders.kinds;
+package it.smartcommunitylabdhub.core.components.kinds;
 
 import java.util.Optional;
 
@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
+import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
-import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
@@ -18,8 +18,6 @@ import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 
 @RunBuilderComponent(type = "job")
 public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
-        // Implementation of the builder
-
         @Autowired
         TaskRepository taskRepository;
 

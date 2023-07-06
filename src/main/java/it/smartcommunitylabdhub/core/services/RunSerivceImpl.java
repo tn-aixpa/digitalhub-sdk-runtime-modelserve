@@ -10,20 +10,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import it.smartcommunitylabdhub.core.components.runnables.events.messages.JobMessage;
+import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilderFactory;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
-import it.smartcommunitylabdhub.core.models.builders.kinds.factory.KindBuilderFactory;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.custom.RunExecDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
+import it.smartcommunitylabdhub.mlrun.components.runnables.events.messages.JobMessage;
 
 @Service
 public class RunSerivceImpl implements RunService {
@@ -109,23 +109,30 @@ public class RunSerivceImpl implements RunService {
                     // build run from task
                     RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder(taskAccessor.getKind())
                             .build(taskDTO);
+                    // set runDTO to correct kind, because I pass the task that contain the kind
+                    // task I have to override the kind to the right signature
+                    runDTO.setKind(taskAccessor.getKind());
 
                     // Save run
                     Run run = runRepository.save(runEntityBuilder.build(runDTO));
 
                     // exec run and return run dto
-
                     return Optional.ofNullable(runDTOBuilder.build(run)).map(
                             r -> {
 
                                 // Override all spec
                                 r.getSpec().putAll(runExecDTO.getSpec());
+
+                                // FIXME: MOVE THIS CONTENT INTO A JOBPUBLISHER
                                 // produce event with the runDTO object
                                 JobMessage jobMessage = new JobMessage(r);
                                 applicationEventPublisher.publishEvent(jobMessage);
 
-                                return runDTO;
-                            }).orElseThrow(() -> new CoreException("", "", HttpStatus.INTERNAL_SERVER_ERROR));
+                                return r;
+                            }).orElseThrow(() -> new CoreException(
+                                    "",
+                                    "",
+                                    HttpStatus.INTERNAL_SERVER_ERROR));
                 }).orElseThrow(() -> new CoreException(
                         "RunNotFound",
                         "The run you are searching for does not exist.",

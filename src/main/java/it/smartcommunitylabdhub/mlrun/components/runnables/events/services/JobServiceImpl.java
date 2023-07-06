@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.events.services;
+package it.smartcommunitylabdhub.mlrun.components.runnables.events.services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -6,7 +6,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.JobService;
+import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.KindService;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
@@ -15,7 +15,7 @@ import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import java.util.*;
 
 @Service
-public class JobServiceImpl implements JobService<Map<String, Object>> {
+public class JobServiceImpl implements KindService<Map<String, Object>> {
 
     @Value("${mlrun.api.submit-job}")
     private String MLRUN_API_SUBMIT_JOB;

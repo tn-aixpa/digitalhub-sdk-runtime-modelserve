@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions;
+package it.smartcommunitylabdhub.mlrun.components.pollers.functions;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.WorkflowFactory;
+import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.BaseWorkflowBuilder;
 import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;

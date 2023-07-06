@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.events.listeners;
+package it.smartcommunitylabdhub.mlrun.components.runnables.events.listeners;
 
 import java.util.Map;
 import java.util.Optional;
@@ -8,25 +8,25 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylabdhub.core.components.runnables.events.messages.JobMessage;
 import it.smartcommunitylabdhub.core.components.runnables.events.messages.RunMessage;
-import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.JobService;
+import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.KindService;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
+import it.smartcommunitylabdhub.mlrun.components.runnables.events.messages.JobMessage;
 
 @Component
 public class JobEventListener {
 
-    private final JobService<Map<String, Object>> jobService;
+    private final KindService<Map<String, Object>> jobService;
     private final ApplicationEventPublisher eventPublisher;
     private final RunService runService;
 
     public JobEventListener(RunDTOBuilder runDTOBuilder, RunEntityBuilder runEntityBuilder, RunService runService,
-            ApplicationEventPublisher eventPublisher, JobService<Map<String, Object>> jobService) {
+            ApplicationEventPublisher eventPublisher, KindService<Map<String, Object>> jobService) {
         this.runService = runService;
         this.eventPublisher = eventPublisher;
         this.jobService = jobService;

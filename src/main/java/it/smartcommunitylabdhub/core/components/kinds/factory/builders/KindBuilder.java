@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.builders.kinds.factory;
+package it.smartcommunitylabdhub.core.components.kinds.factory.builders;
 
 @FunctionalInterface
 public interface KindBuilder<I, O> {

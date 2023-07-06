@@ -33,7 +33,7 @@ public class RunStateMachine {
                 State<RunState, RunEvent, Map<String, Object>> errorState = new State<>();
 
                 createState.addTransaction(
-                                new Transaction<>(RunEvent.PREPARE, RunState.READY, (input, context) -> true, false));
+                                new Transaction<>(RunEvent.BUILD, RunState.READY, (input, context) -> true, false));
                 readyState.addTransaction(
                                 new Transaction<>(RunEvent.RUNNING, RunState.RUNNING, (input, context) -> true, false));
                 readyState.addTransaction(

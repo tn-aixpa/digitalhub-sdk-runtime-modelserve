@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.builders.kinds.factory;
+package it.smartcommunitylabdhub.core.components.kinds.factory.builders;
 
 import java.util.List;
 import java.util.Map;

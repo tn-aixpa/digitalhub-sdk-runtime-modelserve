@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions;
+package it.smartcommunitylabdhub.mlrun.components.pollers.functions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,25 +11,28 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import it.smartcommunitylabdhub.core.annotations.RunWorkflowComponent;
 import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.components.fsm.types.RunStateMachine;
+import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflow;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.WorkflowFactory;
+import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.BaseWorkflowBuilder;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
+import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
-@Component
-public class RunWorkflowBuilder extends BaseWorkflowBuilder {
+@RunWorkflowComponent(type = "job")
+public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkflow<RunDTO, Workflow> {
 
     @Value("${mlrun.api.run-url}")
     private String runUrl;
@@ -45,7 +48,7 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    public RunWorkflowBuilder(
+    public JobWorkflowBuilder(
             RunService runService,
             LogService logService,
             RunStateMachine runStateMachine) {
@@ -56,7 +59,7 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public Workflow buildWorkflow(RunDTO runDTO) {
+    public Workflow build(RunDTO runDTO) {
         Function<Object[], Object> getRunUpdate = params -> {
 
             HttpHeaders headers = new HttpHeaders();
@@ -116,8 +119,10 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
                                 // Create and store log
                                 System.out.println(logResponse.getBody());
 
-                                // TODO: Store log information in logs table
-                                // FIXME
+                                logService.createLog(LogDTO.builder()
+                                        .body(Map.of("content", logResponse.getBody()))
+                                        .project(runDTO.getProject())
+                                        .run(runDTO.getId()).build());
                             });
                         });
 
@@ -140,7 +145,7 @@ public class RunWorkflowBuilder extends BaseWorkflowBuilder {
         stateMachine = runStateMachine.create(RunState.valueOf(runDTO.getState()), new HashMap<>());
         // (Map<String, Object>) runDTO.getExtra().get("context"));
 
-        stateMachine.processEvent(RunEvent.PREPARE, Optional.empty());
+        stateMachine.processEvent(RunEvent.BUILD, Optional.empty());
 
         // Define workflow steps
         return WorkflowFactory.builder().step(getRunUpdate, runUrl, runDTO).build();

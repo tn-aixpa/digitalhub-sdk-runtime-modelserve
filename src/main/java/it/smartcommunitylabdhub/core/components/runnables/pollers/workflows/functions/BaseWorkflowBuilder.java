@@ -8,8 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class BaseWorkflowBuilder {
-    ParameterizedTypeReference<Map<String, Object>> responseType;
-    RestTemplate restTemplate;
+    protected ParameterizedTypeReference<Map<String, Object>> responseType;
+    protected RestTemplate restTemplate;
 
     public BaseWorkflowBuilder() {
         this.restTemplate = new RestTemplate();

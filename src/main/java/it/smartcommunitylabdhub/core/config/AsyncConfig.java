@@ -1,11 +1,8 @@
 package it.smartcommunitylabdhub.core.config;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -13,15 +10,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import it.smartcommunitylabdhub.core.components.runnables.pollers.PollingService;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.FunctionWorkflowBuilder;
 
 @Configuration
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
-
-    @Autowired
-    FunctionWorkflowBuilder functionWorkflowBuilder;
 
     @Bean
     Executor taskExecutor() {
@@ -41,14 +33,7 @@ public class AsyncConfig implements AsyncConfigurer {
         // Create new Polling service instance
         PollingService pollingService = new PollingService();
 
-        // Create and configure the first poller
-        List<Workflow> coreMlrunSyncWorkflow = new ArrayList<>();
-        coreMlrunSyncWorkflow.add(functionWorkflowBuilder.buildWorkflow());
-        // Add workflows to workflowList1
-
-        pollingService.createPoller("DHCore-Mlrun-Sync", coreMlrunSyncWorkflow, 5, true);
-
-        // CREATE OTHER POLLERS
+        // CREATE POLLERS EXAMPLE
         //
         // List<Workflow> test = new ArrayList<>();
         // Function<Integer, Integer> doubleFunction = num -> {
