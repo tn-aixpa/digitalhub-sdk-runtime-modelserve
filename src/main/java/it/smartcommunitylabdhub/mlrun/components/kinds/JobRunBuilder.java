@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.kinds;
+package it.smartcommunitylabdhub.mlrun.components.kinds;
 
 import java.util.Optional;
 

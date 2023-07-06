@@ -13,7 +13,6 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.LogDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.LogEntityBuilder;
-import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.entities.Log;
 import it.smartcommunitylabdhub.core.repositories.LogRepository;

@@ -25,7 +25,7 @@ public class PollerConfig {
 
         // Create and configure Function Workflow
         List<Workflow> coreMlrunSyncWorkflow = new ArrayList<>();
-        coreMlrunSyncWorkflow.add(functionWorkflowBuilder.buildWorkflow());
+        coreMlrunSyncWorkflow.add(functionWorkflowBuilder.build());
 
         // Create a new poller and start it.
         pollingService.createPoller("DHCore-Mlrun-Sync", coreMlrunSyncWorkflow, 5, true);

@@ -2,11 +2,11 @@ package it.smartcommunitylabdhub.core.models.builders.dtos;
 
 import java.util.Optional;
 
+import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
-import it.smartcommunitylabdhub.core.models.enums.State;
 
 public class ArtifactDTOBuilder {
 
@@ -74,7 +74,8 @@ public class ArtifactDTOBuilder {
                                                                                 || (condition && embedded))
                                                                 .ifPresent(embedded -> dto
                                                                                 .setState(artifact.getState() == null
-                                                                                                ? State.CREATED.name()
+                                                                                                ? ArtifactState.CREATED
+                                                                                                                .name()
                                                                                                 : artifact.getState()
                                                                                                                 .name()));
 

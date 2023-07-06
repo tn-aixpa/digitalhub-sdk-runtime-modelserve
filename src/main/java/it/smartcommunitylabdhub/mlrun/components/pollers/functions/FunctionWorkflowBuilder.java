@@ -41,7 +41,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                 this.functionService = functionService;
         }
 
-        public Workflow buildWorkflow() {
+        public Workflow build() {
 
                 // COMMENT: call /{project}/{function} api and iterate over them..try to check
                 @SuppressWarnings("unchecked")

@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.mlrun.components.pollers.functions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import it.smartcommunitylabdhub.core.annotations.RunWorkflowComponent;
 import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
+import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.components.fsm.types.RunStateMachine;
@@ -25,8 +27,14 @@ import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.fact
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.BaseWorkflowBuilder;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
+import it.smartcommunitylabdhub.core.models.accessors.enums.DataItemKind;
+import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.DataItemFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
+import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
@@ -42,6 +50,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 
     private final RunService runService;
     private final LogService logService;
+    private final ArtifactService artifactService;
     private final RunStateMachine runStateMachine;
     private final RestTemplate restTemplate;
     private StateMachine<RunState, RunEvent, Map<String, Object>> stateMachine;
@@ -51,9 +60,11 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
     public JobWorkflowBuilder(
             RunService runService,
             LogService logService,
+            ArtifactService artifactService,
             RunStateMachine runStateMachine) {
         this.runService = runService;
         this.logService = logService;
+        this.artifactService = artifactService;
         this.restTemplate = new RestTemplate();
         this.runStateMachine = runStateMachine;
     }
@@ -102,7 +113,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
                 } else if (stateMachine.getCurrentState().equals(RunState.COMPLETED)) {
                     System.out.println("Poller complete SUCCESSFULLY. Get log and stop poller now");
 
-                    // TODO: Store log from mlrun.
+                    // Get response body and store log as well as artifacts if present.
                     Optional.ofNullable(response.getBody()).ifPresent(b -> {
                         // Get run uid from mlrun.
                         MapUtils.getNestedFieldValue(b, "data").ifPresent(data -> {
@@ -123,6 +134,29 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
                                         .body(Map.of("content", logResponse.getBody()))
                                         .project(runDTO.getProject())
                                         .run(runDTO.getId()).build());
+                            });
+
+                            // get Artifacts from results
+                            MapUtils.getNestedFieldValue(data, "status").ifPresent(metadata -> {
+                                ((List<Map<String, Object>>) metadata.get("artifacts")).stream().forEach(artifact -> {
+                                    DataItemFieldAccessor mlrunDataItemAccessor = DataItemKind
+                                            .valueOf(artifact.get("kind").toString().toUpperCase())
+                                            .createAccessor(artifact);
+
+                                    // Create artifact
+                                    ArtifactDTO artifactDTO = ArtifactDTO.builder()
+                                            .name(mlrunDataItemAccessor.getTree())
+                                            .project(mlrunDataItemAccessor.getProject())
+                                            .kind(mlrunDataItemAccessor.getKind())
+                                            .spec(mlrunDataItemAccessor.getSpecs())
+                                            .state(mlrunDataItemAccessor.getState().toUpperCase())
+                                            .build();
+
+                                    // Store artifact
+                                    this.artifactService.createArtifact(artifactDTO);
+
+                                });
+                                ;
                             });
                         });
 

@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
@@ -52,8 +53,9 @@ public class ArtifactEntityBuilder {
                                                         .with(a -> a.setKind(artifactDTO.getKind()))
                                                         .with(a -> a.setProject(artifactDTO.getProject()))
                                                         .with(a -> a.setState(artifactDTO.getState() == null
-                                                                        ? State.CREATED
-                                                                        : State.valueOf(artifactDTO.getState())))
+                                                                        ? ArtifactState.CREATED
+                                                                        : ArtifactState.valueOf(
+                                                                                        artifactDTO.getState())))
                                                         .with(a -> a.setExtra(
                                                                         ConversionUtils.convert(artifactDTO.getExtra(),
 

@@ -13,7 +13,6 @@ public class JobFunctionFieldAccessor implements FunctionFieldAccessor {
 
     public JobFunctionFieldAccessor(Map<String, Object> fields) {
         this.fields = new LinkedHashMap<>(fields);
-        // this.commandFactory = ConversionUtils.getCommandFactory();
     }
 
     @Override
