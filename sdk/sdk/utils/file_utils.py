@@ -221,3 +221,21 @@ def copy_file(src: str, dst: str) -> None:
     None
     """
     shutil.copy(src, dst)
+
+
+def is_python_module(src: str) -> bool:
+    """
+    Check if a file is a python module.
+
+    Parameters
+    ----------
+    src : str
+        The file path.
+
+    Returns
+    -------
+    bool
+        True if the file is a python module, False otherwise.
+    """
+    if check_file(src):
+        return Path(src).suffix == ".py"

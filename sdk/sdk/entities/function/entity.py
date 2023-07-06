@@ -6,6 +6,7 @@ from sdk.entities.task.entity import Task, TaskSpec
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
+from sdk.utils.file_utils import is_python_module
 from sdk.utils.uri_utils import get_name_from_uri
 from sdk.utils.utils import encode_source, get_uiid
 
@@ -63,7 +64,7 @@ class FunctionSpec(EntitySpec):
         self.command = command
         self.requirements = requirements if requirements is not None else []
 
-        if self.source is not None:
+        if self.source is not None and is_python_module(self.source):
             self.build = {
                 "functionSourceCode": encode_source(source),
                 "code_origin": source,
