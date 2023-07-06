@@ -4,7 +4,6 @@ Dataitem module.
 from __future__ import annotations
 
 import typing
-from warnings import warn
 
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
@@ -294,7 +293,7 @@ class Dataitem(Entity):
 
         Parameters
         ----------
-        d : dict
+        obj : dict
             Dictionary to create Dataitem from.
 
         Returns

@@ -437,7 +437,7 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        d : dict
+        obj : dict
             Dictionary to create Artifact from.
 
         Returns

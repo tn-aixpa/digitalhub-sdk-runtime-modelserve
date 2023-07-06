@@ -2,7 +2,7 @@
 Function module.
 """
 from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
-from sdk.entities.task.entity import Task
+from sdk.entities.task.entity import Task, TaskSpec
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
@@ -170,12 +170,53 @@ class Function(Entity):
     #  Function Methods
     #############################
 
-    def run(self):
+    def run(self, **kwargs) -> None:
         """
         Run function.
+
+        Parameters
+        ----------
+        **kwargs
+            Additional keyword arguments.
+
+        Returns
+        -------
+        Run
+            Run instance.
+        """
+        # Create task if not exists
+        if self.task is None:
+            tasc_spec = TaskSpec.from_dict(self.spec.to_dict())
+            self.task = Task(
+                "task", tasc_spec, self.project, self.name, local=self._local
+            )
+            self.task.save()
+
+        # Run function from task
+        return self.task.run(**kwargs)
+
+    def update_task(self, new_spec: dict) -> None:
+        """
+        Update task.
+
+        Parameters
+        ----------
+        new_spec : dict
+            The new specification for the task.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If the task is not created.
         """
         if self.task is None:
-            self.task = Task(self.project, self.name, self.id)
+            raise EntityError("Task is not created.")
+        self.task.spec = TaskSpec.from_dict(new_spec)
+        self.task.save(self.task.task)
 
     #############################
     #  Getters and Setters
@@ -199,7 +240,7 @@ class Function(Entity):
 
         Parameters
         ----------
-        d : dict
+        obj : dict
             Dictionary to create Function from.
 
         Returns

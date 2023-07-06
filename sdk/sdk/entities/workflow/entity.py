@@ -159,9 +159,6 @@ class Workflow(Entity):
     #  Workflow Methods
     #############################
 
-    def run(self):
-        ...
-
     #############################
     #  Getters and Setters
     #############################
@@ -184,7 +181,7 @@ class Workflow(Entity):
 
         Parameters
         ----------
-        d : dict
+        obj : dict
             Dictionary to create Workflow from.
 
         Returns
