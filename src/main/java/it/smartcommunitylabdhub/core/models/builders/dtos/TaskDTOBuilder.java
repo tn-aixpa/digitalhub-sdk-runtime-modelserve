@@ -21,7 +21,7 @@ public class TaskDTOBuilder {
                                         .with(dto -> dto.setId(task.getId()))
                                         .with(dto -> dto.setTask(task.getKind()))
                                         .with(dto -> dto.setProject(task.getProject()))
-                                        .with(dto -> dto.setTask(task.getTask()))
+                                        .with(dto -> dto.setKind(task.getKind()))
                                         .with(dto -> dto.setSpec(ConversionUtils.reverse(task.getSpec(), "cbor")))
                                         .with(dto -> dto.setExtra(ConversionUtils.reverse(task.getExtra(), "cbor")))
                                         .with(dto -> dto.setCreated(task.getCreated()))
