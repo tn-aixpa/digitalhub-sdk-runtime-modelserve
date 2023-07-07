@@ -74,12 +74,19 @@ public class LogSerivceImpl implements LogService {
 
     @Override
     public LogDTO createLog(LogDTO logDTO) {
-        return Optional.of(new LogEntityBuilder(logDTO).build())
-                .map(log -> new LogDTOBuilder(logRepository.save(log))
-                        .build())
+        if (logRepository.existsById(logDTO.getId())) {
+            throw new CoreException("DuplicateLogId",
+                    "Cannot create the log", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        Optional<Log> savedLog = Optional.ofNullable(logDTO)
+                .map(LogEntityBuilder::new)
+                .map(LogEntityBuilder::build)
+                .map(this.logRepository::save);
+
+        return savedLog.map(log -> new LogDTOBuilder(log, false).build())
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
-                        "Failed to generate log.",
+                        "Error saving log",
                         HttpStatus.INTERNAL_SERVER_ERROR));
     }
 

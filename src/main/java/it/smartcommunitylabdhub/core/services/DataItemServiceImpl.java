@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -46,22 +47,20 @@ public class DataItemServiceImpl implements DataItemService {
 
     @Override
     public DataItemDTO createDataItem(DataItemDTO dataItemDTO) {
-        try {
-            // Build a dataItem and store it on db
-            final DataItem dataItem = new DataItemEntityBuilder(dataItemDTO).build();
-            this.dataItemRepository.save(dataItem);
-
-            // Return dataItem DTO
-            return new DataItemDTOBuilder(
-
-                    dataItem, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+        if (dataItemRepository.existsById(dataItemDTO.getId())) {
+            throw new CoreException("DuplicateDataItemId",
+                    "Cannot create the dataItem", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        Optional<DataItem> savedDataItem = Optional.ofNullable(dataItemDTO)
+                .map(DataItemEntityBuilder::new)
+                .map(DataItemEntityBuilder::build)
+                .map(this.dataItemRepository::save);
+
+        return savedDataItem.map(dataItem -> new DataItemDTOBuilder(dataItem, false).build())
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error saving dataItem",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override

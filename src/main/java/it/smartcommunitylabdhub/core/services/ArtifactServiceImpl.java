@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -46,20 +47,20 @@ public class ArtifactServiceImpl implements ArtifactService {
 
     @Override
     public ArtifactDTO createArtifact(ArtifactDTO artifactDTO) {
-        try {
-            // Build a artifact and store it on db
-            final Artifact artifact = new ArtifactEntityBuilder(artifactDTO).build();
-            this.artifactRepository.save(artifact);
-
-            // Return artifact DTO
-            return new ArtifactDTOBuilder(artifact, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+        if (artifactRepository.existsById(artifactDTO.getId())) {
+            throw new CoreException("DuplicateArtifactId",
+                    "Cannot create the artifact", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        Optional<Artifact> savedArtifact = Optional.ofNullable(artifactDTO)
+                .map(ArtifactEntityBuilder::new)
+                .map(ArtifactEntityBuilder::build)
+                .map(this.artifactRepository::save);
+
+        return savedArtifact.map(artifact -> new ArtifactDTOBuilder(artifact, false).build())
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error saving artifact",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override

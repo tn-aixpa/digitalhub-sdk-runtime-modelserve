@@ -92,8 +92,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
+        if (projectRepository.existsById(projectDTO.getId()) ||
+                projectRepository.existsByName(projectDTO.getName())) {
+            throw new CoreException("DuplicateProjectIdOrName",
+                    "Cannot create the project", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return Optional.of(new ProjectEntityBuilder(projectDTO).build())
-                .filter(project -> !projectRepository.existsByName(project.getId()))
                 .map(project -> {
                     projectRepository.save(project);
                     return new ProjectDTOBuilder(project, List.of(), List.of(), List.of(), true)

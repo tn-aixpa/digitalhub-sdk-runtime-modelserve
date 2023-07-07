@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -66,19 +67,20 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
-        try {
-            // Build a Task and store it on db
-
-            final Task task = new TaskEntityBuilder(taskDTO).build();
-            this.taskRepository.save(task);
-
-            return new TaskDTOBuilder(task).build();
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+        if (taskRepository.existsById(taskDTO.getId())) {
+            throw new CoreException("DuplicateTaskId",
+                    "Cannot create the task", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        Optional<Task> savedTask = Optional.ofNullable(taskDTO)
+                .map(TaskEntityBuilder::new)
+                .map(TaskEntityBuilder::build)
+                .map(this.taskRepository::save);
+
+        return savedTask.map(task -> new TaskDTOBuilder(task).build())
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error saving task",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override

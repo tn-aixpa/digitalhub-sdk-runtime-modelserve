@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -70,22 +71,20 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Override
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
-        try {
-            // Build a function and store it on db
-            final Function function = new FunctionEntityBuilder(functionDTO).build();
-            this.functionRepository.save(function);
-
-            // Return function DTO
-            return new FunctionDTOBuilder(
-
-                    function, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+        if (functionRepository.existsById(functionDTO.getId())) {
+            throw new CoreException("DuplicateFunctionId",
+                    "Cannot create the function", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        Optional<Function> savedFunction = Optional.ofNullable(functionDTO)
+                .map(FunctionEntityBuilder::new)
+                .map(FunctionEntityBuilder::build)
+                .map(this.functionRepository::save);
+
+        return savedFunction.map(function -> new FunctionDTOBuilder(function, false).build())
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error saving function",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override

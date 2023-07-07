@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -15,8 +16,8 @@ import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
@@ -54,22 +55,20 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Override
     public WorkflowDTO createWorkflow(WorkflowDTO workflowDTO) {
-        try {
-            // Build a workflow and store it on db
-            final Workflow workflow = new WorkflowEntityBuilder(workflowDTO).build();
-            this.workflowRepository.save(workflow);
-
-            // Return workflow DTO
-            return new WorkflowDTOBuilder(
-
-                    workflow, false).build();
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+        if (workflowRepository.existsById(workflowDTO.getId())) {
+            throw new CoreException("DuplicateWorkflowId",
+                    "Cannot create the workflow", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        Optional<Workflow> savedWorkflow = Optional.ofNullable(workflowDTO)
+                .map(WorkflowEntityBuilder::new)
+                .map(WorkflowEntityBuilder::build)
+                .map(this.workflowRepository::save);
+
+        return savedWorkflow.map(workflow -> new WorkflowDTOBuilder(workflow, false).build())
+                .orElseThrow(() -> new CoreException(
+                        "InternalServerError",
+                        "Error saving workflow",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override
