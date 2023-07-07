@@ -36,39 +36,33 @@ public class RunController {
         this.logService = logService;
     }
 
-    // @Operation(summary = "List arfitacts", description = "Return a list of all
-    // artifacts")
-    // @Operation(summary = "Create artifact", description = "Create an artifact and
-    // return")
-    // @Operation(summary = "Get an artifact by uuid", description = "Return an
-    // artifact")
-    // @Operation(summary = "Update specific artifact", description = "Update and
-    // return the artifact")
-    // @Operation(summary = "Delete an artifact", description = "Delete a specific
-    // artifact")
-
+    @Operation(summary = "Get a run", description = "Given an uuid return the related Run")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<RunDTO> getRun(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.runService.getRun(uuid));
     }
 
+    @Operation(summary = "Run log list", description = "Return the log list for a specific run")
     @GetMapping(path = "/{uuid}/log", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<LogDTO>> getRunLog(
             @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.logService.getLogsByRunUuid(uuid));
     }
 
+    @Operation(summary = "Run list", description = "Return a list of all runs")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<RunDTO>> getRuns(Pageable pageable) {
         return ResponseEntity.ok(this.runService.getRuns(pageable));
     }
 
+    @Operation(summary = "Create and execute a run", description = "Create a run and then execute it")
     @PostMapping(path = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<RunDTO> createRun(@Valid @RequestBody RunExecDTO runExecDTO) {
         return ResponseEntity.ok(this.runService.createRun(runExecDTO));
     }
 
+    @Operation(summary = "Delete a run", description = "Delete a specific run")
     @DeleteMapping(path = "/{uuid}")
     public ResponseEntity<Boolean> deleteRun(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.runService.deleteRun(uuid));

@@ -32,33 +32,26 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    // @Operation(summary = "List arfitacts", description = "Return a list of all
-    // artifacts")
-    // @Operation(summary = "Create artifact", description = "Create an artifact and
-    // return")
-    // @Operation(summary = "Get an artifact by uuid", description = "Return an
-    // artifact")
-    // @Operation(summary = "Update specific artifact", description = "Update and
-    // return the artifact")
-    // @Operation(summary = "Delete an artifact", description = "Delete a specific
-    // artifact")
-
+    @Operation(summary = "Get specific task", description = "Given a uuid return a specific task")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<TaskDTO> getTask(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.taskService.getTask(uuid));
     }
 
+    @Operation(summary = "List of tasks", description = "Return the list of all tasks")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<TaskDTO>> getTasks(Pageable pageable) {
         return ResponseEntity.ok(this.taskService.getTasks(pageable));
     }
 
+    @Operation(summary = "Create a task", description = "Create and return a new task")
     @PostMapping(path = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
         return ResponseEntity.ok(this.taskService.createTask(taskDTO));
     }
 
+    @Operation(summary = "Update a task", description = "Update and return a task")
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<TaskDTO> updateTask(@Valid @RequestBody TaskDTO functionDTO,
@@ -66,6 +59,7 @@ public class TaskController {
         return ResponseEntity.ok(this.taskService.updateTask(functionDTO, uuid));
     }
 
+    @Operation(summary = "Delete a task", description = "Delete a specific task")
     @DeleteMapping(path = "/{uuid}")
     public ResponseEntity<Boolean> deleteTask(
             @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {

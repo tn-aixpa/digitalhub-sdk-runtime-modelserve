@@ -34,34 +34,27 @@ public class WorkflowController {
         this.workflowService = workflowService;
     }
 
-    // @Operation(summary = "List arfitacts", description = "Return a list of all
-    // artifacts")
-    // @Operation(summary = "Create artifact", description = "Create an artifact and
-    // return")
-    // @Operation(summary = "Get an artifact by uuid", description = "Return an
-    // artifact")
-    // @Operation(summary = "Update specific artifact", description = "Update and
-    // return the artifact")
-    // @Operation(summary = "Delete an artifact", description = "Delete a specific
-    // artifact")
-
+    @Operation(summary = "List workflows", description = "Return a list of all workflows")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<WorkflowDTO>> getWorkflows(Pageable pageable) {
         return ResponseEntity.ok(this.workflowService.getWorkflows(pageable));
     }
 
+    @Operation(summary = "Create workflow", description = "Create an workflow and return")
     @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<WorkflowDTO> createWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO) {
         return ResponseEntity.ok(this.workflowService.createWorkflow(workflowDTO));
     }
 
+    @Operation(summary = "Get an workflow by uuid", description = "Return an workflow")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<WorkflowDTO> getWorkflow(
             @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.workflowService.getWorkflow(uuid));
     }
 
+    @Operation(summary = "Update specific workflow", description = "Update and return the workflow")
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<WorkflowDTO> updateWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO,
@@ -69,6 +62,7 @@ public class WorkflowController {
         return ResponseEntity.ok(this.workflowService.updateWorkflow(workflowDTO, uuid));
     }
 
+    @Operation(summary = "Delete an workflow", description = "Delete a specific workflow")
     @DeleteMapping(path = "/{uuid}")
     public ResponseEntity<Boolean> deleteWorkflow(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.workflowService.deleteWorkflow(uuid));
