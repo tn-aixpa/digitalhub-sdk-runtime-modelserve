@@ -115,3 +115,6 @@ Run need to have run kind. When I create the publisher from builder I have to pa
 
 //[x]
 get log per una run specifica (API)
+
+//[x]
+for any entities task, log, function, artifact , dataitem, project, workflow check if duplicate uuid exist..if yes throw an exception.
