@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
@@ -34,6 +35,17 @@ public class RunController {
         this.runService = runService;
         this.logService = logService;
     }
+
+    // @Operation(summary = "List arfitacts", description = "Return a list of all
+    // artifacts")
+    // @Operation(summary = "Create artifact", description = "Create an artifact and
+    // return")
+    // @Operation(summary = "Get an artifact by uuid", description = "Return an
+    // artifact")
+    // @Operation(summary = "Update specific artifact", description = "Update and
+    // return the artifact")
+    // @Operation(summary = "Delete an artifact", description = "Delete a specific
+    // artifact")
 
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<RunDTO> getRun(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {

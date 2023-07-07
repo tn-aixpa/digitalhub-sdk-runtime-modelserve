@@ -151,6 +151,7 @@ public class ProjectServiceImpl implements ProjectService {
                             this.dataItemRepository.deleteByProjectName(project.getName());
                             this.workflowRepository.deleteByProjectName(project.getName());
                             this.functionRepository.deleteByProjectName(project.getName());
+                            // TODO: delete task run log
                         });
                         projectRepository.deleteById(value);
                         deleted = true;
@@ -161,6 +162,7 @@ public class ProjectServiceImpl implements ProjectService {
                             this.dataItemRepository.deleteByProjectName(project.getName());
                             this.workflowRepository.deleteByProjectName(project.getName());
                             this.functionRepository.deleteByProjectName(project.getName());
+                            // TODO: delete task run log
                         });
                         projectRepository.deleteByName(value);
                         deleted = true;

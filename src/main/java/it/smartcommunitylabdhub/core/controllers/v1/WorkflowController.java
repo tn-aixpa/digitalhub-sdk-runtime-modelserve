@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
@@ -32,6 +33,17 @@ public class WorkflowController {
     public WorkflowController(WorkflowService workflowService) {
         this.workflowService = workflowService;
     }
+
+    // @Operation(summary = "List arfitacts", description = "Return a list of all
+    // artifacts")
+    // @Operation(summary = "Create artifact", description = "Create an artifact and
+    // return")
+    // @Operation(summary = "Get an artifact by uuid", description = "Return an
+    // artifact")
+    // @Operation(summary = "Update specific artifact", description = "Update and
+    // return the artifact")
+    // @Operation(summary = "Delete an artifact", description = "Delete a specific
+    // artifact")
 
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<WorkflowDTO>> getWorkflows(Pageable pageable) {

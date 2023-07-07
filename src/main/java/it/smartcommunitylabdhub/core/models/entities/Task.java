@@ -36,11 +36,11 @@ import lombok.Setter;
 public class Task implements BaseEntity {
 
     @Id
+    @Column(unique = true)
     private String id;
 
     @Column(nullable = false)
-    // FIXME: {kind}://{project}/{function}:{version} kind ='job'( kind del tipo di
-    // funzione)
+    // COMMENT: {kind}://{project}/{function}:{version}
     private String task;
 
     @Column(nullable = false)

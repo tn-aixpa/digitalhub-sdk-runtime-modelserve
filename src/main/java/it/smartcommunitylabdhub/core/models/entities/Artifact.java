@@ -31,6 +31,7 @@ import lombok.Setter;
 @Table(name = "artifacts")
 public class Artifact implements BaseEntity {
     @Id
+    @Column(unique = true)
     private String id;
 
     @Column(nullable = false)

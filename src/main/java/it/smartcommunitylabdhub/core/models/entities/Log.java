@@ -32,6 +32,7 @@ import lombok.Setter;
 public class Log implements BaseEntity {
 
     @Id
+    @Column(unique = true)
     private String id;
 
     @Column(nullable = false)

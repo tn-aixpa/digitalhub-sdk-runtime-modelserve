@@ -32,12 +32,11 @@ import lombok.Setter;
 public class Run implements BaseEntity {
 
     @Id
+    @Column(unique = true)
     private String id;
 
     @Column(nullable = false)
-    // FIXME: {kind}://{project_name}/{function_name}:{version(uuid)} kind ='job'(
-    // kind del tipo di
-    // funzione)
+    // COMMENT: {kind}://{project_name}/{function_name}:{version(uuid)}
     private String task;
 
     @Column(nullable = false)
