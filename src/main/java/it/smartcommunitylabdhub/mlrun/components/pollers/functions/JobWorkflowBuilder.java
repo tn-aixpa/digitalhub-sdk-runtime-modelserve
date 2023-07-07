@@ -68,107 +68,117 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 
     @SuppressWarnings("unchecked")
     public Workflow build(RunDTO runDTO) {
+
         Function<Object[], Object> getRunUpdate = params -> {
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            String requestUrl = params[0].toString()
-                    .replace("{project}", ((RunDTO) params[1]).getProject())
-                    .replace("{uid}", ((RunDTO) params[1]).getExtra()
-                            .get("mlrun_run_uid").toString());
-
-            ResponseEntity<Map<String, Object>> response = restTemplate
-                    .exchange(requestUrl, HttpMethod.GET, entity,
-                            responseType);
-
             try {
-                System.out.println(objectMapper.writeValueAsString(response));
-            } catch (Exception e) {
-            }
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            return Optional.ofNullable(response.getBody()).map(body -> {
-                Map<String, Object> status = (Map<String, Object>) ((Map<String, Object>) body.get("data"))
-                        .get("status");
+                String requestUrl = params[0].toString()
+                        .replace("{project}", ((RunDTO) params[1]).getProject())
+                        .replace("{uid}", ((RunDTO) params[1]).getExtra()
+                                .get("mlrun_run_uid").toString());
 
-                if (!stateMachine.getCurrentState()
-                        .equals(RunState.valueOf(status.get("state").toString().toUpperCase()))) {
+                ResponseEntity<Map<String, Object>> response = restTemplate
+                        .exchange(requestUrl, HttpMethod.GET, entity,
+                                responseType);
 
-                    String mlrunState = status.get("state").toString();
-                    stateMachine.processEvent(
-                            Optional.ofNullable(RunEvent.valueOf(mlrunState.toUpperCase()))
-                                    .orElseGet(() -> RunEvent.ERROR),
-                            Optional.empty());
+                // FIXME: delete log below
+                try {
+                    System.out.println(objectMapper.writeValueAsString(response));
+                } catch (Exception e) {
+                }
 
-                    // Update run state
-                    runDTO.setState(stateMachine.getCurrentState().name());
+                return Optional.ofNullable(response.getBody()).map(body -> {
+                    Map<String, Object> status = (Map<String, Object>) ((Map<String, Object>) body.get("data"))
+                            .get("status");
 
-                    // Store change
-                    this.runService.save(runDTO);
+                    if (!stateMachine.getCurrentState()
+                            .equals(RunState.valueOf(status.get("state").toString().toUpperCase()))) {
 
-                } else if (stateMachine.getCurrentState().equals(RunState.COMPLETED)) {
-                    System.out.println("Poller complete SUCCESSFULLY. Get log and stop poller now");
+                        String mlrunState = status.get("state").toString();
+                        stateMachine.processEvent(
+                                Optional.ofNullable(RunEvent.valueOf(mlrunState.toUpperCase()))
+                                        .orElseGet(() -> RunEvent.ERROR),
+                                Optional.empty());
 
-                    // Get response body and store log as well as artifacts if present.
-                    Optional.ofNullable(response.getBody()).ifPresent(b -> {
-                        // Get run uid from mlrun.
-                        MapUtils.getNestedFieldValue(b, "data").ifPresent(data -> {
-                            MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
-                                String uid = (String) metadata.get("uid");
+                        // Update run state
+                        runDTO.setState(stateMachine.getCurrentState().name());
 
-                                // Call mlrun api to get log of specific run uid.
-                                ResponseEntity<String> logResponse = restTemplate
-                                        .exchange(
-                                                logUrl.replace("{project}", runDTO.getProject()).replace("{uid}", uid),
-                                                HttpMethod.GET, entity,
-                                                String.class);
+                        // Store change
+                        this.runService.save(runDTO);
 
-                                // Create and store log
-                                System.out.println(logResponse.getBody());
+                    } else if (stateMachine.getCurrentState().equals(RunState.COMPLETED)) {
+                        // Get response body and store log as well as artifacts if present.
+                        Optional.ofNullable(response.getBody()).ifPresentOrElse(b -> {
+                            // Get run uid from mlrun.
+                            MapUtils.getNestedFieldValue(b, "data").ifPresent(data -> {
+                                MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
+                                    String uid = (String) metadata.get("uid");
 
-                                logService.createLog(LogDTO.builder()
-                                        .body(Map.of("content", logResponse.getBody()))
-                                        .project(runDTO.getProject())
-                                        .run(runDTO.getId()).build());
-                            });
+                                    // Call mlrun api to get log of specific run uid.
+                                    ResponseEntity<String> logResponse = restTemplate
+                                            .exchange(
+                                                    logUrl.replace("{project}", runDTO.getProject()).replace("{uid}",
+                                                            uid),
+                                                    HttpMethod.GET, entity,
+                                                    String.class);
 
-                            // get Artifacts from results
-                            MapUtils.getNestedFieldValue(data, "status").ifPresent(metadata -> {
-                                ((List<Map<String, Object>>) metadata.get("artifacts")).stream().forEach(artifact -> {
-                                    DataItemFieldAccessor mlrunDataItemAccessor = DataItemKind
-                                            .valueOf(artifact.get("kind").toString().toUpperCase())
-                                            .createAccessor(artifact);
+                                    // Create and store log
+                                    System.out.println(logResponse.getBody());
 
-                                    // Create artifact
-                                    ArtifactDTO artifactDTO = ArtifactDTO.builder()
-                                            .name(mlrunDataItemAccessor.getTree())
-                                            .project(mlrunDataItemAccessor.getProject())
-                                            .kind(mlrunDataItemAccessor.getKind())
-                                            .spec(mlrunDataItemAccessor.getSpecs())
-                                            .state(mlrunDataItemAccessor.getState().toUpperCase())
-                                            .build();
-
-                                    // Store artifact
-                                    this.artifactService.createArtifact(artifactDTO);
-
+                                    logService.createLog(LogDTO.builder()
+                                            .body(Map.of("content", logResponse.getBody()))
+                                            .project(runDTO.getProject())
+                                            .run(runDTO.getId()).build());
                                 });
-                                ;
+
+                                // get Artifacts from results
+                                MapUtils.getNestedFieldValue(data, "status").ifPresent(metadata -> {
+                                    ((List<Map<String, Object>>) metadata.get("artifacts")).stream()
+                                            .forEach(artifact -> {
+                                                DataItemFieldAccessor mlrunDataItemAccessor = DataItemKind
+                                                        .valueOf(artifact.get("kind").toString().toUpperCase())
+                                                        .createAccessor(artifact);
+
+                                                // Create artifact
+                                                ArtifactDTO artifactDTO = ArtifactDTO.builder()
+                                                        .name(mlrunDataItemAccessor.getTree())
+                                                        .project(mlrunDataItemAccessor.getProject())
+                                                        .kind(mlrunDataItemAccessor.getKind())
+                                                        .spec(mlrunDataItemAccessor.getSpecs())
+                                                        .state(mlrunDataItemAccessor.getState().toUpperCase())
+                                                        .build();
+
+                                                // Store artifact
+                                                this.artifactService.createArtifact(artifactDTO);
+
+                                            });
+                                });
                             });
+                        }, () -> {
+                            // Could not receive body from mlrun..stop poller now
+                            throw new StopPoller(
+                                    "Poller complete with ERROR {Mlrun body not found}");
                         });
 
-                    });
+                        // Poller complete successfully
+                        throw new StopPoller("Poller complete SUCCESSFULLY");
 
-                    throw new StopPoller("Poller complete successful!");
-                } else if (stateMachine.getCurrentState().equals(RunState.ERROR)) {
-                    System.out.println("Poller complete with ERROR. Get log and stop poller now");
+                    } else if (stateMachine.getCurrentState().equals(RunState.ERROR)) {
 
-                    // TODO: Store log from mlrun.
-                    throw new StopPoller("Error state reached stop poller");
+                        // State machine goes Error, stop poller
+                        throw new StopPoller("Poller complete with ERROR");
+                    }
+                    return null;
+                }).orElseGet(() -> null);
 
-                }
-                return null;
-            }).orElseGet(() -> null);
+            } catch (Exception e) {
+                System.out.println(e.getMessage() + " -> Stop Poller now!");
+                throw new StopPoller("STOP");
+            }
 
         };
 
