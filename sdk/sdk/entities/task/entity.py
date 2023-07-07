@@ -48,6 +48,7 @@ class Task(Entity):
         spec: TaskSpec,
         project: str,
         function: str,
+        function_id: str = None,
         local: bool = False,
         **kwargs,
     ) -> None:
@@ -74,6 +75,7 @@ class Task(Entity):
         self.kind = kind if kind is not None else "task"
         self.spec = spec
         self.function = function
+        self.function_id = function_id
         self.id = get_uiid()
 
         # Set new attributes
@@ -83,7 +85,7 @@ class Task(Entity):
 
         self._local = local
 
-        self.task = f"{self.kind}://{self.project}/{self.function}"
+        self.task = f"{self.kind}://{self.project}/{self.function}:{self.function_id}"
         self.context = get_context(self.project)
 
         self._obj_attr += ["task"]

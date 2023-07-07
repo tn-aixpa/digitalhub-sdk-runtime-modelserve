@@ -217,7 +217,7 @@ class Function(Entity):
         if self.task is None:
             tasc_spec = TaskSpec.from_dict(self.spec.to_dict())
             self.task = Task(
-                "task", tasc_spec, self.project, self.name, local=self._local
+                "task", tasc_spec, self.project, self.name, self.id, local=self._local
             )
             self.task.save()
 
