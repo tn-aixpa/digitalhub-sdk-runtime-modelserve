@@ -237,5 +237,4 @@ def is_python_module(src: str) -> bool:
     bool
         True if the file is a python module, False otherwise.
     """
-    if check_file(src):
-        return Path(src).suffix == ".py"
+    return Path(src).suffix == ".py" and check_file(src)
