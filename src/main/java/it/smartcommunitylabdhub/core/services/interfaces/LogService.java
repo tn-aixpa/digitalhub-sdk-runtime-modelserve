@@ -12,6 +12,8 @@ public interface LogService {
 
     LogDTO getLog(String uuid);
 
+    List<LogDTO> getLogsByRunUuid(String uuid);
+
     boolean deleteLog(String uuid);
 
     LogDTO createLog(LogDTO logDTO);

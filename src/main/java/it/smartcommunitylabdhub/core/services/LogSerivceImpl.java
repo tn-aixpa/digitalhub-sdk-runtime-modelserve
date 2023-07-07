@@ -82,4 +82,19 @@ public class LogSerivceImpl implements LogService {
                         "Failed to generate log.",
                         HttpStatus.INTERNAL_SERVER_ERROR));
     }
+
+    @Override
+    public List<LogDTO> getLogsByRunUuid(String uuid) {
+        return logRepository.findByRun(uuid)
+                .stream()
+                .map(log -> {
+                    try {
+                        return new LogDTOBuilder(log).build();
+                    } catch (CustomException e) {
+                        throw new CoreException("InternalServerError", e.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                }).collect(Collectors.toList());
+    }
+
 }

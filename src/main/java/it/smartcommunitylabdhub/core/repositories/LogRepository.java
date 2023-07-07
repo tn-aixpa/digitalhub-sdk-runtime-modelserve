@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface LogRepository extends JpaRepository<Log, String> {
 
-    List<Log> findByProject(String uuid);
+    List<Log> findByProject(String name);
 
     List<Log> findByRun(String uuid);
 }
