@@ -1,7 +1,9 @@
 """
 Dataitem operations module.
 """
-from sdk.entities.dataitem.entity import Dataitem, DataitemMetadata, DataitemSpec
+from sdk.entities.dataitem.entity import Dataitem
+from sdk.entities.dataitem.metadata import DataitemMetadata
+from sdk.entities.dataitem.spec import DataitemSpec
 from sdk.utils.api import DTO_DTIT, api_ctx_delete, api_ctx_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
@@ -17,6 +19,7 @@ def new_dataitem(
     path: str = None,
     local: bool = False,
     embed: bool = False,
+    **kwargs,
 ) -> Dataitem:
     """
     Create an Dataitem instance with the given parameters.
@@ -39,6 +42,8 @@ def new_dataitem(
         Flag to determine if object has local execution.
     embed : bool, optional
         Flag to determine if object must be embedded in project.
+    **kwargs
+        Additional keyword arguments.
 
     Returns
     -------
@@ -58,6 +63,7 @@ def new_dataitem(
         spec=spec,
         local=local,
         embed=embed,
+        **kwargs,
     )
     if local:
         obj.export()

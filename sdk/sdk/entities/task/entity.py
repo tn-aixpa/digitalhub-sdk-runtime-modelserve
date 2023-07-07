@@ -1,40 +1,12 @@
 """
 Task module.
 """
-
-from sdk.entities.base.entity import Entity, EntitySpec
-from sdk.utils.api import DTO_TASK, api_base_update, api_base_create
-from sdk.utils.exceptions import EntityError, BackendError
+from sdk.entities.base.entity import Entity
+from sdk.entities.task.spec import TaskSpec
+from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
+from sdk.utils.exceptions import BackendError, EntityError
 from sdk.utils.factories import get_context
-from sdk.utils.uri_utils import get_uri_path
 from sdk.utils.utils import get_uiid
-
-
-class TaskSpec(EntitySpec):
-    """Task specification."""
-
-    def __init__(
-        self,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        **kwargs
-            Additional keyword arguments.
-
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
-        """
-
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
 
 
 class Task(Entity):
@@ -47,8 +19,7 @@ class Task(Entity):
         kind: str,
         spec: TaskSpec,
         project: str,
-        function: str,
-        function_id: str = None,
+        task: str,
         local: bool = False,
         **kwargs,
     ) -> None:
@@ -63,8 +34,8 @@ class Task(Entity):
             The kind of the task.
         spec : TaskSpec
             The specification of the task.
-        function : str
-            The function of the task.
+        task : str
+            The task string.
         local : bool, optional
             Flag to indicate if the task is local or not.
         **kwargs
@@ -74,21 +45,18 @@ class Task(Entity):
         self.project = project
         self.kind = kind if kind is not None else "task"
         self.spec = spec
-        self.function = function
-        self.function_id = function_id
         self.id = get_uiid()
+        self.task = task
+
+        self._local = local
+        self._obj_attr += ["task"]
 
         # Set new attributes
         for k, v in kwargs.items():
             if k not in self._obj_attr:
                 self.__setattr__(k, v)
 
-        self._local = local
-
-        self.task = f"{self.kind}://{self.project}/{self.function}:{self.function_id}"
         self.context = get_context(self.project)
-
-        self._obj_attr += ["task"]
 
     #############################
     #  Save / Export
@@ -114,9 +82,6 @@ class Task(Entity):
 
         obj = self.to_dict()
 
-        api = api_base_create(DTO_TASK)
-        return self.context.client.create_object(obj, api)
-
         try:
             api = api_base_create(DTO_TASK)
             return self.context.client.create_object(obj, api)
@@ -139,18 +104,14 @@ class Task(Entity):
 
         """
         obj = self.to_dict()
-        filename = (
-            filename
-            if filename is not None
-            else f"task_{self.project}_{self.function}.yaml"
-        )
+        filename = filename if filename is not None else f"task_{self.id}.yaml"
         self._export_object(filename, obj)
 
     #############################
     #  Task methods
     #############################
 
-    def run(self, task_id: str, inputs: dict, parameters: dict) -> dict:
+    def run(self, task_id: str, inputs: dict, outputs: dict, parameters: dict) -> dict:
         """
         Run task.
 
@@ -177,6 +138,7 @@ class Task(Entity):
             "task_id": task_id,
             "spec": {
                 "inputs": inputs,
+                "outputs": outputs,
                 "parameters": parameters,
             },
         }
@@ -215,9 +177,8 @@ class Task(Entity):
         task = obj.get("task")
         if task is None:
             raise EntityError("Task is not specified.")
-        function = get_uri_path(task)
 
         # Get spec
         spec = TaskSpec.from_dict(obj.get("spec", {}))
 
-        return cls(kind=kind, spec=spec, project=project, function=function)
+        return cls(kind=kind, spec=spec, project=project, task=task)

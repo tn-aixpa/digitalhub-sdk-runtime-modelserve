@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.entities.base.entity import Entity
+from sdk.entities.dataitem.metadata import DataitemMetadata
+from sdk.entities.dataitem.spec import DataitemSpec
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
@@ -15,40 +17,6 @@ from sdk.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
     import pandas as pd
-
-
-class DataitemMetadata(EntityMetadata):
-    """
-    Dataitem metadata.
-    """
-
-
-class DataitemSpec(EntitySpec):
-    """
-    Dataitem specifications.
-    """
-
-    def __init__(self, key: str = None, path: str = None, **kwargs) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        **kwargs
-            Additional keyword arguments.
-
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
-        """
-        self.key = key
-        self.path = path
-
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
 
 
 class Dataitem(Entity):

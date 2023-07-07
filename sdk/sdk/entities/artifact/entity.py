@@ -1,45 +1,15 @@
 """
 Artifact module.
 """
+from sdk.entities.artifact.metadata import ArtifactMetadata
+from sdk.entities.artifact.spec import ArtifactSpec
+from sdk.entities.base.entity import Entity
 from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
-from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
 from sdk.utils.file_utils import check_file, get_dir
-from sdk.utils.uri_utils import (
-    get_name_from_uri,
-    get_uri_scheme,
-    rebuild_uri,
-)
+from sdk.utils.uri_utils import get_name_from_uri, get_uri_scheme, rebuild_uri
 from sdk.utils.utils import get_uiid
-
-
-class ArtifactMetadata(EntityMetadata):
-    """
-    Artifact metadata.
-    """
-
-
-class ArtifactSpec(EntitySpec):
-    """
-    Artifact specification.
-    """
-
-    def __init__(
-        self,
-        key: str = None,
-        src_path: str = None,
-        target_path: str = None,
-        **kwargs,
-    ) -> None:
-        self.key = key
-        self.src_path = src_path
-        self.target_path = target_path
-
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
 
 
 class Artifact(Entity):

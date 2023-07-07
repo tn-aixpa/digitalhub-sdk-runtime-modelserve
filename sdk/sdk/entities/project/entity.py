@@ -7,11 +7,13 @@ import typing
 
 from sdk.entities.artifact.crud import delete_artifact, get_artifact, new_artifact
 from sdk.entities.artifact.entity import Artifact
-from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.entities.base.entity import Entity
 from sdk.entities.dataitem.crud import delete_dataitem, get_dataitem, new_dataitem
 from sdk.entities.dataitem.entity import Dataitem
 from sdk.entities.function.crud import delete_function, get_function, new_function
 from sdk.entities.function.entity import Function
+from sdk.entities.project.metadata import ProjectMetadata
+from sdk.entities.project.spec import ProjectSpec
 from sdk.entities.workflow.crud import delete_workflow, get_workflow, new_workflow
 from sdk.entities.workflow.entity import Workflow
 from sdk.utils.api import (
@@ -31,53 +33,6 @@ if typing.TYPE_CHECKING:
 
 
 DTO_LIST = [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]
-
-
-class ProjectMetadata(EntityMetadata):
-    """
-    Project metadata.
-    """
-
-
-class ProjectSpec(EntitySpec):
-    """
-    Project specification.
-    """
-
-    def __init__(
-        self,
-        context: str = None,
-        source: str = None,
-        functions: list[dict] = None,
-        artifacts: list[dict] = None,
-        workflows: list[dict] = None,
-        dataitems: list[dict] = None,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        **kwargs
-            Additional keyword arguments.
-
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
-        """
-        self.context = context
-        self.source = source
-        self.functions = functions if functions is not None else []
-        self.artifacts = artifacts if artifacts is not None else []
-        self.workflows = workflows if workflows is not None else []
-        self.dataitems = dataitems if dataitems is not None else []
-
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
 
 
 class Project(Entity):
@@ -301,6 +256,7 @@ class Project(Entity):
         target_path: str = None,
         local: bool = False,
         embed: bool = False,
+        **kwargs,
     ) -> Artifact:
         """
         Create an instance of the Artifact class with the provided parameters.
@@ -323,6 +279,8 @@ class Project(Entity):
             Flag to determine if object has local execution.
         embed : bool, optional
             Flag to determine if object must be embedded in project.
+        **kwargs
+            Additional parameters.
 
         Returns
         -------
@@ -339,6 +297,7 @@ class Project(Entity):
             target_path=target_path,
             local=local,
             embed=embed,
+            **kwargs,
         )
         self._add_object(obj, DTO_ARTF)
         return obj
@@ -416,6 +375,7 @@ class Project(Entity):
         handler: str = None,
         local: bool = False,
         embed: bool = False,
+        **kwargs,
     ) -> Function:
         """
         Create a Function instance with the given parameters.
@@ -442,6 +402,8 @@ class Project(Entity):
             Flag to determine if object has local execution.
         embed : bool, optional
             Flag to determine if object must be embedded in project.
+        **kwargs
+            Additional arguments.
 
         Returns
         -------
@@ -459,6 +421,7 @@ class Project(Entity):
             handler=handler,
             local=local,
             embed=embed,
+            **kwargs,
         )
         self._add_object(obj, DTO_FUNC)
         return obj
@@ -533,6 +496,7 @@ class Project(Entity):
         test: str = None,
         local: bool = False,
         embed: bool = False,
+        **kwargs,
     ) -> Workflow:
         """
         Create a new Workflow instance with the specified parameters.
@@ -553,6 +517,8 @@ class Project(Entity):
             Flag to determine if object has local execution.
         embed : bool, optional
             Flag to determine if object must be embedded in project.
+        **kwargs
+            Additional arguments.
 
         Returns
         -------
@@ -567,6 +533,7 @@ class Project(Entity):
             test=test,
             local=local,
             embed=embed,
+            **kwargs,
         )
         self._add_object(obj, DTO_WKFL)
         return obj
@@ -642,6 +609,7 @@ class Project(Entity):
         path: str = None,
         local: bool = False,
         embed: bool = False,
+        **kwargs,
     ) -> Dataitem:
         """
         Create a Dataitem.
@@ -662,6 +630,8 @@ class Project(Entity):
             Flag to determine if object has local execution.
         embed : bool, optional
             Flag to determine if object must be embedded in project.
+        **kwargs
+            Additional arguments.
 
         Returns
         -------
@@ -677,6 +647,7 @@ class Project(Entity):
             path=path,
             local=local,
             embed=embed,
+            **kwargs,
         )
         self._add_object(obj, DTO_DTIT)
         return obj

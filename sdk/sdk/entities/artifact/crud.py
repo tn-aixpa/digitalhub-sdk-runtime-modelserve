@@ -1,7 +1,9 @@
 """
 Artifact operations module.
 """
-from sdk.entities.artifact.entity import Artifact, ArtifactMetadata, ArtifactSpec
+from sdk.entities.artifact.entity import Artifact
+from sdk.entities.artifact.metadata import ArtifactMetadata
+from sdk.entities.artifact.spec import ArtifactSpec
 from sdk.utils.api import DTO_ARTF, api_ctx_delete, api_ctx_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
@@ -18,6 +20,7 @@ def new_artifact(
     target_path: str = None,
     local: bool = False,
     embed: bool = False,
+    **kwargs,
 ) -> Artifact:
     """
     Create an instance of the Artifact class with the provided parameters.
@@ -61,6 +64,7 @@ def new_artifact(
         spec=spec,
         local=local,
         embed=embed,
+        **kwargs,
     )
     if local:
         obj.export()

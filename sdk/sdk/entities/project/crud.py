@@ -1,17 +1,19 @@
 """
 Project operations module.
 """
+from sdk.entities.project.entity import Project
+from sdk.entities.project.metadata import ProjectMetadata
+from sdk.entities.project.spec import ProjectSpec
 from sdk.utils.api import (
     DTO_ARTF,
     DTO_DTIT,
     DTO_FUNC,
     DTO_PROJ,
     DTO_WKFL,
-    api_ctx_delete,
     api_base_delete,
     api_base_read,
+    api_ctx_delete,
 )
-from sdk.entities.project.entity import Project, ProjectMetadata, ProjectSpec
 from sdk.utils.factories import delete_context, get_client
 from sdk.utils.io_utils import read_yaml
 

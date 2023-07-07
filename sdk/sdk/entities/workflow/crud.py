@@ -1,7 +1,9 @@
 """
 Workflow operations module.
 """
-from sdk.entities.workflow.entity import Workflow, WorkflowMetadata, WorkflowSpec
+from sdk.entities.workflow.entity import Workflow
+from sdk.entities.workflow.metadata import WorkflowMetadata
+from sdk.entities.workflow.spec import WorkflowSpec
 from sdk.utils.api import DTO_WKFL, api_ctx_delete, api_ctx_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
@@ -16,6 +18,7 @@ def new_workflow(
     test: str = None,
     local: bool = False,
     embed: bool = False,
+    **kwargs,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -36,6 +39,8 @@ def new_workflow(
         Flag to determine if object has local execution.
     embed : bool, optional
         Flag to determine if object must be embedded in project.
+    **kwargs
+        Additional keyword arguments.
 
     Returns
     -------
@@ -56,6 +61,7 @@ def new_workflow(
         spec=spec,
         local=local,
         embed=embed,
+        **kwargs,
     )
     if local:
         obj.export()

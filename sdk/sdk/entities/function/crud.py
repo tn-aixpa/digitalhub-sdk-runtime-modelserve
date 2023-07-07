@@ -1,7 +1,9 @@
 """
 Function operations module.
 """
-from sdk.entities.function.entity import Function, FunctionMetadata, FunctionSpec
+from sdk.entities.function.entity import Function
+from sdk.entities.function.metadata import FunctionMetadata
+from sdk.entities.function.spec import FunctionSpec
 from sdk.utils.api import DTO_FUNC, api_ctx_delete, api_ctx_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
@@ -21,6 +23,7 @@ def new_function(
     requirements: list = None,
     local: bool = False,
     embed: bool = False,
+    **kwargs,
 ) -> Function:
     """
     Create a Function instance with the given parameters.
@@ -77,6 +80,7 @@ def new_function(
         spec=spec,
         local=local,
         embed=embed,
+        **kwargs,
     )
     if local:
         obj.export()

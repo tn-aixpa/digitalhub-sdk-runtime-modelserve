@@ -100,7 +100,10 @@ class Client:
             The response object.
         """
         endpoint = self._get_endpoint(api)
-        response = requests.request(call_type, endpoint, timeout=60, **kwargs)
+        try:
+            response = requests.request(call_type, endpoint, timeout=60, **kwargs)
+        except ConnectionError as exc:
+            raise BackendError("Connection error.") from exc
         obj = self._dictify(response)
         self._raise_if_status(obj)
         return obj

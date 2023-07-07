@@ -1,80 +1,15 @@
 """
 Function module.
 """
-from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
-from sdk.entities.task.entity import Task, TaskSpec
+from sdk.entities.base.entity import Entity
+from sdk.entities.function.metadata import FunctionMetadata
+from sdk.entities.function.spec import FunctionSpec
+from sdk.entities.task.entity import Task
+from sdk.entities.task.spec import TaskSpec
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
-from sdk.utils.file_utils import is_python_module
-from sdk.utils.uri_utils import get_name_from_uri
-from sdk.utils.utils import encode_source, get_uiid
-
-
-class FunctionMetadata(EntityMetadata):
-    """
-    Function metadata
-    """
-
-
-class FunctionSpec(EntitySpec):
-    """
-    Function specification.
-    """
-
-    def __init__(
-        self,
-        source: str = None,
-        image: str = None,
-        tag: str = None,
-        handler: str = None,
-        command: str = None,
-        requirements: list = None,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        source : str, optional
-            Path to the Function's source code on the local file system.
-        image : str, optional
-            Name of the Function's container image.
-        tag : str, optional
-            Tag of the Function's container image.
-        handler : str, optional
-            Function handler name.
-        command : str, optional
-            Command to run inside the container.
-        requirements : list, optional
-            List of requirements for the Function.
-        **kwargs
-            Additional keyword arguments.
-
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
-        """
-        self.source = source
-        self.image = image
-        self.tag = tag
-        self.handler = handler
-        self.command = command
-        self.requirements = requirements if requirements is not None else []
-
-        if self.source is not None and is_python_module(self.source):
-            self.build = {
-                "functionSourceCode": encode_source(source),
-                "code_origin": source,
-                "origin_filename": get_name_from_uri(source),
-            }
-
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
+from sdk.utils.utils import get_uiid
 
 
 class Function(Entity):
@@ -123,7 +58,7 @@ class Function(Entity):
         self.metadata = (
             metadata if metadata is not None else FunctionMetadata(name=name)
         )
-        self.spec = spec if spec is not None else FunctionSpec()
+        self.spec = spec if spec is not None else FunctionSpec(source="")
         self.embedded = embed
         self.id = uuid if uuid is not None else get_uiid()
 
@@ -134,8 +69,8 @@ class Function(Entity):
             if k not in self._obj_attr:
                 self.__setattr__(k, v)
 
-        self.context = get_context(self.project)
-        self.task = None
+        self._context = get_context(self.project)
+        self._task = None
 
     #############################
     #  Save / Export
@@ -159,15 +94,15 @@ class Function(Entity):
         if self._local:
             raise EntityError("Use .export() for local execution.")
 
-        obj = self.to_dict()
+        obj = self.to_dict(include_all_non_private=True)
 
         if uuid is None:
             api = api_ctx_create(self.project, DTO_FUNC)
-            return self.context.client.create_object(obj, api)
+            return self._context.client.create_object(obj, api)
 
         self.id = uuid
         api = api_ctx_update(self.project, DTO_FUNC, self.name, uuid)
-        return self.context.client.update_object(obj, api)
+        return self._context.client.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
@@ -195,7 +130,13 @@ class Function(Entity):
     #  Function Methods
     #############################
 
-    def run(self, parameters: dict = None, inputs: dict = None, **kwargs) -> None:
+    def run(
+        self,
+        inputs: dict = None,
+        outputs: dict = None,
+        parameters: dict = None,
+        **kwargs,
+    ) -> "Run":
         """
         Run function.
 
@@ -205,6 +146,10 @@ class Function(Entity):
             Function parameters.
         inputs : dict
             Function inputs.
+        outputs : dict
+            Function outputs.
+        config : dict
+            Task configuration.
         **kwargs
             Additional keyword arguments.
 
@@ -214,17 +159,25 @@ class Function(Entity):
             Run instance.
         """
         # Create task if not exists
-        if self.task is None:
-            tasc_spec = TaskSpec.from_dict(self.spec.to_dict())
-            self.task = Task(
-                "task", tasc_spec, self.project, self.name, self.id, local=self._local
+        if self._task is None:
+            # https://docs.mlrun.org/en/latest/runtimes/configuring-job-resources.html
+            # task spec k8s
+            task_spec = TaskSpec.from_dict(self.spec.to_dict())
+            task = f"{self.kind}://{self.project}/{self.name}:{self.id}"
+            self._task = Task(
+                kind="task",
+                spec=task_spec,
+                project=self.project,
+                task=task,
+                local=self._local,
             )
-            self.task.save()
+            self._task.save()
 
         # Run function from task
         parameters = parameters if parameters is not None else {}
         inputs = inputs if inputs is not None else {}
-        return self.task.run(self.task.id, inputs, parameters, **kwargs)
+        outputs = outputs if outputs is not None else {}
+        return self._task.run(self._task.id, inputs, outputs, parameters, **kwargs)
 
     def update_task(self, new_spec: dict) -> None:
         """
@@ -244,10 +197,10 @@ class Function(Entity):
         EntityError
             If the task is not created.
         """
-        if self.task is None:
+        if self._task is None:
             raise EntityError("Task is not created.")
-        self.task.spec = TaskSpec.from_dict(new_spec)
-        self.task.save(self.task.task)
+        self._task.spec = TaskSpec.from_dict(new_spec)
+        self._task.save(self._task.task)
 
     #############################
     #  Getters and Setters

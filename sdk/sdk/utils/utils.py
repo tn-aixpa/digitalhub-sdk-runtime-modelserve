@@ -4,7 +4,7 @@ General utilities module.
 import base64
 from uuid import uuid4
 
-from sdk.utils.io_utils import read_bytes
+from sdk.utils.io_utils import read_text
 
 
 def get_uiid() -> str:
@@ -33,5 +33,5 @@ def encode_source(path: str) -> str:
     str
         The file content encoded in base64.
     """
-    data = read_bytes(path)
-    return base64.b64encode(data).decode("utf-8")
+    data = read_text(path)
+    return base64.b64encode(data.encode()).decode()

@@ -1,44 +1,13 @@
 """
 Workflow module.
 """
-from sdk.entities.base.entity import Entity, EntityMetadata, EntitySpec
+from sdk.entities.base.entity import Entity
+from sdk.entities.workflow.metadata import WorkflowMetadata
+from sdk.entities.workflow.spec import WorkflowSpec
 from sdk.utils.api import DTO_WKFL, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
-
-
-class WorkflowMetadata(EntityMetadata):
-    """
-    Workflow metadata.
-    """
-
-
-class WorkflowSpec(EntitySpec):
-    """
-    Workflow specifications.
-    """
-
-    def __init__(self, test: str = None, **kwargs) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        **kwargs
-            Additional keyword arguments.
-
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
-        """
-        self.test = test
-
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
 
 
 class Workflow(Entity):
