@@ -81,5 +81,38 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    // TODO: UPDATE TASK
+    @Override
+    public TaskDTO updateTask(TaskDTO taskDTO, String uuid) {
+        if (!taskDTO.getId().equals(uuid)) {
+            throw new CoreException(
+                    "TaskNotMatch",
+                    "Trying to update a task with an uuid different from the one passed in the request.",
+                    HttpStatus.NOT_FOUND);
+        }
+
+        final Task task = taskRepository.findById(uuid).orElse(null);
+        if (task == null) {
+            throw new CoreException(
+                    "TaskNotFound",
+                    "The task you are searching for does not exist.",
+                    HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            TaskEntityBuilder taskBuilder = new TaskEntityBuilder(taskDTO);
+
+            final Task taskUpdated = taskBuilder.update(task);
+            this.taskRepository.save(taskUpdated);
+
+            return new TaskDTOBuilder(
+                    taskUpdated).build();
+
+        } catch (CustomException e) {
+            throw new CoreException(
+                    "InternalServerError",
+                    e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

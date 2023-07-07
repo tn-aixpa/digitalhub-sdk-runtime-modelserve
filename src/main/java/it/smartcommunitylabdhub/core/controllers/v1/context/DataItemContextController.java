@@ -33,7 +33,8 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Create an dataItem in a project context", description = "First check if project exist and then create the dataItem for the project (context)")
-    @PostMapping(value = "/dataitems", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "/dataitems", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> createDataItem(
             @ValidateField @PathVariable String project,
             @Valid @RequestBody DataItemDTO dataItemDTO) {
@@ -85,7 +86,8 @@ public class DataItemContextController extends ContextController {
     }
 
     @Operation(summary = "Create an  or update an dataItem in a project context", description = "First check if project exist, if dataItem exist update one otherwise create a new version of the dataItem")
-    @PostMapping(value = "/dataitems/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "/dataitems/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> createOrUpdateDataItem(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
@@ -95,7 +97,7 @@ public class DataItemContextController extends ContextController {
 
     @Operation(summary = "Update if exist an dataItem in a project context", description = "First check if project exist, if dataItem exist update.")
     @PutMapping(value = "/dataitems/{name}/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" })
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> updateUpdateDataItem(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,

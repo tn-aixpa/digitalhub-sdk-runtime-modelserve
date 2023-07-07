@@ -37,7 +37,8 @@ public class DataItemController {
         return ResponseEntity.ok(this.artifactService.getDataItems(pageable));
     }
 
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> createDataItem(@Valid @RequestBody DataItemDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactService.createDataItem(artifactDTO));
     }
@@ -49,7 +50,7 @@ public class DataItemController {
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json")
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> updateDataItem(@Valid @RequestBody DataItemDTO artifactDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.updateDataItem(artifactDTO, uuid));

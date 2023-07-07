@@ -38,7 +38,8 @@ public class FunctionController {
         return ResponseEntity.ok(this.functionService.getFunctions(pageable));
     }
 
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<FunctionDTO> createFunction(@Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionService.createFunction(functionDTO));
     }
@@ -50,7 +51,7 @@ public class FunctionController {
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json")
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<FunctionDTO> updateFunction(@Valid @RequestBody FunctionDTO functionDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.updateFunction(functionDTO, uuid));

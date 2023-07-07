@@ -3,6 +3,7 @@ package it.smartcommunitylabdhub.core.controllers.v1;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +51,8 @@ public class RunController {
         return ResponseEntity.ok(this.runService.getRuns(pageable));
     }
 
-    @PostMapping(path = "", produces = "application/json; charset=UTF-8")
+    @PostMapping(path = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<RunDTO> createRun(@Valid @RequestBody RunExecDTO runExecDTO) {
         return ResponseEntity.ok(this.runService.createRun(runExecDTO));
     }

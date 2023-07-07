@@ -38,7 +38,8 @@ public class WorkflowController {
         return ResponseEntity.ok(this.workflowService.getWorkflows(pageable));
     }
 
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<WorkflowDTO> createWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO) {
         return ResponseEntity.ok(this.workflowService.createWorkflow(workflowDTO));
     }
@@ -50,7 +51,7 @@ public class WorkflowController {
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json")
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<WorkflowDTO> updateWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.workflowService.updateWorkflow(workflowDTO, uuid));

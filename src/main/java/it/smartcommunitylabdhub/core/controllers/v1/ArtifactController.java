@@ -37,7 +37,8 @@ public class ArtifactController {
         return ResponseEntity.ok(this.artifactService.getArtifacts(pageable));
     }
 
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> createArtifact(@Valid @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactService.createArtifact(artifactDTO));
     }
@@ -49,7 +50,7 @@ public class ArtifactController {
     }
 
     @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json")
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> updateArtifact(@Valid @RequestBody ArtifactDTO artifactDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.updateArtifact(artifactDTO, uuid));

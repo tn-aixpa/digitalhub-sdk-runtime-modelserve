@@ -41,7 +41,8 @@ public class ProjectControllerV1 {
         return ResponseEntity.ok(this.projectService.getProjects(pageable));
     }
 
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) {
         return ResponseEntity.ok(this.projectService.createProject(projectDTO));
     }
@@ -53,7 +54,7 @@ public class ProjectControllerV1 {
     }
 
     @PutMapping(path = "/{uuidOrName}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json")
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ProjectDTO> updateProject(
             @RequestBody ProjectDTO projectDTO,
             @ValidateField @PathVariable(name = "uuidOrName", required = true) String uuidOrName) {

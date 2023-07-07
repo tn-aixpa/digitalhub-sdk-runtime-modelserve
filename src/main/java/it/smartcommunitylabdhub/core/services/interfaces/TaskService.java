@@ -16,4 +16,5 @@ public interface TaskService {
 
     TaskDTO createTask(TaskDTO TaskDTO);
 
+    TaskDTO updateTask(TaskDTO TaskDTO, String uuid);
 }

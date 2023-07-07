@@ -33,7 +33,8 @@ public class ArtifactContextController extends ContextController {
     }
 
     @Operation(summary = "Create an artifact in a project context", description = "First check if project exist and then create the artifact for the project (context)")
-    @PostMapping(value = "/artifacts", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "/artifacts", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> createArtifact(
             @ValidateField @PathVariable String project,
             @Valid @RequestBody ArtifactDTO artifactDTO) {
@@ -85,7 +86,8 @@ public class ArtifactContextController extends ContextController {
     }
 
     @Operation(summary = "Create an  or update an artifact in a project context", description = "First check if project exist, if artifact exist update one otherwise create a new version of the artifact")
-    @PostMapping(value = "/artifacts/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE, "application/x-yaml" })
+    @PostMapping(value = "/artifacts/{name}", consumes = { MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> createOrUpdateArtifact(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
@@ -95,7 +97,7 @@ public class ArtifactContextController extends ContextController {
 
     @Operation(summary = "Update if exist an artifact in a project context", description = "First check if project exist, if artifact exist update.")
     @PutMapping(value = "/artifacts/{name}/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" })
+            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> updateUpdateArtifact(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
