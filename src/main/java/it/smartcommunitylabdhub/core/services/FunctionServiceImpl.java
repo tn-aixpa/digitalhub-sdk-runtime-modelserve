@@ -71,7 +71,7 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Override
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
-        if (functionRepository.existsById(functionDTO.getId())) {
+        if (functionDTO.getId() != null && functionRepository.existsById(functionDTO.getId())) {
             throw new CoreException("DuplicateFunctionId",
                     "Cannot create the function", HttpStatus.INTERNAL_SERVER_ERROR);
         }

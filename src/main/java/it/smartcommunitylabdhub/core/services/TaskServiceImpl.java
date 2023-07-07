@@ -67,7 +67,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
-        if (taskRepository.existsById(taskDTO.getId())) {
+        if (taskDTO.getId() != null &&  taskRepository.existsById(taskDTO.getId())) {
             throw new CoreException("DuplicateTaskId",
                     "Cannot create the task", HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -47,7 +47,7 @@ public class ArtifactServiceImpl implements ArtifactService {
 
     @Override
     public ArtifactDTO createArtifact(ArtifactDTO artifactDTO) {
-        if (artifactRepository.existsById(artifactDTO.getId())) {
+        if (artifactDTO.getId() != null && artifactRepository.existsById(artifactDTO.getId())) {
             throw new CoreException("DuplicateArtifactId",
                     "Cannot create the artifact", HttpStatus.INTERNAL_SERVER_ERROR);
         }

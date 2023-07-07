@@ -47,7 +47,7 @@ public class DataItemServiceImpl implements DataItemService {
 
     @Override
     public DataItemDTO createDataItem(DataItemDTO dataItemDTO) {
-        if (dataItemRepository.existsById(dataItemDTO.getId())) {
+        if (dataItemDTO.getId() != null && dataItemRepository.existsById(dataItemDTO.getId())) {
             throw new CoreException("DuplicateDataItemId",
                     "Cannot create the dataItem", HttpStatus.INTERNAL_SERVER_ERROR);
         }

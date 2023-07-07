@@ -55,7 +55,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Override
     public WorkflowDTO createWorkflow(WorkflowDTO workflowDTO) {
-        if (workflowRepository.existsById(workflowDTO.getId())) {
+        if (workflowDTO.getId() != null && workflowRepository.existsById(workflowDTO.getId())) {
             throw new CoreException("DuplicateWorkflowId",
                     "Cannot create the workflow", HttpStatus.INTERNAL_SERVER_ERROR);
         }

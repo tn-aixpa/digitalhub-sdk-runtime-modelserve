@@ -19,6 +19,7 @@ public class CustomExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setStatus(ex.getStatus().value());
         errorResponse.setMessage(ex.getMessage());
+        errorResponse.setErrorCode(ex.getErrorCode());
 
         return ResponseEntity.status(ex.getStatus()).body(errorResponse);
     }
