@@ -49,7 +49,7 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 
                                                                 // 4. produce a run object and store it
                                                                 return RunDTO.builder()
-                                                                                .kind(task.getKind())
+                                                                                .kind("run")
                                                                                 .taskId(task.getId())
                                                                                 .project(task.getProject())
                                                                                 .task(task.getTask())

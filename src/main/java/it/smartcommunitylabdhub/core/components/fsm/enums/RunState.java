@@ -6,5 +6,6 @@ public enum RunState {
     READY,
     RUNNING,
     COMPLETED,
-    ERROR
+    ERROR,
+    STOP
 }

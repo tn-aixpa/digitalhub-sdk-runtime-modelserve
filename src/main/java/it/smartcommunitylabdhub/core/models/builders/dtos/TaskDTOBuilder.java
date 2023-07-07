@@ -19,7 +19,7 @@ public class TaskDTOBuilder {
                 return EntityFactory.create(TaskDTO::new, task, builder -> {
                         builder
                                         .with(dto -> dto.setId(task.getId()))
-                                        .with(dto -> dto.setTask(task.getKind()))
+                                        .with(dto -> dto.setTask(task.getTask()))
                                         .with(dto -> dto.setProject(task.getProject()))
                                         .with(dto -> dto.setKind(task.getKind()))
                                         .with(dto -> dto.setSpec(ConversionUtils.reverse(task.getSpec(), "cbor")))

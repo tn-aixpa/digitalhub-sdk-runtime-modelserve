@@ -114,9 +114,12 @@ public class RunSerivceImpl implements RunService {
                     RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder(taskAccessor.getKind())
                             .build(taskDTO);
 
-                    // set runDTO to correct kind, because I pass the task that contain the kind
-                    // task I have to override the kind to the right signature
-                    runDTO.setKind(taskAccessor.getKind());
+                    // if extra field contained override if field in dto is present otherwise put in
+                    // extra runDTO
+                    runExecDTO.overrideFields(runDTO);
+
+                    // override spec
+                    runDTO.getSpec().putAll(runExecDTO.getSpec());
 
                     // save run
                     Run run = runRepository.save(runEntityBuilder.build(runDTO));
@@ -124,10 +127,9 @@ public class RunSerivceImpl implements RunService {
                     // exec run and return run dto
                     return Optional.ofNullable(runDTOBuilder.build(run)).map(
                             r -> {
-
-                                // Override all spec
-                                r.getSpec().putAll(runExecDTO.getSpec());
-                                runPublisherFactory.getPublisher(runDTO.getKind()).publish(r);
+                                // // Override all spec
+                                // r.getSpec().putAll(runExecDTO.getSpec());
+                                runPublisherFactory.getPublisher(taskAccessor.getKind()).publish(r);
                                 return r;
                             }).orElseThrow(() -> new CoreException(
                                     "",

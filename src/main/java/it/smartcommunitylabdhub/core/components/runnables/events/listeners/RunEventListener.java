@@ -12,6 +12,8 @@ import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWork
 import it.smartcommunitylabdhub.core.components.runnables.events.messages.RunMessage;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.PollingService;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 
 @Component
 public class RunEventListener {
@@ -28,10 +30,12 @@ public class RunEventListener {
 
         List<Workflow> workflows = new ArrayList<>();
 
-        // This kindWorkflowFactory allow specific workflow generation based in runDTO
-        // kind
+        TaskAccessor taskAccessor = TaskUtils.parseTask(message.getRunDTO().getTask());
+
+        // This kindWorkflowFactory allow specific workflow generation based on task
+        // field type
         workflows.add((Workflow) kindWorkflowFactory
-                .getWorkflow(message.getRunDTO().getKind())
+                .getWorkflow(taskAccessor.getKind())
                 .build(message.getRunDTO()));
 
         // Create new run poller

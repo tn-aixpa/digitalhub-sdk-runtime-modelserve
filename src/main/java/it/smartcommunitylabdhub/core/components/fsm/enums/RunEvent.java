@@ -5,4 +5,5 @@ public enum RunEvent {
     RUNNING,
     COMPLETED,
     ERROR,
+    STOP
 }

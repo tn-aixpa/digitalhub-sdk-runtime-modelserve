@@ -25,8 +25,12 @@ public class JobEventListener {
     private final ApplicationEventPublisher eventPublisher;
     private final RunService runService;
 
-    public JobEventListener(RunDTOBuilder runDTOBuilder, RunEntityBuilder runEntityBuilder, RunService runService,
-            ApplicationEventPublisher eventPublisher, KindService<Map<String, Object>> jobService) {
+    public JobEventListener(
+            RunDTOBuilder runDTOBuilder,
+            RunEntityBuilder runEntityBuilder,
+            RunService runService,
+            ApplicationEventPublisher eventPublisher,
+            KindService<Map<String, Object>> jobService) {
         this.runService = runService;
         this.eventPublisher = eventPublisher;
         this.jobService = jobService;
