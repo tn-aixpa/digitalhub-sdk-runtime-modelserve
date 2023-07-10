@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.components.fsm.State;
 import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
-import it.smartcommunitylabdhub.core.components.fsm.StateMachine.StateMachineBuilder;
 import it.smartcommunitylabdhub.core.components.fsm.Transaction;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
@@ -22,9 +21,8 @@ public class RunStateMachine {
         public StateMachine<RunState, RunEvent, Map<String, Object>> create(RunState initialState,
                         Map<String, Object> initialContext) {
 
-                StateMachineBuilder<RunState, RunEvent, Map<String, Object>> builder = StateMachine
-                                .<RunState, RunEvent, Map<String, Object>>builder(initialState, initialContext);
-
+                StateMachine.Builder<RunState, RunEvent, Map<String, Object>> builder = new StateMachine.Builder<>(
+                                initialState, initialContext);
                 // CREATE STATE
                 State<RunState, RunEvent, Map<String, Object>> createState = new State<>();
                 State<RunState, RunEvent, Map<String, Object>> readyState = new State<>();

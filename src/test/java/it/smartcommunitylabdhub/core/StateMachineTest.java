@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import it.smartcommunitylabdhub.core.components.fsm.*;
-import it.smartcommunitylabdhub.core.components.fsm.StateMachine.StateMachineBuilder;
+import it.smartcommunitylabdhub.core.components.fsm.StateMachine.Builder;
 
 @SpringBootTest
 public class StateMachineTest {
@@ -31,7 +31,7 @@ public class StateMachineTest {
                 Map<String, Object> initialContext = new HashMap<>();
 
                 // Create the state machine using the builder
-                StateMachineBuilder<String, String, Map<String, Object>> builder = StateMachine
+                Builder<String, String, Map<String, Object>> builder = StateMachine
                                 .<String, String, Map<String, Object>>builder(initialState, initialContext)
                                 .withState("State1", state1)
                                 .withState("State2", state2)

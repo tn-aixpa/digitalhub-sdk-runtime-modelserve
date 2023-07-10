@@ -35,8 +35,8 @@ public class StateMachine<S, E, C> implements Serializable {
         this.context = initialContext;
     }
 
-    public static <S, E, C> StateMachineBuilder<S, E, C> builder(S initialState, C initialContext) {
-        return new StateMachineBuilder<>(initialState, initialContext);
+    public static <S, E, C> Builder<S, E, C> builder(S initialState, C initialContext) {
+        return new Builder<>(initialState, initialContext);
     }
 
     public String serialize() throws IOException {
@@ -48,7 +48,7 @@ public class StateMachine<S, E, C> implements Serializable {
     }
 
     // Builder
-    public static class StateMachineBuilder<S, E, C> implements Serializable {
+    public static class Builder<S, E, C> implements Serializable {
         private S currentState;
         private S errorState;
         private Map<S, State<S, E, C>> states;
@@ -56,19 +56,19 @@ public class StateMachine<S, E, C> implements Serializable {
         private BiConsumer<S, C> stateChangeListener;
         private C context;
 
-        private StateMachineBuilder(S initialState, C initialContext) {
+        public Builder(S initialState, C initialContext) {
             this.currentState = initialState;
             this.context = initialContext;
             this.states = new HashMap<>();
             this.eventListeners = new HashMap<>();
         }
 
-        public StateMachineBuilder<S, E, C> withState(S state, State<S, E, C> stateDefinition) {
+        public Builder<S, E, C> withState(S state, State<S, E, C> stateDefinition) {
             states.put(state, stateDefinition);
             return this;
         }
 
-        public StateMachineBuilder<S, E, C> withErrorState(S errorState, State<S, E, C> stateDefinition) {
+        public Builder<S, E, C> withErrorState(S errorState, State<S, E, C> stateDefinition) {
             this.errorState = errorState;
 
             // Add the error state to the states map if it doesn't exist
@@ -78,17 +78,17 @@ public class StateMachine<S, E, C> implements Serializable {
             return this;
         }
 
-        public <T> StateMachineBuilder<S, E, C> withEventListener(E eventName, BiConsumer<T, C> listener) {
+        public <T> Builder<S, E, C> withEventListener(E eventName, BiConsumer<T, C> listener) {
             eventListeners.put(eventName, listener);
             return this;
         }
 
-        public StateMachineBuilder<S, E, C> withStateChangeListener(BiConsumer<S, C> listener) {
+        public Builder<S, E, C> withStateChangeListener(BiConsumer<S, C> listener) {
             stateChangeListener = listener;
             return this;
         }
 
-        public StateMachineBuilder<S, E, C> withExternalEventListener(E eventName, Consumer<Optional<?>> listener) {
+        public Builder<S, E, C> withExternalEventListener(E eventName, Consumer<Optional<?>> listener) {
             eventListeners.put(eventName, (input, context) -> listener.accept((Optional<?>) input));
             return this;
         }
