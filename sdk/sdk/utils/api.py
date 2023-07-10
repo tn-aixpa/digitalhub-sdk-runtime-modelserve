@@ -16,6 +16,7 @@ DTO_WKFL = "workflows"
 DTO_DTIT = "dataitems"
 DTO_TASK = "tasks"
 DTO_RUNS = "runs"
+DTO_LOGS = "logs"
 
 ####################
 # Context APIs

@@ -98,7 +98,7 @@ def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
     """
     context = get_context(project)
     api = api_ctx_read(project, DTO_DTIT, name, uuid=uuid)
-    obj = context.client.get_object(api)
+    obj = context.client.read_object(api)
     return Dataitem.from_dict(obj)
 
 

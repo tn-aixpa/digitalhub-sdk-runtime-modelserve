@@ -99,7 +99,7 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
     """
     context = get_context(project)
     api = api_ctx_read(project, DTO_ARTF, name, uuid=uuid)
-    obj = context.client.get_object(api)
+    obj = context.client.read_object(api)
     return Artifact.from_dict(obj)
 
 

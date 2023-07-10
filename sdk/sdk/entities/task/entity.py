@@ -2,6 +2,7 @@
 Task module.
 """
 from sdk.entities.base.entity import Entity
+from sdk.entities.run.entity import Run
 from sdk.entities.task.spec import TaskSpec
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
 from sdk.utils.exceptions import BackendError, EntityError
@@ -11,7 +12,7 @@ from sdk.utils.utils import get_uiid
 
 class Task(Entity):
     """
-    Task entity.
+    A class representing a task.
     """
 
     def __init__(
@@ -56,7 +57,7 @@ class Task(Entity):
             if k not in self._obj_attr:
                 self.__setattr__(k, v)
 
-        self.context = get_context(self.project)
+        self._context = get_context(self.project)
 
     #############################
     #  Save / Export
@@ -74,7 +75,7 @@ class Task(Entity):
         Returns
         -------
         dict
-            Mapping representation of Function from backend.
+            Mapping representation of Task from backend.
 
         """
         if self._local:
@@ -84,10 +85,10 @@ class Task(Entity):
 
         try:
             api = api_base_create(DTO_TASK)
-            return self.context.client.create_object(obj, api)
+            return self._context.create_object(obj, api)
         except BackendError:
             api = api_base_update(DTO_TASK, self.id)
-            return self.context.client.update_object(obj, api)
+            return self._context.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
@@ -111,7 +112,7 @@ class Task(Entity):
     #  Task methods
     #############################
 
-    def run(self, task_id: str, inputs: dict, outputs: dict, parameters: dict) -> dict:
+    def run(self, task_id: str, inputs: dict, outputs: dict, parameters: dict, **kwargs) -> Run:
         """
         Run task.
 
@@ -119,8 +120,12 @@ class Task(Entity):
         ----------
         task_id : str
             The task id.
-
-
+        inputs : dict
+            The inputs of the task.
+        outputs : dict
+            The outputs of the task.
+        parameters : dict
+            The parameters of the task.
         **kwargs
             Additional keyword arguments.
 
@@ -134,19 +139,20 @@ class Task(Entity):
             raise EntityError("Use .run_local() for local execution.")
 
         # Create run
-        run = {
+        args = {
+            "project": self.project,
             "task_id": task_id,
+            "task": self.task,
             "spec": {
                 "inputs": inputs,
                 "outputs": outputs,
                 "parameters": parameters,
+                **kwargs,
             },
         }
-
-        api = api_base_create("runs")
-        run_obj = self.context.client.create_object(run, api)
-
-        return run_obj
+        run = Run.from_dict(args)
+        run.save()
+        return run
 
     #############################
     # Generic Methods

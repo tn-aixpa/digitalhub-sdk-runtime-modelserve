@@ -31,7 +31,7 @@ class Client:
         """
         return self.call("POST", api, json=obj)
 
-    def get_object(self, api: str) -> dict:
+    def read_object(self, api: str) -> dict:
         """
         Get an object.
 
@@ -128,7 +128,8 @@ class Client:
             If the response is not valid (a dict that contains the status key).
         """
         if isinstance(obj, dict) and "status" in obj:
-            raise BackendError(obj)
+            if not obj.get("kind") == "run":
+                raise BackendError(obj)
 
     @staticmethod
     def _dictify(response: requests.Response) -> dict:

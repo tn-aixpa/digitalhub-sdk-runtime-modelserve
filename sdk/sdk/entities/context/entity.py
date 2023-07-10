@@ -33,3 +33,70 @@ class Context:
         self.name = project.name
         self.client = project.client
         self.local = project.local
+
+    def create_object(self, obj: dict, api: str) -> dict:
+        """
+        Create an object.
+
+        Parameters
+        ----------
+        obj : dict
+            The object to create.
+        api : str
+            The api to create the object with.
+
+        Returns
+        -------
+        dict
+            The created object.
+        """
+        return self.client.create_object(obj, api)
+
+    def read_object(self, api: str) -> dict:
+        """
+        Get an object.
+
+        Parameters
+        ----------
+        api : str
+            The api to get the object with.
+
+        Returns
+        -------
+        dict
+            The object.
+        """
+        return self.client.read_object(api)
+
+    def update_object(self, obj: dict, api: str) -> dict:
+        """
+        Update an object.
+
+        Parameters
+        ----------
+        obj : dict
+            The object to update.
+        api : str
+            The api to update the object with.
+
+        Returns
+        -------
+        dict
+            The updated object.
+        """
+        return self.client.update_object(obj, api)
+
+    def delete_object(self, api: str) -> None:
+        """
+        Delete an object.
+
+        Parameters
+        ----------
+        api : str
+            The api to delete the object with.
+
+        Returns
+        -------
+        None
+        """
+        self.client.delete_object(api)

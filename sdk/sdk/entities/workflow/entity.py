@@ -68,7 +68,7 @@ class Workflow(Entity):
                 self.__setattr__(k, v)
 
         # Set context
-        self.context = get_context(self.project)
+        self._context = get_context(self.project)
 
     #############################
     #  Save / Export
@@ -96,11 +96,11 @@ class Workflow(Entity):
 
         if uuid is None:
             api = api_ctx_create(self.project, DTO_WKFL)
-            return self.context.client.create_object(obj, api)
+            return self._context.create_object(obj, api)
 
         self.id = uuid
         api = api_ctx_update(self.project, DTO_WKFL, self.name, uuid)
-        return self.context.client.update_object(obj, api)
+        return self._context.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """

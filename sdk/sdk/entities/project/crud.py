@@ -177,7 +177,7 @@ def delete_project(name: str, delete_all: bool = False) -> None:
         for dto in [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]:
             api_proj = f"/api/v1/{DTO_PROJ}/{name}/{dto}"
             try:
-                objs = client.get_object(api_proj)
+                objs = client.read_object(api_proj)
                 for obj in objs:
                     api = api_ctx_delete(name, dto, obj["name"])
                     responses.append(client.delete_object(api))

@@ -115,7 +115,7 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
     """
     context = get_context(project)
     api = api_ctx_read(project, DTO_FUNC, name, uuid=uuid)
-    obj = context.client.get_object(api)
+    obj = context.client.read_object(api)
     return Function.from_dict(obj)
 
 

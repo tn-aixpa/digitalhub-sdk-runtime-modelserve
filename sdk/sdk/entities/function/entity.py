@@ -1,6 +1,10 @@
 """
 Function module.
 """
+from __future__ import annotations
+
+import typing
+
 from sdk.entities.base.entity import Entity
 from sdk.entities.function.metadata import FunctionMetadata
 from sdk.entities.function.spec import FunctionSpec
@@ -10,6 +14,9 @@ from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.utils import get_uiid
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.run.entity import Run
 
 
 class Function(Entity):
@@ -98,11 +105,11 @@ class Function(Entity):
 
         if uuid is None:
             api = api_ctx_create(self.project, DTO_FUNC)
-            return self._context.client.create_object(obj, api)
+            return self._context.create_object(obj, api)
 
         self.id = uuid
         api = api_ctx_update(self.project, DTO_FUNC, self.name, uuid)
-        return self._context.client.update_object(obj, api)
+        return self._context.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
@@ -136,20 +143,18 @@ class Function(Entity):
         outputs: dict = None,
         parameters: dict = None,
         **kwargs,
-    ) -> "Run":
+    ) -> Run:
         """
         Run function.
 
         Parameters
         ----------
-        parameters : dict
-            Function parameters.
         inputs : dict
             Function inputs.
         outputs : dict
             Function outputs.
-        config : dict
-            Task configuration.
+        parameters : dict
+            Function parameters.
         **kwargs
             Additional keyword arguments.
 
@@ -165,18 +170,18 @@ class Function(Entity):
             task_spec = TaskSpec.from_dict(self.spec.to_dict())
             task = f"{self.kind}://{self.project}/{self.name}:{self.id}"
             self._task = Task(
+                project=self.project,
                 kind="task",
                 spec=task_spec,
-                project=self.project,
                 task=task,
                 local=self._local,
             )
             self._task.save()
 
         # Run function from task
-        parameters = parameters if parameters is not None else {}
         inputs = inputs if inputs is not None else {}
         outputs = outputs if outputs is not None else {}
+        parameters = parameters if parameters is not None else {}
         return self._task.run(self._task.id, inputs, outputs, parameters, **kwargs)
 
     def update_task(self, new_spec: dict) -> None:

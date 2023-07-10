@@ -91,7 +91,7 @@ def get_workflow(project: str, name: str, uuid: str = None) -> Workflow:
     """
     context = get_context(project)
     api = api_ctx_read(project, DTO_WKFL, name, uuid=uuid)
-    obj = context.client.get_object(api)
+    obj = context.client.read_object(api)
     return Workflow.from_dict(obj)
 
 
