@@ -76,7 +76,7 @@ public class JobEventListener {
             // Save RunDTO
             RunDTO rundDTO = runService.save(runDTO);
 
-            System.out.println("2. Dispatch event to runEventListener");
+            System.out.println("Dispatch event to RunMessage");
             eventPublisher.publishEvent(
                     RunMessage.builder().runDTO(rundDTO)
                             .build());

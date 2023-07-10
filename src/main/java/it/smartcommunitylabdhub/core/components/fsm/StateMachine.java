@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StateMachine<S, E, C> implements Serializable {
+    private String uuid;
     private S currentState;
     private S errorState;
     private Map<S, State<S, E, C>> states;
@@ -28,6 +30,7 @@ public class StateMachine<S, E, C> implements Serializable {
     }
 
     public StateMachine(S initialState, C initialContext) {
+        this.uuid = UUID.randomUUID().toString();
         this.currentState = initialState;
         this.errorState = null;
         this.states = new HashMap<>();
@@ -109,7 +112,7 @@ public class StateMachine<S, E, C> implements Serializable {
     public <T, R> Optional<T> processEvent(E eventName, Optional<?> input) {
         State<S, E, C> currentStateDefinition = states.get(currentState);
         if (currentStateDefinition == null) {
-            throw new IllegalStateException("Invalid current state: " + currentState);
+            throw new IllegalStateException("Invalid current state: " + currentState + " : " + this.getUuid());
         }
 
         // Exit action of the current state
@@ -124,7 +127,7 @@ public class StateMachine<S, E, C> implements Serializable {
                 S nextState = transaction.getNextState();
                 State<S, E, C> nextStateDefinition = states.get(nextState);
                 if (nextStateDefinition == null) {
-                    throw new IllegalStateException("Invalid next state: " + nextState);
+                    throw new IllegalStateException("Invalid next state: " + nextState + " : " + this.getUuid());
                 }
 
                 // Entry action of the next state
@@ -158,12 +161,16 @@ public class StateMachine<S, E, C> implements Serializable {
                 }
                 return result;
             } else {
-                System.out.println("Guard condition not met for transaction: " + transaction);
+                System.out.println("Guard condition not met for transaction: " + transaction + " : " + this.getUuid());
                 // Handle error scenario
                 return (Optional<T>) handleTransactionError(transaction, input);
             }
         } else {
-            System.out.println("Invalid transaction for event: " + eventName);
+            System.out.println("Invalid transaction for event: "
+                    + eventName
+                    + " : "
+                    + this.getUuid() + "\n"
+                    + "Current state : " + currentState.toString());
             // Handle error scenario
             return (Optional<T>) handleInvalidTransactionError(eventName, input);
         }
@@ -183,10 +190,10 @@ public class StateMachine<S, E, C> implements Serializable {
                 return errorStateDefinition.getInternalLogic()
                         .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null))).orElse(Optional.empty());
             } else {
-                throw new IllegalStateException("Invalid error state: " + errorState);
+                throw new IllegalStateException("Invalid error state: " + errorState + " : " + this.getUuid());
             }
         } else {
-            throw new IllegalStateException("Error state not set");
+            throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
         }
     }
 
@@ -201,10 +208,10 @@ public class StateMachine<S, E, C> implements Serializable {
                         .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null))).orElse(Optional.empty());
 
             } else {
-                throw new IllegalStateException("Invalid error state: " + errorState);
+                throw new IllegalStateException("Invalid error state: " + errorState + " : " + this.getUuid());
             }
         } else {
-            throw new IllegalStateException("Error state not set");
+            throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
         }
     }
 

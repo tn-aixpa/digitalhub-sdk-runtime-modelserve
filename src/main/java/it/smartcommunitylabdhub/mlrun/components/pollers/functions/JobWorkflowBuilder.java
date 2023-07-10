@@ -50,7 +50,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
     private final ArtifactService artifactService;
     private final RunStateMachine runStateMachine;
     private final RestTemplate restTemplate;
-    private StateMachine<RunState, RunEvent, Map<String, Object>> stateMachine;
+    private StateMachine<RunState, RunEvent, Map<String, Object>> fsm;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -72,6 +72,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
         Function<Object[], Object> getRunUpdate = params -> {
 
             try {
+                StateMachine<RunState, RunEvent, Map<String, Object>> stateMachine = (StateMachine<RunState, RunEvent, Map<String, Object>>) params[2];
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -81,6 +82,17 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
                         .replace("{uid}", ((RunDTO) params[1]).getExtra()
                                 .get("mlrun_run_uid").toString());
 
+                // // Write logs for run update
+                // LogWriter.writeLog(((RunDTO) params[1]).getId() + ".txt",
+                // "-------------------------------------------------\n" +
+                // "REQUEST URL UPDATE RUN : " +
+                // requestUrl + "\n" +
+                // "RunDTO ID : " + ((RunDTO) params[1]).getId() + "\n" +
+                // "RunDTO :" + ((RunDTO) params[1]).getExtra()
+                // .get("mlrun_run_uid").toString()
+                // + "\n" +
+                // "State Machine :" + stateMachine.getUuid() + "\n" +
+                // "-------------------------------------------------\n");
                 ResponseEntity<Map<String, Object>> response = restTemplate
                         .exchange(requestUrl, HttpMethod.GET, entity,
                                 responseType);
@@ -183,13 +195,12 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
         };
 
         // Init run state machine considering current state and context.
-        stateMachine = runStateMachine.create(RunState.valueOf(runDTO.getState()), new HashMap<>());
-        // (Map<String, Object>) runDTO.getExtra().get("context"));
+        fsm = runStateMachine.create(RunState.valueOf(runDTO.getState()), new HashMap<>());
 
-        stateMachine.processEvent(RunEvent.BUILD, Optional.empty());
+        fsm.processEvent(RunEvent.BUILD, Optional.empty());
 
         // Define workflow steps
-        return WorkflowFactory.builder().step(getRunUpdate, runUrl, runDTO).build();
+        return WorkflowFactory.builder().step(getRunUpdate, runUrl, runDTO, fsm).build();
     }
 
 }

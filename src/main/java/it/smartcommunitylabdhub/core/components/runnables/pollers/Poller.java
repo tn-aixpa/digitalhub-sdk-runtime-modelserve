@@ -59,9 +59,13 @@ public class Poller implements Runnable {
                         stopPolling(); // Stop this Poller thread.
                     } else {
                         // TODO: Handle other types of exceptions
+                        System.out.println("POLLER EXCEPTION : " + exception.getMessage());
+                        stopPolling();
                     }
                 } else {
                     // TODO: Handle other types of exceptions
+                    System.out.println("POLLER EXCEPTION : " + exception.getMessage());
+                    stopPolling();
                 }
             }
 
