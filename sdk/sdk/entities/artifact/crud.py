@@ -99,7 +99,7 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
     """
     context = get_context(project)
     api = api_ctx_read(project, DTO_ARTF, name, uuid=uuid)
-    obj = context.client.read_object(api)
+    obj = context.read_object(api)
     return Artifact.from_dict(obj)
 
 
@@ -142,4 +142,4 @@ def delete_artifact(project: str, name: str, uuid: str = None) -> None:
     """
     context = get_context(project)
     api = api_ctx_delete(project, DTO_ARTF, name, uuid=uuid)
-    return context.client.delete_object(api)
+    return context.delete_object(api)

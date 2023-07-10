@@ -108,7 +108,7 @@ def get_project(name: str) -> Project:
 
     """
     api = api_base_read(DTO_PROJ, name)
-    obj_be = get_client().get_object(api)
+    obj_be = get_client().read_object(api)
 
     # Extract spec
     spec = {}
