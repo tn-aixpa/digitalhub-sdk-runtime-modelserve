@@ -8,8 +8,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import it.smartcommunitylabdhub.core.components.runnables.events.messages.RunMessage;
-import it.smartcommunitylabdhub.core.components.runnables.events.services.interfaces.KindService;
+import it.smartcommunitylabdhub.core.components.events.messages.RunMessage;
+import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;

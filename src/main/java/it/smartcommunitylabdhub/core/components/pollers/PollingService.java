@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.pollers;
+package it.smartcommunitylabdhub.core.components.pollers;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.events.listeners;
+package it.smartcommunitylabdhub.core.components.events.listeners;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import it.smartcommunitylabdhub.core.components.events.messages.RunMessage;
 import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflowFactory;
-import it.smartcommunitylabdhub.core.components.runnables.events.messages.RunMessage;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.PollingService;
+import it.smartcommunitylabdhub.core.components.pollers.PollingService;
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;

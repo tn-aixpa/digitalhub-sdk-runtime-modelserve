@@ -1,6 +1,6 @@
-package it.smartcommunitylabdhub.core.components.runnables.events.messages;
+package it.smartcommunitylabdhub.core.components.events.messages;
 
-import it.smartcommunitylabdhub.core.components.runnables.events.messages.interfaces.Message;
+import it.smartcommunitylabdhub.core.components.events.messages.interfaces.Message;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +11,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServingMessage implements Message {
+public class NuclioMessage implements Message {
     private RunDTO runDTO;
 }
