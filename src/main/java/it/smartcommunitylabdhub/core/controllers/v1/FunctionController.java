@@ -1,6 +1,8 @@
 package it.smartcommunitylabdhub.core.controllers.v1;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +30,8 @@ import jakarta.validation.Valid;
 @Validated
 public class FunctionController {
 
-    private final FunctionService functionService;
-
-    public FunctionController(FunctionService functionService) {
-        this.functionService = functionService;
-    }
+    @Autowired
+    FunctionService functionService;
 
     @Operation(summary = "List functions", description = "Return a list of all functions")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")

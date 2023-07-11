@@ -1,6 +1,8 @@
 package it.smartcommunitylabdhub.core.controllers.v1;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +30,8 @@ import jakarta.validation.Valid;
 @Validated
 public class WorkflowController {
 
-    private final WorkflowService workflowService;
-
-    public WorkflowController(WorkflowService workflowService) {
-        this.workflowService = workflowService;
-    }
+    @Autowired
+    WorkflowService workflowService;
 
     @Operation(summary = "List workflows", description = "Return a list of all workflows")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")

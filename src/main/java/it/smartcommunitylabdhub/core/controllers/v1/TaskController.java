@@ -2,6 +2,7 @@ package it.smartcommunitylabdhub.core.controllers.v1;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +27,8 @@ import jakarta.validation.Valid;
 @ApiVersion("v1")
 public class TaskController {
 
-    private final TaskService taskService;
-
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    @Autowired
+    TaskService taskService;
 
     @Operation(summary = "Get specific task", description = "Given a uuid return a specific task")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")

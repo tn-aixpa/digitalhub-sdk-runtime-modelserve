@@ -1,6 +1,8 @@
 package it.smartcommunitylabdhub.core.controllers.v1;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +29,8 @@ import jakarta.validation.Valid;
 @Validated
 public class DataItemController {
 
-    private final DataItemService dataItemService;
-
-    public DataItemController(DataItemService dataItemService) {
-        this.dataItemService = dataItemService;
-    }
+    @Autowired
+    DataItemService dataItemService;
 
     @Operation(summary = "List dataItems", description = "Return a list of all dataItems")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")

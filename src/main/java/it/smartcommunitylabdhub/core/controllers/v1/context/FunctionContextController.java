@@ -2,6 +2,7 @@ package it.smartcommunitylabdhub.core.controllers.v1.context;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +27,8 @@ import jakarta.validation.Valid;
 @Validated
 public class FunctionContextController extends ContextController {
 
-        private final FunctionContextService functionContextService;
-
-        public FunctionContextController(FunctionContextService functionContextService) {
-                this.functionContextService = functionContextService;
-        }
+        @Autowired
+        FunctionContextService functionContextService;
 
         @Operation(summary = "Create an function in a project context", description = "First check if project exist and then create the function for the project (context)")
         @PostMapping(value = "/functions", consumes = { MediaType.APPLICATION_JSON_VALUE,

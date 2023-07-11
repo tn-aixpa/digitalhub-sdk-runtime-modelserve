@@ -2,6 +2,7 @@ package it.smartcommunitylabdhub.core.controllers.v1;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +29,11 @@ import jakarta.validation.Valid;
 @ApiVersion("v1")
 public class RunController {
 
-    private final RunService runService;
-    private final LogService logService;
+    @Autowired
+    RunService runService;
 
-    public RunController(RunService runService, LogService logService) {
-        this.runService = runService;
-        this.logService = logService;
-    }
+    @Autowired
+    LogService logService;
 
     @Operation(summary = "Get a run", description = "Given an uuid return the related Run")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")

@@ -1,6 +1,8 @@
 package it.smartcommunitylabdhub.core.controllers.v1;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,11 +21,9 @@ import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 @RequestMapping("/logs")
 @ApiVersion("v1")
 public class LogController {
-    private final LogService logService;
 
-    public LogController(LogService logService) {
-        this.logService = logService;
-    }
+    @Autowired
+    LogService logService;
 
     @Operation(summary = "Get specific log", description = "Given a uuid return a specific log")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")

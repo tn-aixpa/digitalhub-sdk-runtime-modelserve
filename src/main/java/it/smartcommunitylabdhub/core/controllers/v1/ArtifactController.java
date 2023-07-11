@@ -1,6 +1,8 @@
 package it.smartcommunitylabdhub.core.controllers.v1;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +29,8 @@ import jakarta.validation.Valid;
 @Validated
 public class ArtifactController {
 
-    private final ArtifactService artifactService;
-
-    public ArtifactController(ArtifactService artifactService) {
-        this.artifactService = artifactService;
-    }
+    @Autowired
+    ArtifactService artifactService;
 
     @Operation(summary = "List artifacts", description = "Return a list of all artifacts")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")
