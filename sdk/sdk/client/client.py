@@ -79,7 +79,10 @@ class Client:
         dict
             A generic dictionary.
         """
-        return self.call("DELETE", api)
+        resp = self.call("DELETE", api)
+        if isinstance(resp, bool):
+            resp = {"deleted": resp}
+        return resp
 
     def call(self, call_type: str, api: str, **kwargs) -> dict:
         """
@@ -102,62 +105,10 @@ class Client:
         endpoint = self._get_endpoint(api)
         try:
             response = requests.request(call_type, endpoint, timeout=60, **kwargs)
-        except ConnectionError as exc:
-            raise BackendError("Connection error.") from exc
-        obj = self._dictify(response)
-        self._raise_if_status(obj)
-        return obj
-
-    @staticmethod
-    def _raise_if_status(obj: dict) -> None:
-        """
-        Parse the status of a response and raise an exception if it contains the status key.
-
-        Parameters
-        ----------
-        obj : dict
-            The response.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        Exception
-            If the response is not valid (a dict that contains the status key).
-        """
-        if isinstance(obj, dict) and "status" in obj:
-            if not obj.get("kind") == "run":
-                raise BackendError(obj)
-
-    @staticmethod
-    def _dictify(response: requests.Response) -> dict:
-        """
-        Convert a response to a dict.
-
-        Parameters
-        ----------
-        response : requests.Response
-            The response.
-
-        Returns
-        -------
-        dict
-            The dictified response.
-
-        Raises
-        ------
-        Exception
-            If the response is not convertible to a dict.
-        """
-        try:
-            obj = response.json()
-            if isinstance(obj, bool):
-                obj = {"result": obj}
-            return obj
-        except Exception as ex:
-            raise ex
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as exc:
+            raise BackendError(f"Request error: {exc}") from exc
 
     @staticmethod
     def _get_endpoint(api: str) -> str:
@@ -177,11 +128,11 @@ class Client:
         Raises
         ------
         Exception
-            If the endpoint of DHCore is not setted in the env variables.
+            If the endpoint of DHCore is not set in the env variables.
         """
         endpoint = get_dhub_env().endpoint
         if endpoint is not None:
             return endpoint + api
         raise BackendError(
-            "Endpoint not setted. Please set env variables with 'set_dhub_env()' function."
+            "Endpoint not set. Please set env variables with 'set_dhub_env()' function."
         )

@@ -3,8 +3,7 @@ Run module.
 """
 from sdk.entities.base.entity import Entity
 from sdk.entities.run.spec import RunSpec
-from sdk.utils.api import (DTO_RUNS, api_base_create, api_base_delete,
-                           api_base_read)
+from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
@@ -43,6 +42,7 @@ class Run(Entity):
         self.project = project
         self.kind = "run"
         self.task_id = task_id
+        self.task = task
         self.spec = spec if spec is not None else RunSpec()
 
         self._local = local
@@ -141,6 +141,9 @@ class Run(Entity):
         return self._context.delete_object(api)
 
     def stop(self) -> dict:
+        """
+        Not implemented yet.
+        """
         raise NotImplementedError
 
     def logs(self) -> dict:

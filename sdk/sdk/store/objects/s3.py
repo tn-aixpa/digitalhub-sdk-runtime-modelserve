@@ -121,7 +121,7 @@ class S3Store(Store):
 
         # Get client
         client = self._get_client()
-        bucket = get_uri_netloc(self.uri)
+        bucket = self._get_bucket()
 
         # Check store access
         self._check_access_to_storage(client, bucket)
@@ -152,7 +152,7 @@ class S3Store(Store):
         """
         # Get client and bucket
         client = self._get_client()
-        bucket = get_uri_netloc(self.uri)
+        bucket = self._get_bucket()
 
         # Check store access
         self._check_access_to_storage(client, bucket)
@@ -170,6 +170,28 @@ class S3Store(Store):
     ############################
     # Private helper methods
     ############################
+
+    def _get_scheme(self) -> str:
+        """
+        Get the URI scheme.
+
+        Returns
+        -------
+        str
+            The URI scheme.
+        """
+        return get_uri_scheme(self.uri)
+
+    def _get_bucket(self) -> str:
+        """
+        Get the name of the S3 bucket from the URI.
+
+        Returns
+        -------
+        str
+            The name of the S3 bucket.
+        """
+        return get_uri_netloc(self.uri)
 
     def _get_client(self) -> S3Client:
         """
@@ -244,13 +266,9 @@ class S3Store(Store):
         StoreError
             If no bucket is specified in the URI.
         """
-        scheme = get_uri_scheme(self.uri)
-        if scheme != "s3":
-            raise StoreError(
-                f"Invalid URI scheme for s3 store: {scheme}. Should be 's3'"
-            )
-        bucket = get_uri_netloc(self.uri)
-        if bucket == "":
+        if self._get_scheme() != "s3":
+            raise StoreError("Invalid URI scheme for s3 store!")
+        if self._get_bucket() == "":
             raise StoreError("No bucket specified in the URI for s3 store!")
 
     @staticmethod
@@ -274,4 +292,4 @@ class S3Store(Store):
         str
             The root URI of the store.
         """
-        return f"s3://{get_uri_netloc(self.uri)}"
+        return f"s3://{self._get_bucket()}"

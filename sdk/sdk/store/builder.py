@@ -4,7 +4,6 @@ Store builder module.
 from __future__ import annotations
 
 import typing
-from typing import Union
 
 from sdk.store.models import StoreConfig
 from sdk.store.registry import STORES
@@ -70,10 +69,10 @@ class StoreBuilder:
         Raises
         ------
         StoreError
-            If no default store is setted.
+            If no default store is set.
         """
         if self._default is None:
-            raise StoreError("No default store setted.")
+            raise StoreError("No default store set.")
         return self._default
 
     def build_store(self, cfg: StoreConfig) -> Store:
@@ -106,7 +105,7 @@ class StoreBuilder:
             raise NotImplementedError from exc
 
     @staticmethod
-    def _check_config(config: Union[StoreConfig, dict]) -> StoreConfig:
+    def _check_config(config: StoreConfig | dict) -> StoreConfig:
         """
         Check the store configuration validity.
 
@@ -123,7 +122,7 @@ class StoreBuilder:
         Raises
         ------
         TypeError
-            If the config parameter is not a StoreConfig instance or a well formed dictionary.
+            If the config parameter is not a StoreConfig instance or a well-formed dictionary.
         """
         if not isinstance(config, StoreConfig):
             try:

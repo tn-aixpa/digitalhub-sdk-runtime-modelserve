@@ -1,6 +1,7 @@
 """
-Dataitem operations module.
+Module for performing operations on Dataitem objects.
 """
+
 from sdk.entities.dataitem.entity import Dataitem
 from sdk.entities.dataitem.metadata import DataitemMetadata
 from sdk.entities.dataitem.spec import DataitemSpec
@@ -19,10 +20,10 @@ def new_dataitem(
     path: str = None,
     local: bool = False,
     embed: bool = False,
-    **kwargs,
+    **kwargs
 ) -> Dataitem:
     """
-    Create an Dataitem instance with the given parameters.
+    Create a new Dataitem instance with the given parameters.
 
     Parameters
     ----------
@@ -34,9 +35,9 @@ def new_dataitem(
         Description of the dataitem.
     kind : str, optional
         The type of the dataitem.
-    key : str
-        Representation of artfact like store://etc..
-    path : str
+    key : str, optional
+        Representation of the artifact, e.g. store://etc.
+    path : str, optional
         Path to the dataitem on local file system or remote storage.
     local : bool, optional
         Flag to determine if object has local execution.
@@ -63,7 +64,7 @@ def new_dataitem(
         spec=spec,
         local=local,
         embed=embed,
-        **kwargs,
+        **kwargs
     )
     if local:
         obj.export()
@@ -74,7 +75,7 @@ def new_dataitem(
 
 def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
     """
-    Retrieves dataitem details from the backend.
+    Retrieve dataitem details from the backend.
 
     Parameters
     ----------
@@ -104,7 +105,7 @@ def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
 
 def import_dataitem(file: str) -> Dataitem:
     """
-    Import an Dataitem object from a file using the specified file path.
+    Import a Dataitem object from a file using the specified file path.
 
     Parameters
     ----------

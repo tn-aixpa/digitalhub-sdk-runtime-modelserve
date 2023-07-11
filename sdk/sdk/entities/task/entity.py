@@ -112,7 +112,9 @@ class Task(Entity):
     #  Task methods
     #############################
 
-    def run(self, task_id: str, inputs: dict, outputs: dict, parameters: dict, **kwargs) -> Run:
+    def run(
+        self, task_id: str, inputs: dict, outputs: dict, parameters: dict, **kwargs
+    ) -> Run:
         """
         Run task.
 

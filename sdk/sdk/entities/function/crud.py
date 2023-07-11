@@ -1,6 +1,7 @@
 """
-Function operations module.
+Module for performing operations on functions.
 """
+
 from sdk.entities.function.entity import Function
 from sdk.entities.function.metadata import FunctionMetadata
 from sdk.entities.function.spec import FunctionSpec
@@ -23,10 +24,10 @@ def new_function(
     requirements: list = None,
     local: bool = False,
     embed: bool = False,
-    **kwargs,
+    **kwargs
 ) -> Function:
     """
-    Create a Function instance with the given parameters.
+    Create a new Function instance with the given parameters.
 
     Parameters
     ----------
@@ -54,11 +55,18 @@ def new_function(
         Flag to determine if object has local execution.
     embed : bool, optional
         Flag to determine if object must be embedded in project.
+    **kwargs : dict
+        Additional keyword arguments.
 
     Returns
     -------
     Function
         Instance of the Function class representing the specified function.
+
+    Raises
+    ------
+    EntityError
+        If the context local flag does not match the local flag of the function.
     """
     context = get_context(project)
     if context.local != local:
@@ -80,7 +88,7 @@ def new_function(
         spec=spec,
         local=local,
         embed=embed,
-        **kwargs,
+        **kwargs
     )
     if local:
         obj.export()
@@ -91,7 +99,7 @@ def new_function(
 
 def get_function(project: str, name: str, uuid: str = None) -> Function:
     """
-    Retrieves function details from the backend.
+    Retrieve function details from the backend.
 
     Parameters
     ----------
@@ -111,7 +119,6 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
     ------
     KeyError
         If the specified function does not exist.
-
     """
     context = get_context(project)
     api = api_ctx_read(project, DTO_FUNC, name, uuid=uuid)
@@ -121,7 +128,7 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
 
 def import_function(file: str) -> Function:
     """
-    Import an Function object from a file using the specified file path.
+    Import a Function object from a file using the specified file path.
 
     Parameters
     ----------
@@ -132,7 +139,6 @@ def import_function(file: str) -> Function:
     -------
     Function
         The Function object imported from the file using the specified path.
-
     """
     obj = read_yaml(file)
     return Function.from_dict(obj)
@@ -144,8 +150,6 @@ def delete_function(project: str, name: str, uuid: str = None) -> None:
 
     Parameters
     ----------
-    client : Client
-        The client for DHUB backend.
     project : str
         Name of the project.
     name : str
