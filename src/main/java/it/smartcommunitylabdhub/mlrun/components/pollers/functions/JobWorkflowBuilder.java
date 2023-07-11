@@ -97,6 +97,12 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
                         .exchange(requestUrl, HttpMethod.GET, entity,
                                 responseType);
 
+                // FIXME: delete log below
+                try {
+                    System.out.println(objectMapper.writeValueAsString(response));
+                } catch (Exception e) {
+                }
+
                 return Optional.ofNullable(response.getBody()).map(body -> {
                     Map<String, Object> status = (Map<String, Object>) ((Map<String, Object>) body.get("data"))
                             .get("status");
