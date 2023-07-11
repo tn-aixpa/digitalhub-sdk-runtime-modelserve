@@ -33,12 +33,18 @@ public class WorkflowServiceImpl implements WorkflowService {
     @Autowired
     RunRepository runRepository;
 
+    @Autowired
+    WorkflowEntityBuilder workflowEntityBuilder;
+
+    @Autowired
+    WorkflowDTOBuilder workflowDTOBuilder;
+
     @Override
     public List<WorkflowDTO> getWorkflows(Pageable pageable) {
         try {
             Page<Workflow> workflowPage = this.workflowRepository.findAll(pageable);
             return workflowPage.getContent().stream().map((workflow) -> {
-                return new WorkflowDTOBuilder(workflow, false).build();
+                return workflowDTOBuilder.build(workflow, false);
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -56,11 +62,10 @@ public class WorkflowServiceImpl implements WorkflowService {
                     "Cannot create the workflow", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<Workflow> savedWorkflow = Optional.ofNullable(workflowDTO)
-                .map(WorkflowEntityBuilder::new)
-                .map(WorkflowEntityBuilder::build)
+                .map(workflowEntityBuilder::build)
                 .map(this.workflowRepository::save);
 
-        return savedWorkflow.map(workflow -> new WorkflowDTOBuilder(workflow, false).build())
+        return savedWorkflow.map(workflow -> workflowDTOBuilder.build(workflow, false))
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
                         "Error saving workflow",
@@ -72,7 +77,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         return workflowRepository.findById(uuid)
                 .map(workflow -> {
                     try {
-                        return new WorkflowDTOBuilder(workflow, false).build();
+                        return workflowDTOBuilder.build(workflow, false);
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -98,10 +103,9 @@ public class WorkflowServiceImpl implements WorkflowService {
         return workflowRepository.findById(uuid)
                 .map(workflow -> {
                     try {
-                        WorkflowEntityBuilder workflowBuilder = new WorkflowEntityBuilder(workflowDTO);
-                        Workflow workflowUpdated = workflowBuilder.update(workflow);
+                        Workflow workflowUpdated = workflowEntityBuilder.update(workflow, workflowDTO);
                         workflowRepository.save(workflowUpdated);
-                        return new WorkflowDTOBuilder(workflowUpdated, false).build();
+                        return workflowDTOBuilder.build(workflowUpdated, false);
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",

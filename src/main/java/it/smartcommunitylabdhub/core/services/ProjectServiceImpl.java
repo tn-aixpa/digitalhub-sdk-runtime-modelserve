@@ -62,6 +62,21 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     TaskRepository taskRepository;
 
+    @Autowired
+    ProjectDTOBuilder projectDTOBuilder;
+
+    @Autowired
+    ProjectEntityBuilder projectEntityBuilder;
+
+    @Autowired
+    ArtifactDTOBuilder artifactDTOBuilder;
+
+    @Autowired
+    FunctionDTOBuilder functionDTOBuilder;
+
+    @Autowired
+    WorkflowDTOBuilder workflowDTOBuilder;
+
     @Override
     public ProjectDTO getProject(String uuidOrName) {
 
@@ -72,8 +87,7 @@ public class ProjectServiceImpl implements ProjectService {
                     List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
                     List<Workflow> workflows = workflowRepository.findByProject(project.getName());
 
-                    return new ProjectDTOBuilder(project, artifacts, functions, workflows, true)
-                            .build();
+                    return projectDTOBuilder.build(project, artifacts, functions, workflows, true);
                 })
                 .orElseThrow(() -> new CoreException(
                         "ProjectNotFound",
@@ -90,7 +104,7 @@ public class ProjectServiceImpl implements ProjectService {
                 List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
                 List<Workflow> workflows = workflowRepository.findByProject(project.getName());
 
-                return new ProjectDTOBuilder(project, artifacts, functions, workflows, true).build();
+                return projectDTOBuilder.build(project, artifacts, functions, workflows, true);
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -109,11 +123,10 @@ public class ProjectServiceImpl implements ProjectService {
                     "Cannot create the project, duplicated Id or Name",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return Optional.of(new ProjectEntityBuilder(projectDTO).build())
+        return Optional.of(projectEntityBuilder.build(projectDTO))
                 .map(project -> {
                     projectRepository.save(project);
-                    return new ProjectDTOBuilder(project, List.of(), List.of(), List.of(), true)
-                            .build();
+                    return projectDTOBuilder.build(project, List.of(), List.of(), List.of(), true);
                 })
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
@@ -136,16 +149,14 @@ public class ProjectServiceImpl implements ProjectService {
                                 "The project you are searching for does not exist.",
                                 HttpStatus.NOT_FOUND)))
                 .map(project -> {
-                    ProjectEntityBuilder projectBuilder = new ProjectEntityBuilder(projectDTO);
-                    final Project projectUpdated = projectBuilder.update(project);
+                    final Project projectUpdated = projectEntityBuilder.update(project, projectDTO);
                     this.projectRepository.save(projectUpdated);
 
                     List<Function> functions = functionRepository.findByProject(projectUpdated.getName());
                     List<Artifact> artifacts = artifactRepository.findByProject(projectUpdated.getName());
                     List<Workflow> workflows = workflowRepository.findByProject(projectUpdated.getName());
 
-                    return new ProjectDTOBuilder(projectUpdated, artifacts, functions, workflows, true)
-                            .build();
+                    return projectDTOBuilder.build(projectUpdated, artifacts, functions, workflows, true);
                 })
                 .orElseThrow(() -> new CoreException(
                         "ProjectNotMatch",
@@ -216,8 +227,7 @@ public class ProjectServiceImpl implements ProjectService {
                         List<Function> functions = functionRepository.findByProject(projectName);
                         return Optional.of(
                                 functions.stream()
-                                        .map(function -> new FunctionDTOBuilder(function, false)
-                                                .build())
+                                        .map(function -> functionDTOBuilder.build(function, false))
                                         .collect(Collectors.toList()));
 
                         // return Optional.of((List<FunctionDTO>) ConversionUtils.reverseIterable(
@@ -253,7 +263,7 @@ public class ProjectServiceImpl implements ProjectService {
                         List<Artifact> artifacts = artifactRepository.findByProject(projectName);
                         return Optional.of(
                                 artifacts.stream().map(
-                                        artifact -> new ArtifactDTOBuilder(artifact, false).build())
+                                        artifact -> artifactDTOBuilder.build(artifact, false))
                                         .collect(Collectors.toList()));
                         // return Optional.of((List<ArtifactDTO>) ConversionUtils.reverseIterable(
                         // artifacts,
@@ -288,8 +298,7 @@ public class ProjectServiceImpl implements ProjectService {
                         List<Workflow> workflows = workflowRepository.findByProject(projectName);
                         return Optional.of(
                                 workflows.stream()
-                                        .map(workflow -> new WorkflowDTOBuilder(workflow, false)
-                                                .build())
+                                        .map(workflow -> workflowDTOBuilder.build(workflow, false))
                                         .collect(Collectors.toList()));
                         // return Optional.of((List<WorkflowDTO>) ConversionUtils.reverseIterable(
                         // workflows,

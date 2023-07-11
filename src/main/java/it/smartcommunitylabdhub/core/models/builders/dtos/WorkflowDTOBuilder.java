@@ -2,25 +2,20 @@ package it.smartcommunitylabdhub.core.models.builders.dtos;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class WorkflowDTOBuilder {
 
-        private Workflow workflow;
-        private boolean embeddable;
-
-        public WorkflowDTOBuilder(
+        public WorkflowDTO build(
                         Workflow workflow,
                         boolean embeddable) {
-                this.workflow = workflow;
-                this.embeddable = embeddable;
-        }
-
-        public WorkflowDTO build() {
                 return EntityFactory.create(WorkflowDTO::new, workflow, builder -> {
                         builder
                                         .with(dto -> dto.setId(workflow.getId()))

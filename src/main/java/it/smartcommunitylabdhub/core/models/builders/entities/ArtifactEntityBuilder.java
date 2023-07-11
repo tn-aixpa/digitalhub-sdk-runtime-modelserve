@@ -1,26 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
 
+@Component
 public class ArtifactEntityBuilder {
-
-        private ArtifactDTO artifactDTO;
-
-        public ArtifactEntityBuilder(
-                        ArtifactDTO artifactDTO) {
-                this.artifactDTO = artifactDTO;
-        }
 
         /**
          * Build a artifact from a artifactDTO and store extra values as a cbor
          * 
          * @return
          */
-        public Artifact build() {
+        public Artifact build(ArtifactDTO artifactDTO) {
                 Artifact artifact = EntityFactory.combine(
                                 ConversionUtils.convert(artifactDTO, "artifact"), artifactDTO,
                                 builder -> {
@@ -45,7 +41,7 @@ public class ArtifactEntityBuilder {
          * @param artifact
          * @return
          */
-        public Artifact update(Artifact artifact) {
+        public Artifact update(Artifact artifact, ArtifactDTO artifactDTO) {
                 return EntityFactory.combine(
                                 artifact, artifactDTO, builder -> {
                                         builder

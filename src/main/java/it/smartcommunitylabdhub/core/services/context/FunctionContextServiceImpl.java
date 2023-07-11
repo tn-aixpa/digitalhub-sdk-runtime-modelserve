@@ -26,6 +26,12 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     @Autowired
     FunctionRepository functionRepository;
 
+    @Autowired
+    FunctionDTOBuilder functionDTOBuilder;
+
+    @Autowired
+    FunctionEntityBuilder functionEntityBuilder;
+
     @Override
     public FunctionDTO createFunction(String projectName, FunctionDTO functionDTO) {
         try {
@@ -48,14 +54,12 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             }))
                     .orElseGet(() -> {
                         // Build an function and store it in the database
-                        Function newFunction = new FunctionEntityBuilder(functionDTO).build();
+                        Function newFunction = functionEntityBuilder.build(functionDTO);
                         return functionRepository.save(newFunction);
                     });
 
             // Return function DTO
-            return new FunctionDTOBuilder(
-
-                    function, false).build();
+            return functionDTOBuilder.build(function, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -76,7 +80,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             return functionPage.getContent()
                     .stream()
                     .map((function) -> {
-                        return new FunctionDTOBuilder(function, false).build();
+                        return functionDTOBuilder.build(function, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -98,7 +102,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             return functionPage.getContent()
                     .stream()
                     .map((function) -> {
-                        return new FunctionDTOBuilder(function, false).build();
+                        return functionDTOBuilder.build(function, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -117,7 +121,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             checkContext(projectName);
 
             return this.functionRepository.findByProjectAndNameAndId(projectName, functionName, uuid).map(
-                    function -> new FunctionDTOBuilder(function, false).build())
+                    function -> functionDTOBuilder.build(function, false))
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -136,7 +140,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             checkContext(projectName);
 
             return this.functionRepository.findLatestFunctionByProjectAndName(projectName, functionName).map(
-                    function -> new FunctionDTOBuilder(function, false).build())
+                    function -> functionDTOBuilder.build(function, false))
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -174,27 +178,24 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             Function existingFunction = optionalFunction.get();
 
                             // Update the existing function version
-                            FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(
+                            final Function functionUpdated = functionEntityBuilder.update(existingFunction,
                                     functionDTO);
-                            final Function functionUpdated = functionBuilder.update(existingFunction);
                             return Optional.of(this.functionRepository.save(functionUpdated));
 
                         } else {
                             // Build a new function and store it in the database
-                            Function newFunction = new FunctionEntityBuilder(functionDTO).build();
+                            Function newFunction = functionEntityBuilder.build(functionDTO);
                             return Optional.of(functionRepository.save(newFunction));
                         }
                     })
                     .orElseGet(() -> {
                         // Build a new function and store it in the database
-                        Function newFunction = new FunctionEntityBuilder(functionDTO).build();
+                        Function newFunction = functionEntityBuilder.build(functionDTO);
                         return functionRepository.save(newFunction);
                     });
 
             // Return function DTO
-            return new FunctionDTOBuilder(
-
-                    function, false).build();
+            return functionDTOBuilder.build(function, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -223,17 +224,13 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             Function function = this.functionRepository.findById(functionDTO.getId()).map(
                     a -> {
                         // Update the existing function version
-                        FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(
-                                functionDTO);
-                        return functionBuilder.update(a);
+                        return functionEntityBuilder.update(a, functionDTO);
                     })
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
             // Return function DTO
-            return new FunctionDTOBuilder(
-
-                    function, false).build();
+            return functionDTOBuilder.build(function, false);
 
         } catch (CustomException e) {
             throw new CoreException(

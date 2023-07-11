@@ -25,12 +25,18 @@ public class DataItemServiceImpl implements DataItemService {
     @Autowired
     DataItemRepository dataItemRepository;
 
+    @Autowired
+    DataItemEntityBuilder dataItemEntityBuilder;
+
+    @Autowired
+    DataItemDTOBuilder dataItemDTOBuilder;
+
     @Override
     public List<DataItemDTO> getDataItems(Pageable pageable) {
         try {
             Page<DataItem> dataItemPage = this.dataItemRepository.findAll(pageable);
             return dataItemPage.getContent().stream().map((dataItem) -> {
-                return new DataItemDTOBuilder(dataItem, false).build();
+                return dataItemDTOBuilder.build(dataItem, false);
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -48,11 +54,10 @@ public class DataItemServiceImpl implements DataItemService {
                     "Cannot create the dataItem", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<DataItem> savedDataItem = Optional.ofNullable(dataItemDTO)
-                .map(DataItemEntityBuilder::new)
-                .map(DataItemEntityBuilder::build)
+                .map(dataItemEntityBuilder::build)
                 .map(this.dataItemRepository::save);
 
-        return savedDataItem.map(dataItem -> new DataItemDTOBuilder(dataItem, false).build())
+        return savedDataItem.map(dataItem -> dataItemDTOBuilder.build(dataItem, false))
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
                         "Error saving dataItem",
@@ -64,7 +69,7 @@ public class DataItemServiceImpl implements DataItemService {
         return dataItemRepository.findById(uuid)
                 .map(dataItem -> {
                     try {
-                        return new DataItemDTOBuilder(dataItem, false).build();
+                        return dataItemDTOBuilder.build(dataItem, false);
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -90,10 +95,9 @@ public class DataItemServiceImpl implements DataItemService {
         return dataItemRepository.findById(uuid)
                 .map(dataItem -> {
                     try {
-                        DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(dataItemDTO);
-                        DataItem dataItemUpdated = dataItemBuilder.update(dataItem);
+                        DataItem dataItemUpdated = dataItemEntityBuilder.update(dataItem, dataItemDTO);
                         dataItemRepository.save(dataItemUpdated);
-                        return new DataItemDTOBuilder(dataItemUpdated, false).build();
+                        return dataItemDTOBuilder.build(dataItemUpdated, false);
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",

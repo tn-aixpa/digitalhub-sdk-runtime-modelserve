@@ -26,6 +26,12 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
     @Autowired
     ArtifactRepository artifactRepository;
 
+    @Autowired
+    ArtifactEntityBuilder artifactEntityBuilder;
+
+    @Autowired
+    ArtifactDTOBuilder artifactDTOBuilder;
+
     @Override
     public ArtifactDTO createArtifact(String projectName, ArtifactDTO artifactDTO) {
         try {
@@ -48,14 +54,12 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
                             }))
                     .orElseGet(() -> {
                         // Build an artifact and store it in the database
-                        Artifact newArtifact = new ArtifactEntityBuilder(artifactDTO).build();
+                        Artifact newArtifact = artifactEntityBuilder.build(artifactDTO);
                         return artifactRepository.save(newArtifact);
                     });
 
             // Return artifact DTO
-            return new ArtifactDTOBuilder(
-
-                    artifact, false).build();
+            return artifactDTOBuilder.build(artifact, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -76,7 +80,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             return artifactPage.getContent()
                     .stream()
                     .map((artifact) -> {
-                        return new ArtifactDTOBuilder(artifact, false).build();
+                        return artifactDTOBuilder.build(artifact, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -98,7 +102,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             return artifactPage.getContent()
                     .stream()
                     .map((artifact) -> {
-                        return new ArtifactDTOBuilder(artifact, false).build();
+                        return artifactDTOBuilder.build(artifact, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -117,7 +121,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             checkContext(projectName);
 
             return this.artifactRepository.findByProjectAndNameAndId(projectName, artifactName, uuid).map(
-                    artifact -> new ArtifactDTOBuilder(artifact, false).build())
+                    artifact -> artifactDTOBuilder.build(artifact, false))
                     .orElseThrow(
                             () -> new CustomException("The artifact does not exist.", null));
 
@@ -136,7 +140,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             checkContext(projectName);
 
             return this.artifactRepository.findLatestArtifactByProjectAndName(projectName, artifactName).map(
-                    artifact -> new ArtifactDTOBuilder(artifact, false).build())
+                    artifact -> artifactDTOBuilder.build(artifact, false))
                     .orElseThrow(
                             () -> new CustomException("The artifact does not exist.", null));
 
@@ -174,27 +178,24 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
                             Artifact existingArtifact = optionalArtifact.get();
 
                             // Update the existing artifact version
-                            ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(
+                            final Artifact artifactUpdated = artifactEntityBuilder.update(existingArtifact,
                                     artifactDTO);
-                            final Artifact artifactUpdated = artifactBuilder.update(existingArtifact);
                             return Optional.of(this.artifactRepository.save(artifactUpdated));
 
                         } else {
                             // Build a new artifact and store it in the database
-                            Artifact newArtifact = new ArtifactEntityBuilder(artifactDTO).build();
+                            Artifact newArtifact = artifactEntityBuilder.build(artifactDTO);
                             return Optional.of(artifactRepository.save(newArtifact));
                         }
                     })
                     .orElseGet(() -> {
                         // Build a new artifact and store it in the database
-                        Artifact newArtifact = new ArtifactEntityBuilder(artifactDTO).build();
+                        Artifact newArtifact = artifactEntityBuilder.build(artifactDTO);
                         return artifactRepository.save(newArtifact);
                     });
 
             // Return artifact DTO
-            return new ArtifactDTOBuilder(
-
-                    artifact, false).build();
+            return artifactDTOBuilder.build(artifact, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -223,17 +224,13 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             Artifact artifact = this.artifactRepository.findById(artifactDTO.getId()).map(
                     a -> {
                         // Update the existing artifact version
-                        ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(
-                                artifactDTO);
-                        return artifactBuilder.update(a);
+                        return artifactEntityBuilder.update(a, artifactDTO);
                     })
                     .orElseThrow(
                             () -> new CustomException("The artifact does not exist.", null));
 
             // Return artifact DTO
-            return new ArtifactDTOBuilder(
-
-                    artifact, false).build();
+            return artifactDTOBuilder.build(artifact, false);
 
         } catch (CustomException e) {
             throw new CoreException(

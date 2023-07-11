@@ -1,26 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Task;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class TaskEntityBuilder {
-
-        private TaskDTO taskDTO;
-
-        public TaskEntityBuilder(
-                        TaskDTO taskDTO) {
-                this.taskDTO = taskDTO;
-        }
 
         /**
          * Build a Task from a TaskDTO and store extra values as a cbor
          * 
          * @return
          */
-        public Task build() {
+        public Task build(TaskDTO taskDTO) {
                 Task Task = EntityFactory.combine(
                                 ConversionUtils.convert(taskDTO, "task"), taskDTO,
                                 builder -> {
@@ -43,7 +39,7 @@ public class TaskEntityBuilder {
          * @param Task
          * @return
          */
-        public Task update(Task Task) {
+        public Task update(Task Task, TaskDTO taskDTO) {
                 return EntityFactory.combine(
                                 Task, taskDTO, builder -> {
                                         builder

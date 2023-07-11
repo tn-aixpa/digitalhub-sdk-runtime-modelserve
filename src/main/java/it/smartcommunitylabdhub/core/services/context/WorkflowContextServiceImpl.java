@@ -26,6 +26,12 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     @Autowired
     WorkflowRepository workflowRepository;
 
+    @Autowired
+    WorkflowEntityBuilder workflowEntityBuilder;
+
+    @Autowired
+    WorkflowDTOBuilder workflowDTOBuilder;
+
     @Override
     public WorkflowDTO createWorkflow(String projectName, WorkflowDTO workflowDTO) {
         try {
@@ -48,14 +54,12 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
                             }))
                     .orElseGet(() -> {
                         // Build an workflow and store it in the database
-                        Workflow newWorkflow = new WorkflowEntityBuilder(workflowDTO).build();
+                        Workflow newWorkflow = workflowEntityBuilder.build(workflowDTO);
                         return workflowRepository.save(newWorkflow);
                     });
 
             // Return workflow DTO
-            return new WorkflowDTOBuilder(
-
-                    workflow, false).build();
+            return workflowDTOBuilder.build(workflow, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -76,7 +80,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             return workflowPage.getContent()
                     .stream()
                     .map((workflow) -> {
-                        return new WorkflowDTOBuilder(workflow, false).build();
+                        return workflowDTOBuilder.build(workflow, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -98,7 +102,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             return workflowPage.getContent()
                     .stream()
                     .map((workflow) -> {
-                        return new WorkflowDTOBuilder(workflow, false).build();
+                        return workflowDTOBuilder.build(workflow, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -117,7 +121,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             checkContext(projectName);
 
             return this.workflowRepository.findByProjectAndNameAndId(projectName, workflowName, uuid).map(
-                    workflow -> new WorkflowDTOBuilder(workflow, false).build())
+                    workflow -> workflowDTOBuilder.build(workflow, false))
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
@@ -136,7 +140,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             checkContext(projectName);
 
             return this.workflowRepository.findLatestWorkflowByProjectAndName(projectName, workflowName).map(
-                    workflow -> new WorkflowDTOBuilder(workflow, false).build())
+                    workflow -> workflowDTOBuilder.build(workflow, false))
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
@@ -174,27 +178,24 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
                             Workflow existingWorkflow = optionalWorkflow.get();
 
                             // Update the existing workflow version
-                            WorkflowEntityBuilder workflowBuilder = new WorkflowEntityBuilder(
+                            final Workflow workflowUpdated = workflowEntityBuilder.update(existingWorkflow,
                                     workflowDTO);
-                            final Workflow workflowUpdated = workflowBuilder.update(existingWorkflow);
                             return Optional.of(this.workflowRepository.save(workflowUpdated));
 
                         } else {
                             // Build a new workflow and store it in the database
-                            Workflow newWorkflow = new WorkflowEntityBuilder(workflowDTO).build();
+                            Workflow newWorkflow = workflowEntityBuilder.build(workflowDTO);
                             return Optional.of(workflowRepository.save(newWorkflow));
                         }
                     })
                     .orElseGet(() -> {
                         // Build a new workflow and store it in the database
-                        Workflow newWorkflow = new WorkflowEntityBuilder(workflowDTO).build();
+                        Workflow newWorkflow = workflowEntityBuilder.build(workflowDTO);
                         return workflowRepository.save(newWorkflow);
                     });
 
             // Return workflow DTO
-            return new WorkflowDTOBuilder(
-
-                    workflow, false).build();
+            return workflowDTOBuilder.build(workflow, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -223,17 +224,13 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             Workflow workflow = this.workflowRepository.findById(workflowDTO.getId()).map(
                     a -> {
                         // Update the existing workflow version
-                        WorkflowEntityBuilder workflowBuilder = new WorkflowEntityBuilder(
-                                workflowDTO);
-                        return workflowBuilder.update(a);
+                        return workflowEntityBuilder.update(a, workflowDTO);
                     })
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
             // Return workflow DTO
-            return new WorkflowDTOBuilder(
-
-                    workflow, false).build();
+            return workflowDTOBuilder.build(workflow, false);
 
         } catch (CustomException e) {
             throw new CoreException(

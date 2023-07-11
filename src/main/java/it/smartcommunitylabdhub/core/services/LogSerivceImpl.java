@@ -25,12 +25,18 @@ public class LogSerivceImpl implements LogService {
     @Autowired
     LogRepository logRepository;
 
+    @Autowired
+    LogEntityBuilder logEntityBuilder;
+
+    @Autowired
+    LogDTOBuilder logDTOBuilder;
+
     @Override
     public List<LogDTO> getLogs(Pageable pageable) {
         try {
             Page<Log> logPage = this.logRepository.findAll(pageable);
             return logPage.getContent().stream()
-                    .map(log -> new LogDTOBuilder(log).build())
+                    .map(log -> logDTOBuilder.build(log))
                     .collect(Collectors.toList());
 
         } catch (CustomException e) {
@@ -46,7 +52,7 @@ public class LogSerivceImpl implements LogService {
         return logRepository.findById(uuid)
                 .map(log -> {
                     try {
-                        return new LogDTOBuilder(log).build();
+                        return logDTOBuilder.build(log);
                     } catch (CustomException e) {
                         throw new CoreException("InternalServerError", e.getMessage(),
                                 HttpStatus.INTERNAL_SERVER_ERROR);
@@ -77,11 +83,10 @@ public class LogSerivceImpl implements LogService {
                     "Cannot create the log", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<Log> savedLog = Optional.ofNullable(logDTO)
-                .map(LogEntityBuilder::new)
-                .map(LogEntityBuilder::build)
+                .map(logEntityBuilder::build)
                 .map(this.logRepository::save);
 
-        return savedLog.map(log -> new LogDTOBuilder(log).build())
+        return savedLog.map(log -> logDTOBuilder.build(log))
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
                         "Error saving log",
@@ -94,7 +99,7 @@ public class LogSerivceImpl implements LogService {
                 .stream()
                 .map(log -> {
                     try {
-                        return new LogDTOBuilder(log).build();
+                        return logDTOBuilder.build(log);
                     } catch (CustomException e) {
                         throw new CoreException("InternalServerError", e.getMessage(),
                                 HttpStatus.INTERNAL_SERVER_ERROR);

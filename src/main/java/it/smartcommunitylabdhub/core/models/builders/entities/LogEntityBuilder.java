@@ -1,26 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.entities.Log;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class LogEntityBuilder {
-
-        private LogDTO logDTO;
-
-        public LogEntityBuilder(
-                        LogDTO logDTO) {
-                this.logDTO = logDTO;
-        }
 
         /**
          * Build a Log from a LogDTO and store extra values as a cbor
          * 
          * @return
          */
-        public Log build() {
+        public Log build(LogDTO logDTO) {
                 Log Log = EntityFactory.combine(
                                 ConversionUtils.convert(logDTO, "log"), logDTO,
                                 builder -> {
@@ -43,7 +39,7 @@ public class LogEntityBuilder {
          * @param Log
          * @return
          */
-        public Log update(Log Log) {
+        public Log update(Log Log, LogDTO logDTO) {
                 return EntityFactory.combine(
                                 Log, logDTO, builder -> {
                                         builder

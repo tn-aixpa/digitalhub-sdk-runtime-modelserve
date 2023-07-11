@@ -2,25 +2,20 @@ package it.smartcommunitylabdhub.core.models.builders.dtos;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class FunctionDTOBuilder {
 
-        private Function function;
-        private boolean embeddable;
-
-        public FunctionDTOBuilder(
+        public FunctionDTO build(
                         Function function,
                         boolean embeddable) {
-                this.function = function;
-                this.embeddable = embeddable;
-        }
-
-        public FunctionDTO build() {
                 return EntityFactory.create(FunctionDTO::new, function, builder -> {
                         builder
                                         .with(dto -> dto.setId(function.getId()))

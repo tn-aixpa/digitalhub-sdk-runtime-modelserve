@@ -26,6 +26,12 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     @Autowired
     DataItemRepository dataItemRepository;
 
+    @Autowired
+    DataItemDTOBuilder dataItemDTOBuilder;
+
+    @Autowired
+    DataItemEntityBuilder dataItemEntityBuilder;
+
     @Override
     public DataItemDTO createDataItem(String projectName, DataItemDTO dataItemDTO) {
         try {
@@ -48,14 +54,12 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                             }))
                     .orElseGet(() -> {
                         // Build an dataItem and store it in the database
-                        DataItem newDataItem = new DataItemEntityBuilder(dataItemDTO).build();
+                        DataItem newDataItem = dataItemEntityBuilder.build(dataItemDTO);
                         return dataItemRepository.save(newDataItem);
                     });
 
             // Return dataItem DTO
-            return new DataItemDTOBuilder(
-
-                    dataItem, false).build();
+            return dataItemDTOBuilder.build(dataItem, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -76,7 +80,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             return dataItemPage.getContent()
                     .stream()
                     .map((dataItem) -> {
-                        return new DataItemDTOBuilder(dataItem, false).build();
+                        return dataItemDTOBuilder.build(dataItem, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -98,7 +102,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             return dataItemPage.getContent()
                     .stream()
                     .map((dataItem) -> {
-                        return new DataItemDTOBuilder(dataItem, false).build();
+                        return dataItemDTOBuilder.build(dataItem, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -117,7 +121,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             checkContext(projectName);
 
             return this.dataItemRepository.findByProjectAndNameAndId(projectName, dataItemName, uuid).map(
-                    dataItem -> new DataItemDTOBuilder(dataItem, false).build())
+                    dataItem -> dataItemDTOBuilder.build(dataItem, false))
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
@@ -136,7 +140,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             checkContext(projectName);
 
             return this.dataItemRepository.findLatestDataItemByProjectAndName(projectName, dataItemName).map(
-                    dataItem -> new DataItemDTOBuilder(dataItem, false).build())
+                    dataItem -> dataItemDTOBuilder.build(dataItem, false))
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
@@ -174,27 +178,24 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                             DataItem existingDataItem = optionalDataItem.get();
 
                             // Update the existing dataItem version
-                            DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(
+                            final DataItem dataItemUpdated = dataItemEntityBuilder.update(existingDataItem,
                                     dataItemDTO);
-                            final DataItem dataItemUpdated = dataItemBuilder.update(existingDataItem);
                             return Optional.of(this.dataItemRepository.save(dataItemUpdated));
 
                         } else {
                             // Build a new dataItem and store it in the database
-                            DataItem newDataItem = new DataItemEntityBuilder(dataItemDTO).build();
+                            DataItem newDataItem = dataItemEntityBuilder.build(dataItemDTO);
                             return Optional.of(dataItemRepository.save(newDataItem));
                         }
                     })
                     .orElseGet(() -> {
                         // Build a new dataItem and store it in the database
-                        DataItem newDataItem = new DataItemEntityBuilder(dataItemDTO).build();
+                        DataItem newDataItem = dataItemEntityBuilder.build(dataItemDTO);
                         return dataItemRepository.save(newDataItem);
                     });
 
             // Return dataItem DTO
-            return new DataItemDTOBuilder(
-
-                    dataItem, false).build();
+            return dataItemDTOBuilder.build(dataItem, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -223,17 +224,13 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             DataItem dataItem = this.dataItemRepository.findById(dataItemDTO.getId()).map(
                     a -> {
                         // Update the existing dataItem version
-                        DataItemEntityBuilder dataItemBuilder = new DataItemEntityBuilder(
-                                dataItemDTO);
-                        return dataItemBuilder.update(a);
+                        return dataItemEntityBuilder.update(a, dataItemDTO);
                     })
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
             // Return dataItem DTO
-            return new DataItemDTOBuilder(
-
-                    dataItem, false).build();
+            return dataItemDTOBuilder.build(dataItem, false);
 
         } catch (CustomException e) {
             throw new CoreException(

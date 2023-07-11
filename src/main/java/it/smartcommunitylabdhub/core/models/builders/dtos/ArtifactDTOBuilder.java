@@ -2,25 +2,18 @@ package it.smartcommunitylabdhub.core.models.builders.dtos;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.Artifact;
 
+@Component
 public class ArtifactDTOBuilder {
 
-        private Artifact artifact;
-        private boolean embeddable;
-
-        public ArtifactDTOBuilder(
-                        Artifact artifact,
-                        boolean embeddable) {
-                this.artifact = artifact;
-                this.embeddable = embeddable;
-        }
-
-        public ArtifactDTO build() {
+        public ArtifactDTO build(Artifact artifact, Boolean embeddable) {
                 return EntityFactory.create(ArtifactDTO::new, artifact, builder -> {
                         builder
                                         .with(dto -> dto.setId(artifact.getId()))

@@ -25,12 +25,18 @@ public class ArtifactServiceImpl implements ArtifactService {
     @Autowired
     ArtifactRepository artifactRepository;
 
+    @Autowired
+    ArtifactEntityBuilder artifactEntityBuilder;
+
+    @Autowired
+    ArtifactDTOBuilder artifactDTOBuilder;
+
     @Override
     public List<ArtifactDTO> getArtifacts(Pageable pageable) {
         try {
             Page<Artifact> artifactPage = this.artifactRepository.findAll(pageable);
             return artifactPage.getContent().stream().map((artifact) -> {
-                return new ArtifactDTOBuilder(artifact, false).build();
+                return artifactDTOBuilder.build(artifact, false);
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -48,11 +54,10 @@ public class ArtifactServiceImpl implements ArtifactService {
                     "Cannot create the artifact", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<Artifact> savedArtifact = Optional.ofNullable(artifactDTO)
-                .map(ArtifactEntityBuilder::new)
-                .map(ArtifactEntityBuilder::build)
+                .map(artifactEntityBuilder::build)
                 .map(this.artifactRepository::save);
 
-        return savedArtifact.map(artifact -> new ArtifactDTOBuilder(artifact, false).build())
+        return savedArtifact.map(artifact -> artifactDTOBuilder.build(artifact, false))
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
                         "Error saving artifact",
@@ -64,7 +69,7 @@ public class ArtifactServiceImpl implements ArtifactService {
         return artifactRepository.findById(uuid)
                 .map(artifact -> {
                     try {
-                        return new ArtifactDTOBuilder(artifact, false).build();
+                        return artifactDTOBuilder.build(artifact, false);
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -90,10 +95,9 @@ public class ArtifactServiceImpl implements ArtifactService {
         return artifactRepository.findById(uuid)
                 .map(artifact -> {
                     try {
-                        ArtifactEntityBuilder artifactBuilder = new ArtifactEntityBuilder(artifactDTO);
-                        Artifact artifactUpdated = artifactBuilder.update(artifact);
+                        Artifact artifactUpdated = artifactEntityBuilder.update(artifact, artifactDTO);
                         artifactRepository.save(artifactUpdated);
-                        return new ArtifactDTOBuilder(artifactUpdated, false).build();
+                        return artifactDTOBuilder.build(artifactUpdated, false);
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",

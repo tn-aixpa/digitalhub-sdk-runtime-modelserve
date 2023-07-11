@@ -1,26 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class WorkflowEntityBuilder {
-
-        private WorkflowDTO workflowDTO;
-
-        public WorkflowEntityBuilder(
-                        WorkflowDTO workflowDTO) {
-                this.workflowDTO = workflowDTO;
-        }
 
         /**
          * Build a workflow from a workflowDTO and store extra values as a cbor
          * 
          * @return
          */
-        public Workflow build() {
+        public Workflow build(WorkflowDTO workflowDTO) {
                 Workflow workflow = EntityFactory.combine(
                                 ConversionUtils.convert(workflowDTO, "workflow"), workflowDTO,
                                 builder -> {
@@ -45,7 +41,7 @@ public class WorkflowEntityBuilder {
          * @param workflow
          * @return
          */
-        public Workflow update(Workflow workflow) {
+        public Workflow update(Workflow workflow, WorkflowDTO workflowDTO) {
                 return EntityFactory.combine(
                                 workflow, workflowDTO, builder -> {
                                         builder

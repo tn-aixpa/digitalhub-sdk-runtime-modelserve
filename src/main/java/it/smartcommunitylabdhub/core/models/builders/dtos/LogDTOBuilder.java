@@ -1,21 +1,17 @@
 package it.smartcommunitylabdhub.core.models.builders.dtos;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.entities.Log;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class LogDTOBuilder {
 
-        private Log log;
-
-        public LogDTOBuilder(
-                        Log log) {
-                this.log = log;
-        }
-
-        public LogDTO build() {
+        public LogDTO build(Log log) {
                 return EntityFactory.create(LogDTO::new, log, builder -> {
                         builder
                                         .with(dto -> dto.setId(log.getId()))

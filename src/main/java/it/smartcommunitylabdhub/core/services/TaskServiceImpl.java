@@ -25,12 +25,18 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     TaskRepository taskRepository;
 
+    @Autowired
+    TaskDTOBuilder taskDTOBuilder;
+
+    @Autowired
+    TaskEntityBuilder taskEntityBuilder;
+
     @Override
     public List<TaskDTO> getTasks(Pageable pageable) {
         try {
             Page<Task> TaskPage = this.taskRepository.findAll(pageable);
             return TaskPage.getContent().stream()
-                    .map(task -> new TaskDTOBuilder(task).build())
+                    .map(task -> taskDTOBuilder.build(task))
                     .collect(Collectors.toList());
 
         } catch (CustomException e) {
@@ -43,7 +49,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO getTask(String uuid) {
-        return taskRepository.findById(uuid).map(task -> new TaskDTOBuilder(task).build())
+        return taskRepository.findById(uuid).map(task -> taskDTOBuilder.build(task))
                 .orElseThrow(() -> new CoreException(
                         "TaskNotFound",
                         "The Task you are searching for does not exist.",
@@ -70,11 +76,10 @@ public class TaskServiceImpl implements TaskService {
                     "Cannot create the task", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<Task> savedTask = Optional.ofNullable(taskDTO)
-                .map(TaskEntityBuilder::new)
-                .map(TaskEntityBuilder::build)
+                .map(taskEntityBuilder::build)
                 .map(this.taskRepository::save);
 
-        return savedTask.map(task -> new TaskDTOBuilder(task).build())
+        return savedTask.map(task -> taskDTOBuilder.build(task))
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
                         "Error saving task",
@@ -99,13 +104,10 @@ public class TaskServiceImpl implements TaskService {
         }
 
         try {
-            TaskEntityBuilder taskBuilder = new TaskEntityBuilder(taskDTO);
-
-            final Task taskUpdated = taskBuilder.update(task);
+            final Task taskUpdated = taskEntityBuilder.update(task, taskDTO);
             this.taskRepository.save(taskUpdated);
 
-            return new TaskDTOBuilder(
-                    taskUpdated).build();
+            return taskDTOBuilder.build(taskUpdated);
 
         } catch (CustomException e) {
             throw new CoreException(

@@ -1,26 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.DataItem;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class DataItemEntityBuilder {
-
-        private DataItemDTO dataItemDTO;
-
-        public DataItemEntityBuilder(
-                        DataItemDTO dataItemDTO) {
-                this.dataItemDTO = dataItemDTO;
-        }
 
         /**
          * Build a dataItem from a dataItemDTO and store extra values as a cbor
          * 
          * @return
          */
-        public DataItem build() {
+        public DataItem build(DataItemDTO dataItemDTO) {
                 DataItem dataItem = EntityFactory.combine(
                                 ConversionUtils.convert(dataItemDTO, "dataitem"), dataItemDTO,
                                 builder -> {
@@ -43,7 +39,7 @@ public class DataItemEntityBuilder {
          * @param dataItem
          * @return
          */
-        public DataItem update(DataItem dataItem) {
+        public DataItem update(DataItem dataItem, DataItemDTO dataItemDTO) {
                 return EntityFactory.combine(
                                 dataItem, dataItemDTO, builder -> {
                                         builder

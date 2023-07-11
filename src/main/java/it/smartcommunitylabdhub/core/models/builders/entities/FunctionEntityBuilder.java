@@ -1,26 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.entities;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class FunctionEntityBuilder {
-
-        private FunctionDTO functionDTO;
-
-        public FunctionEntityBuilder(
-                        FunctionDTO functionDTO) {
-                this.functionDTO = functionDTO;
-        }
 
         /**
          * Build a function from a functionDTO and store extra values as a cbor
          * 
          * @return
          */
-        public Function build() {
+        public Function build(FunctionDTO functionDTO) {
                 Function function = EntityFactory.combine(
                                 ConversionUtils.convert(functionDTO, "function"), functionDTO,
                                 builder -> {
@@ -43,7 +39,7 @@ public class FunctionEntityBuilder {
          * @param function
          * @return
          */
-        public Function update(Function function) {
+        public Function update(Function function, FunctionDTO functionDTO) {
                 return EntityFactory.combine(
                                 function, functionDTO, builder -> {
                                         builder

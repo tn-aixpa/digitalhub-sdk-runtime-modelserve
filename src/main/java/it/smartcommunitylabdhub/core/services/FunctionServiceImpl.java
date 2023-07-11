@@ -33,12 +33,18 @@ public class FunctionServiceImpl implements FunctionService {
     @Autowired
     RunRepository runRepository;
 
+    @Autowired
+    FunctionDTOBuilder functionDTOBuilder;
+
+    @Autowired
+    FunctionEntityBuilder functionEntityBuilder;
+
     @Override
     public List<FunctionDTO> getFunctions(Pageable pageable) {
         try {
             Page<Function> functionPage = this.functionRepository.findAll(pageable);
             return functionPage.getContent().stream().map((function) -> {
-                return new FunctionDTOBuilder(function, false).build();
+                return functionDTOBuilder.build(function, false);
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -54,7 +60,7 @@ public class FunctionServiceImpl implements FunctionService {
         try {
             List<Function> functions = this.functionRepository.findAll();
             return functions.stream().map((function) -> {
-                return new FunctionDTOBuilder(function, false).build();
+                return functionDTOBuilder.build(function, false);
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
@@ -71,11 +77,10 @@ public class FunctionServiceImpl implements FunctionService {
                     "Cannot create the function", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<Function> savedFunction = Optional.ofNullable(functionDTO)
-                .map(FunctionEntityBuilder::new)
-                .map(FunctionEntityBuilder::build)
+                .map(functionEntityBuilder::build)
                 .map(this.functionRepository::save);
 
-        return savedFunction.map(function -> new FunctionDTOBuilder(function, false).build())
+        return savedFunction.map(function -> functionDTOBuilder.build(function, false))
                 .orElseThrow(() -> new CoreException(
                         "InternalServerError",
                         "Error saving function",
@@ -94,9 +99,7 @@ public class FunctionServiceImpl implements FunctionService {
         }
 
         try {
-            return new FunctionDTOBuilder(
-
-                    function, false).build();
+            return functionDTOBuilder.build(function, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -126,13 +129,10 @@ public class FunctionServiceImpl implements FunctionService {
 
         try {
 
-            FunctionEntityBuilder functionBuilder = new FunctionEntityBuilder(functionDTO);
-
-            final Function functionUpdated = functionBuilder.update(function);
+            final Function functionUpdated = functionEntityBuilder.update(function, functionDTO);
             this.functionRepository.save(functionUpdated);
 
-            return new FunctionDTOBuilder(
-                    functionUpdated, false).build();
+            return functionDTOBuilder.build(functionUpdated, false);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -191,7 +191,7 @@ public class FunctionServiceImpl implements FunctionService {
             return functionList
                     .stream()
                     .map((function) -> {
-                        return new FunctionDTOBuilder(function, false).build();
+                        return functionDTOBuilder.build(function, false);
                     }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(

@@ -1,21 +1,17 @@
 package it.smartcommunitylabdhub.core.models.builders.dtos;
 
+import org.springframework.stereotype.Component;
+
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.Task;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
+@Component
 public class TaskDTOBuilder {
 
-        private Task task;
-
-        public TaskDTOBuilder(
-                        Task task) {
-                this.task = task;
-        }
-
-        public TaskDTO build() {
+        public TaskDTO build(Task task) {
                 return EntityFactory.create(TaskDTO::new, task, builder -> {
                         builder
                                         .with(dto -> dto.setId(task.getId()))
