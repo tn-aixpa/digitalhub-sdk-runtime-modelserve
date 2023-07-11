@@ -22,7 +22,6 @@ import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
-import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 
 @Service
