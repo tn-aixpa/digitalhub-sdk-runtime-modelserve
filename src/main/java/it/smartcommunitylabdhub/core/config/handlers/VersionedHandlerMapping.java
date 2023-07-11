@@ -6,15 +6,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.condition.ConsumesRequestCondition;
+import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.ProducesRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.pattern.PathPattern;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Optional;
 
 public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
 
@@ -62,8 +65,16 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
     }
 
     private RequestMappingInfo createVersionedMappingInfo(RequestMappingInfo mappingInfo, String version) {
-        String originalPattern = mappingInfo.getPathPatternsCondition().getPatterns().iterator().next()
-                .getPatternString();
+        // String originalPattern =
+        // mappingInfo.getPathPatternsCondition().getPatterns().iterator().next()
+        // .getPatternString();
+
+        String originalPattern = Optional.ofNullable(mappingInfo)
+                .map(RequestMappingInfo::getPathPatternsCondition)
+                .map(PathPatternsRequestCondition::getPatterns)
+                .flatMap(patterns -> patterns.stream().findFirst())
+                .map(PathPattern::getPatternString)
+                .orElse("/error");
 
         String versionedPattern = "/api/" + version + originalPattern;
 

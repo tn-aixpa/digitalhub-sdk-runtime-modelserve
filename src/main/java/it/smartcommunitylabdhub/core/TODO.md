@@ -118,3 +118,6 @@ get log per una run specifica (API)
 
 //[x]
 for any entities task, log, function, artifact , dataitem, project, workflow check if duplicate uuid exist..if yes throw an exception.
+
+[x] clear controllers
+[x] clear services
