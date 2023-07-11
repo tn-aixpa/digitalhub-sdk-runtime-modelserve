@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 
 public class PollingService {
     private final Map<String, Poller> pollerMap;

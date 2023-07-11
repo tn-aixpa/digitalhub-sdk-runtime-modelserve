@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions;
+package it.smartcommunitylabdhub.core.components.workflows.functions;
 
 import java.util.Map;
 

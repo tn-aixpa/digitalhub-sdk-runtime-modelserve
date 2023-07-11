@@ -17,9 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.WorkflowFactory;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.functions.BaseWorkflowBuilder;
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.workflows.factory.WorkflowFactory;
+import it.smartcommunitylabdhub.core.components.workflows.functions.BaseWorkflowBuilder;
 import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;

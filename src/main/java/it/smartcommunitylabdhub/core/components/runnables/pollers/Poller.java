@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
 
 public class Poller implements Runnable {

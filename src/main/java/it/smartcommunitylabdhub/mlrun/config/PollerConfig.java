@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import it.smartcommunitylabdhub.core.components.runnables.pollers.PollingService;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.mlrun.components.pollers.functions.FunctionWorkflowBuilder;
 import jakarta.annotation.PostConstruct;
 

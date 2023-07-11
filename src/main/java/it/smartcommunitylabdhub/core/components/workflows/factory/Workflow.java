@@ -1,5 +1,5 @@
 
-package it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory;
+package it.smartcommunitylabdhub.core.components.workflows.factory;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

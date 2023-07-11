@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflowFactory;
 import it.smartcommunitylabdhub.core.components.runnables.events.messages.RunMessage;
 import it.smartcommunitylabdhub.core.components.runnables.pollers.PollingService;
-import it.smartcommunitylabdhub.core.components.runnables.pollers.workflows.factory.Workflow;
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 
