@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,8 @@ import it.smartcommunitylabdhub.core.services.interfaces.DataItemService;
 @Service
 public class DataItemServiceImpl implements DataItemService {
 
-    private final DataItemRepository dataItemRepository;
-
-    public DataItemServiceImpl(
-            DataItemRepository dataItemRepository) {
-        this.dataItemRepository = dataItemRepository;
-
-    }
+    @Autowired
+    DataItemRepository dataItemRepository;
 
     @Override
     public List<DataItemDTO> getDataItems(Pageable pageable) {

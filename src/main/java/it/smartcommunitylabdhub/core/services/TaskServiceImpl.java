@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,11 +22,8 @@ import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 @Service
 public class TaskServiceImpl implements TaskService {
 
-    private final TaskRepository taskRepository;
-
-    public TaskServiceImpl(TaskRepository TaskRepository) {
-        this.taskRepository = TaskRepository;
-    }
+    @Autowired
+    TaskRepository taskRepository;
 
     @Override
     public List<TaskDTO> getTasks(Pageable pageable) {
@@ -67,7 +65,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
-        if (taskDTO.getId() != null &&  taskRepository.existsById(taskDTO.getId())) {
+        if (taskDTO.getId() != null && taskRepository.existsById(taskDTO.getId())) {
             throw new CoreException("DuplicateTaskId",
                     "Cannot create the task", HttpStatus.INTERNAL_SERVER_ERROR);
         }

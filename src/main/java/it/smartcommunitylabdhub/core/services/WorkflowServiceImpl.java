@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,16 +27,11 @@ import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
 @Service
 public class WorkflowServiceImpl implements WorkflowService {
 
-    private final WorkflowRepository workflowRepository;
-    private final RunRepository runRepository;
+    @Autowired
+    WorkflowRepository workflowRepository;
 
-    public WorkflowServiceImpl(
-            WorkflowRepository workflowRepository,
-            RunRepository runRepository) {
-        this.workflowRepository = workflowRepository;
-        this.runRepository = runRepository;
-
-    }
+    @Autowired
+    RunRepository runRepository;
 
     @Override
     public List<WorkflowDTO> getWorkflows(Pageable pageable) {

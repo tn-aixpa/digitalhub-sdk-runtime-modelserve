@@ -31,25 +31,20 @@ public class RunSerivceImpl implements RunService {
     @Autowired
     RunDTOBuilder runDTOBuilder;
 
-    private final RunRepository runRepository;
-    private final TaskService taskService;
-    private final KindBuilderFactory runBuilderFactory;
-    private final KindPublisherFactory runPublisherFactory;
-    private final RunEntityBuilder runEntityBuilder;
+    @Autowired
+    RunRepository runRepository;
 
-    public RunSerivceImpl(
-            RunRepository runRepository,
-            TaskService taskService,
-            KindBuilderFactory runBuilderFactory,
-            KindPublisherFactory publisherFactory,
-            ApplicationEventPublisher applicationEventPublisher,
-            RunEntityBuilder runEntityBuilder) {
-        this.runRepository = runRepository;
-        this.runBuilderFactory = runBuilderFactory;
-        this.runPublisherFactory = publisherFactory;
-        this.runEntityBuilder = runEntityBuilder;
-        this.taskService = taskService;
-    }
+    @Autowired
+    TaskService taskService;
+
+    @Autowired
+    KindBuilderFactory runBuilderFactory;
+
+    @Autowired
+    KindPublisherFactory runPublisherFactory;
+
+    @Autowired
+    RunEntityBuilder runEntityBuilder;
 
     @Override
     public List<RunDTO> getRuns(Pageable pageable) {

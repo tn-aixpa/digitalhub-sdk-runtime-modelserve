@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,8 @@ import jakarta.transaction.Transactional;
 @Service
 public class WorkflowContextServiceImpl extends ContextService implements WorkflowContextService {
 
-    private final WorkflowRepository workflowRepository;
-
-    public WorkflowContextServiceImpl(
-            WorkflowRepository workflowRepository) {
-        super();
-        this.workflowRepository = workflowRepository;
-    }
+    @Autowired
+    WorkflowRepository workflowRepository;
 
     @Override
     public WorkflowDTO createWorkflow(String projectName, WorkflowDTO workflowDTO) {

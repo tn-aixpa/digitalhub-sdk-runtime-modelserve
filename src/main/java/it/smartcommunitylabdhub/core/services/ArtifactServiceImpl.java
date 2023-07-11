@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,8 @@ import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 @Service
 public class ArtifactServiceImpl implements ArtifactService {
 
-    private final ArtifactRepository artifactRepository;
-
-    public ArtifactServiceImpl(
-            ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
-
-    }
+    @Autowired
+    ArtifactRepository artifactRepository;
 
     @Override
     public List<ArtifactDTO> getArtifacts(Pageable pageable) {

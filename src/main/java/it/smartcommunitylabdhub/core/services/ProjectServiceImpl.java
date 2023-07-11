@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -37,33 +38,29 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
-    private final ProjectRepository projectRepository;
-    private final FunctionRepository functionRepository;
-    private final ArtifactRepository artifactRepository;
-    private final WorkflowRepository workflowRepository;
-    private final DataItemRepository dataItemRepository;
-    private final LogRepository logRepository;
-    private final RunRepository runRepository;
-    private final TaskRepository taskRepository;
+    @Autowired
+    ProjectRepository projectRepository;
 
-    public ProjectServiceImpl(
-            ProjectRepository projectRepository,
-            FunctionRepository functionRepository,
-            ArtifactRepository artifactRepository,
-            WorkflowRepository workflowRepository,
-            DataItemRepository dataItemRepository,
-            LogRepository logRepository,
-            RunRepository runRepository,
-            TaskRepository taskRepository) {
-        this.projectRepository = projectRepository;
-        this.functionRepository = functionRepository;
-        this.artifactRepository = artifactRepository;
-        this.workflowRepository = workflowRepository;
-        this.dataItemRepository = dataItemRepository;
-        this.logRepository = logRepository;
-        this.runRepository = runRepository;
-        this.taskRepository = taskRepository;
-    }
+    @Autowired
+    FunctionRepository functionRepository;
+
+    @Autowired
+    ArtifactRepository artifactRepository;
+
+    @Autowired
+    WorkflowRepository workflowRepository;
+
+    @Autowired
+    DataItemRepository dataItemRepository;
+
+    @Autowired
+    LogRepository logRepository;
+
+    @Autowired
+    RunRepository runRepository;
+
+    @Autowired
+    TaskRepository taskRepository;
 
     @Override
     public ProjectDTO getProject(String uuidOrName) {

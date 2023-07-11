@@ -21,7 +21,6 @@ public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
 
         @Override
         public TaskDTO build(TaskDTO taskDTO) {
-                // 1. get function get if exist otherwise throw exeception.
 
                 return Optional.ofNullable(TaskUtils.parseTask(taskDTO.getTask())).map(
                                 accessor -> {
@@ -31,7 +30,9 @@ public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
                                                         .task(taskDTO.getTask())
                                                         .spec(taskDTO.getSpec())
                                                         .build();
-                                }).orElseThrow(() -> new CoreException("TaskAccessorNotFound", "Cannot create accessor",
+                                }).orElseThrow(() -> new CoreException(
+                                                "TaskAccessorNotFound",
+                                                "Cannot create accessor",
                                                 HttpStatus.INTERNAL_SERVER_ERROR));
 
         }

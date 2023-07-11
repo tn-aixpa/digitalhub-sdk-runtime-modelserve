@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,16 +28,11 @@ import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 @Service
 public class FunctionServiceImpl implements FunctionService {
 
-    private final FunctionRepository functionRepository;
-    private final RunRepository runRepository;
+    @Autowired
+    FunctionRepository functionRepository;
 
-    public FunctionServiceImpl(
-            FunctionRepository functionRepository,
-            RunRepository runRepository,
-            TaskRepository taskRepository) {
-        this.functionRepository = functionRepository;
-        this.runRepository = runRepository;
-    }
+    @Autowired
+    RunRepository runRepository;
 
     @Override
     public List<FunctionDTO> getFunctions(Pageable pageable) {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,8 @@ import jakarta.transaction.Transactional;
 @Service
 public class FunctionContextServiceImpl extends ContextService implements FunctionContextService {
 
-    private final FunctionRepository functionRepository;
-
-    public FunctionContextServiceImpl(
-            FunctionRepository functionRepository) {
-        super();
-        this.functionRepository = functionRepository;
-    }
+    @Autowired
+    FunctionRepository functionRepository;
 
     @Override
     public FunctionDTO createFunction(String projectName, FunctionDTO functionDTO) {
