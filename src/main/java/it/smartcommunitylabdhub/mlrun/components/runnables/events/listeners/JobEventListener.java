@@ -69,9 +69,9 @@ public class JobEventListener {
                 runDTO.setExtra("mlrun_run_uid", metadata.get("uid"));
             });
 
-            MapUtils.getNestedFieldValue(data, "status").ifPresent(status -> {
-                runDTO.setExtra("status", status);
-            });
+            // MapUtils.getNestedFieldValue(data, "status").ifPresent(status -> {
+            // runDTO.setExtra("status", status);
+            // });
 
             // Save RunDTO
             RunDTO rundDTO = runService.save(runDTO);
