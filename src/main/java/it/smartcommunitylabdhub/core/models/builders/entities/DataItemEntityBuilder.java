@@ -38,7 +38,7 @@ public class DataItemEntityBuilder {
 
         /**
          * Update a dataItem
-         * TODO: x because if element is not passed it override causing empty field
+         * if element is not passed it override causing empty field
          * 
          * @param dataItem
          * @return

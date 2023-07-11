@@ -34,7 +34,7 @@ public class RunEntityBuilder {
 
         /**
          * Update a Run
-         * TODO: x because if element is not passed it override causing empty field
+         * if element is not passed it override causing empty field
          * 
          * @param Run
          * @return

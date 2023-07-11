@@ -27,7 +27,10 @@ import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
 import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
+import it.smartcommunitylabdhub.core.repositories.LogRepository;
 import it.smartcommunitylabdhub.core.repositories.ProjectRepository;
+import it.smartcommunitylabdhub.core.repositories.RunRepository;
+import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
 import jakarta.transaction.Transactional;
@@ -39,16 +42,27 @@ public class ProjectServiceImpl implements ProjectService {
     private final ArtifactRepository artifactRepository;
     private final WorkflowRepository workflowRepository;
     private final DataItemRepository dataItemRepository;
+    private final LogRepository logRepository;
+    private final RunRepository runRepository;
+    private final TaskRepository taskRepository;
 
     public ProjectServiceImpl(
-            ProjectRepository projectRepository, FunctionRepository functionRepository,
-            ArtifactRepository artifactRepository, WorkflowRepository workflowRepository,
-            DataItemRepository dataItemRepository) {
+            ProjectRepository projectRepository,
+            FunctionRepository functionRepository,
+            ArtifactRepository artifactRepository,
+            WorkflowRepository workflowRepository,
+            DataItemRepository dataItemRepository,
+            LogRepository logRepository,
+            RunRepository runRepository,
+            TaskRepository taskRepository) {
         this.projectRepository = projectRepository;
         this.functionRepository = functionRepository;
         this.artifactRepository = artifactRepository;
         this.workflowRepository = workflowRepository;
         this.dataItemRepository = dataItemRepository;
+        this.logRepository = logRepository;
+        this.runRepository = runRepository;
+        this.taskRepository = taskRepository;
     }
 
     @Override
@@ -156,7 +170,9 @@ public class ProjectServiceImpl implements ProjectService {
                             this.dataItemRepository.deleteByProjectName(project.getName());
                             this.workflowRepository.deleteByProjectName(project.getName());
                             this.functionRepository.deleteByProjectName(project.getName());
-                            // TODO: delete task run log
+                            this.logRepository.deleteByProjectName(project.getName());
+                            this.runRepository.deleteByProjectName(project.getName());
+                            this.taskRepository.deleteByProjectName(project.getName());
                         });
                         projectRepository.deleteById(value);
                         deleted = true;
@@ -167,7 +183,9 @@ public class ProjectServiceImpl implements ProjectService {
                             this.dataItemRepository.deleteByProjectName(project.getName());
                             this.workflowRepository.deleteByProjectName(project.getName());
                             this.functionRepository.deleteByProjectName(project.getName());
-                            // TODO: delete task run log
+                            this.logRepository.deleteByProjectName(project.getName());
+                            this.runRepository.deleteByProjectName(project.getName());
+                            this.taskRepository.deleteByProjectName(project.getName());
                         });
                         projectRepository.deleteByName(value);
                         deleted = true;

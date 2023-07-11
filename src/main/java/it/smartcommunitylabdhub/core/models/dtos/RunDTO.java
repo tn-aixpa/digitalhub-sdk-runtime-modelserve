@@ -28,7 +28,6 @@ public class RunDTO implements BaseEntity {
     @NotNull
     private String id;
 
-    // FIXME: {kind}:/{project}/{function}@{version} kind ='job'...
     private String task;
 
     @NotNull

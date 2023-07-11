@@ -40,7 +40,7 @@ public class ArtifactEntityBuilder {
 
         /**
          * Update a artifact
-         * TODO: x because if element is not passed it override causing empty field
+         * if element is not passed it override causing empty field
          * 
          * @param artifact
          * @return

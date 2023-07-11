@@ -24,7 +24,6 @@ import lombok.Setter;
 public class TaskDTO implements BaseEntity {
     private String id;
 
-    // FIXME: {kind}:/{project}/{function}@{version} kind ='job'...
     @NotNull
     private String task;
 

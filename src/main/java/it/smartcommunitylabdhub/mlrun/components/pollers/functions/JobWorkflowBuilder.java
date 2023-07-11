@@ -97,12 +97,6 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
                         .exchange(requestUrl, HttpMethod.GET, entity,
                                 responseType);
 
-                // FIXME: delete log below
-                try {
-                    System.out.println(objectMapper.writeValueAsString(response));
-                } catch (Exception e) {
-                }
-
                 return Optional.ofNullable(response.getBody()).map(body -> {
                     Map<String, Object> status = (Map<String, Object>) ((Map<String, Object>) body.get("data"))
                             .get("status");
@@ -139,8 +133,6 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
                                                     String.class);
 
                                     // Create and store log
-                                    System.out.println(logResponse.getBody());
-
                                     logService.createLog(LogDTO.builder()
                                             .body(Map.of("content", logResponse.getBody()))
                                             .project(runDTO.getProject())
@@ -196,7 +188,6 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 
         // Init run state machine considering current state and context.
         fsm = runStateMachine.create(RunState.valueOf(runDTO.getState()), new HashMap<>());
-
         fsm.processEvent(RunEvent.BUILD, Optional.empty());
 
         // Define workflow steps

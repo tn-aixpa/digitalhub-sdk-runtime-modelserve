@@ -110,7 +110,6 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                                                         .replace("{project}", function.getProject())
                                                                         .replace("{function}", function.getName());
 
-                                                        // FIXME: check if more field are required.
                                                         // Convert function DTO into Map<String, Object>
                                                         Map<String, Object> requestBody = ConversionUtils
                                                                         .convert(function, "mlrunFunction");
