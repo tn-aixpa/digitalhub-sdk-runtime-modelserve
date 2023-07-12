@@ -15,9 +15,9 @@ class DataitemSpec(EntitySpec):
 
         Parameters
         ----------
-        key : str, optional
+        key : str
             The key of the dataitem.
-        path : str, optional
+        path : str
             The path of the dataitem.
 
         """

@@ -32,9 +32,9 @@ class LocalStore(Store):
         Parameters
         ----------
         *args
-            Variable length argument list.
+            Arguments list.
         **kwargs
-            Arbitrary keyword arguments.
+            Keyword arguments.
 
         Returns
         -------
@@ -57,7 +57,7 @@ class LocalStore(Store):
         ----------
         src : str
             The source location of the artifact.
-        dst : str, optional
+        dst : str
             The destination of the artifact.
 
         Returns
@@ -92,9 +92,9 @@ class LocalStore(Store):
         Parameters
         ----------
         *args
-            Variable length argument list.
+            Arguments list.
         **kwargs
-            Arbitrary keyword arguments.
+            Keyword arguments.
 
         Returns
         -------
@@ -148,7 +148,7 @@ class LocalStore(Store):
         dst : str
             The destination of the dataframe.
         **kwargs
-            Keyword arguments to pass to to_parquet() method.
+            Keyword arguments.
 
         Returns
         -------

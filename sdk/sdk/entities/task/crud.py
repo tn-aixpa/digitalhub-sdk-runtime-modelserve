@@ -15,86 +15,60 @@ if typing.TYPE_CHECKING:
     from sdk.entities.task.entity import Task
 
 
-def create_task(
-    project: str,
-    kind: str = "task",
-    task: str = "",
-    k8s_resources: dict = None,
-    local: bool = False,
-    uuid: str = None,
-) -> Task:
+def create_task(**kwargs) -> Task:
     """
-    Create a new Task instance with the given parameters.
+    Create a new object instance.
 
     Parameters
     ----------
-    project : str
-        Name of the project.
-    kind : str, optional, default "task"
-        The type of the Task.
-    task : str, optional
-        The task string identifying the Task.
-    k8s_resources : dict, optional
-        The Kubernetes resources for the Task.
-    local : bool, optional
-        Flag to determine if object has local execution.
-    uuid : str, optional
-        UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Task
-        Instance of the Task class representing the specified task.
-
+       Object instance.
     """
-    return task_from_parameters(
-        project=project,
-        kind=kind,
-        task=task,
-        k8s_resources=k8s_resources,
-        local=local,
-        uuid=uuid,
-    )
+    return task_from_parameters(**kwargs)
 
 
 def new_task(
     project: str,
     kind: str = "task",
     task: str = "",
-    k8s_resources: dict = None,
+    resources: dict = None,
     local: bool = False,
     uuid: str = None,
 ) -> Task:
     """
-    Create a new Task instance with the given parameters.
+    Create a new object instance.
 
     Parameters
     ----------
     project : str
         Name of the project.
-    kind : str, optional, default "task"
+    kind : str, default "task"
         The type of the Task.
-    task : str, optional
+    task : str
         The task string identifying the Task.
-    k8s_resources : dict, optional
+    resources : dict
         The Kubernetes resources for the Task.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
     -------
     Task
-        Instance of the Task class representing the specified task.
-
+       Object instance.
     """
     check_local_flag(project, local)
     obj = create_task(
         project=project,
         kind=kind,
         task=task,
-        k8s_resources=k8s_resources,
+        resources=resources,
         local=local,
         uuid=uuid,
     )
@@ -104,7 +78,7 @@ def new_task(
 
 def get_task(project: str, name: str) -> Task:
     """
-    Retrieve task details from the backend.
+    Get object from backend.
 
     Parameters
     ----------
@@ -116,8 +90,7 @@ def get_task(project: str, name: str) -> Task:
     Returns
     -------
     Task
-        An object that contains details about the specified task.
-
+        Object instance.
     """
     api = api_base_read(DTO_TASK, name)
     obj = get_context(project).read_object(api)
@@ -126,17 +99,17 @@ def get_task(project: str, name: str) -> Task:
 
 def import_task(file: str) -> Task:
     """
-    Import a Task object from a file using the specified file path.
+    Get object from file.
 
     Parameters
     ----------
     file : str
-        The absolute or relative path to the file containing the Task object.
+        Path to the file.
 
     Returns
     -------
     Task
-        The Task object imported from the file using the specified path.
+        Object instance.
     """
     obj = read_yaml(file)
     return task_from_dict(obj)
@@ -152,8 +125,8 @@ def delete_task(project: str, name: str) -> None:
         Name of the project.
     name : str
         The name of the task.
-    uuid : str, optional
-        UUID of task specific version.
+    uuid : str
+        UUID.
 
     Returns
     -------

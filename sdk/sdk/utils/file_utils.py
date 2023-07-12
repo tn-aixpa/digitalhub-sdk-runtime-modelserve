@@ -58,7 +58,7 @@ def make_dir(*args) -> None:
     Parameters
     ----------
     *args
-        The directory path.
+        Arguments list.
 
     Returns
     -------
@@ -125,7 +125,7 @@ def get_path(*args) -> str:
     Parameters
     ----------
     *args
-        Arguments to join in a path.
+        Arguments list.
 
     Returns
     -------
@@ -142,7 +142,7 @@ def get_absolute_path(*args) -> str:
     Parameters
     ----------
     *args
-        Arguments to join in an absolute path.
+        Arguments list.
 
     Returns
     -------

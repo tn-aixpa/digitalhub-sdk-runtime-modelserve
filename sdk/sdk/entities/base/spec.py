@@ -23,7 +23,6 @@ class EntitySpec(ModelObj):
         -------
         EntitySpec
             An entity specification object.
-
         """
         if obj is None:
             obj = {}

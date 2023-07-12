@@ -66,7 +66,6 @@ class Entity(ModelObj, metaclass=ABCMeta):
         -------
         dict
             A dictionary containing the attributes of the entity instance.
-
         """
         dict_ = super().to_dict()
         if include_all_non_private:
@@ -81,7 +80,6 @@ class Entity(ModelObj, metaclass=ABCMeta):
         -------
         dict
             A dictionary containing the attributes of the entity instance.
-
         """
         dict_ = super().to_dict()
         return {k: v for k, v in dict_.items() if k in self._essential_attr}
@@ -101,6 +99,5 @@ class Entity(ModelObj, metaclass=ABCMeta):
         -------
         str
             A string representing the entity instance.
-
         """
         return str(self.to_dict(include_all_non_private=True))

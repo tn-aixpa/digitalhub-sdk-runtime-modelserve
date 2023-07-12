@@ -16,7 +16,6 @@ class ModelObj:
         -------
         dict
             A dictionary containing the attributes of the entity instance.
-
         """
         obj = {}
         for k in self.__dict__:
@@ -47,7 +46,7 @@ class ModelObj:
         """
         for k, v in kwargs.items():
             if k not in self.__dict__:
-                self.__setattr__(k, v)
+                setattr(self, k, v)
 
     def __repr__(self) -> str:
         """
@@ -57,6 +56,5 @@ class ModelObj:
         -------
         str
             A string representing the entity instance.
-
         """
         return str(self.to_dict())

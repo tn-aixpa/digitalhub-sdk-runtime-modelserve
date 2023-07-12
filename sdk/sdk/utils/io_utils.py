@@ -29,18 +29,22 @@ class BytesIOWrapper(BufferedReader):
         encoding: str = None,
         errors: str = None,
         **kwargs
-    ):
+    ) -> None:
         """
+        Keyword arguments.
+
         Wrap a buffered bytes stream over TextIOBase string stream.
 
         Parameters
         ----------
         text_io_buffer : TextIOBase
             The string stream to wrap.
-        encoding : str, optional
+        encoding : str
             The encoding to use, by default None
-        errors : str, optional
+        errors : str
             ...
+        **kwargs : dict
+            Keyword arguments.
         """
         super().__init__(text_io_buffer, **kwargs)
         self.encoding = encoding or text_io_buffer.encoding or "utf-8"
@@ -54,10 +58,10 @@ class BytesIOWrapper(BufferedReader):
         ----------
         method_name : str
             The name of the method to call.
-        args : list
-            The arguments to pass to the method.
-        kwargs : dict
-            The keyword arguments to pass to the method.
+        *args : list
+            Arguments list.
+        **kwargs : dict
+            Keyword arguments.
 
         Returns
         -------
@@ -74,7 +78,7 @@ class BytesIOWrapper(BufferedReader):
 
         Parameters
         ----------
-        size : int, optional
+        size : int
             The number of bytes to read.
 
         Returns
@@ -90,7 +94,7 @@ class BytesIOWrapper(BufferedReader):
 
         Parameters
         ----------
-        size : int, optional
+        size : int
             The number of bytes to read.
 
         Returns
@@ -106,7 +110,7 @@ class BytesIOWrapper(BufferedReader):
 
         Parameters
         ----------
-        size : int, optional
+        size : int
             The number of bytes to peek.
 
         Returns
@@ -167,7 +171,7 @@ def write_stringio(src: str) -> StringIO:
     Parameters
     ----------
     src : str
-        The source string to be written.
+        The source string to be wrapped.
 
     Returns
     -------
@@ -187,7 +191,7 @@ def write_bytesio(src: str) -> BytesIO:
     Parameters
     ----------
     src : str
-        The source string to be written.
+        The source string to be wrapped.
 
     Returns
     -------

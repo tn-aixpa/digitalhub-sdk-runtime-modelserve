@@ -33,7 +33,7 @@ def api_ctx_create(
     Parameters
     ----------
     proj : str
-        The name of the project.
+        Name of the project.
     dto : str
         The name of the DTO.
 
@@ -57,12 +57,12 @@ def api_ctx_read(
     Parameters
     ----------
     proj : str
-        The name of the project.
+        Name of the project.
     dto : str
         The type of the DTO.
     name : str
         The name of the DTO.
-    uuid : str, optional
+    uuid : str
         The UUID of the DTO. If not provided, the latest version is returned.
 
     Returns
@@ -86,7 +86,7 @@ def api_ctx_update(
     Parameters
     ----------
     proj : str
-        The name of the project.
+        Name of the project.
     dto : str
         The type of the DTO.
     name : str
@@ -114,12 +114,12 @@ def api_ctx_delete(
     Parameters
     ----------
     proj : str
-        The name of the project.
+        Name of the project.
     dto : str
         The type of the DTO.
     name : str
         The name of the DTO.
-    uuid : str, optional
+    uuid : str
         The UUID of the DTO. If not provided, all versions are deleted.
 
     Returns

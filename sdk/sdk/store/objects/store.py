@@ -81,7 +81,7 @@ class Store(metaclass=ABCMeta):
             Store type.
         uri : str
             Store URI.
-        config : Optional[dict], optional
+        config : Optional[dict]
             Store configuration, by default None
 
         Returns
@@ -142,7 +142,7 @@ class Store(metaclass=ABCMeta):
         extension : str
             Extension of the file.
         **kwargs
-            Additional keyword arguments for pandas read_csv or read_parquet.
+            Keyword arguments.
 
         Returns
         -------

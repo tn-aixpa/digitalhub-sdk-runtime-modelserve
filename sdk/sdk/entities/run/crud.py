@@ -15,56 +15,21 @@ if typing.TYPE_CHECKING:
     from sdk.entities.run.entity import Run
 
 
-def create_run(
-    project: str,
-    task_id: str,
-    task: str,
-    kind: str = "run",
-    inputs: dict = None,
-    outputs: list = None,
-    parameters: dict = None,
-    local: bool = False,
-) -> Run:
+def create_run(**kwargs) -> Run:
     """
-    Create a new Run instance with the given parameters.
+    Create a new object instance.
 
     Parameters
     ----------
-    project : str
-        Name of the project.
-    task_id : str
-        The task id of the run.
-    task : str
-        The task string of the run.
-    kind : str, optional, default "run"
-        The type of the Run.
-    inputs : dict, optional
-        The inputs of the run.
-    outputs : list, optional
-        The outputs of the run.
-    parameters : dict, optional
-        The parameters of the run.
-    local : bool, optional
-        Flag to determine if object has local execution.
-    embedded : bool, optional
-        Flag to determine if object must be embedded in project.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Run
-        Instance of the Run class representing the specified run.
-
+       Object instance.
     """
-    return run_from_parameters(
-        project=project,
-        task_id=task_id,
-        task=task,
-        kind=kind,
-        inputs=inputs,
-        outputs=outputs,
-        parameters=parameters,
-        local=local,
-    )
+    return run_from_parameters(**kwargs)
 
 
 def new_run(
@@ -78,7 +43,7 @@ def new_run(
     local: bool = False,
 ) -> Run:
     """
-    Create a new Run instance with the given parameters.
+    Create a new object instance.
 
     Parameters
     ----------
@@ -88,22 +53,21 @@ def new_run(
         The task id of the run.
     task : str
         The task string of the run.
-    kind : str, optional, default "run"
+    kind : str, default "run"
         The type of the Run.
-    inputs : dict, optional
+    inputs : dict
         The inputs of the run.
-    outputs : list, optional
+    outputs : list
         The outputs of the run.
-    parameters : dict, optional
+    parameters : dict
         The parameters of the run.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
 
     Returns
     -------
     Run
-        Instance of the Run class representing the specified run.
-
+       Object instance.
     """
     check_local_flag(project, local)
     obj = create_run(
@@ -122,7 +86,7 @@ def new_run(
 
 def get_run(project: str, name: str) -> Run:
     """
-    Retrieve run details from the backend.
+    Get object from backend.
 
     Parameters
     ----------
@@ -134,8 +98,7 @@ def get_run(project: str, name: str) -> Run:
     Returns
     -------
     Run
-        An object that contains details about the specified run.
-
+        Object instance.
     """
     api = api_base_read(DTO_RUNS, name)
     obj = get_context(project).read_object(api)
@@ -144,17 +107,17 @@ def get_run(project: str, name: str) -> Run:
 
 def import_run(file: str) -> Run:
     """
-    Import a Run object from a file using the specified file path.
+    Get object from file.
 
     Parameters
     ----------
     file : str
-        The absolute or relative path to the file containing the Run object.
+        Path to the file.
 
     Returns
     -------
     Run
-        The Run object imported from the file using the specified path.
+        Object instance.
     """
     obj = read_yaml(file)
     return run_from_dict(obj)

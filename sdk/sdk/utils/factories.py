@@ -50,12 +50,12 @@ def get_client() -> Client:
 
 def set_store(store_cfg: StoreConfig) -> None:
     """
-    Set the store instance.
+    Set a new store instance with the given configuration.
 
     Parameters
     ----------
     store_cfg : StoreConfig
-        The store configuration.
+        Store configuration.
 
     Returns
     -------
@@ -66,29 +66,30 @@ def set_store(store_cfg: StoreConfig) -> None:
 
 def get_store(store_name: str) -> Store:
     """
-    Get store instance.
+    Get store instance by name.
 
     Parameters
     ---------
     store_name : str
-        The name of the registered store.
+        Store name.
 
     Returns
     -------
     Store
-        The store instance.
+        Store instance.
     """
     return store_builder.get(store_name=store_name)
 
 
 def get_default_store() -> Store:
     """
-    Get the default writer store instance.
+    Get the default store instance. The default store is the one that
+    can persist artifacts and dataitems.
 
     Returns
     -------
     Store
-        The default store instance.
+        Default store instance.
     """
     return store_builder.default()
 
@@ -98,52 +99,50 @@ def get_default_store() -> Store:
 ####################
 
 
-def set_context(project: Project) -> None:
+def set_context(project_object: Project) -> None:
     """
-    Set the current context to the given project.
+    Set current context to the given project.
 
     Parameters
     ----------
-    project : Project
-        The project to set as the current context.
+    project_object : Project
+        The project object used to set the current context.
 
     Returns
     -------
     None
-
     """
-    context_builder.build(project=project)
+    context_builder.build(project_object=project_object)
 
 
-def get_context(project_name: str) -> Context:
+def get_context(project: str) -> Context:
     """
-    Get the specific context.
+    Get specific context by project name.
 
     Parameters
     ----------
-    project_name : str
-        The name of the project to get the context for.
+    project : str
+        Name of the project.
 
     Returns
     -------
     Context
         The context for the given project name.
-
     """
-    return context_builder.get(project_name=project_name)
+    return context_builder.get(project=project)
 
 
-def delete_context(project_name: str) -> None:
+def delete_context(project: str) -> None:
     """
     Delete the context for the given project name.
 
     Parameters
     ----------
-    project_name : str
-        The name of the project to delete the context for.
+    project : str
+        Name of the project.
 
     Returns
     -------
     None
     """
-    context_builder.remove(project_name=project_name)
+    context_builder.remove(project=project)

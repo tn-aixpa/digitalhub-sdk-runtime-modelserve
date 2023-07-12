@@ -24,41 +24,21 @@ if typing.TYPE_CHECKING:
     from sdk.entities.project.entity import Project
 
 
-def create_project(
-    name: str,
-    description: str = "",
-    context: str = None,
-    source: str = None,
-    local: bool = False,
-    uuid: str = None,
-) -> Project:
+def create_project(**kwargs) -> Project:
     """
     Create a new project.
 
     Parameters
     ----------
-    name : str
-        The name of the project to load.
-    description : str, optional
-        The description of the project.
-    context : str, optional
-        The path to the project's execution context.
-    source : str, optional
-        The path to the project's source code.
-    local : bool, optional
-        Flag to determine if project wil be executed locally.
-    uuid : str, optional
-        UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Project
         A Project instance.
-
     """
-    return project_from_parameters(
-        name=name, description=description, context=context, source=source, local=local
-    )
+    return project_from_parameters(**kwargs)
 
 
 def new_project(
@@ -75,23 +55,22 @@ def new_project(
     Parameters
     ----------
     name : str
-        The name of the project to load.
-    description : str, optional
+        Name of the project.
+    description : str
         The description of the project.
-    context : str, optional
+    context : str
         The path to the project's execution context.
-    source : str, optional
+    source : str
         The path to the project's source code.
-    local : bool, optional
+    local : bool
         Flag to determine if project wil be executed locally.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
     -------
     Project
         A Project instance with its context.
-
     """
     obj = create_project(
         name=name,
@@ -116,7 +95,7 @@ def load_project(
     Parameters
     ----------
     name : str
-        The name of the project to load from backend.
+        Name of the project.
     filename : str
         Path to file where to load project from.
     local : bool
@@ -126,7 +105,6 @@ def load_project(
     -------
     Project
         A Project instance with setted context.
-
     """
     if local:
         return import_project(filename)
@@ -140,13 +118,12 @@ def get_project(name: str) -> Project:
     Parameters
     ----------
     name : str
-        The name or UUID of the project.
+        The name or UUID.
 
     Returns
     -------
     Project
-        An object that contains details about the specified project.
-
+        Object instance.
     """
     api = api_base_read(DTO_PROJ, name)
     obj_be = get_client().read_object(api)
@@ -184,13 +161,12 @@ def import_project(file: str) -> Project:
     Parameters
     ----------
     file : str
-        The absolute or relative path to the file containing the Project object.
+        Path to the file.
 
     Returns
     -------
     Project
-        The Project object imported from the file using the specified path.
-
+        Object instance.
     """
     obj = read_yaml(file)
     return project_from_dict(obj)
@@ -203,7 +179,7 @@ def delete_project(name: str, delete_all: bool = False) -> None:
     Parameters
     ----------
     name : str
-        The name of the project.
+        Name of the project.
 
     Returns
     -------

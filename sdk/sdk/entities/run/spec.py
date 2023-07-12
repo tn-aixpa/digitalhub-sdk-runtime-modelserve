@@ -18,11 +18,11 @@ class RunSpec(EntitySpec):
 
         Parameters
         ----------
-        inputs : dict, optional
+        inputs : dict
             The inputs of the run.
-        outputs : list, optional
+        outputs : list
             The outputs of the run.
-        parameters : dict, optional
+        parameters : dict
             The parameters of the run.
 
         """

@@ -10,7 +10,7 @@ class ClientBuilder:
     It is a singleton class.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor.
         """
@@ -23,9 +23,9 @@ class ClientBuilder:
         Parameters
         ----------
         *args
-            The client arguments.
+            Arguments list.
         **kwargs
-            The client keyword arguments.
+            Keyword arguments.
 
         Returns
         -------

@@ -39,10 +39,10 @@ class Run(Entity):
             Name of the project.
         task_id : str
             Identifier of the task.
-        spec : RunSpec, optional
-            Specification for the run, default is None.
-        local: bool, optional
-            Specify if run locally, default is False.
+        spec : RunSpec
+            Specification of the object.
+        local: bool
+            If True, run locally.
         """
         super().__init__()
         self.project = project
@@ -69,20 +69,18 @@ class Run(Entity):
 
         Parameters
         ----------
-        uuid : str, optional
+        uuid : str
             Ignore this parameter.
 
         Returns
         -------
         dict
             Mapping representation of Run from backend.
-
         """
         if self._local:
             raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
-        print(obj)
 
         api = api_base_create(DTO_RUNS)
         response = self._context.create_object(obj, api)
@@ -95,13 +93,12 @@ class Run(Entity):
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Name of the export YAML file. If not specified, the default value is used.
 
         Returns
         -------
         None
-
         """
         obj = self.to_dict()
         filename = (
@@ -192,7 +189,6 @@ class Run(Entity):
         -------
         Self
             Self instance.
-
         """
         parsed_dict = cls._parse_dict(obj)
         obj_ = cls(**parsed_dict)
@@ -255,22 +251,22 @@ def run_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project associated with the run.
+        Name of the project.
     task_id : str
         Identifier of the task associated with the run.
     task : str
         Name of the task associated with the run.
-    kind : str, optional
+    kind : str
         The type of the run.
-    inputs : dict, optional
+    inputs : dict
         Inputs of the run.
-    outputs : list, optional
+    outputs : list
         Outputs of the run.
-    parameters : dict, optional
+    parameters : dict
         Parameters of the run.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
 
     Returns
@@ -302,6 +298,5 @@ def run_from_dict(obj: dict) -> Run:
     -------
     Run
         Run object.
-
     """
     return Run.from_dict(obj)

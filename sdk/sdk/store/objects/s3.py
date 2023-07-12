@@ -61,7 +61,7 @@ class S3Store(Store):
         ----------
         src : str
             The source location of the artifact.
-        dst : str, optional
+        dst : str
             The destination of the artifact on local filesystem.
 
         Returns
@@ -108,7 +108,7 @@ class S3Store(Store):
         src : Any
             The source object to be persisted. It can be a file path as a string or Path object.
 
-        dst : str, optional
+        dst : str
             The destination partition for the artifact.
 
         Returns
@@ -135,16 +135,17 @@ class S3Store(Store):
 
     def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> None:
         """
-        Write a dataframe to S3 based storage.
+        Write a dataframe to S3 based storage. Keyword arguments are passed to
+        the underlying to_parquet method.
 
         Parameters
         ----------
         df : pd.DataFrame
-            The dataframe to be written.
+            The dataframe.
         dst : str
             The destination path on S3 based storage.
         **kwargs
-            Keyword arguments to pass to to_parquet() method.
+            Keyword arguments.
 
         Returns
         -------
@@ -221,10 +222,9 @@ class S3Store(Store):
         None
 
         Raises
-        -------
+        ------
         StoreError:
             If access to the specified bucket is not available.
-
         """
         try:
             client.head_bucket(Bucket=bucket)
@@ -241,6 +241,9 @@ class S3Store(Store):
         dst : str
             The destination directory.
 
+        Returns
+        -------
+        None
         """
         if get_uri_scheme(dst) in ["", "file"]:
             dst_dir = get_dir(dst)

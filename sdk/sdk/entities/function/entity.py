@@ -9,16 +9,16 @@ from typing import Self
 from sdk.entities.base.entity import Entity
 from sdk.entities.function.metadata import build_metadata
 from sdk.entities.function.spec import build_spec
-from sdk.entities.task.crud import new_task, create_task
+from sdk.entities.task.crud import create_task, new_task
+from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
-from sdk.entities.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.run.entity import Run
     from sdk.entities.function.metadata import FunctionMetadata
     from sdk.entities.function.spec import FunctionSpec
+    from sdk.entities.run.entity import Run
 
 
 class Function(Entity):
@@ -47,18 +47,18 @@ class Function(Entity):
             Name of the project.
         name : str
             Name of the function.
-        kind : str, optional
+        kind : str
             Kind of the function.
-        metadata : FunctionMetadata, optional
-            Metadata for the function, default is None.
-        spec : FunctionSpec, optional
-            Specification for the function, default is None.
-        local: bool, optional
-            Specify if run locally, default is False.
-        embedded: bool, optional
-            Specify if embedded the function, default is False.
+        metadata : FunctionMetadata
+            Metadata of the object.
+        spec : FunctionSpec
+            Specification of the object.
+        local: bool
+            If True, run locally.
+        embedded: bool
+            If True embed object in backend. the function
         **kwargs
-            Additional keyword arguments.
+            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -87,14 +87,13 @@ class Function(Entity):
 
         Parameters
         ----------
-        uuid : str, optional
-            Specify uuid for the function update, default is None.
+        uuid : str
+            Specify uuid for the function update
 
         Returns
         -------
         dict
             Mapping representation of Function from backend.
-
         """
         if self._local:
             raise EntityError("Use .export() for local execution.")
@@ -115,13 +114,12 @@ class Function(Entity):
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Name of the export YAML file. If not specified, the default value is used.
 
         Returns
         -------
         None
-
         """
         obj = self.to_dict()
         filename = (
@@ -140,7 +138,7 @@ class Function(Entity):
         inputs: dict = None,
         outputs: list = None,
         parameters: dict = None,
-        k8s_resources: dict = None,
+        resources: dict = None,
     ) -> Run:
         """
         Run function.
@@ -153,7 +151,7 @@ class Function(Entity):
             Function outputs. Used in Run.
         parameters : dict
             Function parameters. Used in Run.
-        k8s_resources : dict
+        resources : dict
             K8s resource. Used in Task.
 
         Returns
@@ -170,7 +168,7 @@ class Function(Entity):
                 project=self.project,
                 kind="task",
                 task=task,
-                k8s_resources=k8s_resources,
+                resources=resources,
                 local=self._local,
                 uuid=self.id,
             )
@@ -185,7 +183,7 @@ class Function(Entity):
         Parameters
         ----------
         new_spec : dict
-            The new specification for the task.
+            The new Specification of the object.
 
         Returns
         -------
@@ -206,7 +204,7 @@ class Function(Entity):
             project=self.project,
             kind=task_kind,
             task=task_task,
-            k8s_resources=new_spec,
+            resources=new_spec,
             local=self._local,
         )
         self._task.id = task_id
@@ -241,7 +239,6 @@ class Function(Entity):
         -------
         Self
             Self instance.
-
         """
         parsed_dict = cls._parse_dict(obj)
         obj_ = cls(**parsed_dict)
@@ -314,12 +311,12 @@ def function_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project associated with the function.
+        Name of the project.
     name : str
         Identifier of the function.
-    description : str, optional
+    description : str
         Description of the function.
-    kind : str, optional
+    kind : str
         The type of the function.
     key : str
         Representation of function like store://etc..
@@ -327,11 +324,11 @@ def function_from_parameters(
         Path to the function on local file system or remote storage.
     targeth_path : str
         Destination path of the function.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
@@ -374,6 +371,5 @@ def function_from_dict(obj: dict) -> Function:
     -------
     Function
         Function object.
-
     """
     return Function.from_dict(obj)

@@ -7,37 +7,33 @@ import typing
 from typing import Self
 
 from sdk.entities.artifact.crud import (
+    create_artifact_from_dict,
     delete_artifact,
     get_artifact,
     new_artifact,
-    create_artifact_from_dict,
 )
-
 from sdk.entities.base.entity import Entity
 from sdk.entities.dataitem.crud import (
+    create_dataitem_from_dict,
     delete_dataitem,
     get_dataitem,
     new_dataitem,
-    create_dataitem_from_dict,
 )
-
 from sdk.entities.function.crud import (
+    create_function_from_dict,
     delete_function,
     get_function,
     new_function,
-    create_function_from_dict,
 )
-
 from sdk.entities.project.metadata import build_metadata
 from sdk.entities.project.spec import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.crud import (
+    create_workflow_from_dict,
     delete_workflow,
     get_workflow,
     new_workflow,
-    create_workflow_from_dict,
 )
-
 from sdk.utils.api import (
     DTO_ARTF,
     DTO_DTIT,
@@ -51,11 +47,11 @@ from sdk.utils.factories import get_client, set_context
 
 if typing.TYPE_CHECKING:
     from sdk.client.client import Client
+    from sdk.entities.artifact.entity import Artifact
+    from sdk.entities.dataitem.entity import Dataitem
+    from sdk.entities.function.entity import Function
     from sdk.entities.project.metadata import ProjectMetadata
     from sdk.entities.project.spec import ProjectSpec
-    from sdk.entities.dataitem.entity import Dataitem
-    from sdk.entities.artifact.entity import Artifact
-    from sdk.entities.function.entity import Function
     from sdk.entities.workflow.entity import Workflow
 
 DTO_LIST = [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]
@@ -83,14 +79,14 @@ class Project(Entity):
         ----------
         name : str
             Name of the project.
-        metadata : ProjectMetadata, optional
-            Metadata for the function, default is None.
-        spec : ProjectSpec, optional
-            Specification for the function, default is None.
-        local: bool, optional
-            Specify if run locally, default is False.
+        metadata : ProjectMetadata
+            Metadata of the object.
+        spec : ProjectSpec
+            Specification of the object.
+        local: bool
+            If True, run locally.
         **kwargs
-            Additional keyword arguments.
+            Keyword arguments.
         """
         super().__init__()
         self.name = name
@@ -124,14 +120,13 @@ class Project(Entity):
 
         Parameters
         ----------
-        uuid : bool, optional
+        uuid : bool
             Ignored, placed for compatibility with other objects.
 
         Returns
         -------
         dict
             Mapping representation of Project from backend.
-
         """
         responses = []
         if self.local:
@@ -167,13 +162,12 @@ class Project(Entity):
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Name of the export YAML file. If not specified, the default value is used.
 
         Returns
         -------
         None
-
         """
         obj = self.to_dict()
         filename = filename if filename is not None else "project.yaml"
@@ -225,8 +219,8 @@ class Project(Entity):
             Name of object to be deleted.
         kind : str
             Kind of object to be deleted.
-        uuid : str, optional
-            UUID of object to be deleted.
+        uuid : str
+            UUID.
 
         Returns
         -------
@@ -290,9 +284,9 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the artifact.
-        description : str, optional
+        description : str
             Description of the artifact.
-        kind : str, optional
+        kind : str
             The type of the artifact.
         key : str
             Representation of artfact like store://etc..
@@ -300,17 +294,17 @@ class Project(Entity):
             Path to the artifact on local file system or remote storage.
         target_path : str
             Path of destionation for the artifact.
-        local : bool, optional
+        local : bool
             Flag to determine if object has local execution.
-        embedded : bool, optional
+        embedded : bool
             Flag to determine if object must be embedded in project.
-        uuid : str, optional
+        uuid : str
             UUID.
 
         Returns
         -------
         Artifact
-            Instance of the Artifact class representing the specified artifact.
+           Object instance.
         """
         obj = new_artifact(
             project=self.name,
@@ -335,7 +329,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the artifact.
-        uuid : str, optional
+        uuid : str
             Identifier of the artifact version.
 
         Returns
@@ -359,7 +353,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the artifact.
-        uuid : str, optional
+        uuid : str
             Identifier of the artifact version.
 
         Returns
@@ -411,29 +405,29 @@ class Project(Entity):
             Name of the project.
         name : str
             Identifier of the Function.
-        description : str, optional
+        description : str
             Description of the Function.
-        kind : str, optional
+        kind : str
             The type of the Function.
-        source : str, optional
+        source : str
             Path to the Function's source code on the local file system or remote storage.
-        image : str, optional
+        image : str
             Name of the Function's Docker image.
-        tag : str, optional
+        tag : str
             Tag of the Function's Docker image.
-        handler : str, optional
+        handler : str
             Function handler name.
-        local : bool, optional
+        local : bool
             Flag to determine if object has local execution.
-        embedded : bool, optional
+        embedded : bool
             Flag to determine if object must be embedded in project.
-        uuid : str, optional
+        uuid : str
             UUID.
 
         Returns
         -------
         Function
-            Instance of the Function class representing the specified function.
+           Object instance.
         """
         obj = new_function(
             project=self.name,
@@ -459,7 +453,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the function.
-        uuid : str, optional
+        uuid : str
             Identifier of the function version.
 
         Returns
@@ -483,7 +477,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the function.
-        uuid : str, optional
+        uuid : str
             Identifier of the function version.
 
         Returns
@@ -532,17 +526,17 @@ class Project(Entity):
             A string representing the project associated with this workflow.
         name : str
             The name of the workflow.
-        description : str, optional
+        description : str
             A description of the workflow.
-        kind : str, optional
+        kind : str
             The kind of the workflow.
-        spec_ : dict, optional
-            The specification for the workflow.
-        local : bool, optional
+        spec_ : dict
+            Specification of the object.
+        local : bool
             Flag to determine if object has local execution.
-        embedded : bool, optional
+        embedded : bool
             Flag to determine if object must be embedded in project.
-        uuid : str, optional
+        uuid : str
             UUID.
 
         Returns
@@ -571,7 +565,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the workflow.
-        uuid : str, optional
+        uuid : str
             Identifier of the workflow version.
 
         Returns
@@ -595,7 +589,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the workflow.
-        uuid : str, optional
+        uuid : str
             Identifier of the workflow version.
 
         Returns
@@ -643,25 +637,25 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the dataitem.
-        description : str, optional
+        description : str
             Description of the dataitem.
-        kind : str, optional
+        kind : str
             The type of the dataitem.
         key : str
             Representation of artfact like store://etc..
         path : str
             Path to the dataitem on local file system or remote storage.
-        local : bool, optional
+        local : bool
             Flag to determine if object has local execution.
-        embedded : bool, optional
+        embedded : bool
             Flag to determine if object must be embedded in project.
-        uuid : str, optional
+        uuid : str
             UUID.
 
         Returns
         -------
         Dataitem
-            Instance of the Dataitem class representing the specified dataitem.
+           Object instance.
         """
         obj = new_dataitem(
             project=self.name,
@@ -685,7 +679,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the dataitem.
-        uuid : str, optional
+        uuid : str
             Identifier of the dataitem version.
 
         Returns
@@ -709,7 +703,7 @@ class Project(Entity):
         ----------
         name : str
             Identifier of the dataitem.
-        uuid : str, optional
+        uuid : str
             Identifier of the dataitem version.
 
         Returns
@@ -773,7 +767,6 @@ class Project(Entity):
         -------
         Self
             Self instance.
-
         """
         parsed_dict = cls._parse_dict(obj)
         obj_ = cls(**parsed_dict)
@@ -846,17 +839,17 @@ def project_from_parameters(
     ----------
     name : str
         Identifier of the project.
-    description : str, optional
+    description : str
         Description of the project.
-    kind : str, optional
+    kind : str
         The type of the project.
-    context : str, optional
+    context : str
         The context of the project.
-    source : str, optional
+    source : str
         The source of the project.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
@@ -889,6 +882,5 @@ def project_from_dict(obj: dict) -> Project:
     -------
     Project
         Project object.
-
     """
     return Project.from_dict(obj)

@@ -15,54 +15,21 @@ if typing.TYPE_CHECKING:
     from sdk.entities.workflow.entity import Workflow
 
 
-def create_workflow(
-    project: str,
-    name: str,
-    description: str = "",
-    kind: str = "job",
-    test: str = None,
-    local: bool = False,
-    embedded: bool = False,
-    uuid: str = None,
-) -> Workflow:
+def create_workflow(**kwargs) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
 
     Parameters
     ----------
-    project : str
-        A string representing the project associated with this workflow.
-    name : str
-        The name of the workflow.
-    description : str, optional
-        A description of the workflow.
-    kind : str, optional
-        The kind of the workflow.
-    spec : dict, optional
-        The specification for the workflow.
-    local : bool, optional
-        Flag to determine if object has local execution.
-    embedded : bool, optional
-        Flag to determine if object must be embedded in project.
-    uuid : str, optional
-        UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Workflow
         An instance of the created workflow.
-
     """
-    return workflow_from_parameters(
-        project=project,
-        name=name,
-        description=description,
-        kind=kind,
-        test=test,
-        local=local,
-        embedded=embedded,
-        uuid=uuid,
-    )
+    return workflow_from_parameters(**kwargs)
 
 
 def create_workflow_from_dict(obj: dict) -> Workflow:
@@ -101,24 +68,23 @@ def new_workflow(
         A string representing the project associated with this workflow.
     name : str
         The name of the workflow.
-    description : str, optional
+    description : str
         A description of the workflow.
-    kind : str, optional
+    kind : str
         The kind of the workflow.
-    spec : dict, optional
-        The specification for the workflow.
-    local : bool, optional
+    spec : dict
+        Specification of the object.
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
     -------
     Workflow
         An instance of the created workflow.
-
     """
     check_local_flag(project, local)
     obj = create_workflow(
@@ -146,13 +112,13 @@ def get_workflow(project: str, name: str, uuid: str = None) -> Workflow:
         Name of the project.
     name : str
         The name of the workflow.
-    uuid : str, optional
-        UUID of workflow specific version.
+    uuid : str
+        UUID.
 
     Returns
     -------
     Workflow
-        An object that contains details about the specified workflow.
+        Object instance.
     """
     api = api_ctx_read(project, DTO_WKFL, name, uuid=uuid)
     obj = get_context(project).read_object(api)
@@ -166,13 +132,12 @@ def import_workflow(file: str) -> Workflow:
     Parameters
     ----------
     file : str
-        The absolute or relative path to the file containing the Workflow object.
+        Path to the file.
 
     Returns
     -------
     Workflow
-        The Workflow object imported from the file using the specified path.
-
+        Object instance.
     """
     obj = read_yaml(file)
     return workflow_from_dict(obj)
@@ -188,8 +153,8 @@ def delete_workflow(project: str, name: str, uuid: str = None) -> dict:
         Name of the project.
     name : str
         The name of the workflow.
-    uuid : str, optional
-        UUID of workflow specific version.
+    uuid : str
+        UUID.
 
     Returns
     -------

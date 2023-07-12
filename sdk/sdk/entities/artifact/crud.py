@@ -15,61 +15,21 @@ if typing.TYPE_CHECKING:
     from sdk.entities.artifact.entity import Artifact
 
 
-def create_artifact(
-    project: str,
-    name: str,
-    description: str = "",
-    kind: str = "artifact",
-    key: str = None,
-    src_path: str = None,
-    target_path: str = None,
-    local: bool = False,
-    embedded: bool = False,
-    uuid: str = None,
-) -> Artifact:
+def create_artifact(**kwargs) -> Artifact:
     """
     Create a new artifact with the provided parameters.
 
     Parameters
     ----------
-    project : str
-        Name of the project associated with the artifact.
-    name : str
-        Identifier of the artifact.
-    description : str, optional
-        Description of the artifact.
-    kind : str, optional
-        The type of the artifact.
-    key : str
-        Representation of artfact like store://etc..
-    src_path : str
-        Path to the artifact on local file system or remote storage.
-    targeth_path : str
-        Destination path of the artifact.
-    local : bool, optional
-        Flag to determine if object has local execution.
-    embedded : bool, optional
-        Flag to determine if object must be embedded in project.
-    uuid : str, optional
-        UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Artifact
-        An instance of the Artifact class representing the specified artifact.
+        Object instance.
     """
-    return artifact_from_parameters(
-        project=project,
-        name=name,
-        description=description,
-        kind=kind,
-        key=key,
-        src_path=src_path,
-        target_path=target_path,
-        local=local,
-        embedded=embedded,
-        uuid=uuid,
-    )
+    return artifact_from_parameters(**kwargs)
 
 
 def create_artifact_from_dict(obj: dict) -> Artifact:
@@ -107,12 +67,12 @@ def new_artifact(
     Parameters
     ----------
     project : str
-        Name of the project associated with the artifact.
+        Name of the project.
     name : str
         Identifier of the artifact.
-    description : str, optional
+    description : str
         Description of the artifact.
-    kind : str, optional
+    kind : str
         The type of the artifact.
     key : str
         Representation of artfact like store://etc..
@@ -120,17 +80,17 @@ def new_artifact(
         Path to the artifact on local file system or remote storage.
     targeth_path : str
         Destination path of the artifact.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
     -------
     Artifact
-        Instance of the Artifact class representing the specified artifact.
+       Object instance.
     """
     check_local_flag(project, local)
     obj = create_artifact(
@@ -159,14 +119,13 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
         Name of the project.
     name : str
         The name of the artifact.
-    uuid : str, optional
-        UUID of artifact specific version.
+    uuid : str
+        UUID.
 
     Returns
     -------
     Artifact
-        An object that contains details about the specified artifact.
-
+        Object instance.
     """
     api = api_ctx_read(project, DTO_ARTF, name, uuid=uuid)
     obj = get_context(project).read_object(api)
@@ -180,13 +139,12 @@ def import_artifact(file: str) -> Artifact:
     Parameters
     ----------
     file : str
-        The absolute or relative path to the file containing the Artifact object.
+        Path to the file.
 
     Returns
     -------
     Artifact
-        The Artifact object imported from the file using the specified path.
-
+        Object instance.
     """
     obj = read_yaml(file)
     return artifact_from_dict(obj)
@@ -202,8 +160,8 @@ def delete_artifact(project: str, name: str, uuid: str = None) -> dict:
         Name of the project.
     name : str
         The name of the artifact.
-    uuid : str, optional
-        UUID of artifact specific version.
+    uuid : str
+        UUID.
 
     Returns
     -------

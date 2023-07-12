@@ -87,6 +87,7 @@ class Client:
     def call(self, call_type: str, api: str, **kwargs) -> dict:
         """
         Make a call to the DHCore API.
+        Keyword arguments are passed to the requests.request function.
 
         Parameters
         ----------
@@ -95,7 +96,7 @@ class Client:
         api : str
             The api to call.
         **kwargs
-            The arguments to pass to the call.
+            Keyword arguments.
 
         Returns
         -------
@@ -108,7 +109,9 @@ class Client:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as exc:
-            raise BackendError(f"Request error: {exc}. Text response: {response.text}") from exc
+            raise BackendError(
+                f"Request error: {exc}. Text response: {response.text}"
+            ) from exc
 
     @staticmethod
     def _get_endpoint(api: str) -> str:

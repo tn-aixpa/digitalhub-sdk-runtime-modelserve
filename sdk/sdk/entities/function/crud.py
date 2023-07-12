@@ -15,74 +15,21 @@ if typing.TYPE_CHECKING:
     from sdk.entities.function.entity import Function
 
 
-def create_function(
-    project: str,
-    name: str,
-    description: str = "",
-    kind: str = "job",
-    source: str = None,
-    image: str = None,
-    tag: str = None,
-    handler: str = None,
-    command: str = None,
-    requirements: list = None,
-    local: bool = False,
-    embedded: bool = False,
-    uuid: str = None,
-) -> Function:
+def create_function(**kwargs) -> Function:
     """
-    Create a new Function instance with the given parameters.
+    Create a new object instance.
 
     Parameters
     ----------
-    project : str
-        Name of the project.
-    name : str
-        Identifier of the Function.
-    description : str, optional
-        Description of the Function.
-    kind : str, optional, default "job"
-        The type of the Function.
-    source : str, optional
-        Path to the Function's source code on the local file system.
-    image : str, optional
-        Name of the Function's container image.
-    tag : str, optional
-        Tag of the Function's container image.
-    handler : str, optional
-        Function handler name.
-    command : str, optional
-        Command to run inside the container.
-    requirements : list, optional
-        List of requirements for the Function.
-    local : bool, optional
-        Flag to determine if object has local execution.
-    embedded : bool, optional
-        Flag to determine if object must be embedded in project.
-    uuid : str, optional
-        UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Function
-        Instance of the Function class representing the specified function.
-
+       Object instance.
     """
-    return function_from_parameters(
-        project=project,
-        name=name,
-        description=description,
-        kind=kind,
-        source=source,
-        image=image,
-        tag=tag,
-        handler=handler,
-        command=command,
-        requirements=requirements,
-        local=local,
-        embedded=embedded,
-        uuid=uuid,
-    )
+    return function_from_parameters(**kwargs)
 
 
 def create_function_from_dict(obj: dict) -> Function:
@@ -126,33 +73,33 @@ def new_function(
         Name of the project.
     name : str
         Identifier of the Function.
-    description : str, optional
+    description : str
         Description of the Function.
-    kind : str, optional, default "job"
+    kind : str, default "job"
         The type of the Function.
-    source : str, optional
+    source : str
         Path to the Function's source code on the local file system.
-    image : str, optional
+    image : str
         Name of the Function's container image.
-    tag : str, optional
+    tag : str
         Tag of the Function's container image.
-    handler : str, optional
+    handler : str
         Function handler name.
-    command : str, optional
+    command : str
         Command to run inside the container.
-    requirements : list, optional
+    requirements : list
         List of requirements for the Function.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
     -------
     Function
-        Instance of the Function class representing the specified function.
+       Object instance.
 
     Raises
     ------
@@ -181,7 +128,7 @@ def new_function(
 
 def get_function(project: str, name: str, uuid: str = None) -> Function:
     """
-    Retrieve function details from the backend.
+    Get object from backend.
 
     Parameters
     ----------
@@ -189,14 +136,13 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
         Name of the project.
     name : str
         The name of the function.
-    uuid : str, optional
-        UUID of function specific version.
+    uuid : str
+        UUID.
 
     Returns
     -------
     Function
-        An object that contains details about the specified function.
-
+        Object instance.
     """
     api = api_ctx_read(project, DTO_FUNC, name, uuid=uuid)
     obj = get_context(project).read_object(api)
@@ -205,17 +151,17 @@ def get_function(project: str, name: str, uuid: str = None) -> Function:
 
 def import_function(file: str) -> Function:
     """
-    Import a Function object from a file using the specified file path.
+    Get object from file.
 
     Parameters
     ----------
     file : str
-        The absolute or relative path to the file containing the Function object.
+        Path to the file.
 
     Returns
     -------
     Function
-        The Function object imported from the file using the specified path.
+        Object instance.
     """
     obj = read_yaml(file)
     return function_from_dict(obj)
@@ -231,8 +177,8 @@ def delete_function(project: str, name: str, uuid: str = None) -> None:
         Name of the project.
     name : str
         The name of the function.
-    uuid : str, optional
-        UUID of function specific version.
+    uuid : str
+        UUID.
 
     Returns
     -------

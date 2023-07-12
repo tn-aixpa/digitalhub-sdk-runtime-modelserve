@@ -20,11 +20,11 @@ class ArtifactSpec(EntitySpec):
 
         Parameters
         ----------
-        key : str, optional
+        key : str
             The key of the artifact.
-        src_path : str, optional
+        src_path : str
             The source path of the artifact.
-        target_path : str, optional
+        target_path : str
             The target path of the artifact.
 
         """

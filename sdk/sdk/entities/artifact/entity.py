@@ -47,18 +47,18 @@ class Artifact(Entity):
             Name of the project.
         name : str
             Name of the artifact.
-        kind : str, optional
-            Kind of the artifact, default is 'artifact'.
-        metadata : ArtifactMetadata, optional
-            Metadata for the artifact, default is None.
-        spec : ArtifactSpec, optional
-            Specification for the artifact, default is None.
-        local: bool, optional
-            Specify if run locally, default is False.
-        embedded: bool, optional
-            Specify if embedded, default is False.
+        kind : str
+            Kind of the artifact
+        metadata : ArtifactMetadata
+            Metadata of the object.
+        spec : ArtifactSpec
+            Specification of the object.
+        local: bool
+            If True, run locally.
+        embedded: bool
+            If True embed object in backend.
         **kwargs
-            Additional keyword arguments.
+            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -95,14 +95,13 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        uuid : str, optional
-            UUID of the artifact for update, default is None.
+        uuid : str
+            UUID.
 
         Returns
         -------
         dict
             Mapping representation of Artifact from backend.
-
         """
         if self._local:
             raise EntityError("Use .export() for local execution.")
@@ -123,13 +122,12 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Name of the export YAML file. If not specified, the default value is used.
 
         Returns
         -------
         None
-
         """
         obj = self.to_dict()
         filename = (
@@ -151,8 +149,8 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        target : str, optional
-            Target path is the remote path of the artifact where it is stored, default is None.
+        target : str
+            Target path is the remote path of the artifact where it is stored
 
         Returns
         -------
@@ -185,12 +183,12 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        target : str, optional
-            Target path is the remote path of the artifact, default is None.
-        dst : str, optional
-            Destination path as filename, default is None.
-        overwrite : bool, optional
-            Specify if overwrite an existing file, default is False.
+        target : str
+            Target path is the remote path of the artifact
+        dst : str
+            Destination path as filename
+        overwrite : bool
+            Specify if overwrite an existing file
 
         Returns
         -------
@@ -222,10 +220,10 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        source : str, optional
-            Source path is the local path of the artifact, default is None.
-        target : str, optional
-            Target path is the remote path of the artifact, default is None.
+        source : str
+            Source path is the local path of the artifact
+        target : str
+            Target path is the remote path of the artifact
 
         Returns
         -------
@@ -260,16 +258,15 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        target : str, optional
-            Target path is the remote path of the artifact, default is None.
+        target : str
+            Target path is the remote path of the artifact
 
-        upload : bool, optional
-            Specify if target path is for upload, default is False.
+        upload : bool
+            Specify if target path is for upload
 
         Returns
         -------
         None
-
         """
         if self.spec.target_path is None:
             if target is None:
@@ -289,8 +286,8 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        src : str, optional
-            Source path is the local path of the artifact, default is None.
+        src : str
+            Source path is the local path of the artifact
 
         Returns
         -------
@@ -312,8 +309,8 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        ignore_raise : bool, optional
-            Specify if raise an exception if target path is not remote, default is True.
+        ignore_raise : bool
+            Specify if raise an exception if target path is not remote
 
         Returns
         -------
@@ -351,8 +348,8 @@ class Artifact(Entity):
 
         Parameters
         ----------
-        dst : str, optional
-            Destination path as filename, default is None.
+        dst : str
+            Destination path as filename
 
         Returns
         -------
@@ -419,7 +416,6 @@ class Artifact(Entity):
         -------
         Self
             Self instance.
-
         """
         parsed_dict = cls._parse_dict(obj)
         obj_ = cls(**parsed_dict)
@@ -489,12 +485,12 @@ def artifact_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project associated with the artifact.
+        Name of the project.
     name : str
         Identifier of the artifact.
-    description : str, optional
+    description : str
         Description of the artifact.
-    kind : str, optional
+    kind : str
         The type of the artifact.
     key : str
         Representation of artfact like store://etc..
@@ -502,11 +498,11 @@ def artifact_from_parameters(
         Path to the artifact on local file system or remote storage.
     targeth_path : str
         Destination path of the artifact.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
@@ -541,6 +537,5 @@ def artifact_from_dict(obj: dict) -> Artifact:
     -------
     Artifact
         Artifact object.
-
     """
     return Artifact.from_dict(obj)

@@ -2,6 +2,7 @@
 Task spec module.
 """
 from sdk.entities.base.spec import EntitySpec
+from sdk.entities.task.models import K8sResources
 
 
 class TaskSpec(EntitySpec):
@@ -9,18 +10,22 @@ class TaskSpec(EntitySpec):
 
     def __init__(
         self,
-        k8s_resources: dict = None,
+        resources: dict = None,
     ) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        k8s_resources : dict, optional
+        resources : dict
             The k8s resources of the task.
-
         """
-        self.k8s_resources = k8s_resources if k8s_resources is not None else {}
+        resources = resources if resources is not None else {}
+        res = K8sResources(**resources) if resources is not None else None
+        self.volumes = [i.model_dump() for i in res.volumes]
+        self.volume_mounts = [i.model_dump() for i in res.volume_mounts]
+        self.env = [i.model_dump() for i in res.env]
+        self.resources = res.resources.model_dump() if res.resources is not None else {}
 
 
 def build_spec(kind: str, **kwargs) -> TaskSpec:

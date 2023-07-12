@@ -29,17 +29,17 @@ class FunctionSpec(EntitySpec):
 
         Parameters
         ----------
-        source : str, optional
+        source : str
             Path to the Function's source code on the local file system.
-        image : str, optional
+        image : str
             Name of the Function's container image.
-        tag : str, optional
+        tag : str
             Tag of the Function's container image.
-        handler : str, optional
+        handler : str
             Function handler name.
-        command : str, optional
+        command : str
             Command to run inside the container.
-        requirements : list, optional
+        requirements : list
             List of requirements for the Function.
 
         """

@@ -9,14 +9,14 @@ from typing import Self
 from sdk.entities.base.entity import Entity
 from sdk.entities.run.crud import new_run
 from sdk.entities.task.spec import build_spec
+from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
-from sdk.entities.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.task.spec import TaskSpec
     from sdk.entities.run.entity import Run
+    from sdk.entities.task.spec import TaskSpec
 
 
 class Task(Entity):
@@ -47,12 +47,12 @@ class Task(Entity):
             The specification of the task.
         task : str
             The task string.
-        uuid : str, optional
+        uuid : str
             The uuid of the task.
-        local : bool, optional
+        local : bool
             Flag to indicate if the task is local or not.
         **kwargs
-            Additional keyword arguments.
+            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -79,14 +79,13 @@ class Task(Entity):
 
         Parameters
         ----------
-        uuid : str, optional
-            UUID of the task.
+        uuid : str
+            UUID.
 
         Returns
         -------
         dict
             Mapping representation of Task from backend.
-
         """
         if self._local:
             raise EntityError("Use .export() for local execution.")
@@ -107,13 +106,12 @@ class Task(Entity):
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Name of the export YAML file. If not specified, the default value is used.
 
         Returns
         -------
         None
-
         """
         obj = self.to_dict()
         filename = filename if filename is not None else f"task_{self.id}.yaml"
@@ -142,7 +140,6 @@ class Task(Entity):
         -------
         Run
             Run object.
-
         """
         if self._local:
             raise EntityError("Use .run_local() for local execution.")
@@ -176,7 +173,6 @@ class Task(Entity):
         -------
         Self
             Self instance.
-
         """
         parsed_dict = cls._parse_dict(obj)
         obj_ = cls(**parsed_dict)
@@ -227,7 +223,7 @@ def task_from_parameters(
     project: str,
     kind: str = "task",
     task: str = None,
-    k8s_resources: dict = None,
+    resources: dict = None,
     local: bool = False,
     uuid: str = None,
 ) -> Task:
@@ -238,15 +234,15 @@ def task_from_parameters(
     ----------
     project : str
         Name of the project.
-    kind : str, optional
+    kind : str
         The kind of the task.
-    task : str, optional
+    task : str
         The task string.
-    k8s_resources : dict, optional
+    resources : dict
         The k8s resources.
-    local : bool, optional
+    local : bool
         Flag to indicate if the task is local or not.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
@@ -254,7 +250,7 @@ def task_from_parameters(
     Task
         Task object.
     """
-    spec = build_spec(kind, k8s_resources=k8s_resources)
+    spec = build_spec(kind, resources=resources)
     return Task(
         project=project,
         kind="task",
@@ -278,6 +274,5 @@ def task_from_dict(obj: dict) -> Task:
     -------
     Task
         Task object.
-
     """
     return Task.from_dict(obj)

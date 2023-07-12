@@ -37,7 +37,6 @@ class EntityMetadata(ModelObj):
         -------
         EntityMetadata
             An entity metadata object.
-
         """
         if obj is None:
             obj = {}

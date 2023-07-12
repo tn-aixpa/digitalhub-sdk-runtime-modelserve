@@ -15,7 +15,7 @@ class WorkflowSpec(EntitySpec):
 
         Parameters
         ----------
-        test : str, optional
+        test : str
             Test to run for the workflow.
         """
         self.test = test

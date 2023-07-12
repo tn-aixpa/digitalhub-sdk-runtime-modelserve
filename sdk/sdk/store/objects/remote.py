@@ -33,7 +33,7 @@ class RemoteStore(Store):
         ----------
         src : str
             The source location of the artifact.
-        dst : str, optional
+        dst : str
             The destination of the artifact.
 
         Returns
@@ -52,7 +52,7 @@ class RemoteStore(Store):
         ----------
         src : str
             The source location of the artifact.
-        dst : str, optional
+        dst : str
             The destination of the artifact.
 
         Returns
@@ -90,9 +90,9 @@ class RemoteStore(Store):
         Parameters
         ----------
         *args
-            Variable length argument list.
+            Arguments list.
         **kwargs
-            Arbitrary keyword arguments.
+            Keyword arguments.
 
         Returns
         -------
@@ -113,9 +113,9 @@ class RemoteStore(Store):
         Parameters
         ----------
         *args
-            Variable length argument list.
+            Arguments list.
         **kwargs
-            Arbitrary keyword arguments.
+            Keyword arguments.
 
         Returns
         -------
@@ -136,9 +136,9 @@ class RemoteStore(Store):
         Parameters
         ----------
         *args
-            Variable length argument list.
+            Arguments list.
         **kwargs
-            Arbitrary keyword arguments.
+            Keyword arguments.
 
         Returns
         -------

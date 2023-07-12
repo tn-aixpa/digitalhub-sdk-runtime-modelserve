@@ -7,8 +7,8 @@ import typing
 from typing import Self
 
 from sdk.entities.base.entity import Entity
-from sdk.entities.dataitem.spec import build_spec
 from sdk.entities.dataitem.metadata import build_metadata
+from sdk.entities.dataitem.spec import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
@@ -18,6 +18,7 @@ from sdk.utils.uri_utils import get_extension, get_uri_scheme
 
 if typing.TYPE_CHECKING:
     import pandas as pd
+
     from sdk.entities.dataitem.metadata import DataitemMetadata
     from sdk.entities.dataitem.spec import DataitemSpec
 
@@ -48,18 +49,18 @@ class Dataitem(Entity):
             Name of the project.
         name : str
             Name of the dataitem.
-        kind : str, optional
-            Kind of the dataitem, default is 'dataitem'.
-        metadata : DataitemMetadata, optional
-            Metadata for the dataitem, default is None.
-        spec : DataitemSpec, optional
-            Specification for the dataitem, default is None.
-        local: bool, optional
-            Specify if run locally, default is False.
-        embedded: bool, optional
-            Specify if embedded, default is False.
+        kind : str
+            Kind of the dataitem
+        metadata : DataitemMetadata
+            Metadata of the object.
+        spec : DataitemSpec
+            Specification of the object.
+        local: bool
+            If True, run locally.
+        embedded: bool
+            If True embed object in backend.
         **kwargs
-            Additional keyword arguments.
+            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -95,14 +96,13 @@ class Dataitem(Entity):
 
         Parameters
         ----------
-        uuid : str, optional
-            Specify uuid for the dataitem to update, default is None.
+        uuid : str
+            Specify uuid for the dataitem to update
 
         Returns
         -------
         dict
             Mapping representation of Dataitem from backend.
-
         """
         if self._local:
             raise EntityError("Use .export() for local execution.")
@@ -123,13 +123,12 @@ class Dataitem(Entity):
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Name of the export YAML file. If not specified, the default value is used.
 
         Returns
         -------
         None
-
         """
         obj = self.to_dict()
         filename = (
@@ -155,10 +154,10 @@ class Dataitem(Entity):
 
         Parameters
         ----------
-        file_format : str, optional
-            Format of the file, e.g. csv, parquet, default is None.
+        file_format : str
+            Format of the file, e.g. csv, parquet
         **kwargs
-            Additional keyword arguments for pandas read_csv or read_parquet.
+            Keyword arguments.
 
         Returns
         -------
@@ -203,10 +202,10 @@ class Dataitem(Entity):
         ----------
         df : pd.DataFrame
             DataFrame to write.
-        target_path : str, optional
-            Path to write the dataframe to, default is None.
+        target_path : str
+            Path to write the dataframe to
         **kwargs
-            Additional keyword arguments for pandas.
+            Keyword arguments.
 
         Returns
         -------
@@ -269,7 +268,6 @@ class Dataitem(Entity):
         -------
         Self
             Self instance.
-
         """
         parsed_dict = cls._parse_dict(obj)
         obj_ = cls(**parsed_dict)
@@ -338,22 +336,22 @@ def dataitem_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project associated with the dataitem.
+        Name of the project.
     name : str
         Identifier of the dataitem.
-    description : str, optional
+    description : str
         Description of the dataitem.
-    kind : str, optional
+    kind : str
         The type of the dataitem.
     key : str
         Representation of artfact like store://etc..
     path : str
         Path to the dataitem on local file system or remote storage.
-    local : bool, optional
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
-    uuid : str, optional
+    uuid : str
         UUID.
 
     Returns
@@ -388,6 +386,5 @@ def dataitem_from_dict(obj: dict) -> Dataitem:
     -------
     Dataitem
         Dataitem object.
-
     """
     return Dataitem.from_dict(obj)

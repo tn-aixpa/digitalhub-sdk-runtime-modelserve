@@ -23,23 +23,22 @@ class ProjectSpec(EntitySpec):
 
         Parameters
         ----------
-        context : str, optional
+        context : str
             The context of the project.
-        source : str, optional
+        source : str
             The source of the project.
-        functions : list[dict], optional
+        functions : list[dict]
             A list of dictionaries representing the functions in the project.
-        artifacts : list[dict], optional
+        artifacts : list[dict]
             A list of dictionaries representing the artifacts in the project.
-        workflows : list[dict], optional
+        workflows : list[dict]
             A list of dictionaries representing the workflows in the project.
-        dataitems : list[dict], optional
+        dataitems : list[dict]
             A list of dictionaries representing the data items in the project.
 
         Returns
         -------
         None
-
         """
         self.context = context
         self.source = source

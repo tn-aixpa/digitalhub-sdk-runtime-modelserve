@@ -7,12 +7,12 @@ import typing
 from typing import Self
 
 from sdk.entities.base.entity import Entity
+from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.metadata import build_metadata
 from sdk.entities.workflow.spec import build_spec
 from sdk.utils.api import DTO_WKFL, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
-from sdk.entities.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.workflow.metadata import WorkflowMetadata
@@ -45,18 +45,18 @@ class Workflow(Entity):
             Name of the project.
         name : str
             Name of the workflow.
-        kind : str, optional
-            Kind of the workflow, default is 'workflow'.
-        metadata : WorkflowMetadata, optional
-            Metadata for the workflow, default is None.
-        spec : WorkflowSpec, optional
-            Specification for the workflow, default is None.
-        local: bool, optional
-            Specify if run locally, default is False.
-        embedded: bool, optional
-            Specify if embedded, default is False.
+        kind : str
+            Kind of the workflow
+        metadata : WorkflowMetadata
+            Metadata of the object.
+        spec : WorkflowSpec
+            Specification of the object.
+        local: bool
+            If True, run locally.
+        embedded: bool
+            If True embed object in backend.
         **kwargs
-            Additional keyword arguments.
+            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -87,14 +87,13 @@ class Workflow(Entity):
 
         Parameters
         ----------
-        uuid : str, optional
-            UUID of the workflow to update, default is None.
+        uuid : str
+            UUID.
 
         Returns
         -------
         dict
             Mapping representation of Workflow from backend.
-
         """
         if self._local:
             raise EntityError("Use .export() for local execution.")
@@ -115,13 +114,12 @@ class Workflow(Entity):
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Name of the export YAML file. If not specified, the default value is used.
 
         Returns
         -------
         None
-
         """
         obj = self.to_dict()
         filename = (
@@ -164,7 +162,6 @@ class Workflow(Entity):
         -------
         Self
             Self instance.
-
         """
         parsed_dict = cls._parse_dict(obj)
         obj_ = cls(**parsed_dict)
@@ -235,24 +232,23 @@ def workflow_from_parameters(
         A string representing the project associated with this workflow.
     name : str
         The name of the workflow.
-    description : str, optional
+    description : str
         A description of the workflow.
-    kind : str, optional
+    kind : str
         The kind of the workflow.
-    spec : dict, optional
-        The specification for the workflow.
-    local : bool, optional
+    spec : dict
+        Specification of the object.
+    local : bool
         Flag to determine if object has local execution.
-    embedded : bool, optional
+    embedded : bool
         Flag to determine if object must be embedded in project.
-    uuid : str, optional
-        The UUID.
+    uuid : str
+        UUID.
 
     Returns
     -------
     Workflow
         An instance of the created workflow.
-
     """
     meta = build_metadata(name=name, description=description)
     spec = build_spec(kind, test=test)
@@ -281,6 +277,5 @@ def workflow_from_dict(obj: dict) -> Workflow:
     -------
     Workflow
         Workflow instance.
-
     """
     return Workflow.from_dict(obj)

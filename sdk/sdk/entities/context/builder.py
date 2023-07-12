@@ -17,13 +17,13 @@ class ContextBuilder:
     It allows to use multiple projects at the same time.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor.
         """
         self._instances = {}
 
-    def build(self, project: Project) -> None:
+    def build(self, project_object: Project) -> None:
         """
         Add a project to the context.
 
@@ -36,16 +36,16 @@ class ContextBuilder:
         -------
         None
         """
-        if project.name not in self._instances:
-            self._instances[project.name] = Context(project)
+        if project_object.name not in self._instances:
+            self._instances[project_object.name] = Context(project_object)
 
-    def get(self, project_name: str) -> Context:
+    def get(self, project: str) -> Context:
         """
         Get a project from the context.
 
         Parameters
         ----------
-        project_name : str
+        project : str
             The project name.
 
         Returns
@@ -53,22 +53,22 @@ class ContextBuilder:
         Context
             The project context.
         """
-        ctx = self._instances.get(project_name)
+        ctx = self._instances.get(project)
         if ctx is None:
-            raise ValueError(f"Context '{project_name}' not found.")
+            raise ValueError(f"Context '{project}' not found.")
         return ctx
 
-    def remove(self, project_name: str) -> None:
+    def remove(self, project: str) -> None:
         """
         Remove a project from the context.
 
         Parameters
         ----------
-        project_name : str
+        project : str
             The project name.
 
         Returns
         -------
         None
         """
-        self._instances.pop(project_name, None)
+        self._instances.pop(project, None)
