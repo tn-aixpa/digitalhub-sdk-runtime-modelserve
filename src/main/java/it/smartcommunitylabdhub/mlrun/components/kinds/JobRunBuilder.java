@@ -47,13 +47,16 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
                                                                                                 + "@"
                                                                                                 + mlrunHash);
 
-                                                                // 4. produce a run object and store it
+                                                                // 4. Merge Task spec with function spec
+                                                                functionDTO.getSpec().putAll(taskDTO.getSpec());
+
+                                                                // 5. produce a run object and store it
                                                                 return RunDTO.builder()
                                                                                 .kind("run")
                                                                                 .taskId(task.getId())
                                                                                 .project(task.getProject())
                                                                                 .task(task.getTask())
-                                                                                .spec(taskDTO.getSpec())
+                                                                                .spec(functionDTO.getSpec())
                                                                                 .build();
 
                                                         }).orElseThrow(() -> new CoreException("MLrunHashNotFound",
