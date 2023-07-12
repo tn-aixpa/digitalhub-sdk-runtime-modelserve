@@ -4,18 +4,40 @@ Project module.
 from __future__ import annotations
 
 import typing
+from typing import Self
 
-from sdk.entities.artifact.crud import delete_artifact, get_artifact, new_artifact
-from sdk.entities.artifact.entity import Artifact
+from sdk.entities.artifact.crud import (
+    delete_artifact,
+    get_artifact,
+    new_artifact,
+    create_artifact_from_dict,
+)
+
 from sdk.entities.base.entity import Entity
-from sdk.entities.dataitem.crud import delete_dataitem, get_dataitem, new_dataitem
-from sdk.entities.dataitem.entity import Dataitem
-from sdk.entities.function.crud import delete_function, get_function, new_function
-from sdk.entities.function.entity import Function
-from sdk.entities.project.metadata import ProjectMetadata
-from sdk.entities.project.spec import ProjectSpec
-from sdk.entities.workflow.crud import delete_workflow, get_workflow, new_workflow
-from sdk.entities.workflow.entity import Workflow
+from sdk.entities.dataitem.crud import (
+    delete_dataitem,
+    get_dataitem,
+    new_dataitem,
+    create_dataitem_from_dict,
+)
+
+from sdk.entities.function.crud import (
+    delete_function,
+    get_function,
+    new_function,
+    create_function_from_dict,
+)
+
+from sdk.entities.project.metadata import build_metadata
+from sdk.entities.project.spec import build_spec
+from sdk.entities.utils.utils import get_uiid
+from sdk.entities.workflow.crud import (
+    delete_workflow,
+    get_workflow,
+    new_workflow,
+    create_workflow_from_dict,
+)
+
 from sdk.utils.api import (
     DTO_ARTF,
     DTO_DTIT,
@@ -26,13 +48,18 @@ from sdk.utils.api import (
 )
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_client, set_context
-from sdk.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.client.client import Client
-
+    from sdk.entities.project.metadata import ProjectMetadata
+    from sdk.entities.project.spec import ProjectSpec
+    from sdk.entities.dataitem.entity import Dataitem
+    from sdk.entities.artifact.entity import Artifact
+    from sdk.entities.function.entity import Function
+    from sdk.entities.workflow.entity import Workflow
 
 DTO_LIST = [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]
+SPEC_LIST = DTO_LIST + ["source", "context"]
 
 
 class Project(Entity):
@@ -68,8 +95,8 @@ class Project(Entity):
         super().__init__()
         self.name = name
         self.kind = "project"
-        self.metadata = metadata if metadata is not None else ProjectMetadata(name=name)
-        self.spec = spec if spec is not None else ProjectSpec()
+        self.metadata = metadata if metadata is not None else build_metadata(name=name)
+        self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.id = uuid if uuid is not None else get_uiid()
 
         # Client and local flag
@@ -83,9 +110,7 @@ class Project(Entity):
         self._dataitems = []
 
         # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self._obj_attr:
-                self.__setattr__(k, v)
+        self._any_setter(**kwargs)
 
         set_context(self)
 
@@ -249,14 +274,14 @@ class Project(Entity):
     def new_artifact(
         self,
         name: str,
-        description: str = None,
-        kind: str = None,
+        description: str = "",
+        kind: str = "artifact",
         key: str = None,
         src_path: str = None,
         target_path: str = None,
         local: bool = False,
-        embed: bool = False,
-        **kwargs,
+        embedded: bool = False,
+        uuid: str = None,
     ) -> Artifact:
         """
         Create an instance of the Artifact class with the provided parameters.
@@ -277,10 +302,10 @@ class Project(Entity):
             Path of destionation for the artifact.
         local : bool, optional
             Flag to determine if object has local execution.
-        embed : bool, optional
+        embedded : bool, optional
             Flag to determine if object must be embedded in project.
-        **kwargs
-            Additional parameters.
+        uuid : str, optional
+            UUID.
 
         Returns
         -------
@@ -296,8 +321,8 @@ class Project(Entity):
             src_path=src_path,
             target_path=target_path,
             local=local,
-            embed=embed,
-            **kwargs,
+            embedded=embedded,
+            uuid=uuid,
         )
         self._add_object(obj, DTO_ARTF)
         return obj
@@ -367,15 +392,15 @@ class Project(Entity):
     def new_function(
         self,
         name: str,
-        description: str = None,
-        kind: str = None,
-        source: str = None,
+        description: str = "",
+        kind: str = "job",
+        source: str = "",
         image: str = None,
         tag: str = None,
         handler: str = None,
         local: bool = False,
-        embed: bool = False,
-        **kwargs,
+        embedded: bool = False,
+        uuid: str = None,
     ) -> Function:
         """
         Create a Function instance with the given parameters.
@@ -400,10 +425,10 @@ class Project(Entity):
             Function handler name.
         local : bool, optional
             Flag to determine if object has local execution.
-        embed : bool, optional
+        embedded : bool, optional
             Flag to determine if object must be embedded in project.
-        **kwargs
-            Additional arguments.
+        uuid : str, optional
+            UUID.
 
         Returns
         -------
@@ -420,8 +445,8 @@ class Project(Entity):
             tag=tag,
             handler=handler,
             local=local,
-            embed=embed,
-            **kwargs,
+            embedded=embedded,
+            uuid=uuid,
         )
         self._add_object(obj, DTO_FUNC)
         return obj
@@ -491,12 +516,12 @@ class Project(Entity):
     def new_workflow(
         self,
         name: str,
-        description: str = None,
-        kind: str = None,
+        description: str = "",
+        kind: str = "job",
         test: str = None,
         local: bool = False,
-        embed: bool = False,
-        **kwargs,
+        embedded: bool = False,
+        uuid: str = None,
     ) -> Workflow:
         """
         Create a new Workflow instance with the specified parameters.
@@ -511,14 +536,14 @@ class Project(Entity):
             A description of the workflow.
         kind : str, optional
             The kind of the workflow.
-        spec : dict, optional
+        spec_ : dict, optional
             The specification for the workflow.
         local : bool, optional
             Flag to determine if object has local execution.
-        embed : bool, optional
+        embedded : bool, optional
             Flag to determine if object must be embedded in project.
-        **kwargs
-            Additional arguments.
+        uuid : str, optional
+            UUID.
 
         Returns
         -------
@@ -532,8 +557,8 @@ class Project(Entity):
             kind=kind,
             test=test,
             local=local,
-            embed=embed,
-            **kwargs,
+            embedded=embedded,
+            uuid=uuid,
         )
         self._add_object(obj, DTO_WKFL)
         return obj
@@ -603,13 +628,13 @@ class Project(Entity):
     def new_dataitem(
         self,
         name: str,
-        description: str = None,
-        kind: str = None,
+        description: str = "",
+        kind: str = "dataitem",
         key: str = None,
         path: str = None,
         local: bool = False,
-        embed: bool = False,
-        **kwargs,
+        embedded: bool = False,
+        uuid: str = None,
     ) -> Dataitem:
         """
         Create a Dataitem.
@@ -628,10 +653,10 @@ class Project(Entity):
             Path to the dataitem on local file system or remote storage.
         local : bool, optional
             Flag to determine if object has local execution.
-        embed : bool, optional
+        embedded : bool, optional
             Flag to determine if object must be embedded in project.
-        **kwargs
-            Additional arguments.
+        uuid : str, optional
+            UUID.
 
         Returns
         -------
@@ -646,8 +671,8 @@ class Project(Entity):
             key=key,
             path=path,
             local=local,
-            embed=embed,
-            **kwargs,
+            embedded=embedded,
+            uuid=uuid,
         )
         self._add_object(obj, DTO_DTIT)
         return obj
@@ -735,45 +760,135 @@ class Project(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Project":
+    def from_dict(cls, obj: dict) -> Self:
         """
-        Create Project instance from a dictionary.
+        Create object instance from a dictionary.
 
         Parameters
         ----------
         obj : dict
-            Dictionary to create Project from.
+            Dictionary to create object from.
 
         Returns
         -------
-        Project
-            Project instance.
+        Self
+            Self instance.
 
         """
-        name = obj.get("name")
-        if name is None:
-            raise EntityError("Project name not specified.")
-
-        spec = obj.get("spec")
-        if spec is None:
-            spec = {}
-
-        metadata = ProjectMetadata.from_dict(obj.get("metadata", {"name": name}))
-
-        # Process spec
-        spec_list = DTO_LIST + ["source", "context"]
-        new_spec = {k: v for k, v in spec.items() if k in spec_list}
-        new_spec = ProjectSpec.from_dict(new_spec)
-        obj_ = cls(name, metadata=metadata, spec=new_spec)
+        parsed_dict = cls._parse_dict(obj)
+        obj_ = cls(**parsed_dict)
 
         # Add objects to project from spec
-        for i in [Function.from_dict(i) for i in spec.get(DTO_FUNC, [])]:
-            obj_._add_object(i, DTO_FUNC)
-        for i in [Artifact.from_dict(i) for i in spec.get(DTO_ARTF, [])]:
-            obj_._add_object(i, DTO_ARTF)
-        for i in [Workflow.from_dict(i) for i in spec.get(DTO_WKFL, [])]:
-            obj_._add_object(i, DTO_WKFL)
-        for i in [Dataitem.from_dict(i) for i in spec.get(DTO_DTIT, [])]:
-            obj_._add_object(i, DTO_DTIT)
+        for i in obj.get("spec", {}).get(DTO_FUNC, []):
+            obj_._add_object(create_function_from_dict(i), DTO_FUNC)
+        for i in obj.get("spec", {}).get(DTO_ARTF, []):
+            obj_._add_object(create_artifact_from_dict(i), DTO_ARTF)
+        for i in obj.get("spec", {}).get(DTO_WKFL, []):
+            obj_._add_object(create_workflow_from_dict(i), DTO_WKFL)
+        for i in obj.get("spec", {}).get(DTO_DTIT, []):
+            obj_._add_object(create_dataitem_from_dict(i), DTO_DTIT)
 
         return obj_
+
+    @staticmethod
+    def _parse_dict(obj: dict) -> dict:
+        """
+        Parse a dictionary and return a parsed dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            Parsed dictionary.
+        """
+
+        # Mandatory fields
+        name = obj.get("name")
+        if name is None:
+            raise EntityError("Name is not specified.")
+
+        # Optional fields
+        uuid = obj.get("id")
+        kind = obj.get("kind", "project")
+
+        # Build metadata and spec
+        spec_ = obj.get("spec", {})
+        spec = {k: v for k, v in spec_.items() if k in SPEC_LIST}
+        spec = build_spec(kind=kind, **spec)
+        metadata = build_metadata(**obj.get("metadata", {"name": name}))
+
+        return {
+            "name": name,
+            "kind": kind,
+            "uuid": uuid,
+            "metadata": metadata,
+            "spec": spec,
+        }
+
+
+def project_from_parameters(
+    name: str,
+    description: str = "",
+    kind: str = "project",
+    context: str = "",
+    source: str = "",
+    local: bool = False,
+    uuid: str = None,
+) -> Project:
+    """
+    Create project.
+
+    Parameters
+    ----------
+    name : str
+        Identifier of the project.
+    description : str, optional
+        Description of the project.
+    kind : str, optional
+        The type of the project.
+    context : str, optional
+        The context of the project.
+    source : str, optional
+        The source of the project.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Project
+        Project object.
+    """
+    meta = build_metadata(name=name, description=description)
+    spec = build_spec(kind, context=context, source=source)
+    return Project(
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        uuid=uuid,
+    )
+
+
+def project_from_dict(obj: dict) -> Project:
+    """
+    Create project from dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create project from.
+
+    Returns
+    -------
+    Project
+        Project object.
+
+    """
+    return Project.from_dict(obj)

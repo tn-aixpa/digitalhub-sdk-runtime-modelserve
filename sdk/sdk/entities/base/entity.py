@@ -2,7 +2,7 @@
 Abstract entity module.
 """
 from abc import ABCMeta, abstractmethod
-from typing import Any
+from typing import Self
 
 from sdk.entities.base.base_model import ModelObj
 from sdk.utils.io_utils import write_yaml
@@ -88,7 +88,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def from_dict(cls, obj: dict) -> Any:
+    def from_dict(cls, obj: dict) -> Self:
         """
         Abstract method for creating objects from a dictionary.
         """

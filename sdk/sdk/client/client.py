@@ -108,7 +108,7 @@ class Client:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as exc:
-            raise BackendError(f"Request error: {exc}") from exc
+            raise BackendError(f"Request error: {exc}. Text response: {response.text}") from exc
 
     @staticmethod
     def _get_endpoint(api: str) -> str:

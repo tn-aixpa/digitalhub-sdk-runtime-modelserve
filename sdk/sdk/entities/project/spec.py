@@ -17,20 +17,29 @@ class ProjectSpec(EntitySpec):
         artifacts: list[dict] = None,
         workflows: list[dict] = None,
         dataitems: list[dict] = None,
-        **kwargs,
     ) -> None:
         """
-        Constructor.
+        Initializes a new instance of the ProjectSpec class.
 
         Parameters
         ----------
-        **kwargs
-            Additional keyword arguments.
+        context : str, optional
+            The context of the project.
+        source : str, optional
+            The source of the project.
+        functions : list[dict], optional
+            A list of dictionaries representing the functions in the project.
+        artifacts : list[dict], optional
+            A list of dictionaries representing the artifacts in the project.
+        workflows : list[dict], optional
+            A list of dictionaries representing the workflows in the project.
+        dataitems : list[dict], optional
+            A list of dictionaries representing the data items in the project.
 
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
+        Returns
+        -------
+        None
+
         """
         self.context = context
         self.source = source
@@ -39,7 +48,28 @@ class ProjectSpec(EntitySpec):
         self.workflows = workflows if workflows is not None else []
         self.dataitems = dataitems if dataitems is not None else []
 
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
+
+def build_spec(kind: str, **kwargs) -> ProjectSpec:
+    """
+    Build a ProjectSpec object with the given parameters.
+
+    Parameters
+    ----------
+    kind : str
+        The type of ProjectSpec to build.
+    **kwargs : dict
+        Keywords to pass to the constructor.
+
+    Returns
+    -------
+    ProjectSpec
+        A ProjectSpec object with the given parameters.
+
+    Raises
+    ------
+    ValueError
+        If the given kind is not supported.
+    """
+    if kind == "project":
+        return ProjectSpec(**kwargs)
+    raise ValueError(f"Unknown kind: {kind}")

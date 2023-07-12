@@ -4,19 +4,22 @@ Dataitem module.
 from __future__ import annotations
 
 import typing
+from typing import Self
 
 from sdk.entities.base.entity import Entity
-from sdk.entities.dataitem.metadata import DataitemMetadata
-from sdk.entities.dataitem.spec import DataitemSpec
+from sdk.entities.dataitem.spec import build_spec
+from sdk.entities.dataitem.metadata import build_metadata
+from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
 from sdk.utils.file_utils import check_file, clean_all, get_dir
 from sdk.utils.uri_utils import get_extension, get_uri_scheme
-from sdk.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
     import pandas as pd
+    from sdk.entities.dataitem.metadata import DataitemMetadata
+    from sdk.entities.dataitem.spec import DataitemSpec
 
 
 class Dataitem(Entity):
@@ -32,7 +35,7 @@ class Dataitem(Entity):
         metadata: DataitemMetadata = None,
         spec: DataitemSpec = None,
         local: bool = False,
-        embed: bool = False,
+        embedded: bool = False,
         uuid: str = None,
         **kwargs,
     ) -> None:
@@ -53,8 +56,8 @@ class Dataitem(Entity):
             Specification for the dataitem, default is None.
         local: bool, optional
             Specify if run locally, default is False.
-        embed: bool, optional
-            Specify if embed, default is False.
+        embedded: bool, optional
+            Specify if embedded, default is False.
         **kwargs
             Additional keyword arguments.
         """
@@ -66,15 +69,13 @@ class Dataitem(Entity):
             metadata if metadata is not None else DataitemMetadata(name=name)
         )
         self.spec = spec if spec is not None else DataitemSpec()
-        self.embedded = embed
+        self.embedded = embedded
         self.id = uuid if uuid is not None else get_uiid()
 
         self._local = local
 
         # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self._obj_attr:
-                self.__setattr__(k, v)
+        self._any_setter(**kwargs)
 
         # Set context
         self._context = get_context(self.project)
@@ -255,26 +256,138 @@ class Dataitem(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Dataitem":
+    def from_dict(cls, obj: dict) -> Self:
         """
-        Create Dataitem instance from a dictionary.
+        Create object instance from a dictionary.
 
         Parameters
         ----------
         obj : dict
-            Dictionary to create Dataitem from.
+            Dictionary to create object from.
 
         Returns
         -------
-        Dataitem
-            Dataitem instance.
+        Self
+            Self instance.
 
         """
+        parsed_dict = cls._parse_dict(obj)
+        obj_ = cls(**parsed_dict)
+        obj_._local = obj_._context.local
+        return obj_
+
+    @staticmethod
+    def _parse_dict(obj: dict) -> dict:
+        """
+        Parse dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            Parsed dictionary.
+        """
+
+        # Mandatory fields
         project = obj.get("project")
         name = obj.get("name")
-        uuid = obj.get("id")
         if project is None or name is None:
             raise EntityError("Project or name are not specified.")
-        metadata = DataitemMetadata.from_dict(obj.get("metadata", {"name": name}))
-        spec = DataitemSpec.from_dict(obj.get("spec", {}))
-        return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)
+
+        # Optional fields
+        uuid = obj.get("id")
+        kind = obj.get("kind")
+        embedded = obj.get("embedded")
+
+        # Build metadata and spec
+        spec = obj.get("spec")
+        spec = spec if spec is not None else {}
+        spec = build_spec(kind=kind, **spec)
+        metadata = obj.get("metadata", {"name": name})
+        metadata = build_metadata(**metadata)
+
+        return {
+            "project": project,
+            "name": name,
+            "kind": kind,
+            "uuid": uuid,
+            "metadata": metadata,
+            "spec": spec,
+            "embedded": embedded,
+        }
+
+
+def dataitem_from_parameters(
+    project: str,
+    name: str,
+    description: str = "",
+    kind: str = "dataitem",
+    key: str = None,
+    path: str = None,
+    local: bool = False,
+    embedded: bool = False,
+    uuid: str = None,
+) -> Dataitem:
+    """
+    Create dataitem.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project associated with the dataitem.
+    name : str
+        Identifier of the dataitem.
+    description : str, optional
+        Description of the dataitem.
+    kind : str, optional
+        The type of the dataitem.
+    key : str
+        Representation of artfact like store://etc..
+    path : str
+        Path to the dataitem on local file system or remote storage.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    embedded : bool, optional
+        Flag to determine if object must be embedded in project.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Dataitem
+        Dataitem object.
+    """
+    meta = build_metadata(name=name, description=description)
+    spec = build_spec(kind, key=key, path=path)
+    return Dataitem(
+        project=project,
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        embedded=embedded,
+        uuid=uuid,
+    )
+
+
+def dataitem_from_dict(obj: dict) -> Dataitem:
+    """
+    Create dataitem from dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create dataitem from.
+
+    Returns
+    -------
+    Dataitem
+        Dataitem object.
+
+    """
+    return Dataitem.from_dict(obj)

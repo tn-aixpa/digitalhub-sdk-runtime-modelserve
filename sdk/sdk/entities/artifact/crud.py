@@ -1,26 +1,105 @@
 """
 Artifact operations module.
 """
-from sdk.entities.artifact.entity import Artifact
-from sdk.entities.artifact.metadata import ArtifactMetadata
-from sdk.entities.artifact.spec import ArtifactSpec
+from __future__ import annotations
+
+import typing
+
+from sdk.entities.artifact.entity import artifact_from_dict, artifact_from_parameters
+from sdk.entities.utils.utils import check_local_flag, save_or_export
 from sdk.utils.api import DTO_ARTF, api_ctx_delete, api_ctx_read
-from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.artifact.entity import Artifact
+
+
+def create_artifact(
+    project: str,
+    name: str,
+    description: str = "",
+    kind: str = "artifact",
+    key: str = None,
+    src_path: str = None,
+    target_path: str = None,
+    local: bool = False,
+    embedded: bool = False,
+    uuid: str = None,
+) -> Artifact:
+    """
+    Create a new artifact with the provided parameters.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project associated with the artifact.
+    name : str
+        Identifier of the artifact.
+    description : str, optional
+        Description of the artifact.
+    kind : str, optional
+        The type of the artifact.
+    key : str
+        Representation of artfact like store://etc..
+    src_path : str
+        Path to the artifact on local file system or remote storage.
+    targeth_path : str
+        Destination path of the artifact.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    embedded : bool, optional
+        Flag to determine if object must be embedded in project.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Artifact
+        An instance of the Artifact class representing the specified artifact.
+    """
+    return artifact_from_parameters(
+        project=project,
+        name=name,
+        description=description,
+        kind=kind,
+        key=key,
+        src_path=src_path,
+        target_path=target_path,
+        local=local,
+        embedded=embedded,
+        uuid=uuid,
+    )
+
+
+def create_artifact_from_dict(obj: dict) -> Artifact:
+    """
+    Create a new Artifact instance from a dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create the Artifact from.
+
+    Returns
+    -------
+    Artifact
+        Artifact object.
+    """
+    return artifact_from_dict(obj)
 
 
 def new_artifact(
     project: str,
     name: str,
-    description: str = None,
-    kind: str = None,
+    description: str = "",
+    kind: str = "artifact",
     key: str = None,
     src_path: str = None,
     target_path: str = None,
     local: bool = False,
-    embed: bool = False,
-    **kwargs,
+    embedded: bool = False,
+    uuid: str = None,
 ) -> Artifact:
     """
     Create an instance of the Artifact class with the provided parameters.
@@ -43,33 +122,30 @@ def new_artifact(
         Destination path of the artifact.
     local : bool, optional
         Flag to determine if object has local execution.
-    embed : bool, optional
+    embedded : bool, optional
         Flag to determine if object must be embedded in project.
+    uuid : str, optional
+        UUID.
 
     Returns
     -------
     Artifact
         Instance of the Artifact class representing the specified artifact.
     """
-    context = get_context(project)
-    if context.local != local:
-        raise EntityError("Context local flag does not match local flag of artifact")
-    meta = ArtifactMetadata(name=name, description=description)
-    spec = ArtifactSpec(key=key, src_path=src_path, target_path=target_path)
-    obj = Artifact(
+    check_local_flag(project, local)
+    obj = create_artifact(
         project=project,
         name=name,
+        description=description,
         kind=kind,
-        metadata=meta,
-        spec=spec,
+        key=key,
+        src_path=src_path,
+        target_path=target_path,
         local=local,
-        embed=embed,
-        **kwargs,
+        embedded=embedded,
+        uuid=uuid,
     )
-    if local:
-        obj.export()
-    else:
-        obj.save()
+    save_or_export(obj, local)
     return obj
 
 
@@ -91,16 +167,10 @@ def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
     Artifact
         An object that contains details about the specified artifact.
 
-    Raises
-    ------
-    KeyError
-        If the specified artifact does not exist.
-
     """
-    context = get_context(project)
     api = api_ctx_read(project, DTO_ARTF, name, uuid=uuid)
-    obj = context.read_object(api)
-    return Artifact.from_dict(obj)
+    obj = get_context(project).read_object(api)
+    return artifact_from_dict(obj)
 
 
 def import_artifact(file: str) -> Artifact:
@@ -119,10 +189,10 @@ def import_artifact(file: str) -> Artifact:
 
     """
     obj = read_yaml(file)
-    return Artifact.from_dict(obj)
+    return artifact_from_dict(obj)
 
 
-def delete_artifact(project: str, name: str, uuid: str = None) -> None:
+def delete_artifact(project: str, name: str, uuid: str = None) -> dict:
     """
     Delete artifact from the backend. If the uuid is not specified, delete all versions.
 
@@ -137,9 +207,8 @@ def delete_artifact(project: str, name: str, uuid: str = None) -> None:
 
     Returns
     -------
-    None
-        This function does not return anything.
+    dict
+        Response from backend.
     """
-    context = get_context(project)
     api = api_ctx_delete(project, DTO_ARTF, name, uuid=uuid)
-    return context.delete_object(api)
+    return get_context(project).delete_object(api)

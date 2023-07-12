@@ -9,23 +9,45 @@ class WorkflowSpec(EntitySpec):
     Workflow specifications.
     """
 
-    def __init__(self, test: str = None, **kwargs) -> None:
+    def __init__(self, test: str = None) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        **kwargs
-            Additional keyword arguments.
-
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
+        test : str, optional
+            Test to run for the workflow.
         """
         self.test = test
 
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
+
+class WorkflowSpecJob(WorkflowSpec):
+    """
+    Specification for a Workflow job.
+    """
+
+
+def build_spec(kind: str, **kwargs) -> WorkflowSpec:
+    """
+    Build a WorkflowSpecJob object with the given parameters.
+
+    Parameters
+    ----------
+    kind : str
+        The type of WorkflowSpec to build.
+    **kwargs : dict
+        Keywords to pass to the constructor.
+
+    Returns
+    -------
+    WorkflowSpec
+        A WorkflowSpecJob object with the given parameters.
+
+    Raises
+    ------
+    ValueError
+        If the given kind is not supported.
+    """
+    if kind == "job":
+        return WorkflowSpecJob(**kwargs)
+    raise ValueError(f"Unknown kind: {kind}")

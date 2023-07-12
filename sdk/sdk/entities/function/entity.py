@@ -4,19 +4,21 @@ Function module.
 from __future__ import annotations
 
 import typing
+from typing import Self
 
 from sdk.entities.base.entity import Entity
-from sdk.entities.function.metadata import FunctionMetadata
-from sdk.entities.function.spec import FunctionSpec
-from sdk.entities.task.entity import Task
-from sdk.entities.task.spec import TaskSpec
+from sdk.entities.function.metadata import build_metadata
+from sdk.entities.function.spec import build_spec
+from sdk.entities.task.crud import new_task, create_task
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
-from sdk.utils.utils import get_uiid
+from sdk.entities.utils.utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.run.entity import Run
+    from sdk.entities.function.metadata import FunctionMetadata
+    from sdk.entities.function.spec import FunctionSpec
 
 
 class Function(Entity):
@@ -32,7 +34,7 @@ class Function(Entity):
         metadata: FunctionMetadata = None,
         spec: FunctionSpec = None,
         local: bool = False,
-        embed: bool = False,
+        embedded: bool = False,
         uuid: str = None,
         **kwargs,
     ) -> None:
@@ -53,8 +55,8 @@ class Function(Entity):
             Specification for the function, default is None.
         local: bool, optional
             Specify if run locally, default is False.
-        embed: bool, optional
-            Specify if embed the function, default is False.
+        embedded: bool, optional
+            Specify if embedded the function, default is False.
         **kwargs
             Additional keyword arguments.
         """
@@ -62,19 +64,15 @@ class Function(Entity):
         self.project = project
         self.name = name
         self.kind = kind if kind is not None else "job"
-        self.metadata = (
-            metadata if metadata is not None else FunctionMetadata(name=name)
-        )
-        self.spec = spec if spec is not None else FunctionSpec(source="")
-        self.embedded = embed
+        self.metadata = metadata if metadata is not None else build_metadata(name=name)
+        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.embedded = embedded
         self.id = uuid if uuid is not None else get_uiid()
 
         self._local = local
 
         # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self._obj_attr:
-                self.__setattr__(k, v)
+        self._any_setter(**kwargs)
 
         self._context = get_context(self.project)
         self._task = None
@@ -140,9 +138,9 @@ class Function(Entity):
     def run(
         self,
         inputs: dict = None,
-        outputs: dict = None,
+        outputs: list = None,
         parameters: dict = None,
-        **kwargs,
+        k8s_resources: dict = None,
     ) -> Run:
         """
         Run function.
@@ -150,13 +148,13 @@ class Function(Entity):
         Parameters
         ----------
         inputs : dict
-            Function inputs.
+            Function inputs. Used in Run.
         outputs : dict
-            Function outputs.
+            Function outputs. Used in Run.
         parameters : dict
-            Function parameters.
-        **kwargs
-            Additional keyword arguments.
+            Function parameters. Used in Run.
+        k8s_resources : dict
+            K8s resource. Used in Task.
 
         Returns
         -------
@@ -167,24 +165,20 @@ class Function(Entity):
         if self._task is None:
             # https://docs.mlrun.org/en/latest/runtimes/configuring-job-resources.html
             # task spec k8s
-            task_spec = TaskSpec.from_dict(self.spec.to_dict())
             task = f"{self.kind}://{self.project}/{self.name}:{self.id}"
-            self._task = Task(
+            self._task = new_task(
                 project=self.project,
                 kind="task",
-                spec=task_spec,
                 task=task,
+                k8s_resources=k8s_resources,
                 local=self._local,
+                uuid=self.id,
             )
-            self._task.save()
 
         # Run function from task
-        inputs = inputs if inputs is not None else {}
-        outputs = outputs if outputs is not None else {}
-        parameters = parameters if parameters is not None else {}
-        return self._task.run(self._task.id, inputs, outputs, parameters, **kwargs)
+        return self._task.run(inputs, outputs, parameters)
 
-    def update_task(self, new_spec: dict) -> None:
+    def update_task(self, new_spec: dict) -> dict:
         """
         Update task.
 
@@ -195,7 +189,8 @@ class Function(Entity):
 
         Returns
         -------
-        None
+        dict
+            Mapping representation of Task from backend.
 
         Raises
         ------
@@ -204,8 +199,18 @@ class Function(Entity):
         """
         if self._task is None:
             raise EntityError("Task is not created.")
-        self._task.spec = TaskSpec.from_dict(new_spec)
-        self._task.save(self._task.task)
+        task_id = self._task.id
+        task_kind = self._task.kind
+        task_task = self._task.task
+        self._task = create_task(
+            project=self.project,
+            kind=task_kind,
+            task=task_task,
+            k8s_resources=new_spec,
+            local=self._local,
+        )
+        self._task.id = task_id
+        return self._task.save(task_id)
 
     #############################
     #  Getters and Setters
@@ -223,26 +228,152 @@ class Function(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Function":
+    def from_dict(cls, obj: dict) -> Self:
         """
-        Create Function instance from a dictionary.
+        Create object instance from a dictionary.
 
         Parameters
         ----------
         obj : dict
-            Dictionary to create Function from.
+            Dictionary to create object from.
 
         Returns
         -------
-        Function
-            Function instance.
+        Self
+            Self instance.
 
         """
+        parsed_dict = cls._parse_dict(obj)
+        obj_ = cls(**parsed_dict)
+        obj_._local = obj_._context.local
+        return obj_
+
+    @staticmethod
+    def _parse_dict(obj: dict) -> dict:
+        """
+        Parse dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            Parsed dictionary.
+        """
+
+        # Mandatory fields
         project = obj.get("project")
         name = obj.get("name")
-        uuid = obj.get("id")
         if project is None or name is None:
             raise EntityError("Project or name are not specified.")
-        metadata = FunctionMetadata.from_dict(obj.get("metadata", {"name": name}))
-        spec = FunctionSpec.from_dict(obj.get("spec", {}))
-        return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)
+
+        # Optional fields
+        uuid = obj.get("id")
+        kind = obj.get("kind")
+        embedded = obj.get("embedded")
+
+        # Build metadata and spec
+        spec = obj.get("spec")
+        spec = spec if spec is not None else {}
+        spec = build_spec(kind=kind, **spec)
+        metadata = obj.get("metadata", {"name": name})
+        metadata = build_metadata(**metadata)
+
+        return {
+            "project": project,
+            "name": name,
+            "kind": kind,
+            "uuid": uuid,
+            "metadata": metadata,
+            "spec": spec,
+            "embedded": embedded,
+        }
+
+
+def function_from_parameters(
+    project: str,
+    name: str,
+    description: str = "",
+    kind: str = "job",
+    source: str = None,
+    image: str = None,
+    tag: str = None,
+    handler: str = None,
+    command: str = None,
+    requirements: list = None,
+    local: bool = False,
+    embedded: bool = False,
+    uuid: str = None,
+) -> Function:
+    """
+    Create function.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project associated with the function.
+    name : str
+        Identifier of the function.
+    description : str, optional
+        Description of the function.
+    kind : str, optional
+        The type of the function.
+    key : str
+        Representation of function like store://etc..
+    src_path : str
+        Path to the function on local file system or remote storage.
+    targeth_path : str
+        Destination path of the function.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    embedded : bool, optional
+        Flag to determine if object must be embedded in project.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Function
+        Function object.
+    """
+    meta = build_metadata(name=name, description=description)
+    spec = build_spec(
+        kind,
+        source=source,
+        image=image,
+        tag=tag,
+        handler=handler,
+        command=command,
+        requirements=requirements,
+    )
+    return Function(
+        project=project,
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        embedded=embedded,
+        uuid=uuid,
+    )
+
+
+def function_from_dict(obj: dict) -> Function:
+    """
+    Create function from dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create function from.
+
+    Returns
+    -------
+    Function
+        Function object.
+
+    """
+    return Function.from_dict(obj)

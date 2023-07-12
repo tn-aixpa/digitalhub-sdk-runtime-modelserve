@@ -1,26 +1,100 @@
 """
 Module for performing operations on Dataitem objects.
 """
+from __future__ import annotations
 
-from sdk.entities.dataitem.entity import Dataitem
-from sdk.entities.dataitem.metadata import DataitemMetadata
-from sdk.entities.dataitem.spec import DataitemSpec
+import typing
+
+from sdk.entities.dataitem.entity import dataitem_from_parameters, dataitem_from_dict
+from sdk.entities.utils.utils import check_local_flag, save_or_export
 from sdk.utils.api import DTO_DTIT, api_ctx_delete, api_ctx_read
-from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.dataitem.entity import Dataitem
+
+
+def create_dataitem(
+    project: str,
+    name: str,
+    description: str = "",
+    kind: str = "dataitem",
+    key: str = None,
+    path: str = None,
+    local: bool = False,
+    embedded: bool = False,
+    uuid: str = None,
+) -> Dataitem:
+    """
+    Create a new data item with the provided parameters.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project associated with the data item.
+    name : str
+        Identifier of the data item.
+    description : str, optional
+        Description of the data item.
+    kind : str, optional
+        The type of the data item.
+    key : str
+        Representation of data item like store://etc..
+    path : str
+        Path to the data item on local file system or remote storage.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    embedded : bool, optional
+        Flag to determine if object must be embedded in project.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Dataitem
+        An instance of the Dataitem class representing the specified data item.
+    """
+    return dataitem_from_parameters(
+        project=project,
+        name=name,
+        description=description,
+        kind=kind,
+        key=key,
+        path=path,
+        local=local,
+        embedded=embedded,
+        uuid=uuid,
+    )
+
+
+def create_dataitem_from_dict(obj: dict) -> Dataitem:
+    """
+    Create a new Dataitem instance from a dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create the Dataitem from.
+
+    Returns
+    -------
+    Dataitem
+        Dataitem object.
+    """
+    return dataitem_from_dict(obj)
 
 
 def new_dataitem(
     project: str,
     name: str,
-    description: str = None,
-    kind: str = None,
+    description: str = "",
+    kind: str = "dataitem",
     key: str = None,
     path: str = None,
     local: bool = False,
-    embed: bool = False,
-    **kwargs
+    embedded: bool = False,
+    uuid: str = None,
 ) -> Dataitem:
     """
     Create a new Dataitem instance with the given parameters.
@@ -36,40 +110,34 @@ def new_dataitem(
     kind : str, optional
         The type of the dataitem.
     key : str, optional
-        Representation of the artifact, e.g. store://etc.
+        Representation of the dataitem, e.g. store://etc.
     path : str, optional
         Path to the dataitem on local file system or remote storage.
     local : bool, optional
         Flag to determine if object has local execution.
-    embed : bool, optional
+    embedded : bool, optional
         Flag to determine if object must be embedded in project.
-    **kwargs
-        Additional keyword arguments.
+    uuid : str, optional
+        UUID.
 
     Returns
     -------
     Dataitem
         Instance of the Dataitem class representing the specified dataitem.
     """
-    context = get_context(project)
-    if context.local != local:
-        raise EntityError("Context local flag does not match local flag of dataitem")
-    meta = DataitemMetadata(name=name, description=description)
-    spec = DataitemSpec(key=key, path=path)
-    obj = Dataitem(
+    check_local_flag(project, local)
+    obj = create_dataitem(
         project=project,
         name=name,
+        description=description,
         kind=kind,
-        metadata=meta,
-        spec=spec,
+        key=key,
+        path=path,
         local=local,
-        embed=embed,
-        **kwargs
+        embedded=embedded,
+        uuid=uuid,
     )
-    if local:
-        obj.export()
-    else:
-        obj.save()
+    save_or_export(obj, local)
     return obj
 
 
@@ -91,16 +159,11 @@ def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
     Dataitem
         An object that contains details about the specified dataitem.
 
-    Raises
-    ------
-    KeyError
-        If the specified dataitem does not exist.
 
     """
-    context = get_context(project)
     api = api_ctx_read(project, DTO_DTIT, name, uuid=uuid)
-    obj = context.read_object(api)
-    return Dataitem.from_dict(obj)
+    obj = get_context(project).read_object(api)
+    return dataitem_from_dict(obj)
 
 
 def import_dataitem(file: str) -> Dataitem:
@@ -119,7 +182,7 @@ def import_dataitem(file: str) -> Dataitem:
 
     """
     obj = read_yaml(file)
-    return Dataitem.from_dict(obj)
+    return dataitem_from_dict(obj)
 
 
 def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
@@ -137,9 +200,8 @@ def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
 
     Returns
     -------
-    None
-        This function does not return anything.
+    dict
+        Response from backend.
     """
-    context = get_context(project)
     api = api_ctx_delete(project, DTO_DTIT, name, uuid=uuid)
-    return context.delete_object(api)
+    return get_context(project).delete_object(api)

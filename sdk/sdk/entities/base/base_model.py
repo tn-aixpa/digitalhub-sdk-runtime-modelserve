@@ -32,6 +32,23 @@ class ModelObj:
                     obj[k] = val
         return obj
 
+    def _any_setter(self, **kwargs) -> None:
+        """
+        Set any attribute of the object.
+
+        Parameters
+        ----------
+        kwargs : dict
+            A dictionary containing the attributes of the entity instance.
+
+        Returns
+        -------
+        None
+        """
+        for k, v in kwargs.items():
+            if k not in self.__dict__:
+                self.__setattr__(k, v)
+
     def __repr__(self) -> str:
         """
         Return string representation of the entity object.

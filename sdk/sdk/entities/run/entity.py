@@ -1,11 +1,19 @@
 """
 Run module.
 """
+from __future__ import annotations
+
+import typing
+from typing import Self
+
 from sdk.entities.base.entity import Entity
-from sdk.entities.run.spec import RunSpec
+from sdk.entities.run.spec import build_spec
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.run.spec import RunSpec
 
 
 class Run(Entity):
@@ -35,22 +43,18 @@ class Run(Entity):
             Specification for the run, default is None.
         local: bool, optional
             Specify if run locally, default is False.
-        **kwargs
-            Additional keyword arguments.
         """
         super().__init__()
         self.project = project
         self.kind = "run"
         self.task_id = task_id
         self.task = task
-        self.spec = spec if spec is not None else RunSpec()
+        self.spec = spec if spec is not None else build_spec(self.kind, **{})
 
         self._local = local
 
         # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self._obj_attr:
-                self.__setattr__(k, v)
+        self._any_setter(**kwargs)
 
         self._context = get_context(self.project)
         self._obj_attr += ["task_id"]
@@ -78,6 +82,7 @@ class Run(Entity):
             raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
+        print(obj)
 
         api = api_base_create(DTO_RUNS)
         response = self._context.create_object(obj, api)
@@ -174,25 +179,129 @@ class Run(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Run":
+    def from_dict(cls, obj: dict) -> Self:
         """
-        Create Run instance from a dictionary.
+        Create object instance from a dictionary.
 
         Parameters
         ----------
         obj : dict
-            Dictionary to create Run from.
+            Dictionary to create object from.
 
         Returns
         -------
-        Run
-            Run instance.
+        Self
+            Self instance.
 
         """
+        parsed_dict = cls._parse_dict(obj)
+        obj_ = cls(**parsed_dict)
+        obj_._local = obj_._context.local
+        return obj_
+
+    @staticmethod
+    def _parse_dict(obj: dict) -> dict:
+        """
+        Parse dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            Parsed dictionary.
+        """
+
+        # Mandatory fields
         project = obj.get("project")
         task_id = obj.get("task_id")
         if project is None or task_id is None:
             raise EntityError("Project or task_id are not specified.")
-        task = obj.get("task")
-        spec = RunSpec.from_dict(obj.get("spec", {}))
-        return cls(project, task_id, task=task, spec=spec)
+
+        # Optional fields
+        uuid = obj.get("id")
+        kind = obj.get("kind", "run")
+
+        # Build metadata and spec
+        spec = obj.get("spec")
+        spec = spec if spec is not None else {}
+        spec = build_spec(kind=kind, **spec)
+
+        return {
+            "project": project,
+            "task_id": task_id,
+            "kind": kind,
+            "uuid": uuid,
+            "spec": spec,
+        }
+
+
+def run_from_parameters(
+    project: str,
+    task_id: str,
+    task: str,
+    kind: str = "run",
+    inputs: dict = None,
+    outputs: list = None,
+    parameters: dict = None,
+    local: bool = False,
+) -> Run:
+    """
+    Create run.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project associated with the run.
+    task_id : str
+        Identifier of the task associated with the run.
+    task : str
+        Name of the task associated with the run.
+    kind : str, optional
+        The type of the run.
+    inputs : dict, optional
+        Inputs of the run.
+    outputs : list, optional
+        Outputs of the run.
+    parameters : dict, optional
+        Parameters of the run.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    embedded : bool, optional
+        Flag to determine if object must be embedded in project.
+
+    Returns
+    -------
+    Run
+        Run object.
+    """
+    spec = build_spec(kind, inputs=inputs, outputs=outputs, parameters=parameters)
+    return Run(
+        project=project,
+        task_id=task_id,
+        task=task,
+        kind=kind,
+        spec=spec,
+        local=local,
+    )
+
+
+def run_from_dict(obj: dict) -> Run:
+    """
+    Create run from dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create run from.
+
+    Returns
+    -------
+    Run
+        Run object.
+
+    """
+    return Run.from_dict(obj)

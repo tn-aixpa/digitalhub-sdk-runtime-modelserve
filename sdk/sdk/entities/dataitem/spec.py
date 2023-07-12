@@ -9,24 +9,43 @@ class DataitemSpec(EntitySpec):
     Dataitem specifications.
     """
 
-    def __init__(self, key: str = None, path: str = None, **kwargs) -> None:
+    def __init__(self, key: str = None, path: str = None) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        **kwargs
-            Additional keyword arguments.
+        key : str, optional
+            The key of the dataitem.
+        path : str, optional
+            The path of the dataitem.
 
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
         """
         self.key = key
         self.path = path
 
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
+
+def build_spec(kind: str, **kwargs) -> DataitemSpec:
+    """
+    Build a DataItemSpec object with the given parameters.
+
+    Parameters
+    ----------
+    kind : str
+        The type of DataItemSpec to build.
+    **kwargs : dict
+        Keywords to pass to the constructor.
+
+    Returns
+    -------
+    DataItemSpec
+        A DataItemSpec object with the given parameters.
+
+    Raises
+    ------
+    ValueError
+        If the given kind is not supported.
+    """
+    if kind == "dataitem":
+        return DataitemSpec(**kwargs)
+    raise ValueError(f"Unknown kind: {kind}")

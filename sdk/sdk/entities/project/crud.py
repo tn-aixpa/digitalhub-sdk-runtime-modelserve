@@ -1,9 +1,12 @@
 """
 Project operations module.
 """
-from sdk.entities.project.entity import Project
-from sdk.entities.project.metadata import ProjectMetadata
-from sdk.entities.project.spec import ProjectSpec
+from __future__ import annotations
+
+import typing
+
+from sdk.entities.project.entity import project_from_dict, project_from_parameters
+from sdk.entities.utils.utils import save_or_export
 from sdk.utils.api import (
     DTO_ARTF,
     DTO_DTIT,
@@ -17,13 +20,54 @@ from sdk.utils.api import (
 from sdk.utils.factories import delete_context, get_client
 from sdk.utils.io_utils import read_yaml
 
+if typing.TYPE_CHECKING:
+    from sdk.entities.project.entity import Project
 
-def new_project(
+
+def create_project(
     name: str,
-    description: str = None,
+    description: str = "",
     context: str = None,
     source: str = None,
     local: bool = False,
+    uuid: str = None,
+) -> Project:
+    """
+    Create a new project.
+
+    Parameters
+    ----------
+    name : str
+        The name of the project to load.
+    description : str, optional
+        The description of the project.
+    context : str, optional
+        The path to the project's execution context.
+    source : str, optional
+        The path to the project's source code.
+    local : bool, optional
+        Flag to determine if project wil be executed locally.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Project
+        A Project instance.
+
+    """
+    return project_from_parameters(
+        name=name, description=description, context=context, source=source, local=local
+    )
+
+
+def new_project(
+    name: str,
+    description: str = "",
+    context: str = None,
+    source: str = None,
+    local: bool = False,
+    uuid: str = None,
 ) -> Project:
     """
     Create a new project and an execution context.
@@ -40,6 +84,8 @@ def new_project(
         The path to the project's source code.
     local : bool, optional
         Flag to determine if project wil be executed locally.
+    uuid : str, optional
+        UUID.
 
     Returns
     -------
@@ -47,20 +93,15 @@ def new_project(
         A Project instance with its context.
 
     """
-    meta = ProjectMetadata(name=name, description=description)
-    spec = ProjectSpec(
+    obj = create_project(
+        name=name,
+        description=description,
         context=context,
         source=source,
-        functions=[],
-        artifacts=[],
-        workflows=[],
-        dataitems=[],
+        local=local,
+        uuid=uuid,
     )
-    obj = Project(name, metadata=meta, spec=spec, local=local)
-    if local:
-        obj.export()
-    else:
-        obj.save()
+    save_or_export(obj, local)
     return obj
 
 
@@ -133,7 +174,7 @@ def get_project(name: str) -> Project:
     # Set spec for new object and create Project instance
     obj = {k: v for k, v in obj_be.items() if k not in fields}
     obj["spec"] = spec
-    return Project.from_dict(obj)
+    return project_from_dict(obj)
 
 
 def import_project(file: str) -> Project:
@@ -152,7 +193,7 @@ def import_project(file: str) -> Project:
 
     """
     obj = read_yaml(file)
-    return Project.from_dict(obj)
+    return project_from_dict(obj)
 
 
 def delete_project(name: str, delete_all: bool = False) -> None:
@@ -166,8 +207,8 @@ def delete_project(name: str, delete_all: bool = False) -> None:
 
     Returns
     -------
-    None
-        This function does not return anything.
+    dict
+        Response from backend.
     """
     client = get_client()
     responses = []

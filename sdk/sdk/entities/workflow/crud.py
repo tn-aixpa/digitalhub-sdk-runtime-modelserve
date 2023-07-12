@@ -1,24 +1,29 @@
 """
 Workflow operations module.
 """
-from sdk.entities.workflow.entity import Workflow
-from sdk.entities.workflow.metadata import WorkflowMetadata
-from sdk.entities.workflow.spec import WorkflowSpec
+from __future__ import annotations
+
+import typing
+
+from sdk.entities.utils.utils import check_local_flag, save_or_export
+from sdk.entities.workflow.entity import workflow_from_dict, workflow_from_parameters
 from sdk.utils.api import DTO_WKFL, api_ctx_delete, api_ctx_read
-from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
 
+if typing.TYPE_CHECKING:
+    from sdk.entities.workflow.entity import Workflow
 
-def new_workflow(
+
+def create_workflow(
     project: str,
     name: str,
-    description: str = None,
-    kind: str = None,
+    description: str = "",
+    kind: str = "job",
     test: str = None,
     local: bool = False,
-    embed: bool = False,
-    **kwargs,
+    embedded: bool = False,
+    uuid: str = None,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -37,10 +42,10 @@ def new_workflow(
         The specification for the workflow.
     local : bool, optional
         Flag to determine if object has local execution.
-    embed : bool, optional
+    embedded : bool, optional
         Flag to determine if object must be embedded in project.
-    **kwargs
-        Additional keyword arguments.
+    uuid : str, optional
+        UUID.
 
     Returns
     -------
@@ -48,25 +53,85 @@ def new_workflow(
         An instance of the created workflow.
 
     """
-    context = get_context(project)
-    if context.local != local:
-        raise EntityError("Context local flag does not match local flag of workflow")
-    meta = WorkflowMetadata(name=name, description=description)
-    spec = WorkflowSpec(test=test)
-    obj = Workflow(
+    return workflow_from_parameters(
         project=project,
         name=name,
+        description=description,
         kind=kind,
-        metadata=meta,
-        spec=spec,
+        test=test,
         local=local,
-        embed=embed,
-        **kwargs,
+        embedded=embedded,
+        uuid=uuid,
     )
-    if local:
-        obj.export()
-    else:
-        obj.save()
+
+
+def create_workflow_from_dict(obj: dict) -> Workflow:
+    """
+    Create a new Workflow instance from a dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create the Workflow from.
+
+    Returns
+    -------
+    Workflow
+        Workflow object.
+    """
+    return workflow_from_dict(obj)
+
+
+def new_workflow(
+    project: str,
+    name: str,
+    description: str = "",
+    kind: str = "job",
+    test: str = None,
+    local: bool = False,
+    embedded: bool = False,
+    uuid: str = None,
+) -> Workflow:
+    """
+    Create a new Workflow instance with the specified parameters.
+
+    Parameters
+    ----------
+    project : str
+        A string representing the project associated with this workflow.
+    name : str
+        The name of the workflow.
+    description : str, optional
+        A description of the workflow.
+    kind : str, optional
+        The kind of the workflow.
+    spec : dict, optional
+        The specification for the workflow.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    embedded : bool, optional
+        Flag to determine if object must be embedded in project.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Workflow
+        An instance of the created workflow.
+
+    """
+    check_local_flag(project, local)
+    obj = create_workflow(
+        project=project,
+        name=name,
+        description=description,
+        kind=kind,
+        test=test,
+        local=local,
+        embedded=embedded,
+        uuid=uuid,
+    )
+    save_or_export(obj, local)
     return obj
 
 
@@ -89,10 +154,9 @@ def get_workflow(project: str, name: str, uuid: str = None) -> Workflow:
     Workflow
         An object that contains details about the specified workflow.
     """
-    context = get_context(project)
     api = api_ctx_read(project, DTO_WKFL, name, uuid=uuid)
-    obj = context.read_object(api)
-    return Workflow.from_dict(obj)
+    obj = get_context(project).read_object(api)
+    return workflow_from_dict(obj)
 
 
 def import_workflow(file: str) -> Workflow:
@@ -111,16 +175,15 @@ def import_workflow(file: str) -> Workflow:
 
     """
     obj = read_yaml(file)
-    return Workflow.from_dict(obj)
+    return workflow_from_dict(obj)
 
 
-def delete_workflow(project: str, name: str, uuid: str = None) -> None:
+def delete_workflow(project: str, name: str, uuid: str = None) -> dict:
     """
     Delete workflow from the backend. If the uuid is not specified, delete all versions.
 
     Parameters
     ----------
-
     project : str
         Name of the project.
     name : str
@@ -130,9 +193,8 @@ def delete_workflow(project: str, name: str, uuid: str = None) -> None:
 
     Returns
     -------
-    None
-        This function does not return anything.
+    dict
+        Response from backend.
     """
-    context = get_context(project)
     api = api_ctx_delete(project, DTO_WKFL, name, uuid=uuid)
-    return context.delete_object(api)
+    return get_context(project).delete_object(api)

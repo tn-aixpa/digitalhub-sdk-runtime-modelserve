@@ -1,15 +1,24 @@
 """
 Artifact module.
 """
-from sdk.entities.artifact.metadata import ArtifactMetadata
-from sdk.entities.artifact.spec import ArtifactSpec
+from __future__ import annotations
+
+import typing
+from typing import Self
+
+from sdk.entities.artifact.metadata import build_metadata
+from sdk.entities.artifact.spec import build_spec
 from sdk.entities.base.entity import Entity
+from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
 from sdk.utils.file_utils import check_file, get_dir
 from sdk.utils.uri_utils import get_name_from_uri, get_uri_scheme, rebuild_uri
-from sdk.utils.utils import get_uiid
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.artifact.metadata import ArtifactMetadata
+    from sdk.entities.artifact.spec import ArtifactSpec
 
 
 class Artifact(Entity):
@@ -25,7 +34,7 @@ class Artifact(Entity):
         metadata: ArtifactMetadata = None,
         spec: ArtifactSpec = None,
         local: bool = False,
-        embed: bool = False,
+        embedded: bool = False,
         uuid: str = None,
         **kwargs,
     ) -> None:
@@ -46,8 +55,8 @@ class Artifact(Entity):
             Specification for the artifact, default is None.
         local: bool, optional
             Specify if run locally, default is False.
-        embed: bool, optional
-            Specify if embed, default is False.
+        embedded: bool, optional
+            Specify if embedded, default is False.
         **kwargs
             Additional keyword arguments.
         """
@@ -55,11 +64,9 @@ class Artifact(Entity):
         self.project = project
         self.name = name
         self.kind = kind if kind is not None else "artifact"
-        self.metadata = (
-            metadata if metadata is not None else ArtifactMetadata(name=name)
-        )
-        self.spec = spec if spec is not None else ArtifactSpec()
-        self.embedded = embed
+        self.metadata = metadata if metadata is not None else build_metadata(name=name)
+        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.embedded = embedded
         self.id = uuid if uuid is not None else get_uiid()
 
         self._local = local
@@ -68,9 +75,7 @@ class Artifact(Entity):
         self._temp_path = None
 
         # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self._obj_attr:
-                self.__setattr__(k, v)
+        self._any_setter(**kwargs)
 
         # Set context
         self._context = get_context(self.project)
@@ -401,26 +406,141 @@ class Artifact(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Artifact":
+    def from_dict(cls, obj: dict) -> Self:
         """
-        Create Artifact instance from a dictionary.
+        Create object instance from a dictionary.
 
         Parameters
         ----------
         obj : dict
-            Dictionary to create Artifact from.
+            Dictionary to create object from.
 
         Returns
         -------
-        Artifact
-            Artifact instance.
+        Self
+            Self instance.
 
         """
+        parsed_dict = cls._parse_dict(obj)
+        obj_ = cls(**parsed_dict)
+        obj_._local = obj_._context.local
+        return obj_
+
+    @staticmethod
+    def _parse_dict(obj: dict) -> dict:
+        """
+        Parse dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            Parsed dictionary.
+        """
+
+        # Mandatory fields
         project = obj.get("project")
         name = obj.get("name")
-        uuid = obj.get("id")
         if project is None or name is None:
             raise EntityError("Project or name are not specified.")
-        metadata = ArtifactMetadata.from_dict(obj.get("metadata", {"name": name}))
-        spec = ArtifactSpec.from_dict(obj.get("spec", {}))
-        return cls(project, name, metadata=metadata, spec=spec, uuid=uuid)
+
+        # Optional fields
+        uuid = obj.get("id")
+        kind = obj.get("kind")
+        embedded = obj.get("embedded")
+
+        # Build metadata and spec
+        spec = obj.get("spec")
+        spec = spec if spec is not None else {}
+        spec = build_spec(kind=kind, **spec)
+        metadata = obj.get("metadata", {"name": name})
+        metadata = build_metadata(**metadata)
+
+        return {
+            "project": project,
+            "name": name,
+            "kind": kind,
+            "uuid": uuid,
+            "metadata": metadata,
+            "spec": spec,
+            "embedded": embedded,
+        }
+
+
+def artifact_from_parameters(
+    project: str,
+    name: str,
+    description: str = "",
+    kind: str = "artifact",
+    key: str = None,
+    src_path: str = None,
+    target_path: str = None,
+    local: bool = False,
+    embedded: bool = False,
+    uuid: str = None,
+) -> Artifact:
+    """
+    Create artifact.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project associated with the artifact.
+    name : str
+        Identifier of the artifact.
+    description : str, optional
+        Description of the artifact.
+    kind : str, optional
+        The type of the artifact.
+    key : str
+        Representation of artfact like store://etc..
+    src_path : str
+        Path to the artifact on local file system or remote storage.
+    targeth_path : str
+        Destination path of the artifact.
+    local : bool, optional
+        Flag to determine if object has local execution.
+    embedded : bool, optional
+        Flag to determine if object must be embedded in project.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Artifact
+        Artifact object.
+    """
+    meta = build_metadata(name=name, description=description)
+    spec = build_spec(kind, key=key, src_path=src_path, target_path=target_path)
+    return Artifact(
+        project=project,
+        name=name,
+        kind=kind,
+        metadata=meta,
+        spec=spec,
+        local=local,
+        embedded=embedded,
+        uuid=uuid,
+    )
+
+
+def artifact_from_dict(obj: dict) -> Artifact:
+    """
+    Create artifact from dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create artifact from.
+
+    Returns
+    -------
+    Artifact
+        Artifact object.
+
+    """
+    return Artifact.from_dict(obj)

@@ -14,13 +14,43 @@ class ArtifactSpec(EntitySpec):
         key: str = None,
         src_path: str = None,
         target_path: str = None,
-        **kwargs,
     ) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        key : str, optional
+            The key of the artifact.
+        src_path : str, optional
+            The source path of the artifact.
+        target_path : str, optional
+            The target path of the artifact.
+
+        """
         self.key = key
         self.src_path = src_path
         self.target_path = target_path
 
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
+
+def build_spec(kind: str, **kwargs) -> ArtifactSpec:
+    """
+    Build an ArtifactSpecJob object with the given parameters.
+    Parameters
+    ----------
+    kind : str
+        The type of ArtifactSpec to build.
+    **kwargs : dict
+        Keywords to pass to the constructor.
+    Returns
+    -------
+    ArtifactSpec
+        An ArtifactSpecJob object with the given parameters.
+    Raises
+    ------
+    ValueError
+        If the given kind is not supported.
+    """
+    if kind == "artifact":
+        return ArtifactSpec(**kwargs)
+    raise ValueError(f"Unknown kind: {kind}")

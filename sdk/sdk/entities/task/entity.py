@@ -1,13 +1,22 @@
 """
 Task module.
 """
+from __future__ import annotations
+
+import typing
+from typing import Self
+
 from sdk.entities.base.entity import Entity
-from sdk.entities.run.entity import Run
-from sdk.entities.task.spec import TaskSpec
+from sdk.entities.run.crud import new_run
+from sdk.entities.task.spec import build_spec
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
-from sdk.utils.exceptions import BackendError, EntityError
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
-from sdk.utils.utils import get_uiid
+from sdk.entities.utils.utils import get_uiid
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.task.spec import TaskSpec
+    from sdk.entities.run.entity import Run
 
 
 class Task(Entity):
@@ -17,11 +26,12 @@ class Task(Entity):
 
     def __init__(
         self,
-        kind: str,
-        spec: TaskSpec,
         project: str,
         task: str,
+        kind: str,
+        spec: TaskSpec,
         local: bool = False,
+        uuid: str = None,
         **kwargs,
     ) -> None:
         """
@@ -37,6 +47,8 @@ class Task(Entity):
             The specification of the task.
         task : str
             The task string.
+        uuid : str, optional
+            The uuid of the task.
         local : bool, optional
             Flag to indicate if the task is local or not.
         **kwargs
@@ -46,16 +58,14 @@ class Task(Entity):
         self.project = project
         self.kind = kind if kind is not None else "task"
         self.spec = spec
-        self.id = get_uiid()
+        self.id = uuid if uuid is None else get_uiid()
         self.task = task
 
         self._local = local
         self._obj_attr += ["task"]
 
         # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self._obj_attr:
-                self.__setattr__(k, v)
+        self._any_setter(**kwargs)
 
         self._context = get_context(self.project)
 
@@ -70,7 +80,7 @@ class Task(Entity):
         Parameters
         ----------
         uuid : str, optional
-            Ignore this parameter.
+            UUID of the task.
 
         Returns
         -------
@@ -83,12 +93,13 @@ class Task(Entity):
 
         obj = self.to_dict()
 
-        try:
+        if uuid is None:
             api = api_base_create(DTO_TASK)
             return self._context.create_object(obj, api)
-        except BackendError:
-            api = api_base_update(DTO_TASK, self.id)
-            return self._context.update_object(obj, api)
+
+        self.id = uuid
+        api = api_base_update(DTO_TASK, self.id)
+        return self._context.update_object(obj, api)
 
     def export(self, filename: str = None) -> None:
         """
@@ -112,9 +123,7 @@ class Task(Entity):
     #  Task methods
     #############################
 
-    def run(
-        self, task_id: str, inputs: dict, outputs: dict, parameters: dict, **kwargs
-    ) -> Run:
+    def run(self, inputs: dict, outputs: dict, parameters: dict) -> Run:
         """
         Run task.
 
@@ -123,13 +132,11 @@ class Task(Entity):
         task_id : str
             The task id.
         inputs : dict
-            The inputs of the task.
+            The inputs of the run.
         outputs : dict
-            The outputs of the task.
+            The outputs of the run.
         parameters : dict
-            The parameters of the task.
-        **kwargs
-            Additional keyword arguments.
+            The parameters of the run.
 
         Returns
         -------
@@ -140,53 +147,137 @@ class Task(Entity):
         if self._local:
             raise EntityError("Use .run_local() for local execution.")
 
-        # Create run
-        args = {
-            "project": self.project,
-            "task_id": task_id,
-            "task": self.task,
-            "spec": {
-                "inputs": inputs,
-                "outputs": outputs,
-                "parameters": parameters,
-                **kwargs,
-            },
-        }
-        run = Run.from_dict(args)
-        run.save()
-        return run
+        return new_run(
+            project=self.project,
+            task_id=self.id,
+            task=self.task,
+            kind="run",
+            inputs=inputs,
+            outputs=outputs,
+            parameters=parameters,
+            local=self._local,
+        )
 
     #############################
     # Generic Methods
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Task":
+    def from_dict(cls, obj: dict) -> Self:
         """
-        Create Task object from dictionary.
+        Create object instance from a dictionary.
 
         Parameters
         ----------
         obj : dict
-            Dictionary representation of Task.
+            Dictionary to create object from.
 
         Returns
         -------
-        Task
-            Task object.
+        Self
+            Self instance.
 
         """
+        parsed_dict = cls._parse_dict(obj)
+        obj_ = cls(**parsed_dict)
+        obj_._local = obj_._context.local
+        return obj_
+
+    @staticmethod
+    def _parse_dict(obj: dict) -> dict:
+        """
+        Parse dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            Parsed dictionary.
+        """
+
+        # Mandatory fields
         project = obj.get("project")
-        kind = obj.get("kind")
-        if project is None or kind is None:
-            raise EntityError("Project or kind is not specified.")
+        task_id = obj.get("task_id")
+        if project is None or task_id is None:
+            raise EntityError("Project or task_id are not specified.")
 
-        # Parse task
-        task = obj.get("task")
-        if task is None:
-            raise EntityError("Task is not specified.")
+        # Optional fields
+        kind = obj.get("kind", "run")
+        uuid = obj.get("id")
 
-        # Get spec
-        spec = TaskSpec.from_dict(obj.get("spec", {}))
+        # Spec
+        spec = obj.get("spec")
+        spec = spec if spec is not None else {}
+        spec = build_spec(kind=kind, **spec)
 
-        return cls(kind=kind, spec=spec, project=project, task=task)
+        return {
+            "project": project,
+            "task_id": task_id,
+            "kind": kind,
+            "uuid": uuid,
+            "spec": spec,
+        }
+
+
+def task_from_parameters(
+    project: str,
+    kind: str = "task",
+    task: str = None,
+    k8s_resources: dict = None,
+    local: bool = False,
+    uuid: str = None,
+) -> Task:
+    """
+    Create Task object from parameters.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+    kind : str, optional
+        The kind of the task.
+    task : str, optional
+        The task string.
+    k8s_resources : dict, optional
+        The k8s resources.
+    local : bool, optional
+        Flag to indicate if the task is local or not.
+    uuid : str, optional
+        UUID.
+
+    Returns
+    -------
+    Task
+        Task object.
+    """
+    spec = build_spec(kind, k8s_resources=k8s_resources)
+    return Task(
+        project=project,
+        kind="task",
+        task=task,
+        spec=spec,
+        local=local,
+        uuid=uuid,
+    )
+
+
+def task_from_dict(obj: dict) -> Task:
+    """
+    Create Task object from dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary representation of Task.
+
+    Returns
+    -------
+    Task
+        Task object.
+
+    """
+    return Task.from_dict(obj)

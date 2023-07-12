@@ -9,30 +9,41 @@ class TaskSpec(EntitySpec):
 
     def __init__(
         self,
-        **kwargs,
+        k8s_resources: dict = None,
     ) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        input : str, optional
-            Input dataitem.
-        output : str, optional
-            Output dataitem.
-        parameters : dict, optional
-            Parameters of the task.
         k8s_resources : dict, optional
-        **kwargs
-            Additional keyword arguments.
+            The k8s resources of the task.
 
-        Notes
-        -----
-        If some of the attributes are not in the signature,
-        they will be added as new attributes.
         """
+        self.k8s_resources = k8s_resources if k8s_resources is not None else {}
 
-        # Set new attributes
-        for k, v in kwargs.items():
-            if k not in self.__dict__:
-                self.__setattr__(k, v)
+
+def build_spec(kind: str, **kwargs) -> TaskSpec:
+    """
+    Build a TaskSpecJob object with the given parameters.
+
+    Parameters
+    ----------
+    kind : str
+        The type of TaskSpec to build.
+    **kwargs : dict
+        Keywords to pass to the constructor.
+
+    Returns
+    -------
+    TaskSpec
+        A TaskSpec object with the given parameters.
+
+    Raises
+    ------
+    ValueError
+        If the given kind is not supported.
+    """
+    if kind == "task":
+        return TaskSpec(**kwargs)
+    raise ValueError(f"Unknown kind: {kind}")
