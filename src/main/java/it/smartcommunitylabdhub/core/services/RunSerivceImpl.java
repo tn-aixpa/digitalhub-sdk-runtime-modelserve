@@ -112,7 +112,7 @@ public class RunSerivceImpl implements RunService {
                     // extra runDTO
                     runExecDTO.overrideFields(runDTO);
 
-                    // override spec
+                    // Add also run spec
                     runDTO.getSpec().putAll(runExecDTO.getSpec());
 
                     // save run

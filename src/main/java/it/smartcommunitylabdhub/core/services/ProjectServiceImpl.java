@@ -229,12 +229,6 @@ public class ProjectServiceImpl implements ProjectService {
                                 functions.stream()
                                         .map(function -> functionDTOBuilder.build(function, false))
                                         .collect(Collectors.toList()));
-
-                        // return Optional.of((List<FunctionDTO>) ConversionUtils.reverseIterable(
-                        // functions,
-                        //
-                        // "function",
-                        // FunctionDTO.class));
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -265,11 +259,6 @@ public class ProjectServiceImpl implements ProjectService {
                                 artifacts.stream().map(
                                         artifact -> artifactDTOBuilder.build(artifact, false))
                                         .collect(Collectors.toList()));
-                        // return Optional.of((List<ArtifactDTO>) ConversionUtils.reverseIterable(
-                        // artifacts,
-                        //
-                        // "artifact",
-                        // ArtifactDTO.class));
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
@@ -300,11 +289,6 @@ public class ProjectServiceImpl implements ProjectService {
                                 workflows.stream()
                                         .map(workflow -> workflowDTOBuilder.build(workflow, false))
                                         .collect(Collectors.toList()));
-                        // return Optional.of((List<WorkflowDTO>) ConversionUtils.reverseIterable(
-                        // workflows,
-                        //
-                        // "workflow",
-                        // WorkflowDTO.class));
                     } catch (CustomException e) {
                         throw new CoreException(
                                 "InternalServerError",
