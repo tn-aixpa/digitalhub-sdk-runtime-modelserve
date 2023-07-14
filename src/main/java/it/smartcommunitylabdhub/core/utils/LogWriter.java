@@ -21,7 +21,7 @@ public class LogWriter {
             // Flush the writer to ensure the log entry is written immediately
             writer.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 }

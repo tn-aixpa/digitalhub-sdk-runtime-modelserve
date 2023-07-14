@@ -36,7 +36,7 @@ public enum ProjectKind {
                 return (T) method.invoke(accessor);
             } catch (Exception e) {
                 // Handle any exceptions that occur during method invocation
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
         return null;
