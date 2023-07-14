@@ -54,12 +54,12 @@ def new_artifact(
     name: str,
     description: str = "",
     kind: str = "artifact",
-    key: str = None,
-    src_path: str = None,
-    target_path: str = None,
+    key: str | None = None,
+    src_path: str | None = None,
+    target_path: str | None = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Artifact:
     """
     Create an instance of the Artifact class with the provided parameters.
@@ -109,7 +109,7 @@ def new_artifact(
     return obj
 
 
-def get_artifact(project: str, name: str, uuid: str = None) -> Artifact:
+def get_artifact(project: str, name: str, uuid: str | None = None) -> Artifact:
     """
     Retrieves artifact details from the backend.
 
@@ -150,7 +150,7 @@ def import_artifact(file: str) -> Artifact:
     return artifact_from_dict(obj)
 
 
-def delete_artifact(project: str, name: str, uuid: str = None) -> dict:
+def delete_artifact(project: str, name: str, uuid: str | None = None) -> dict:
     """
     Delete artifact from the backend. If the uuid is not specified, delete all versions.
 

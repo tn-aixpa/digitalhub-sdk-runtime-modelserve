@@ -32,12 +32,12 @@ class Dataitem(Entity):
         self,
         project: str,
         name: str,
-        kind: str = None,
+        kind: str | None = None,
         metadata: DataitemMetadata = None,
         spec: DataitemSpec = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -90,7 +90,7 @@ class Dataitem(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str = None) -> dict:
+    def save(self, uuid: str | None = None) -> dict:
         """
         Save dataitem into backend.
 
@@ -117,7 +117,7 @@ class Dataitem(Entity):
         api = api_ctx_update(self.project, DTO_DTIT, self.name, uuid)
         return self._context.update_object(obj, api)
 
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Export object as a YAML file.
 
@@ -142,7 +142,7 @@ class Dataitem(Entity):
     #  Dataitem Methods
     #############################
 
-    def as_df(self, file_format: str = None, **kwargs) -> pd.DataFrame:
+    def as_df(self, file_format: str | None = None, **kwargs) -> pd.DataFrame:
         """
         Read dataitem as a pandas DataFrame. If the dataitem is not local,
         it will be downloaded to a temporary folder and deleted after the
@@ -194,7 +194,9 @@ class Dataitem(Entity):
 
         return df
 
-    def write_df(self, df: pd.DataFrame, target_path: str = None, **kwargs) -> str:
+    def write_df(
+        self, df: pd.DataFrame, target_path: str | None = None, **kwargs
+    ) -> str:
         """
         Write pandas DataFrame as parquet.
 
@@ -324,11 +326,11 @@ def dataitem_from_parameters(
     name: str,
     description: str = "",
     kind: str = "dataitem",
-    key: str = None,
-    path: str = None,
+    key: str | None = None,
+    path: str | None = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Dataitem:
     """
     Create dataitem.

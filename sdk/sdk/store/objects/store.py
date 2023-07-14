@@ -101,25 +101,25 @@ class Store(metaclass=ABCMeta):
     ############################
 
     @abstractmethod
-    def upload(self, src: str, dst: str = None) -> None:
-        """
-        Method to upload artifact to storage.
-        """
-
-    @abstractmethod
-    def download(self, src: str, dst: str = None) -> None:
+    def download(self, src: str, dst: str | None = None) -> str:
         """
         Method to download artifact from storage.
         """
 
     @abstractmethod
-    def fetch_artifact(self, src: str, dst: str = None) -> None:
+    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Method to fetch artifact from storage.
         """
 
     @abstractmethod
-    def persist_artifact(self, src: str, dst: str = None) -> None:
+    def upload(self, src: str, dst: str | None = None) -> str:
+        """
+        Method to upload artifact to storage.
+        """
+
+    @abstractmethod
+    def persist_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Method to persist artifact in storage.
         """
@@ -151,14 +151,14 @@ class Store(metaclass=ABCMeta):
 
         Raises
         ------
-        RuntimeError
+        ValueError
             If format is not supported.
         """
         if extension == "csv":
             return pd.read_csv(path, **kwargs)
         if extension == "parquet":
             return pd.read_parquet(path, **kwargs)
-        raise RuntimeError(f"Format {extension} not supported.")
+        raise ValueError(f"Format {extension} not supported.")
 
     ############################
     # Interface helpers methods

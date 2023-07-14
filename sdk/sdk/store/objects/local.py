@@ -24,21 +24,10 @@ class LocalStore(Store):
     # IO methods
     ############################
 
-    def download(self, *args, **kwargs) -> None:
+    def download(self, src: str, dst: str | None = None) -> str:
         """
         Method to download an artifact from the backend. Please note that this method is not
         implemented since the local store is not meant to download artifacts.
-
-        Parameters
-        ----------
-        *args
-            Arguments list.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        None
 
         Raises
         ------
@@ -49,7 +38,7 @@ class LocalStore(Store):
             "Local store does not support download. Use as_file() instead."
         )
 
-    def fetch_artifact(self, src: str, dst: str = None) -> str:
+    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Method to fetch an artifact from the backend and to register it on the paths registry.
 
@@ -84,17 +73,10 @@ class LocalStore(Store):
         # we don't copy the file anywhere
         return src
 
-    def upload(self, *args, **kwargs) -> None:
+    def upload(self, src: str, dst: str | None = None) -> str:
         """
         Method to upload an artifact to the backend. Please note that this method is not implemented
         since the local store is not meant to upload artifacts.
-
-        Parameters
-        ----------
-        *args
-            Arguments list.
-        **kwargs
-            Keyword arguments.
 
         Returns
         -------
@@ -107,7 +89,7 @@ class LocalStore(Store):
         """
         raise NotImplementedError("Local store does not support upload.")
 
-    def persist_artifact(self, src: str, dst: str = None) -> None:
+    def persist_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Method to persist (copy) an artifact on local filesystem.
 
@@ -122,13 +104,14 @@ class LocalStore(Store):
 
         Returns
         -------
-        None
+        dst
+            Returns the URI of the artifact.
         """
         # Set destination if not provided
         if dst is None:
-            file = get_name_from_uri(src)
+            filename = get_name_from_uri(src)
             base_path = get_dir(self.uri)
-            dst = f"{base_path}/{file}"
+            dst = f"{base_path}/{filename}"
 
         # Check access to destination
         self._check_dir(get_dir(dst))
@@ -137,9 +120,9 @@ class LocalStore(Store):
         copy_file(src, dst)
         return dst
 
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> None:
+    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
         """
-        Method to write a dataframe to a file.
+        Method to write a dataframe to a file. Kwargs are passed to df.to_parquet().
 
         Parameters
         ----------
@@ -152,13 +135,16 @@ class LocalStore(Store):
 
         Returns
         -------
-        None
+        str
+            Path of written dataframe.
         """
         # Check access to destination
         self._check_dir(get_dir(dst))
 
         # Write dataframe to file
         df.to_parquet(dst, index=False, **kwargs)
+
+        return dst
 
     ############################
     # Private helper methods

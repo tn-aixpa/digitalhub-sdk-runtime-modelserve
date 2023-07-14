@@ -1,8 +1,6 @@
 """
 Module for models.
 """
-from typing import Optional
-
 from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 
@@ -14,11 +12,11 @@ class DHCoreConfig(BaseModel):
     endpoint: str
     """Backend endpoint."""
 
-    user: Optional[str] = None
+    user: str | None = None
     """User."""
 
-    password: Optional[str] = None
+    password: str | None = None
     """Password."""
 
-    token: Optional[str] = None
+    token: str | None = None
     """Auth token."""

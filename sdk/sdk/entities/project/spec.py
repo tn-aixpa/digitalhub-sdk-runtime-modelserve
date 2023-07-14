@@ -11,8 +11,8 @@ class ProjectSpec(EntitySpec):
 
     def __init__(
         self,
-        context: str = None,
-        source: str = None,
+        context: str | None = None,
+        source: str | None = None,
         functions: list[dict] = None,
         artifacts: list[dict] = None,
         workflows: list[dict] = None,

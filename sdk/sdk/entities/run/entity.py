@@ -25,7 +25,7 @@ class Run(Entity):
         self,
         project: str,
         task_id: str,
-        task: str = None,
+        task: str | None = None,
         spec: RunSpec = None,
         local: bool = False,
         **kwargs,
@@ -63,7 +63,7 @@ class Run(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str = None) -> "Run":
+    def save(self, uuid: str | None = None) -> "Run":
         """
         Save run into backend.
 
@@ -87,7 +87,7 @@ class Run(Entity):
         self.id = response.get("id")
         return self
 
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Export object as a YAML file.
 

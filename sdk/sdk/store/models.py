@@ -1,7 +1,7 @@
 """
 Store models module.
 """
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
@@ -20,8 +20,8 @@ class StoreConfig(BaseModel):
     uri: str
     """Store URI."""
 
-    config: Optional[dict] = None
+    config: dict | None = None
     """Dictionary containing credentials/configurations for the storage."""
 
-    is_default: Optional[bool] = False
+    is_default: bool = False
     """Flag to determine if the store is the default one."""

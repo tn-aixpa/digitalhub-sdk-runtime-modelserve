@@ -38,7 +38,7 @@ def new_task(
     task: str = "",
     resources: dict = None,
     local: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Task:
     """
     Create a new object instance.

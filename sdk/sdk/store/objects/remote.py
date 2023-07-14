@@ -1,6 +1,9 @@
 """
 Remote store module.
 """
+from __future__ import annotations
+
+import typing
 from tempfile import mkdtemp
 
 import requests
@@ -14,6 +17,9 @@ from sdk.utils.uri_utils import (
     get_uri_scheme,
 )
 
+if typing.TYPE_CHECKING:
+    import pandas as pd
+
 
 class RemoteStore(Store):
     """
@@ -25,7 +31,7 @@ class RemoteStore(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str = None) -> str:
+    def download(self, src: str, dst: str | None = None) -> str:
         """
         Method to download an artifact from the backend.
 
@@ -43,7 +49,7 @@ class RemoteStore(Store):
         """
         return self.fetch_artifact(src, dst)
 
-    def fetch_artifact(self, src: str, dst: str = None) -> str:
+    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Method to fetch an artifact from the remote storage and to register
         it on the paths registry.
@@ -82,21 +88,10 @@ class RemoteStore(Store):
 
         return dst
 
-    def upload(self, *args, **kwargs) -> None:
+    def upload(self, src: str, dst: str | None = None) -> str:
         """
         Method to upload an artifact to the backend. Please note that this method is not implemented
         since the local store is not meant to upload artifacts.
-
-        Parameters
-        ----------
-        *args
-            Arguments list.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        None
 
         Raises
         ------
@@ -105,21 +100,10 @@ class RemoteStore(Store):
         """
         raise NotImplementedError("Remote store does not support upload.")
 
-    def persist_artifact(self, *args, **kwargs) -> None:
+    def persist_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Method to persist an artifact. Note that this method is not implemented
         since the remote store is not meant to write artifacts.
-
-        Parameters
-        ----------
-        *args
-            Arguments list.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        None
 
         Raises
         ------
@@ -128,21 +112,10 @@ class RemoteStore(Store):
         """
         raise NotImplementedError("Remote store does not support persist_artifact.")
 
-    def write_df(self, *args, **kwargs) -> None:
+    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
         """
         Method to write a dataframe to a file. Note that this method is not implemented
         since the remote store is not meant to write dataframes.
-
-        Parameters
-        ----------
-        *args
-            Arguments list.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        None
 
         Raises
         ------

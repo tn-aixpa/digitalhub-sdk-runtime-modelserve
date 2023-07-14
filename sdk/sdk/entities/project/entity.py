@@ -69,7 +69,7 @@ class Project(Entity):
         metadata: ProjectMetadata = None,
         spec: ProjectSpec = None,
         local: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -155,7 +155,7 @@ class Project(Entity):
 
         return responses
 
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Export object as a YAML file. If the objects are not embedded, the objects are
         exported as a YAML file.
@@ -209,7 +209,7 @@ class Project(Entity):
         attr = getattr(self, kind, []) + [obj]
         setattr(self, kind, attr)
 
-    def _delete_object(self, name: str, kind: str, uuid: str = None) -> None:
+    def _delete_object(self, name: str, kind: str, uuid: str | None = None) -> None:
         """
         Delete object from project.
 
@@ -270,12 +270,12 @@ class Project(Entity):
         name: str,
         description: str = "",
         kind: str = "artifact",
-        key: str = None,
-        src_path: str = None,
-        target_path: str = None,
+        key: str | None = None,
+        src_path: str | None = None,
+        target_path: str | None = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
     ) -> Artifact:
         """
         Create an instance of the Artifact class with the provided parameters.
@@ -321,7 +321,7 @@ class Project(Entity):
         self._add_object(obj, DTO_ARTF)
         return obj
 
-    def get_artifact(self, name: str, uuid: str = None) -> Artifact:
+    def get_artifact(self, name: str, uuid: str | None = None) -> Artifact:
         """
         Get a Artifact from backend.
 
@@ -345,7 +345,7 @@ class Project(Entity):
         self._add_object(obj, DTO_ARTF)
         return obj
 
-    def delete_artifact(self, name: str, uuid: str = None) -> None:
+    def delete_artifact(self, name: str, uuid: str | None = None) -> None:
         """
         Delete a Artifact from project.
 
@@ -389,12 +389,12 @@ class Project(Entity):
         description: str = "",
         kind: str = "job",
         source: str = "",
-        image: str = None,
-        tag: str = None,
-        handler: str = None,
+        image: str | None = None,
+        tag: str | None = None,
+        handler: str | None = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
     ) -> Function:
         """
         Create a Function instance with the given parameters.
@@ -445,7 +445,7 @@ class Project(Entity):
         self._add_object(obj, DTO_FUNC)
         return obj
 
-    def get_function(self, name: str, uuid: str = None) -> Function:
+    def get_function(self, name: str, uuid: str | None = None) -> Function:
         """
         Get a Function from backend.
 
@@ -469,7 +469,7 @@ class Project(Entity):
         self._add_object(obj, DTO_FUNC)
         return obj
 
-    def delete_function(self, name: str, uuid: str = None) -> None:
+    def delete_function(self, name: str, uuid: str | None = None) -> None:
         """
         Delete a Function from project.
 
@@ -512,10 +512,10 @@ class Project(Entity):
         name: str,
         description: str = "",
         kind: str = "job",
-        test: str = None,
+        test: str | None = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
     ) -> Workflow:
         """
         Create a new Workflow instance with the specified parameters.
@@ -557,7 +557,7 @@ class Project(Entity):
         self._add_object(obj, DTO_WKFL)
         return obj
 
-    def get_workflow(self, name: str, uuid: str = None) -> Workflow:
+    def get_workflow(self, name: str, uuid: str | None = None) -> Workflow:
         """
         Get a Workflow from backend.
 
@@ -581,7 +581,7 @@ class Project(Entity):
         self._add_object(obj, DTO_WKFL)
         return obj
 
-    def delete_workflow(self, name: str, uuid: str = None) -> None:
+    def delete_workflow(self, name: str, uuid: str | None = None) -> None:
         """
         Delete a Workflow from project.
 
@@ -624,11 +624,11 @@ class Project(Entity):
         name: str,
         description: str = "",
         kind: str = "dataitem",
-        key: str = None,
-        path: str = None,
+        key: str | None = None,
+        path: str | None = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
     ) -> Dataitem:
         """
         Create a Dataitem.
@@ -671,7 +671,7 @@ class Project(Entity):
         self._add_object(obj, DTO_DTIT)
         return obj
 
-    def get_dataitem(self, name: str, uuid: str = None) -> Dataitem:
+    def get_dataitem(self, name: str, uuid: str | None = None) -> Dataitem:
         """
         Get a Dataitem from backend.
 
@@ -695,7 +695,7 @@ class Project(Entity):
         self._add_object(obj, DTO_DTIT)
         return obj
 
-    def delete_dataitem(self, name: str, uuid: str = None) -> None:
+    def delete_dataitem(self, name: str, uuid: str | None = None) -> None:
         """
         Delete a Dataitem from project.
 
@@ -830,7 +830,7 @@ def project_from_parameters(
     context: str = "",
     source: str = "",
     local: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Project:
     """
     Create project.

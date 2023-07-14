@@ -44,10 +44,10 @@ def create_project(**kwargs) -> Project:
 def new_project(
     name: str,
     description: str = "",
-    context: str = None,
-    source: str = None,
+    context: str | None = None,
+    source: str | None = None,
     local: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Project:
     """
     Create a new project and an execution context.
@@ -172,7 +172,7 @@ def import_project(file: str) -> Project:
     return project_from_dict(obj)
 
 
-def delete_project(name: str, delete_all: bool = False) -> None:
+def delete_project(name: str, delete_all: bool = False) -> list[dict]:
     """
     Delete a project.
 

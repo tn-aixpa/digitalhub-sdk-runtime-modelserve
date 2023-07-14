@@ -9,7 +9,7 @@ class WorkflowSpec(EntitySpec):
     Workflow specifications.
     """
 
-    def __init__(self, test: str = None) -> None:
+    def __init__(self, test: str | None = None) -> None:
         """
         Constructor.
 

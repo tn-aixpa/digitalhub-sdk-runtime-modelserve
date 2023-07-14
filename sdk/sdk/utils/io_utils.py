@@ -26,8 +26,8 @@ class BytesIOWrapper(BufferedReader):
     def __init__(
         self,
         text_io_buffer: TextIOBase,
-        encoding: str = None,
-        errors: str = None,
+        encoding: str | None = None,
+        errors: str | None = None,
         **kwargs
     ) -> None:
         """
@@ -72,7 +72,7 @@ class BytesIOWrapper(BufferedReader):
         val = raw_method(*args, **kwargs)
         return val.encode(self.encoding, errors=self.errors)
 
-    def read(self, size: int = -1) -> bytes:
+    def read(self, size: int | None = -1) -> bytes:
         """
         Read bytes from the stream.
 
@@ -104,7 +104,7 @@ class BytesIOWrapper(BufferedReader):
         """
         return self._encoding_call("read1", size)
 
-    def peek(self, size: int = -1) -> bytes:
+    def peek(self, size: int = 0) -> bytes:
         """
         Peek bytes from the stream.
 
@@ -121,18 +121,18 @@ class BytesIOWrapper(BufferedReader):
         return self._encoding_call("peek", size)
 
 
-def wrap_bytes(src: IO) -> StringIO:
+def wrap_bytes(src: BytesIO | StringIO) -> TextIOWrapper | StringIO:
     """
     Wrap a BytesIO in a StringIO.
 
     Parameters
     ----------
-    src : IO
+    src : BytesIO | StringIO
         The source object to be wrapped.
 
     Returns
     -------
-    StringIO
+    TextIOWrapper | StringIO
         The wrapped object.
     """
     if isinstance(src, BytesIO):
@@ -140,18 +140,18 @@ def wrap_bytes(src: IO) -> StringIO:
     return src
 
 
-def wrap_string(src: IO) -> BytesIO:
+def wrap_string(src: BytesIO | StringIO) -> BytesIOWrapper | BytesIO:
     """
     Wrap a StringIO in a BytesIO.
 
     Parameters
     ----------
-    src : IO
+    src : BytesIO | StringIO
         The source object to be wrapped.
 
     Returns
     -------
-    BytesIO
+    BytesIOWrapper | BytesIO
         The wrapped object.
     """
     if isinstance(src, StringIO):

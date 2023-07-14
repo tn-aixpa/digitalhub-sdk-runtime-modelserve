@@ -30,12 +30,12 @@ class Function(Entity):
         self,
         project: str,
         name: str,
-        kind: str = None,
+        kind: str | None = None,
         metadata: FunctionMetadata = None,
         spec: FunctionSpec = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -81,7 +81,7 @@ class Function(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str = None) -> dict:
+    def save(self, uuid: str | None = None) -> dict:
         """
         Save function into backend.
 
@@ -108,7 +108,7 @@ class Function(Entity):
         api = api_ctx_update(self.project, DTO_FUNC, self.name, uuid)
         return self._context.update_object(obj, api)
 
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Export object as a YAML file.
 
@@ -295,15 +295,15 @@ def function_from_parameters(
     name: str,
     description: str = "",
     kind: str = "job",
-    source: str = None,
-    image: str = None,
-    tag: str = None,
-    handler: str = None,
-    command: str = None,
+    source: str | None = None,
+    image: str | None = None,
+    tag: str | None = None,
+    handler: str | None = None,
+    command: str | None = None,
     requirements: list = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Function:
     """
     Create function.

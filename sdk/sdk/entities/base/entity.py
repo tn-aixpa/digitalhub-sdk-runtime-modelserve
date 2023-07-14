@@ -33,7 +33,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Abstract save method.
         """
@@ -53,10 +53,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         -------
         None
         """
-        try:
-            return write_yaml(obj, filename)
-        except Exception as exc:
-            raise exc
+        return write_yaml(obj, filename)
 
     def to_dict(self, include_all_non_private: bool = False) -> dict:
         """

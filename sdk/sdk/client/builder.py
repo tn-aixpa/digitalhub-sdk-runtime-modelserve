@@ -14,7 +14,7 @@ class ClientBuilder:
         """
         Constructor.
         """
-        self._instance = None
+        self._instance: Client | None = None
 
     def build(self, *args, **kwargs) -> Client:
         """

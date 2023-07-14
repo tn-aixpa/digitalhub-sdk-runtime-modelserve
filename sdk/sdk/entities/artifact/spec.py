@@ -11,9 +11,9 @@ class ArtifactSpec(EntitySpec):
 
     def __init__(
         self,
-        key: str = None,
-        src_path: str = None,
-        target_path: str = None,
+        key: str | None = None,
+        src_path: str | None = None,
+        target_path: str | None = None,
     ) -> None:
         """
         Constructor.

@@ -30,12 +30,12 @@ class Artifact(Entity):
         self,
         project: str,
         name: str,
-        kind: str = None,
+        kind: str | None = None,
         metadata: ArtifactMetadata = None,
         spec: ArtifactSpec = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -89,7 +89,7 @@ class Artifact(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str = None) -> dict:
+    def save(self, uuid: str | None = None) -> dict:
         """
         Save artifact into backend.
 
@@ -116,7 +116,7 @@ class Artifact(Entity):
         api = api_ctx_update(self.project, DTO_ARTF, self.name, uuid)
         return self._context.update_object(obj, api)
 
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Export object as a YAML file.
 
@@ -141,7 +141,7 @@ class Artifact(Entity):
     #  Artifacts Methods
     #############################
 
-    def as_file(self, target: str = None) -> str:
+    def as_file(self, target: str | None = None) -> str:
         """
         Get artifact as file. In the case of a local store, the store returns the current
         path of the artifact. In the case of a remote store, the artifact is downloaded in
@@ -176,7 +176,7 @@ class Artifact(Entity):
         return self._temp_path
 
     def download(
-        self, target: str = None, dst: str = None, overwrite: bool = False
+        self, target: str | None = None, dst: str | None = None, overwrite: bool = False
     ) -> str:
         """
         Download artifact from backend.
@@ -214,7 +214,7 @@ class Artifact(Entity):
         # Download artifact and return path
         return store.download(self.spec.target_path, dst)
 
-    def upload(self, source: str = None, target: str = None) -> str:
+    def upload(self, source: str | None = None, target: str | None = None) -> str:
         """
         Upload artifact to backend.
 
@@ -252,7 +252,7 @@ class Artifact(Entity):
     #  Private Helpers
     #############################
 
-    def _check_target(self, target: str = None, upload: bool = False) -> None:
+    def _check_target(self, target: str | None = None, upload: bool = False) -> None:
         """
         Check if target path is specified.
 
@@ -278,9 +278,8 @@ class Artifact(Entity):
                 self.spec.target_path = target_path
                 return
             self.spec.target_path = target
-            return
 
-    def _check_src(self, src: str = None) -> None:
+    def _check_src(self, src: str | None = None) -> None:
         """
         Check if source path is specified.
 
@@ -342,7 +341,7 @@ class Artifact(Entity):
         if get_uri_scheme(self.spec.src_path) not in ["", "file"]:
             raise EntityError("Only local paths are supported for source paths.")
 
-    def _rebuild_dst(self, dst: str = None) -> None:
+    def _rebuild_dst(self, dst: str | None = None) -> None:
         """
         Check if destination path is specified.
 
@@ -472,12 +471,12 @@ def artifact_from_parameters(
     name: str,
     description: str = "",
     kind: str = "artifact",
-    key: str = None,
-    src_path: str = None,
-    target_path: str = None,
+    key: str | None = None,
+    src_path: str | None = None,
+    target_path: str | None = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Artifact:
     """
     Create artifact.

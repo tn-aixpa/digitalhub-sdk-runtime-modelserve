@@ -9,7 +9,7 @@ class EntityMetadata(ModelObj):
     A class representing the metadata of an entity.
     """
 
-    def __init__(self, name: str = None, description: str = "") -> None:
+    def __init__(self, name: str | None = None, description: str = "") -> None:
         """
         Constructor.
 

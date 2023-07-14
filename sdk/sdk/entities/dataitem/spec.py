@@ -9,7 +9,7 @@ class DataitemSpec(EntitySpec):
     Dataitem specifications.
     """
 
-    def __init__(self, key: str = None, path: str = None) -> None:
+    def __init__(self, key: str | None = None, path: str | None = None) -> None:
         """
         Constructor.
 

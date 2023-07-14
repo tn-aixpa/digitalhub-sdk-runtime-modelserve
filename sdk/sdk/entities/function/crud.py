@@ -54,15 +54,15 @@ def new_function(
     name: str,
     description: str = "",
     kind: str = "job",
-    source: str = None,
-    image: str = None,
-    tag: str = None,
-    handler: str = None,
-    command: str = None,
+    source: str | None = None,
+    image: str | None = None,
+    tag: str | None = None,
+    handler: str | None = None,
+    command: str | None = None,
     requirements: list = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Function:
     """
     Create a new Function instance and persist it to the backend.
@@ -126,7 +126,7 @@ def new_function(
     return obj
 
 
-def get_function(project: str, name: str, uuid: str = None) -> Function:
+def get_function(project: str, name: str, uuid: str | None = None) -> Function:
     """
     Get object from backend.
 
@@ -167,7 +167,7 @@ def import_function(file: str) -> Function:
     return function_from_dict(obj)
 
 
-def delete_function(project: str, name: str, uuid: str = None) -> None:
+def delete_function(project: str, name: str, uuid: str | None = None) -> None:
     """
     Delete function from the backend. If the uuid is not specified, delete all versions.
 

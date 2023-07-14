@@ -37,6 +37,6 @@ def set_dhub_env(config: DHCoreConfig) -> None:
     None
     """
     os.environ["DHUB_CORE_ENDPOINT"] = config.endpoint
-    os.environ["DHUB_CORE_USER"] = config.user
-    os.environ["DHUB_CORE_PASSWORD"] = config.password
-    os.environ["DHUB_CORE_TOKEN"] = config.token
+    os.environ["DHUB_CORE_USER"] = config.user or ""
+    os.environ["DHUB_CORE_PASSWORD"] = config.password or ""
+    os.environ["DHUB_CORE_TOKEN"] = config.token or ""

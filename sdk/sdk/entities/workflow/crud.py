@@ -54,10 +54,10 @@ def new_workflow(
     name: str,
     description: str = "",
     kind: str = "job",
-    test: str = None,
+    test: str | None = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -101,7 +101,7 @@ def new_workflow(
     return obj
 
 
-def get_workflow(project: str, name: str, uuid: str = None) -> Workflow:
+def get_workflow(project: str, name: str, uuid: str | None = None) -> Workflow:
     """
     Retrieves workflow details from the backend.
 
@@ -143,7 +143,7 @@ def import_workflow(file: str) -> Workflow:
     return workflow_from_dict(obj)
 
 
-def delete_workflow(project: str, name: str, uuid: str = None) -> dict:
+def delete_workflow(project: str, name: str, uuid: str | None = None) -> dict:
     """
     Delete workflow from the backend. If the uuid is not specified, delete all versions.
 

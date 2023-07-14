@@ -22,8 +22,8 @@ class StoreBuilder:
         """
         Constructor.
         """
-        self._instances = {}
-        self._default = None
+        self._instances: dict[str, Store] = {}
+        self._default: Store | None = None
 
     def build(self, store_cfg: StoreConfig) -> None:
         """

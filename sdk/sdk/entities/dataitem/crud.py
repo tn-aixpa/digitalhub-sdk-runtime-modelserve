@@ -54,11 +54,11 @@ def new_dataitem(
     name: str,
     description: str = "",
     kind: str = "dataitem",
-    key: str = None,
-    path: str = None,
+    key: str | None = None,
+    path: str | None = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Dataitem:
     """
     Create a new object instance.
@@ -105,7 +105,7 @@ def new_dataitem(
     return obj
 
 
-def get_dataitem(project: str, name: str, uuid: str = None) -> Dataitem:
+def get_dataitem(project: str, name: str, uuid: str | None = None) -> Dataitem:
     """
     Get object from backend.
 
@@ -147,7 +147,7 @@ def import_dataitem(file: str) -> Dataitem:
     return dataitem_from_dict(obj)
 
 
-def delete_dataitem(project: str, name: str, uuid: str = None) -> None:
+def delete_dataitem(project: str, name: str, uuid: str | None = None) -> None:
     """
     Delete dataitem from the backend. If the uuid is not specified, delete all versions.
 

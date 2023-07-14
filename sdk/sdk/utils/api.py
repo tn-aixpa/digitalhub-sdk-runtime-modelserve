@@ -49,7 +49,7 @@ def api_ctx_read(
     proj: str,
     dto: str,
     name: str,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> str:
     """
     Read context API.
@@ -106,7 +106,7 @@ def api_ctx_delete(
     proj: str,
     dto: str,
     name: str,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> str:
     """
     Delete context API.

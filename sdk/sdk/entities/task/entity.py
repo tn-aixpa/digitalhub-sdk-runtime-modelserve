@@ -31,7 +31,7 @@ class Task(Entity):
         kind: str,
         spec: TaskSpec,
         local: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -73,7 +73,7 @@ class Task(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str = None) -> dict:
+    def save(self, uuid: str | None = None) -> dict:
         """
         Save task into backend.
 
@@ -100,7 +100,7 @@ class Task(Entity):
         api = api_base_update(DTO_TASK, self.id)
         return self._context.update_object(obj, api)
 
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Export object as a YAML file.
 
@@ -222,10 +222,10 @@ class Task(Entity):
 def task_from_parameters(
     project: str,
     kind: str = "task",
-    task: str = None,
+    task: str | None = None,
     resources: dict = None,
     local: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Task:
     """
     Create Task object from parameters.

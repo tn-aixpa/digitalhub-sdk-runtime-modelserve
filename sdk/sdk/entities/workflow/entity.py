@@ -28,12 +28,12 @@ class Workflow(Entity):
         self,
         project: str,
         name: str,
-        kind: str = None,
+        kind: str | None = None,
         metadata: WorkflowMetadata = None,
         spec: WorkflowSpec = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str = None,
+        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -81,7 +81,7 @@ class Workflow(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str = None) -> dict:
+    def save(self, uuid: str | None = None) -> dict:
         """
         Save workflow into backend.
 
@@ -108,7 +108,7 @@ class Workflow(Entity):
         api = api_ctx_update(self.project, DTO_WKFL, self.name, uuid)
         return self._context.update_object(obj, api)
 
-    def export(self, filename: str = None) -> None:
+    def export(self, filename: str | None = None) -> None:
         """
         Export object as a YAML file.
 
@@ -218,10 +218,10 @@ def workflow_from_parameters(
     name: str,
     description: str = "",
     kind: str = "job",
-    test: str = None,
+    test: str | None = None,
     local: bool = False,
     embedded: bool = False,
-    uuid: str = None,
+    uuid: str | None = None,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.

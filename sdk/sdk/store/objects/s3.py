@@ -42,7 +42,7 @@ class S3Store(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str = None) -> str:
+    def download(self, src: str, dst: str | None = None) -> str:
         """
         Download an artifact from S3 based storage.
 
@@ -52,7 +52,7 @@ class S3Store(Store):
         """
         return self.fetch_artifact(src, dst)
 
-    def fetch_artifact(self, src: str, dst: str = None) -> str:
+    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Fetch an artifact from S3 based storage. If the destination is not provided,
         a temporary directory will be created and the artifact will be saved there.
@@ -89,7 +89,7 @@ class S3Store(Store):
         client.download_file(bucket, key, dst)
         return dst
 
-    def upload(self, src: str, dst: str = None) -> str:
+    def upload(self, src: str, dst: str | None = None) -> str:
         """
         Upload an artifact to S3 based storage.
 
@@ -99,7 +99,7 @@ class S3Store(Store):
         """
         return self.persist_artifact(src, dst)
 
-    def persist_artifact(self, src: str, dst: str = None) -> str:
+    def persist_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Persist an artifact on S3 based storage.
 
@@ -133,10 +133,9 @@ class S3Store(Store):
         client.upload_file(Filename=src, Bucket=bucket, Key=key)
         return rebuild_uri(f"s3://{bucket}/{key}")
 
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> None:
+    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
         """
-        Write a dataframe to S3 based storage. Keyword arguments are passed to
-        the underlying to_parquet method.
+        Write a dataframe to S3 based storage. Kwargs are passed to df.to_parquet().
 
         Parameters
         ----------
@@ -149,7 +148,8 @@ class S3Store(Store):
 
         Returns
         -------
-        None
+        str
+            The path S3 path where the dataframe was saved.
         """
         # Get client and bucket
         client = self._get_client()
@@ -167,6 +167,9 @@ class S3Store(Store):
 
         # Write buffer to S3 as parquet
         client.put_object(Bucket=bucket, Key=key, Body=out_buffer.getvalue())
+
+        # Return uri where dataframe was saved
+        return rebuild_uri(f"s3://{bucket}/{key}")
 
     ############################
     # Private helper methods
