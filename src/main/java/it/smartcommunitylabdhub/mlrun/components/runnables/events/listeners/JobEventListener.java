@@ -64,7 +64,7 @@ public class JobEventListener {
     private void handleSuccessfulResponse(Map<String, Object> response, RunDTO runDTO) {
         Optional<Map<String, Object>> optionalData = MapUtils.getNestedFieldValue(response, "data");
 
-        optionalData.ifPresent(data -> {
+        optionalData.ifPresentOrElse(data -> {
             MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
                 runDTO.setExtra("mlrun_run_uid", metadata.get("uid"));
             });
@@ -80,12 +80,9 @@ public class JobEventListener {
             eventPublisher.publishEvent(
                     RunMessage.builder().runDTO(rundDTO)
                             .build());
-        });
-
-        optionalData.orElseGet(() -> {
-            handleFailedResponse("DataNotPresent", "Data is not present in MLRun Run response.");
-            return null;
-        });
+        }, () -> handleFailedResponse(
+                "DataNotPresent",
+                "Data is not present in MLRun Run response."));
 
     }
 

@@ -78,21 +78,30 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
 
         String versionedPattern = "/api/" + version + originalPattern;
 
-        // Putting the version as dynamic parameter I cannot I cannot register multiple
+        // Putting the version as dynamic parameter I cannot register multiple
         // times the same path
         // String versionedPattern = "/api/{version}" + originalPattern;
 
-        RequestMappingInfo.Builder builder = mappingInfo.mutate()
-                .paths(versionedPattern)
-                .methods(mappingInfo.getMethodsCondition().getMethods().toArray(RequestMethod[]::new))
-                .params(mappingInfo.getParamsCondition().getExpressions().toArray(String[]::new))
-                .headers(mappingInfo.getHeadersCondition().getExpressions().toArray(String[]::new))
-                .consumes(getMediaTypeStrings(mappingInfo.getConsumesCondition()))
-                .produces(getMediaTypeStrings(mappingInfo.getProducesCondition()))
-                .customCondition(mappingInfo.getCustomCondition());
+        if (mappingInfo != null) {
+            RequestMappingInfo.Builder builder = mappingInfo.mutate()
+                    .paths(versionedPattern)
+                    .methods(mappingInfo.getMethodsCondition().getMethods().toArray(RequestMethod[]::new))
+                    .params(mappingInfo.getParamsCondition().getExpressions().toArray(String[]::new))
+                    .headers(mappingInfo.getHeadersCondition().getExpressions().toArray(String[]::new))
+                    .consumes(getMediaTypeStrings(mappingInfo.getConsumesCondition()))
+                    .produces(getMediaTypeStrings(mappingInfo.getProducesCondition()));
 
-        builder.mappingName(mappingInfo.getName());
-        return builder.build();
+            if (mappingInfo.getName() != null) {
+                builder.mappingName(mappingInfo.getName());
+            }
+            if (mappingInfo.getCustomCondition() != null) {
+                builder.customCondition(mappingInfo.getCustomCondition());
+            }
+
+            return builder.build();
+        } else {
+            return RequestMappingInfo.paths(versionedPattern).build();
+        }
     }
 
     private String[] getMediaTypeStrings(ProducesRequestCondition producesCondition) {
