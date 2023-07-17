@@ -6,10 +6,10 @@ from __future__ import annotations
 import typing
 
 from sdk.store.models import StoreConfig
-from sdk.utils.exceptions import StoreError
 from sdk.store.objects.local import LocalStore
 from sdk.store.objects.remote import RemoteStore
 from sdk.store.objects.s3 import S3Store
+from sdk.utils.exceptions import StoreError
 
 if typing.TYPE_CHECKING:
     from sdk.store.objects.base import Store
@@ -120,7 +120,7 @@ class StoreBuilder:
 
         Parameters
         ----------
-        config : Union[StoreConfig, dict]
+        config : StoreConfig | dict
             The store configuration.
 
         Returns

@@ -90,7 +90,7 @@ class Client:
     def call(self, call_type: str, api: str, **kwargs) -> dict:
         """
         Make a call to the DHCore API.
-        Keyword arguments are passed to the requests.request function.
+        Keyword arguments are passed to the session.request function.
 
         Parameters
         ----------

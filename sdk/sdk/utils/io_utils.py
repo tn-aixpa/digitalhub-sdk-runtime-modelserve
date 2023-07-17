@@ -6,7 +6,7 @@ import shutil
 from collections import OrderedDict
 from io import BufferedReader, BytesIO, StringIO, TextIOBase, TextIOWrapper
 from pathlib import Path
-from typing import IO, Union
+from typing import IO
 
 import yaml
 
@@ -204,7 +204,7 @@ def write_bytesio(src: str) -> BytesIO:
     return bytesio
 
 
-def write_json(data: dict, path: Union[str, Path]) -> None:
+def write_json(data: dict, path: str | Path) -> None:
     """
     Store JSON file.
 
@@ -212,7 +212,7 @@ def write_json(data: dict, path: Union[str, Path]) -> None:
     ----------
     data : dict
         The data to be stored.
-    path : Union[str, Path]
+    path : str | Path
         The path to the file.
 
     Returns
@@ -223,7 +223,7 @@ def write_json(data: dict, path: Union[str, Path]) -> None:
         json.dump(data, file)
 
 
-def write_text(string: str, path: Union[str, Path]) -> None:
+def write_text(string: str, path: str | Path) -> None:
     """
     Write text on a file.
 
@@ -231,7 +231,7 @@ def write_text(string: str, path: Union[str, Path]) -> None:
     ----------
     string : str
         The string to be written.
-    path : Union[str, Path]
+    path : str | Path
         The path to the file.
 
     Returns
@@ -242,7 +242,7 @@ def write_text(string: str, path: Union[str, Path]) -> None:
         file.write(string)
 
 
-def write_bytes(byt: bytes, path: Union[str, Path]) -> None:
+def write_bytes(byt: bytes, path: str | Path) -> None:
     """
     Write bytes on a file.
 
@@ -250,7 +250,7 @@ def write_bytes(byt: bytes, path: Union[str, Path]) -> None:
     ----------
     byt : bytes
         The bytes to be written.
-    path : Union[str, Path]
+    path : str | Path
         The path to the file.
 
     Returns
@@ -282,7 +282,7 @@ def write_object(buff: IO, dst: str) -> None:
         shutil.copyfileobj(buff, file)
 
 
-def write_yaml(obj: dict, file: Union[str, Path]) -> None:
+def write_yaml(obj: dict, file: str | Path) -> None:
     """
     Write a dict to a yaml file.
 
@@ -290,7 +290,7 @@ def write_yaml(obj: dict, file: Union[str, Path]) -> None:
     ----------
     obj : dict
         The dict to write.
-    file : Union[str, Path]
+    file : str | Path
         The yaml file path to write.
 
     Returns
@@ -329,13 +329,13 @@ def write_yaml(obj: dict, file: Union[str, Path]) -> None:
 ####################
 
 
-def read_yaml(file: Union[str, Path]) -> dict:
+def read_yaml(file: str | Path) -> dict:
     """
     Read a yaml file and return a dict.
 
     Parameters
     ----------
-    file : Union[str, Path]
+    file : str | Path
         The yaml file path to read.
 
     Returns
@@ -348,13 +348,13 @@ def read_yaml(file: Union[str, Path]) -> dict:
     return data
 
 
-def read_bytes(file: Union[str, Path]) -> bytes:
+def read_bytes(file: str | Path) -> bytes:
     """
     Read a file and return the bytes.
 
     Parameters
     ----------
-    file : Union[str, Path]
+    file : str | Path
         The file path to read.
 
     Returns
@@ -367,13 +367,13 @@ def read_bytes(file: Union[str, Path]) -> bytes:
     return data
 
 
-def read_text(file: Union[str, Path]) -> str:
+def read_text(file: str | Path) -> str:
     """
     Read a file and return the text.
 
     Parameters
     ----------
-    file : Union[str, Path]
+    file : str | Path
         The file path to read.
 
     Returns
