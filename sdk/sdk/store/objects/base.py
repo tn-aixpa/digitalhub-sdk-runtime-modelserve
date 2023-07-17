@@ -31,7 +31,7 @@ class ResourceRegistry(dict):
         if res_name not in self:
             self[res_name] = path
 
-    def get_resource(self, res_name: str) -> str:
+    def get_resource(self, res_name: str) -> str | None:
         """
         Get resource path.
 
@@ -193,7 +193,7 @@ class Store(metaclass=ABCMeta):
         """
         self.registry.set_resource(key, path)
 
-    def get_resource(self, key: str) -> str:
+    def get_resource(self, key: str) -> str | None:
         """
         Get a resource from the registry.
         """

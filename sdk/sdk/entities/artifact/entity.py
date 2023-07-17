@@ -30,12 +30,12 @@ class Artifact(Entity):
         self,
         project: str,
         name: str,
+        uuid: str | None = None,
         kind: str | None = None,
-        metadata: ArtifactMetadata = None,
-        spec: ArtifactSpec = None,
+        metadata: ArtifactMetadata | None = None,
+        spec: ArtifactSpec | None = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -46,9 +46,11 @@ class Artifact(Entity):
         project : str
             Name of the project.
         name : str
-            Name of the artifact.
+            Name of the object.
+        uuid : str
+            UUID.
         kind : str
-            Kind of the artifact
+            Kind of the object.
         metadata : ArtifactMetadata
             Metadata of the object.
         spec : ArtifactSpec
@@ -56,28 +58,25 @@ class Artifact(Entity):
         local: bool
             If True, run locally.
         embedded: bool
-            If True embed object in backend.
+            If True, embed object in backend.
         **kwargs
             Keyword arguments.
         """
         super().__init__()
         self.project = project
         self.name = name
+        self.id = uuid if uuid is not None else get_uiid()
         self.kind = kind if kind is not None else "artifact"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.embedded = embedded
-        self.id = uuid if uuid is not None else get_uiid()
-
-        self._local = local
-
-        # Temporary local artifact path (see as_file())
-        self._temp_path = None
 
         # Set new attributes
         self._any_setter(**kwargs)
 
-        # Set context
+        # Private attributes
+        self._local = local
+        self._temp_path: str | None = None
         self._context = get_context(self.project)
 
         # Set key in spec store://<project>/artifacts/<kind>/<name>:<uuid>
@@ -341,7 +340,7 @@ class Artifact(Entity):
         if get_uri_scheme(self.spec.src_path) not in ["", "file"]:
             raise EntityError("Only local paths are supported for source paths.")
 
-    def _rebuild_dst(self, dst: str | None = None) -> None:
+    def _rebuild_dst(self, dst: str | None = None) -> str:
         """
         Check if destination path is specified.
 
@@ -371,6 +370,10 @@ class Artifact(Entity):
         overwrite : bool
             Specify if overwrite an existing file.
 
+        Returns
+        -------
+        None
+
         Raises
         ------
         Exception
@@ -387,11 +390,16 @@ class Artifact(Entity):
     def local(self) -> bool:
         """
         Get local flag.
+
+        Returns
+        -------
+        bool
+            Local flag.
         """
         return self._local
 
     @property
-    def temp_path(self) -> str:
+    def temp_path(self) -> str | None:
         """
         Get temporary path.
         """
@@ -417,9 +425,9 @@ class Artifact(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        obj_ = cls(**parsed_dict)
-        obj_._local = obj_._context.local
-        return obj_
+        _obj = cls(**parsed_dict)
+        _obj._local = _obj._context.local
+        return _obj
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -445,7 +453,7 @@ class Artifact(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind")
+        kind = obj.get("kind", "artifact")
         embedded = obj.get("embedded")
 
         # Build metadata and spec

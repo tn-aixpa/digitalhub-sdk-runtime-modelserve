@@ -8,8 +8,9 @@ from typing import Self
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.run.spec import build_spec
+from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
-from sdk.utils.exceptions import EntityError
+from sdk.utils.exceptions import EntityError, BackendError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
@@ -26,7 +27,7 @@ class Run(Entity):
         project: str,
         task_id: str,
         task: str | None = None,
-        spec: RunSpec = None,
+        spec: RunSpec | None = None,
         local: bool = False,
         **kwargs,
     ) -> None:
@@ -47,23 +48,24 @@ class Run(Entity):
         super().__init__()
         self.project = project
         self.kind = "run"
+        self.id = get_uiid()
         self.task_id = task_id
-        self.task = task
+        self.task = task if task is not None else ""
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
-
-        self._local = local
 
         # Set new attributes
         self._any_setter(**kwargs)
 
-        self._context = get_context(self.project)
+        # Private attributes
+        self._local = local
         self._obj_attr += ["task_id"]
+        self._context = get_context(self.project)
 
     #############################
     #  Save / Export
     #############################
 
-    def save(self, uuid: str | None = None) -> "Run":
+    def save(self, uuid: str | None = None) -> dict:
         """
         Save run into backend.
 
@@ -82,10 +84,16 @@ class Run(Entity):
 
         obj = self.to_dict()
 
+        # We only need to create the run, no need to update it
         api = api_base_create(DTO_RUNS)
         response = self._context.create_object(obj, api)
-        self.id = response.get("id")
-        return self
+
+        # Set id
+        id_ = response.get("id")
+        if id_ is not None:
+            self.id = id_
+
+        return response
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -168,6 +176,11 @@ class Run(Entity):
     def local(self) -> bool:
         """
         Get local flag.
+
+        Returns
+        -------
+        bool
+            Local flag.
         """
         return self._local
 
@@ -191,9 +204,9 @@ class Run(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        obj_ = cls(**parsed_dict)
-        obj_._local = obj_._context.local
-        return obj_
+        _obj = cls(**parsed_dict)
+        _obj._local = _obj._context.local
+        return _obj
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -240,9 +253,9 @@ def run_from_parameters(
     task_id: str,
     task: str,
     kind: str = "run",
-    inputs: dict = None,
-    outputs: list = None,
-    parameters: dict = None,
+    inputs: dict | None = None,
+    outputs: list | None = None,
+    parameters: dict | None = None,
     local: bool = False,
 ) -> Run:
     """

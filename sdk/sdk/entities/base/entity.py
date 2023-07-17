@@ -14,7 +14,6 @@ class Entity(ModelObj, metaclass=ABCMeta):
     """
 
     def __init__(self) -> None:
-        self.id = None
         self._obj_attr = [
             "id",
             "name",
@@ -27,7 +26,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         self._essential_attr = ["name", "kind"]
 
     @abstractmethod
-    def save(self, uuid: bool = False) -> dict:
+    def save(self, uuid: str | None = None) -> dict:
         """
         Abstract save method.
         """

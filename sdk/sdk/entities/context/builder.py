@@ -21,7 +21,7 @@ class ContextBuilder:
         """
         Constructor.
         """
-        self._instances = {}
+        self._instances: dict[str, Context] = {}
 
     def build(self, project_object: Project) -> None:
         """

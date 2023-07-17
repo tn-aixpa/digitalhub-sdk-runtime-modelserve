@@ -1,9 +1,7 @@
 """
 Models for task specifications.
 """
-from typing import Optional
-
-from pydantic import BaseModel  # pylint: disable=no-name-in-module
+from pydantic import BaseModel
 
 
 class ConfigMap(BaseModel):
@@ -41,13 +39,13 @@ class Volume(BaseModel):
     name: str
     """Volume name."""
 
-    configMap: ConfigMap = None
+    configMap: ConfigMap | None = None
     """ConfigMap model."""
 
-    secret: Secret = None
+    secret: Secret | None = None
     """Secret model."""
 
-    persistentVolumeClaim: PersistentVolumeClaim = None
+    persistentVolumeClaim: PersistentVolumeClaim | None = None
     """PersistentVolumeClaim model."""
 
 
@@ -92,14 +90,14 @@ class K8sResources(BaseModel):
     K8sResources model.
     """
 
-    volumes: Optional[list[Volume]] = []
+    volumes: list[Volume] = []
     """Volumes."""
 
-    volume_mounts: Optional[list[VolumeMount]] = []
+    volume_mounts: list[VolumeMount] = []
     """Volume mounts."""
 
-    env: Optional[list[Env]] = []
+    env: list[Env] = []
     """Env variables."""
 
-    resources: Optional[Resource] = None
+    resources: Resource | None = None
     """Resources restrictions."""

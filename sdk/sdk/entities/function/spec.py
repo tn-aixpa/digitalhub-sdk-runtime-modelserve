@@ -21,7 +21,7 @@ class FunctionSpec(EntitySpec):
         tag: str | None = None,
         handler: str | None = None,
         command: str | None = None,
-        requirements: list = None,
+        requirements: list | None = None,
         **kwargs,
     ) -> None:
         """
@@ -60,12 +60,12 @@ class FunctionSpecJob(FunctionSpec):
 
     def __init__(
         self,
-        source: str | None = None,
+        source: str = "",
         image: str | None = None,
         tag: str | None = None,
         handler: str | None = None,
         command: str | None = None,
-        requirements: list = None,
+        requirements: list | None = None,
         **kwargs,
     ) -> None:
         """

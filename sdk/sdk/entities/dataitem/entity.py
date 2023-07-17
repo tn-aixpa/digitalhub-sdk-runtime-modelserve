@@ -18,7 +18,6 @@ from sdk.utils.uri_utils import get_extension, get_uri_scheme
 
 if typing.TYPE_CHECKING:
     import pandas as pd
-
     from sdk.entities.dataitem.metadata import DataitemMetadata
     from sdk.entities.dataitem.spec import DataitemSpec
 
@@ -33,8 +32,8 @@ class Dataitem(Entity):
         project: str,
         name: str,
         kind: str | None = None,
-        metadata: DataitemMetadata = None,
-        spec: DataitemSpec = None,
+        metadata: DataitemMetadata | None = None,
+        spec: DataitemSpec | None = None,
         local: bool = False,
         embedded: bool = False,
         uuid: str | None = None,
@@ -48,9 +47,11 @@ class Dataitem(Entity):
         project : str
             Name of the project.
         name : str
-            Name of the dataitem.
+            Name of the object.
+        uuid : str
+            UUID.
         kind : str
-            Kind of the dataitem
+            Kind of the object.
         metadata : DataitemMetadata
             Metadata of the object.
         spec : DataitemSpec
@@ -58,27 +59,24 @@ class Dataitem(Entity):
         local: bool
             If True, run locally.
         embedded: bool
-            If True embed object in backend.
+            If True, embed object in backend.
         **kwargs
             Keyword arguments.
         """
         super().__init__()
         self.project = project
         self.name = name
-        self.kind = kind if kind is not None else "dataitem"
-        self.metadata = (
-            metadata if metadata is not None else DataitemMetadata(name=name)
-        )
-        self.spec = spec if spec is not None else DataitemSpec()
-        self.embedded = embedded
         self.id = uuid if uuid is not None else get_uiid()
-
-        self._local = local
+        self.kind = kind if kind is not None else "dataitem"
+        self.metadata = metadata if metadata is not None else build_metadata(name=name)
+        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.embedded = embedded
 
         # Set new attributes
         self._any_setter(**kwargs)
 
-        # Set context
+        # Private attributes
+        self._local = local
         self._context = get_context(self.project)
 
         # Set key in spec store://<project>/dataitems/<kind>/<name>:<uuid>
@@ -249,6 +247,11 @@ class Dataitem(Entity):
     def local(self) -> bool:
         """
         Get local flag.
+
+        Returns
+        -------
+        bool
+            Local flag.
         """
         return self._local
 
@@ -272,9 +275,9 @@ class Dataitem(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        obj_ = cls(**parsed_dict)
-        obj_._local = obj_._context.local
-        return obj_
+        _obj = cls(**parsed_dict)
+        _obj._local = _obj._context.local
+        return _obj
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -300,7 +303,7 @@ class Dataitem(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind")
+        kind = obj.get("kind", "dataitem")
         embedded = obj.get("embedded")
 
         # Build metadata and spec

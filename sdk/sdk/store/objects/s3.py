@@ -12,7 +12,7 @@ import boto3
 import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 
-from sdk.store.objects.store import Store
+from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import check_make_dir, get_dir
 from sdk.utils.uri_utils import (

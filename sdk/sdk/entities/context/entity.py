@@ -64,7 +64,7 @@ class Context:
         Returns
         -------
         dict
-            The object.
+            The read object.
         """
         return self.client.read_object(api)
 
@@ -86,7 +86,7 @@ class Context:
         """
         return self.client.update_object(obj, api)
 
-    def delete_object(self, api: str) -> None:
+    def delete_object(self, api: str) -> dict:
         """
         Delete an object.
 
@@ -97,6 +97,7 @@ class Context:
 
         Returns
         -------
-        None
+        dict
+            The deleted object.
         """
-        self.client.delete_object(api)
+        return self.client.delete_object(api)

@@ -13,10 +13,10 @@ class ProjectSpec(EntitySpec):
         self,
         context: str | None = None,
         source: str | None = None,
-        functions: list[dict] = None,
-        artifacts: list[dict] = None,
-        workflows: list[dict] = None,
-        dataitems: list[dict] = None,
+        functions: list[dict] | None = None,
+        artifacts: list[dict] | None = None,
+        workflows: list[dict] | None = None,
+        dataitems: list[dict] | None = None,
     ) -> None:
         """
         Initializes a new instance of the ProjectSpec class.

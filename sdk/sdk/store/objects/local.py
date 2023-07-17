@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.store.objects.store import Store
+from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import check_dir, copy_file, get_dir, make_dir
 from sdk.utils.uri_utils import get_name_from_uri, get_uri_scheme

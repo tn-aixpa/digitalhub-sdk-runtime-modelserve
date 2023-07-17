@@ -8,7 +8,7 @@ from tempfile import mkdtemp
 
 import requests
 
-from sdk.store.objects.store import Store
+from sdk.store.objects.base import Store
 from sdk.utils.file_utils import get_dir, check_make_dir
 from sdk.utils.exceptions import StoreError
 from sdk.utils.uri_utils import (
@@ -192,7 +192,7 @@ class RemoteStore(Store):
         -------
         None
         """
-        with requests.get(url, stream=True) as r:  # pylint: disable=missing-timeout
+        with requests.get(url, stream=True, timeout=60) as r:
             r.raise_for_status()
             with open(dst, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):

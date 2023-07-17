@@ -28,12 +28,12 @@ class Workflow(Entity):
         self,
         project: str,
         name: str,
+        uuid: str | None = None,
         kind: str | None = None,
-        metadata: WorkflowMetadata = None,
-        spec: WorkflowSpec = None,
+        metadata: WorkflowMetadata | None = None,
+        spec: WorkflowSpec | None = None,
         local: bool = False,
         embedded: bool = False,
-        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -44,9 +44,11 @@ class Workflow(Entity):
         project : str
             Name of the project.
         name : str
-            Name of the workflow.
+            Name of the object.
+        uuid : str
+            UUID.
         kind : str
-            Kind of the workflow
+            Kind of the object.
         metadata : WorkflowMetadata
             Metadata of the object.
         spec : WorkflowSpec
@@ -54,27 +56,24 @@ class Workflow(Entity):
         local: bool
             If True, run locally.
         embedded: bool
-            If True embed object in backend.
+            If True, embed object in backend.
         **kwargs
             Keyword arguments.
         """
         super().__init__()
         self.project = project
         self.name = name
-        self.kind = kind if kind is not None else "local"
-        self.metadata = (
-            metadata if metadata is not None else WorkflowMetadata(name=name)
-        )
-        self.spec = spec if spec is not None else WorkflowSpec()
-        self.embedded = embedded
         self.id = uuid if uuid is not None else get_uiid()
-
-        self._local = local
+        self.kind = kind if kind is not None else "job"
+        self.metadata = metadata if metadata is not None else build_metadata(name=name)
+        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.embedded = embedded
 
         # Set new attributes
         self._any_setter(**kwargs)
 
-        # Set context
+        # Private attributes
+        self._local = local
         self._context = get_context(self.project)
 
     #############################
@@ -141,6 +140,11 @@ class Workflow(Entity):
     def local(self) -> bool:
         """
         Get local flag.
+
+        Returns
+        -------
+        bool
+            Local flag.
         """
         return self._local
 
@@ -164,9 +168,9 @@ class Workflow(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        obj_ = cls(**parsed_dict)
-        obj_._local = obj_._context.local
-        return obj_
+        _obj = cls(**parsed_dict)
+        _obj._local = _obj._context.local
+        return _obj
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -192,7 +196,7 @@ class Workflow(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind")
+        kind = obj.get("kind", "job")
         embedded = obj.get("embedded")
 
         # Build metadata and spec
@@ -235,7 +239,7 @@ def workflow_from_parameters(
     description : str
         A description of the workflow.
     kind : str
-        The kind of the workflow.
+        Kind of the object.
     spec : dict
         Specification of the object.
     local : bool

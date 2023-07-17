@@ -59,7 +59,7 @@ def new_function(
     tag: str | None = None,
     handler: str | None = None,
     command: str | None = None,
-    requirements: list = None,
+    requirements: list | None = None,
     local: bool = False,
     embedded: bool = False,
     uuid: str | None = None,
@@ -167,7 +167,7 @@ def import_function(file: str) -> Function:
     return function_from_dict(obj)
 
 
-def delete_function(project: str, name: str, uuid: str | None = None) -> None:
+def delete_function(project: str, name: str, uuid: str | None = None) -> dict:
     """
     Delete function from the backend. If the uuid is not specified, delete all versions.
 

@@ -147,7 +147,7 @@ def import_dataitem(file: str) -> Dataitem:
     return dataitem_from_dict(obj)
 
 
-def delete_dataitem(project: str, name: str, uuid: str | None = None) -> None:
+def delete_dataitem(project: str, name: str, uuid: str | None = None) -> dict:
     """
     Delete dataitem from the backend. If the uuid is not specified, delete all versions.
 

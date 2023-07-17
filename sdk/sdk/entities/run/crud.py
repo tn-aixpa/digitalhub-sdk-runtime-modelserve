@@ -37,9 +37,9 @@ def new_run(
     task_id: str,
     task: str,
     kind: str = "run",
-    inputs: dict = None,
-    outputs: list = None,
-    parameters: dict = None,
+    inputs: dict | None = None,
+    outputs: list | None = None,
+    parameters: dict | None = None,
     local: bool = False,
 ) -> Run:
     """
@@ -123,7 +123,7 @@ def import_run(file: str) -> Run:
     return run_from_dict(obj)
 
 
-def delete_run(project: str, name: str) -> None:
+def delete_run(project: str, name: str) -> dict:
     """
     Delete run from the backend.
 
@@ -136,8 +136,8 @@ def delete_run(project: str, name: str) -> None:
 
     Returns
     -------
-    None
-        This run does not return anything.
+    dict
+        Response from backend.
     """
     api = api_base_delete(DTO_RUNS, name)
     return get_context(project).delete_object(api)

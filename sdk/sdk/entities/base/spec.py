@@ -10,7 +10,7 @@ class EntitySpec(ModelObj):
     """
 
     @classmethod
-    def from_dict(cls, obj: dict = None) -> "EntitySpec":
+    def from_dict(cls, obj: dict | None = None) -> "EntitySpec":
         """
         Return entity specification object from dictionary.
 

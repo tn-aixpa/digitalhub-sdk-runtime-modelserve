@@ -71,7 +71,7 @@ def new_workflow(
     description : str
         A description of the workflow.
     kind : str
-        The kind of the workflow.
+        Kind of the object.
     spec : dict
         Specification of the object.
     local : bool

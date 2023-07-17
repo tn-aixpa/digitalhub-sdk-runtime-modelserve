@@ -36,7 +36,7 @@ def new_task(
     project: str,
     kind: str = "task",
     task: str = "",
-    resources: dict = None,
+    resources: dict | None = None,
     local: bool = False,
     uuid: str | None = None,
 ) -> Task:
@@ -115,7 +115,7 @@ def import_task(file: str) -> Task:
     return task_from_dict(obj)
 
 
-def delete_task(project: str, name: str) -> None:
+def delete_task(project: str, name: str) -> dict:
     """
     Delete task from the backend.
 
@@ -130,8 +130,8 @@ def delete_task(project: str, name: str) -> None:
 
     Returns
     -------
-    None
-        This task does not return anything.
+    dict
+        Response from backend.
     """
     api = api_base_delete(DTO_TASK, name)
     return get_context(project).delete_object(api)

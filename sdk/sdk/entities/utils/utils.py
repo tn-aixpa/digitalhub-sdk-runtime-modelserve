@@ -1,12 +1,18 @@
 """
 General utilities module.
 """
+from __future__ import annotations
+
 import base64
+import typing
 from uuid import uuid4
 
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_text
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.base.entity import Entity
 
 
 def get_uiid() -> str:
@@ -59,7 +65,7 @@ def check_local_flag(project: str, local: bool) -> None:
         raise EntityError("Context local flag does not match local flag of object")
 
 
-def save_or_export(obj: object, local: bool) -> None:
+def save_or_export(obj: Entity, local: bool) -> None:
     """
     Save or export the object based on local flag.
 

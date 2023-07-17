@@ -16,7 +16,7 @@ class EntityMetadata(ModelObj):
         Parameters
         ----------
         name : str
-            Name of the entity.
+            Name of the object.
         description : str
             Description of the entity.
         """
@@ -24,7 +24,7 @@ class EntityMetadata(ModelObj):
         self.description = description
 
     @classmethod
-    def from_dict(cls, obj: dict = None) -> "EntityMetadata":
+    def from_dict(cls, obj: dict | None = None) -> "EntityMetadata":
         """
         Return entity metadata object from dictionary.
 

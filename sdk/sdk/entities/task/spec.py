@@ -10,7 +10,7 @@ class TaskSpec(EntitySpec):
 
     def __init__(
         self,
-        resources: dict = None,
+        resources: dict | None = None,
     ) -> None:
         """
         Constructor.

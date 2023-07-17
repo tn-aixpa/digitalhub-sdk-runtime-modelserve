@@ -9,9 +9,9 @@ class RunSpec(EntitySpec):
 
     def __init__(
         self,
-        inputs: dict = None,
-        outputs: list = None,
-        parameters: dict = None,
+        inputs: dict | None = None,
+        outputs: list | None = None,
+        parameters: dict | None = None,
     ) -> None:
         """
         Constructor.

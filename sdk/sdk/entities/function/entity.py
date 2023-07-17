@@ -19,6 +19,7 @@ if typing.TYPE_CHECKING:
     from sdk.entities.function.metadata import FunctionMetadata
     from sdk.entities.function.spec import FunctionSpec
     from sdk.entities.run.entity import Run
+    from sdk.entities.task.entity import Task
 
 
 class Function(Entity):
@@ -31,8 +32,8 @@ class Function(Entity):
         project: str,
         name: str,
         kind: str | None = None,
-        metadata: FunctionMetadata = None,
-        spec: FunctionSpec = None,
+        metadata: FunctionMetadata | None = None,
+        spec: FunctionSpec | None = None,
         local: bool = False,
         embedded: bool = False,
         uuid: str | None = None,
@@ -46,9 +47,11 @@ class Function(Entity):
         project : str
             Name of the project.
         name : str
-            Name of the function.
+            Name of the object.
+        uuid : str
+            UUID.
         kind : str
-            Kind of the function.
+            Kind of the object.
         metadata : FunctionMetadata
             Metadata of the object.
         spec : FunctionSpec
@@ -56,26 +59,26 @@ class Function(Entity):
         local: bool
             If True, run locally.
         embedded: bool
-            If True embed object in backend. the function
+            If True, embed object in backend. the function
         **kwargs
             Keyword arguments.
         """
         super().__init__()
         self.project = project
         self.name = name
+        self.id = uuid if uuid is not None else get_uiid()
         self.kind = kind if kind is not None else "job"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.embedded = embedded
-        self.id = uuid if uuid is not None else get_uiid()
-
-        self._local = local
 
         # Set new attributes
         self._any_setter(**kwargs)
 
+        # Private attributes
+        self._local = local
+        self._task: Task | None = None
         self._context = get_context(self.project)
-        self._task = None
 
     #############################
     #  Save / Export
@@ -135,10 +138,10 @@ class Function(Entity):
 
     def run(
         self,
-        inputs: dict = None,
-        outputs: list = None,
-        parameters: dict = None,
-        resources: dict = None,
+        inputs: dict | None = None,
+        outputs: list | None = None,
+        parameters: dict | None = None,
+        resources: dict | None = None,
     ) -> Run:
         """
         Run function.
@@ -174,6 +177,9 @@ class Function(Entity):
             )
 
         # Run function from task
+        inputs = inputs if inputs is not None else {}
+        outputs = outputs if outputs is not None else []
+        parameters = parameters if parameters is not None else {}
         return self._task.run(inputs, outputs, parameters)
 
     def update_task(self, new_spec: dict) -> dict:
@@ -218,6 +224,11 @@ class Function(Entity):
     def local(self) -> bool:
         """
         Get local flag.
+
+        Returns
+        -------
+        bool
+            Local flag.
         """
         return self._local
 
@@ -241,9 +252,9 @@ class Function(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        obj_ = cls(**parsed_dict)
-        obj_._local = obj_._context.local
-        return obj_
+        _obj = cls(**parsed_dict)
+        _obj._local = _obj._context.local
+        return _obj
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -269,7 +280,7 @@ class Function(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind")
+        kind = obj.get("kind", "job")
         embedded = obj.get("embedded")
 
         # Build metadata and spec
@@ -300,7 +311,7 @@ def function_from_parameters(
     tag: str | None = None,
     handler: str | None = None,
     command: str | None = None,
-    requirements: list = None,
+    requirements: list | None = None,
     local: bool = False,
     embedded: bool = False,
     uuid: str | None = None,

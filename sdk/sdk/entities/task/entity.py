@@ -28,10 +28,10 @@ class Task(Entity):
         self,
         project: str,
         task: str,
-        kind: str,
-        spec: TaskSpec,
-        local: bool = False,
         uuid: str | None = None,
+        kind: str | None = None,
+        spec: TaskSpec | None = None,
+        local: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -41,32 +41,32 @@ class Task(Entity):
         ----------
         project : str
             Name of the project.
-        kind : str
-            The kind of the task.
-        spec : TaskSpec
-            The specification of the task.
         task : str
-            The task string.
+            Task string.
         uuid : str
-            The uuid of the task.
+            UUID.
+        kind : str
+            Kind of the object.
+        spec : TaskSpec
+            Specification of the object.
         local : bool
-            Flag to indicate if the task is local or not.
+            If True, run locally.
         **kwargs
             Keyword arguments.
         """
         super().__init__()
         self.project = project
-        self.kind = kind if kind is not None else "task"
-        self.spec = spec
-        self.id = uuid if uuid is None else get_uiid()
         self.task = task
-
-        self._local = local
-        self._obj_attr += ["task"]
+        self.id = uuid if uuid is not None else get_uiid()
+        self.kind = kind if kind is not None else "task"
+        self.spec = spec if spec is not None else build_spec(self.kind, **{})
 
         # Set new attributes
         self._any_setter(**kwargs)
 
+        # Private attributes
+        self._local = local
+        self._obj_attr += ["task"]
         self._context = get_context(self.project)
 
     #############################
@@ -121,7 +121,7 @@ class Task(Entity):
     #  Task methods
     #############################
 
-    def run(self, inputs: dict, outputs: dict, parameters: dict) -> Run:
+    def run(self, inputs: dict, outputs: list, parameters: dict) -> Run:
         """
         Run task.
 
@@ -131,7 +131,7 @@ class Task(Entity):
             The task id.
         inputs : dict
             The inputs of the run.
-        outputs : dict
+        outputs : list
             The outputs of the run.
         parameters : dict
             The parameters of the run.
@@ -144,7 +144,7 @@ class Task(Entity):
         if self._local:
             raise EntityError("Use .run_local() for local execution.")
 
-        return new_run(
+        run = new_run(
             project=self.project,
             task_id=self.id,
             task=self.task,
@@ -154,6 +154,7 @@ class Task(Entity):
             parameters=parameters,
             local=self._local,
         )
+        return run
 
     #############################
     # Generic Methods
@@ -175,9 +176,9 @@ class Task(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        obj_ = cls(**parsed_dict)
-        obj_._local = obj_._context.local
-        return obj_
+        _obj = cls(**parsed_dict)
+        _obj._local = _obj._context.local
+        return _obj
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -222,8 +223,8 @@ class Task(Entity):
 def task_from_parameters(
     project: str,
     kind: str = "task",
-    task: str | None = None,
-    resources: dict = None,
+    task: str = "",
+    resources: dict | None = None,
     local: bool = False,
     uuid: str | None = None,
 ) -> Task:
@@ -235,7 +236,7 @@ def task_from_parameters(
     project : str
         Name of the project.
     kind : str
-        The kind of the task.
+        Kind of the object.
     task : str
         The task string.
     resources : dict

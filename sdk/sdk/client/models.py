@@ -1,7 +1,7 @@
 """
 Module for models.
 """
-from pydantic import BaseModel  # pylint: disable=no-name-in-module
+from pydantic import BaseModel
 
 
 class DHCoreConfig(BaseModel):
