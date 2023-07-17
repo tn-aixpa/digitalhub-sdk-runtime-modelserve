@@ -167,21 +167,20 @@ class Dataitem(Entity):
         store = get_default_store()
         tmp_path = False
 
+        if self.spec.path is None:
+            raise EntityError("Path is not specified.")
+
+        # Check file format
+        extension = self._get_extension(self.spec.path, file_format)
+
         # Download dataitem if not local
-        if self._check_local():
-            path = self.spec.path
-        else:
-            # Check file format then download
-            path_ext = get_extension(self.spec.path)
-            if path_ext not in ["csv", "parquet"] and file_format is None:
-                raise EntityError(
-                    "Unknown file format, please specify file_format, e.g. file_format='csv'"
-                )
+        if not self._check_local(self.spec.path):
             path = store.download(self.spec.path)
             tmp_path = True
+        else:
+            path = self.spec.path
 
         # Read DataFrame
-        extension = file_format if file_format is not None else get_extension(path)
         df = store.read_df(path, extension, **kwargs)
 
         # Clean temp folder
@@ -228,16 +227,51 @@ class Dataitem(Entity):
     #  Helper Methods
     #############################
 
-    def _check_local(self) -> bool:
+    @staticmethod
+    def _check_local(path: str) -> bool:
         """
-        Check if source path is local.
+        Check if path is local.
+
+        Parameters
+        ----------
+        path : str
+            Path to check.
 
         Returns
         -------
         bool
             True if local, False otherwise.
         """
-        return get_uri_scheme(self.spec.path) in ["", "file"]
+        return get_uri_scheme(path) in ["", "file"]
+
+    @staticmethod
+    def _get_extension(path: str, file_format: str | None = None) -> str:
+        """
+        Get extension of path.
+
+        Parameters
+        ----------
+        path : str
+            Path to get extension from.
+        file_format : str
+            File format.
+
+        Returns
+        -------
+        str
+            File extension.
+
+        Raises
+        ------
+        EntityError
+            If file format is not supported.
+        """
+        if file_format is not None:
+            return file_format
+        ext = get_extension(path)
+        if ext is None:
+            raise EntityError("Unknown file format. Only csv and parquet are supported.")
+        return ext
 
     #############################
     #  Getters and Setters

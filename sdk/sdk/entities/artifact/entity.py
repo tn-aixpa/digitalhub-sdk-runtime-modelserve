@@ -154,24 +154,24 @@ class Artifact(Entity):
         Returns
         -------
         str
-            Temporary path of the artifact.
+            Path of the artifact (temporary or not).
         """
         # Get store
         store = get_default_store()
 
         # If local store, return local artifact path
         if store.is_local():
-            self._check_src()
-            return self.spec.src_path
+            # Check if source path is provided and if it is local
+            src = self._parameter_or_default(None, self.spec.src_path)
+            self._check_locality(src, local=True)
+            return src
 
-        # Check if target path is specified
-        self._check_target(target)
-
-        # Check if target path is remote
-        self._check_remote()
+        # Check if target path is provided and if it is remote
+        trg = self._parameter_or_default(target, self.spec.target_path)
+        self._check_locality(trg)
 
         # Download artifact and return path
-        self._temp_path = store.download(self.spec.target_path)
+        self._temp_path = store.download(trg)
         return self._temp_path
 
     def download(
@@ -195,23 +195,19 @@ class Artifact(Entity):
             Path of the downloaded artifact.
         """
 
-        # Check if target path is specified
-        self._check_target(target)
-
-        # Check if target path is remote
-        self._check_remote()
+        # Check if target path is provided and if it is remote
+        trg = self._parameter_or_default(target, self.spec.target_path)
+        self._check_locality(trg)
 
         # Check if download destination path is specified and rebuild it if necessary
-        dst = self._rebuild_dst(dst)
+        dst = dst if dst is not None else f"./{get_name_from_uri(trg)}"
 
         # Check if destination path exists for overwrite
         self._check_overwrite(dst, overwrite)
 
-        # Get store
-        store = get_default_store()
-
         # Download artifact and return path
-        return store.download(self.spec.target_path, dst)
+        store = get_default_store()
+        return store.download(trg, dst)
 
     def upload(self, source: str | None = None, target: str | None = None) -> str:
         """
@@ -229,134 +225,88 @@ class Artifact(Entity):
         str
             Path of the uploaded artifact.
         """
-        # Check if source path is provided.
-        self._check_src(source)
-
-        # Check if source path is local
-        self._check_local()
-
-        # Check if target path is provided.
-        self._check_target(target, upload=True)
-
-        # Check if target path is remote
-        self._check_remote()
-
         # Get store
         store = get_default_store()
 
+        # Check if source path is provided and if it is local
+        src = self._parameter_or_default(source, self.spec.src_path)
+        self._check_locality(src, local=True)
+
+        # Check if target path is provided and if it is remote
+        if self.spec.target_path is None and target is None:
+            store_scheme = get_uri_scheme(store.uri)
+            path = get_dir(src)
+            filename = get_name_from_uri(src)
+            target = rebuild_uri(f"{store_scheme}://{path}/{filename}")
+
+        trg = self._parameter_or_default(target, self.spec.target_path)
+        self._check_locality(trg)
+
         # Upload artifact and return remote path
-        return store.upload(self.spec.src_path, self.spec.target_path)
+        return store.upload(src, trg)
 
     #############################
     #  Private Helpers
     #############################
 
-    def _check_target(self, target: str | None = None, upload: bool = False) -> None:
+    @staticmethod
+    def _parameter_or_default(
+        parameter: str | None = None, default: str | None = None
+    ) -> str:
         """
-        Check if target path is specified.
+        Check whether a parameter is specified or not. If not, return the default value. If also
+        the default value is not specified, raise an exception. If parameter is specified, but
+        default value is not, return the parameter and set the default value to the parameter.
 
         Parameters
         ----------
-        target : str
-            Target path is the remote path of the artifact
-
-        upload : bool
-            Specify if target path is for upload
-
-        Returns
-        -------
-        None
-        """
-        if self.spec.target_path is None:
-            if target is None:
-                if not upload:
-                    raise EntityError("Target path is not specified.")
-                path = get_dir(self.spec.src_path)
-                filename = get_name_from_uri(self.spec.src_path)
-                target_path = rebuild_uri(f"{path}/{filename}")
-                self.spec.target_path = target_path
-                return
-            self.spec.target_path = target
-
-    def _check_src(self, src: str | None = None) -> None:
-        """
-        Check if source path is specified.
-
-        Parameters
-        ----------
-        src : str
-            Source path is the local path of the artifact
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        Exception
-            If source path is not specified.
-        """
-        if self.spec.src_path is None:
-            if src is None:
-                raise EntityError("Source path is not specified.")
-            self.spec.src_path = src
-
-    def _check_remote(self) -> None:
-        """
-        Check if target path is remote.
-
-        Parameters
-        ----------
-        ignore_raise : bool
-            Specify if raise an exception if target path is not remote
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        Exception
-            If target path is not remote.
-        """
-        if self.spec.target_path is None:
-            return
-        if get_uri_scheme(self.spec.target_path) in ["", "file"]:
-            raise EntityError("Only remote source URIs are supported for target paths")
-
-    def _check_local(self) -> None:
-        """
-        Check if source path is local.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        Exception
-            If source path is not local.
-        """
-        if get_uri_scheme(self.spec.src_path) not in ["", "file"]:
-            raise EntityError("Only local paths are supported for source paths.")
-
-    def _rebuild_dst(self, dst: str | None = None) -> str:
-        """
-        Check if destination path is specified.
-
-        Parameters
-        ----------
-        dst : str
-            Destination path as filename
+        parameter : str
+            Parameter to check.
+        default : str
+            Default value.
 
         Returns
         -------
         str
-            Destination path as filename.
+            Parameter or default value.
+
+        Raises
+        ------
+        EntityError
+            If parameter and default value are not specified.
         """
-        if dst is None:
-            dst = f"./{get_name_from_uri(self.spec.target_path)}"
-        return dst
+        if parameter is None:
+            if default is None:
+                raise EntityError("Path is not specified.")
+            return default
+        return parameter
+
+    @staticmethod
+    def _check_locality(path: str, local: bool = False) -> None:
+        """
+        Check through URI scheme if given path is local or not.
+
+        Parameters
+        ----------
+        path : str
+            Path of some source.
+        local : bool
+            Specify if path should be local or not.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If source path is not local.
+        """
+        local_scheme = get_uri_scheme(path) in ["", "file"]
+        if local and not local_scheme:
+            raise EntityError("Only local paths are supported for source paths.")
+        if not local and local_scheme:
+            raise EntityError("Only remote paths are supported for target paths.")
 
     @staticmethod
     def _check_overwrite(dst: str, overwrite: bool) -> None:

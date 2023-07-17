@@ -28,7 +28,7 @@ class BytesIOWrapper(BufferedReader):
         text_io_buffer: TextIOBase,
         encoding: str | None = None,
         errors: str | None = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Keyword arguments.
