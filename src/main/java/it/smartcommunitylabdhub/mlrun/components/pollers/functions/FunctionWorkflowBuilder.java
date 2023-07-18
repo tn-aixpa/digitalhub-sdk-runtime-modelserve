@@ -25,7 +25,9 @@ import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionF
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Component
 public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
 
@@ -81,7 +83,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                                         }).orElseGet(() -> null);
 
                                                 } catch (HttpClientErrorException e) {
-                                                        System.out.println(e.getMessage());
+                                                        log.error(e.getMessage());
                                                         HttpStatusCode statusCode = e.getStatusCode();
                                                         if (statusCode.is4xxClientError()) {
                                                                 // Function will be created on mlrun
@@ -130,9 +132,8 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                                                 Optional.ofNullable(response.getBody())
                                                                                 .ifPresent(b -> function.setExtra(
                                                                                                 "mlrun_hash",
-                                                                                                (String) Optional
-                                                                                                                .ofNullable(b.get(
-                                                                                                                                "hash_key"))
+                                                                                                Optional.ofNullable(b
+                                                                                                                .get("hash_key"))
                                                                                                                 .orElse("")));
 
                                                                 // Set mlrun -> core : status
@@ -160,7 +161,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                                                         }
                                                         return null;
                                                 } catch (HttpClientErrorException ex) {
-                                                        System.out.println(ex.getMessage());
+                                                        log.error(ex.getMessage());
                                                         return null;
                                                 }
                                         })

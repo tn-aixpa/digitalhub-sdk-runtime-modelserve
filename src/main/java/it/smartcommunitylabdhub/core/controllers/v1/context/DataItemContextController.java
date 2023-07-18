@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 @RestController
 @ApiVersion("v1")
 @Validated
-public class DataItemContextController extends ContextController {
+public class DataItemContextController implements ContextController {
 
         @Autowired
         DataItemContextService dataItemContextService;

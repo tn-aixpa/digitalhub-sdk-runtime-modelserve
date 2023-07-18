@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 @RestController
 @ApiVersion("v1")
 @Validated
-public class ArtifactContextController extends ContextController {
+public class ArtifactContextController implements ContextController {
 
         @Autowired
         ArtifactContextService artifactContextService;

@@ -12,6 +12,7 @@ import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ScalableResource;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,6 +56,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 //
 ///////////////////////////////////////////////////////////////////////////
 
+@Log4j2
 public class KanikoImageBuilder {
 
         // [x]: DONE! this builder work for FOLDER strategy building.
@@ -188,9 +190,9 @@ public class KanikoImageBuilder {
                                         j -> j.getStatus().getSucceeded() != null &&
                                                         job.getStatus().getSucceeded() > 0,
                                         10, TimeUnit.MINUTES);
-                        System.out.println("Docker image build completed successfully.");
+                        log.info("Docker image build completed successfully.");
                 } catch (Exception e) {
-                        System.out.println("Docker image build failed or timed out: " + e.getMessage());
+                        log.info("Docker image build failed or timed out: " + e.getMessage());
                 }
 
                 // Cleanup the Pod, ConfigMap, and Secret
@@ -200,7 +202,8 @@ public class KanikoImageBuilder {
                 kubernetesClient.secrets().inNamespace("default").withName("secret" + jobBuildConfig.getIdentifier())
                                 .delete();
 
-                return null;// FIXME: FOR NOW RETURN COMPLETABLE FUTURE OF NULL
+                // FIXME: FOR NOW RETURN COMPLETABLE FUTURE OF NULL
+                return null;
 
         }
 

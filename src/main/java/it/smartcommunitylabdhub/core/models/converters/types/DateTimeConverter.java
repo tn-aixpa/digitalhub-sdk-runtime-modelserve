@@ -15,7 +15,7 @@ import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 public class DateTimeConverter implements Converter<String, Date> {
 
     // Define the pattern
-    private final String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX";
+    private String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX";
 
     @Override
     public Date convert(String input) throws CustomException {

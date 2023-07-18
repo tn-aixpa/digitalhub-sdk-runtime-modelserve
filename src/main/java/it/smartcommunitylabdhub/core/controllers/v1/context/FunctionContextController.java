@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 @RestController
 @ApiVersion("v1")
 @Validated
-public class FunctionContextController extends ContextController {
+public class FunctionContextController implements ContextController {
 
         @Autowired
         FunctionContextService functionContextService;

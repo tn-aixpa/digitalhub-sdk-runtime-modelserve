@@ -14,7 +14,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class Poller implements Runnable {
     private final List<Workflow> workflowList;
-    private transient ScheduledExecutorService executorService;
+    private ScheduledExecutorService executorService;
     private final long delay;
     private final boolean reschedule;
     private final String name;
@@ -71,10 +71,10 @@ public class Poller implements Runnable {
 
             if (reschedule && active) {
                 log.info("Poller [" + name + "] reschedule: " + Thread.currentThread().getName());
-                log.info("-------------------------------------------------------------------");
+                log.info("--------------------------------------------------------------");
 
                 // Delay the rescheduling to ensure all workflows have completed
-                getScheduledExecutor().schedule(() -> startPolling(), delay, TimeUnit.SECONDS);
+                getScheduledExecutor().schedule(this::startPolling, delay, TimeUnit.SECONDS);
             }
         });
     }
@@ -85,7 +85,6 @@ public class Poller implements Runnable {
         CompletableFuture.runAsync(() -> {
             try {
                 Object result = workflow.execute(null);
-                // log.info(result.toString());
                 workflowExecution.complete(result);
             } catch (Exception e) {
                 workflowExecution.completeExceptionally(e);
@@ -103,7 +102,7 @@ public class Poller implements Runnable {
             if (!getScheduledExecutor().awaitTermination(5, TimeUnit.SECONDS)) {
                 getScheduledExecutor().shutdownNow();
                 if (!getScheduledExecutor().awaitTermination(5, TimeUnit.SECONDS)) {
-                    System.err.println("Unable to shutdown executor service :(");
+                    log.error("Unable to shutdown executor service :(");
                 }
             }
         } catch (InterruptedException e) {

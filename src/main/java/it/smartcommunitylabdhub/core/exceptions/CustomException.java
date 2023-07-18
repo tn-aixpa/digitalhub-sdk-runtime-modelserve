@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.core.exceptions;
 
 public class CustomException extends RuntimeException {
-    private Exception innerException;
+    private final Exception innerException;
 
     public CustomException(String message, Exception innerException) {
         super(message);

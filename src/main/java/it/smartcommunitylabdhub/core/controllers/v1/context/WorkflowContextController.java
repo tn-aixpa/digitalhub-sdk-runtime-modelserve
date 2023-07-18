@@ -25,7 +25,7 @@ import jakarta.validation.Valid;
 @RestController
 @ApiVersion("v1")
 @Validated
-public class WorkflowContextController extends ContextController {
+public class WorkflowContextController implements ContextController {
 
         @Autowired
         WorkflowContextService workflowContextService;
