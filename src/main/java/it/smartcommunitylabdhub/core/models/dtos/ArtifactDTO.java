@@ -23,34 +23,34 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ArtifactDTO implements BaseEntity {
-    private String id;
-    @NotNull
-    @ValidateField
-    private String name;
-    private String kind;
+	private String id;
+	@NotNull
+	@ValidateField
+	private String name;
+	private String kind;
 
-    @ValidateField
-    private String project;
-    private Map<String, Object> spec;
+	@ValidateField
+	private String project;
+	private Map<String, Object> spec;
 
-    @Builder.Default
-    @JsonIgnore
-    private Map<String, Object> extra = new HashMap<>();
+	@Builder.Default
+	@JsonIgnore
+	private Map<String, Object> extra = new HashMap<>();
 
-    private Date created;
-    private Date updated;
+	private Date created;
+	private Date updated;
 
-    @Builder.Default
-    private Boolean embedded = false;
-    private String state;
+	@Builder.Default
+	private Boolean embedded = false;
+	private String state;
 
-    @JsonAnyGetter
-    public Map<String, Object> getExtra() {
-        return extra;
-    }
+	@JsonAnyGetter
+	public Map<String, Object> getExtra() {
+		return extra;
+	}
 
-    @JsonAnySetter
-    public void setExtra(String key, Object value) {
-        extra.put(key, value);
-    }
+	@JsonAnySetter
+	public void setExtra(String key, Object value) {
+		extra.put(key, value);
+	}
 }
