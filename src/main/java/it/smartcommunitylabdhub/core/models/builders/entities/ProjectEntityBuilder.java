@@ -17,14 +17,11 @@ public class ProjectEntityBuilder {
          * @return
          */
         public Project build(ProjectDTO projectDTO) {
-                Project project = EntityFactory.combine(
-                                ConversionUtils.convert(projectDTO, "project"), projectDTO, builder -> {
-                                        builder.with(p -> p.setExtra(
-                                                        ConversionUtils.convert(projectDTO.getExtra(),
-                                                                        "cbor")));
-                                });
-
-                return project;
+                return EntityFactory.combine(
+                                ConversionUtils.convert(projectDTO, "project"), projectDTO,
+                                builder -> builder.with(p -> p.setExtra(
+                                                ConversionUtils.convert(projectDTO.getExtra(),
+                                                                "cbor"))));
         }
 
         /**
@@ -36,16 +33,14 @@ public class ProjectEntityBuilder {
          */
         public Project update(Project project, ProjectDTO projectDTO) {
                 return EntityFactory.combine(
-                                project, projectDTO, builder -> {
-                                        builder
-                                                        .with(p -> p.setDescription(projectDTO.getDescription()))
-                                                        .with(p -> p.setSource(projectDTO.getSource()))
-                                                        .with(p -> p.setState(projectDTO.getState() == null
-                                                                        ? State.CREATED
-                                                                        : State.valueOf(projectDTO.getState())))
-                                                        .with(p -> p.setExtra(
-                                                                        ConversionUtils.convert(projectDTO.getExtra(),
-                                                                                        "cbor")));
-                                });
+                                project, projectDTO, builder -> builder
+                                                .with(p -> p.setDescription(projectDTO.getDescription()))
+                                                .with(p -> p.setSource(projectDTO.getSource()))
+                                                .with(p -> p.setState(projectDTO.getState() == null
+                                                                ? State.CREATED
+                                                                : State.valueOf(projectDTO.getState())))
+                                                .with(p -> p.setExtra(
+                                                                ConversionUtils.convert(projectDTO.getExtra(),
+                                                                                "cbor"))));
         }
 }

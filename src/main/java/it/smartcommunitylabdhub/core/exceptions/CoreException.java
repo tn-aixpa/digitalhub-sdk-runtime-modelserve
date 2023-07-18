@@ -8,8 +8,8 @@ import lombok.Getter;
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 @Getter
 public class CoreException extends RuntimeException {
-    private HttpStatus status;
-    private String errorCode;
+    private final HttpStatus status;
+    private final String errorCode;
 
     public CoreException(String errorCode, String message, HttpStatus status) {
         super(message);

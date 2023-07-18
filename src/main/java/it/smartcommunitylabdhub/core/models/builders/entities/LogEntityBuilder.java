@@ -17,45 +17,39 @@ public class LogEntityBuilder {
          * @return
          */
         public Log build(LogDTO logDTO) {
-                Log Log = EntityFactory.combine(
+                return EntityFactory.combine(
                                 ConversionUtils.convert(logDTO, "log"), logDTO,
-                                builder -> {
-                                        builder
-                                                        .with(f -> f.setExtra(
-                                                                        ConversionUtils.convert(logDTO.getExtra(),
-                                                                                        "cbor")))
-                                                        .with(f -> f.setBody(
-                                                                        ConversionUtils.convert(logDTO.getBody(),
-                                                                                        "cbor")));
-                                });
-
-                return Log;
+                                builder -> builder
+                                                .with(f -> f.setExtra(
+                                                                ConversionUtils.convert(logDTO.getExtra(),
+                                                                                "cbor")))
+                                                .with(f -> f.setBody(
+                                                                ConversionUtils.convert(logDTO.getBody(),
+                                                                                "cbor"))));
         }
 
         /**
          * Update a Log
          * if element is not passed it override causing empty field
          * 
-         * @param Log
+         * @param log
          * @return
          */
-        public Log update(Log Log, LogDTO logDTO) {
+        public Log update(Log log, LogDTO logDTO) {
                 return EntityFactory.combine(
-                                Log, logDTO, builder -> {
-                                        builder
-                                                        .with(f -> f.setRun(logDTO.getRun()))
-                                                        .with(f -> f.setProject(logDTO.getProject()))
-                                                        .with(f -> f.setState(logDTO.getState() == null
-                                                                        ? State.CREATED
-                                                                        : State.valueOf(logDTO.getState())))
-                                                        .with(f -> f.setExtra(
-                                                                        ConversionUtils.convert(logDTO.getExtra(),
+                                log, logDTO, builder -> builder
+                                                .with(f -> f.setRun(logDTO.getRun()))
+                                                .with(f -> f.setProject(logDTO.getProject()))
+                                                .with(f -> f.setState(logDTO.getState() == null
+                                                                ? State.CREATED
+                                                                : State.valueOf(logDTO.getState())))
+                                                .with(f -> f.setExtra(
+                                                                ConversionUtils.convert(logDTO.getExtra(),
 
-                                                                                        "cbor")))
-                                                        .with(f -> f.setBody(
-                                                                        ConversionUtils.convert(logDTO.getBody(),
+                                                                                "cbor")))
+                                                .with(f -> f.setBody(
+                                                                ConversionUtils.convert(logDTO.getBody(),
 
-                                                                                        "cbor")));
-                                });
+                                                                                "cbor"))));
         }
 }

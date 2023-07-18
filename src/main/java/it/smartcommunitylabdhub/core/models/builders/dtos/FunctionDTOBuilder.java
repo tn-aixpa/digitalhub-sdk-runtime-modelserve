@@ -16,67 +16,56 @@ public class FunctionDTOBuilder {
         public FunctionDTO build(
                         Function function,
                         boolean embeddable) {
-                return EntityFactory.create(FunctionDTO::new, function, builder -> {
-                        builder
-                                        .with(dto -> dto.setId(function.getId()))
-                                        .with(dto -> dto.setKind(function.getKind()))
-                                        .with(dto -> dto.setProject(function.getProject()))
-                                        .with(dto -> dto.setName(function.getName()))
+                return EntityFactory.create(FunctionDTO::new, function, builder -> builder
+                                .with(dto -> dto.setId(function.getId()))
+                                .with(dto -> dto.setKind(function.getKind()))
+                                .with(dto -> dto.setProject(function.getProject()))
+                                .with(dto -> dto.setName(function.getName()))
 
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(function.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setSpec(ConversionUtils.reverse(
-                                                                                                function.getSpec(),
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setSpec(ConversionUtils.reverse(
+                                                                                function.getSpec(),
 
-                                                                                                "cbor")));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(function.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setExtra(ConversionUtils.reverse(
-                                                                                                function.getExtra(),
+                                                                                "cbor"))))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setExtra(ConversionUtils.reverse(
+                                                                                function.getExtra(),
 
-                                                                                                "cbor")));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(function.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setCreated(function.getCreated()));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(function.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setUpdated(function.getUpdated()));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(function.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setEmbedded(function.getEmbedded()));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
+                                                                                "cbor"))))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setCreated(function.getCreated())))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setUpdated(function.getUpdated())))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setEmbedded(function.getEmbedded())))
+                                .withIfElse(embeddable, (dto, condition) ->
 
-                                                Optional.ofNullable(function.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setState(function.getState() == null
-                                                                                                ? State.CREATED.name()
-                                                                                                : function.getState()
-                                                                                                                .name()));
+                                Optional.ofNullable(function.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setState(function.getState() == null
+                                                                                ? State.CREATED.name()
+                                                                                : function.getState()
+                                                                                                .name()))
 
-                                        });
+                                )
 
-                });
+                );
         }
 }

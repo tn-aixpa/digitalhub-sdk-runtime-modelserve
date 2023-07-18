@@ -17,21 +17,18 @@ public class ArtifactEntityBuilder {
          * @return
          */
         public Artifact build(ArtifactDTO artifactDTO) {
-                Artifact artifact = EntityFactory.combine(
+                return EntityFactory.combine(
                                 ConversionUtils.convert(artifactDTO, "artifact"), artifactDTO,
-                                builder -> {
-                                        builder
-                                                        .with(a -> a.setExtra(
-                                                                        ConversionUtils.convert(artifactDTO.getExtra(),
+                                builder -> builder
+                                                .with(a -> a.setExtra(
+                                                                ConversionUtils.convert(artifactDTO.getExtra(),
 
-                                                                                        "cbor")))
-                                                        .with(a -> a.setSpec(
-                                                                        ConversionUtils.convert(artifactDTO.getSpec(),
+                                                                                "cbor")))
+                                                .with(a -> a.setSpec(
+                                                                ConversionUtils.convert(artifactDTO.getSpec(),
 
-                                                                                        "cbor")));
-                                });
+                                                                                "cbor"))));
 
-                return artifact;
         }
 
         /**
@@ -43,23 +40,21 @@ public class ArtifactEntityBuilder {
          */
         public Artifact update(Artifact artifact, ArtifactDTO artifactDTO) {
                 return EntityFactory.combine(
-                                artifact, artifactDTO, builder -> {
-                                        builder
-                                                        .with(a -> a.setKind(artifactDTO.getKind()))
-                                                        .with(a -> a.setProject(artifactDTO.getProject()))
-                                                        .with(a -> a.setState(artifactDTO.getState() == null
-                                                                        ? ArtifactState.CREATED
-                                                                        : ArtifactState.valueOf(
-                                                                                        artifactDTO.getState())))
-                                                        .with(a -> a.setExtra(
-                                                                        ConversionUtils.convert(artifactDTO.getExtra(),
+                                artifact, artifactDTO, builder -> builder
+                                                .with(a -> a.setKind(artifactDTO.getKind()))
+                                                .with(a -> a.setProject(artifactDTO.getProject()))
+                                                .with(a -> a.setState(artifactDTO.getState() == null
+                                                                ? ArtifactState.CREATED
+                                                                : ArtifactState.valueOf(
+                                                                                artifactDTO.getState())))
+                                                .with(a -> a.setExtra(
+                                                                ConversionUtils.convert(artifactDTO.getExtra(),
 
-                                                                                        "cbor")))
-                                                        .with(a -> a.setSpec(
-                                                                        ConversionUtils.convert(artifactDTO.getSpec(),
+                                                                                "cbor")))
+                                                .with(a -> a.setSpec(
+                                                                ConversionUtils.convert(artifactDTO.getSpec(),
 
-                                                                                        "cbor")))
-                                                        .with(a -> a.setEmbedded(artifactDTO.getEmbedded()));
-                                });
+                                                                                "cbor")))
+                                                .with(a -> a.setEmbedded(artifactDTO.getEmbedded())));
         }
 }

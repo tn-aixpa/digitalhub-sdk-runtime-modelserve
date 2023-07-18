@@ -17,21 +17,18 @@ public class WorkflowEntityBuilder {
          * @return
          */
         public Workflow build(WorkflowDTO workflowDTO) {
-                Workflow workflow = EntityFactory.combine(
+                return EntityFactory.combine(
                                 ConversionUtils.convert(workflowDTO, "workflow"), workflowDTO,
-                                builder -> {
-                                        builder
-                                                        .with(w -> w.setExtra(
-                                                                        ConversionUtils.convert(workflowDTO.getExtra(),
+                                builder -> builder
+                                                .with(w -> w.setExtra(
+                                                                ConversionUtils.convert(workflowDTO.getExtra(),
 
-                                                                                        "cbor")))
-                                                        .with(w -> w.setSpec(
-                                                                        ConversionUtils.convert(workflowDTO.getSpec(),
+                                                                                "cbor")))
+                                                .with(w -> w.setSpec(
+                                                                ConversionUtils.convert(workflowDTO.getSpec(),
 
-                                                                                        "cbor")));
-                                });
+                                                                                "cbor"))));
 
-                return workflow;
         }
 
         /**
@@ -43,22 +40,20 @@ public class WorkflowEntityBuilder {
          */
         public Workflow update(Workflow workflow, WorkflowDTO workflowDTO) {
                 return EntityFactory.combine(
-                                workflow, workflowDTO, builder -> {
-                                        builder
-                                                        .with(w -> w.setKind(workflowDTO.getKind()))
-                                                        .with(w -> w.setProject(workflowDTO.getProject()))
-                                                        .with(w -> w.setState(workflowDTO.getState() == null
-                                                                        ? State.CREATED
-                                                                        : State.valueOf(workflowDTO.getState())))
-                                                        .with(w -> w.setExtra(
-                                                                        ConversionUtils.convert(workflowDTO.getExtra(),
+                                workflow, workflowDTO, builder -> builder
+                                                .with(w -> w.setKind(workflowDTO.getKind()))
+                                                .with(w -> w.setProject(workflowDTO.getProject()))
+                                                .with(w -> w.setState(workflowDTO.getState() == null
+                                                                ? State.CREATED
+                                                                : State.valueOf(workflowDTO.getState())))
+                                                .with(w -> w.setExtra(
+                                                                ConversionUtils.convert(workflowDTO.getExtra(),
 
-                                                                                        "cbor")))
-                                                        .with(w -> w.setSpec(
-                                                                        ConversionUtils.convert(workflowDTO.getSpec(),
+                                                                                "cbor")))
+                                                .with(w -> w.setSpec(
+                                                                ConversionUtils.convert(workflowDTO.getSpec(),
 
-                                                                                        "cbor")))
-                                                        .with(w -> w.setEmbedded(workflowDTO.getEmbedded()));
-                                });
+                                                                                "cbor")))
+                                                .with(w -> w.setEmbedded(workflowDTO.getEmbedded())));
         }
 }

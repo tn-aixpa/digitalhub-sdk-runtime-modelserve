@@ -17,19 +17,16 @@ public class DataItemEntityBuilder {
          * @return
          */
         public DataItem build(DataItemDTO dataItemDTO) {
-                DataItem dataItem = EntityFactory.combine(
+                return EntityFactory.combine(
                                 ConversionUtils.convert(dataItemDTO, "dataitem"), dataItemDTO,
-                                builder -> {
-                                        builder
-                                                        .with(a -> a.setExtra(
-                                                                        ConversionUtils.convert(dataItemDTO.getExtra(),
-                                                                                        "cbor")))
-                                                        .with(a -> a.setSpec(
-                                                                        ConversionUtils.convert(dataItemDTO.getSpec(),
-                                                                                        "cbor")));
-                                });
+                                builder -> builder
+                                                .with(a -> a.setExtra(
+                                                                ConversionUtils.convert(dataItemDTO.getExtra(),
+                                                                                "cbor")))
+                                                .with(a -> a.setSpec(
+                                                                ConversionUtils.convert(dataItemDTO.getSpec(),
+                                                                                "cbor"))));
 
-                return dataItem;
         }
 
         /**
@@ -41,22 +38,20 @@ public class DataItemEntityBuilder {
          */
         public DataItem update(DataItem dataItem, DataItemDTO dataItemDTO) {
                 return EntityFactory.combine(
-                                dataItem, dataItemDTO, builder -> {
-                                        builder
-                                                        .with(a -> a.setKind(dataItemDTO.getKind()))
-                                                        .with(a -> a.setProject(dataItemDTO.getProject()))
-                                                        .with(a -> a.setState(dataItemDTO.getState() == null
-                                                                        ? State.CREATED
-                                                                        : State.valueOf(dataItemDTO.getState())))
-                                                        .with(a -> a.setExtra(
-                                                                        ConversionUtils.convert(dataItemDTO.getExtra(),
+                                dataItem, dataItemDTO, builder -> builder
+                                                .with(a -> a.setKind(dataItemDTO.getKind()))
+                                                .with(a -> a.setProject(dataItemDTO.getProject()))
+                                                .with(a -> a.setState(dataItemDTO.getState() == null
+                                                                ? State.CREATED
+                                                                : State.valueOf(dataItemDTO.getState())))
+                                                .with(a -> a.setExtra(
+                                                                ConversionUtils.convert(dataItemDTO.getExtra(),
 
-                                                                                        "cbor")))
-                                                        .with(a -> a.setSpec(
-                                                                        ConversionUtils.convert(dataItemDTO.getSpec(),
+                                                                                "cbor")))
+                                                .with(a -> a.setSpec(
+                                                                ConversionUtils.convert(dataItemDTO.getSpec(),
 
-                                                                                        "cbor")))
-                                                        .with(a -> a.setEmbedded(dataItemDTO.getEmbedded()));
-                                });
+                                                                                "cbor")))
+                                                .with(a -> a.setEmbedded(dataItemDTO.getEmbedded())));
         }
 }

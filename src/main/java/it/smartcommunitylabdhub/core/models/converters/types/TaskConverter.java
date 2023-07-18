@@ -12,26 +12,26 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 public class TaskConverter implements Converter<TaskDTO, Task> {
 
     @Override
-    public Task convert(TaskDTO TaskDTO) throws CustomException {
+    public Task convert(TaskDTO taskDTO) throws CustomException {
         return Task.builder()
-                .id(TaskDTO.getId())
-                .task(TaskDTO.getTask())
-                .kind(TaskDTO.getKind())
-                .project(TaskDTO.getProject())
-                .state(TaskDTO.getState() == null ? State.CREATED : State.valueOf(TaskDTO.getState()))
+                .id(taskDTO.getId())
+                .task(taskDTO.getTask())
+                .kind(taskDTO.getKind())
+                .project(taskDTO.getProject())
+                .state(taskDTO.getState() == null ? State.CREATED : State.valueOf(taskDTO.getState()))
                 .build();
     }
 
     @Override
-    public TaskDTO reverseConvert(Task Task) throws CustomException {
+    public TaskDTO reverseConvert(Task task) throws CustomException {
         return TaskDTO.builder()
-                .id(Task.getId())
-                .task(Task.getTask())
-                .kind(Task.getKind())
-                .project(Task.getProject())
-                .state(Task.getState() == null ? State.CREATED.name() : Task.getState().name())
-                .created(Task.getCreated())
-                .updated(Task.getUpdated())
+                .id(task.getId())
+                .task(task.getTask())
+                .kind(task.getKind())
+                .project(task.getProject())
+                .state(task.getState() == null ? State.CREATED.name() : task.getState().name())
+                .created(task.getCreated())
+                .updated(task.getUpdated())
                 .build();
     }
 

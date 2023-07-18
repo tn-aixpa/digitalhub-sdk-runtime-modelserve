@@ -9,7 +9,9 @@ import java.util.concurrent.TimeUnit;
 
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class Poller implements Runnable {
     private final List<Workflow> workflowList;
     private transient ScheduledExecutorService executorService;
@@ -34,7 +36,7 @@ public class Poller implements Runnable {
     }
 
     public void startPolling() {
-        System.out.println("Poller [" + name + "] start: " + Thread.currentThread().getName());
+        log.info("Poller [" + name + "] start: " + Thread.currentThread().getName());
         getScheduledExecutor().schedule(this, delay, TimeUnit.SECONDS);
     }
 
@@ -58,18 +60,18 @@ public class Poller implements Runnable {
                     if (cause instanceof StopPoller) {
                         stopPolling(); // Stop this Poller thread.
                     } else {
-                        System.out.println("POLLER EXCEPTION : " + exception.getMessage());
+                        log.info("POLLER EXCEPTION : " + exception.getMessage());
                         stopPolling();
                     }
                 } else {
-                    System.out.println("POLLER EXCEPTION : " + exception.getMessage());
+                    log.info("POLLER EXCEPTION : " + exception.getMessage());
                     stopPolling();
                 }
             }
 
             if (reschedule && active) {
-                System.out.println("Poller [" + name + "] reschedule: " + Thread.currentThread().getName());
-                System.out.println("-------------------------------------------------------------------");
+                log.info("Poller [" + name + "] reschedule: " + Thread.currentThread().getName());
+                log.info("-------------------------------------------------------------------");
 
                 // Delay the rescheduling to ensure all workflows have completed
                 getScheduledExecutor().schedule(() -> startPolling(), delay, TimeUnit.SECONDS);
@@ -83,7 +85,7 @@ public class Poller implements Runnable {
         CompletableFuture.runAsync(() -> {
             try {
                 Object result = workflow.execute(null);
-                // System.out.println(result.toString());
+                // log.info(result.toString());
                 workflowExecution.complete(result);
             } catch (Exception e) {
                 workflowExecution.completeExceptionally(e);
@@ -95,7 +97,7 @@ public class Poller implements Runnable {
 
     public void stopPolling() {
         active = false; // Set the flag to false to stop polling
-        System.out.println("Poller [" + name + "] stop: " + Thread.currentThread().getName());
+        log.info("Poller [" + name + "] stop: " + Thread.currentThread().getName());
         getScheduledExecutor().shutdown();
         try {
             if (!getScheduledExecutor().awaitTermination(5, TimeUnit.SECONDS)) {

@@ -17,19 +17,15 @@ public class FunctionEntityBuilder {
          * @return
          */
         public Function build(FunctionDTO functionDTO) {
-                Function function = EntityFactory.combine(
+                return EntityFactory.combine(
                                 ConversionUtils.convert(functionDTO, "function"), functionDTO,
-                                builder -> {
-                                        builder
-                                                        .with(f -> f.setExtra(
-                                                                        ConversionUtils.convert(functionDTO.getExtra(),
-                                                                                        "cbor")))
-                                                        .with(f -> f.setSpec(
-                                                                        ConversionUtils.convert(functionDTO.getSpec(),
-                                                                                        "cbor")));
-                                });
-
-                return function;
+                                builder -> builder
+                                                .with(f -> f.setExtra(
+                                                                ConversionUtils.convert(functionDTO.getExtra(),
+                                                                                "cbor")))
+                                                .with(f -> f.setSpec(
+                                                                ConversionUtils.convert(functionDTO.getSpec(),
+                                                                                "cbor"))));
         }
 
         /**
@@ -41,22 +37,20 @@ public class FunctionEntityBuilder {
          */
         public Function update(Function function, FunctionDTO functionDTO) {
                 return EntityFactory.combine(
-                                function, functionDTO, builder -> {
-                                        builder
-                                                        .with(f -> f.setKind(functionDTO.getKind()))
-                                                        .with(f -> f.setProject(functionDTO.getProject()))
-                                                        .with(f -> f.setState(functionDTO.getState() == null
-                                                                        ? State.CREATED
-                                                                        : State.valueOf(functionDTO.getState())))
-                                                        .with(f -> f.setExtra(
-                                                                        ConversionUtils.convert(functionDTO.getExtra(),
+                                function, functionDTO, builder -> builder
+                                                .with(f -> f.setKind(functionDTO.getKind()))
+                                                .with(f -> f.setProject(functionDTO.getProject()))
+                                                .with(f -> f.setState(functionDTO.getState() == null
+                                                                ? State.CREATED
+                                                                : State.valueOf(functionDTO.getState())))
+                                                .with(f -> f.setExtra(
+                                                                ConversionUtils.convert(functionDTO.getExtra(),
 
-                                                                                        "cbor")))
-                                                        .with(f -> f.setSpec(
-                                                                        ConversionUtils.convert(functionDTO.getSpec(),
+                                                                                "cbor")))
+                                                .with(f -> f.setSpec(
+                                                                ConversionUtils.convert(functionDTO.getSpec(),
 
-                                                                                        "cbor")))
-                                                        .with(f -> f.setEmbedded(functionDTO.getEmbedded()));
-                                });
+                                                                                "cbor")))
+                                                .with(f -> f.setEmbedded(functionDTO.getEmbedded())));
         }
 }

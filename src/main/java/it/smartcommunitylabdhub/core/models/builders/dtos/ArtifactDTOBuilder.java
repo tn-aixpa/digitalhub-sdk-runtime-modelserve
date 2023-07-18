@@ -14,66 +14,55 @@ import it.smartcommunitylabdhub.core.models.entities.Artifact;
 public class ArtifactDTOBuilder {
 
         public ArtifactDTO build(Artifact artifact, Boolean embeddable) {
-                return EntityFactory.create(ArtifactDTO::new, artifact, builder -> {
-                        builder
-                                        .with(dto -> dto.setId(artifact.getId()))
-                                        .with(dto -> dto.setKind(artifact.getKind()))
-                                        .with(dto -> dto.setProject(artifact.getProject()))
-                                        .with(dto -> dto.setName(artifact.getName()))
+                return EntityFactory.create(ArtifactDTO::new, artifact, builder -> builder
+                                .with(dto -> dto.setId(artifact.getId()))
+                                .with(dto -> dto.setKind(artifact.getKind()))
+                                .with(dto -> dto.setProject(artifact.getProject()))
+                                .with(dto -> dto.setName(artifact.getName()))
 
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(artifact.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setSpec(ConversionUtils.reverse(
-                                                                                                artifact.getSpec(),
-                                                                                                "cbor")));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(artifact.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setExtra(ConversionUtils.reverse(
-                                                                                                artifact.getExtra(),
-                                                                                                "cbor")));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(artifact.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setCreated(artifact.getCreated()));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(artifact.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setUpdated(artifact.getUpdated()));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
-                                                Optional.ofNullable(artifact.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setEmbedded(artifact.getEmbedded()));
-                                        })
-                                        .withIfElse(embeddable, (dto, condition) -> {
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setSpec(ConversionUtils.reverse(
+                                                                                artifact.getSpec(),
+                                                                                "cbor"))))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setExtra(ConversionUtils.reverse(
+                                                                                artifact.getExtra(),
+                                                                                "cbor"))))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setCreated(artifact.getCreated())))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setUpdated(artifact.getUpdated())))
+                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setEmbedded(artifact.getEmbedded())))
+                                .withIfElse(embeddable, (dto, condition) ->
 
-                                                Optional.ofNullable(artifact.getEmbedded())
-                                                                .filter(embedded -> !condition
-                                                                                || (condition && embedded))
-                                                                .ifPresent(embedded -> dto
-                                                                                .setState(artifact.getState() == null
-                                                                                                ? ArtifactState.CREATED
-                                                                                                                .name()
-                                                                                                : artifact.getState()
-                                                                                                                .name()));
+                                Optional.ofNullable(artifact.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto
+                                                                .setState(artifact.getState() == null
+                                                                                ? ArtifactState.CREATED
+                                                                                                .name()
+                                                                                : artifact.getState()
+                                                                                                .name()))
 
-                                        });
+                                )
 
-                });
+                );
         }
 }

@@ -33,36 +33,35 @@ public class ProjectDTOBuilder {
                         List<Function> functions,
                         List<Workflow> workflows,
                         boolean embeddable) {
-                return EntityFactory.create(ProjectDTO::new, project, builder -> {
-                        builder
-                                        .with(dto -> dto.setId(project.getId()))
-                                        .with(dto -> dto.setName(project.getName()))
-                                        .with(dto -> dto.setDescription(project.getDescription()))
-                                        .with(dto -> dto.setSource(project.getSource()))
-                                        .with(dto -> dto.setState(project.getState() == null ? State.CREATED.name()
-                                                        : project.getState().name()))
-                                        .with(dto -> dto.setExtra(ConversionUtils.reverse(
-                                                        project.getExtra(),
-                                                        "cbor")))
+                return EntityFactory.create(ProjectDTO::new, project, builder -> builder
+                                .with(dto -> dto.setId(project.getId()))
+                                .with(dto -> dto.setName(project.getName()))
+                                .with(dto -> dto.setDescription(project.getDescription()))
+                                .with(dto -> dto.setSource(project.getSource()))
+                                .with(dto -> dto.setState(project.getState() == null ? State.CREATED.name()
+                                                : project.getState().name()))
+                                .with(dto -> dto.setExtra(ConversionUtils.reverse(
+                                                project.getExtra(),
+                                                "cbor")))
 
-                                        .with(dto -> dto.setFunctions(
-                                                        functions.stream()
-                                                                        .map(f -> functionDTOBuilder.build(
-                                                                                        f, embeddable))
-                                                                        .collect(Collectors.toList())))
-                                        .with(dto -> dto.setArtifacts(
-                                                        artifacts.stream()
-                                                                        .map(a -> artifactDTOBuilder.build(a,
-                                                                                        embeddable))
-                                                                        .collect(Collectors.toList())))
-                                        .with(dto -> dto.setWorkflows(
-                                                        workflows.stream()
-                                                                        .map(w -> workflowDTOBuilder.build(
-                                                                                        w, embeddable))
-                                                                        .collect(Collectors.toList())))
-                                        .with(dto -> dto.setCreated(project.getCreated()))
-                                        .with(dto -> dto.setUpdated(project.getUpdated()));
+                                .with(dto -> dto.setFunctions(
+                                                functions.stream()
+                                                                .map(f -> functionDTOBuilder.build(
+                                                                                f, embeddable))
+                                                                .collect(Collectors.toList())))
+                                .with(dto -> dto.setArtifacts(
+                                                artifacts.stream()
+                                                                .map(a -> artifactDTOBuilder.build(a,
+                                                                                embeddable))
+                                                                .collect(Collectors.toList())))
+                                .with(dto -> dto.setWorkflows(
+                                                workflows.stream()
+                                                                .map(w -> workflowDTOBuilder.build(
+                                                                                w, embeddable))
+                                                                .collect(Collectors.toList())))
+                                .with(dto -> dto.setCreated(project.getCreated()))
+                                .with(dto -> dto.setUpdated(project.getUpdated()))
 
-                });
+                );
         }
 }

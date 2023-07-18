@@ -1,7 +1,5 @@
 package it.smartcommunitylabdhub.core.exceptions;
 
-import java.lang.RuntimeException;
-
 public class CustomException extends RuntimeException {
     private Exception innerException;
 
