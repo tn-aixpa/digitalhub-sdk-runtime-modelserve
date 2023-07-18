@@ -4,7 +4,8 @@ Project module.
 from __future__ import annotations
 
 import typing
-from typing import Self, TypeVar
+from typing import TypeVar
+
 
 from sdk.entities.artifact.crud import (
     create_artifact_from_dict,
@@ -42,7 +43,7 @@ from sdk.utils.api import (
     DTO_WKFL,
     api_base_create,
 )
-from sdk.utils.exceptions import EntityError, BackendError
+from sdk.utils.exceptions import BackendError, EntityError
 from sdk.utils.factories import get_client, set_context
 
 if typing.TYPE_CHECKING:
@@ -798,7 +799,7 @@ class Project(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Self:
+    def from_dict(cls, obj: dict) -> "Project":
         """
         Create object instance from a dictionary.
 
@@ -809,7 +810,7 @@ class Project(Entity):
 
         Returns
         -------
-        Self
+        Project
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)

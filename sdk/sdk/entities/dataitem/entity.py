@@ -4,7 +4,7 @@ Dataitem module.
 from __future__ import annotations
 
 import typing
-from typing import Self
+
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.dataitem.metadata import build_metadata
@@ -270,7 +270,9 @@ class Dataitem(Entity):
             return file_format
         ext = get_extension(path)
         if ext is None:
-            raise EntityError("Unknown file format. Only csv and parquet are supported.")
+            raise EntityError(
+                "Unknown file format. Only csv and parquet are supported."
+            )
         return ext
 
     #############################
@@ -294,7 +296,7 @@ class Dataitem(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Self:
+    def from_dict(cls, obj: dict) -> "Dataitem":
         """
         Create object instance from a dictionary.
 
@@ -305,8 +307,8 @@ class Dataitem(Entity):
 
         Returns
         -------
-        Self
-            Self instance.
+        Dataitem
+            Dataitem instance.
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)

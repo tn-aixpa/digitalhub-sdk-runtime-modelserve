@@ -4,7 +4,7 @@ Workflow module.
 from __future__ import annotations
 
 import typing
-from typing import Self
+
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.utils.utils import get_uiid
@@ -153,7 +153,7 @@ class Workflow(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Self:
+    def from_dict(cls, obj: dict) -> "Workflow":
         """
         Create object instance from a dictionary.
 
@@ -164,7 +164,7 @@ class Workflow(Entity):
 
         Returns
         -------
-        Self
+        Workflow
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)

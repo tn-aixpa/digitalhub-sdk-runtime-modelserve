@@ -4,7 +4,6 @@ Function module.
 from __future__ import annotations
 
 import typing
-from typing import Self
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.function.metadata import build_metadata
@@ -237,7 +236,7 @@ class Function(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Self:
+    def from_dict(cls, obj: dict) -> "Function":
         """
         Create object instance from a dictionary.
 
@@ -248,7 +247,7 @@ class Function(Entity):
 
         Returns
         -------
-        Self
+        Function
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)

@@ -4,7 +4,7 @@ Task module.
 from __future__ import annotations
 
 import typing
-from typing import Self
+
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.run.crud import new_run
@@ -161,7 +161,7 @@ class Task(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Self:
+    def from_dict(cls, obj: dict) -> "Task":
         """
         Create object instance from a dictionary.
 
@@ -172,7 +172,7 @@ class Task(Entity):
 
         Returns
         -------
-        Self
+        Task
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)

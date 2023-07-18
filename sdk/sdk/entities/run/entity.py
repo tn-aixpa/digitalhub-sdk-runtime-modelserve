@@ -4,13 +4,13 @@ Run module.
 from __future__ import annotations
 
 import typing
-from typing import Self
+
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.run.spec import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
-from sdk.utils.exceptions import EntityError, BackendError
+from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
@@ -189,7 +189,7 @@ class Run(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Self:
+    def from_dict(cls, obj: dict) -> "Run":
         """
         Create object instance from a dictionary.
 
@@ -200,7 +200,7 @@ class Run(Entity):
 
         Returns
         -------
-        Self
+        Run
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)

@@ -163,3 +163,4 @@ cython_debug/
 .pylintrc
 
 TODO.txt
+/tests

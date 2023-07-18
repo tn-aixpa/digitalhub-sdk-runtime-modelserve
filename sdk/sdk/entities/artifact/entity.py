@@ -4,7 +4,7 @@ Artifact module.
 from __future__ import annotations
 
 import typing
-from typing import Self
+
 
 from sdk.entities.artifact.metadata import build_metadata
 from sdk.entities.artifact.spec import build_spec
@@ -360,7 +360,7 @@ class Artifact(Entity):
     #############################
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Self:
+    def from_dict(cls, obj: dict) -> "Artifact":
         """
         Create object instance from a dictionary.
 
@@ -371,8 +371,8 @@ class Artifact(Entity):
 
         Returns
         -------
-        Self
-            Self instance.
+        Artifact
+            Artifact instance.
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
@@ -453,7 +453,7 @@ def artifact_from_parameters(
         Representation of artfact like store://etc..
     src_path : str
         Path to the artifact on local file system or remote storage.
-    targeth_path : str
+    target_path : str
         Destination path of the artifact.
     local : bool
         Flag to determine if object has local execution.
