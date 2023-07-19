@@ -65,7 +65,7 @@ class Function(Entity):
         super().__init__()
         self.project = project
         self.name = name
-        self.id = uuid if uuid is not None else get_uiid()
+        self.id = get_uiid(uuid=uuid)
         self.kind = kind if kind is not None else "job"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})

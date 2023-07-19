@@ -132,6 +132,27 @@ def get_artifact(project: str, name: str, uuid: str | None = None) -> Artifact:
     return artifact_from_dict(obj)
 
 
+def get_artifact_from_key(key: str) -> Artifact:
+    """
+    Get artifact from key.
+
+    Parameters
+    ----------
+    key : str
+        Key of the artifact.
+        It's format is store://<project>/artifacts/<kind>/<name>:<uuid>.
+    """
+    import re
+    pattern: str = r"store://(?P<project>\w+)/(.*)/(?P<name>\w+):(?P<uuid>[A-Za-z0-9\-\_]+)"
+    match = re.match(pattern, key)
+    if match is None:
+        raise ValueError("Invalid key format.")
+    project = match.group("project")
+    name = match.group("name")
+    uuid = match.group("uuid")
+    return get_artifact(project, name, uuid)
+
+
 def import_artifact(file: str) -> Artifact:
     """
     Import an Artifact object from a file using the specified file path.

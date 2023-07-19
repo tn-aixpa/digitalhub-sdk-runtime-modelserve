@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-
+from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
 from sdk.entities.run.spec import build_spec
 from sdk.entities.utils.utils import get_uiid
@@ -15,6 +15,7 @@ from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
     from sdk.entities.run.spec import RunSpec
+    from sdk.entities.artifact.entity import Artifact
 
 
 class Run(Entity):
@@ -60,6 +61,7 @@ class Run(Entity):
         self._local = local
         self._obj_attr += ["task_id"]
         self._context = get_context(self.project)
+        self._result: dict | None = None
 
     #############################
     #  Save / Export
@@ -167,6 +169,23 @@ class Run(Entity):
         """
         api = api_base_read(DTO_RUNS, self.id) + "/log"
         return self._context.read_object(api)
+
+    def get_artifact(self) -> Artifact:
+        """
+        Get artifact from backend produced by the run.
+
+        Returns
+        -------
+        Artifact
+            Artifact from backend.
+        """
+        resp = self.refresh()
+        result = resp.get("artifacts")
+        if result is None:
+            raise EntityError("Run has no result (maybe try when it finishes).")
+        if isinstance(result, list):
+            result = result[0]
+        return get_artifact_from_key(result)
 
     #############################
     #  Getters and Setters

@@ -15,15 +15,22 @@ if typing.TYPE_CHECKING:
     from sdk.entities.base.entity import Entity
 
 
-def get_uiid() -> str:
+def get_uiid(uuid: str | None = None) -> str:
     """
-    Create a uuid.
+    Create a uuid if not given
+
+    Parameters
+    ----------
+    uuid : str
+        UUID. Optional.
 
     Returns
     -------
     str
         The uuid.
     """
+    if uuid is not None:
+        return uuid
     return uuid4().hex
 
 

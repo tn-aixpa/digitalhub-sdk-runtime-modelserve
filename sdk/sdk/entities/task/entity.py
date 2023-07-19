@@ -57,7 +57,7 @@ class Task(Entity):
         super().__init__()
         self.project = project
         self.task = task
-        self.id = uuid if uuid is not None else get_uiid()
+        self.id = get_uiid(uuid=uuid)
         self.kind = kind if kind is not None else "task"
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
 
