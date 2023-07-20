@@ -122,6 +122,6 @@ for any entities task, log, function, artifact , dataitem, project, workflow che
   - elimino tutte le run (per il task)
   - elimino il task
 
-// TODO
+// [x]
 
 dalla chiave ricevuta outputs:["dataset"] salvo nella run con la chiave "dataset" i risultati della run quindi i riferimenti artifact con questo formato : "store://<project>/artifacts/<kind>/<name>:<uuid>"
