@@ -63,16 +63,8 @@ def make_dir(*args) -> None:
     Returns
     -------
     None
-
-    Raises
-    ------
-    Exception
-        If the directory cannot be created.
     """
-    try:
-        os.makedirs(get_absolute_path(*args))
-    except Exception as ex:
-        raise ex
+    os.makedirs(get_absolute_path(*args))
 
 
 def check_make_dir(path: str) -> None:
@@ -148,16 +140,8 @@ def get_absolute_path(*args) -> str:
     -------
     str
         The absolute path.
-
-    Raises
-    ------
-    Exception
-        If the path cannot be resolved.
     """
-    try:
-        return str(Path(*args).absolute())
-    except Exception as ex:
-        raise ex
+    return str(Path(*args).absolute())
 
 
 def check_path(path: str) -> bool:
