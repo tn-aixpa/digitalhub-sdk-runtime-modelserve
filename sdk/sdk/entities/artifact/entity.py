@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import typing
 
-
 from sdk.entities.artifact.metadata import build_metadata
 from sdk.entities.artifact.spec import build_spec
 from sdk.entities.base.entity import Entity
@@ -65,7 +64,7 @@ class Artifact(Entity):
         super().__init__()
         self.project = project
         self.name = name
-        self.id = uuid if uuid is not None else get_uiid()
+        self.id = get_uiid(uuid=uuid)
         self.kind = kind if kind is not None else "artifact"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})

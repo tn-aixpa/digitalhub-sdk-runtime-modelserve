@@ -21,7 +21,6 @@ class FunctionSpec(EntitySpec):
         tag: str | None = None,
         handler: str | None = None,
         command: str | None = None,
-        requirements: list | None = None,
         **kwargs,
     ) -> None:
         """
@@ -39,8 +38,6 @@ class FunctionSpec(EntitySpec):
             Function handler name.
         command : str
             Command to run inside the container.
-        requirements : list
-            List of requirements for the Function.
 
         """
         self.source = source
@@ -48,7 +45,6 @@ class FunctionSpec(EntitySpec):
         self.tag = tag
         self.handler = handler
         self.command = command
-        self.requirements = requirements if requirements is not None else []
 
         self._any_setter(**kwargs)
 
@@ -71,6 +67,11 @@ class FunctionSpecJob(FunctionSpec):
         """
         Constructor.
 
+        Parameters
+        ----------
+        requirements : list
+            List of requirements for the Function.
+
         See Also
         --------
         FunctionSpec.__init__
@@ -82,12 +83,13 @@ class FunctionSpecJob(FunctionSpec):
             tag,
             handler,
             command,
-            requirements,
             **kwargs,
         )
+
         if not is_python_module(source):
             warnings.warn("Source is not a valid python file.")
 
+        self.requirements = requirements if requirements is not None else []
         self.build = {
             "functionSourceCode": encode_source(source),
             "code_origin": source,

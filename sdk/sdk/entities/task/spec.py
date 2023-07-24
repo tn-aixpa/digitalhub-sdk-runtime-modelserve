@@ -8,6 +8,10 @@ from sdk.entities.task.models import K8sResources
 class TaskSpec(EntitySpec):
     """Task specification."""
 
+
+class TaskSpecRun(TaskSpec):
+    """Task Run specification."""
+
     def __init__(
         self,
         resources: dict | None = None,
@@ -26,6 +30,28 @@ class TaskSpec(EntitySpec):
         self.volume_mounts = [i.model_dump() for i in res.volume_mounts]
         self.env = [i.model_dump() for i in res.env]
         self.resources = res.resources.model_dump() if res.resources is not None else {}
+
+
+class TaskSpecBuild(TaskSpec):
+    """Task build specification."""
+
+    def __init__(
+        self,
+        image: str | None = None,
+        base_image: str | None = None,
+    ) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        image : str
+            The image to perform the building task.
+        base_image : str
+            The base image to create the image from.
+        """
+        self.image = image
+        self.base_image = base_image
 
 
 def build_spec(kind: str, **kwargs) -> TaskSpec:
@@ -50,5 +76,7 @@ def build_spec(kind: str, **kwargs) -> TaskSpec:
         If the given kind is not supported.
     """
     if kind == "task":
-        return TaskSpec(**kwargs)
+        return TaskSpecRun(**kwargs)
+    if kind == "build":
+        return TaskSpecBuild(**kwargs)
     raise ValueError(f"Unknown kind: {kind}")

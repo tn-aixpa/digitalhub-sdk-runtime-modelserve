@@ -4,6 +4,7 @@ Store builder module.
 from __future__ import annotations
 
 import typing
+from typing import Callable
 
 from sdk.store.models import StoreConfig
 from sdk.store.objects.local import LocalStore

@@ -4,8 +4,7 @@ Project module.
 from __future__ import annotations
 
 import typing
-from typing import TypeVar
-
+from typing import TypeVar, Callable
 
 from sdk.entities.artifact.crud import (
     create_artifact_from_dict,
@@ -54,12 +53,41 @@ if typing.TYPE_CHECKING:
     from sdk.entities.project.metadata import ProjectMetadata
     from sdk.entities.project.spec import ProjectSpec
     from sdk.entities.workflow.entity import Workflow
-
     Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)
 
 
 DTO_LIST = [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]
 SPEC_LIST = DTO_LIST + ["source", "context"]
+
+
+def constructor_from_dict(dto: str) -> Callable[[dict], Artifact | Function | Workflow | Dataitem]:
+    """
+    Get constructor for dto.
+
+    Parameters
+    ----------
+    dto : str
+        DTO.
+
+    Returns
+    -------
+    Callable[[dict], Artifact | Function | Workflow | Dataitem]
+        Constructor from dict.
+
+    Raises
+    ------
+    EntityError
+        If dto is not valid.
+    """
+    if dto == DTO_ARTF:
+        return create_artifact_from_dict
+    if dto == DTO_FUNC:
+        return create_function_from_dict
+    if dto == DTO_WKFL:
+        return create_workflow_from_dict
+    if dto == DTO_DTIT:
+        return create_dataitem_from_dict
+    raise EntityError(f"DTO {dto} is not valid.")
 
 
 class Project(Entity):
@@ -95,7 +123,7 @@ class Project(Entity):
         super().__init__()
         self.name = name
         self.kind = "project"
-        self.id = uuid if uuid is not None else get_uiid()
+        self.id = get_uiid(uuid=uuid)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
 
@@ -105,10 +133,6 @@ class Project(Entity):
         # Private attributes
         self._local = local
         self._client = get_client() if not self.local else None
-        self._artifacts: list[Artifact] = []
-        self._functions: list[Function] = []
-        self._workflows: list[Workflow] = []
-        self._dataitems: list[Dataitem] = []
 
         # Set context
         set_context(self)
@@ -152,8 +176,9 @@ class Project(Entity):
             responses[i] = []
             for j in self._get_objects(i):
                 try:
-                    obj = j.save(uuid=j.id)
-                    responses[i].append(obj)
+                    _obj = constructor_from_dict(i)(j)
+                    resp = _obj.save(uuid=_obj.id)
+                    responses[i].append(resp)
                 except BackendError:
                     ...
 
@@ -174,14 +199,45 @@ class Project(Entity):
         None
         """
         obj = self.to_dict()
+        obj = self._parse_spec(obj)
+
         filename = filename if filename is not None else "project.yaml"
         self._export_object(filename, obj)
 
         # Export objects related to project if not embedded
         for i in DTO_LIST:
             for j in self._get_objects(i):
-                if not j.embedded:
-                    j.export()
+                _obj = constructor_from_dict(i)(j)
+                if not _obj.embedded:
+                    _obj.export()
+
+    @staticmethod
+    def _parse_spec(obj: dict) -> dict:
+        """
+        Parse spec dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Project dictionary.
+
+        Returns
+        -------
+        dict
+            New project dictionary.
+        """
+        spec = obj.get("spec", {})
+        new_spec: dict[str, list] = {}
+        for i in spec:
+            new_spec[i] = []
+            for j in spec[i]:
+                if not j.get("embedded", False):
+                    _dict = {k: v for k, v in j.items() if k in ["kind", "name", "id"]}
+                    new_spec[i].append(_dict)
+                else:
+                    new_spec[i].append(j)
+        obj["spec"] = new_spec
+        return obj
 
     #############################
     #  Generic operations for objects (artifacts, functions, workflows, dataitems)
@@ -189,7 +245,7 @@ class Project(Entity):
 
     def _add_object(self, obj: Entities, kind: str) -> None:
         """
-        Add object to project as class object and spec.
+        Add object to project as specification.
 
         Parameters
         ----------
@@ -203,15 +259,8 @@ class Project(Entity):
         None
         """
         self._check_kind(kind)
-
-        # Add to project spec
-        obj_dict = obj.to_dict_essential() if not obj.embedded else obj.to_dict()
-        attr = getattr(self.spec, kind, []) + [obj_dict]
+        attr = getattr(self.spec, kind, []) + [obj.to_dict()]
         setattr(self.spec, kind, attr)
-
-        # Add to project objects
-        attr = getattr(self, f"_{kind}", []) + [obj]
-        setattr(self, f"_{kind}", attr)
 
     def _delete_object(self, name: str, kind: str, uuid: str | None = None) -> None:
         """
@@ -230,24 +279,17 @@ class Project(Entity):
         -------
         None
         """
-        self._check_kind(kind)
-
         if uuid is None:
             attr_name = "name"
             var = name
         else:
             attr_name = "id"
             var = uuid
-
-        # Delete from project spec
+        self._check_kind(kind)
         spec_list = getattr(self.spec, kind, [])
         setattr(self.spec, kind, [i for i in spec_list if i.get(attr_name) != var])
 
-        # Delete from project objects
-        obj_list = getattr(self, f"_{kind}", [])
-        setattr(self, f"_{kind}", [i for i in obj_list if getattr(i, attr_name) != var])
-
-    def _get_objects(self, kind: str) -> list[Entities]:
+    def _get_objects(self, kind: str) -> list[dict]:
         """
         Get dtos objects related to project.
 
@@ -258,8 +300,8 @@ class Project(Entity):
 
         Returns
         -------
-        object
-            Object related to project.
+        list[dict]
+            List of objects related to project.
 
         Raises
         ------
@@ -267,7 +309,7 @@ class Project(Entity):
             If kind is not valid.
         """
         self._check_kind(kind)
-        return getattr(self, f"_{kind}", [])
+        return getattr(self.spec, kind, [])
 
     @staticmethod
     def _check_kind(kind: str) -> None:
@@ -815,18 +857,6 @@ class Project(Entity):
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
-
-        # Add objects to project from spec
-        spec = obj.get("spec", {})
-        for i in spec.get(DTO_FUNC, []):
-            _obj._add_object(create_function_from_dict(i), DTO_FUNC)
-        for i in spec.get(DTO_ARTF, []):
-            _obj._add_object(create_artifact_from_dict(i), DTO_ARTF)
-        for i in spec.get(DTO_WKFL, []):
-            _obj._add_object(create_workflow_from_dict(i), DTO_WKFL)
-        for i in spec.get(DTO_DTIT, []):
-            _obj._add_object(create_dataitem_from_dict(i), DTO_DTIT)
-
         return _obj
 
     @staticmethod

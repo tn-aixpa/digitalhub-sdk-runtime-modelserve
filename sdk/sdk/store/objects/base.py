@@ -2,7 +2,6 @@
 Store module.
 """
 from abc import ABCMeta, abstractmethod
-from typing import Optional
 
 import pandas as pd
 
@@ -68,7 +67,7 @@ class Store(metaclass=ABCMeta):
         name: str,
         store_type: str,
         uri: str,
-        config: Optional[dict] = None,
+        config: dict | None = None,
     ) -> None:
         """
         Constructor.
@@ -81,7 +80,7 @@ class Store(metaclass=ABCMeta):
             Store type.
         uri : str
             Store URI.
-        config : Optional[dict]
+        config : dict | None
             Store configuration, by default None
 
         Returns
@@ -91,7 +90,7 @@ class Store(metaclass=ABCMeta):
         self.name = name
         self.type = store_type
         self.uri = uri
-        self.config = config
+        self.config = config if config is not None else {}
         self.registry = ResourceRegistry()
 
         self._validate_uri()
