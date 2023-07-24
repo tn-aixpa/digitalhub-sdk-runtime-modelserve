@@ -1,3 +1,14 @@
+/**
+ * StateMachine.java
+ *
+ * This class represents a State Machine that handles the flow of states and transitions based on events and guards.
+ * It allows the definition of states and transitions along with their associated actions and guards.
+ *
+ * @param <S> The type of the states.
+ * @param <E> The type of the events.
+ * @param <C> The type of the context.
+ */
+
 package it.smartcommunitylabdhub.core.components.fsm;
 
 import java.util.HashMap;
@@ -25,9 +36,18 @@ public class StateMachine<S, E, C> {
     private BiConsumer<S, C> stateChangeListener;
     private C context;
 
+    /**
+     * Default constructor to create an empty StateMachine.
+     */
     public StateMachine() {
     }
 
+    /**
+     * Constructor to create a StateMachine with the initial state and context.
+     *
+     * @param initialState   The initial state of the StateMachine.
+     * @param initialContext The initial context for the StateMachine.
+     */
     public StateMachine(S initialState, C initialContext) {
         this.uuid = UUID.randomUUID().toString();
         this.currentState = initialState;
@@ -37,6 +57,13 @@ public class StateMachine<S, E, C> {
         this.context = initialContext;
     }
 
+    /**
+     * Static builder method to create a new StateMachine.
+     *
+     * @param initialState   The initial state of the StateMachine.
+     * @param initialContext The initial context for the StateMachine.
+     * @return A new Builder instance to configure and build the StateMachine.
+     */
     public static <S, E, C> Builder<S, E, C> builder(S initialState, C initialContext) {
         return new Builder<>(initialState, initialContext);
     }
@@ -96,9 +123,18 @@ public class StateMachine<S, E, C> {
 
     }
 
-    // Logic
+    /**
+     * Process an event in the StateMachine and trigger the appropriate transitions
+     * and actions.
+     *
+     * @param eventName The event name.
+     * @param input     The optional input associated with the event.
+     * @param <T>       The type of the result from processing the event.
+     * @param <R>       The type of the input for internal logic.
+     * @return An optional result from processing the event, if applicable.
+     */
     @SuppressWarnings("unchecked")
-    public <T, R> Optional<T> processEvent(E eventName, Optional<?> input) {
+    public <T> Optional<T> processEvent(E eventName, Optional<?> input) {
         State<S, E, C> currentStateDefinition = states.get(currentState);
         if (currentStateDefinition == null) {
             throw new IllegalStateException("Invalid current state: " + currentState + " : " + this.getUuid());
