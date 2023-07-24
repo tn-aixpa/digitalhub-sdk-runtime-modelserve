@@ -1,3 +1,10 @@
+/**
+ * PollingService.java
+ *
+ * This class provides a convenient interface to manage multiple Pollers.
+ * It allows creating, starting, stopping, and removing Pollers easily.
+ */
+
 package it.smartcommunitylabdhub.core.components.pollers;
 
 import java.util.HashMap;

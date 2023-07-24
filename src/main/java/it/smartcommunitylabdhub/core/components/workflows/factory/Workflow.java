@@ -1,4 +1,12 @@
 
+/**
+ * Workflow.java
+ *
+ * This class represents a workflow that executes a series of steps sequentially.
+ * Each step is represented as a Function, and the output of each step is passed as input to the next step.
+ * It provides both synchronous and asynchronous execution of the workflow.
+ */
+
 package it.smartcommunitylabdhub.core.components.workflows.factory;
 
 import java.util.List;
@@ -13,10 +21,12 @@ public class Workflow {
     }
 
     /**
-     * Execute step
+     * Execute the workflow synchronously.
      *
-     * @param input
-     * @return
+     * @param input The initial input for the workflow.
+     * @param <I>   The input type.
+     * @param <O>   The output type.
+     * @return The result of the workflow execution.
      */
     @SuppressWarnings("unchecked")
     public <I, O> O execute(I input) {
@@ -28,10 +38,13 @@ public class Workflow {
     }
 
     /**
-     * Execute step async every step pass the result to the next function.
+     * Execute the workflow asynchronously.
      *
-     * @param input
-     * @return
+     * @param input The initial input for the workflow.
+     * @param <I>   The input type.
+     * @param <O>   The output type.
+     * @return A CompletableFuture representing the result of the workflow
+     *         execution.
      */
     @SuppressWarnings("unchecked")
     public <I, O> CompletableFuture<O> executeAsync(I input) {

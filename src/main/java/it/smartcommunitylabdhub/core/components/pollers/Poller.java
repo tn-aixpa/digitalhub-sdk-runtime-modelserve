@@ -1,3 +1,11 @@
+/**
+ * Poller.java
+ *
+ * This class represents a Poller that facilitates the execution of a list of workflows at specified intervals.
+ * It schedules and runs the workflows asynchronously, allowing sequential execution of workflows and optionally
+ * rescheduling them after each round of execution.
+ */
+
 package it.smartcommunitylabdhub.core.components.pollers;
 
 import java.util.List;

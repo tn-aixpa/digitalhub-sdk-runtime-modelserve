@@ -1,3 +1,10 @@
+/**
+ * BaseWorkflowBuilder.java
+ *
+ * This class is a base class for workflow builders.
+ * It provides a RestTemplate and a ParameterizedTypeReference for making REST API calls.
+ */
+
 package it.smartcommunitylabdhub.core.components.workflows.functions;
 
 import java.util.Map;
