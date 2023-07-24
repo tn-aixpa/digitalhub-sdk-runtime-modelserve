@@ -5,16 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.smartcommunitylabdhub.core.annotations.RunWorkflowComponent;
 import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
@@ -118,8 +115,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 							MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
 								String uid = (String) metadata.get("uid");
 
-								// Call mlrun api to get log of specific
-								// run uid.
+								// Call mlrun api to get log of specific run uid.
 								ResponseEntity<String> logResponse = restTemplate.exchange(logUrl
 										.replace("{project}", runDTO.getProject()).replace("{uid}", uid),
 										HttpMethod.GET, entity, String.class);
@@ -138,8 +134,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 													.valueOf(artifact.get("kind").toString().toUpperCase())
 													.createAccessor(artifact);
 
-											// Create
-											// artifact
+											// Create artifact
 											ArtifactDTO artifactDTO = ArtifactDTO.builder()
 													.name(mlrunDataItemAccessor.getTree())
 													.project(mlrunDataItemAccessor.getProject())
@@ -148,15 +143,14 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 													.state(mlrunDataItemAccessor.getState().toUpperCase())
 													.build();
 
-											// Store
-											// artifact
+											// Store artifact
 											artifactDTO = this.artifactService.createArtifact(artifactDTO);
 
-											// Add
-											// artifact
-											// key
+											// Add artifact key
 											MapUtils.computeAndAddElement(runDTO.getExtra(), "artifacts",
-													ArtifactUtils.getKey(artifactDTO));
+													Map.of("key", mlrunDataItemAccessor.getKey(), "id",
+															ArtifactUtils.getKey(artifactDTO), "kind",
+															mlrunDataItemAccessor.getKind()));
 										});
 
 								// Save runs artifact keys

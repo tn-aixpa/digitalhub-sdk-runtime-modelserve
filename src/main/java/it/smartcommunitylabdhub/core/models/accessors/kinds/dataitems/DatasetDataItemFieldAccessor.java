@@ -9,11 +9,8 @@ public class DatasetDataItemFieldAccessor implements DataItemFieldAccessor {
 
     private final Map<String, Object> fields;
 
-    // private CommandFactory commandFactory;
-
     public DatasetDataItemFieldAccessor(Map<String, Object> fields) {
         this.fields = new LinkedHashMap<>(fields);
-        // this.commandFactory = ConversionUtils.getCommandFactory();
     }
 
     @Override

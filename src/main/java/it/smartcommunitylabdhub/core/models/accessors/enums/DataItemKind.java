@@ -5,7 +5,9 @@ import java.util.Map;
 
 import it.smartcommunitylabdhub.core.models.accessors.kinds.dataitems.DatasetDataItemFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.DataItemFieldAccessor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public enum DataItemKind {
 
     DATASET("dataset", DatasetDataItemFieldAccessor::new, DatasetDataItemFieldAccessor.class);
@@ -37,7 +39,7 @@ public enum DataItemKind {
                 return (T) method.invoke(accessor);
             } catch (Exception e) {
                 // Handle any exceptions that occur during method invocation
-                System.out.println(e.getMessage());
+                log.error(e.getMessage());
             }
         }
         return null;
