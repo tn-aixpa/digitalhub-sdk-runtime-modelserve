@@ -83,7 +83,7 @@ public class State<S, E, C> {
      * @param entryAction The entry action as a Consumer instance.
      * @param <T>         The type of the input for the entry action.
      */
-    public <T> void setEntryAction(Consumer<C> entryAction) {
+    public void setEntryAction(Consumer<C> entryAction) {
         this.entryAction = Optional.of(entryAction);
     }
 
