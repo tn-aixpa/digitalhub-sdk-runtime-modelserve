@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 
+// TODO: put as example in documentation.
 @RestController
 @RequestMapping("/projects")
 @ApiVersion("v2")

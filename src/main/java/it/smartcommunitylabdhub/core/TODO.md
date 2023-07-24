@@ -125,3 +125,19 @@ for any entities task, log, function, artifact , dataitem, project, workflow che
 // [x]
 
 dalla chiave ricevuta outputs:["dataset"] salvo nella run con la chiave "dataset" i risultati della run quindi i riferimenti artifact con questo formato : "store://<project>/artifacts/<kind>/<name>:<uuid>"
+
+// TODO:
+
+- Object list instead of list of "store://<project>/artifacts/<kind>/<name>:<uuid>"
+
+```json
+output :["<key>", "..."]
+[
+  {
+    key: "dataset" ,
+    id: "store://<project>/artifacts/<kind>/<name>:<uuid>",
+    kind: "dataitem"
+  },
+....
+]
+```

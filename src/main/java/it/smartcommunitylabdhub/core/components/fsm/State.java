@@ -1,12 +1,11 @@
 package it.smartcommunitylabdhub.core.components.fsm;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class State<S, E, C> implements Serializable {
+public class State<S, E, C> {
 
     private Optional<Consumer<C>> entryAction;
     private Optional<Consumer<C>> exitAction;

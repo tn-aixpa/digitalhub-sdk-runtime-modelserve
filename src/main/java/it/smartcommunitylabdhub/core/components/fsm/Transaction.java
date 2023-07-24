@@ -1,10 +1,9 @@
 package it.smartcommunitylabdhub.core.components.fsm;
 
-import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
-public class Transaction<S, E, C> implements Serializable {
+public class Transaction<S, E, C> {
     private E event;
     private S nextState;
     private BiPredicate<Optional<?>, C> guard;

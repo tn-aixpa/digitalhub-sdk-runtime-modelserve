@@ -1,7 +1,5 @@
 package it.smartcommunitylabdhub.core.components.fsm;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,13 +9,14 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
 @Getter
 @Setter
-public class StateMachine<S, E, C> implements Serializable {
+@Log4j2
+public class StateMachine<S, E, C> {
     private String uuid;
     private S currentState;
     private S errorState;
@@ -42,16 +41,8 @@ public class StateMachine<S, E, C> implements Serializable {
         return new Builder<>(initialState, initialContext);
     }
 
-    public String serialize() throws IOException {
-        return null;
-    }
-
-    public static <S, E, C> StateMachine<S, E, C> deserialize(String data) throws IOException {
-        return null;
-    }
-
     // Builder
-    public static class Builder<S, E, C> implements Serializable {
+    public static class Builder<S, E, C> {
         private S currentState;
         private S errorState;
         private Map<S, State<S, E, C>> states;
@@ -75,9 +66,7 @@ public class StateMachine<S, E, C> implements Serializable {
             this.errorState = errorState;
 
             // Add the error state to the states map if it doesn't exist
-            if (!states.containsKey(errorState)) {
-                states.put(errorState, stateDefinition);
-            }
+            states.putIfAbsent(errorState, stateDefinition);
             return this;
         }
 
@@ -92,7 +81,7 @@ public class StateMachine<S, E, C> implements Serializable {
         }
 
         public Builder<S, E, C> withExternalEventListener(E eventName, Consumer<Optional<?>> listener) {
-            eventListeners.put(eventName, (input, context) -> listener.accept((Optional<?>) input));
+            eventListeners.put(eventName, (input, ctx) -> listener.accept((Optional<?>) input));
             return this;
         }
 
@@ -118,8 +107,8 @@ public class StateMachine<S, E, C> implements Serializable {
         // Exit action of the current state
         currentStateDefinition.getExitAction().ifPresent(action -> action.accept(context));
 
-        Optional<Transaction<S, E, C>> matchingTransaction = Optional.ofNullable(
-                currentStateDefinition.getTransactions().get(eventName));
+        Optional<Transaction<S, E, C>> matchingTransaction = Optional
+                .ofNullable(currentStateDefinition.getTransactions().get(eventName));
 
         if (matchingTransaction.isPresent()) {
             Transaction<S, E, C> transaction = matchingTransaction.get();
@@ -142,18 +131,19 @@ public class StateMachine<S, E, C> implements Serializable {
                 // Notify state change listener
                 notifyStateChangeListener(currentState);
 
-                Optional<T> result = (Optional<T>) nextStateDefinition.getInternalLogic()
-                        .map(internalFunc -> applyInternalFunc(
-                                (inputValue, contextValue, stateMachineValue) -> internalFunc.applyLogic(inputValue,
-                                        contextValue, stateMachineValue),
-                                input.orElse(null))
+                Optional<T> result = (Optional<T>) nextStateDefinition
+                        .getInternalLogic().map(
+                                internalFunc -> applyInternalFunc(
+                                        (inputValue, contextValue, stateMachineValue) -> internalFunc
+                                                .applyLogic(inputValue, contextValue, stateMachineValue),
+                                        input.orElse(null))
 
                         ).orElse(Optional.empty());
 
                 // Apply auto transition passing the input
-                List<Transaction<S, E, C>> autoTransactions = nextStateDefinition.getTransactions()
-                        .entrySet().stream().filter(entry -> entry.getValue().isAuto())
-                        .map(Map.Entry::getValue).collect(Collectors.toList());
+                List<Transaction<S, E, C>> autoTransactions = nextStateDefinition.getTransactions().entrySet().stream()
+                        .filter(entry -> entry.getValue().isAuto()).map(Map.Entry::getValue)
+                        .collect(Collectors.toList());
                 for (Transaction<S, E, C> autoTransaction : autoTransactions) {
                     if (autoTransaction.getGuard().test(result, context)) {
                         processEvent(autoTransaction.getEvent(), input);
@@ -161,16 +151,13 @@ public class StateMachine<S, E, C> implements Serializable {
                 }
                 return result;
             } else {
-                System.out.println("Guard condition not met for transaction: " + transaction + " : " + this.getUuid());
+                log.info("Guard condition not met for transaction: " + transaction + " : " + this.getUuid());
                 // Handle error scenario
                 return (Optional<T>) handleTransactionError(transaction, input);
             }
         } else {
-            System.out.println("Invalid transaction for event: "
-                    + eventName
-                    + " : "
-                    + this.getUuid() + "\n"
-                    + "Current state : " + currentState.toString());
+            log.info("Invalid transaction for event: " + eventName + " : " + this.getUuid() + "\n" + "Current state : "
+                    + currentState.toString());
             // Handle error scenario
             return (Optional<T>) handleInvalidTransactionError(eventName, input);
         }

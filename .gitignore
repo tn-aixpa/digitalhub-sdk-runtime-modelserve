@@ -34,3 +34,6 @@ build/
 
 ### Env variable ###
 .env
+
+### Checkstyle folder###
+/src/checkstyle
