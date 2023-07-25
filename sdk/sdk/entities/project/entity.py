@@ -53,6 +53,7 @@ if typing.TYPE_CHECKING:
     from sdk.entities.project.metadata import ProjectMetadata
     from sdk.entities.project.spec import ProjectSpec
     from sdk.entities.workflow.entity import Workflow
+
     Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)
 
 
@@ -60,7 +61,9 @@ DTO_LIST = [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]
 SPEC_LIST = DTO_LIST + ["source", "context"]
 
 
-def constructor_from_dict(dto: str) -> Callable[[dict], Artifact | Function | Workflow | Dataitem]:
+def constructor_from_dict(
+    dto: str,
+) -> Callable[[dict], Artifact | Function | Workflow | Dataitem]:
     """
     Get constructor for dto.
 

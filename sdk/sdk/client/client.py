@@ -32,7 +32,7 @@ class Client:
         dict
             The created object.
         """
-        return self.call("POST", api, json=obj)
+        return self._call("POST", api, json=obj)
 
     def read_object(self, api: str) -> dict:
         """
@@ -48,7 +48,7 @@ class Client:
         dict
             The object.
         """
-        return self.call("GET", api)
+        return self._call("GET", api)
 
     def update_object(self, obj: dict, api: str) -> dict:
         """
@@ -66,7 +66,7 @@ class Client:
         dict
             The updated object.
         """
-        return self.call("PUT", api, json=obj)
+        return self._call("PUT", api, json=obj)
 
     def delete_object(self, api: str) -> dict:
         """
@@ -82,12 +82,12 @@ class Client:
         dict
             A generic dictionary.
         """
-        resp = self.call("DELETE", api)
+        resp = self._call("DELETE", api)
         if isinstance(resp, bool):
             resp = {"deleted": resp}
         return resp
 
-    def call(self, call_type: str, api: str, **kwargs) -> dict:
+    def _call(self, call_type: str, api: str, **kwargs) -> dict:
         """
         Make a call to the DHCore API.
         Keyword arguments are passed to the session.request function.

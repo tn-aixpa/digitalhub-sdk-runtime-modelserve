@@ -13,10 +13,12 @@ class ArtifactMetadata(EntityMetadata):
 def build_metadata(**kwargs) -> ArtifactMetadata:
     """
     Build an ArtifactMetadata object with the given parameters.
+
     Parameters
     ----------
     **kwargs : dict
         Keywords to pass to the constructor.
+
     Returns
     -------
     ArtifactMetadata
