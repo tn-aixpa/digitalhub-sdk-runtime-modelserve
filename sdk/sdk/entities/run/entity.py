@@ -170,22 +170,31 @@ class Run(Entity):
         api = api_base_read(DTO_RUNS, self.id) + "/log"
         return self._context.read_object(api)
 
-    def get_artifact(self) -> Artifact:
+    def get_artifacts(self, output_key: str | None = None) -> Artifact | list[Artifact]:
         """
-        Get artifact from backend produced by the run.
+        Get artifact(s) from backend produced by the run through its key.
+
+        Parameters
+        ----------
+        output_key : str, optional
+            Key of the artifact to get. If not provided, returns all artifacts.
 
         Returns
         -------
-        Artifact
-            Artifact from backend.
+        Artifact | list[Artifact]
+            Artifact(s) from backend.
         """
         resp = self.refresh()
         result = resp.get("artifacts")
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
-        if isinstance(result, list):
-            result = result[0]
-        return get_artifact_from_key(result)
+        if output_key is not None:
+            _id = next((r.get("id") for r in result if r.get("key") == output_key), None)
+            if _id is None:
+                raise EntityError(f"No artifact found with key '{output_key}'.")
+            return get_artifact_from_key(_id)
+        else:
+            return [get_artifact_from_key(r.get("id")) for r in result]
 
     #############################
     #  Getters and Setters

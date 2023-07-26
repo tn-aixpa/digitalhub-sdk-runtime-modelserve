@@ -40,16 +40,19 @@ class ArtifactSpec(EntitySpec):
 def build_spec(kind: str, **kwargs) -> ArtifactSpec:
     """
     Build an ArtifactSpecJob object with the given parameters.
+
     Parameters
     ----------
     kind : str
         The type of ArtifactSpec to build.
     **kwargs : dict
         Keywords to pass to the constructor.
+
     Returns
     -------
     ArtifactSpec
         An ArtifactSpecJob object with the given parameters.
+
     Raises
     ------
     ValueError

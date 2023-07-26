@@ -107,7 +107,7 @@ def get_extension(uri: str) -> str:
     return Path(uri).suffix[1:]
 
 
-def build_key(dst: str, *args) -> str:
+def build_key(dst: str) -> str:
     """
     Build key to upload objects.
 
@@ -121,57 +121,10 @@ def build_key(dst: str, *args) -> str:
     str
         Key.
     """
-    key = str(Path(get_uri_path(dst), *args))
+    key = get_uri_path(dst)
     if key.startswith("/"):
         key = key[1:]
     return key
-
-
-def rebuild_uri(uri: str, *args) -> str:
-    """
-    Rebuild an URI.
-
-    Parameters
-    ----------
-    uri : str
-        URI.
-
-    Returns
-    -------
-    str
-        Rebuilt URI.
-    """
-    parsed = parse_uri(uri)
-    new_path = str(Path(parsed.path, *args))
-    new_uri = urlunparse(
-        (
-            parsed.scheme,
-            parsed.netloc,
-            new_path,
-            parsed.params,
-            parsed.query,
-            parsed.fragment,
-        )
-    )
-    return new_uri
-
-
-def clean_uri(url: str) -> str:
-    """
-    Parse an URI and clean it from double '/' character.
-
-    Parameters
-    ----------
-    url : str
-        URL.
-
-    Returns
-    -------
-    str
-        Cleaned URL.
-    """
-    parsed = get_uri_path(url).replace("//", "/")
-    return urljoin(url, parsed)
 
 
 def as_uri(path: str) -> str:
@@ -190,7 +143,7 @@ def as_uri(path: str) -> str:
 
     Notes
     -----
-    If path is a relative path, it will be returned as is.
+    If path is a relative path, it will be returned as it is.
     """
     try:
         return Path(path).as_uri()

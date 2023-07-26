@@ -37,3 +37,6 @@ build/
 
 ### Checkstyle folder###
 /src/checkstyle
+
+### Sonar ###
+.scannerwork/

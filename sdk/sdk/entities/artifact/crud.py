@@ -143,7 +143,10 @@ def get_artifact_from_key(key: str) -> Artifact:
         It's format is store://<project>/artifacts/<kind>/<name>:<uuid>.
     """
     import re
-    pattern: str = r"store://(?P<project>\w+)/(.*)/(?P<name>\w+):(?P<uuid>[A-Za-z0-9\-\_]+)"
+
+    pattern: str = (
+        r"store://(?P<project>\w+)/(.*)/(?P<name>\w+):(?P<uuid>[A-Za-z0-9\-\_]+)"
+    )
     match = re.match(pattern, key)
     if match is None:
         raise ValueError("Invalid key format.")

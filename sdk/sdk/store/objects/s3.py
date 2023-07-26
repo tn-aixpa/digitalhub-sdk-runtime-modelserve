@@ -21,7 +21,6 @@ from sdk.utils.uri_utils import (
     get_uri_netloc,
     get_uri_path,
     get_uri_scheme,
-    rebuild_uri,
 )
 
 if typing.TYPE_CHECKING:
@@ -48,7 +47,7 @@ class S3Store(Store):
 
         See Also
         --------
-        self.fetch_artifact
+        fetch_artifact
         """
         return self.fetch_artifact(src, dst)
 
@@ -95,7 +94,7 @@ class S3Store(Store):
 
         See Also
         --------
-        self.persist_artifact
+        persist_artifact
         """
         return self.persist_artifact(src, dst)
 
@@ -127,11 +126,11 @@ class S3Store(Store):
         self._check_access_to_storage(client, bucket)
 
         # Rebuild key from target path
-        key = build_key(get_uri_path(dst))
+        key = build_key(dst)
 
         # Upload file to S3
         client.upload_file(Filename=src, Bucket=bucket, Key=key)
-        return rebuild_uri(f"s3://{bucket}/{key}")
+        return f"s3://{bucket}/{key}"
 
     def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
         """
@@ -169,7 +168,7 @@ class S3Store(Store):
         client.put_object(Bucket=bucket, Key=key, Body=out_buffer.getvalue())
 
         # Return uri where dataframe was saved
-        return rebuild_uri(f"s3://{bucket}/{key}")
+        return f"s3://{bucket}/{key}"
 
     ############################
     # Private helper methods

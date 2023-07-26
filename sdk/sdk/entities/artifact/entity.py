@@ -12,8 +12,8 @@ from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
-from sdk.utils.file_utils import check_file, get_dir
-from sdk.utils.uri_utils import get_name_from_uri, get_uri_scheme, rebuild_uri
+from sdk.utils.file_utils import check_file
+from sdk.utils.uri_utils import build_key, get_name_from_uri, get_uri_scheme
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.metadata import ArtifactMetadata
@@ -226,6 +226,8 @@ class Artifact(Entity):
         """
         # Get store
         store = get_default_store()
+        if store.is_local():
+            raise EntityError("Cannot target local store for upload.")
 
         # Check if source path is provided and if it is local
         src = self._parameter_or_default(source, self.spec.src_path)
@@ -233,11 +235,7 @@ class Artifact(Entity):
 
         # Check if target path is provided and if it is remote
         if self.spec.target_path is None and target is None:
-            store_scheme = get_uri_scheme(store.uri)
-            path = get_dir(src)
-            filename = get_name_from_uri(src)
-            target = rebuild_uri(f"{store_scheme}://{path}/{filename}")
-
+            target = f"{get_uri_scheme(store.uri)}://{build_key(src)}"
         trg = self._parameter_or_default(target, self.spec.target_path)
         self._check_locality(trg)
 

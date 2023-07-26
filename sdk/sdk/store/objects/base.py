@@ -6,10 +6,12 @@ from abc import ABCMeta, abstractmethod
 import pandas as pd
 
 
-class ResourceRegistry(dict):
+class _ResourceRegistry(dict):
     """
     Registry object to keep track of resources fetched from a backend
     and their temporary local paths.
+    It is used to avoid fetching the same resource multiple times.
+    This class is private and should not be used directly.
     """
 
     def set_resource(self, res_name: str, path: str) -> None:
@@ -91,7 +93,9 @@ class Store(metaclass=ABCMeta):
         self.type = store_type
         self.uri = uri
         self.config = config if config is not None else {}
-        self.registry = ResourceRegistry()
+
+        # Private attributes
+        self._registry = _ResourceRegistry()
 
         self._validate_uri()
 
@@ -190,10 +194,10 @@ class Store(metaclass=ABCMeta):
         """
         Register a resource in the registry.
         """
-        self.registry.set_resource(key, path)
+        self._registry.set_resource(key, path)
 
     def get_resource(self, key: str) -> str | None:
         """
         Get a resource from the registry.
         """
-        return self.registry.get_resource(key)
+        return self._registry.get_resource(key)

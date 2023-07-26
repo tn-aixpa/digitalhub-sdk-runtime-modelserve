@@ -71,11 +71,6 @@ class FunctionSpecJob(FunctionSpec):
         ----------
         requirements : list
             List of requirements for the Function.
-
-        See Also
-        --------
-        FunctionSpec.__init__
-
         """
         super().__init__(
             source,

@@ -1,5 +1,5 @@
 """
-Context utilities.
+Factory module.
 """
 from __future__ import annotations
 
