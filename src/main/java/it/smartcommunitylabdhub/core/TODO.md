@@ -141,3 +141,9 @@ output :["<key>", "..."]
 ....
 ]
 ```
+
+// [x]: Come creare l'immagine del backend ed eseguirla.
+
+1. creare immagine : mvn spring-boot:build-image -f "/home/ltrubbiani/Labs/digitalhub-core/core/pom.xml" -DskipTests=true
+
+2. Descrivere le varie entita' : Progetti, funzioni, .....
