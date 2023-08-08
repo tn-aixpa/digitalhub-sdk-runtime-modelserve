@@ -32,5 +32,6 @@ from sdk.entities.workflow.crud import (
     new_workflow,
 )
 from sdk.store.models import StoreConfig
+from sdk.client.env_utils import set_dhub_env
 from sdk.client.models import DHCoreConfig
 from sdk.utils.factories import set_store

@@ -13,7 +13,12 @@ from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context, get_default_store
 from sdk.utils.file_utils import check_file
-from sdk.utils.uri_utils import build_key, get_name_from_uri, get_uri_scheme
+from sdk.utils.uri_utils import (
+    build_key,
+    get_name_from_uri,
+    get_uri_netloc,
+    get_uri_scheme,
+)
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.metadata import ArtifactMetadata
@@ -235,7 +240,7 @@ class Artifact(Entity):
 
         # Check if target path is provided and if it is remote
         if self.spec.target_path is None and target is None:
-            target = f"{get_uri_scheme(store.uri)}://{build_key(src)}"
+            target = f"{get_uri_scheme(store.uri)}://{get_uri_netloc(store.uri)}/{build_key(src)}"
         trg = self._parameter_or_default(target, self.spec.target_path)
         self._check_locality(trg)
 

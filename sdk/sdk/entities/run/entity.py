@@ -189,7 +189,9 @@ class Run(Entity):
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
         if output_key is not None:
-            _id = next((r.get("id") for r in result if r.get("key") == output_key), None)
+            _id = next(
+                (r.get("id") for r in result if r.get("key") == output_key), None
+            )
             if _id is None:
                 raise EntityError(f"No artifact found with key '{output_key}'.")
             return get_artifact_from_key(_id)

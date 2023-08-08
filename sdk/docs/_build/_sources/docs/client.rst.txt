@@ -1,0 +1,36 @@
+Client
+======
+
+Client
+----------------
+
+.. automodule:: sdk.client.client
+    :members:
+    :private-members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Client builder
+----------------
+
+.. automodule:: sdk.client.builder
+    :members:
+    :private-members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Env utils
+----------------
+
+.. automodule:: sdk.client.env_utils
+    :members:
+    :private-members:
+    :undoc-members:
+    :show-inheritance:
+
+Models
+----------------
+
+.. autopydantic_model:: sdk.client.models::DHCoreConfig
