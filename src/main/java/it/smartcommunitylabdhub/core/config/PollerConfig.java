@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.mlrun.config;
+package it.smartcommunitylabdhub.core.config;
 
 import java.util.ArrayList;
 import java.util.List;
