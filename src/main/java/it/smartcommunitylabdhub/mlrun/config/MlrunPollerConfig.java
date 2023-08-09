@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.config;
+package it.smartcommunitylabdhub.mlrun.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import it.smartcommunitylabdhub.mlrun.components.pollers.functions.FunctionWorkf
 import jakarta.annotation.PostConstruct;
 
 @Configuration
-public class PollerConfig {
+public class MlrunPollerConfig {
 
     @Autowired
     private PollingService pollingService;
