@@ -40,11 +40,11 @@ postgres:
             schema: public
     target: dev
         """.format(
-                db_host=os.environ["DBT_DB_HOST"],
-                db_user=os.environ["DBT_DB_USER"],
-                db_pass=os.environ["DBT_DB_PASS"],
-                db_port=os.environ["DBT_DB_PORT"],
-                db_name=os.environ["DBT_DB_NAME"],
+                db_host=os.environ["POSTGRES_DB_HOST"],
+                db_user=os.environ["POSTGRES_USER"],
+                db_pass=os.environ["POSTGRES_PASSWORD"],
+                db_port=os.environ["POSTGRES_PORT"],
+                db_name=os.environ["POSTGRES_DB"],
             )
         )
 

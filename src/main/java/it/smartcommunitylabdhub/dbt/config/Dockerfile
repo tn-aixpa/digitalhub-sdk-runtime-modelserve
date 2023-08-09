@@ -1,12 +1,5 @@
 FROM ghcr.io/dbt-labs/dbt-core:latest
 
-# Set environment variables
-ENV DBT_DB_HOST=postgres
-ENV DBT_DB_USER=testuser
-ENV DBT_DB_PASS=testpassword
-ENV DBT_DB_PORT=5432
-ENV DBT_DB_NAME=dbt
-
 # Set working dir
 WORKDIR /app/
 
