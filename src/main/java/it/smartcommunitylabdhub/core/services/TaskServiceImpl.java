@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
@@ -35,24 +37,17 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskDTO> getTasks(Pageable pageable) {
         try {
             Page<Task> TaskPage = this.taskRepository.findAll(pageable);
-            return TaskPage.getContent().stream()
-                    .map(task -> taskDTOBuilder.build(task))
-                    .collect(Collectors.toList());
+            return TaskPage.getContent().stream().map(task -> taskDTOBuilder.build(task)).collect(Collectors.toList());
 
         } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CoreException("InternalServerError", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
     public TaskDTO getTask(String uuid) {
         return taskRepository.findById(uuid).map(task -> taskDTOBuilder.build(task))
-                .orElseThrow(() -> new CoreException(
-                        "TaskNotFound",
-                        "The Task you are searching for does not exist.",
+                .orElseThrow(() -> new CoreException("TaskNotFound", "The Task you are searching for does not exist.",
                         HttpStatus.NOT_FOUND));
     }
 
@@ -62,44 +57,40 @@ public class TaskServiceImpl implements TaskService {
             this.taskRepository.deleteById(uuid);
             return true;
         } catch (Exception e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    "cannot delete artifact",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CoreException("InternalServerError", "cannot delete artifact", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
         if (taskDTO.getId() != null && taskRepository.existsById(taskDTO.getId())) {
-            throw new CoreException("DuplicateTaskId",
+            throw new CoreException("DuplicateTaskId", "Cannot create the task", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
+        if (!taskDTO.getProject().equals(taskAccessor.getProject())) {
+            throw new CoreException("Task string Project and associated Project does not match",
                     "Cannot create the task", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        Optional<Task> savedTask = Optional.ofNullable(taskDTO)
-                .map(taskEntityBuilder::build)
+
+        Optional<Task> savedTask = Optional.ofNullable(taskDTO).map(taskEntityBuilder::build)
                 .map(this.taskRepository::save);
 
-        return savedTask.map(task -> taskDTOBuilder.build(task))
-                .orElseThrow(() -> new CoreException(
-                        "InternalServerError",
-                        "Error saving task",
-                        HttpStatus.INTERNAL_SERVER_ERROR));
+        return savedTask.map(task -> taskDTOBuilder.build(task)).orElseThrow(
+                () -> new CoreException("InternalServerError", "Error saving task", HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @Override
     public TaskDTO updateTask(TaskDTO taskDTO, String uuid) {
         if (!taskDTO.getId().equals(uuid)) {
-            throw new CoreException(
-                    "TaskNotMatch",
+            throw new CoreException("TaskNotMatch",
                     "Trying to update a task with an uuid different from the one passed in the request.",
                     HttpStatus.NOT_FOUND);
         }
 
         final Task task = taskRepository.findById(uuid).orElse(null);
         if (task == null) {
-            throw new CoreException(
-                    "TaskNotFound",
-                    "The task you are searching for does not exist.",
+            throw new CoreException("TaskNotFound", "The task you are searching for does not exist.",
                     HttpStatus.NOT_FOUND);
         }
 
@@ -110,10 +101,7 @@ public class TaskServiceImpl implements TaskService {
             return taskDTOBuilder.build(taskUpdated);
 
         } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CoreException("InternalServerError", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

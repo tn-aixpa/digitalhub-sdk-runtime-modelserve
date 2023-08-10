@@ -4,8 +4,6 @@ package it.smartcommunitylabdhub.mlrun.components.runnables.events.listeners;
 import it.smartcommunitylabdhub.core.components.events.messages.RunMessage;
 import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
@@ -28,8 +26,8 @@ public class JobEventListener {
 
     private final RunService runService;
 
-    public JobEventListener(RunDTOBuilder runDTOBuilder, RunEntityBuilder runEntityBuilder, RunService runService,
-            ApplicationEventPublisher eventPublisher, KindService<Map<String, Object>> jobService) {
+    public JobEventListener(RunService runService, ApplicationEventPublisher eventPublisher,
+            KindService<Map<String, Object>> jobService) {
         this.runService = runService;
         this.eventPublisher = eventPublisher;
         this.jobService = jobService;

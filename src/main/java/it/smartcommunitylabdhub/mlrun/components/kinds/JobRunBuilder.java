@@ -1,5 +1,8 @@
 package it.smartcommunitylabdhub.mlrun.components.kinds;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
+import it.smartcommunitylabdhub.core.utils.MapUtils;
 
 @RunBuilderComponent(type = "job")
 public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
@@ -27,46 +31,35 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
         @Override
         public RunDTO build(TaskDTO taskDTO) {
                 // 1. get function get if exist otherwise throw exeception.
-                return taskRepository.findById(taskDTO.getId())
-                                .map(task -> {
-                                        // 1. produce function object for mlrun and put it on spec.
-                                        TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
+                return taskRepository.findById(taskDTO.getId()).map(task -> {
+                        // 1. produce function object for mlrun and put it on spec.
+                        TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
 
-                                        FunctionDTO functionDTO = functionService
-                                                        .getFunction(taskAccessor.getVersion());
+                        FunctionDTO functionDTO = functionService.getFunction(taskAccessor.getVersion());
 
-                                        // 2. set function on spec for mlrun
-                                        return Optional.ofNullable(functionDTO.getExtra().get("mlrun_hash"))
-                                                        .map(mlrunHash -> {
+                        // 2. set function on spec for mlrun
+                        return Optional.ofNullable(functionDTO.getExtra().get("mlrun_hash")).map(mlrunHash -> {
 
-                                                                // 3. set function on spec
-                                                                taskDTO.getSpec().put("function",
-                                                                                functionDTO.getProject()
-                                                                                                + "/"
-                                                                                                + functionDTO.getName()
-                                                                                                + "@"
-                                                                                                + mlrunHash);
+                                // 3. set function on spec
+                                taskDTO.getSpec().put("function", functionDTO.getProject() + "/" + functionDTO.getName()
+                                                + "@" + mlrunHash);
 
-                                                                // 4. Merge Task spec with function spec
-                                                                functionDTO.getSpec().putAll(taskDTO.getSpec());
+                                // 4. Merge Task spec with function spec
+                                // functionDTO.getSpec().putAll(taskDTO.getSpec());
+                                // MapUtils.mergeMaps(functionDTO.getSpec(), taskDTO.getSpec());
+                                Map<String, Object> mergedSpec = MapUtils.mergeMaps(functionDTO.getSpec(),
+                                                taskDTO.getSpec(), (oldValue, newValue) -> newValue);
 
-                                                                // 5. produce a run object and store it
-                                                                return RunDTO.builder()
-                                                                                .kind("run")
-                                                                                .taskId(task.getId())
-                                                                                .project(task.getProject())
-                                                                                .task(task.getTask())
-                                                                                .spec(functionDTO.getSpec())
-                                                                                .build();
+                                // 5. produce a run object and store it
+                                return RunDTO.builder().kind("run").taskId(task.getId()).project(task.getProject())
+                                                .task(task.getTask()).spec(mergedSpec).build();
 
-                                                        }).orElseThrow(() -> new CoreException("MLrunHashNotFound",
-                                                                        "Cannot prepare mlrun function. Mlrun hash not found!",
-                                                                        HttpStatus.INTERNAL_SERVER_ERROR));
+                        }).orElseThrow(() -> new CoreException("MLrunHashNotFound",
+                                        "Cannot prepare mlrun function. Mlrun hash not found!",
+                                        HttpStatus.INTERNAL_SERVER_ERROR));
 
-                                }).orElseThrow(() -> new CoreException(
-                                                "FunctionNotFound",
-                                                "The function you are searching for does not exist.",
-                                                HttpStatus.NOT_FOUND));
+                }).orElseThrow(() -> new CoreException("FunctionNotFound",
+                                "The function you are searching for does not exist.", HttpStatus.NOT_FOUND));
 
         }
 }

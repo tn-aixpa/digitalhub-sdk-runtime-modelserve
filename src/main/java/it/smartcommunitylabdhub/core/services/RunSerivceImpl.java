@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
+import it.smartcommunitylabdhub.core.utils.MapUtils;
 
 @Service
 public class RunSerivceImpl implements RunService {
@@ -49,25 +51,17 @@ public class RunSerivceImpl implements RunService {
     public List<RunDTO> getRuns(Pageable pageable) {
         try {
             Page<Run> runPage = this.runRepository.findAll(pageable);
-            return runPage.getContent().stream()
-                    .map(run -> runDTOBuilder.build(run))
-                    .collect(Collectors.toList());
+            return runPage.getContent().stream().map(run -> runDTOBuilder.build(run)).collect(Collectors.toList());
 
         } catch (CustomException e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CoreException("InternalServerError", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
     public RunDTO getRun(String uuid) {
-        return runRepository.findById(uuid)
-                .map(run -> runDTOBuilder.build(run))
-                .orElseThrow(() -> new CoreException(
-                        "RunNotFound",
-                        "The run you are searching for does not exist.",
+        return runRepository.findById(uuid).map(run -> runDTOBuilder.build(run))
+                .orElseThrow(() -> new CoreException("RunNotFound", "The run you are searching for does not exist.",
                         HttpStatus.NOT_FOUND));
     }
 
@@ -77,10 +71,7 @@ public class RunSerivceImpl implements RunService {
             this.runRepository.deleteById(uuid);
             return true;
         } catch (Exception e) {
-            throw new CoreException(
-                    "InternalServerError",
-                    "cannot delete artifact",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CoreException("InternalServerError", "cannot delete artifact", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -88,51 +79,43 @@ public class RunSerivceImpl implements RunService {
     public RunDTO save(RunDTO runDTO) {
 
         return Optional.ofNullable(this.runRepository.save(runEntityBuilder.build(runDTO)))
-                .map(run -> runDTOBuilder.build(run))
-                .orElseThrow(() -> new CoreException(
-                        "RunSaveError",
-                        "Problem while saving the run.",
-                        HttpStatus.NOT_FOUND));
+                .map(run -> runDTOBuilder.build(run)).orElseThrow(
+                        () -> new CoreException("RunSaveError", "Problem while saving the run.", HttpStatus.NOT_FOUND));
     }
 
     @Override
     public RunDTO createRun(RunExecDTO runExecDTO) {
 
-        return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskId()))
-                .map(taskDTO -> {
+        return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskId())).map(taskDTO -> {
 
-                    // parse task to get accessor
-                    TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
+            // parse task to get accessor
+            TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
 
-                    // build run from task
-                    RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder(taskAccessor.getKind())
-                            .build(taskDTO);
+            // build run from task
+            RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder(taskAccessor.getKind()).build(taskDTO);
 
-                    // if extra field contained override if field in dto is present otherwise put in
-                    // extra runDTO
-                    runExecDTO.overrideFields(runDTO);
+            // if extra field contained override if field in dto is present otherwise put in
+            // extra runDTO
+            runExecDTO.overrideFields(runDTO);
 
-                    // Add also run spec
-                    runDTO.getSpec().putAll(runExecDTO.getSpec());
+            // add also run spec
+            // runDTO.getSpec().putAll(runExecDTO.getSpec());
+            Map<String, Object> mergedSpec = MapUtils.mergeMaps(runDTO.getSpec(), runExecDTO.getSpec(),
+                    (oldValue, newValue) -> newValue);
+            runDTO.setSpec(mergedSpec);
 
-                    // save run
-                    Run run = runRepository.save(runEntityBuilder.build(runDTO));
+            // save run
+            Run run = runRepository.save(runEntityBuilder.build(runDTO));
 
-                    // exec run and return run dto
-                    return Optional.ofNullable(runDTOBuilder.build(run)).map(
-                            r -> {
-                                // // Override all spec
-                                // r.getSpec().putAll(runExecDTO.getSpec());
-                                runPublisherFactory.getPublisher(taskAccessor.getKind()).publish(r);
-                                return r;
-                            }).orElseThrow(() -> new CoreException(
-                                    "",
-                                    "",
-                                    HttpStatus.INTERNAL_SERVER_ERROR));
-                }).orElseThrow(() -> new CoreException(
-                        "RunNotFound",
-                        "The run you are searching for does not exist.",
-                        HttpStatus.NOT_FOUND));
+            // exec run and return run dto
+            return Optional.ofNullable(runDTOBuilder.build(run)).map(r -> {
+
+                // publish event to the right listener
+                runPublisherFactory.getPublisher(taskAccessor.getKind()).publish(r);
+                return r;
+            }).orElseThrow(() -> new CoreException("", "", HttpStatus.INTERNAL_SERVER_ERROR));
+        }).orElseThrow(() -> new CoreException("RunNotFound", "The run you are searching for does not exist.",
+                HttpStatus.NOT_FOUND));
 
     }
 }
