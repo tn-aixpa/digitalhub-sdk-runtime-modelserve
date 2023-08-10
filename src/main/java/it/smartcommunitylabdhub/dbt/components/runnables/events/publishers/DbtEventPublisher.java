@@ -23,5 +23,4 @@ public class DbtEventPublisher implements KindPublisher<RunDTO, Void> {
         applicationEventPublisher.publishEvent(dbtMessage);
         return null;
     }
-
 }

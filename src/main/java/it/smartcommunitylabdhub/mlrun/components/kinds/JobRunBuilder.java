@@ -35,31 +35,43 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
                         // 1. produce function object for mlrun and put it on spec.
                         TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
 
-                        FunctionDTO functionDTO = functionService.getFunction(taskAccessor.getVersion());
+                        FunctionDTO functionDTO =
+                                        functionService.getFunction(taskAccessor.getVersion());
 
                         // 2. set function on spec for mlrun
-                        return Optional.ofNullable(functionDTO.getExtra().get("mlrun_hash")).map(mlrunHash -> {
+                        return Optional.ofNullable(functionDTO.getExtra().get("mlrun_hash"))
+                                        .map(mlrunHash -> {
 
-                                // 3. set function on spec
-                                taskDTO.getSpec().put("function", functionDTO.getProject() + "/" + functionDTO.getName()
-                                                + "@" + mlrunHash);
+                                                // 3. set function on spec
+                                                taskDTO.getSpec().put("function", functionDTO
+                                                                .getProject() + "/"
+                                                                + functionDTO.getName() + "@"
+                                                                + mlrunHash);
 
-                                // 4. Merge Task spec with function spec
-                                // functionDTO.getSpec().putAll(taskDTO.getSpec());
-                                // MapUtils.mergeMaps(functionDTO.getSpec(), taskDTO.getSpec());
-                                Map<String, Object> mergedSpec = MapUtils.mergeMaps(functionDTO.getSpec(),
-                                                taskDTO.getSpec(), (oldValue, newValue) -> newValue);
+                                                // 4. Merge Task spec with function spec
+                                                // functionDTO.getSpec().putAll(taskDTO.getSpec());
+                                                // MapUtils.mergeMaps(functionDTO.getSpec(),
+                                                // taskDTO.getSpec());
+                                                Map<String, Object> mergedSpec = MapUtils.mergeMaps(
+                                                                functionDTO.getSpec(),
+                                                                taskDTO.getSpec(),
+                                                                (oldValue, newValue) -> newValue);
 
-                                // 5. produce a run object and store it
-                                return RunDTO.builder().kind("run").taskId(task.getId()).project(task.getProject())
-                                                .task(task.getTask()).spec(mergedSpec).build();
+                                                // 5. produce a run object and store it
+                                                return RunDTO.builder().kind("run")
+                                                                .taskId(task.getId())
+                                                                .project(task.getProject())
+                                                                .task(task.getTask())
+                                                                .spec(mergedSpec).build();
 
-                        }).orElseThrow(() -> new CoreException("MLrunHashNotFound",
-                                        "Cannot prepare mlrun function. Mlrun hash not found!",
-                                        HttpStatus.INTERNAL_SERVER_ERROR));
+                                        })
+                                        .orElseThrow(() -> new CoreException("MLrunHashNotFound",
+                                                        "Cannot prepare mlrun function. Mlrun hash not found!",
+                                                        HttpStatus.INTERNAL_SERVER_ERROR));
 
                 }).orElseThrow(() -> new CoreException("FunctionNotFound",
-                                "The function you are searching for does not exist.", HttpStatus.NOT_FOUND));
+                                "The function you are searching for does not exist.",
+                                HttpStatus.NOT_FOUND));
 
         }
 }

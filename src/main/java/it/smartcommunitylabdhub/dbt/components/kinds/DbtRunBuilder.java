@@ -45,8 +45,13 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 					(oldValue, newValue) -> newValue);
 
 			// 5. produce a run object and store it
-			return RunDTO.builder().kind("run").taskId(task.getId()).project(task.getProject()).task(task.getTask())
-					.spec(mergedSpec).build();
+			return RunDTO.builder()
+					.kind("run")
+					.taskId(task.getId())
+					.project(task.getProject())
+					.task(task.getTask())
+					.spec(mergedSpec)
+					.build();
 
 		}).orElseThrow(() -> new CoreException("FunctionNotFound",
 				"The function you are searching for does not exist.", HttpStatus.NOT_FOUND));

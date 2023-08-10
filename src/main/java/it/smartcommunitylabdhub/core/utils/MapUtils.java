@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 
 public class MapUtils {
 
-	private MapUtils() {
-	}
+	private MapUtils() {}
 
-	public static Optional<Map<String, Object>> getNestedFieldValue(Map<String, Object> map, String field) {
+	public static Optional<Map<String, Object>> getNestedFieldValue(Map<String, Object> map,
+			String field) {
 		Object value = ((Map<?, ?>) map).get(field);
 
 		if (value instanceof Map) {
@@ -31,7 +31,8 @@ public class MapUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <K, V> Map<K, V> mergeMaps(Map<K, V> map1, Map<K, V> map2, BiFunction<V, V, V> mergeFunction) {
+	public static <K, V> Map<K, V> mergeMaps(Map<K, V> map1, Map<K, V> map2,
+			BiFunction<V, V, V> mergeFunction) {
 		Map<K, V> mergedMap = new HashMap<>(map1);
 
 		map2.forEach((key, value) -> mergedMap.merge(key, value, (oldValue, newValue) -> {

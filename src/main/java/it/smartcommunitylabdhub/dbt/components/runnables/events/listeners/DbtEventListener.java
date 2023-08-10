@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.dbt.components.runnables.events.listeners;
 
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -16,23 +16,28 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DbtEventListener {
 
-	private final KindService<Map<String, Object>> jobService;
-	private final ApplicationEventPublisher eventPublisher;
-	private final RunService runService;
+	@Autowired
+	@Qualifier("DbtService")
+	KindService<Void> dbtService;
 
-	public DbtEventListener(RunService runService, ApplicationEventPublisher eventPublisher,
-			KindService<Map<String, Object>> jobService) {
-		this.runService = runService;
-		this.eventPublisher = eventPublisher;
-		this.jobService = jobService;
-	}
+	@Autowired
+	ApplicationEventPublisher eventPublisher;
+
+	@Autowired
+	RunService runService;
 
 	@EventListener
 	@Async
 	public void handle(DbtMessage message) {
 
 		String threadName = Thread.currentThread().getName();
-		log.info("Dbt Service receive [" + threadName + "] task@" + message.getRunDTO().getTaskId() + ":Dbt@"
+		log.info("Dbt Service receive [" + threadName + "] task@"
+				+ message.getRunDTO().getTaskId()
+				+ ":Dbt@"
 				+ message.getRunDTO().getId());
+
+		// call dbt service to build kubernetes job
+		dbtService.run(message.getRunDTO());
+
 	}
 }

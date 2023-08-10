@@ -93,7 +93,7 @@ models:
 def format_response(res) -> dict:
     # Extract relevant information manually
     return {
-        "status": res.status.value,
+        "status": res.status,
         "timing": [
             {
                 "name": timing.name,
@@ -111,7 +111,7 @@ def format_response(res) -> dict:
             "database": res.node.database,
             "schema": res.node.schema,
             "name": res.node.name,
-            "resource_type": res.node.resource_type.value,
+            "resource_type": res.node.resource_type,
             "package_name": res.node.package_name,
             "path": res.node.path,
             "original_file_path": res.node.original_file_path,
@@ -170,7 +170,7 @@ def format_response(res) -> dict:
             "config_call_dict": res.node.config_call_dict,
             "relation_name": res.node.relation_name,
             "raw_code": res.node.raw_code,
-            "language": res.node.language.value,
+            "language": res.node.language,
             "refs": res.node.refs,
             "sources": res.node.sources,
             "metrics": res.node.metrics,
@@ -188,7 +188,7 @@ def format_response(res) -> dict:
                 "enforced": res.node.contract.enforced,
                 "checksum": res.node.contract.checksum,
             },
-            "access": res.node.access.value,
+            "access": res.node.access,
             "constraints": res.node.constraints,
             "version": res.node.version,
             "latest_version": res.node.latest_version,

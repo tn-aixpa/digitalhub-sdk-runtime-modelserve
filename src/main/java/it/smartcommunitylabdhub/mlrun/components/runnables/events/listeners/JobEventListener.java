@@ -11,6 +11,9 @@ import it.smartcommunitylabdhub.mlrun.components.runnables.events.messages.JobMe
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -20,25 +23,24 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class JobEventListener {
 
-    private final KindService<Map<String, Object>> jobService;
+    @Autowired
+    @Qualifier("JobService")
+    KindService<Map<String, Object>> jobService;
 
-    private final ApplicationEventPublisher eventPublisher;
+    @Autowired
+    ApplicationEventPublisher eventPublisher;
 
-    private final RunService runService;
-
-    public JobEventListener(RunService runService, ApplicationEventPublisher eventPublisher,
-            KindService<Map<String, Object>> jobService) {
-        this.runService = runService;
-        this.eventPublisher = eventPublisher;
-        this.jobService = jobService;
-    }
+    @Autowired
+    RunService runService;
 
     @EventListener
     @Async
     public void handle(JobMessage message) {
 
         String threadName = Thread.currentThread().getName();
-        log.info("Job Service receive [" + threadName + "] task@" + message.getRunDTO().getTaskId() + ":Job@"
+        log.info("Job Service receive [" + threadName + "] task@"
+                + message.getRunDTO().getTaskId()
+                + ":Job@"
                 + message.getRunDTO().getId());
 
         try {
@@ -46,9 +48,12 @@ public class JobEventListener {
             Map<String, Object> body = jobService.run(message.getRunDTO());
 
             // 3. Check the result and perform actions accordingly
-            Optional.ofNullable(body).ifPresentOrElse(
-                    response -> handleSuccessfulResponse(response, message.getRunDTO()),
-                    () -> handleFailedResponse("NullBody", "No run was found on MLRun"));
+            Optional.ofNullable(body)
+                    .ifPresentOrElse(
+                            response -> handleSuccessfulResponse(response, message.getRunDTO()),
+                            () -> handleFailedResponse(
+                                    "NullBody",
+                                    "No run was found on MLRun"));
         } catch (CoreException e) {
             // Handle the CoreException thrown by jobService.run() method
             // You can log the exception or perform any other necessary actions
@@ -58,25 +63,22 @@ public class JobEventListener {
     }
 
     private void handleSuccessfulResponse(Map<String, Object> response, RunDTO runDTO) {
-
         Optional<Map<String, Object>> optionalData = MapUtils.getNestedFieldValue(response, "data");
 
-        optionalData.ifPresentOrElse(data -> {
-            MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
-                runDTO.setExtra("mlrun_run_uid", metadata.get("uid"));
-            });
+        optionalData.ifPresentOrElse(
+                data -> {
+                    MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
+                        runDTO.setExtra("mlrun_run_uid", metadata.get("uid"));
+                    });
 
-            // MapUtils.getNestedFieldValue(data, "status").ifPresent(status -> {
-            // runDTO.setExtra("status", status);
-            // });
+                    // Save RunDTO
+                    RunDTO savedRunDTO = runService.save(runDTO);
 
-            // Save RunDTO
-
-            RunDTO savedRunDTO = runService.save(runDTO);
-
-            log.info("Dispatch event to RunMessage");
-            eventPublisher.publishEvent(RunMessage.builder().runDTO(savedRunDTO).build());
-        }, () -> handleFailedResponse("DataNotPresent", "Data is not present in MLRun Run response."));
+                    log.info("Dispatch event to RunMessage");
+                    eventPublisher.publishEvent(RunMessage.builder().runDTO(savedRunDTO).build());
+                },
+                () -> handleFailedResponse("DataNotPresent",
+                        "Data is not present in MLRun Run response."));
     }
 
     private void handleFailedResponse(String statusCode, String errorMessage) {
