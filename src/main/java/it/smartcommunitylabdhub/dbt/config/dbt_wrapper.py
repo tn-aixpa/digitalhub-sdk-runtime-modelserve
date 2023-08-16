@@ -2,8 +2,9 @@ import subprocess
 import os
 import json
 import base64
-import signal
+import requests
 import sys
+import re
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from datetime import datetime
@@ -20,24 +21,62 @@ class CustomJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
+# Function to make a POST request
+def make_post_request(base_url, endpoint, data=None):
+    url = f"{base_url}/{endpoint}"
+    response = requests.post(url, json=data)
+    return response
+
+
+# Function to make a GET request with parameters in the URL path
+def make_get_request(base_url, endpoint, *path_params):
+    url = f"{base_url}/{endpoint}/{'/'.join(path_params)}"
+    response = requests.get(url)
+    return response
+
+
+# Get run from dh_core
 def get_run() -> dict:
     # Call an external HTTP service to retrieve information
-    # response = requests.get("http://core-service")
-    # data = response.json()
 
-    run = json.loads(
-        '{"project":"dh_core", "name":"italy","metadata":{},"spec":{"dbt":{"sql":"Cnt7IGNvbmZpZyhtYXRlcmlhbGl6ZWQ9J3ZpZXcnKSB9fQoKd2l0aCBpdGFseV9jaXRpZXMgYXMgKAogICAgU0VMRUNUIAogICAgICAgIGMuY2l0eV9uYW1lIGFzIGNpdHksIAogICAgICAgIHIucmVnaW9uX25hbWUgYXMgcmVnaW9uLCAKICAgICAgICBzLnN0YXRlX25hbWUgYXMgc3RhdGUgCiAgICBGUk9NIGNpdGllcyBjCiAgICBKT0lOIHJlZ2lvbnMgciBPTiBjLnJlZ2lvbl9pZCA9IHIucmVnaW9uX2lkCiAgICBKT0lOIHN0YXRlcyBzIE9OIHIuc3RhdGVfaWQgPSBzLnN0YXRlX2lkCiAgICBXSEVSRSBzLnN0YXRlX25hbWUgPSAnSXRhbHknCikKCnNlbGVjdCAqIGZyb20gaXRhbHlfY2l0aWVzCg=="}}}',
-        strict=False,
-    )
-    return run
+    DH_CORE = os.environ.get("DH_CORE")
+    RUN_ID = os.environ.get("RUN_ID")
+    response = make_get_request(DH_CORE, "api", "v1", "runs", RUN_ID)
+    print(f"{response.json()}")
+
+    #  run = json.loads(
+    #     '{"project":"dh_core", "name":"italy","metadata":{},"spec":{"dbt":{"sql":"Cnt7IGNvbmZpZyhtYXRlcmlhbGl6ZWQ9J3ZpZXcnKSB9fQoKd2l0aCBpdGFseV9jaXRpZXMgYXMgKAogICAgU0VMRUNUIAogICAgICAgIGMuY2l0eV9uYW1lIGFzIGNpdHksIAogICAgICAgIHIucmVnaW9uX25hbWUgYXMgcmVnaW9uLCAKICAgICAgICBzLnN0YXRlX25hbWUgYXMgc3RhdGUgCiAgICBGUk9NIGNpdGllcyBjCiAgICBKT0lOIHJlZ2lvbnMgciBPTiBjLnJlZ2lvbl9pZCA9IHIucmVnaW9uX2lkCiAgICBKT0lOIHN0YXRlcyBzIE9OIHIuc3RhdGVfaWQgPSBzLnN0YXRlX2lkCiAgICBXSEVSRSBzLnN0YXRlX25hbWUgPSAnSXRhbHknCikKCnNlbGVjdCAqIGZyb20gaXRhbHlfY2l0aWVzCg=="}}}',
+    #     strict=False,
+    # )
+    # return run
+
+    return response.json()
+
+
+def parse_dbt_url(url):
+    # Define a regular expression pattern to match the URL structure
+    pattern = r"(?P<kind>[\w-]+)://(?P<project>[\w-]+)/(?P<function>[\w-]+):(?P<version>[\w-]+)"
+
+    # Use regex to extract components from the URL
+    match = re.match(pattern, url)
+
+    if match:
+        return match.groupdict()
+    else:
+        return None
 
 
 def initialize_project(run: dict) -> None:
     spec: dict = run.get("spec", {})
     dbt: dict = spec.get("dbt", {})
 
+    output_name = spec.get("output", "model")
+
+    # Parse task string
+    task_accessor = parse_dbt_url(run.get("task"))
+
     # Get project name
-    project_name = run.get("project", "default_name")
+    project_name = task_accessor.get("project", "default_name").replace("-", "_")
 
     # Create dbt profiles.yml
 
@@ -86,11 +125,11 @@ models:
     # Decode and write the base64-encoded model_sql to the file
     model_sql = dbt.get("sql", "")
     decoded_model_sql = base64.b64decode(model_sql).decode("UTF-8")
-    with open(f"{models_directory}/{run.get('name', 'model')}.sql", "w") as schema_file:
+    with open(f"{models_directory}/{output_name}.sql", "w") as schema_file:
         schema_file.write(decoded_model_sql)
 
 
-def format_response(res) -> dict:
+def extract_response(res) -> dict:
     # Extract relevant information manually
     return {
         "status": res.status,
@@ -203,6 +242,13 @@ def main() -> None:
 
     # retrieve the run from core
     run: dict = get_run()
+    spec: dict = run.get("spec", {})
+
+    # Parse task string
+    task_accessor = parse_dbt_url(run.get("task"))
+
+    # Get project name
+    project_name = task_accessor.get("project", "default_name").replace("-", "_")
 
     # initialize project
     initialize_project(run=run)
@@ -219,7 +265,7 @@ def main() -> None:
     # inspect the results
     json_results = []
     for r in res.result:
-        json_string = json.dumps(format_response(r), cls=CustomJSONEncoder, indent=2)
+        json_string = json.dumps(extract_response(r), cls=CustomJSONEncoder, indent=2)
         json_results.append(json.loads(json_string))
 
     print(f"{json_results}")
@@ -231,8 +277,8 @@ def main() -> None:
             result = json_results[0]
             if (
                 result.get("status") == "success"
-                and result.get("node").get("package_name") == run.get("project")
-                and result.get("node").get("name") == run.get("name")
+                and result.get("node").get("package_name") == project_name
+                and result.get("node").get("name") == spec.get("output", "model")
             ):
                 print(f"SUCCESSFUL -> Send info to core backend")
             else:

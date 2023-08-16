@@ -6,6 +6,9 @@ WORKDIR /app/
 # Install dbt-postgres adapter via pip
 RUN python -m pip install dbt-postgres 
 
+# Install requests library
+RUN python -m pip install requests
+
 # Copy the shell script and make it executable
 COPY create-user.sh /app/
 RUN chmod +x /app/create-user.sh

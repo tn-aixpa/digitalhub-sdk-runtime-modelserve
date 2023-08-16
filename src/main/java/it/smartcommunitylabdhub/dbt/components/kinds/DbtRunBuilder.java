@@ -1,9 +1,6 @@
 package it.smartcommunitylabdhub.dbt.components.kinds;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,8 +38,9 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 
 			// 4. Merge Task spec with function spec
 			// functionDTO.getSpec().putAll(taskDTO.getSpec());
-			Map<String, Object> mergedSpec = MapUtils.mergeMaps(functionDTO.getSpec(), taskDTO.getSpec(),
-					(oldValue, newValue) -> newValue);
+			Map<String, Object> mergedSpec =
+					MapUtils.mergeMaps(functionDTO.getSpec(), taskDTO.getSpec(),
+							(oldValue, newValue) -> newValue);
 
 			// 5. produce a run object and store it
 			return RunDTO.builder()
@@ -53,8 +51,10 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 					.spec(mergedSpec)
 					.build();
 
-		}).orElseThrow(() -> new CoreException("FunctionNotFound",
-				"The function you are searching for does not exist.", HttpStatus.NOT_FOUND));
+		}).orElseThrow(() -> new CoreException(
+				"FunctionNotFound",
+				"The function you are searching for does not exist.",
+				HttpStatus.NOT_FOUND));
 	}
 
 }
