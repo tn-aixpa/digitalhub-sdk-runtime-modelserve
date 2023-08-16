@@ -35,22 +35,39 @@ def make_get_request(base_url, endpoint, *path_params):
     return response
 
 
+# Function to make a PUT request
+def make_put_request(base_url, endpoint, data=None, *path_params):
+    url = f"{base_url}/{endpoint}/{'/'.join(path_params)}"
+    response = requests.put(url, json=data)
+    return response
+
+
 # Get run from dh_core
 def get_run() -> dict:
     # Call an external HTTP service to retrieve information
 
     DH_CORE = os.environ.get("DH_CORE")
     RUN_ID = os.environ.get("RUN_ID")
-    response = make_get_request(DH_CORE, "api", "v1", "runs", RUN_ID)
+    response = make_get_request(DH_CORE, "api/v1/runs", RUN_ID)
+
     print(f"{response.json()}")
-
-    #  run = json.loads(
-    #     '{"project":"dh_core", "name":"italy","metadata":{},"spec":{"dbt":{"sql":"Cnt7IGNvbmZpZyhtYXRlcmlhbGl6ZWQ9J3ZpZXcnKSB9fQoKd2l0aCBpdGFseV9jaXRpZXMgYXMgKAogICAgU0VMRUNUIAogICAgICAgIGMuY2l0eV9uYW1lIGFzIGNpdHksIAogICAgICAgIHIucmVnaW9uX25hbWUgYXMgcmVnaW9uLCAKICAgICAgICBzLnN0YXRlX25hbWUgYXMgc3RhdGUgCiAgICBGUk9NIGNpdGllcyBjCiAgICBKT0lOIHJlZ2lvbnMgciBPTiBjLnJlZ2lvbl9pZCA9IHIucmVnaW9uX2lkCiAgICBKT0lOIHN0YXRlcyBzIE9OIHIuc3RhdGVfaWQgPSBzLnN0YXRlX2lkCiAgICBXSEVSRSBzLnN0YXRlX25hbWUgPSAnSXRhbHknCikKCnNlbGVjdCAqIGZyb20gaXRhbHlfY2l0aWVzCg=="}}}',
-    #     strict=False,
-    # )
-    # return run
-
     return response.json()
+
+
+def post_dataitem(data: dict) -> dict:
+    DH_CORE = os.environ.get("DH_CORE")
+    response = make_post_request(DH_CORE, "api/v1/dataitems", data)
+
+    print(f"{response.json()}")
+    return response.json()
+
+
+def put_run(run_id: str, run: dict) -> dict:
+    DH_CORE = os.environ.get("DH_CORE")
+    response = make_put_request(DH_CORE, "api/v1/runs", run, run_id)
+
+    print(f"{response.json()}")
+    return response
 
 
 def parse_dbt_url(url):
@@ -281,6 +298,50 @@ def main() -> None:
                 and result.get("node").get("name") == spec.get("output", "model")
             ):
                 print(f"SUCCESSFUL -> Send info to core backend")
+
+                components = [
+                    component.strip('"')
+                    for component in result.get("node").get("relation_name").split(".")
+                ]
+
+                raw_code = base64.b64encode(
+                    result.get("node").get("raw_code", "").encode("utf-8")
+                )
+                compiled_code = base64.b64encode(
+                    result.get("node").get("compiled_code", "").encode("utf-8")
+                )
+                dataitem = {
+                    "name": result.get("node").get("name"),
+                    "project": task_accessor.get("project"),
+                    "kind": "sql",
+                    "spec": {
+                        "path": f"sql://postgres/{'/'.join(components)}",
+                        "raw_code": raw_code.decode("utf-8"),
+                        "compiled_code": compiled_code.decode("utf-8"),
+                    },
+                    "state": result.get("status", "none").upper(),
+                }
+
+                # store dataitem into dh core
+                dataitem_result = post_dataitem(data=dataitem)
+
+                # update run with dataitems result
+                run.update(
+                    {
+                        "dataitems": [
+                            {
+                                "key": "dataitem",
+                                "kind": "dataitem",
+                                "id": f"store://{dataitem_result.get('project')}/dataitems/{dataitem_result.get('name')}:{dataitem_result.get('id')}",
+                            }
+                        ]
+                    }
+                )
+
+                print("======================= UPDATE RUN ========================")
+                print(run)
+                put_run(run.get("id"), run)
+
             else:
                 # check project and model name match
                 print(

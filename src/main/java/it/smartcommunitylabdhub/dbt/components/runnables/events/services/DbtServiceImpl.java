@@ -32,7 +32,8 @@ public class DbtServiceImpl implements KindService<Void> {
 
 		Job job = new JobBuilder()
 				.withNewMetadata()
-				.withName(taskAccessor.getKind() + "-" + taskAccessor.getVersion())
+				.withName("run-" + "-" + taskAccessor.getKind() + "-"
+						+ runDTO.getId())
 				.endMetadata()
 				.withNewSpec()
 				.withNewTemplate()
@@ -46,8 +47,8 @@ public class DbtServiceImpl implements KindService<Void> {
 						new EnvVar("POSTGRES_DB", "dbt", null),
 						new EnvVar("POSTGRES_DB_HOST", "192.168.49.1", null),
 						new EnvVar("POSTGRES_PORT", "5433", null)))
-				.withName("container-" + taskAccessor.getKind() + ""
-						+ taskAccessor.getVersion())
+				.withName("container-run-" + "-" + taskAccessor.getKind() + "-"
+						+ runDTO.getId())
 				.withImage("ltrubbianifbk/dbt_core:latest")
 				.withCommand("python", "dbt_wrapper.py")
 				.endContainer()

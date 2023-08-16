@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +38,8 @@ public class RunController {
 
     @Operation(summary = "Get a run", description = "Given an uuid return the related Run")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<RunDTO> getRun(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<RunDTO> getRun(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.runService.getRun(uuid));
     }
 
@@ -54,16 +56,28 @@ public class RunController {
         return ResponseEntity.ok(this.runService.getRuns(pageable));
     }
 
-    @Operation(summary = "Create and execute a run", description = "Create a run and then execute it")
-    @PostMapping(path = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @Operation(summary = "Create and execute a run",
+            description = "Create a run and then execute it")
+    @PostMapping(path = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<RunDTO> createRun(@Valid @RequestBody RunExecDTO runExecDTO) {
         return ResponseEntity.ok(this.runService.createRun(runExecDTO));
     }
 
+
+    @Operation(summary = "Update specific run", description = "Update and return the update run")
+    @PutMapping(path = "/{uuid}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
+    public ResponseEntity<RunDTO> updateRun(@Valid @RequestBody RunDTO runDTO,
+            @ValidateField @PathVariable String uuid) {
+        return ResponseEntity.ok(this.runService.updateRun(runDTO, uuid));
+    }
+
+
     @Operation(summary = "Delete a run", description = "Delete a specific run")
     @DeleteMapping(path = "/{uuid}")
-    public ResponseEntity<Boolean> deleteRun(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<Boolean> deleteRun(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.runService.deleteRun(uuid));
     }
 }

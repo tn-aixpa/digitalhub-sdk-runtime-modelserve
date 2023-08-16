@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.custom.RunExecDTO;
+import jakarta.validation.Valid;
 
 public interface RunService {
 
@@ -18,5 +19,7 @@ public interface RunService {
     RunDTO save(RunDTO runDTO);
 
     RunDTO createRun(RunExecDTO runExecDTO);
+
+    RunDTO updateRun(@Valid RunDTO runDTO, String uuid);
 
 }
