@@ -6,7 +6,7 @@ import warnings
 from sdk.entities.base.spec import EntitySpec
 from sdk.utils.file_utils import is_python_module
 from sdk.utils.uri_utils import get_name_from_uri
-from sdk.entities.utils.utils import encode_source
+from sdk.entities.utils.utils import encode_source, encode_string
 
 
 class FunctionSpec(EntitySpec):
@@ -92,6 +92,43 @@ class FunctionSpecJob(FunctionSpec):
         }
 
 
+class FunctionSpecDBT(FunctionSpec):
+    """
+    Specification for a Function DBT.
+    """
+
+    def __init__(
+        self,
+        source: str = "",
+        image: str | None = None,
+        tag: str | None = None,
+        handler: str | None = None,
+        command: str | None = None,
+        sql: str | None = None,
+        **kwargs,
+    ) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        sql : str
+            SQL query to run inside DBT.
+        """
+        super().__init__(
+            source,
+            image,
+            tag,
+            handler,
+            command,
+            **kwargs,
+        )
+
+        self.dbt = {
+            "sql": encode_string(sql),
+        }
+
+
 def build_spec(kind: str, **kwargs) -> FunctionSpec:
     """
     Build a FunctionSpecJob object with the given parameters.
@@ -115,4 +152,6 @@ def build_spec(kind: str, **kwargs) -> FunctionSpec:
     """
     if kind == "job":
         return FunctionSpecJob(**kwargs)
+    if kind == "dbt":
+        return FunctionSpecDBT(**kwargs)
     raise ValueError(f"Unknown kind: {kind}")

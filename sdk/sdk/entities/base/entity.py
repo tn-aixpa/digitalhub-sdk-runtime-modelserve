@@ -58,6 +58,12 @@ class Entity(ModelObj, metaclass=ABCMeta):
         """
         Return object as dict with all keys.
 
+        Parameters
+        ----------
+        include_all_non_private : bool
+            Whether to include all non-private attributes. If False, only
+            attributes in the _obj_attr list will be included.
+
         Returns
         -------
         dict

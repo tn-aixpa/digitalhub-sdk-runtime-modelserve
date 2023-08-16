@@ -4,7 +4,8 @@ Store builder module.
 from __future__ import annotations
 
 import typing
-from typing import Callable
+
+from pydantic import ValidationError
 
 from sdk.store.models import StoreConfig
 from sdk.store.objects.local import LocalStore
@@ -138,5 +139,7 @@ class StoreBuilder:
             try:
                 return StoreConfig(**config)
             except TypeError as exc:
-                raise TypeError("Malformed store configuration.") from exc
+                raise StoreError("Invalid store configuration type.") from exc
+            except ValidationError as exc:
+                raise StoreError("Malformed store configuration parameters.") from exc
         return config
