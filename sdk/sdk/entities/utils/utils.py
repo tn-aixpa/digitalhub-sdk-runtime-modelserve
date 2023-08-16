@@ -34,6 +34,23 @@ def get_uiid(uuid: str | None = None) -> str:
     return uuid4().hex
 
 
+def encode_string(string: str) -> str:
+    """
+    Encode a string in base64.
+
+    Parameters
+    ----------
+    string : str
+        The string to encode.
+
+    Returns
+    -------
+    str
+        The string encoded in base64.
+    """
+    return base64.b64encode(string.encode()).decode()
+
+
 def encode_source(path: str) -> str:
     """
     Read a file and encode in base64 the content.
@@ -48,8 +65,7 @@ def encode_source(path: str) -> str:
     str
         The file content encoded in base64.
     """
-    data = read_text(path)
-    return base64.b64encode(data.encode()).decode()
+    return encode_string(read_text(path))
 
 
 def check_local_flag(project: str, local: bool) -> None:

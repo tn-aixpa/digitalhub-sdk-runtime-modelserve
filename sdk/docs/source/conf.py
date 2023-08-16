@@ -39,8 +39,8 @@ extensions = [
     "sphinx.ext.intersphinx",  # Link to other project's documentation (see mapping below)
 ]
 
-#numpydoc_show_class_members = False
-autodoc_member_order = 'bysource'
+# numpydoc_show_class_members = False
+autodoc_member_order = "bysource"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
