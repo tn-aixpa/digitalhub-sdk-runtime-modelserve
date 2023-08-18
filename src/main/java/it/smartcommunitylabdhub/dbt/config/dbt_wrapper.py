@@ -54,7 +54,7 @@ def get_run() -> dict:
     return response.json()
 
 
-def post_dataitem(data: dict) -> dict:
+def create_dataitem(data: dict) -> dict:
     DH_CORE = os.environ.get("DH_CORE")
     response = make_post_request(DH_CORE, "api/v1/dataitems", data)
 
@@ -62,7 +62,7 @@ def post_dataitem(data: dict) -> dict:
     return response.json()
 
 
-def put_run(run_id: str, run: dict) -> dict:
+def update_run(run_id: str, run: dict) -> dict:
     DH_CORE = os.environ.get("DH_CORE")
     response = make_put_request(DH_CORE, "api/v1/runs", run, run_id)
 
@@ -310,6 +310,7 @@ def main() -> None:
                 compiled_code = base64.b64encode(
                     result.get("node").get("compiled_code", "").encode("utf-8")
                 )
+
                 dataitem = {
                     "name": result.get("node").get("name"),
                     "project": task_accessor.get("project"),
@@ -323,7 +324,18 @@ def main() -> None:
                 }
 
                 # store dataitem into dh core
-                dataitem_result = post_dataitem(data=dataitem)
+                dataitem_result = create_dataitem(data=dataitem)
+
+                # Extract timing information
+                timing = result.get("timing", [])
+                compile_timing = None
+                execute_timing = None
+
+                for entry in timing:
+                    if entry.get("name") == "compile":
+                        compile_timing = entry
+                    elif entry.get("name") == "execute":
+                        execute_timing = entry
 
                 # update run with dataitems result
                 run.update(
@@ -334,13 +346,23 @@ def main() -> None:
                                 "kind": "dataitem",
                                 "id": f"store://{dataitem_result.get('project')}/dataitems/{dataitem_result.get('name')}:{dataitem_result.get('id')}",
                             }
-                        ]
+                        ],
+                        "timing": {
+                            "compile": {
+                                "started_at": compile_timing.get("started_at"),
+                                "completed_at": compile_timing.get("completed_at"),
+                            },
+                            "execute": {
+                                "started_at": execute_timing.get("started_at"),
+                                "completed_at": execute_timing.get("completed_at"),
+                            },
+                        },
                     }
                 )
 
                 print("======================= UPDATE RUN ========================")
                 print(run)
-                put_run(run.get("id"), run)
+                update_run(run.get("id"), run)
 
             else:
                 # check project and model name match

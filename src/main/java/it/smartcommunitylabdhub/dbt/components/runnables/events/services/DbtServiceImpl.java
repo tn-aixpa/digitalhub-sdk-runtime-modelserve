@@ -32,7 +32,7 @@ public class DbtServiceImpl implements KindService<Void> {
 
 		Job job = new JobBuilder()
 				.withNewMetadata()
-				.withName("run-" + "-" + taskAccessor.getKind() + "-"
+				.withName("run" + "-" + taskAccessor.getKind() + "-"
 						+ runDTO.getId())
 				.endMetadata()
 				.withNewSpec()
@@ -61,7 +61,8 @@ public class DbtServiceImpl implements KindService<Void> {
 		kubernetesClient.resource(job).inNamespace("default").create();
 
 		String jobLogs = kubernetesClient.batch().v1().jobs().inNamespace("default")
-				.withName(taskAccessor.getKind() + "-" + taskAccessor.getVersion())
+				.withName("run" + "-" + taskAccessor.getKind() + "-"
+						+ runDTO.getId())
 				.getLog();
 
 		System.out.println(jobLogs);
