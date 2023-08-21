@@ -120,7 +120,7 @@ class LocalStore(Store):
         copy_file(src, dst)
         return dst
 
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
+    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
         """
         Method to write a dataframe to a file. Kwargs are passed to df.to_parquet().
 
@@ -138,6 +138,10 @@ class LocalStore(Store):
         str
             Path of written dataframe.
         """
+        # Set destination if not provided
+        if dst is None or not dst.endswith(".parquet"):
+            dst = f"{self.get_root_uri()}/{self.name}.parquet"
+
         # Check access to destination
         self._check_dir(get_dir(dst))
 

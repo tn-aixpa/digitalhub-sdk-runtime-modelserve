@@ -112,7 +112,7 @@ class RemoteStore(Store):
         """
         raise NotImplementedError("Remote store does not support persist_artifact.")
 
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
+    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
         """
         Method to write a dataframe to a file. Note that this method is not implemented
         since the remote store is not meant to write dataframes.

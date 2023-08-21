@@ -128,7 +128,7 @@ class Store(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
+    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
         """
         Write pandas DataFrame as parquet or csv.
         """
