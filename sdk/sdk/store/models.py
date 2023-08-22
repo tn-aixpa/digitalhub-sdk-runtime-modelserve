@@ -14,7 +14,7 @@ class StoreConfig(BaseModel):
     name: str
     """Store id."""
 
-    type: Literal["s3", "local", "remote"]
+    type: Literal["local", "s3", "remote", "sql"]
     """Store type to instantiate."""
 
     uri: str

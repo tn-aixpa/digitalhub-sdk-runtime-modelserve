@@ -14,7 +14,6 @@ from botocore.exceptions import ClientError
 
 from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
-from sdk.utils.file_utils import check_make_dir, get_dir
 from sdk.utils.uri_utils import (
     build_key,
     get_name_from_uri,
@@ -236,24 +235,6 @@ class S3Store(Store):
             client.head_bucket(Bucket=bucket)
         except ClientError as exc:
             raise StoreError("No access to s3 bucket!") from exc
-
-    @staticmethod
-    def _check_local_dst(dst: str) -> None:
-        """
-        Check if the local destination directory exists. Create in case it does not.
-
-        Parameters
-        ----------
-        dst : str
-            The destination directory.
-
-        Returns
-        -------
-        None
-        """
-        if get_uri_scheme(dst) in ["", "file"]:
-            dst_dir = get_dir(dst)
-            check_make_dir(dst_dir)
 
     ############################
     # Store interface methods

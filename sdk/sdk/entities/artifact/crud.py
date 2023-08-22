@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 
 from sdk.entities.artifact.entity import artifact_from_dict, artifact_from_parameters
-from sdk.entities.utils.utils import check_local_flag, save_or_export
+from sdk.entities.utils.utils import check_local_flag, save_or_export, parse_entity_key
 from sdk.utils.api import DTO_ARTF, api_ctx_delete, api_ctx_read
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
@@ -142,17 +142,7 @@ def get_artifact_from_key(key: str) -> Artifact:
         Key of the artifact.
         It's format is store://<project>/artifacts/<kind>/<name>:<uuid>.
     """
-    import re
-
-    pattern: str = (
-        r"store://(?P<project>\w+)/(.*)/(?P<name>\w+):(?P<uuid>[A-Za-z0-9\-\_]+)"
-    )
-    match = re.match(pattern, key)
-    if match is None:
-        raise ValueError("Invalid key format.")
-    project = match.group("project")
-    name = match.group("name")
-    uuid = match.group("uuid")
+    project, name, uuid = parse_entity_key(key)
     return get_artifact(project, name, uuid)
 
 
