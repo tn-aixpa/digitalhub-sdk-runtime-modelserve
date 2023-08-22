@@ -7,6 +7,7 @@ import typing
 
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
+from sdk.entities.dataitem.crud import get_dataitem_from_key
 from sdk.entities.run.spec import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
@@ -16,6 +17,7 @@ from sdk.utils.factories import get_context
 if typing.TYPE_CHECKING:
     from sdk.entities.run.spec import RunSpec
     from sdk.entities.artifact.entity import Artifact
+    from sdk.entities.dataitem.entity import Dataitem
 
 
 class Run(Entity):
@@ -189,14 +191,40 @@ class Run(Entity):
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
         if output_key is not None:
-            _id = next(
+            key = next(
                 (r.get("id") for r in result if r.get("key") == output_key), None
             )
-            if _id is None:
+            if key is None:
                 raise EntityError(f"No artifact found with key '{output_key}'.")
-            return get_artifact_from_key(_id)
-        else:
-            return [get_artifact_from_key(r.get("id")) for r in result]
+            return get_artifact_from_key(key)
+        return [get_artifact_from_key(r.get("id")) for r in result]
+
+    def get_dataitem(self, output_key: str | None = None) -> Dataitem | list[Dataitem]:
+        """
+        Get dataitem(s) from backend produced by the run through its key.
+
+        Parameters
+        ----------
+        output_key : str, optional
+            Key of the dataitem to get. If not provided, returns all dataitems.
+
+        Returns
+        -------
+        Dataitem | list[Dataitem]
+            Dataitem(s) from backend.
+        """
+        resp = self.refresh()
+        result = resp.get("dataitems")
+        if result is None:
+            raise EntityError("Run has no result (maybe try when it finishes).")
+        if output_key is not None:
+            key = next(
+                (r.get("id") for r in result if r.get("key") == output_key), None
+            )
+            if key is None:
+                raise EntityError(f"No dataitem found with key '{output_key}'.")
+            return get_dataitem_from_key(key)
+        return [get_dataitem_from_key(r.get("id")) for r in result]
 
     #############################
     #  Getters and Setters

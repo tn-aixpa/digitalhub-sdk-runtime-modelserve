@@ -214,14 +214,8 @@ class Dataitem(Entity):
 
         # Get store
         store = get_default_store()
-
-        # Get target path
-        if target_path is None:
-            target_path = f"{store.get_root_uri()}/{self.name}.parquet"
-
         # Write DataFrame
-        store.write_df(df, target_path, **kwargs)
-        return target_path
+        return store.write_df(df, target_path, **kwargs)
 
     #############################
     #  Helper Methods

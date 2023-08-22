@@ -91,7 +91,7 @@ class RemoteStore(Store):
     def upload(self, src: str, dst: str | None = None) -> str:
         """
         Method to upload an artifact to the backend. Please note that this method is not implemented
-        since the local store is not meant to upload artifacts.
+        since the remote store is not meant to upload artifacts.
 
         Raises
         ------
@@ -112,7 +112,7 @@ class RemoteStore(Store):
         """
         raise NotImplementedError("Remote store does not support persist_artifact.")
 
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
+    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
         """
         Method to write a dataframe to a file. Note that this method is not implemented
         since the remote store is not meant to write dataframes.
@@ -150,31 +150,6 @@ class RemoteStore(Store):
         r = requests.head(src, timeout=60)
         if r.status_code != 200:
             raise StoreError(f"Source {src} does not exist.")
-
-    @staticmethod
-    def _check_local_dst(dst: str) -> None:
-        """
-        Check if the local destination directory exists. Create in case it does not.
-
-        Parameters
-        ----------
-        dst : str
-            The destination directory.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        StoreError
-            If the destination is not a local path.
-        """
-        if get_uri_scheme(dst) in ["", "file"]:
-            dst_dir = get_dir(dst)
-            check_make_dir(dst_dir)
-            return
-        raise StoreError(f"Destination {dst} is not a local path.")
 
     @staticmethod
     def _download_file(url: str, dst: str) -> None:

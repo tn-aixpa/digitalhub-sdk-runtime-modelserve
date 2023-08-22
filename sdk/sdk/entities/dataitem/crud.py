@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 
 from sdk.entities.dataitem.entity import dataitem_from_dict, dataitem_from_parameters
-from sdk.entities.utils.utils import check_local_flag, save_or_export
+from sdk.entities.utils.utils import check_local_flag, save_or_export, parse_entity_key
 from sdk.utils.api import DTO_DTIT, api_ctx_delete, api_ctx_read
 from sdk.utils.factories import get_context
 from sdk.utils.io_utils import read_yaml
@@ -127,6 +127,20 @@ def get_dataitem(project: str, name: str, uuid: str | None = None) -> Dataitem:
     api = api_ctx_read(project, DTO_DTIT, name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return dataitem_from_dict(obj)
+
+
+def get_dataitem_from_key(key: str) -> Dataitem:
+    """
+    Get dataitem from key.
+
+    Parameters
+    ----------
+    key : str
+        Key of the dataitem.
+        It's format is store://<project>/dataitems/<kind>/<name>:<uuid>.
+    """
+    project, name, uuid = parse_entity_key(key)
+    return get_dataitem(project, name, uuid)
 
 
 def import_dataitem(file: str) -> Dataitem:

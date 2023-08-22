@@ -5,6 +5,10 @@ from abc import ABCMeta, abstractmethod
 
 import pandas as pd
 
+from sdk.utils.exceptions import StoreError
+from sdk.utils.file_utils import check_make_dir, get_dir
+from sdk.utils.uri_utils import get_uri_scheme
+
 
 class _ResourceRegistry(dict):
     """
@@ -128,7 +132,7 @@ class Store(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
+    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
         """
         Write pandas DataFrame as parquet or csv.
         """
@@ -166,6 +170,31 @@ class Store(metaclass=ABCMeta):
     ############################
     # Interface helpers methods
     ############################
+
+    @staticmethod
+    def _check_local_dst(dst: str) -> None:
+        """
+        Check if the local destination directory exists. Create in case it does not.
+
+        Parameters
+        ----------
+        dst : str
+            The destination directory.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        StoreError
+            If the destination is not a local path.
+        """
+        if get_uri_scheme(dst) in ["", "file"]:
+            dst_dir = get_dir(dst)
+            check_make_dir(dst_dir)
+            return
+        raise StoreError(f"Destination {dst} is not a local path.")
 
     @abstractmethod
     def _validate_uri(self) -> None:

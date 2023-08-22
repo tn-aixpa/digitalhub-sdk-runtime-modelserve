@@ -26,9 +26,11 @@ class TaskSpecRun(TaskSpec):
         """
         resources = resources if resources is not None else {}
         res = K8sResources(**resources) if resources is not None else None
-        self.volumes = [i.model_dump() for i in res.volumes]
-        self.volume_mounts = [i.model_dump() for i in res.volume_mounts]
-        self.env = [i.model_dump() for i in res.env]
+        self.volumes = [i.model_dump() for i in res.volumes] if res is not None else []
+        self.volume_mounts = (
+            [i.model_dump() for i in res.volume_mounts] if res is not None else []
+        )
+        self.env = [i.model_dump() for i in res.env] if res is not None else []
         self.resources = res.resources.model_dump() if res.resources is not None else {}
 
 

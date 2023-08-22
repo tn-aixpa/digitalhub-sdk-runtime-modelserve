@@ -61,24 +61,24 @@ def set_store(store_cfg: StoreConfig) -> None:
     -------
     None
     """
-    store_builder.build(store_cfg=store_cfg)
+    store_builder.build(store_cfg)
 
 
-def get_store(store_name: str) -> Store:
+def get_store(uri: str) -> Store:
     """
-    Get store instance by name.
+    Get store instance by uri.
 
     Parameters
     ---------
-    store_name : str
-        Store name.
+    uri : str
+        URI to parse.
 
     Returns
     -------
     Store
         Store instance.
     """
-    return store_builder.get(store_name=store_name)
+    return store_builder.get(uri)
 
 
 def get_default_store() -> Store:

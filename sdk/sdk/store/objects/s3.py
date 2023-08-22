@@ -14,7 +14,6 @@ from botocore.exceptions import ClientError
 
 from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
-from sdk.utils.file_utils import check_make_dir, get_dir
 from sdk.utils.uri_utils import (
     build_key,
     get_name_from_uri,
@@ -132,7 +131,7 @@ class S3Store(Store):
         client.upload_file(Filename=src, Bucket=bucket, Key=key)
         return f"s3://{bucket}/{key}"
 
-    def write_df(self, df: pd.DataFrame, dst: str, **kwargs) -> str:
+    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
         """
         Write a dataframe to S3 based storage. Kwargs are passed to df.to_parquet().
 
@@ -156,6 +155,10 @@ class S3Store(Store):
 
         # Check store access
         self._check_access_to_storage(client, bucket)
+
+        # Set destination if not provided
+        if dst is None or not dst.endswith(".parquet"):
+            dst = f"{self.get_root_uri()}/{self.name}.parquet"
 
         # Rebuild key from target path
         key = get_uri_path(dst)
@@ -232,24 +235,6 @@ class S3Store(Store):
             client.head_bucket(Bucket=bucket)
         except ClientError as exc:
             raise StoreError("No access to s3 bucket!") from exc
-
-    @staticmethod
-    def _check_local_dst(dst: str) -> None:
-        """
-        Check if the local destination directory exists. Create in case it does not.
-
-        Parameters
-        ----------
-        dst : str
-            The destination directory.
-
-        Returns
-        -------
-        None
-        """
-        if get_uri_scheme(dst) in ["", "file"]:
-            dst_dir = get_dir(dst)
-            check_make_dir(dst_dir)
 
     ############################
     # Store interface methods
