@@ -29,20 +29,20 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 	@Override
 	public RunDTO build(TaskDTO taskDTO) {
 
-		// 1. get function get if exist otherwise throw exeception.
+		// 1. get function if exist otherwise throw exeception.
 		return taskRepository.findById(taskDTO.getId()).map(task -> {
-			// 1. produce function object for DBT and put it on spec.
-			TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
 
+			// 2. produce function object for DBT and put it on spec.
+			TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
 			FunctionDTO functionDTO = functionService.getFunction(taskAccessor.getVersion());
 
-			// 4. Merge Task spec with function spec
+			// 3. Merge Task spec with function spec
 			// functionDTO.getSpec().putAll(taskDTO.getSpec());
 			Map<String, Object> mergedSpec =
 					MapUtils.mergeMaps(functionDTO.getSpec(), taskDTO.getSpec(),
 							(oldValue, newValue) -> newValue);
 
-			// 5. produce a run object and store it
+			// 4. produce a run object and store it
 			return RunDTO.builder()
 					.kind("run")
 					.taskId(task.getId())

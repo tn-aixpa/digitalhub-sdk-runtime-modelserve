@@ -32,7 +32,7 @@ public class DbtServiceImpl implements KindService<Void> {
 
 		Job job = new JobBuilder()
 				.withNewMetadata()
-				.withName("run" + "-" + taskAccessor.getKind() + "-"
+				.withName("job" + "-" + taskAccessor.getKind() + "-"
 						+ runDTO.getId())
 				.endMetadata()
 				.withNewSpec()
@@ -47,7 +47,7 @@ public class DbtServiceImpl implements KindService<Void> {
 						new EnvVar("POSTGRES_DB", "dbt", null),
 						new EnvVar("POSTGRES_DB_HOST", "192.168.49.1", null),
 						new EnvVar("POSTGRES_PORT", "5433", null)))
-				.withName("container-run-" + "-" + taskAccessor.getKind() + "-"
+				.withName("container-job-" + "-" + taskAccessor.getKind() + "-"
 						+ runDTO.getId())
 				.withImage("ltrubbianifbk/dbt_core:latest")
 				.withCommand("python", "dbt_wrapper.py")
@@ -61,7 +61,7 @@ public class DbtServiceImpl implements KindService<Void> {
 		kubernetesClient.resource(job).inNamespace("default").create();
 
 		String jobLogs = kubernetesClient.batch().v1().jobs().inNamespace("default")
-				.withName("run" + "-" + taskAccessor.getKind() + "-"
+				.withName("job" + "-" + taskAccessor.getKind() + "-"
 						+ runDTO.getId())
 				.getLog();
 

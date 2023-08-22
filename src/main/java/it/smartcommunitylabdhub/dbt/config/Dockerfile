@@ -3,6 +3,10 @@ FROM ghcr.io/dbt-labs/dbt-core:latest
 # Set working dir
 WORKDIR /app/
 
+RUN apt-get update && \
+    apt-get install -y vim && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install dbt-postgres adapter via pip
 RUN python -m pip install dbt-postgres 
 

@@ -5,6 +5,7 @@ import base64
 import requests
 import sys
 import re
+import dataclasses
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from datetime import datetime
@@ -50,6 +51,7 @@ def get_run() -> dict:
     RUN_ID = os.environ.get("RUN_ID")
     response = make_get_request(DH_CORE, "api/v1/runs", RUN_ID)
 
+    print("==================== GET RUN =====================")
     print(f"{response.json()}")
     return response.json()
 
@@ -58,6 +60,7 @@ def create_dataitem(data: dict) -> dict:
     DH_CORE = os.environ.get("DH_CORE")
     response = make_post_request(DH_CORE, "api/v1/dataitems", data)
 
+    print("==================== DATAITEM =====================")
     print(f"{response.json()}")
     return response.json()
 
@@ -87,7 +90,8 @@ def initialize_project(run: dict) -> None:
     spec: dict = run.get("spec", {})
     dbt: dict = spec.get("dbt", {})
 
-    output_name = spec.get("output", "model")
+    outputs = spec.get("outputs").get("dataitems", ["output"])
+    inputs = spec.get("inputs").get("dataitems", ["input"])
 
     # Parse task string
     task_accessor = parse_dbt_url(run.get("task"))
@@ -121,6 +125,7 @@ postgres:
         )
 
     # Create dbt_project.yml from 'dbt'
+    # to clean project add clean-targets: [target, dbt_packages, logs]
     with open(f"dbt_project.yml", "w") as dbt_project_file:
         dbt_project_file.write(
             """
@@ -142,116 +147,35 @@ models:
     # Decode and write the base64-encoded model_sql to the file
     model_sql = dbt.get("sql", "")
     decoded_model_sql = base64.b64decode(model_sql).decode("UTF-8")
-    with open(f"{models_directory}/{output_name}.sql", "w") as schema_file:
+    with open(
+        f"{models_directory}/{outputs[0]}.sql",
+        "w",
+    ) as schema_file:
         schema_file.write(decoded_model_sql)
 
+    # write schema and version detail ( qui forse va l'input)
+    with open(f"{models_directory}/{inputs[0]}.yml", "w") as schema_def:
+        schema_def.write(
+            """         
+models:
+  - name: {model_name}
+    latest_version: 9e5902e5-61db-4e42-89c1-adefc5500ae6
+    versions: 
+        - v: 9e5902e5-61db-4e42-89c1-adefc5500ae6
+          config:
+            materialized: table
+      """.format(
+                model_name=inputs[0]
+            )
+        )
 
-def extract_response(res) -> dict:
-    # Extract relevant information manually
-    return {
-        "status": res.status,
-        "timing": [
-            {
-                "name": timing.name,
-                "started_at": timing.started_at.isoformat(),
-                "completed_at": timing.completed_at.isoformat(),
-            }
-            for timing in res.timing
-        ],
-        "thread_id": res.thread_id,
-        "execution_time": res.execution_time,
-        "adapter_response": res.adapter_response,
-        "message": res.message,
-        "failures": res.failures,
-        "node": {
-            "database": res.node.database,
-            "schema": res.node.schema,
-            "name": res.node.name,
-            "resource_type": res.node.resource_type,
-            "package_name": res.node.package_name,
-            "path": res.node.path,
-            "original_file_path": res.node.original_file_path,
-            "unique_id": res.node.unique_id,
-            "fqn": res.node.fqn,
-            "alias": res.node.alias,
-            "checksum": {
-                "name": res.node.checksum.name,
-                "checksum": res.node.checksum.checksum,
-            },
-            "config": {
-                "_extra": res.node.config._extra,
-                "enabled": res.node.config.enabled,
-                "alias": res.node.config.alias,
-                "schema": res.node.config.schema,
-                "database": res.node.config.database,
-                "tags": res.node.config.tags,
-                "meta": res.node.config.meta,
-                "group": res.node.config.group,
-                "materialized": res.node.config.materialized,
-                "incremental_strategy": res.node.config.incremental_strategy,
-                "persist_docs": res.node.config.persist_docs,
-                "post_hook": res.node.config.post_hook,
-                "pre_hook": res.node.config.pre_hook,
-                "quoting": res.node.config.quoting,
-                "column_types": res.node.config.column_types,
-                "full_refresh": res.node.config.full_refresh,
-                "unique_key": res.node.config.unique_key,
-                "on_schema_change": res.node.config.on_schema_change,
-                "on_configuration_change": res.node.config.on_configuration_change,
-                "grants": res.node.config.grants,
-                "packages": res.node.config.packages,
-                "docs": {
-                    "show": res.node.config.docs.show,
-                    "node_color": res.node.config.docs.node_color,
-                },
-                "contract": {
-                    "enforced": res.node.config.contract.enforced,
-                },
-            },
-            "_event_status": res.node._event_status,
-            "tags": res.node.tags,
-            "description": res.node.description,
-            "columns": res.node.columns,
-            "meta": res.node.meta,
-            "group": res.node.group,
-            "docs": {
-                "show": res.node.docs.show,
-                "node_color": res.node.docs.node_color,
-            },
-            "patch_path": res.node.patch_path,
-            "build_path": res.node.build_path,
-            "deferred": res.node.deferred,
-            "unrendered_config": res.node.unrendered_config,
-            "created_at": res.node.created_at,
-            "config_call_dict": res.node.config_call_dict,
-            "relation_name": res.node.relation_name,
-            "raw_code": res.node.raw_code,
-            "language": res.node.language,
-            "refs": res.node.refs,
-            "sources": res.node.sources,
-            "metrics": res.node.metrics,
-            "depends_on": {
-                "macros": res.node.depends_on.macros,
-                "nodes": res.node.depends_on.nodes,
-            },
-            "compiled_path": res.node.compiled_path,
-            "compiled": res.node.compiled,
-            "compiled_code": res.node.compiled_code,
-            "extra_ctes_injected": res.node.extra_ctes_injected,
-            "extra_ctes": res.node.extra_ctes,
-            "_pre_injected_sql": res.node._pre_injected_sql,
-            "contract": {
-                "enforced": res.node.contract.enforced,
-                "checksum": res.node.contract.checksum,
-            },
-            "access": res.node.access,
-            "constraints": res.node.constraints,
-            "version": res.node.version,
-            "latest_version": res.node.latest_version,
-            "deprecation_date": res.node.deprecation_date,
-            "defer_relation": res.node.defer_relation,
-        },
-    }
+    # write all version of sql selects
+    with open(
+        f"{models_directory}/{inputs[0]}_v9e5902e5-61db-4e42-89c1-adefc5500ae6.sql", "w"
+    ) as schema_def:
+        schema_def.write(
+            f'select * from "{inputs[0]}_v9e5902e5-61db-4e42-89c1-adefc5500ae6"'
+        )
 
 
 def main() -> None:
@@ -260,6 +184,10 @@ def main() -> None:
     # retrieve the run from core
     run: dict = get_run()
     spec: dict = run.get("spec", {})
+    outputs = spec.get("outputs").get("dataitems", ["output"])
+
+    # TODO: with input I have to import all the dataitem for the query
+    inputs = spec.get("inputs").get("dataitems", ["input"])
 
     # Parse task string
     task_accessor = parse_dbt_url(run.get("task"))
@@ -273,6 +201,9 @@ def main() -> None:
     # initialize dbt Runner
     dbt = dbtRunner()
 
+    # clean dbt
+    dbt.invoke("clean")
+
     # create CLI args as a list of strings
     cli_args = ["run"]
 
@@ -282,20 +213,18 @@ def main() -> None:
     # inspect the results
     json_results = []
     for r in res.result:
-        json_string = json.dumps(extract_response(r), cls=CustomJSONEncoder, indent=2)
+        json_string = json.dumps(dataclasses.asdict(r), cls=CustomJSONEncoder, indent=2)
         json_results.append(json.loads(json_string))
-
-    print(f"{json_results}")
 
     try:
         # first check if we have results
         if len(json_results) > 0:
             # check status is success
-            result = json_results[0]
+            result = json_results[-1]
             if (
                 result.get("status") == "success"
                 and result.get("node").get("package_name") == project_name
-                and result.get("node").get("name") == spec.get("output", "model")
+                and result.get("node").get("name") == outputs[0]
             ):
                 print(f"SUCCESSFUL -> Send info to core backend")
 
@@ -340,21 +269,23 @@ def main() -> None:
                 # update run with dataitems result
                 run.update(
                     {
-                        "dataitems": [
-                            {
-                                "key": "dataitem",
-                                "kind": "dataitem",
-                                "id": f"store://{dataitem_result.get('project')}/dataitems/{dataitem_result.get('name')}:{dataitem_result.get('id')}",
-                            }
-                        ],
-                        "timing": {
-                            "compile": {
-                                "started_at": compile_timing.get("started_at"),
-                                "completed_at": compile_timing.get("completed_at"),
-                            },
-                            "execute": {
-                                "started_at": execute_timing.get("started_at"),
-                                "completed_at": execute_timing.get("completed_at"),
+                        "status": {
+                            "dataitems": [
+                                {
+                                    "key": outputs[0],
+                                    "kind": "dataitem",
+                                    "id": f"store://{dataitem_result.get('project')}/dataitems/{dataitem_result.get('name')}:{dataitem_result.get('id')}",
+                                }
+                            ],
+                            "timing": {
+                                "compile": {
+                                    "started_at": compile_timing.get("started_at"),
+                                    "completed_at": compile_timing.get("completed_at"),
+                                },
+                                "execute": {
+                                    "started_at": execute_timing.get("started_at"),
+                                    "completed_at": execute_timing.get("completed_at"),
+                                },
                             },
                         },
                     }
@@ -375,14 +306,14 @@ def main() -> None:
     except:
         print("Something got wrong during object result access")
 
-    # TODO: devo verificare che fqn=['default_name', 'model'],  ho preso il progetto giusto con il modello giusto.
+    # TODO: devo verificare che fqn=['default_name', 'output'],  ho preso il progetto giusto con il modello giusto.
 
     # se e' giusto passo lo status della run al backend (core) [status, timing]
-    # ci interessa l'esito (success/error), metadata sull'esecuzione (es execution time), tipo di output (es model)
+    # ci interessa l'esito (success/error), metadata sull'esecuzione (es execution time), tipo di output (es output)
     #       'adapter_response': {'_message': 'CREATE VIEW', 'code': 'CREATE VIEW', 'rows_affected': -1},
     #       'message': 'CREATE VIEW',
 
-    # del modello ci interessa il path come dataitem sql://postgres......  relation_name='"dbt"."public"."model"',
+    # del modello ci interessa il path come dataitem sql://postgres......  relation_name='"dbt"."public"."output"',
     # ci interessa inoltre il raw_code e il compiled_code ( va messo tutto in extra )
 
     sys.exit(0)

@@ -25,7 +25,6 @@ import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
-import jakarta.validation.Valid;
 
 @Service
 public class RunSerivceImpl implements RunService {
