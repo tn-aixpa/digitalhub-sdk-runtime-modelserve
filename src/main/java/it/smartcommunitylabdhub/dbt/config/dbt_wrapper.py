@@ -6,6 +6,8 @@ import requests
 import sys
 import re
 import dataclasses
+import uuid
+
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from datetime import datetime
@@ -86,7 +88,7 @@ def parse_dbt_url(url):
         return None
 
 
-def initialize_project(run: dict) -> None:
+def initialize_project(run: dict, uuid: str) -> None:
     spec: dict = run.get("spec", {})
     dbt: dict = spec.get("dbt", {})
 
@@ -153,6 +155,22 @@ models:
     ) as schema_file:
         schema_file.write(decoded_model_sql)
 
+    # write schema and version detail for outputs versioning
+    with open(f"{models_directory}/{outputs[0]}.yml", "w") as schema_def:
+        schema_def.write(
+            """         
+models:
+  - name: {model_name}
+    latest_version: {uuid}
+    versions: 
+        - v: {uuid}
+          config:
+            materialized: table
+      """.format(
+                model_name=outputs[0], uuid=uuid
+            )
+        )
+
     # write schema and version detail ( qui forse va l'input)
     with open(f"{models_directory}/{inputs[0]}.yml", "w") as schema_def:
         schema_def.write(
@@ -185,6 +203,8 @@ def main() -> None:
     run: dict = get_run()
     spec: dict = run.get("spec", {})
     outputs = spec.get("outputs").get("dataitems", ["output"])
+    # generate uuid for dataitem
+    uuid = str(uuid.uuid4())
 
     # TODO: with input I have to import all the dataitem for the query
     inputs = spec.get("inputs").get("dataitems", ["input"])
@@ -196,7 +216,7 @@ def main() -> None:
     project_name = task_accessor.get("project", "default_name").replace("-", "_")
 
     # initialize project
-    initialize_project(run=run)
+    initialize_project(run=run, uuid=uuid)
 
     # initialize dbt Runner
     dbt = dbtRunner()
@@ -205,7 +225,7 @@ def main() -> None:
     dbt.invoke("clean")
 
     # create CLI args as a list of strings
-    cli_args = ["run"]
+    cli_args = ["run", "--select", f"{outputs[0]}"]
 
     # run dbt
     res: dbtRunnerResult = dbt.invoke(cli_args)
@@ -241,6 +261,7 @@ def main() -> None:
                 )
 
                 dataitem = {
+                    "id": uuid,
                     "name": result.get("node").get("name"),
                     "project": task_accessor.get("project"),
                     "kind": "sql",

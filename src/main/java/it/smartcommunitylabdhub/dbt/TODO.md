@@ -21,3 +21,4 @@ LEGGERE I DATI DAL BACKEND
 - nel wrapper recuperare tutti gli inputs da S3...con versione o il latest, otteniamo quindi un dataitem da importare in postgres. In ogni caso la tabella creata avra' nome*versione : <name>*<version>
 
 - [x] key in dataitems e' il nome dell'output
+- la uuid del dataitem va generata nel wrapper e passata alla creazione del dataitem.
