@@ -60,13 +60,10 @@ class RemoteStore(Store):
         str
             Returns the path of the artifact.
         """
-
-        self._check_head(src)
-        if dst is None:
-            dst = self._build_temp(src)
-        self._check_local_dst(dst)
-        self._download_file(src, dst)
-        return dst
+        dst = dst if dst is not None else self._build_temp(src)
+        if not dst.endswith(".csv") or not dst.endswith(".parquet"):
+            dst = build_path(dst, "temp.file")
+        return self._download_file(src, dst)
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -130,8 +127,7 @@ class RemoteStore(Store):
         r = requests.head(src, timeout=60)
         r.raise_for_status()
 
-    @staticmethod
-    def _download_file(url: str, dst: str) -> None:
+    def _download_file(self, url: str, dst: str) -> str:
         """
         Method to download a file from a given url.
 
@@ -144,15 +140,17 @@ class RemoteStore(Store):
 
         Returns
         -------
-        None
+        str
+            The path of the downloaded file.
         """
-        if not dst.endswith(".csv") or not dst.endswith(".parquet"):
-            dst = build_path(dst, "temp.file")
+        self._check_head(url)
+        self._check_local_dst(dst)
         with requests.get(url, stream=True, timeout=60) as r:
             r.raise_for_status()
             with open(dst, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
+        return dst
 
     ############################
     # Store interface methods
