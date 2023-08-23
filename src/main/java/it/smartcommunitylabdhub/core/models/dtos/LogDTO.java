@@ -6,7 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 import java.util.HashMap;
@@ -43,11 +43,12 @@ public class LogDTO implements BaseEntity {
 
     private Date updated;
 
+    @JsonIgnore
     private String state;
 
     @JsonAnyGetter
     public Map<String, Object> getExtra() {
-        return extra;
+        return StatusFieldUtility.addStatusField(extra, state);
     }
 
     @JsonAnySetter

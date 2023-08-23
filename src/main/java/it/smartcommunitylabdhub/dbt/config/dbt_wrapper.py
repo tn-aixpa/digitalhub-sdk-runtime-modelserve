@@ -6,7 +6,7 @@ import requests
 import sys
 import re
 import dataclasses
-import uuid
+import uuid as uuid4
 
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
@@ -204,7 +204,9 @@ def main() -> None:
     spec: dict = run.get("spec", {})
     outputs = spec.get("outputs").get("dataitems", ["output"])
     # generate uuid for dataitem
-    uuid = str(uuid.uuid4())
+    uuid: str = str(uuid4.uuid4())
+
+    print(f"this id DATAITEM UUID : {uuid}")
 
     # TODO: with input I have to import all the dataitem for the query
     inputs = spec.get("inputs").get("dataitems", ["input"])

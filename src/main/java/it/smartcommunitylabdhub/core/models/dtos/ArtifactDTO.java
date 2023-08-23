@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
+import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -42,11 +43,13 @@ public class ArtifactDTO implements BaseEntity {
 
 	@Builder.Default
 	private Boolean embedded = false;
+
+	@JsonIgnore
 	private String state;
 
 	@JsonAnyGetter
 	public Map<String, Object> getExtra() {
-		return extra;
+		return StatusFieldUtility.addStatusField(extra, state);
 	}
 
 	@JsonAnySetter
