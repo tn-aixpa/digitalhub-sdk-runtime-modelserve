@@ -2,65 +2,13 @@
 Store module.
 """
 from abc import ABCMeta, abstractmethod
+from tempfile import mkdtemp
 
 import pandas as pd
 
 from sdk.utils.exceptions import StoreError
-from sdk.utils.file_utils import check_make_dir, get_dir
-from sdk.utils.uri_utils import get_uri_scheme
-
-
-class _ResourceRegistry(dict):
-    """
-    Registry object to keep track of resources fetched from a backend
-    and their temporary local paths.
-    It is used to avoid fetching the same resource multiple times.
-    This class is private and should not be used directly.
-    """
-
-    def set_resource(self, res_name: str, path: str) -> None:
-        """
-        Register resource.
-
-        Parameters
-        ----------
-        res_name : str
-            Resource name.
-        path : str
-            Resource path.
-
-        Returns
-        -------
-        None
-        """
-        if res_name not in self:
-            self[res_name] = path
-
-    def get_resource(self, res_name: str) -> str | None:
-        """
-        Get resource path.
-
-        Parameters
-        ----------
-        res_name : str
-            Resource name.
-
-        Returns
-        -------
-        str
-            Resource path.
-        """
-        return self.get(res_name)
-
-    def clean_all(self) -> None:
-        """
-        Clean all resources.
-
-        Returns
-        -------
-        None
-        """
-        self.clear()
+from sdk.utils.file_utils import make_dir, build_path
+from sdk.utils.uri_utils import map_uri_scheme, get_name_from_uri
 
 
 class Store(metaclass=ABCMeta):
@@ -83,11 +31,11 @@ class Store(metaclass=ABCMeta):
         name : str
             Store name.
         store_type : str
-            Store type.
+            Store type. Used to choose the right store implementation.
         uri : str
             Store URI.
         config : dict | None
-            Store configuration, by default None
+            Store configuration.
 
         Returns
         -------
@@ -99,7 +47,7 @@ class Store(metaclass=ABCMeta):
         self.config = config if config is not None else {}
 
         # Private attributes
-        self._registry = _ResourceRegistry()
+        self._registry = {}
 
         self._validate_uri()
 
@@ -168,8 +116,25 @@ class Store(metaclass=ABCMeta):
         raise ValueError(f"Format {extension} not supported.")
 
     ############################
-    # Interface helpers methods
+    # Helpers methods
     ############################
+
+    def _validate_uri(self) -> None:
+        """
+        Validate the URI of the store.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        StoreError
+            If the URI scheme is not valid.
+
+        """
+        if map_uri_scheme(self.uri) != self.type:
+            raise StoreError(f"Invalid URI scheme '{self.uri}' for {self.type} store.")
 
     @staticmethod
     def _check_local_dst(dst: str) -> None:
@@ -190,17 +155,28 @@ class Store(metaclass=ABCMeta):
         StoreError
             If the destination is not a local path.
         """
-        if get_uri_scheme(dst) in ["", "file"]:
-            dst_dir = get_dir(dst)
-            check_make_dir(dst_dir)
-            return
-        raise StoreError(f"Destination {dst} is not a local path.")
+        if map_uri_scheme(dst) != "local":
+            raise StoreError(f"Destination '{dst}' is not a local path.")
+        make_dir(dst)
 
-    @abstractmethod
-    def _validate_uri(self) -> None:
+    def _build_temp(self, src: str) -> str:
         """
-        Method to validate URI.
+        Build a temporary path.
+
+        Parameters
+        ----------
+        src : str
+            Source filename.
+
+        Returns
+        -------
+        str
+            Temporary path.
         """
+        tmpdir = mkdtemp()
+        dst = build_path(tmpdir, get_name_from_uri(src))
+        self._registry[src] = dst
+        return dst
 
     @staticmethod
     @abstractmethod
@@ -208,25 +184,3 @@ class Store(metaclass=ABCMeta):
         """
         Method to check if store is local.
         """
-
-    @abstractmethod
-    def get_root_uri(self) -> str:
-        """
-        Method to get root URI.
-        """
-
-    ############################
-    # Resource registry methods
-    ############################
-
-    def _register_resource(self, key: str, path: str) -> None:
-        """
-        Register a resource in the registry.
-        """
-        self._registry.set_resource(key, path)
-
-    def get_resource(self, key: str) -> str | None:
-        """
-        Get a resource from the registry.
-        """
-        return self._registry.get_resource(key)

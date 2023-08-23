@@ -1,108 +1,8 @@
 """
 Common filesystem utils.
 """
-import os
 import shutil
 from pathlib import Path
-
-
-####################
-# Directories utils
-####################
-
-
-def get_dir(path: str) -> str:
-    """
-    Return directory path.
-
-    Parameters
-    ----------
-    path : str
-        The path.
-
-    Returns
-    -------
-    str
-        The directory path.
-    """
-    pth = Path(path)
-    if pth.suffix != "":
-        return str(pth.parent)
-    return str(pth)
-
-
-def check_dir(path: str) -> bool:
-    """
-    Check if a directory exists.
-
-    Parameters
-    ----------
-    path : str
-        The directory path.
-
-    Returns
-    -------
-    bool
-        True if the directory exists, False otherwise.
-    """
-    try:
-        return Path(path).is_dir()
-    except OSError:
-        return False
-
-
-def make_dir(*args) -> None:
-    """
-    Make a directory.
-
-    Parameters
-    ----------
-    *args
-        Arguments list.
-
-    Returns
-    -------
-    None
-    """
-    os.makedirs(get_absolute_path(*args))
-
-
-def check_make_dir(path: str) -> None:
-    """
-    Check if a directory already exist, otherwise create it.
-
-    Parameters
-    ----------
-    path : str
-        The directory path.
-
-    Returns
-    -------
-    None
-    """
-    if not check_dir(path):
-        make_dir(path)
-
-
-def clean_all(path: str) -> None:
-    """
-    Remove dir and all it's contents.
-
-    Parameters
-    ----------
-    path : str
-        The directory path.
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    Exception
-        If the directory cannot be removed.
-    """
-    shutil.rmtree(path)
 
 
 ####################
@@ -110,9 +10,9 @@ def clean_all(path: str) -> None:
 ####################
 
 
-def get_path(*args) -> str:
+def build_path(*args) -> str:
     """
-    Return path.
+    Build path from args list.
 
     Parameters
     ----------
@@ -164,6 +64,91 @@ def check_path(path: str) -> bool:
         return False
 
 
+def clean_all(path: str) -> None:
+    """
+    Remove dir and all it's contents.
+
+    Parameters
+    ----------
+    path : str
+        The directory path.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    Exception
+        If the directory cannot be removed.
+    """
+    shutil.rmtree(path)
+
+
+####################
+# Directories utils
+####################
+
+
+def get_dir(path: str) -> str:
+    """
+    Return directory path.
+
+    Parameters
+    ----------
+    path : str
+        The path.
+
+    Returns
+    -------
+    str
+        The directory path.
+    """
+    pth = Path(path)
+    if pth.is_file():
+        return str(pth.parent)
+    return str(pth)
+
+
+def check_dir(path: str) -> bool:
+    """
+    Check if path is a directory.
+
+    Parameters
+    ----------
+    path : str
+        The path to check.
+
+    Returns
+    -------
+    bool
+        True if the directory exists, False otherwise.
+    """
+    try:
+        return Path(path).is_dir()
+    except OSError:
+        return False
+
+
+def make_dir(*args) -> None:
+    """
+    Create a directory.
+
+    Parameters
+    ----------
+    *args
+        Arguments list.
+
+    Returns
+    -------
+    None
+    """
+    pth = Path(*args).absolute()
+    if pth.is_file():
+        pth = pth.parent
+    pth.mkdir(parents=True, exist_ok=True)
+
+
 ####################
 # Files utils
 ####################
@@ -189,7 +174,7 @@ def check_file(path: str) -> bool:
         return False
 
 
-def copy_file(src: str, dst: str) -> None:
+def copy_file(src: str, dst: str) -> str:
     """
     Copy local file to destination.
 
@@ -202,9 +187,10 @@ def copy_file(src: str, dst: str) -> None:
 
     Returns
     -------
-    None
+    str
+        The copied file path.
     """
-    shutil.copy(src, dst)
+    return shutil.copy(src, dst)
 
 
 def is_python_module(src: str) -> bool:

@@ -4,18 +4,11 @@ Remote store module.
 from __future__ import annotations
 
 import typing
-from tempfile import mkdtemp
 
 import requests
 
 from sdk.store.objects.base import Store
-from sdk.utils.file_utils import get_dir, check_make_dir
-from sdk.utils.exceptions import StoreError
-from sdk.utils.uri_utils import (
-    get_name_from_uri,
-    get_uri_netloc,
-    get_uri_scheme,
-)
+from sdk.utils.file_utils import build_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
@@ -47,12 +40,13 @@ class RemoteStore(Store):
         str
             The path of the downloaded artifact.
         """
-        return self.fetch_artifact(src, dst)
+        return self._registry.get(src, self.fetch_artifact(src, dst))
 
     def fetch_artifact(self, src: str, dst: str | None = None) -> str:
         """
         Method to fetch an artifact from the remote storage and to register
         it on the paths registry.
+        If the destination is not provided, a temporary folder will be created.
 
         Parameters
         ----------
@@ -67,25 +61,11 @@ class RemoteStore(Store):
             Returns the path of the artifact.
         """
 
-        # Check if source exists
         self._check_head(src)
-
-        # Rebuild destination if not provided
         if dst is None:
-            tmpdir = mkdtemp()
-            dst = f"{tmpdir}/{get_name_from_uri(src)}"
-            self._register_resource(f"{src}", dst)
-
-        # Check if local destination exists and make folders.
+            dst = self._build_temp(src)
         self._check_local_dst(dst)
-
-        # If file is not csv or parquet, append temp as file name
-        if not dst.endswith(".csv") or not dst.endswith(".parquet"):
-            dst = f"{dst}/temp.file"
-
-        # Fetch artifact
         self._download_file(src, dst)
-
         return dst
 
     def upload(self, src: str, dst: str | None = None) -> str:
@@ -144,12 +124,11 @@ class RemoteStore(Store):
 
         Raises
         ------
-        StoreError
-            If the source does not exist.
+        HTTPError
+            If an error occurs while checking the source.
         """
         r = requests.head(src, timeout=60)
-        if r.status_code != 200:
-            raise StoreError(f"Source {src} does not exist.")
+        r.raise_for_status()
 
     @staticmethod
     def _download_file(url: str, dst: str) -> None:
@@ -167,6 +146,8 @@ class RemoteStore(Store):
         -------
         None
         """
+        if not dst.endswith(".csv") or not dst.endswith(".parquet"):
+            dst = build_path(dst, "temp.file")
         with requests.get(url, stream=True, timeout=60) as r:
             r.raise_for_status()
             with open(dst, "wb") as f:
@@ -176,26 +157,6 @@ class RemoteStore(Store):
     ############################
     # Store interface methods
     ############################
-
-    def _validate_uri(self) -> None:
-        """
-        Validate the URI of the store.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        StoreError
-            If the URI scheme is not 'http' or 'https'.
-
-        """
-        scheme = get_uri_scheme(self.uri)
-        if scheme not in ["http", "https"]:
-            raise StoreError(
-                f"Invalid URI scheme for remote store: {scheme}. Should be 'http' or 'https'."
-            )
 
     @staticmethod
     def is_local() -> bool:
@@ -208,14 +169,3 @@ class RemoteStore(Store):
             False
         """
         return False
-
-    def get_root_uri(self) -> str:
-        """
-        Return base url from the store URI.
-
-        Returns
-        -------
-        str
-            The base url.
-        """
-        return f"{get_uri_scheme(self.uri)}://{get_uri_netloc(self.uri)}"

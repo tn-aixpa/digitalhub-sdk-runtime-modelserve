@@ -3,8 +3,6 @@ S3Store module.
 """
 from __future__ import annotations
 
-from tempfile import mkdtemp
-
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -12,8 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
-from sdk.utils.file_utils import check_make_dir, get_dir
-from sdk.utils.uri_utils import get_name_from_uri, get_uri_netloc, get_uri_scheme
+from sdk.utils.uri_utils import get_uri_netloc
 
 
 class SqlStore(Store):
@@ -34,7 +31,7 @@ class SqlStore(Store):
         --------
         fetch_artifact
         """
-        return self.fetch_artifact(src, dst)
+        return self._registry.get(src, self.fetch_artifact(src, dst))
 
     def fetch_artifact(self, src: str, dst: str | None = None) -> str:
         """
@@ -53,27 +50,8 @@ class SqlStore(Store):
         str
             Returns a file path.
         """
-        if dst is None:
-            tmpdir = mkdtemp()
-            dst = f"{tmpdir}/{get_name_from_uri(src)}"
-            self._register_resource(f"{src}", dst)
-
-        # Get engine
-        engine = self._get_engine()
-
-        # Check store access
-        self._check_access_to_storage(engine)
-
-        # Check if local destination exists
-        self._check_local_dst(dst)
-
-        # Get table from db and save it locally
-        df = pd.read_sql_table(src, engine)
-        df.to_parquet(dst, index=False)
-
-        # Close connection
-        engine.dispose()
-        return dst
+        dst = dst if dst is not None else self._build_temp(src)
+        return self._download_table(src, dst)
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -117,24 +95,9 @@ class SqlStore(Store):
         str
             The SQL uri where the dataframe was saved.
         """
-        # Get engine
-        engine = self._get_engine()
-
-        # Check store access
-        self._check_access_to_storage(engine)
-
-        # Set destination if not provided
         if dst is None:
             raise StoreError("Destination table name not provided.")
-
-        # Write dataframe to db
-        df.to_sql(dst, engine, index=False, **kwargs)
-
-        # Close connection
-        engine.dispose()
-
-        # Return uri where dataframe was saved
-        return f"sql://{self._get_schema()}.{dst}"
+        return self._upload_table(df, dst, **kwargs)
 
     ############################
     # Private helper methods
@@ -156,17 +119,6 @@ class SqlStore(Store):
             raise StoreError(
                 f"Something wrong with connection string. Arguments: {str(ex.args)}"
             )
-
-    def _get_scheme(self) -> str:
-        """
-        Get the URI scheme.
-
-        Returns
-        -------
-        str
-            The URI scheme.
-        """
-        return get_uri_scheme(self.uri)
 
     def _get_schema(self) -> str:
         """
@@ -204,6 +156,56 @@ class SqlStore(Store):
             engine.dispose()
             raise StoreError("No access to db!")
 
+    def _download_table(self, table_name: str, dst: str) -> str:
+        """
+        Download a table from SQL based storage.
+
+        Parameters
+        ----------
+        table_name : str
+            The source table name.
+        dst : str
+            The destination path.
+
+        Returns
+        -------
+        str
+            The destination path.
+        """
+        engine = self._get_engine()
+        self._check_access_to_storage(engine)
+        self._check_local_dst(dst)
+        schema = self._get_schema()
+        df = pd.read_sql_table(table_name, engine, schema=schema)
+        df.to_parquet(dst, index=False)
+        engine.dispose()
+        return dst
+
+    def _upload_table(self, df: pd.DataFrame, table_name: str, **kwargs) -> str:
+        """
+        Upload a table to SQL based storage.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe.
+        table_name : str
+            The destination table name.
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        str
+            The SQL URI where the dataframe was saved.
+        """
+        engine = self._get_engine()
+        self._check_access_to_storage(engine)
+        schema = self._get_schema()
+        df.to_sql(table_name, engine, schema=schema, index=False, **kwargs)
+        engine.dispose()
+        return f"sql://{schema}.{table_name}"
+
     ############################
     # Store interface methods
     ############################
@@ -224,8 +226,7 @@ class SqlStore(Store):
         StoreError
             If no schema is specified in the URI.
         """
-        if self._get_scheme() != "sql":
-            raise StoreError("Invalid URI scheme for sql store!")
+        super()._validate_uri()
         if self._get_schema() == "":
             raise StoreError("No schema specified in the URI for sql store!")
 
@@ -240,14 +241,3 @@ class SqlStore(Store):
             False
         """
         return False
-
-    def get_root_uri(self) -> str:
-        """
-        Get the root URI of the store.
-
-        Returns
-        -------
-        str
-            The root URI of the store.
-        """
-        return f"sql://{self._get_schema()}"

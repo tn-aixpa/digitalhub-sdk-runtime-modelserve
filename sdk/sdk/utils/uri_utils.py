@@ -165,7 +165,7 @@ def map_uri_scheme(uri: str) -> str:
     Returns
     -------
     str
-        Common scheme.
+        Mapped scheme type.
 
     Raises
     ------
