@@ -131,6 +131,20 @@ class SqlStore(Store):
         """
         return get_uri_netloc(self.uri)
 
+    def _check_factory(self) -> tuple[Engine, str]:
+        """
+        Check if the database is accessible and return the engine and the schema.
+
+        Returns
+        -------
+        tuple[Engine, str]
+            A tuple containing the engine and the schema.
+        """
+        engine = self._get_engine()
+        schema = self._get_schema()
+        self._check_access_to_storage(engine)
+        return engine, schema
+
     @staticmethod
     def _check_access_to_storage(engine: Engine) -> None:
         """
@@ -156,13 +170,13 @@ class SqlStore(Store):
             engine.dispose()
             raise StoreError("No access to db!")
 
-    def _download_table(self, table_name: str, dst: str) -> str:
+    def _download_table(self, table: str, dst: str) -> str:
         """
         Download a table from SQL based storage.
 
         Parameters
         ----------
-        table_name : str
+        table : str
             The source table name.
         dst : str
             The destination path.
@@ -172,16 +186,13 @@ class SqlStore(Store):
         str
             The destination path.
         """
-        engine = self._get_engine()
-        self._check_access_to_storage(engine)
+        engine, schema = self._check_factory()
         self._check_local_dst(dst)
-        schema = self._get_schema()
-        df = pd.read_sql_table(table_name, engine, schema=schema)
-        df.to_parquet(dst, index=False)
+        pd.read_sql_table(table, engine, schema=schema).to_parquet(dst, index=False)
         engine.dispose()
         return dst
 
-    def _upload_table(self, df: pd.DataFrame, table_name: str, **kwargs) -> str:
+    def _upload_table(self, df: pd.DataFrame, table: str, **kwargs) -> str:
         """
         Upload a table to SQL based storage.
 
@@ -189,7 +200,7 @@ class SqlStore(Store):
         ----------
         df : pd.DataFrame
             The dataframe.
-        table_name : str
+        table : str
             The destination table name.
         **kwargs
             Keyword arguments.
@@ -199,12 +210,10 @@ class SqlStore(Store):
         str
             The SQL URI where the dataframe was saved.
         """
-        engine = self._get_engine()
-        self._check_access_to_storage(engine)
-        schema = self._get_schema()
-        df.to_sql(table_name, engine, schema=schema, index=False, **kwargs)
+        engine, schema = self._check_factory()
+        df.to_sql(table, engine, schema=schema, index=False, **kwargs)
         engine.dispose()
-        return f"sql://{schema}.{table_name}"
+        return f"sql://{schema}.{table}"
 
     ############################
     # Store interface methods
