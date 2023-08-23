@@ -3,9 +3,10 @@ package it.smartcommunitylabdhub.core.models.dtos.utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
 
 public class StatusFieldUtility {
+
+    @SuppressWarnings("unchecked")
     public static Map<String, Object> addStatusField(Map<String, Object> extra, String state) {
         Map<String, Object> updatedExtra = new HashMap<>(extra);
 
@@ -19,6 +20,7 @@ public class StatusFieldUtility {
         return updatedExtra;
     }
 
+    @SuppressWarnings("unchecked")
     public static void updateStatusField(Map<String, Object> extra, String state,
             StatusFieldHandler handler) {
         Map<String, Object> updatedExtra = new HashMap<>(extra);
