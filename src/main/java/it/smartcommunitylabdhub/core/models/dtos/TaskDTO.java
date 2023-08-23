@@ -7,6 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.smartcommunitylabdhub.core.models.dtos.utils.StateHandler;
 import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
@@ -55,5 +56,6 @@ public class TaskDTO implements BaseEntity {
     @JsonAnySetter
     public void setExtra(String key, Object value) {
         extra.put(key, value);
+        StatusFieldUtility.updateStatusField(extra, state, new StateHandler());
     }
 }
