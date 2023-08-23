@@ -33,14 +33,18 @@ def make_post_request(base_url, endpoint, data=None):
 
 # Function to make a GET request with parameters in the URL path
 def make_get_request(base_url, endpoint, *path_params):
-    url = f"{base_url}/{endpoint}/{'/'.join(path_params)}"
+    url = f"{base_url}/{endpoint}"
+    if path_params:
+        url += "/" + "/".join(path_params)
     response = requests.get(url)
     return response
 
 
 # Function to make a PUT request
 def make_put_request(base_url, endpoint, data=None, *path_params):
-    url = f"{base_url}/{endpoint}/{'/'.join(path_params)}"
+    url = f"{base_url}/{endpoint}"
+    if path_params:
+        url += "/" + "/".join(path_params)
     response = requests.put(url, json=data)
     return response
 
@@ -88,19 +92,85 @@ def parse_dbt_url(url):
         return None
 
 
-def initialize_project(run: dict, uuid: str) -> None:
-    spec: dict = run.get("spec", {})
-    dbt: dict = spec.get("dbt", {})
+def generate_inputs_conf(project: str, inputs: list, models_directory: str) -> None:
+    DH_CORE = os.environ.get("DH_CORE")
 
-    outputs = spec.get("outputs").get("dataitems", ["output"])
-    inputs = spec.get("inputs").get("dataitems", ["input"])
+    for schema in inputs:
+        # retrive schema information
+        response = make_get_request(
+            DH_CORE, f"api/v1/-/{project}/dataitems/{schema}/latest"
+        ).json()
 
-    # Parse task string
-    task_accessor = parse_dbt_url(run.get("task"))
+        print(f"{response}")
+        # write schema and version detail ( qui forse va l'input)
+        with open(f"{models_directory}/{schema}.yml", "w") as schema_def:
+            schema_def.write(
+                """         
+models:
+  - name: {schema}
+    latest_version: {version}
+    versions: 
+        - v: {version}
+          config:
+            materialized: table
+      """.format(
+                    schema=schema, version=response["id"]
+                )
+            )
 
-    # Get project name
-    project_name = task_accessor.get("project", "default_name").replace("-", "_")
+        # write also sql select for the schema
+        with open(
+            f"{models_directory}/{schema}_v{response['id']}.sql",
+            "w",
+        ) as schema_def:
+            schema_def.write(f'select * from "{schema}_v{response["id"]}"')
 
+
+def generate_outputs_conf(
+    decoded_model_sql: str, outputs: list, models_directory: str, uuid: str
+) -> None:
+    with open(
+        f"{models_directory}/{outputs[0]}.sql",
+        "w",
+    ) as schema_file:
+        schema_file.write(decoded_model_sql)
+
+    # write schema and version detail for outputs versioning
+    with open(f"{models_directory}/{outputs[0]}.yml", "w") as schema_def:
+        schema_def.write(
+            """         
+models:
+  - name: {model_name}
+    latest_version: {uuid}
+    versions: 
+        - v: {uuid}
+          config:
+            materialized: table
+      """.format(
+                model_name=outputs[0], uuid=uuid
+            )
+        )
+
+
+def generate_dbt_project_yml(project_name: str) -> None:
+    # Create dbt_project.yml from 'dbt'
+    # to clean project add clean-targets: [target, dbt_packages, logs]
+    with open(f"dbt_project.yml", "w") as dbt_project_file:
+        dbt_project_file.write(
+            """
+name: "{project_name}"
+version: "1.0.0"
+config-version: 2
+profile: "postgres"
+model-paths: ["models"]
+models:
+        """.format(
+                project_name=project_name
+            )
+        )
+
+
+def generate_dbt_profile_yml() -> None:
     # Create dbt profiles.yml
 
     with open(f"profiles.yml", "w") as profiles_file:
@@ -126,21 +196,25 @@ postgres:
             )
         )
 
-    # Create dbt_project.yml from 'dbt'
-    # to clean project add clean-targets: [target, dbt_packages, logs]
-    with open(f"dbt_project.yml", "w") as dbt_project_file:
-        dbt_project_file.write(
-            """
-name: "{project_name}"
-version: "1.0.0"
-config-version: 2
-profile: "postgres"
-model-paths: ["models"]
-models:
-        """.format(
-                project_name=project_name
-            )
-        )
+
+def initialize_project(run: dict, uuid: str) -> None:
+    spec: dict = run.get("spec", {})
+    dbt: dict = spec.get("dbt", {})
+
+    outputs = spec.get("outputs").get("dataitems", ["output"])
+    inputs = spec.get("inputs").get("dataitems", ["input"])
+
+    # Parse task string
+    task_accessor = parse_dbt_url(run.get("task"))
+
+    # Get project name
+    project_name = task_accessor.get("project", "default_name").replace("-", "_")
+
+    # Generate profile yaml file
+    generate_dbt_profile_yml()
+
+    # Generate project yaml file
+    generate_dbt_project_yml(project_name=project_name)
 
     # Create a new folder in models directory and put a schema.yml definition
     models_directory = "models"
@@ -149,51 +223,16 @@ models:
     # Decode and write the base64-encoded model_sql to the file
     model_sql = dbt.get("sql", "")
     decoded_model_sql = base64.b64decode(model_sql).decode("UTF-8")
-    with open(
-        f"{models_directory}/{outputs[0]}.sql",
-        "w",
-    ) as schema_file:
-        schema_file.write(decoded_model_sql)
 
-    # write schema and version detail for outputs versioning
-    with open(f"{models_directory}/{outputs[0]}.yml", "w") as schema_def:
-        schema_def.write(
-            """         
-models:
-  - name: {model_name}
-    latest_version: {uuid}
-    versions: 
-        - v: {uuid}
-          config:
-            materialized: table
-      """.format(
-                model_name=outputs[0], uuid=uuid
-            )
-        )
+    # Generate outputs confs
+    generate_outputs_conf(decoded_model_sql, outputs, models_directory, uuid)
 
-    # write schema and version detail ( qui forse va l'input)
-    with open(f"{models_directory}/{inputs[0]}.yml", "w") as schema_def:
-        schema_def.write(
-            """         
-models:
-  - name: {model_name}
-    latest_version: 9e5902e5-61db-4e42-89c1-adefc5500ae6
-    versions: 
-        - v: 9e5902e5-61db-4e42-89c1-adefc5500ae6
-          config:
-            materialized: table
-      """.format(
-                model_name=inputs[0]
-            )
-        )
-
-    # write all version of sql selects
-    with open(
-        f"{models_directory}/{inputs[0]}_v9e5902e5-61db-4e42-89c1-adefc5500ae6.sql", "w"
-    ) as schema_def:
-        schema_def.write(
-            f'select * from "{inputs[0]}_v9e5902e5-61db-4e42-89c1-adefc5500ae6"'
-        )
+    # Generate inputs confs
+    generate_inputs_conf(
+        project=task_accessor.get("project", "default-name"),
+        inputs=inputs,
+        models_directory=models_directory,
+    )
 
 
 def main() -> None:
