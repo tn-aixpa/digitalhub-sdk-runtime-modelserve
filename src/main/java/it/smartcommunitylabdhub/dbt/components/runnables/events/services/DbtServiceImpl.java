@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.dbt.components.runnables.events.services;
 
 import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +9,6 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
@@ -21,14 +20,15 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DbtServiceImpl implements KindService<Void> {
 
+	@Autowired
+	KubernetesClient kubernetesClient;
+
 	@Override
 	public Void run(RunDTO runDTO) {
 
 		log.info("-----------------  PREPARE KUBERNETES JOB ----------------");
 
 		TaskAccessor taskAccessor = TaskUtils.parseTask(runDTO.getTask());
-
-		KubernetesClient kubernetesClient = new KubernetesClientBuilder().build();
 
 		Job job = new JobBuilder()
 				.withNewMetadata()
