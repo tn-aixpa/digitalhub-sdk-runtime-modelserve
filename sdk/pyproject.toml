@@ -4,7 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sdk"
-version = "0.0.2"
+version = "1.0.0"
+description = "Python sdk for DHCore"
+readme = "README.md"
+authors = [{ name = "Fondazione Bruno Kessler", email = "mmartini@fbk.eu" }]
+license = { file = "LICENSE.txt" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.10"
 dependencies = [
 "boto3==1.28.31",
@@ -13,3 +23,18 @@ dependencies = [
 "pyarrow==12.0.1",
 "sqlalchemy==2.0.20",
 ]
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest",
+    "moto==4.1.14"
+]
+docs = [
+    "Sphinx==5.3.0",
+    "pydata-sphinx-theme==0.13.3",
+    "autodoc-pydantic==1.8.0",
+    "numpydoc==1.5.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/"
