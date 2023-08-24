@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sdk"
-version = "1.0.0"
+version = "0.1.0"
 description = "Python sdk for DHCore"
 readme = "README.md"
 authors = [{ name = "Fondazione Bruno Kessler", email = "mmartini@fbk.eu" }]
 license = { file = "LICENSE.txt" }
 classifiers = [
-    "License :: OSI Approved :: Apache License",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.10"
@@ -23,10 +23,13 @@ dependencies = [
 "pyarrow==12.0.1",
 "sqlalchemy==2.0.20",
 ]
+
 [project.optional-dependencies]
 dev = [
-    "black==23.3.0",
-    "pytest==7.4.0",
+    "black",
+    "pytest",
+    "bumpver",
+    "ruff",
     "moto==4.1.14"
 ]
 docs = [
@@ -38,3 +41,17 @@ docs = [
 
 [project.urls]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-core/tree/main/sdk"
+
+[tool.ruff]
+line-length = 100
+
+[tool.bumpver]
+current_version = "0.1.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message  = "Bump version {old_version} -> {new_version}"
+commit          = true
+tag             = true
+push            = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']

@@ -266,7 +266,7 @@ class S3Store(Store):
         """
         client, bucket = self._check_factory()
         client.put_object(Bucket=bucket, Key=key, Body=fileobj.getvalue())
-        return f"s3://{self.bucket}/{key}"
+        return f"s3://{bucket}/{key}"
 
     ############################
     # Store interface methods

@@ -7,7 +7,7 @@ import typing
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.function.metadata import build_metadata
-from sdk.entities.function.spec import build_spec
+from sdk.entities.function.spec.builder import build_spec
 from sdk.entities.task.crud import create_task, new_task
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
@@ -16,7 +16,7 @@ from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
     from sdk.entities.function.metadata import FunctionMetadata
-    from sdk.entities.function.spec import FunctionSpec
+    from sdk.entities.function.spec.base import FunctionSpec
     from sdk.entities.run.entity import Run
     from sdk.entities.task.entity import Task
 

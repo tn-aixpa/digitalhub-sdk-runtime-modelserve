@@ -113,6 +113,8 @@ class SqlStore(Store):
             An SQLAlchemy engine.
         """
         connection_string = self.config.get("connection_string")
+        if not isinstance(connection_string, str):
+            raise StoreError("Connection string must be a string.")
         try:
             return create_engine(connection_string, future=True)
         except Exception as ex:

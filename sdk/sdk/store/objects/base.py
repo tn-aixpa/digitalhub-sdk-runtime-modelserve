@@ -47,7 +47,7 @@ class Store(metaclass=ABCMeta):
         self.config = config if config is not None else {}
 
         # Private attributes
-        self._registry = {}
+        self._registry: dict[str, str] = {}
 
         self._validate_uri()
 

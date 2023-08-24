@@ -24,6 +24,5 @@ class EntitySpec(ModelObj):
         EntitySpec
             An entity specification object.
         """
-        if obj is None:
-            obj = {}
+        obj = obj if obj is not None else {}
         return cls(**obj)
