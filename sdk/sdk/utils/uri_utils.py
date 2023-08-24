@@ -2,7 +2,7 @@
 Common URI utils.
 """
 from pathlib import Path
-from urllib.parse import ParseResult, urljoin, urlparse, urlunparse
+from urllib.parse import ParseResult, urlparse
 
 
 def parse_uri(uri: str) -> ParseResult:
@@ -165,7 +165,7 @@ def map_uri_scheme(uri: str) -> str:
     Returns
     -------
     str
-        Common scheme.
+        Mapped scheme type.
 
     Raises
     ------
