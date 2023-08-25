@@ -1,5 +1,5 @@
 """
-Task spec module.
+Task specification module.
 """
 from sdk.entities.base.spec import EntitySpec
 from sdk.entities.task.models import K8sResources

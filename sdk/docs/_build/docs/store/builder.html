@@ -367,8 +367,8 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.builder.StoreBuilder.default" title="sdk.store.builder.StoreBuilder.default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default</span></code></a>()</p></td>
 <td><p>Get the default store instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.builder.StoreBuilder.get" title="sdk.store.builder.StoreBuilder.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(store_name)</p></td>
-<td><p>Get a store instance.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.builder.StoreBuilder.get" title="sdk.store.builder.StoreBuilder.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(uri)</p></td>
+<td><p>Get a store instance by URI.</p></td>
 </tr>
 </tbody>
 </table>
@@ -393,12 +393,12 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.builder.StoreBuilder.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="objects/base.html#sdk.store.objects.base.Store" title="sdk.store.objects.base.Store"><span class="pre">Store</span></a></span></span><a class="headerlink" href="#sdk.store.builder.StoreBuilder.get" title="Permalink to this definition">#</a></dt>
-<dd><p>Get a store instance.</p>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="objects/base.html#sdk.store.objects.base.Store" title="sdk.store.objects.base.Store"><span class="pre">Store</span></a></span></span><a class="headerlink" href="#sdk.store.builder.StoreBuilder.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Get a store instance by URI.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>store_name</strong><span class="classifier">str</span></dt><dd><p>Store name.</p>
+<dt><strong>uri</strong><span class="classifier">str</span></dt><dd><p>URI to parse.</p>
 </dd>
 </dl>
 </dd>

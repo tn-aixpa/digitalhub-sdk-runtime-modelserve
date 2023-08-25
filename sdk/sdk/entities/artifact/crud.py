@@ -77,7 +77,7 @@ def new_artifact(
     key : str
         Representation of artfact like store://etc..
     src_path : str
-        Path to the artifact on local file system or remote storage.
+        Path to the artifact on local file system.
     targeth_path : str
         Destination path of the artifact.
     local : bool

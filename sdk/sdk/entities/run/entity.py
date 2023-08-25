@@ -187,7 +187,7 @@ class Run(Entity):
             Artifact(s) from backend.
         """
         resp = self.refresh()
-        result = resp.get("artifacts")
+        result = resp.get("status", {}).get("artifacts")
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
         if output_key is not None:
@@ -214,7 +214,7 @@ class Run(Entity):
             Dataitem(s) from backend.
         """
         resp = self.refresh()
-        result = resp.get("dataitems")
+        result = resp.get("status", {}).get("dataitems")
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
         if output_key is not None:

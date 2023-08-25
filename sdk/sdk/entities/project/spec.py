@@ -1,5 +1,5 @@
 """
-Project spec module.
+Project specification module.
 """
 from sdk.entities.base.spec import EntitySpec
 

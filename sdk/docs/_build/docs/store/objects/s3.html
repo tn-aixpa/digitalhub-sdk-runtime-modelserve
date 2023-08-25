@@ -365,12 +365,6 @@ artifacts on S3 based storage.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.s3.S3Store.fetch_artifact" title="sdk.store.objects.s3.S3Store.fetch_artifact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_artifact</span></code></a>(src[, dst])</p></td>
 <td><p>Fetch an artifact from S3 based storage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_resource</span></code>(key)</p></td>
-<td><p>Get a resource from the registry.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.s3.S3Store.get_root_uri" title="sdk.store.objects.s3.S3Store.get_root_uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_root_uri</span></code></a>()</p></td>
-<td><p>Get the root URI of the store.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.s3.S3Store.is_local" title="sdk.store.objects.s3.S3Store.is_local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_local</span></code></a>()</p></td>
 <td><p>Check if the store is local.</p></td>
 </tr>
@@ -383,7 +377,7 @@ artifacts on S3 based storage.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.s3.S3Store.upload" title="sdk.store.objects.s3.S3Store.upload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upload</span></code></a>(src[, dst])</p></td>
 <td><p>Upload an artifact to S3 based storage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.s3.S3Store.write_df" title="sdk.store.objects.s3.S3Store.write_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df</span></code></a>(df, dst, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.s3.S3Store.write_df" title="sdk.store.objects.s3.S3Store.write_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df</span></code></a>(df[, dst])</p></td>
 <td><p>Write a dataframe to S3 based storage.</p></td>
 </tr>
 </tbody>
@@ -416,7 +410,7 @@ a temporary directory will be created and the artifact will be saved there.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>str</dt><dd><p>Returns a file path.</p>
+<dt>str</dt><dd><p>Returns the path of the downloaded artifact.</p>
 </dd>
 </dl>
 </dd>
@@ -438,7 +432,8 @@ a temporary directory will be created and the artifact will be saved there.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.objects.s3.S3Store.persist_artifact">
 <span class="sig-name descname"><span class="pre">persist_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.s3.S3Store.persist_artifact" title="Permalink to this definition">#</a></dt>
-<dd><p>Persist an artifact on S3 based storage.</p>
+<dd><p>Persist an artifact on S3 based storage. If the destination is not provided,
+the key will be extracted from the source path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -459,7 +454,7 @@ a temporary directory will be created and the artifact will be saved there.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.objects.s3.S3Store.write_df">
-<span class="sig-name descname"><span class="pre">write_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.s3.S3Store.write_df" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">write_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.s3.S3Store.write_df" title="Permalink to this definition">#</a></dt>
 <dd><p>Write a dataframe to S3 based storage. Kwargs are passed to df.to_parquet().</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -489,20 +484,6 @@ a temporary directory will be created and the artifact will be saved there.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt>bool</dt><dd><p>False</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdk.store.objects.s3.S3Store.get_root_uri">
-<span class="sig-name descname"><span class="pre">get_root_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.s3.S3Store.get_root_uri" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the root URI of the store.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>str</dt><dd><p>The root URI of the store.</p>
 </dd>
 </dl>
 </dd>
@@ -567,7 +548,6 @@ a temporary directory will be created and the artifact will be saved there.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.s3.S3Store.persist_artifact"><code class="docutils literal notranslate"><span class="pre">S3Store.persist_artifact()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.s3.S3Store.write_df"><code class="docutils literal notranslate"><span class="pre">S3Store.write_df()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.s3.S3Store.is_local"><code class="docutils literal notranslate"><span class="pre">S3Store.is_local()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.s3.S3Store.get_root_uri"><code class="docutils literal notranslate"><span class="pre">S3Store.get_root_uri()</span></code></a></li>
 </ul>
 </li>
 </ul>

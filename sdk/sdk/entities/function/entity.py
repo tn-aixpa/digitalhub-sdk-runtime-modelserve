@@ -311,6 +311,7 @@ def function_from_parameters(
     handler: str | None = None,
     command: str | None = None,
     requirements: list | None = None,
+    sql: str | None = None,
     local: bool = False,
     embedded: bool = False,
     uuid: str | None = None,
@@ -323,17 +324,25 @@ def function_from_parameters(
     project : str
         Name of the project.
     name : str
-        Identifier of the function.
+        Identifier of the Function.
     description : str
-        Description of the function.
-    kind : str
-        The type of the function.
-    key : str
-        Representation of function like store://etc..
-    src_path : str
-        Path to the function on local file system or remote storage.
-    targeth_path : str
-        Destination path of the function.
+        Description of the Function.
+    kind : str, default "job"
+        The type of the Function.
+    source : str
+        Path to the Function's source code on the local file system.
+    image : str
+        Name of the Function's container image.
+    tag : str
+        Tag of the Function's container image.
+    handler : str
+        Function handler name.
+    command : str
+        Command to run inside the container.
+    requirements : list
+        List of requirements for the Function.
+    sql : str
+        SQL query.
     local : bool
         Flag to determine if object has local execution.
     embedded : bool
@@ -355,6 +364,7 @@ def function_from_parameters(
         handler=handler,
         command=command,
         requirements=requirements,
+        sql=sql,
     )
     return Function(
         project=project,

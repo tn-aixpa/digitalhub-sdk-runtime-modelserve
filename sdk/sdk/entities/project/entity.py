@@ -366,7 +366,7 @@ class Project(Entity):
         key : str
             Representation of artfact like store://etc..
         src_path : str
-            Path to the artifact on local file system or remote storage.
+            Path to the artifact on local file system.
         target_path : str
             Path of destionation for the artifact.
         local : bool
@@ -463,10 +463,13 @@ class Project(Entity):
         name: str,
         description: str = "",
         kind: str = "job",
-        source: str = "",
+        source: str | None = None,
         image: str | None = None,
         tag: str | None = None,
         handler: str | None = None,
+        command: str | None = None,
+        requirements: list | None = None,
+        sql: str | None = None,
         local: bool = False,
         embedded: bool = False,
         uuid: str | None = None,
@@ -476,22 +479,26 @@ class Project(Entity):
 
         Parameters
         ----------
-        project : str
-            Name of the project.
         name : str
             Identifier of the Function.
         description : str
             Description of the Function.
-        kind : str
+        kind : str, default "job"
             The type of the Function.
         source : str
-            Path to the Function's source code on the local file system or remote storage.
+            Path to the Function's source code on the local file system.
         image : str
-            Name of the Function's Docker image.
+            Name of the Function's container image.
         tag : str
-            Tag of the Function's Docker image.
+            Tag of the Function's container image.
         handler : str
             Function handler name.
+        command : str
+            Command to run inside the container.
+        requirements : list
+            List of requirements for the Function.
+        sql : str
+            SQL query.
         local : bool
             Flag to determine if object has local execution.
         embedded : bool
@@ -513,6 +520,9 @@ class Project(Entity):
             image=image,
             tag=tag,
             handler=handler,
+            command=command,
+            requirements=requirements,
+            sql=sql,
             local=local,
             embedded=embedded,
             uuid=uuid,

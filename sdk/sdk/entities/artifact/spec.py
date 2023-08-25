@@ -1,5 +1,5 @@
 """
-Artifact spec module.
+Artifact specification module.
 """
 from sdk.entities.base.spec import EntitySpec
 

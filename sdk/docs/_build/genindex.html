@@ -388,12 +388,14 @@ document.write(`
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="docs/utils/file_utils.html#sdk.utils.file_utils.build_path">build_path() (in module sdk.utils.file_utils)</a>
+</li>
       <li><a href="docs/entities/artifact/spec.html#sdk.entities.artifact.spec.build_spec">build_spec() (in module sdk.entities.artifact.spec)</a>
 
       <ul>
-        <li><a href="docs/entities/dataitem/spec.html#sdk.entities.dataitem.spec.build_spec">(in module sdk.entities.dataitem.spec)</a>
+        <li><a href="docs/entities/dataitem/spec.html#sdk.entities.dataitem.spec.builder.build_spec">(in module sdk.entities.dataitem.spec.builder)</a>
 </li>
-        <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.build_spec">(in module sdk.entities.function.spec)</a>
+        <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.builder.build_spec">(in module sdk.entities.function.spec.builder)</a>
 </li>
         <li><a href="docs/entities/project/spec.html#sdk.entities.project.spec.build_spec">(in module sdk.entities.project.spec)</a>
 </li>
@@ -420,8 +422,6 @@ document.write(`
 </li>
       <li><a href="docs/entities/utils/utils.html#sdk.entities.utils.utils.check_local_flag">check_local_flag() (in module sdk.entities.utils.utils)</a>
 </li>
-      <li><a href="docs/utils/file_utils.html#sdk.utils.file_utils.check_make_dir">check_make_dir() (in module sdk.utils.file_utils)</a>
-</li>
       <li><a href="docs/utils/file_utils.html#sdk.utils.file_utils.check_path">check_path() (in module sdk.utils.file_utils)</a>
 </li>
       <li><a href="docs/entities/task/models.html#sdk.entities.task.models.PersistentVolumeClaim.claimName">claimName (sdk.entities.task.models.PersistentVolumeClaim attribute)</a>
@@ -442,10 +442,10 @@ document.write(`
 </li>
       <li><a href="docs/entities/context/entity.html#sdk.entities.context.entity.Context">Context (class in sdk.entities.context.entity)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/entities/context/builder.html#sdk.entities.context.builder.ContextBuilder">ContextBuilder (class in sdk.entities.context.builder)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/utils/file_utils.html#sdk.utils.file_utils.copy_file">copy_file() (in module sdk.utils.file_utils)</a>
 </li>
       <li><a href="docs/entities/artifact/crud.html#sdk.entities.artifact.crud.create_artifact">create_artifact() (in module sdk.entities.artifact.crud)</a>
@@ -490,7 +490,7 @@ document.write(`
 </li>
       <li><a href="docs/entities/dataitem/metadata.html#sdk.entities.dataitem.metadata.DataitemMetadata">DataitemMetadata (class in sdk.entities.dataitem.metadata)</a>
 </li>
-      <li><a href="docs/entities/dataitem/spec.html#sdk.entities.dataitem.spec.DataitemSpec">DataitemSpec (class in sdk.entities.dataitem.spec)</a>
+      <li><a href="docs/entities/dataitem/spec.html#sdk.entities.dataitem.spec.base.DataitemSpec">DataitemSpec (class in sdk.entities.dataitem.spec.base)</a>
 </li>
       <li><a href="docs/store/builder.html#sdk.store.builder.StoreBuilder.default">default() (sdk.store.builder.StoreBuilder method)</a>
 </li>
@@ -638,11 +638,11 @@ document.write(`
 </li>
       <li><a href="docs/entities/function/metadata.html#sdk.entities.function.metadata.FunctionMetadata">FunctionMetadata (class in sdk.entities.function.metadata)</a>
 </li>
-      <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.FunctionSpec">FunctionSpec (class in sdk.entities.function.spec)</a>
+      <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.base.FunctionSpec">FunctionSpec (class in sdk.entities.function.spec.base)</a>
 </li>
-      <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.FunctionSpecDBT">FunctionSpecDBT (class in sdk.entities.function.spec)</a>
+      <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.dbt.FunctionSpecDBT">FunctionSpecDBT (class in sdk.entities.function.spec.dbt)</a>
 </li>
-      <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.FunctionSpecJob">FunctionSpecJob (class in sdk.entities.function.spec)</a>
+      <li><a href="docs/entities/function/spec.html#sdk.entities.function.spec.job.FunctionSpecJob">FunctionSpecJob (class in sdk.entities.function.spec.job)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -679,9 +679,15 @@ document.write(`
       <ul>
         <li><a href="docs/entities/project/entity.html#sdk.entities.project.entity.Project.get_dataitem">(sdk.entities.project.entity.Project method)</a>
 </li>
+        <li><a href="docs/entities/run/entity.html#sdk.entities.run.entity.Run.get_dataitem">(sdk.entities.run.entity.Run method)</a>
+</li>
       </ul></li>
+      <li><a href="docs/entities/dataitem/crud.html#sdk.entities.dataitem.crud.get_dataitem_from_key">get_dataitem_from_key() (in module sdk.entities.dataitem.crud)</a>
+</li>
       <li><a href="docs/utils/factories.html#sdk.utils.factories.get_default_store">get_default_store() (in module sdk.utils.factories)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/client/env_utils.html#sdk.client.env_utils.get_dhub_env">get_dhub_env() (in module sdk.client.env_utils)</a>
 </li>
       <li><a href="docs/utils/file_utils.html#sdk.utils.file_utils.get_dir">get_dir() (in module sdk.utils.file_utils)</a>
@@ -694,26 +700,10 @@ document.write(`
         <li><a href="docs/entities/project/entity.html#sdk.entities.project.entity.Project.get_function">(sdk.entities.project.entity.Project method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/utils/uri_utils.html#sdk.utils.uri_utils.get_name_from_uri">get_name_from_uri() (in module sdk.utils.uri_utils)</a>
-</li>
-      <li><a href="docs/utils/file_utils.html#sdk.utils.file_utils.get_path">get_path() (in module sdk.utils.file_utils)</a>
 </li>
       <li><a href="docs/entities/project/crud.html#sdk.entities.project.crud.get_project">get_project() (in module sdk.entities.project.crud)</a>
 </li>
-      <li><a href="docs/store/objects/base.html#sdk.store.objects.base.Store.get_resource">get_resource() (sdk.store.objects.base.Store method)</a>
-</li>
-      <li><a href="docs/store/objects/base.html#sdk.store.objects.base.Store.get_root_uri">get_root_uri() (sdk.store.objects.base.Store method)</a>
-
-      <ul>
-        <li><a href="docs/store/objects/local.html#sdk.store.objects.local.LocalStore.get_root_uri">(sdk.store.objects.local.LocalStore method)</a>
-</li>
-        <li><a href="docs/store/objects/remote.html#sdk.store.objects.remote.RemoteStore.get_root_uri">(sdk.store.objects.remote.RemoteStore method)</a>
-</li>
-        <li><a href="docs/store/objects/s3.html#sdk.store.objects.s3.S3Store.get_root_uri">(sdk.store.objects.s3.S3Store method)</a>
-</li>
-      </ul></li>
       <li><a href="docs/entities/run/crud.html#sdk.entities.run.crud.get_run">get_run() (in module sdk.entities.run.crud)</a>
 </li>
       <li><a href="docs/utils/factories.html#sdk.utils.factories.get_store">get_store() (in module sdk.utils.factories)</a>
@@ -808,6 +798,8 @@ document.write(`
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/utils/file_utils.html#sdk.utils.file_utils.make_dir">make_dir() (in module sdk.utils.file_utils)</a>
 </li>
+      <li><a href="docs/utils/uri_utils.html#sdk.utils.uri_utils.map_uri_scheme">map_uri_scheme() (in module sdk.utils.uri_utils)</a>
+</li>
       <li><a href="docs/entities/base/base_model.html#sdk.entities.base.base_model.ModelObj">ModelObj (class in sdk.entities.base.base_model)</a>
 </li>
       <li>
@@ -848,7 +840,11 @@ document.write(`
 </li>
         <li><a href="docs/entities/dataitem/metadata.html#module-sdk.entities.dataitem.metadata">sdk.entities.dataitem.metadata</a>
 </li>
-        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec">sdk.entities.dataitem.spec</a>
+        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec.base">sdk.entities.dataitem.spec.base</a>
+</li>
+        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec.builder">sdk.entities.dataitem.spec.builder</a>
+</li>
+        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec.table">sdk.entities.dataitem.spec.table</a>
 </li>
         <li><a href="docs/entities/function/crud.html#module-sdk.entities.function.crud">sdk.entities.function.crud</a>
 </li>
@@ -856,7 +852,13 @@ document.write(`
 </li>
         <li><a href="docs/entities/function/metadata.html#module-sdk.entities.function.metadata">sdk.entities.function.metadata</a>
 </li>
-        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec">sdk.entities.function.spec</a>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.base">sdk.entities.function.spec.base</a>
+</li>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.builder">sdk.entities.function.spec.builder</a>
+</li>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.dbt">sdk.entities.function.spec.dbt</a>
+</li>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.job">sdk.entities.function.spec.job</a>
 </li>
         <li><a href="docs/entities/project/crud.html#module-sdk.entities.project.crud">sdk.entities.project.crud</a>
 </li>
@@ -975,6 +977,8 @@ document.write(`
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="docs/entities/utils/utils.html#sdk.entities.utils.utils.parse_entity_key">parse_entity_key() (in module sdk.entities.utils.utils)</a>
+</li>
       <li><a href="docs/utils/uri_utils.html#sdk.utils.uri_utils.parse_uri">parse_uri() (in module sdk.utils.uri_utils)</a>
 </li>
       <li><a href="docs/client/models.html#sdk.client.models.DHCoreConfig.password">password (sdk.client.models.DHCoreConfig attribute)</a>
@@ -1203,10 +1207,24 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    sdk.entities.dataitem.spec
+    sdk.entities.dataitem.spec.base
 
       <ul>
-        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec">module</a>
+        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    sdk.entities.dataitem.spec.builder
+
+      <ul>
+        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec.builder">module</a>
+</li>
+      </ul></li>
+      <li>
+    sdk.entities.dataitem.spec.table
+
+      <ul>
+        <li><a href="docs/entities/dataitem/spec.html#module-sdk.entities.dataitem.spec.table">module</a>
 </li>
       </ul></li>
       <li>
@@ -1231,10 +1249,31 @@ document.write(`
 </li>
       </ul></li>
       <li>
-    sdk.entities.function.spec
+    sdk.entities.function.spec.base
 
       <ul>
-        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec">module</a>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    sdk.entities.function.spec.builder
+
+      <ul>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.builder">module</a>
+</li>
+      </ul></li>
+      <li>
+    sdk.entities.function.spec.dbt
+
+      <ul>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.dbt">module</a>
+</li>
+      </ul></li>
+      <li>
+    sdk.entities.function.spec.job
+
+      <ul>
+        <li><a href="docs/entities/function/spec.html#module-sdk.entities.function.spec.job">module</a>
 </li>
       </ul></li>
       <li>
@@ -1244,6 +1283,8 @@ document.write(`
         <li><a href="docs/entities/project/crud.html#module-sdk.entities.project.crud">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     sdk.entities.project.entity
 
@@ -1265,8 +1306,6 @@ document.write(`
         <li><a href="docs/entities/project/spec.html#module-sdk.entities.project.spec">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     sdk.entities.run.crud
 
@@ -1467,6 +1506,8 @@ document.write(`
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="docs/entities/dataitem/spec.html#sdk.entities.dataitem.spec.table.TableDataitemSpec">TableDataitemSpec (class in sdk.entities.dataitem.spec.table)</a>
+</li>
       <li><a href="docs/entities/task/entity.html#sdk.entities.task.entity.Task">Task (class in sdk.entities.task.entity)</a>
 </li>
       <li><a href="docs/entities/task/entity.html#sdk.entities.task.entity.task_from_dict">task_from_dict() (in module sdk.entities.task.entity)</a>
@@ -1477,11 +1518,9 @@ document.write(`
 </li>
       <li><a href="docs/entities/task/spec.html#sdk.entities.task.spec.TaskSpecBuild">TaskSpecBuild (class in sdk.entities.task.spec)</a>
 </li>
-      <li><a href="docs/entities/task/spec.html#sdk.entities.task.spec.TaskSpecRun">TaskSpecRun (class in sdk.entities.task.spec)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="docs/entities/artifact/entity.html#sdk.entities.artifact.entity.Artifact.temp_path">temp_path (sdk.entities.artifact.entity.Artifact property)</a>
+      <li><a href="docs/entities/task/spec.html#sdk.entities.task.spec.TaskSpecRun">TaskSpecRun (class in sdk.entities.task.spec)</a>
 </li>
       <li><a href="docs/entities/base/base_model.html#sdk.entities.base.base_model.ModelObj.to_dict">to_dict() (sdk.entities.base.base_model.ModelObj method)</a>
 

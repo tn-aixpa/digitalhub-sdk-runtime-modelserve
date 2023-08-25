@@ -33,7 +33,8 @@ class FunctionSpec(EntitySpec):
             Function handler name.
         command : str
             Command to run inside the container.
-
+        **kwargs
+            Keyword arguments.
         """
         self.source = source
         self.image = image

@@ -144,7 +144,7 @@ def make_dir(*args) -> None:
     None
     """
     pth = Path(*args).absolute()
-    if pth.is_file():
+    if pth.suffix != "":
         pth = pth.parent
     pth.mkdir(parents=True, exist_ok=True)
 

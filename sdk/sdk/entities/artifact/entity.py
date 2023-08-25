@@ -11,14 +11,9 @@ from sdk.entities.base.entity import Entity
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context, get_default_store
+from sdk.utils.factories import get_context, get_store
 from sdk.utils.file_utils import check_file
-from sdk.utils.uri_utils import (
-    build_key,
-    get_name_from_uri,
-    get_uri_netloc,
-    get_uri_scheme,
-)
+from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.metadata import ArtifactMetadata
@@ -80,7 +75,6 @@ class Artifact(Entity):
 
         # Private attributes
         self._local = local
-        self._temp_path: str | None = None
         self._context = get_context(self.project)
 
         # Set key in spec store://<project>/artifacts/<kind>/<name>:<uuid>
@@ -160,23 +154,19 @@ class Artifact(Entity):
         str
             Path of the artifact (temporary or not).
         """
-        # Get store
-        store = get_default_store()
-
-        # If local store, return local artifact path
-        if store.is_local():
-            # Check if source path is provided and if it is local
-            src = self._parameter_or_default(None, self.spec.src_path)
-            self._check_locality(src, local=True)
-            return src
-
         # Check if target path is provided and if it is remote
         trg = self._parameter_or_default(target, self.spec.target_path)
-        self._check_locality(trg)
+        self._check_remote(trg)
 
-        # Download artifact and return path
-        self._temp_path = store.download(trg)
-        return self._temp_path
+        # If local store, return local artifact path
+        # Check if source path is provided and if it is local
+        store = get_store(trg)
+        if store.is_local():
+            src = self._parameter_or_default(None, self.spec.src_path)
+            self._check_local(src)
+            return src
+
+        return store.download(trg)
 
     def download(
         self, target: str | None = None, dst: str | None = None, overwrite: bool = False
@@ -201,7 +191,7 @@ class Artifact(Entity):
 
         # Check if target path is provided and if it is remote
         trg = self._parameter_or_default(target, self.spec.target_path)
-        self._check_locality(trg)
+        self._check_remote(trg)
 
         # Check if download destination path is specified and rebuild it if necessary
         dst = dst if dst is not None else f"./{get_name_from_uri(trg)}"
@@ -210,7 +200,7 @@ class Artifact(Entity):
         self._check_overwrite(dst, overwrite)
 
         # Download artifact and return path
-        store = get_default_store()
+        store = get_store(trg)
         return store.download(trg, dst)
 
     def upload(self, source: str | None = None, target: str | None = None) -> str:
@@ -229,20 +219,18 @@ class Artifact(Entity):
         str
             Path of the uploaded artifact.
         """
-        # Get store
-        store = get_default_store()
-        if store.is_local():
-            raise EntityError("Cannot target local store for upload.")
+        # Check if target path is provided and if it is remote
+        trg = self._parameter_or_default(target, self.spec.target_path)
+        self._check_remote(trg)
 
         # Check if source path is provided and if it is local
         src = self._parameter_or_default(source, self.spec.src_path)
-        self._check_locality(src, local=True)
+        self._check_local(src)
 
-        # Check if target path is provided and if it is remote
-        if self.spec.target_path is None and target is None:
-            target = f"{get_uri_scheme(store.uri)}://{get_uri_netloc(store.uri)}/{build_key(src)}"
-        trg = self._parameter_or_default(target, self.spec.target_path)
-        self._check_locality(trg)
+        # Get store
+        store = get_store(trg)
+        if store.is_local():
+            raise EntityError("Cannot target local store for upload.")
 
         # Upload artifact and return remote path
         return store.upload(src, trg)
@@ -284,7 +272,7 @@ class Artifact(Entity):
         return parameter
 
     @staticmethod
-    def _check_locality(path: str, local: bool = False) -> None:
+    def _check_local(path: str) -> None:
         """
         Check through URI scheme if given path is local or not.
 
@@ -292,8 +280,6 @@ class Artifact(Entity):
         ----------
         path : str
             Path of some source.
-        local : bool
-            Specify if path should be local or not.
 
         Returns
         -------
@@ -304,10 +290,29 @@ class Artifact(Entity):
         EntityError
             If source path is not local.
         """
-        local_scheme = get_uri_scheme(path) in ["", "file"]
-        if local and not local_scheme:
+        if map_uri_scheme(path) != "local":
             raise EntityError("Only local paths are supported for source paths.")
-        if not local and local_scheme:
+
+    @staticmethod
+    def _check_remote(path: str) -> None:
+        """
+        Check through URI scheme if given path is remote.
+
+        Parameters
+        ----------
+        path : str
+            Path of some source.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If source path is local.
+        """
+        if map_uri_scheme(path) == "local":
             raise EntityError("Only remote paths are supported for target paths.")
 
     @staticmethod
@@ -349,13 +354,6 @@ class Artifact(Entity):
             Local flag.
         """
         return self._local
-
-    @property
-    def temp_path(self) -> str | None:
-        """
-        Get temporary path.
-        """
-        return self._temp_path
 
     #############################
     #  Generic Methods
@@ -454,7 +452,7 @@ def artifact_from_parameters(
     key : str
         Representation of artfact like store://etc..
     src_path : str
-        Path to the artifact on local file system or remote storage.
+        Path to the artifact on local file system.
     target_path : str
         Destination path of the artifact.
     local : bool
