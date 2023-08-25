@@ -66,6 +66,13 @@ public class DbtServiceImpl implements KindService<Void> {
 				.getLog();
 
 		System.out.println(jobLogs);
+
+		// Clean up job
+		kubernetesClient.batch().v1().jobs().inNamespace("default")
+				.withName("job" + "-" + taskAccessor.getKind() + "-"
+						+ runDTO.getId())
+				.delete();
+
 		return null;
 	}
 }

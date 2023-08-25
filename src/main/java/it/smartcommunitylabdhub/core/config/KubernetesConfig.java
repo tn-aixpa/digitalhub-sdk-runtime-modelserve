@@ -14,15 +14,31 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KubernetesConfig {
 
-    @Value("${kube.config-path}")
-    private String configPath;
+    @Value("${fabric8.kube.master-url}")
+    private String masterUrl;
+
+    @Value("${fabric8.kube.ca-cert-file}")
+    private String caCertFile;
+
+    @Value("${fabric8.kube.client-cert-file}")
+    private String clientCertFile;
+
+    @Value("${fabric8.kube.client-key-file}")
+    private String clientKeyFile;
+
 
     @Bean
     KubernetesClient kubernetesClient() {
         try {
-            Config config =
-                    Config.fromKubeconfig(Files.readString(Path.of(configPath)));
-            return new KubernetesClientBuilder().withConfig(config).build();
+            Config config = new ConfigBuilder()
+                    .withMasterUrl(masterUrl) // Add your MasterUrl (ex: minikube ip)
+                    .withCaCertFile(caCertFile) // Replace with your ca.crt path
+                    .withClientCertFile(clientCertFile) // Replace with your client.crt path
+                    .withClientKeyFile(clientKeyFile) // Replace with your client.key path
+                    .build();
+
+            return new KubernetesClientBuilder()
+                    .withConfig(config).build();
         } catch (Exception e) {
             return new KubernetesClientBuilder().build();
         }
