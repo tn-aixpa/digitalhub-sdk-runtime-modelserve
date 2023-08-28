@@ -26,6 +26,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ProjectDTO implements BaseEntity {
+
+    @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
 
     @NotNull

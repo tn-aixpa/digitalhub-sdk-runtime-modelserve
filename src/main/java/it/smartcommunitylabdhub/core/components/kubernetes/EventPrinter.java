@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.Event;
 public class EventPrinter {
 
     public static void printEvent(Event event) {
+
         System.out.println("Event Name: " + event.getMetadata().getName());
         System.out.println("Event Namespace: " + event.getMetadata().getNamespace());
         System.out.println("Event Reason: " + event.getReason());

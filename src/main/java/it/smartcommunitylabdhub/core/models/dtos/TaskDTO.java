@@ -7,6 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.utils.StateHandler;
 import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
@@ -23,6 +24,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class TaskDTO implements BaseEntity {
+
+    @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
 
     @NotNull

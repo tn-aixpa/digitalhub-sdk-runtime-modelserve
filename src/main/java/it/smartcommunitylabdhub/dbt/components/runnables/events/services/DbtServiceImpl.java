@@ -1,14 +1,21 @@
 package it.smartcommunitylabdhub.dbt.components.runnables.events.services;
 
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.dsl.LogWatch;
 import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
@@ -28,12 +35,19 @@ public class DbtServiceImpl implements KindService<Void> {
 
 		log.info("-----------------  PREPARE KUBERNETES JOB ----------------");
 
-		TaskAccessor taskAccessor = TaskUtils.parseTask(runDTO.getTask());
+		final TaskAccessor taskAccessor = TaskUtils.parseTask(runDTO.getTask());
 
+		final String namespace = "default";
+		final String jobName = "job" + "-" + taskAccessor.getKind() + "-"
+				+ runDTO.getId();
+
+		Map<String, String> annotations = new HashMap<>();
+		annotations.put("job-key", jobName);
 		Job job = new JobBuilder()
 				.withNewMetadata()
-				.withName("job" + "-" + taskAccessor.getKind() + "-"
-						+ runDTO.getId())
+				.withName(jobName)
+				// .withLabels(Map.of("job-name", jobName))
+				.withAnnotations(annotations)
 				.endMetadata()
 				.withNewSpec()
 				.withNewTemplate()
@@ -47,7 +61,7 @@ public class DbtServiceImpl implements KindService<Void> {
 						new EnvVar("POSTGRES_DB", "dbt", null),
 						new EnvVar("POSTGRES_DB_HOST", "192.168.49.1", null),
 						new EnvVar("POSTGRES_PORT", "5433", null)))
-				.withName("container-job-" + "-" + taskAccessor.getKind() + "-"
+				.withName("container-job-" + taskAccessor.getKind() + "-"
 						+ runDTO.getId())
 				.withImage("ltrubbianifbk/dbt_core:latest")
 				.withCommand("python", "dbt_wrapper.py")
@@ -58,20 +72,26 @@ public class DbtServiceImpl implements KindService<Void> {
 				.endSpec()
 				.build();
 
-		kubernetesClient.resource(job).inNamespace("default").create();
+		kubernetesClient.resource(job).inNamespace(namespace).create();
 
-		String jobLogs = kubernetesClient.batch().v1().jobs().inNamespace("default")
-				.withName("job" + "-" + taskAccessor.getKind() + "-"
-						+ runDTO.getId())
+		kubernetesClient.batch().v1().jobs().inNamespace(namespace)
+				.withName(jobName)
+				.waitUntilCondition(pod -> pod.getStatus().getSucceeded() != null
+						&& pod.getStatus().getSucceeded() > 0, 5L, TimeUnit.MINUTES);
+
+
+		String jobLogs = kubernetesClient.batch().v1().jobs().inNamespace(namespace)
+				.withName(jobName)
 				.getLog();
+
 
 		System.out.println(jobLogs);
 
 		// Clean up job
-		kubernetesClient.batch().v1().jobs().inNamespace("default")
-				.withName("job" + "-" + taskAccessor.getKind() + "-"
-						+ runDTO.getId())
-				.delete();
+		// kubernetesClient.batch().v1().jobs().inNamespace(namespace)
+		// .withName(jobName)
+		// .delete();
+
 
 		return null;
 	}

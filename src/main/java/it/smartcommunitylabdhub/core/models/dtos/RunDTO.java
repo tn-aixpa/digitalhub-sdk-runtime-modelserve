@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.utils.StateHandler;
 import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
@@ -26,7 +27,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class RunDTO implements BaseEntity {
-    @NotNull
+
+    @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
 
     private String task;
