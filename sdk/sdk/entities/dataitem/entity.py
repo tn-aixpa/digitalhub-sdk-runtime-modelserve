@@ -5,21 +5,20 @@ from __future__ import annotations
 
 import typing
 
-
 from sdk.entities.base.entity import Entity
 from sdk.entities.dataitem.metadata import build_metadata
-from sdk.entities.dataitem.spec import build_spec
+from sdk.entities.dataitem.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context, get_default_store
-from sdk.utils.file_utils import check_file, clean_all, get_dir
-from sdk.utils.uri_utils import get_extension, get_uri_scheme
+from sdk.utils.factories import get_context, get_default_store, get_store
+from sdk.utils.file_utils import clean_all, get_dir
+from sdk.utils.uri_utils import get_extension, map_uri_scheme
 
 if typing.TYPE_CHECKING:
     import pandas as pd
     from sdk.entities.dataitem.metadata import DataitemMetadata
-    from sdk.entities.dataitem.spec import DataitemSpec
+    from sdk.entities.dataitem.spec.builder import DataitemSpec
 
 
 class Dataitem(Entity):
@@ -67,7 +66,7 @@ class Dataitem(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else "dataitem"
+        self.kind = kind if kind is not None else "table"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.embedded = embedded
@@ -142,18 +141,18 @@ class Dataitem(Entity):
 
     def as_df(self, file_format: str | None = None, **kwargs) -> pd.DataFrame:
         """
-        Read dataitem as a pandas DataFrame. If the dataitem is not local,
-        it will be downloaded to a temporary folder and deleted after the
-        method is executed.
-        The path of the dataitem is specified in the spec attribute, and
-        must be a store aware path, so for example,
-        if the dataitem is store on an s3 bucket, the path must be
-        s3://<bucket>/<path_to_dataitem>.
+        Read dataitem as a pandas DataFrame. If the dataitem is not local, it will be downloaded
+        to a temporary folder and deleted after the method is executed. If no file_format is passed,
+        the function will try to infer it from the dataitem.spec.path attribute.
+        The path of the dataitem is specified in the spec attribute, and must be a store aware path.
+        If the dataitem is stored on an s3 bucket, the path must be s3://<bucket>/<path_to_dataitem>.
+        If the dataitem is stored on a database (Postgres is the only one supported), the path must
+        be sql://postgres/<database>/<schema>/<table/view>.
 
         Parameters
         ----------
         file_format : str
-            Format of the file, e.g. csv, parquet
+            Format of the file. (Supported csv and parquet).
         **kwargs
             Keyword arguments.
 
@@ -162,13 +161,11 @@ class Dataitem(Entity):
         pd.DataFrame
             Pandas DataFrame.
         """
-
-        # Get store
-        store = get_default_store()
-        tmp_path = False
-
         if self.spec.path is None:
             raise EntityError("Path is not specified.")
+
+        store = get_store(self.spec.path)
+        tmp_path = False
 
         # Check file format
         extension = self._get_extension(self.spec.path, file_format)
@@ -180,14 +177,9 @@ class Dataitem(Entity):
         else:
             path = self.spec.path
 
-        # Read DataFrame
         df = store.read_df(path, extension, **kwargs)
-
-        # Clean temp folder
         if tmp_path:
-            if check_file(path):
-                path = get_dir(path)
-            clean_all(path)
+            clean_all(get_dir(path))
 
         return df
 
@@ -211,10 +203,7 @@ class Dataitem(Entity):
         str
             Path to the written dataframe.
         """
-
-        # Get store
         store = get_default_store()
-        # Write DataFrame
         return store.write_df(df, target_path, **kwargs)
 
     #############################
@@ -236,7 +225,7 @@ class Dataitem(Entity):
         bool
             True if local, False otherwise.
         """
-        return get_uri_scheme(path) in ["", "file"]
+        return map_uri_scheme(path) == "local"
 
     @staticmethod
     def _get_extension(path: str, file_format: str | None = None) -> str:
@@ -262,6 +251,9 @@ class Dataitem(Entity):
         """
         if file_format is not None:
             return file_format
+        scheme = map_uri_scheme(path)
+        if scheme == "sql":
+            return "parquet"
         ext = get_extension(path)
         if ext is None:
             raise EntityError(

@@ -3,6 +3,8 @@ S3Store module.
 """
 from __future__ import annotations
 
+import re
+
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
@@ -10,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
-from sdk.utils.uri_utils import get_uri_netloc
+from sdk.utils.file_utils import build_path
 
 
 class SqlStore(Store):
@@ -51,7 +53,10 @@ class SqlStore(Store):
             Returns a file path.
         """
         dst = dst if dst is not None else self._build_temp(src)
-        return self._download_table(src, dst)
+        dst = build_path(dst, "data.parquet")
+        schema = self._get_schema(src)
+        table = self._get_table_name(src)
+        return self._download_table(schema, table, dst)
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -96,12 +101,27 @@ class SqlStore(Store):
             The SQL uri where the dataframe was saved.
         """
         if dst is None:
-            raise StoreError("Destination table name not provided.")
-        return self._upload_table(df, dst, **kwargs)
+            schema = self._get_store_schema()
+            table = "table"
+        else:
+            schema = self._get_schema(dst)
+            table = self._get_table_name(dst)
+        return self._upload_table(df, schema, table, **kwargs)
 
     ############################
     # Private helper methods
     ############################
+
+    def _get_store_schema(self) -> str:
+        """
+        Return Store URI Schema.
+
+        Returns
+        -------
+        str
+            The name of the Store URI schema.
+        """
+        return self.uri.split("/")[-1]
 
     def _get_engine(self) -> Engine:
         """
@@ -122,30 +142,75 @@ class SqlStore(Store):
                 f"Something wrong with connection string. Arguments: {str(ex.args)}"
             )
 
-    def _get_schema(self) -> str:
+    def _check_factory(self) -> Engine:
+        """
+        Check if the database is accessible and return the engine.
+
+        Returns
+        -------
+        Engine
+            The database engine.
+        """
+        engine = self._get_engine()
+        self._check_access_to_storage(engine)
+        return engine
+
+    @staticmethod
+    def _parse_path(path: str) -> dict:
+        """
+        Parse the path and return the components.
+
+        Parameters
+        ----------
+        path : str
+            The path.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the components of the path.
+        """
+        pattern = (
+            r"^sql:\/\/(postgres\/)?(?P<database>.+)?\/(?P<schema>.+)\/(?P<table>.+)$"
+        )
+        match = re.match(pattern, path)
+        if match is None:
+            raise ValueError(
+                "Invalid SQL path. Path must be in the form sql://postgres/<database>/<schema>/<table>"
+            )
+        return match.groupdict()
+
+    def _get_schema(self, uri: str) -> str:
         """
         Get the name of the SQL schema from the URI.
+
+        Parameters
+        ----------
+        uri : str
+            The URI.
 
         Returns
         -------
         str
             The name of the SQL schema.
         """
-        return get_uri_netloc(self.uri)
+        return self._parse_path(uri).get("schema")
 
-    def _check_factory(self) -> tuple[Engine, str]:
+    def _get_table_name(self, uri: str) -> str:
         """
-        Check if the database is accessible and return the engine and the schema.
+        Get the name of the table from the URI.
+
+        Parameters
+        ----------
+        uri : str
+            The URI.
 
         Returns
         -------
-        tuple[Engine, str]
-            A tuple containing the engine and the schema.
+        str
+            The name of the table
         """
-        engine = self._get_engine()
-        schema = self._get_schema()
-        self._check_access_to_storage(engine)
-        return engine, schema
+        return self._parse_path(uri).get("table")
 
     @staticmethod
     def _check_access_to_storage(engine: Engine) -> None:
@@ -172,14 +237,16 @@ class SqlStore(Store):
             engine.dispose()
             raise StoreError("No access to db!")
 
-    def _download_table(self, table: str, dst: str) -> str:
+    def _download_table(self, schema: str, table: str, dst: str) -> str:
         """
         Download a table from SQL based storage.
 
         Parameters
         ----------
+        schema : str
+            The origin schema.
         table : str
-            The source table name.
+            The origin table.
         dst : str
             The destination path.
 
@@ -188,13 +255,13 @@ class SqlStore(Store):
         str
             The destination path.
         """
-        engine, schema = self._check_factory()
+        engine = self._check_factory()
         self._check_local_dst(dst)
         pd.read_sql_table(table, engine, schema=schema).to_parquet(dst, index=False)
         engine.dispose()
         return dst
 
-    def _upload_table(self, df: pd.DataFrame, table: str, **kwargs) -> str:
+    def _upload_table(self, df: pd.DataFrame, schema: str, table: str, **kwargs) -> str:
         """
         Upload a table to SQL based storage.
 
@@ -202,8 +269,10 @@ class SqlStore(Store):
         ----------
         df : pd.DataFrame
             The dataframe.
+        schema : str
+            Destination schema.
         table : str
-            The destination table name.
+            Destination table.
         **kwargs
             Keyword arguments.
 
@@ -212,10 +281,10 @@ class SqlStore(Store):
         str
             The SQL URI where the dataframe was saved.
         """
-        engine, schema = self._check_factory()
+        engine = self._check_factory()
         df.to_sql(table, engine, schema=schema, index=False, **kwargs)
         engine.dispose()
-        return f"sql://{schema}.{table}"
+        return f"sql://postgres/{engine.url.database}/{schema}/{table}"
 
     ############################
     # Store interface methods
@@ -232,14 +301,14 @@ class SqlStore(Store):
         Raises
         ------
         StoreError
-            If the URI scheme is not 'sql'.
-
-        StoreError
-            If no schema is specified in the URI.
+            If no bucket is specified in the URI.
         """
         super()._validate_uri()
-        if self._get_schema() == "":
-            raise StoreError("No schema specified in the URI for sql store!")
+        pattern = r"^sql:\/\/(postgres\/)?(?P<database>.+)?\/(?P<schema>.+)$"
+        if re.match(pattern, self.uri) is None:
+            raise StoreError(
+                "Invalid Store URI. SQL Store URI must be in the form sql://postgres/<database>/<schema>/"
+            )
 
     @staticmethod
     def is_local() -> bool:

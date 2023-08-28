@@ -439,22 +439,25 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.get_artifacts" title="sdk.entities.run.entity.Run.get_artifacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_artifacts</span></code></a>([output_key])</p></td>
 <td><p>Get artifact(s) from backend produced by the run through its key.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.logs" title="sdk.entities.run.entity.Run.logs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logs</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.get_dataitem" title="sdk.entities.run.entity.Run.get_dataitem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dataitem</span></code></a>([output_key])</p></td>
+<td><p>Get dataitem(s) from backend produced by the run through its key.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.logs" title="sdk.entities.run.entity.Run.logs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logs</span></code></a>()</p></td>
 <td><p>Get run's logs from backend.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.refresh" title="sdk.entities.run.entity.Run.refresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refresh</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.refresh" title="sdk.entities.run.entity.Run.refresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refresh</span></code></a>()</p></td>
 <td><p>Get run from backend.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.save" title="sdk.entities.run.entity.Run.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([uuid])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.save" title="sdk.entities.run.entity.Run.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>([uuid])</p></td>
 <td><p>Save run into backend.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.stop" title="sdk.entities.run.entity.Run.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.entities.run.entity.Run.stop" title="sdk.entities.run.entity.Run.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</p></td>
 <td><p>Not implemented yet.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>([include_all_non_private])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>([include_all_non_private])</p></td>
 <td><p>Return object as dict with all keys.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict_essential</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict_essential</span></code>()</p></td>
 <td><p>Return object as dict with some attributes.</p></td>
 </tr>
 </tbody>
@@ -560,6 +563,26 @@ document.write(`
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>Artifact | list[Artifact]</dt><dd><p>Artifact(s) from backend.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sdk.entities.run.entity.Run.get_dataitem">
+<span class="sig-name descname"><span class="pre">get_dataitem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../dataitem/entity.html#sdk.entities.dataitem.entity.Dataitem" title="sdk.entities.dataitem.entity.Dataitem"><span class="pre">Dataitem</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../dataitem/entity.html#sdk.entities.dataitem.entity.Dataitem" title="sdk.entities.dataitem.entity.Dataitem"><span class="pre">Dataitem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sdk.entities.run.entity.Run.get_dataitem" title="Permalink to this definition">#</a></dt>
+<dd><p>Get dataitem(s) from backend produced by the run through its key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>output_key</strong><span class="classifier">str, optional</span></dt><dd><p>Key of the dataitem to get. If not provided, returns all dataitems.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Dataitem | list[Dataitem]</dt><dd><p>Dataitem(s) from backend.</p>
 </dd>
 </dl>
 </dd>
@@ -715,6 +738,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.run.entity.Run.stop"><code class="docutils literal notranslate"><span class="pre">Run.stop()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.run.entity.Run.logs"><code class="docutils literal notranslate"><span class="pre">Run.logs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.run.entity.Run.get_artifacts"><code class="docutils literal notranslate"><span class="pre">Run.get_artifacts()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.run.entity.Run.get_dataitem"><code class="docutils literal notranslate"><span class="pre">Run.get_dataitem()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.run.entity.Run.local"><code class="docutils literal notranslate"><span class="pre">Run.local</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.run.entity.Run.from_dict"><code class="docutils literal notranslate"><span class="pre">Run.from_dict()</span></code></a></li>
 </ul>

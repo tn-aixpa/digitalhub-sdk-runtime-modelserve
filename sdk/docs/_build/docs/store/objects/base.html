@@ -364,12 +364,6 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.base.Store.fetch_artifact" title="sdk.store.objects.base.Store.fetch_artifact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_artifact</span></code></a>(src[, dst])</p></td>
 <td><p>Method to fetch artifact from storage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.base.Store.get_resource" title="sdk.store.objects.base.Store.get_resource"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_resource</span></code></a>(key)</p></td>
-<td><p>Get a resource from the registry.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.base.Store.get_root_uri" title="sdk.store.objects.base.Store.get_root_uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_root_uri</span></code></a>()</p></td>
-<td><p>Method to get root URI.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.base.Store.is_local" title="sdk.store.objects.base.Store.is_local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_local</span></code></a>()</p></td>
 <td><p>Method to check if store is local.</p></td>
 </tr>
@@ -382,7 +376,7 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.base.Store.upload" title="sdk.store.objects.base.Store.upload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upload</span></code></a>(src[, dst])</p></td>
 <td><p>Method to upload artifact to storage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.base.Store.write_df" title="sdk.store.objects.base.Store.write_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df</span></code></a>(df, dst, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.base.Store.write_df" title="sdk.store.objects.base.Store.write_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df</span></code></a>(df[, dst])</p></td>
 <td><p>Write pandas DataFrame as parquet or csv.</p></td>
 </tr>
 </tbody>
@@ -413,7 +407,7 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.objects.base.Store.write_df">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.base.Store.write_df" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">write_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.base.Store.write_df" title="Permalink to this definition">#</a></dt>
 <dd><p>Write pandas DataFrame as parquet or csv.</p>
 </dd></dl>
 
@@ -451,18 +445,6 @@ document.write(`
 <dt class="sig sig-object py" id="sdk.store.objects.base.Store.is_local">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_local</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#sdk.store.objects.base.Store.is_local" title="Permalink to this definition">#</a></dt>
 <dd><p>Method to check if store is local.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdk.store.objects.base.Store.get_root_uri">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_root_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.base.Store.get_root_uri" title="Permalink to this definition">#</a></dt>
-<dd><p>Method to get root URI.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdk.store.objects.base.Store.get_resource">
-<span class="sig-name descname"><span class="pre">get_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#sdk.store.objects.base.Store.get_resource" title="Permalink to this definition">#</a></dt>
-<dd><p>Get a resource from the registry.</p>
 </dd></dl>
 
 </dd></dl>
@@ -524,8 +506,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.base.Store.write_df"><code class="docutils literal notranslate"><span class="pre">Store.write_df()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.base.Store.read_df"><code class="docutils literal notranslate"><span class="pre">Store.read_df()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.base.Store.is_local"><code class="docutils literal notranslate"><span class="pre">Store.is_local()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.base.Store.get_root_uri"><code class="docutils literal notranslate"><span class="pre">Store.get_root_uri()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.base.Store.get_resource"><code class="docutils literal notranslate"><span class="pre">Store.get_resource()</span></code></a></li>
 </ul>
 </li>
 </ul>

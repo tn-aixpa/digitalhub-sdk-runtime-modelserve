@@ -365,12 +365,6 @@ artifacts on local filesystem based storage.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.local.LocalStore.fetch_artifact" title="sdk.store.objects.local.LocalStore.fetch_artifact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_artifact</span></code></a>(src[, dst])</p></td>
 <td><p>Method to fetch an artifact from the backend and to register it on the paths registry.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_resource</span></code>(key)</p></td>
-<td><p>Get a resource from the registry.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.local.LocalStore.get_root_uri" title="sdk.store.objects.local.LocalStore.get_root_uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_root_uri</span></code></a>()</p></td>
-<td><p>Get the root URI of the store.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.local.LocalStore.is_local" title="sdk.store.objects.local.LocalStore.is_local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_local</span></code></a>()</p></td>
 <td><p>Check if the store is local.</p></td>
 </tr>
@@ -383,7 +377,7 @@ artifacts on local filesystem based storage.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.objects.local.LocalStore.upload" title="sdk.store.objects.local.LocalStore.upload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upload</span></code></a>(src[, dst])</p></td>
 <td><p>Method to upload an artifact to the backend.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.local.LocalStore.write_df" title="sdk.store.objects.local.LocalStore.write_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df</span></code></a>(df, dst, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.objects.local.LocalStore.write_df" title="sdk.store.objects.local.LocalStore.write_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_df</span></code></a>(df[, dst])</p></td>
 <td><p>Method to write a dataframe to a file.</p></td>
 </tr>
 </tbody>
@@ -406,7 +400,9 @@ implemented since the local store is not meant to download artifacts.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.objects.local.LocalStore.fetch_artifact">
 <span class="sig-name descname"><span class="pre">fetch_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.local.LocalStore.fetch_artifact" title="Permalink to this definition">#</a></dt>
-<dd><p>Method to fetch an artifact from the backend and to register it on the paths registry.</p>
+<dd><p>Method to fetch an artifact from the backend and to register it on the paths registry.
+If destination is not provided, return the source path, otherwise the path of the copied
+file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -448,7 +444,9 @@ since the local store is not meant to upload artifacts.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.objects.local.LocalStore.persist_artifact">
 <span class="sig-name descname"><span class="pre">persist_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.local.LocalStore.persist_artifact" title="Permalink to this definition">#</a></dt>
-<dd><p>Method to persist (copy) an artifact on local filesystem.</p>
+<dd><p>Method to persist (copy) an artifact on local filesystem.
+If destination is not provided, the artifact is written to the default
+store path with source name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -471,8 +469,10 @@ since the local store is not meant to upload artifacts.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.objects.local.LocalStore.write_df">
-<span class="sig-name descname"><span class="pre">write_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.local.LocalStore.write_df" title="Permalink to this definition">#</a></dt>
-<dd><p>Method to write a dataframe to a file. Kwargs are passed to df.to_parquet().</p>
+<span class="sig-name descname"><span class="pre">write_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.local.LocalStore.write_df" title="Permalink to this definition">#</a></dt>
+<dd><p>Method to write a dataframe to a file. Kwargs are passed to df.to_parquet().
+If destination is not provided, the dataframe is written to the default
+store path with name data.parquet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -501,20 +501,6 @@ since the local store is not meant to upload artifacts.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt>bool</dt><dd><p>True</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sdk.store.objects.local.LocalStore.get_root_uri">
-<span class="sig-name descname"><span class="pre">get_root_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sdk.store.objects.local.LocalStore.get_root_uri" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the root URI of the store.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>str</dt><dd><p>The root URI of the store.</p>
 </dd>
 </dl>
 </dd>
@@ -579,7 +565,6 @@ since the local store is not meant to upload artifacts.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.local.LocalStore.persist_artifact"><code class="docutils literal notranslate"><span class="pre">LocalStore.persist_artifact()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.local.LocalStore.write_df"><code class="docutils literal notranslate"><span class="pre">LocalStore.write_df()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.local.LocalStore.is_local"><code class="docutils literal notranslate"><span class="pre">LocalStore.is_local()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.objects.local.LocalStore.get_root_uri"><code class="docutils literal notranslate"><span class="pre">LocalStore.get_root_uri()</span></code></a></li>
 </ul>
 </li>
 </ul>

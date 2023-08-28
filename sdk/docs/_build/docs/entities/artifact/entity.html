@@ -421,8 +421,6 @@ document.write(`
 <dd class="field-odd"><dl class="simple">
 <dt><a class="reference internal" href="#sdk.entities.artifact.entity.Artifact.local" title="sdk.entities.artifact.entity.Artifact.local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local</span></code></a></dt><dd><p>Get local flag.</p>
 </dd>
-<dt><a class="reference internal" href="#sdk.entities.artifact.entity.Artifact.temp_path" title="sdk.entities.artifact.entity.Artifact.temp_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">temp_path</span></code></a></dt><dd><p>Get temporary path.</p>
-</dd>
 </dl>
 </dd>
 </dl>
@@ -576,12 +574,6 @@ a temporary directory.</p>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="sdk.entities.artifact.entity.Artifact.temp_path">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">temp_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sdk.entities.artifact.entity.Artifact.temp_path" title="Permalink to this definition">#</a></dt>
-<dd><p>Get temporary path.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.entities.artifact.entity.Artifact.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sdk.entities.artifact.entity.Artifact" title="sdk.entities.artifact.entity.Artifact"><span class="pre">Artifact</span></a></span></span><a class="headerlink" href="#sdk.entities.artifact.entity.Artifact.from_dict" title="Permalink to this definition">#</a></dt>
@@ -621,7 +613,7 @@ a temporary directory.</p>
 </dd>
 <dt><strong>key</strong><span class="classifier">str</span></dt><dd><p>Representation of artfact like store://etc..</p>
 </dd>
-<dt><strong>src_path</strong><span class="classifier">str</span></dt><dd><p>Path to the artifact on local file system or remote storage.</p>
+<dt><strong>src_path</strong><span class="classifier">str</span></dt><dd><p>Path to the artifact on local file system.</p>
 </dd>
 <dt><strong>target_path</strong><span class="classifier">str</span></dt><dd><p>Destination path of the artifact.</p>
 </dd>
@@ -718,7 +710,6 @@ a temporary directory.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.artifact.entity.Artifact.download"><code class="docutils literal notranslate"><span class="pre">Artifact.download()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.artifact.entity.Artifact.upload"><code class="docutils literal notranslate"><span class="pre">Artifact.upload()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.artifact.entity.Artifact.local"><code class="docutils literal notranslate"><span class="pre">Artifact.local</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.artifact.entity.Artifact.temp_path"><code class="docutils literal notranslate"><span class="pre">Artifact.temp_path</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.artifact.entity.Artifact.from_dict"><code class="docutils literal notranslate"><span class="pre">Artifact.from_dict()</span></code></a></li>
 </ul>
 </li>

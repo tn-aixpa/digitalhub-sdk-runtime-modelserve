@@ -1,5 +1,5 @@
 """
-Run spec module.
+Run specification module.
 """
 from sdk.entities.base.spec import EntitySpec
 

@@ -60,6 +60,7 @@ def new_function(
     handler: str | None = None,
     command: str | None = None,
     requirements: list | None = None,
+    sql: str | None = None,
     local: bool = False,
     embedded: bool = False,
     uuid: str | None = None,
@@ -89,6 +90,8 @@ def new_function(
         Command to run inside the container.
     requirements : list
         List of requirements for the Function.
+    sql : str
+        SQL query.
     local : bool
         Flag to determine if object has local execution.
     embedded : bool
@@ -118,6 +121,7 @@ def new_function(
         handler=handler,
         command=command,
         requirements=requirements,
+        sql=sql,
         local=local,
         embedded=embedded,
         uuid=uuid,

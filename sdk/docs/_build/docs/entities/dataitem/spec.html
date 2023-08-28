@@ -408,30 +408,12 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="module-sdk.entities.dataitem.spec">
-<span id="sdk-entities-dataitem-spec"></span><h1>sdk.entities.dataitem.spec<a class="headerlink" href="#module-sdk.entities.dataitem.spec" title="Permalink to this heading">#</a></h1>
-<p>Dataitem spec module.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="sdk.entities.dataitem.spec.DataitemSpec">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sdk.entities.dataitem.spec.</span></span><span class="sig-name descname"><span class="pre">DataitemSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdk.entities.dataitem.spec.DataitemSpec" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../base/spec.html#sdk.entities.base.spec.EntitySpec" title="sdk.entities.base.spec.EntitySpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntitySpec</span></code></a></p>
-<p>Dataitem specifications.</p>
-<p class="rubric">Methods</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code>([obj])</p></td>
-<td><p>Return entity specification object from dictionary.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
-<td><p>Return object as dict with all non private keys.</p></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+  <section id="module-sdk.entities.dataitem.spec.builder">
+<span id="sdk-entities-dataitem-spec"></span><h1>sdk.entities.dataitem.spec<a class="headerlink" href="#module-sdk.entities.dataitem.spec.builder" title="Permalink to this heading">#</a></h1>
+<p>Dataitem specification module.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="sdk.entities.dataitem.spec.build_spec">
-<span class="sig-prename descclassname"><span class="pre">sdk.entities.dataitem.spec.</span></span><span class="sig-name descname"><span class="pre">build_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sdk.entities.dataitem.spec.DataitemSpec" title="sdk.entities.dataitem.spec.DataitemSpec"><span class="pre">DataitemSpec</span></a></span></span><a class="headerlink" href="#sdk.entities.dataitem.spec.build_spec" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="sdk.entities.dataitem.spec.builder.build_spec">
+<span class="sig-prename descclassname"><span class="pre">sdk.entities.dataitem.spec.builder.</span></span><span class="sig-name descname"><span class="pre">build_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sdk.entities.dataitem.spec.base.DataitemSpec" title="sdk.entities.dataitem.spec.base.DataitemSpec"><span class="pre">DataitemSpec</span></a></span></span><a class="headerlink" href="#sdk.entities.dataitem.spec.builder.build_spec" title="Permalink to this definition">#</a></dt>
 <dd><p>Build a DataItemSpec object with the given parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -455,6 +437,44 @@ document.write(`
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<span class="target" id="module-sdk.entities.dataitem.spec.base"></span><p>Dataitem specification module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdk.entities.dataitem.spec.base.DataitemSpec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sdk.entities.dataitem.spec.base.</span></span><span class="sig-name descname"><span class="pre">DataitemSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdk.entities.dataitem.spec.base.DataitemSpec" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../base/spec.html#sdk.entities.base.spec.EntitySpec" title="sdk.entities.base.spec.EntitySpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntitySpec</span></code></a></p>
+<p>Dataitem specifications.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code>([obj])</p></td>
+<td><p>Return entity specification object from dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
+<td><p>Return object as dict with all non private keys.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-sdk.entities.dataitem.spec.table"></span><p>Table Dataitem specification module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sdk.entities.dataitem.spec.table.TableDataitemSpec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sdk.entities.dataitem.spec.table.</span></span><span class="sig-name descname"><span class="pre">TableDataitemSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sdk.entities.dataitem.spec.table.TableDataitemSpec" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sdk.entities.dataitem.spec.base.DataitemSpec" title="sdk.entities.dataitem.spec.base.DataitemSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataitemSpec</span></code></a></p>
+<p>Dataitem specifications.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code>([obj])</p></td>
+<td><p>Return entity specification object from dictionary.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
+<td><p>Return object as dict with all non private keys.</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </section>
@@ -506,8 +526,9 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.dataitem.spec.DataitemSpec"><code class="docutils literal notranslate"><span class="pre">DataitemSpec</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.dataitem.spec.build_spec"><code class="docutils literal notranslate"><span class="pre">build_spec()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.dataitem.spec.builder.build_spec"><code class="docutils literal notranslate"><span class="pre">build_spec()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.dataitem.spec.base.DataitemSpec"><code class="docutils literal notranslate"><span class="pre">DataitemSpec</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.entities.dataitem.spec.table.TableDataitemSpec"><code class="docutils literal notranslate"><span class="pre">TableDataitemSpec</span></code></a></li>
 </ul>
   </nav></div>
 
