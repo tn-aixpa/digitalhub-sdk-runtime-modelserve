@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 import io.fabric8.kubernetes.api.model.Event;
-import it.smartcommunitylabdhub.core.utils.RegexList;
 import lombok.extern.log4j.Log4j2;
 
 @Component

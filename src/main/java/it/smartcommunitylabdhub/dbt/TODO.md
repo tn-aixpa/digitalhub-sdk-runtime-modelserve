@@ -12,7 +12,10 @@ LEGGERE I DATI DAL BACKEND
 //TODO:
 
 - creare i log della run prendendoli da kubernetes
-- aggiornare lo state della run monitorando gli Eventi di kuberntesClient
+  - da capire se vanno inseriti i log che mostro tramite lo script python o no.
+- dovrei creare per la run una state machine per passare da uno stato all'altro
+
+- [x] aggiornare lo state della run monitorando gli Eventi di kuberntesClient
 
 - [x] inserire "state" in status :{...., state:""}. Mettere json ignore in state
 

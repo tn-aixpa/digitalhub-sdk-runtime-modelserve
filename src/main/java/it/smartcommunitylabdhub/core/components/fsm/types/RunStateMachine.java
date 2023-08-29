@@ -1,8 +1,8 @@
 /**
  * RunStateMachine.java
  *
- * This class is responsible for creating and configuring the StateMachine for managing the state transitions of a Run.
- * It defines the states, events, and transitions specific to the Run entity.
+ * This class is responsible for creating and configuring the StateMachine for managing the state
+ * transitions of a Run. It defines the states, events, and transitions specific to the Run entity.
  */
 
 package it.smartcommunitylabdhub.core.components.fsm.types;
@@ -17,6 +17,7 @@ import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
 import it.smartcommunitylabdhub.core.components.fsm.Transaction;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
+import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import lombok.extern.log4j.Log4j2;
 
@@ -28,10 +29,9 @@ public class RunStateMachine {
         RunService runService;
 
         /**
-         * Create and configure the StateMachine for managing the state transitions of a
-         * Run.
+         * Create and configure the StateMachine for managing the state transitions of a Run.
          *
-         * @param initialState   The initial state for the StateMachine.
+         * @param initialState The initial state for the StateMachine.
          * @param initialContext The initial context for the StateMachine.
          * @return The configured StateMachine instance.
          */
@@ -39,8 +39,9 @@ public class RunStateMachine {
                         Map<String, Object> initialContext) {
 
                 // Create a new StateMachine builder with the initial state and context
-                StateMachine.Builder<RunState, RunEvent, Map<String, Object>> builder = new StateMachine.Builder<>(
-                                initialState, initialContext);
+                StateMachine.Builder<RunState, RunEvent, Map<String, Object>> builder =
+                                new StateMachine.Builder<>(
+                                                initialState, initialContext);
 
                 // Define states and transitions
                 State<RunState, RunEvent, Map<String, Object>> createState = new State<>();
@@ -50,20 +51,35 @@ public class RunStateMachine {
                 State<RunState, RunEvent, Map<String, Object>> errorState = new State<>();
 
                 createState.addTransaction(
-                                new Transaction<>(RunEvent.BUILD, RunState.READY, (input, context) -> true, false));
+                                new Transaction<>(RunEvent.BUILD, RunState.READY,
+                                                (input, context) -> true, false));
+
+                // Update run state.
+                createState.setExitAction((context) -> {
+                        // update run state
+                        RunDTO runDTO = runService.getRun(context.get("runId").toString());
+                        runDTO.setState(RunState.READY.toString());
+                        runService.updateRun(runDTO, runDTO.getId());
+                });
+
                 readyState.addTransaction(
-                                new Transaction<>(RunEvent.RUNNING, RunState.RUNNING, (input, context) -> true, false));
+                                new Transaction<>(RunEvent.RUNNING, RunState.RUNNING,
+                                                (input, context) -> true, false));
                 readyState.addTransaction(new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
                                 (input, context) -> true, false));
-                runningState.addTransaction(new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
-                                (input, context) -> true, false));
+                runningState.addTransaction(
+                                new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
+                                                (input, context) -> true, false));
 
                 // Configure the StateMachine with the defined states and transitions
-                builder.withState(RunState.CREATED, createState).withState(RunState.READY, readyState)
-                                .withState(RunState.RUNNING, runningState).withState(RunState.COMPLETED, completedState)
+                builder.withState(RunState.CREATED, createState)
+                                .withState(RunState.READY, readyState)
+                                .withState(RunState.RUNNING, runningState)
+                                .withState(RunState.COMPLETED, completedState)
                                 .withErrorState(RunState.ERROR, errorState)
                                 .withStateChangeListener((newState, context) -> log
-                                                .info("State Change Listener: " + newState + ", context: " + context));
+                                                .info("State Change Listener: " + newState
+                                                                + ", context: " + context));
 
                 // Build and return the configured StateMachine instance
                 return builder.build();
