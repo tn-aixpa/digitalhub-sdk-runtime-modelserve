@@ -14,14 +14,14 @@ public class EventProcessor {
     EventLogger eventLogger;
 
     @Async
-    public void processEvent(Action action, Event event) {
+    public void processEvent(Action action, Event event, String jobName) {
 
         System.out.println("--------------------- KUBE EVENT ---------------------");
+        System.out.println("Job Name :" + jobName);
         System.out.println("Action Name :" + action.name());
 
         EventPrinter.printEvent(event);
-
-        eventLogger.logEvent(event);
+        eventLogger.logEvent(event, jobName);
 
         System.out.println("------------------------------------------------------");
     }

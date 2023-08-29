@@ -3,30 +3,46 @@ package it.smartcommunitylabdhub.core.components.kubernetes;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.Event;
 import it.smartcommunitylabdhub.core.utils.RegexList;
+import lombok.extern.log4j.Log4j2;
 
 @Component
+@Log4j2
 public class EventLogger {
 
-	public void logEvent(Event event) {
+	public void logEvent(Event event, String jobName) {
 
-		ObjectMapper objectMapper = new ObjectMapper();
+		// Parse job name : is composed by "<job>-<kind>-<runId>"
+		String pattern = "(?<type>\\w+)-(?<kind>\\w+)-(?<runId>[a-fA-F0-9-]+)";
 
-		try {
-			String eventJson = objectMapper.writeValueAsString(event);
-			System.out.println("Event JSON:\n" + eventJson);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+
+		Pattern regex = Pattern.compile(pattern);
+		Matcher matcher = regex.matcher(jobName);
+
+		if (matcher.matches()) {
+			String type = matcher.group("type");
+			String kind = matcher.group("kind");
+			String runId = matcher.group("runId");
+
+			System.out.println("Type: " + type);
+			System.out.println("Kind: " + kind);
+			System.out.println("Run ID (UUID4): " + runId);
+
+		} else {
+			log.error("Cannot parse job name from kubernetes events: expected format \"<type>-<kind>-<runId>\", received: "
+					+ jobName);
 		}
 
-		Pattern pattern = Pattern.compile(RegexList.UUID4_REGEX);
-		Matcher matcher = pattern.matcher(event.getMetadata().getName());
 
-		while (matcher.find()) {
-			System.out.println("Found UUID: " + matcher.group());
-		}
+		// ObjectMapper objectMapper = new ObjectMapper();
+
+		// try {
+		// String eventJson = objectMapper.writeValueAsString(event);
+		// System.out.println("Event JSON:\n" + eventJson);
+		// } catch (JsonProcessingException e) {
+		// e.printStackTrace();
+		// }
+
 	}
 }

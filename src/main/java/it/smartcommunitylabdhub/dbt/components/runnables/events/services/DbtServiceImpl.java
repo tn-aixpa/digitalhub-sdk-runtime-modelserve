@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.dbt.components.runnables.events.services;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,12 +11,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.api.model.PodTemplateSpec;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.LogWatch;
 import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
@@ -41,13 +43,10 @@ public class DbtServiceImpl implements KindService<Void> {
 		final String jobName = "job" + "-" + taskAccessor.getKind() + "-"
 				+ runDTO.getId();
 
-		Map<String, String> annotations = new HashMap<>();
-		annotations.put("job-key", jobName);
+
 		Job job = new JobBuilder()
 				.withNewMetadata()
 				.withName(jobName)
-				// .withLabels(Map.of("job-name", jobName))
-				.withAnnotations(annotations)
 				.endMetadata()
 				.withNewSpec()
 				.withNewTemplate()
@@ -65,12 +64,13 @@ public class DbtServiceImpl implements KindService<Void> {
 						+ runDTO.getId())
 				.withImage("ltrubbianifbk/dbt_core:latest")
 				.withCommand("python", "dbt_wrapper.py")
-				.endContainer()
-				.withRestartPolicy("Never")
+				.endContainer().withRestartPolicy("Never")
 				.endSpec()
 				.endTemplate()
 				.endSpec()
 				.build();
+
+
 
 		kubernetesClient.resource(job).inNamespace(namespace).create();
 
