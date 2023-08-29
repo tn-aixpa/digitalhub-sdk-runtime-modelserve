@@ -194,7 +194,7 @@ class SqlStore(Store):
         str
             The name of the SQL schema.
         """
-        return self._parse_path(uri).get("schema")
+        return str(self._parse_path(uri).get("schema"))
 
     def _get_table_name(self, uri: str) -> str:
         """
@@ -210,7 +210,7 @@ class SqlStore(Store):
         str
             The name of the table
         """
-        return self._parse_path(uri).get("table")
+        return str(self._parse_path(uri).get("table"))
 
     @staticmethod
     def _check_access_to_storage(engine: Engine) -> None:

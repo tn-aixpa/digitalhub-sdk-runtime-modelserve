@@ -32,7 +32,7 @@ def get_uiid(uuid: str | None = None) -> str:
     """
     if uuid is not None:
         return uuid
-    return uuid4().hex
+    return str(uuid4())
 
 
 def encode_string(string: str) -> str:
