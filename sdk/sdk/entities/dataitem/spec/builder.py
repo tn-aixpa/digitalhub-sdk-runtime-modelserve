@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 REGISTRY = {
     "dbt": DBTDataitemSpec,
-    "sql": DBTDataitemSpec,
+    "table": DBTDataitemSpec,
 }
 
 

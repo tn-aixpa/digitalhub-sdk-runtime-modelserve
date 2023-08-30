@@ -10,8 +10,12 @@ class DBTDataitemSpec(DataitemSpec):
     """
 
     def __init__(
-        self, key: str | None = None, path: str | None = None, raw_code: str | None = None,
-        compiled_code: str | None = None, **kwargs
+        self,
+        key: str | None = None,
+        path: str | None = None,
+        raw_code: str | None = None,
+        compiled_code: str | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
