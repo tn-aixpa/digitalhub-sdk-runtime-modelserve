@@ -26,7 +26,7 @@ from sdk.entities.function.crud import (
     new_function,
 )
 from sdk.entities.project.metadata import build_metadata
-from sdk.entities.project.spec import build_spec
+from sdk.entities.project.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.crud import (
     create_workflow_from_dict,
@@ -51,7 +51,7 @@ if typing.TYPE_CHECKING:
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.function.entity import Function
     from sdk.entities.project.metadata import ProjectMetadata
-    from sdk.entities.project.spec import ProjectSpec
+    from sdk.entities.project.spec.builder import ProjectSpec
     from sdk.entities.workflow.entity import Workflow
 
     Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)

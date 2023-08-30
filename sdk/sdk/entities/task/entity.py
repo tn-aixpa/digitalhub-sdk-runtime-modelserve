@@ -8,7 +8,7 @@ import typing
 
 from sdk.entities.base.entity import Entity
 from sdk.entities.run.crud import new_run
-from sdk.entities.task.spec import build_spec
+from sdk.entities.task.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
 from sdk.utils.exceptions import EntityError
@@ -16,7 +16,7 @@ from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
     from sdk.entities.run.entity import Run
-    from sdk.entities.task.spec import TaskSpec
+    from sdk.entities.task.spec.builder import TaskSpec
 
 
 class Task(Entity):

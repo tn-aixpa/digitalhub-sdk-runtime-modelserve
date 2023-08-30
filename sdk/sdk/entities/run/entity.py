@@ -8,14 +8,14 @@ import typing
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
 from sdk.entities.dataitem.crud import get_dataitem_from_key
-from sdk.entities.run.spec import build_spec
+from sdk.entities.run.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.run.spec import RunSpec
+    from sdk.entities.run.spec.builder import RunSpec
     from sdk.entities.artifact.entity import Artifact
     from sdk.entities.dataitem.entity import Dataitem
 
