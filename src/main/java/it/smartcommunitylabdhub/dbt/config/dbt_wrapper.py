@@ -1,384 +1,488 @@
-import subprocess
-import os
-import json
-import base64
-import requests
-import sys
-import re
-import dataclasses
-import uuid as uuid4
+from __future__ import annotations
 
+import base64
+import os
+import typing
+from pathlib import Path
+from uuid import uuid4
+
+import sdk
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
-from datetime import datetime
-from enum import Enum
 
 
-# Define a custom JSON encoder to handle complex types
-class CustomJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Enum):
-            return obj.value
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-        return super().default(obj)
+if typing.TYPE_CHECKING:
+    from sdk.entities.dataitem.entity import Dataitem
+    from sdk.entities.run.entity import Run
+    from sdk.entities.run.spec.base import RunSpec
+    from dbt.contracts.results import RunResult
 
 
-# Function to make a POST request
-def make_post_request(base_url, endpoint, data=None):
-    url = f"{base_url}/{endpoint}"
-    response = requests.post(url, json=data)
-    return response
+####################
+# Constants
+####################
+
+MODELS_DIRECTORY = Path("models")
+RUN_ID = os.environ.get("RUN_ID")
+PROJECT_NAME = os.environ.get("PROJECT_NAME")
+DHCORE = os.environ.get("DH_CORE")
+DATAITEM_DBT = "dbt"
+
+PG_HOST = os.environ["POSTGRES_DB_HOST"]
+PG_PORT = os.environ["POSTGRES_PORT"]
+PG_USER = os.environ["POSTGRES_USER"]
+PG_PSWD = os.environ["POSTGRES_PASSWORD"]
+PG_DB = os.environ["POSTGRES_DB"]
 
 
-# Function to make a GET request with parameters in the URL path
-def make_get_request(base_url, endpoint, *path_params):
-    url = f"{base_url}/{endpoint}"
-    if path_params:
-        url += "/" + "/".join(path_params)
-    response = requests.get(url)
-    return response
+####################
+# Set up environment
+####################
+
+# Create models directory
+MODELS_DIRECTORY.mkdir(parents=True, exist_ok=True)
+
+# Set up sdk environment
+cfg = sdk.DHCoreConfig(endpoint=DHCORE)
+sdk.set_dhub_env(cfg)
+cnstr = f"postgresql://{PG_USER}:{PG_PSWD}@{PG_HOST}:{PG_PORT}/{PG_DB}"
+cfg = {"connection_string": cnstr}
+stcfg = sdk.StoreConfig(
+    name="sql",
+    type="sql",
+    uri=f"sql://postgres/{PG_DB}/public",
+    is_default=True,
+    config=cfg,
+)
+sdk.set_store(stcfg)
+
+####################
+# IO functions
+####################
 
 
-# Function to make a PUT request
-def make_put_request(base_url, endpoint, data=None, *path_params):
-    url = f"{base_url}/{endpoint}"
-    if path_params:
-        url += "/" + "/".join(path_params)
-    response = requests.put(url, json=data)
-    return response
+def materialize_inputs(inputs: list) -> None:
+    """
+    Materialize inputs in postgres.
+
+    Parameters
+    ----------
+    inputs : list
+        The list of inputs.
+
+    Returns
+    -------
+    None
+    """
+    for name in inputs:
+        try:
+            di = sdk.get_dataitem(PROJECT_NAME, name)
+        except Exception:
+            raise RuntimeError(f"Dataitem {name} not found in project {PROJECT_NAME}")
+        df = di.as_df()
+        target_path = f"sql://postgres/{PG_DB}/public/{name}_v{di.id}"
+        di.write_df(df, target_path)
 
 
-# Get run from dh_core
-def get_run() -> dict:
-    # Call an external HTTP service to retrieve information
+####################
+# Templates for dbt
+####################
 
-    DH_CORE = os.environ.get("DH_CORE")
-    RUN_ID = os.environ.get("RUN_ID")
-    response = make_get_request(DH_CORE, "api/v1/runs", RUN_ID)
-
-    print("==================== GET RUN =====================")
-    print(f"{response.json()}")
-    return response.json()
-
-
-def create_dataitem(data: dict) -> dict:
-    DH_CORE = os.environ.get("DH_CORE")
-    response = make_post_request(DH_CORE, "api/v1/dataitems", data)
-
-    print("==================== DATAITEM =====================")
-    print(f"{response.json()}")
-    return response.json()
-
-
-def update_run(run_id: str, run: dict) -> dict:
-    DH_CORE = os.environ.get("DH_CORE")
-    response = make_put_request(DH_CORE, "api/v1/runs", run, run_id)
-
-    print(f"{response.json()}")
-    return response
-
-
-def parse_dbt_url(url):
-    # Define a regular expression pattern to match the URL structure
-    pattern = r"(?P<kind>[\w-]+)://(?P<project>[\w-]+)/(?P<function>[\w-]+):(?P<version>[\w-]+)"
-
-    # Use regex to extract components from the URL
-    match = re.match(pattern, url)
-
-    if match:
-        return match.groupdict()
-    else:
-        return None
-
-
-def generate_inputs_conf(project: str, inputs: list, models_directory: str) -> None:
-    DH_CORE = os.environ.get("DH_CORE")
-
-    for schema in inputs:
-        # retrive schema information
-        response = make_get_request(
-            DH_CORE, f"api/v1/-/{project}/dataitems/{schema}/latest"
-        ).json()
-
-        print(f"{response}")
-        # write schema and version detail ( qui forse va l'input)
-        with open(f"{models_directory}/{schema}.yml", "w") as schema_def:
-            schema_def.write(
-                """         
-models:
-  - name: {schema}
-    latest_version: {version}
-    versions: 
-        - v: {version}
-          config:
-            materialized: table
-      """.format(
-                    schema=schema, version=response["id"]
-                )
-            )
-
-        # write also sql select for the schema
-        with open(
-            f"{models_directory}/{schema}_v{response['id']}.sql",
-            "w",
-        ) as schema_def:
-            schema_def.write(f'select * from "{schema}_v{response["id"]}"')
-
-
-def generate_outputs_conf(
-    decoded_model_sql: str, outputs: list, models_directory: str, uuid: str
-) -> None:
-    with open(
-        f"{models_directory}/{outputs[0]}.sql",
-        "w",
-    ) as schema_file:
-        schema_file.write(decoded_model_sql)
-
-    # write schema and version detail for outputs versioning
-    with open(f"{models_directory}/{outputs[0]}.yml", "w") as schema_def:
-        schema_def.write(
-            """         
-models:
-  - name: {model_name}
-    latest_version: {uuid}
-    versions: 
-        - v: {uuid}
-          config:
-            materialized: table
-      """.format(
-                model_name=outputs[0], uuid=uuid
-            )
-        )
-
-
-def generate_dbt_project_yml(project_name: str) -> None:
-    # Create dbt_project.yml from 'dbt'
-    # to clean project add clean-targets: [target, dbt_packages, logs]
-    with open(f"dbt_project.yml", "w") as dbt_project_file:
-        dbt_project_file.write(
-            """
-name: "{project_name}"
+PROJECT_TEMPLATE = """
+name: "{}"
 version: "1.0.0"
 config-version: 2
 profile: "postgres"
-model-paths: ["models"]
+model-paths: ["{}"]
 models:
-        """.format(
-                project_name=project_name
-            )
-        )
-
-
-def generate_dbt_profile_yml() -> None:
-    # Create dbt profiles.yml
-
-    with open(f"profiles.yml", "w") as profiles_file:
-        profiles_file.write(
-            """
+"""
+MODEL_TEMPLATE_UUID = """
+models:
+  - name: {}
+    latest_uuid: {}
+    uuids:
+        - v: {}
+          config:
+            materialized: table
+"""
+MODEL_TEMPLATE_VERSION = """
+models:
+  - name: {}
+    latest_version: {}
+    versions:
+        - v: {}
+          config:
+            materialized: table
+"""
+PROFILE_TEMPLATE = f"""
 postgres:
     outputs:
         dev:
             type: postgres
-            host: {db_host}
-            user: {db_user}
-            pass: {db_pass}
-            port: {db_port}
-            dbname: {db_name}
+            host: {PG_HOST}
+            user: {PG_USER}
+            pass: {PG_PSWD}
+            port: {PG_PORT}
+            dbname: {PG_DB}
             schema: public
     target: dev
-        """.format(
-                db_host=os.environ["POSTGRES_DB_HOST"],
-                db_user=os.environ["POSTGRES_USER"],
-                db_pass=os.environ["POSTGRES_PASSWORD"],
-                db_port=os.environ["POSTGRES_PORT"],
-                db_name=os.environ["POSTGRES_DB"],
-            )
-        )
+"""
 
 
-def initialize_project(run: dict, uuid: str) -> None:
-    spec: dict = run.get("spec", {})
-    dbt: dict = spec.get("dbt", {})
+def generate_inputs_conf(inputs: list) -> None:
+    """
+    Generate inputs confs dependencies for dbt project.
 
-    outputs = spec.get("outputs").get("dataitems", ["output"])
-    inputs = spec.get("inputs").get("dataitems", ["input"])
+    Parameters
+    ----------
+    inputs : list
+        The list of inputs.
 
-    # Parse task string
-    task_accessor = parse_dbt_url(run.get("task"))
+    Returns
+    -------
+    None
+    """
+    for name in inputs:
+        # Get dataitem from core
+        response = sdk.get_dataitem(PROJECT_NAME, name)
+        uuid = response["id"]
 
-    # Get project name
-    project_name = task_accessor.get("project", "default_name").replace("-", "_")
+        # write schema and version detail for inputs versioning
+        input_path = Path(MODELS_DIRECTORY, f"{name}.sql")
+        input_path.write_text(MODEL_TEMPLATE_UUID.format(name, uuid, uuid))
 
+        # write also sql select for the schema
+        sql_path = Path(MODELS_DIRECTORY, f"{name}_v{uuid}.sql")
+        sql_path.write_text(f'SELECT * FROM "{name}_v{uuid}"')
+
+
+def generate_outputs_conf(sql: str, output: str, uuid: str) -> None:
+    """
+    Write sql code for the model and write schema
+    and version detail for outputs versioning
+
+    Parameters
+    ----------
+    sql : str
+        The sql code.
+    output : str
+        The output table name.
+    uuid : str
+        The uuid of the model for outputs versioning.
+
+    Returns
+    -------
+    None
+    """
+    sql_path = Path(MODELS_DIRECTORY, f"{output}.sql")
+    sql_path.write_text(sql)
+
+    output_path = Path(MODELS_DIRECTORY, f"{output}.yml")
+    output_path.write_text(MODEL_TEMPLATE_VERSION.format(output, uuid, uuid))
+
+
+def generate_dbt_project_yml() -> None:
+    """
+    Create dbt_project.yml from 'dbt'
+
+    Returns
+    -------
+    None
+    """
+    # to clean project add clean-targets: [target, dbt_packages, logs]
+    project_path = Path("dbt_project.yml")
+    project_path.write_text(PROJECT_TEMPLATE.format(PROJECT_NAME, MODELS_DIRECTORY))
+
+
+def generate_dbt_profile_yml() -> None:
+    """
+    Create dbt profiles.yml
+
+    Returns
+    -------
+    None
+    """
+    profile_path = Path("profiles.yml")
+    profile_path.write_text(PROFILE_TEMPLATE)
+
+
+####################
+# Functions for dbt
+####################
+
+
+def initialize_dbt_project(sql: str, inputs: list, output: str, uuid: str) -> None:
+    """
+    Initialize a dbt project with a model and a schema definition.
+
+    Parameters
+    ----------
+    sql : str
+        The sql code.
+    inputs : list
+        The list of inputs.
+    output : str
+        The output table name.
+    uuid : str
+        The uuid of the model for outputs versioning.
+
+    Returns
+    -------
+    None
+    """
     # Generate profile yaml file
     generate_dbt_profile_yml()
 
     # Generate project yaml file
-    generate_dbt_project_yml(project_name=project_name)
-
-    # Create a new folder in models directory and put a schema.yml definition
-    models_directory = "models"
-    os.makedirs(models_directory, exist_ok=True)
-
-    # Decode and write the base64-encoded model_sql to the file
-    model_sql = dbt.get("sql", "")
-    decoded_model_sql = base64.b64decode(model_sql).decode("UTF-8")
+    generate_dbt_project_yml()
 
     # Generate outputs confs
-    generate_outputs_conf(decoded_model_sql, outputs, models_directory, uuid)
+    generate_outputs_conf(sql, output, uuid)
 
     # Generate inputs confs
-    generate_inputs_conf(
-        project=task_accessor.get("project", "default-name"),
-        inputs=inputs,
-        models_directory=models_directory,
-    )
+    generate_inputs_conf(inputs)
+
+
+def execute_dbt_project(output: str) -> dbtRunnerResult:
+    """
+    Execute a dbt project with the specified outputs.
+    It initializes a dbt runner, cleans the project and runs it.
+
+    Parameters
+    ----------
+    output : str
+        The output table name.
+
+    Returns
+    -------
+    dbtRunnerResult
+        An object representing the result of the dbt execution.
+    """
+    dbt = dbtRunner()
+    dbt.invoke("clean")
+    cli_args = ["run", "--select", f"{output}"]
+    return dbt.invoke(cli_args)
+
+
+####################
+# Functions for parsing dbt results
+####################
+
+
+def parse_dbt_results(run_result: dbtRunnerResult, output: str) -> RunResult:
+    """
+    Parse dbt results.
+
+    Parameters
+    ----------
+    run_result : dbtRunnerResult
+        The dbt result.
+    output : str
+        The output table name.
+
+    Returns
+    -------
+    RunResult
+        Run result.
+    """
+    # Take last result, final result of the query
+    try:
+        result: RunResult = run_result.result[-1]
+    except IndexError:
+        raise RuntimeError("No results found.")
+
+    if not result.status.value == "success":
+        raise RuntimeError("Execution is not successfull.")
+
+    if not result.node.package_name == PROJECT_NAME:
+        raise RuntimeError("Wrong project name.")
+
+    if not result.node.name == output:
+        raise RuntimeError("Wrong function name.")
+
+    print("Send info to core backend")
+    return result
+
+
+def get_path(result: RunResult) -> str:
+    """
+    Get path from dbt result (sql://postgres/database/schema/table).
+
+    Parameters
+    ----------
+    result : RunResult
+        The dbt result.
+
+    Returns
+    -------
+    str
+        SQL path.
+    """
+    components = result.node.relation_name.replace('"', "")
+    components = "/".join(components.split("."))
+    return f"sql://postgres/{components}"
+
+
+def get_code(result: RunResult) -> tuple:
+    """
+    Get code from dbt result.
+
+    Parameters
+    ----------
+    result : RunResult
+        The dbt result.
+
+    Returns
+    -------
+    tuple
+        A tuple containing raw and compiled code.
+    """
+    raw_code = base64.b64encode(result.node.raw_code).encode().decode()
+    compiled_code = base64.b64encode(result.node.compiled_code).encode().decode()
+    return raw_code, compiled_code
+
+
+def get_timings(result: RunResult) -> dict:
+    """
+    Get timings from dbt result.
+
+    Parameters
+    ----------
+    result : RunResult
+        The dbt result.
+
+    Returns
+    -------
+    dict
+        A dictionary containing timings.
+    """
+    compile_timing = None
+    execute_timing = None
+    for entry in result.timing:
+        if entry.name == "compile":
+            compile_timing = entry
+        elif entry.name == "execute":
+            execute_timing = entry
+    return {
+        "timing": {
+            "compile": {
+                "started_at": compile_timing.started_at,
+                "completed_at": compile_timing.completed_at,
+            },
+            "execute": {
+                "started_at": execute_timing.started_at,
+                "completed_at": execute_timing.completed_at,
+            },
+        }
+    }
+
+
+def get_dataitem_info(output: str, dataitem: Dataitem) -> dict:
+    """
+    Create dataitem info.
+
+    Parameters
+    ----------
+    output : str
+        The output table name.
+    dataitem : Dataitem
+        The dataitem.
+    """
+    return {
+        "dataitems": [
+            {
+                "key": output,
+                "kind": DATAITEM_DBT,
+                "id": f"store://{dataitem.project}/dataitems/{dataitem.kind}/{dataitem.name}:{dataitem.id}",
+            }
+        ]
+    }
+
+
+####################
+# Main
+####################
 
 
 def main() -> None:
     print("Initializing dbt project and running it...")
 
     # retrieve the run from core
-    run: dict = get_run()
-    spec: dict = run.get("spec", {})
-    outputs = spec.get("outputs").get("dataitems", ["output"])
+    sdk.get_project(PROJECT_NAME)
+    run: Run = sdk.get_run(RUN_ID)
+    spec: RunSpec = run.spec
+
+    # retrieve inputs and materialize
+    inputs = spec.get_inputs().get("dataitems", [])
+    materialize_inputs(inputs)
+
+    outputs = spec.get_outputs().get("dataitems", ["output"])
+    output = outputs[0]
+
     # generate uuid for dataitem
-    uuid: str = str(uuid4.uuid4())
+    uuid = str(uuid4())
 
-    print(f"this id DATAITEM UUID : {uuid}")
+    # retrieve model sql from run
+    sql = run.spec.get("dbt").get("sql")
+    sql = base64.b64decode(sql).decode()
 
-    # TODO: with input I have to import all the dataitem for the query
-    inputs = spec.get("inputs").get("dataitems", ["input"])
+    # initialize dbt project, run dbt and inspect results
+    initialize_dbt_project(PROJECT_NAME, sql, inputs, outputs, uuid)
+    res = execute_dbt_project(output)
 
-    # Parse task string
-    task_accessor = parse_dbt_url(run.get("task"))
-
-    # Get project name
-    project_name = task_accessor.get("project", "default_name").replace("-", "_")
-
-    # initialize project
-    initialize_project(run=run, uuid=uuid)
-
-    # initialize dbt Runner
-    dbt = dbtRunner()
-
-    # clean dbt
-    dbt.invoke("clean")
-
-    # create CLI args as a list of strings
-    cli_args = ["run", "--select", f"{outputs[0]}"]
-
-    # run dbt
-    res: dbtRunnerResult = dbt.invoke(cli_args)
-
-    # inspect the results
-    json_results = []
-    for r in res.result:
-        json_string = json.dumps(dataclasses.asdict(r), cls=CustomJSONEncoder, indent=2)
-        json_results.append(json.loads(json_string))
-
+    print("======================= Parse results ========================")
+    result: RunResult = parse_dbt_results(res, PROJECT_NAME, output)
     try:
-        # first check if we have results
-        if len(json_results) > 0:
-            # check status is success
-            result = json_results[-1]
-            if (
-                result.get("status") == "success"
-                and result.get("node").get("package_name") == project_name
-                and result.get("node").get("name") == outputs[0]
-            ):
-                print(f"SUCCESSFUL -> Send info to core backend")
+        path = get_path(result)
+        raw_code, compiled_code = get_code(result)
+        timings = get_timings(result)
+        name = result.node.name
+    except Exception as e:
+        raise RuntimeError("Something got wrong during object result access") from e
 
-                components = [
-                    component.strip('"')
-                    for component in result.get("node").get("relation_name").split(".")
-                ]
+    print("======================= CREATE DATAITEM ========================")
+    try:
+        dataitem = sdk.new_dataitem(
+            project=PROJECT_NAME,
+            name=name,
+            kind=DATAITEM_DBT,
+            path=path,
+            raw_code=raw_code,
+            compiled_code=compiled_code,
+            uuid=uuid,
+        )
+    except Exception as e:
+        raise RuntimeError("Something got wrong during dataitem creation") from e
 
-                raw_code = base64.b64encode(
-                    result.get("node").get("raw_code", "").encode("utf-8")
-                )
-                compiled_code = base64.b64encode(
-                    result.get("node").get("compiled_code", "").encode("utf-8")
-                )
+    dataitem_info = get_dataitem_info(output, dataitem)
+    status_dict = {
+        "status": {
+            **dataitem_info,
+            **timings,
+        }
+    }
+    run = sdk.get_run(RUN_ID)
+    run = run.set_status(status_dict)
 
-                dataitem = {
-                    "id": uuid,
-                    "name": result.get("node").get("name"),
-                    "project": task_accessor.get("project"),
-                    "kind": "sql",
-                    "spec": {
-                        "path": f"sql://postgres/{'/'.join(components)}",
-                        "raw_code": raw_code.decode("utf-8"),
-                        "compiled_code": compiled_code.decode("utf-8"),
-                    },
-                    "state": result.get("status", "none").upper(),
-                }
+    print("======================= UPDATE RUN ========================")
+    try:
+        sdk.update_run(run)
+    except Exception as e:
+        raise RuntimeError("Something got wrong during run update") from e
 
-                # store dataitem into dh core
-                dataitem_result = create_dataitem(data=dataitem)
-
-                # Extract timing information
-                timing = result.get("timing", [])
-                compile_timing = None
-                execute_timing = None
-
-                for entry in timing:
-                    if entry.get("name") == "compile":
-                        compile_timing = entry
-                    elif entry.get("name") == "execute":
-                        execute_timing = entry
-
-                # update run with dataitems result
-                run.update(
-                    {
-                        "status": {
-                            "dataitems": [
-                                {
-                                    "key": outputs[0],
-                                    "kind": "dataitem",
-                                    "id": f"store://{dataitem_result.get('project')}/dataitems/{dataitem_result.get('name')}:{dataitem_result.get('id')}",
-                                }
-                            ],
-                            "timing": {
-                                "compile": {
-                                    "started_at": compile_timing.get("started_at"),
-                                    "completed_at": compile_timing.get("completed_at"),
-                                },
-                                "execute": {
-                                    "started_at": execute_timing.get("started_at"),
-                                    "completed_at": execute_timing.get("completed_at"),
-                                },
-                            },
-                        },
-                    }
-                )
-
-                print("======================= UPDATE RUN ========================")
-                print(run)
-                update_run(run.get("id"), run)
-
-            else:
-                # check project and model name match
-                print(
-                    "ERROR -> Execution is not successful or got wrong project name or function name."
-                )
-        else:
-            print("ERROR -> No results found.")
-
-    except:
-        print("Something got wrong during object result access")
-
-    # TODO: devo verificare che fqn=['default_name', 'output'],  ho preso il progetto giusto con il modello giusto.
+    # TODO: devo verificare che fqn=['default_name', 'output'], ho preso il progetto
+    # giusto con il modello giusto.
 
     # se e' giusto passo lo status della run al backend (core) [status, timing]
-    # ci interessa l'esito (success/error), metadata sull'esecuzione (es execution time), tipo di output (es output)
-    #       'adapter_response': {'_message': 'CREATE VIEW', 'code': 'CREATE VIEW', 'rows_affected': -1},
+    # ci interessa l'esito (success/error), metadata sull'esecuzione
+    # (es execution time), tipo di output (es output)
+    #       'adapter_response': {'_message': 'CREATE VIEW', 'code': 'CREATE VIEW',
+    # 'rows_affected': -1},
     #       'message': 'CREATE VIEW',
 
-    # del modello ci interessa il path come dataitem sql://postgres......  relation_name='"dbt"."public"."output"',
+    # del modello ci interessa il path come dataitem sql://postgres......
+    # relation_name='"dbt"."public"."output"',
     # ci interessa inoltre il raw_code e il compiled_code ( va messo tutto in extra )
-
-    sys.exit(0)
 
 
 if __name__ == "__main__":

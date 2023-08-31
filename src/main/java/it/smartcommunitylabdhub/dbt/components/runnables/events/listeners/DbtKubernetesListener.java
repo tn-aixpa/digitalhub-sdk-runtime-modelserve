@@ -86,14 +86,10 @@ public class DbtKubernetesListener {
 							runDTO.setState(RunState.COMPLETED.name());
 							runService.updateRun(runDTO, runDTO.getId());
 						}
-
-
 					}
-
 				} catch (Exception e) {
 					log.error(e.getMessage());
 				}
-
 			}
 
 

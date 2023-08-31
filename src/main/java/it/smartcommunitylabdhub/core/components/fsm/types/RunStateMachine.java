@@ -71,6 +71,12 @@ public class RunStateMachine {
                                 new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
                                                 (input, context) -> true, false));
 
+                errorState.setEntryAction((context) -> {
+                        RunDTO runDTO = runService.getRun(context.get("runId").toString());
+                        runDTO.setState(RunState.ERROR.toString());
+                        runService.updateRun(runDTO, runDTO.getId());
+                });
+
                 // Configure the StateMachine with the defined states and transitions
                 builder.withState(RunState.CREATED, createState)
                                 .withState(RunState.READY, readyState)

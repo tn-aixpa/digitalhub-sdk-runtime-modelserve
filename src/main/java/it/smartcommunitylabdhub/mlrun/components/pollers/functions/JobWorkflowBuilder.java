@@ -36,7 +36,8 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RunWorkflowComponent(type = "job")
-public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkflow<RunDTO, Workflow> {
+public class JobWorkflowBuilder extends BaseWorkflowBuilder
+		implements KindWorkflow<RunDTO, Workflow> {
 
 	@Value("${mlrun.api.run-url}")
 	private String runUrl;
@@ -51,7 +52,8 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 
 	ObjectMapper objectMapper = new ObjectMapper();
 
-	public JobWorkflowBuilder(RunService runService, LogService logService, ArtifactService artifactService,
+	public JobWorkflowBuilder(RunService runService, LogService logService,
+			ArtifactService artifactService,
 			RunStateMachine runStateMachine) {
 		this.runService = runService;
 		this.logService = logService;
@@ -64,13 +66,16 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 		Function<Object[], Object> getRunUpdate = params -> {
 
 			try {
-				StateMachine<RunState, RunEvent, Map<String, Object>> stateMachine = (StateMachine<RunState, RunEvent, Map<String, Object>>) params[2];
+				StateMachine<RunState, RunEvent, Map<String, Object>> stateMachine =
+						(StateMachine<RunState, RunEvent, Map<String, Object>>) params[2];
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				HttpEntity<String> entity = new HttpEntity<>(headers);
 
-				String requestUrl = params[0].toString().replace("{project}", ((RunDTO) params[1]).getProject())
-						.replace("{uid}", ((RunDTO) params[1]).getExtra().get("mlrun_run_uid").toString());
+				String requestUrl = params[0].toString()
+						.replace("{project}", ((RunDTO) params[1]).getProject())
+						.replace("{uid}", ((RunDTO) params[1]).getExtra().get("mlrun_run_uid")
+								.toString());
 
 				/*
 				 * WRITE LOG USING LOG WRITER
@@ -84,21 +89,25 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 				 * "-------------------------------------------------\n");
 				 */
 
-				ResponseEntity<Map<String, Object>> response = restTemplate.exchange(requestUrl, HttpMethod.GET,
-						entity, responseType);
+				ResponseEntity<Map<String, Object>> response =
+						restTemplate.exchange(requestUrl, HttpMethod.GET,
+								entity, responseType);
 
 				// FIXME: remove this later
 				log.info(objectMapper.writeValueAsString(response));
 
 				return Optional.ofNullable(response.getBody()).map(body -> {
-					Map<String, Object> status = (Map<String, Object>) ((Map<String, Object>) body.get("data"))
-							.get("status");
+					Map<String, Object> status =
+							(Map<String, Object>) ((Map<String, Object>) body.get("data"))
+									.get("status");
 
 					if (!stateMachine.getCurrentState()
-							.equals(RunState.valueOf(status.get("state").toString().toUpperCase()))) {
+							.equals(RunState.valueOf(
+									status.get("state").toString().toUpperCase()))) {
 
 						String mlrunState = status.get("state").toString();
-						stateMachine.processEvent(Optional.ofNullable(RunEvent.valueOf(mlrunState.toUpperCase()))
+						stateMachine.processEvent(Optional
+								.ofNullable(RunEvent.valueOf(mlrunState.toUpperCase()))
 								.orElseGet(() -> RunEvent.ERROR), Optional.empty());
 
 						// Update run state
@@ -112,53 +121,87 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 						Optional.ofNullable(response.getBody()).ifPresentOrElse(b ->
 						// Get run uid from mlrun.
 						MapUtils.getNestedFieldValue(b, "data").ifPresent(data -> {
-							MapUtils.getNestedFieldValue(data, "metadata").ifPresent(metadata -> {
-								String uid = (String) metadata.get("uid");
+							MapUtils.getNestedFieldValue(data, "metadata")
+									.ifPresent(metadata -> {
+										String uid = (String) metadata.get("uid");
 
-								// Call mlrun api to get log of specific run uid.
-								ResponseEntity<String> logResponse = restTemplate.exchange(logUrl
-										.replace("{project}", runDTO.getProject()).replace("{uid}", uid),
-										HttpMethod.GET, entity, String.class);
+										// Call mlrun api to get log of specific run uid.
+										ResponseEntity<String> logResponse =
+												restTemplate.exchange(logUrl
+														.replace("{project}",
+																runDTO.getProject())
+														.replace("{uid}", uid),
+														HttpMethod.GET, entity,
+														String.class);
 
-								// Create and store log
-								logService.createLog(
-										LogDTO.builder().body(Map.of("content", logResponse.getBody()))
-												.project(runDTO.getProject()).run(runDTO.getId()).build());
-							});
+										// Create and store log
+										logService.createLog(
+												LogDTO.builder().body(Map.of("content",
+														logResponse.getBody()))
+														.project(runDTO.getProject())
+														.run(runDTO.getId()).build());
+									});
 
 							// get Artifacts from results
-							MapUtils.getNestedFieldValue(data, "status").ifPresent(metadata -> {
-								((List<Map<String, Object>>) metadata.get("artifacts")).stream()
-										.forEach(artifact -> {
-											DataItemFieldAccessor mlrunDataItemAccessor = DataItemKind
-													.valueOf(artifact.get("kind").toString().toUpperCase())
-													.createAccessor(artifact);
+							MapUtils.getNestedFieldValue(data, "status")
+									.ifPresent(metadata -> {
+										((List<Map<String, Object>>) metadata
+												.get("artifacts")).stream()
+														.forEach(artifact -> {
+															DataItemFieldAccessor mlrunDataItemAccessor =
+																	DataItemKind
+																			.valueOf(artifact
+																					.get("kind")
+																					.toString()
+																					.toUpperCase())
+																			.createAccessor(
+																					artifact);
 
-											// Create artifact
-											ArtifactDTO artifactDTO = ArtifactDTO.builder()
-													.name(mlrunDataItemAccessor.getTree())
-													.project(mlrunDataItemAccessor.getProject())
-													.kind(mlrunDataItemAccessor.getKind())
-													.spec(mlrunDataItemAccessor.getSpecs())
-													.state(mlrunDataItemAccessor.getState().toUpperCase())
-													.build();
+															// Create artifact
+															ArtifactDTO artifactDTO =
+																	ArtifactDTO
+																			.builder()
+																			.name(mlrunDataItemAccessor
+																					.getTree())
+																			.project(mlrunDataItemAccessor
+																					.getProject())
+																			.kind(mlrunDataItemAccessor
+																					.getKind())
+																			.spec(mlrunDataItemAccessor
+																					.getSpecs())
+																			.state(mlrunDataItemAccessor
+																					.getState()
+																					.toUpperCase())
+																			.build();
 
-											// Store artifact
-											artifactDTO = this.artifactService.createArtifact(artifactDTO);
+															// Store artifact
+															artifactDTO =
+																	this.artifactService
+																			.createArtifact(
+																					artifactDTO);
 
-											// Add artifact key
-											MapUtils.computeAndAddElement(runDTO.getExtra(), "artifacts",
-													Map.of("key", mlrunDataItemAccessor.getKey(), "id",
-															ArtifactUtils.getKey(artifactDTO), "kind",
-															mlrunDataItemAccessor.getKind()));
-										});
+															// Add artifact key
+															MapUtils.computeAndAddElement(
+																	runDTO.getExtra(),
+																	"artifacts",
+																	Map.of("key",
+																			mlrunDataItemAccessor
+																					.getKey(),
+																			"id",
+																			ArtifactUtils
+																					.getKey(artifactDTO),
+																			"kind",
+																			mlrunDataItemAccessor
+																					.getKind()));
+														});
 
-								// Save runs artifact keys
-								this.runService.save(runDTO);
-							});
+										// Save runs artifact keys
+										this.runService.save(runDTO);
+									});
 						}), () -> {
 							// Could not receive body from mlrun..stop poller now
-							throw new StopPoller("Poller complete with ERROR {Mlrun body not found}");
+							throw new StopPoller(
+									"Poller complete with ERROR {Mlrun body not found}");
 						});
 
 						// Poller complete successfully
@@ -181,7 +224,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder implements KindWorkf
 
 		// Init run state machine considering current state and context.
 		StateMachine<RunState, RunEvent, Map<String, Object>> fsm = runStateMachine
-				.create(RunState.valueOf(runDTO.getState()), new HashMap<>());
+				.create(RunState.valueOf(runDTO.getState()), Map.of("runId", runDTO.getId()));
 		fsm.processEvent(RunEvent.BUILD, Optional.empty());
 
 		// Define workflow steps
