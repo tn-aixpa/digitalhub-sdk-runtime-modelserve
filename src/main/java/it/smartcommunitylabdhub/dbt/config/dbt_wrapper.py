@@ -6,16 +6,15 @@ import typing
 from pathlib import Path
 from uuid import uuid4
 
-import sdk
-
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
+import sdk
 
 if typing.TYPE_CHECKING:
+    from dbt.contracts.results import RunResult
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.run.entity import Run
     from sdk.entities.run.spec.base import RunSpec
-    from dbt.contracts.results import RunResult
 
 
 ####################
@@ -25,15 +24,14 @@ if typing.TYPE_CHECKING:
 MODELS_DIRECTORY = Path("models")
 RUN_ID = os.environ.get("RUN_ID")
 PROJECT_NAME = os.environ.get("PROJECT_NAME")
-DHCORE = os.environ.get("DH_CORE")
 DATAITEM_DBT = "dbt"
 
+# Postgres
 PG_HOST = os.environ["POSTGRES_DB_HOST"]
 PG_PORT = os.environ["POSTGRES_PORT"]
 PG_USER = os.environ["POSTGRES_USER"]
 PG_PSWD = os.environ["POSTGRES_PASSWORD"]
 PG_DB = os.environ["POSTGRES_DB"]
-
 
 ####################
 # Set up environment
@@ -42,9 +40,7 @@ PG_DB = os.environ["POSTGRES_DB"]
 # Create models directory
 MODELS_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
-# Set up sdk environment
-cfg = sdk.DHCoreConfig(endpoint=DHCORE)
-sdk.set_dhub_env(cfg)
+# Set up sql store
 cnstr = f"postgresql://{PG_USER}:{PG_PSWD}@{PG_HOST}:{PG_PORT}/{PG_DB}"
 cfg = {"connection_string": cnstr}
 stcfg = sdk.StoreConfig(
@@ -55,6 +51,17 @@ stcfg = sdk.StoreConfig(
     config=cfg,
 )
 sdk.set_store(stcfg)
+
+# Set up s3 store
+st = {
+    "endpoint_url": os.environ["S3_ENDPOINT"],
+    "aws_access_key_id": os.environ["AWS_ACCESS_KEY_ID"],
+    "aws_secret_access_key": os.environ["AWS_SECRET_ACCESS_KEY"],
+}
+cfg = sdk.StoreConfig(name="s3", type="s3", uri="s3://mlrun/", is_default=False, config=st)
+sdk.set_store(cfg)
+
+
 
 ####################
 # IO functions
