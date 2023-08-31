@@ -58,9 +58,10 @@ st = {
     "aws_access_key_id": os.environ["AWS_ACCESS_KEY_ID"],
     "aws_secret_access_key": os.environ["AWS_SECRET_ACCESS_KEY"],
 }
-cfg = sdk.StoreConfig(name="s3", type="s3", uri="s3://mlrun/", is_default=False, config=st)
+cfg = sdk.StoreConfig(
+    name="s3", type="s3", uri="s3://mlrun/", is_default=False, config=st
+)
 sdk.set_store(cfg)
-
 
 
 ####################
@@ -152,7 +153,7 @@ def generate_inputs_conf(inputs: list) -> None:
     for name in inputs:
         # Get dataitem from core
         response = sdk.get_dataitem(PROJECT_NAME, name)
-        uuid = response["id"]
+        uuid = response.id
 
         # write schema and version detail for inputs versioning
         input_path = Path(MODELS_DIRECTORY, f"{name}.sql")
@@ -198,7 +199,9 @@ def generate_dbt_project_yml() -> None:
     """
     # to clean project add clean-targets: [target, dbt_packages, logs]
     project_path = Path("dbt_project.yml")
-    project_path.write_text(PROJECT_TEMPLATE.format(PROJECT_NAME, MODELS_DIRECTORY))
+    project_path.write_text(
+        PROJECT_TEMPLATE.format(PROJECT_NAME.replace("-", "_"), MODELS_DIRECTORY)
+    )
 
 
 def generate_dbt_profile_yml() -> None:
@@ -301,7 +304,7 @@ def parse_dbt_results(run_result: dbtRunnerResult, output: str) -> RunResult:
     if not result.status.value == "success":
         raise RuntimeError("Execution is not successfull.")
 
-    if not result.node.package_name == PROJECT_NAME:
+    if not result.node.package_name == PROJECT_NAME.replace("-", "_"):
         raise RuntimeError("Wrong project name.")
 
     if not result.node.name == output:
@@ -344,8 +347,8 @@ def get_code(result: RunResult) -> tuple:
     tuple
         A tuple containing raw and compiled code.
     """
-    raw_code = base64.b64encode(result.node.raw_code).encode().decode()
-    compiled_code = base64.b64encode(result.node.compiled_code).encode().decode()
+    raw_code = base64.b64encode(result.node.raw_code.encode("utf-8"))
+    compiled_code = base64.b64encode(result.node.compiled_code.encode("utf-8"))
     return raw_code, compiled_code
 
 
@@ -373,12 +376,12 @@ def get_timings(result: RunResult) -> dict:
     return {
         "timing": {
             "compile": {
-                "started_at": compile_timing.started_at,
-                "completed_at": compile_timing.completed_at,
+                "started_at": compile_timing.started_at.isoformat(),
+                "completed_at": compile_timing.completed_at.isoformat(),
             },
             "execute": {
-                "started_at": execute_timing.started_at,
-                "completed_at": execute_timing.completed_at,
+                "started_at": execute_timing.started_at.isoformat(),
+                "completed_at": execute_timing.completed_at.isoformat(),
             },
         }
     }
@@ -416,7 +419,7 @@ def main() -> None:
 
     # retrieve the run from core
     sdk.get_project(PROJECT_NAME)
-    run: Run = sdk.get_run(RUN_ID)
+    run: Run = sdk.get_run(PROJECT_NAME, RUN_ID)
     spec: RunSpec = run.spec
 
     # retrieve inputs and materialize
@@ -430,15 +433,15 @@ def main() -> None:
     uuid = str(uuid4())
 
     # retrieve model sql from run
-    sql = run.spec.get("dbt").get("sql")
+    sql = run.spec.to_dict().get("dbt").get("sql")
     sql = base64.b64decode(sql).decode()
 
     # initialize dbt project, run dbt and inspect results
-    initialize_dbt_project(PROJECT_NAME, sql, inputs, outputs, uuid)
+    initialize_dbt_project(sql, inputs, output, uuid)
     res = execute_dbt_project(output)
 
     print("======================= Parse results ========================")
-    result: RunResult = parse_dbt_results(res, PROJECT_NAME, output)
+    result: RunResult = parse_dbt_results(res, output)
     try:
         path = get_path(result)
         raw_code, compiled_code = get_code(result)
@@ -468,9 +471,11 @@ def main() -> None:
             **timings,
         }
     }
-    run = sdk.get_run(RUN_ID)
-    run = run.set_status(status_dict)
-
+    run = sdk.get_run(PROJECT_NAME, RUN_ID)
+    print(run)
+    run.set_status(status_dict)
+    print("-----------------------")
+    print(run)
     print("======================= UPDATE RUN ========================")
     try:
         sdk.update_run(run)

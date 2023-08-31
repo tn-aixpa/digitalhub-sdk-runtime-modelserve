@@ -82,6 +82,7 @@ public class DbtKubernetesListener {
 
 						// when message is completed update run
 						if (event.getReason().equals("Completed")) {
+							message.getFsm().processEvent(RunEvent.BUILD, Optional.empty());
 							RunDTO runDTO = runService.getRun(message.getRunDTO().getId());
 							runDTO.setState(RunState.COMPLETED.name());
 							runService.updateRun(runDTO, runDTO.getId());
@@ -120,8 +121,6 @@ public class DbtKubernetesListener {
 				kubernetesClient.batch().v1().jobs().inNamespace(message.getK8sNamespace())
 						.withName(message.getK8sJobName())
 						.getLog();
-
-
 
 		System.out.println(jobLogs);
 

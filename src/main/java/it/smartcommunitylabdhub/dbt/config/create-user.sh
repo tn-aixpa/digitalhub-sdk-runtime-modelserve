@@ -4,4 +4,4 @@
 adduser --disabled-password --gecos "" dbt
 
 # Set the new user as predefined
-chown -R dbt: /app
+chown -R dbt: /digitalhub-core

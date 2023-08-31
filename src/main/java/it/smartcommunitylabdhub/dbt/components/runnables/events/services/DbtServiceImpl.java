@@ -58,13 +58,18 @@ public class DbtServiceImpl implements KindService<Void> {
 				.withNewSpec()
 				.addNewContainer()
 				.withEnv(List.of(
-						new EnvVar("DH_CORE", "http://192.168.49.1:8080", null),
+						new EnvVar("DHUB_CORE_ENDPOINT", "http://192.168.49.1:8080", null),
 						new EnvVar("RUN_ID", runDTO.getId(), null),
 						new EnvVar("POSTGRES_USER", "testuser", null),
 						new EnvVar("POSTGRES_PASSWORD", "testpassword", null),
 						new EnvVar("POSTGRES_DB", "dbt", null),
 						new EnvVar("POSTGRES_DB_HOST", "192.168.49.1", null),
-						new EnvVar("POSTGRES_PORT", "5433", null)))
+						new EnvVar("POSTGRES_PORT", "5433", null),
+						new EnvVar("AWS_ACCESS_KEY_ID", "minio", null),
+						new EnvVar("AWS_SECRET_ACCESS_KEY", "minio123", null),
+						new EnvVar("S3_ENDPOINT", "http://192.168.49.2:30080", null),
+						new EnvVar("PROJECT_NAME", runDTO.getProject(), null)))
+
 				.withName("container-job-" + taskAccessor.getKind() + "-"
 						+ runDTO.getId())
 				.withImage("ltrubbianifbk/dbt_core:latest")

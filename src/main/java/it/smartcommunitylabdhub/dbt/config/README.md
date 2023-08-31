@@ -81,7 +81,7 @@ The main function orchestrates the entire process. It retrieves run information,
    pip install requests dbt
    ```
 
-2. Set environment variables `DH_CORE`, `RUN_ID`, `POSTGRES_DB_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT`, and `POSTGRES_DB` appropriately.
+2. Set environment variables `DHUB_CORE_ENDPOINT`, `RUN_ID`, `POSTGRES_DB_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT`, and `POSTGRES_DB` appropriately.
 
 3. Run the script. It will perform the following steps:
    - Retrieve run information from DataHub Core.

@@ -27,3 +27,9 @@ LEGGERE I DATI DAL BACKEND
 
 - [x] key in dataitems e' il nome dell'output
 - [x] la uuid del dataitem va generata nel wrapper e passata alla creazione del dataitem.
+
+TODO: processEvent deve esser sincronized.
+
+TODO: delete isAuto in StateMachine
+
+TODO: spostare la logica di exit e entry action dallo stato alla StateMachine come mappa di conseguenza quando ho sono in uno stato ed esco ad esempio controllo la mappa delle exit action con quello stato e se presente la eseguo
