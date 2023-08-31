@@ -1,5 +1,5 @@
 """
-Project specification module.
+Project base specification module.
 """
 from sdk.entities.base.spec import EntitySpec
 
@@ -46,29 +46,3 @@ class ProjectSpec(EntitySpec):
         self.artifacts = artifacts if artifacts is not None else []
         self.workflows = workflows if workflows is not None else []
         self.dataitems = dataitems if dataitems is not None else []
-
-
-def build_spec(kind: str, **kwargs) -> ProjectSpec:
-    """
-    Build a ProjectSpec object with the given parameters.
-
-    Parameters
-    ----------
-    kind : str
-        The type of ProjectSpec to build.
-    **kwargs : dict
-        Keywords to pass to the constructor.
-
-    Returns
-    -------
-    ProjectSpec
-        A ProjectSpec object with the given parameters.
-
-    Raises
-    ------
-    ValueError
-        If the given kind is not supported.
-    """
-    if kind == "project":
-        return ProjectSpec(**kwargs)
-    raise ValueError(f"Unknown kind: {kind}")

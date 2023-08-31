@@ -9,14 +9,14 @@ import typing
 from sdk.entities.base.entity import Entity
 from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.metadata import build_metadata
-from sdk.entities.workflow.spec import build_spec
+from sdk.entities.workflow.spec.builder import build_spec
 from sdk.utils.api import DTO_WKFL, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
     from sdk.entities.workflow.metadata import WorkflowMetadata
-    from sdk.entities.workflow.spec import WorkflowSpec
+    from sdk.entities.workflow.spec.builder import WorkflowSpec
 
 
 class Workflow(Entity):

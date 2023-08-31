@@ -26,7 +26,7 @@ pandas==2.0.3
     # via sdk (pyproject.toml)
 pyarrow==12.0.1
     # via sdk (pyproject.toml)
-pydantic==2.2.1
+pydantic==2.3.0
     # via sdk (pyproject.toml)
 pydantic-core==2.6.1
     # via pydantic

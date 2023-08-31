@@ -1,6 +1,8 @@
 """
 Import modules from submodules.
 """
+from sdk.client.env_utils import set_dhub_env
+from sdk.client.models import DHCoreConfig
 from sdk.entities.artifact.crud import (
     delete_artifact,
     get_artifact,
@@ -25,6 +27,7 @@ from sdk.entities.project.crud import (
     import_project,
     new_project,
 )
+from sdk.entities.run.crud import delete_run, get_run, import_run, update_run
 from sdk.entities.workflow.crud import (
     delete_workflow,
     get_workflow,
@@ -32,10 +35,7 @@ from sdk.entities.workflow.crud import (
     new_workflow,
 )
 from sdk.store.models import StoreConfig
-from sdk.client.env_utils import set_dhub_env
-from sdk.client.models import DHCoreConfig
 from sdk.utils.factories import set_store
-
 
 __all__ = [
     "set_dhub_env",
@@ -62,4 +62,8 @@ __all__ = [
     "get_dataitem",
     "delete_dataitem",
     "import_dataitem",
+    "get_run",
+    "delete_run",
+    "import_run",
+    "update_run",
 ]

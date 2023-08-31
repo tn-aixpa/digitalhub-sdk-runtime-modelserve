@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 
 from sdk.entities.artifact.metadata import build_metadata
-from sdk.entities.artifact.spec import build_spec
+from sdk.entities.artifact.spec.builder import build_spec
 from sdk.entities.base.entity import Entity
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
@@ -17,7 +17,7 @@ from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.metadata import ArtifactMetadata
-    from sdk.entities.artifact.spec import ArtifactSpec
+    from sdk.entities.artifact.spec.builder import ArtifactSpec
 
 
 class Artifact(Entity):

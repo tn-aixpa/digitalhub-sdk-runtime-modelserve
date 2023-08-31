@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import typing
 
+from sdk.entities.dataitem.spec.dbt import DBTDataitemSpec
 from sdk.entities.dataitem.spec.table import TableDataitemSpec
 
 if typing.TYPE_CHECKING:
@@ -12,8 +13,9 @@ if typing.TYPE_CHECKING:
 
 
 REGISTRY = {
+    "dbt": DBTDataitemSpec,
+    "sql": DBTDataitemSpec,
     "table": TableDataitemSpec,
-    "sql": TableDataitemSpec,
 }
 
 

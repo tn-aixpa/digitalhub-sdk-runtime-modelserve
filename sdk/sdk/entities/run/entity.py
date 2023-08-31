@@ -8,14 +8,14 @@ import typing
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
 from sdk.entities.dataitem.crud import get_dataitem_from_key
-from sdk.entities.run.spec import build_spec
+from sdk.entities.run.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.run.spec import RunSpec
+    from sdk.entities.run.spec.builder import RunSpec
     from sdk.entities.artifact.entity import Artifact
     from sdk.entities.dataitem.entity import Dataitem
 
@@ -53,6 +53,7 @@ class Run(Entity):
         self.kind = "run"
         self.id = get_uiid()
         self.task_id = task_id
+        self.status = {}
         self.task = task if task is not None else ""
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
 
@@ -61,9 +62,8 @@ class Run(Entity):
 
         # Private attributes
         self._local = local
-        self._obj_attr += ["task_id"]
+        self._obj_attr += ["task_id", "status"]
         self._context = get_context(self.project)
-        self._result: dict | None = None
 
     #############################
     #  Save / Export
@@ -87,6 +87,9 @@ class Run(Entity):
             raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
+
+        # Pop status, backend handles it
+        obj.pop("status", None)
 
         # We only need to create the run, no need to update it
         api = api_base_create(DTO_RUNS)
@@ -225,6 +228,28 @@ class Run(Entity):
                 raise EntityError(f"No dataitem found with key '{output_key}'.")
             return get_dataitem_from_key(key)
         return [get_dataitem_from_key(r.get("id")) for r in result]
+
+    def set_status(self, status: dict) -> None:
+        """
+        Set run status.
+
+        Parameters
+        ----------
+        status : dict
+            Status to set.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If status is not a dictionary.
+        """
+        if not isinstance(status, dict):
+            raise EntityError("Status must be a dictionary.")
+        self.status = status
 
     #############################
     #  Getters and Setters

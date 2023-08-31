@@ -35,6 +35,23 @@ def get_uiid(uuid: str | None = None) -> str:
     return str(uuid4())
 
 
+def decode_string(string: str) -> str:
+    """
+    Decode a string from base64.
+
+    Parameters
+    ----------
+    string : str
+        The string to decode.
+
+    Returns
+    -------
+    str
+        The string decoded from base64.
+    """
+    return base64.b64decode(string).decode()
+
+
 def encode_string(string: str) -> str:
     """
     Encode a string in base64.

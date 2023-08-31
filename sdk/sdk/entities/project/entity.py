@@ -26,7 +26,7 @@ from sdk.entities.function.crud import (
     new_function,
 )
 from sdk.entities.project.metadata import build_metadata
-from sdk.entities.project.spec import build_spec
+from sdk.entities.project.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.crud import (
     create_workflow_from_dict,
@@ -51,7 +51,7 @@ if typing.TYPE_CHECKING:
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.function.entity import Function
     from sdk.entities.project.metadata import ProjectMetadata
-    from sdk.entities.project.spec import ProjectSpec
+    from sdk.entities.project.spec.builder import ProjectSpec
     from sdk.entities.workflow.entity import Workflow
 
     Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)
@@ -340,59 +340,26 @@ class Project(Entity):
     #  Artifacts
     #############################
 
-    def new_artifact(
-        self,
-        name: str,
-        description: str = "",
-        kind: str = "artifact",
-        key: str | None = None,
-        src_path: str | None = None,
-        target_path: str | None = None,
-        local: bool = False,
-        embedded: bool = False,
-        uuid: str | None = None,
-    ) -> Artifact:
+    def new_artifact(self, **kwargs) -> Artifact:
         """
         Create an instance of the Artifact class with the provided parameters.
 
         Parameters
         ----------
-        name : str
-            Identifier of the artifact.
-        description : str
-            Description of the artifact.
-        kind : str
-            The type of the artifact.
-        key : str
-            Representation of artfact like store://etc..
-        src_path : str
-            Path to the artifact on local file system.
-        target_path : str
-            Path of destionation for the artifact.
-        local : bool
-            Flag to determine if object has local execution.
-        embedded : bool
-            Flag to determine if object must be embedded in project.
-        uuid : str
-            UUID.
+        **kwargs
+            Keyword arguments.
 
         Returns
         -------
         Artifact
            Object instance.
+
+        See Also
+        --------
+        sdk.new_artifact()
         """
-        obj = new_artifact(
-            project=self.name,
-            name=name,
-            description=description,
-            kind=kind,
-            key=key,
-            src_path=src_path,
-            target_path=target_path,
-            local=local,
-            embedded=embedded,
-            uuid=uuid,
-        )
+        kwargs["project"] = self.name
+        obj = new_artifact(**kwargs)
         self._add_object(obj, DTO_ARTF)
         return obj
 
@@ -458,75 +425,26 @@ class Project(Entity):
     #  Functions
     #############################
 
-    def new_function(
-        self,
-        name: str,
-        description: str = "",
-        kind: str = "job",
-        source: str | None = None,
-        image: str | None = None,
-        tag: str | None = None,
-        handler: str | None = None,
-        command: str | None = None,
-        requirements: list | None = None,
-        sql: str | None = None,
-        local: bool = False,
-        embedded: bool = False,
-        uuid: str | None = None,
-    ) -> Function:
+    def new_function(self, **kwargs) -> Function:
         """
         Create a Function instance with the given parameters.
 
         Parameters
         ----------
-        name : str
-            Identifier of the Function.
-        description : str
-            Description of the Function.
-        kind : str, default "job"
-            The type of the Function.
-        source : str
-            Path to the Function's source code on the local file system.
-        image : str
-            Name of the Function's container image.
-        tag : str
-            Tag of the Function's container image.
-        handler : str
-            Function handler name.
-        command : str
-            Command to run inside the container.
-        requirements : list
-            List of requirements for the Function.
-        sql : str
-            SQL query.
-        local : bool
-            Flag to determine if object has local execution.
-        embedded : bool
-            Flag to determine if object must be embedded in project.
-        uuid : str
-            UUID.
+        **kwargs
+            Keyword arguments.
 
         Returns
         -------
         Function
            Object instance.
+
+        See Also
+        --------
+        sdk.new_function()
         """
-        obj = new_function(
-            project=self.name,
-            name=name,
-            description=description,
-            kind=kind,
-            source=source,
-            image=image,
-            tag=tag,
-            handler=handler,
-            command=command,
-            requirements=requirements,
-            sql=sql,
-            local=local,
-            embedded=embedded,
-            uuid=uuid,
-        )
+        kwargs["project"] = self.name
+        obj = new_function(**kwargs)
         self._add_object(obj, DTO_FUNC)
         return obj
 
@@ -592,53 +510,26 @@ class Project(Entity):
     #  Workflows
     #############################
 
-    def new_workflow(
-        self,
-        name: str,
-        description: str = "",
-        kind: str = "job",
-        test: str | None = None,
-        local: bool = False,
-        embedded: bool = False,
-        uuid: str | None = None,
-    ) -> Workflow:
+    def new_workflow(self, **kwargs) -> Workflow:
         """
         Create a new Workflow instance with the specified parameters.
 
         Parameters
         ----------
-        project : str
-            A string representing the project associated with this workflow.
-        name : str
-            The name of the workflow.
-        description : str
-            A description of the workflow.
-        kind : str
-            Kind of the object.
-        spec_ : dict
-            Specification of the object.
-        local : bool
-            Flag to determine if object has local execution.
-        embedded : bool
-            Flag to determine if object must be embedded in project.
-        uuid : str
-            UUID.
+        **kwargs
+            Keyword arguments.
 
         Returns
         -------
         Workflow
             An instance of the created workflow.
+
+        See Also
+        --------
+        sdk.new_workflow()
         """
-        obj = new_workflow(
-            project=self.name,
-            name=name,
-            description=description,
-            kind=kind,
-            test=test,
-            local=local,
-            embedded=embedded,
-            uuid=uuid,
-        )
+        kwargs["project"] = self.name
+        obj = new_workflow(**kwargs)
         self._add_object(obj, DTO_WKFL)
         return obj
 
@@ -704,55 +595,26 @@ class Project(Entity):
     #  Dataitems
     #############################
 
-    def new_dataitem(
-        self,
-        name: str,
-        description: str = "",
-        kind: str = "dataitem",
-        key: str | None = None,
-        path: str | None = None,
-        local: bool = False,
-        embedded: bool = False,
-        uuid: str | None = None,
-    ) -> Dataitem:
+    def new_dataitem(self, **kwargs) -> Dataitem:
         """
         Create a Dataitem.
 
         Parameters
         ----------
-        name : str
-            Identifier of the dataitem.
-        description : str
-            Description of the dataitem.
-        kind : str
-            The type of the dataitem.
-        key : str
-            Representation of artfact like store://etc..
-        path : str
-            Path to the dataitem on local file system or remote storage.
-        local : bool
-            Flag to determine if object has local execution.
-        embedded : bool
-            Flag to determine if object must be embedded in project.
-        uuid : str
-            UUID.
+        **kwargs
+            Keyword arguments.
 
         Returns
         -------
         Dataitem
            Object instance.
+
+        See Also
+        --------
+        sdk.new_dataitem()
         """
-        obj = new_dataitem(
-            project=self.name,
-            name=name,
-            description=description,
-            kind=kind,
-            key=key,
-            path=path,
-            local=local,
-            embedded=embedded,
-            uuid=uuid,
-        )
+        kwargs["project"] = self.name
+        obj = new_dataitem(**kwargs)
         self._add_object(obj, DTO_DTIT)
         return obj
 
