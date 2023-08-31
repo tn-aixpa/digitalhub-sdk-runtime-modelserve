@@ -350,15 +350,17 @@ def dataitem_from_parameters(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "dataitem",
+    kind: str = "table",
     key: str | None = None,
     path: str | None = None,
+    raw_code: str | None = None,
+    compiled_code: str | None = None,
     local: bool = False,
     embedded: bool = False,
     uuid: str | None = None,
 ) -> Dataitem:
     """
-    Create dataitem.
+    Create a new object instance.
 
     Parameters
     ----------
@@ -371,9 +373,13 @@ def dataitem_from_parameters(
     kind : str
         The type of the dataitem.
     key : str
-        Representation of artfact like store://etc..
+        Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
+    raw_code : str
+        Raw code of the dataitem.
+    compiled_code : str
+        Compiled code of the dataitem.
     local : bool
         Flag to determine if object has local execution.
     embedded : bool

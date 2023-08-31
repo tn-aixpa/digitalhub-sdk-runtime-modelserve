@@ -358,6 +358,7 @@ class Project(Entity):
         --------
         sdk.new_artifact()
         """
+        kwargs["project"] = self.name
         obj = new_artifact(**kwargs)
         self._add_object(obj, DTO_ARTF)
         return obj
@@ -442,6 +443,7 @@ class Project(Entity):
         --------
         sdk.new_function()
         """
+        kwargs["project"] = self.name
         obj = new_function(**kwargs)
         self._add_object(obj, DTO_FUNC)
         return obj
@@ -526,6 +528,7 @@ class Project(Entity):
         --------
         sdk.new_workflow()
         """
+        kwargs["project"] = self.name
         obj = new_workflow(**kwargs)
         self._add_object(obj, DTO_WKFL)
         return obj
@@ -610,6 +613,7 @@ class Project(Entity):
         --------
         sdk.new_dataitem()
         """
+        kwargs["project"] = self.name
         obj = new_dataitem(**kwargs)
         self._add_object(obj, DTO_DTIT)
         return obj
