@@ -1,8 +1,9 @@
 /**
  * StateMachine.java
  *
- * This class represents a State Machine that handles the flow of states and transitions based on events and guards.
- * It allows the definition of states and transitions along with their associated actions and guards.
+ * This class represents a State Machine that handles the flow of states and transitions based on
+ * events and guards. It allows the definition of states and transitions along with their associated
+ * actions and guards.
  *
  * @param <S> The type of the states.
  * @param <E> The type of the events.
@@ -20,6 +21,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import kotlin.jvm.Synchronized;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -39,13 +41,12 @@ public class StateMachine<S, E, C> {
     /**
      * Default constructor to create an empty StateMachine.
      */
-    public StateMachine() {
-    }
+    public StateMachine() {}
 
     /**
      * Constructor to create a StateMachine with the initial state and context.
      *
-     * @param initialState   The initial state of the StateMachine.
+     * @param initialState The initial state of the StateMachine.
      * @param initialContext The initial context for the StateMachine.
      */
     public StateMachine(S initialState, C initialContext) {
@@ -60,7 +61,7 @@ public class StateMachine<S, E, C> {
     /**
      * Static builder method to create a new StateMachine.
      *
-     * @param initialState   The initial state of the StateMachine.
+     * @param initialState The initial state of the StateMachine.
      * @param initialContext The initial context for the StateMachine.
      * @return A new Builder instance to configure and build the StateMachine.
      */
@@ -107,7 +108,8 @@ public class StateMachine<S, E, C> {
             return this;
         }
 
-        public Builder<S, E, C> withExternalEventListener(E eventName, Consumer<Optional<?>> listener) {
+        public Builder<S, E, C> withExternalEventListener(E eventName,
+                Consumer<Optional<?>> listener) {
             eventListeners.put(eventName, (input, ctx) -> listener.accept((Optional<?>) input));
             return this;
         }
@@ -124,20 +126,21 @@ public class StateMachine<S, E, C> {
     }
 
     /**
-     * Process an event in the StateMachine and trigger the appropriate transitions
-     * and actions.
+     * Process an event in the StateMachine and trigger the appropriate transitions and actions.
      *
      * @param eventName The event name.
-     * @param input     The optional input associated with the event.
-     * @param <T>       The type of the result from processing the event.
-     * @param <R>       The type of the input for internal logic.
+     * @param input The optional input associated with the event.
+     * @param <T> The type of the result from processing the event.
+     * @param <R> The type of the input for internal logic.
      * @return An optional result from processing the event, if applicable.
      */
     @SuppressWarnings("unchecked")
+    @Synchronized
     public <T> Optional<T> processEvent(E eventName, Optional<?> input) {
         State<S, E, C> currentStateDefinition = states.get(currentState);
         if (currentStateDefinition == null) {
-            throw new IllegalStateException("Invalid current state: " + currentState + " : " + this.getUuid());
+            throw new IllegalStateException(
+                    "Invalid current state: " + currentState + " : " + this.getUuid());
         }
 
         // Exit action of the current state
@@ -152,7 +155,8 @@ public class StateMachine<S, E, C> {
                 S nextState = transaction.getNextState();
                 State<S, E, C> nextStateDefinition = states.get(nextState);
                 if (nextStateDefinition == null) {
-                    throw new IllegalStateException("Invalid next state: " + nextState + " : " + this.getUuid());
+                    throw new IllegalStateException(
+                            "Invalid next state: " + nextState + " : " + this.getUuid());
                 }
 
                 // Entry action of the next state
@@ -170,16 +174,19 @@ public class StateMachine<S, E, C> {
                 Optional<T> result = (Optional<T>) nextStateDefinition
                         .getInternalLogic().map(
                                 internalFunc -> applyInternalFunc(
-                                        (inputValue, contextValue, stateMachineValue) -> internalFunc
-                                                .applyLogic(inputValue, contextValue, stateMachineValue),
+                                        (inputValue, contextValue,
+                                                stateMachineValue) -> internalFunc
+                                                        .applyLogic(inputValue, contextValue,
+                                                                stateMachineValue),
                                         input.orElse(null))
 
                         ).orElse(Optional.empty());
 
                 // Apply auto transition passing the input
-                List<Transaction<S, E, C>> autoTransactions = nextStateDefinition.getTransactions().entrySet().stream()
-                        .filter(entry -> entry.getValue().isAuto()).map(Map.Entry::getValue)
-                        .collect(Collectors.toList());
+                List<Transaction<S, E, C>> autoTransactions =
+                        nextStateDefinition.getTransactions().entrySet().stream()
+                                .filter(entry -> entry.getValue().isAuto()).map(Map.Entry::getValue)
+                                .collect(Collectors.toList());
                 for (Transaction<S, E, C> autoTransaction : autoTransactions) {
                     if (autoTransaction.getGuard().test(result, context)) {
                         processEvent(autoTransaction.getEvent(), input);
@@ -187,12 +194,14 @@ public class StateMachine<S, E, C> {
                 }
                 return result;
             } else {
-                log.info("Guard condition not met for transaction: " + transaction + " : " + this.getUuid());
+                log.info("Guard condition not met for transaction: " + transaction + " : "
+                        + this.getUuid());
                 // Handle error scenario
                 return (Optional<T>) handleTransactionError(transaction, input);
             }
         } else {
-            log.info("Invalid transaction for event: " + eventName + " : " + this.getUuid() + "\n" + "Current state : "
+            log.info("Invalid transaction for event: " + eventName + " : " + this.getUuid() + "\n"
+                    + "Current state : "
                     + currentState.toString());
             // Handle error scenario
             return (Optional<T>) handleInvalidTransactionError(eventName, input);
@@ -203,7 +212,8 @@ public class StateMachine<S, E, C> {
         return stateLogic.applyLogic(value, context, this);
     }
 
-    private Optional<?> handleTransactionError(Transaction<S, E, C> transaction, Optional<?> input) {
+    private Optional<?> handleTransactionError(Transaction<S, E, C> transaction,
+            Optional<?> input) {
         if (errorState != null) {
             // Transition to the error state
             currentState = errorState;
@@ -211,9 +221,11 @@ public class StateMachine<S, E, C> {
             if (errorStateDefinition != null) {
                 // Execute error logic
                 return errorStateDefinition.getInternalLogic()
-                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null))).orElse(Optional.empty());
+                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null)))
+                        .orElse(Optional.empty());
             } else {
-                throw new IllegalStateException("Invalid error state: " + errorState + " : " + this.getUuid());
+                throw new IllegalStateException(
+                        "Invalid error state: " + errorState + " : " + this.getUuid());
             }
         } else {
             throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
@@ -228,10 +240,12 @@ public class StateMachine<S, E, C> {
             if (errorStateDefinition != null) {
                 // Execute error logic
                 return errorStateDefinition.getInternalLogic()
-                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null))).orElse(Optional.empty());
+                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null)))
+                        .orElse(Optional.empty());
 
             } else {
-                throw new IllegalStateException("Invalid error state: " + errorState + " : " + this.getUuid());
+                throw new IllegalStateException(
+                        "Invalid error state: " + errorState + " : " + this.getUuid());
             }
         } else {
             throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
@@ -240,8 +254,9 @@ public class StateMachine<S, E, C> {
 
     @SuppressWarnings("unchecked")
     private Optional<?> applyErrorLogic(Object errorLogic, Object value) {
-        BiFunction<Object, C, ?> errorFunction = (arg0, arg1) -> ((BiFunction<Object, C, ?>) errorLogic).apply(arg0,
-                arg1);
+        BiFunction<Object, C, ?> errorFunction =
+                (arg0, arg1) -> ((BiFunction<Object, C, ?>) errorLogic).apply(arg0,
+                        arg1);
         return Optional.of(errorFunction.apply(value, context));
     }
 
