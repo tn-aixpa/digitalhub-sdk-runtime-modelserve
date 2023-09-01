@@ -32,6 +32,7 @@ class Run(Entity):
         task: str | None = None,
         spec: RunSpec | None = None,
         local: bool = False,
+        uuid: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -41,6 +42,8 @@ class Run(Entity):
         ----------
         project : str
             Name of the project.
+        uuid : str
+            UUID.
         task_id : str
             Identifier of the task.
         spec : RunSpec
@@ -51,7 +54,7 @@ class Run(Entity):
         super().__init__()
         self.project = project
         self.kind = "run"
-        self.id = get_uiid()
+        self.id = get_uiid(uuid=uuid)
         self.task_id = task_id
         self.status = {}
         self.task = task if task is not None else ""

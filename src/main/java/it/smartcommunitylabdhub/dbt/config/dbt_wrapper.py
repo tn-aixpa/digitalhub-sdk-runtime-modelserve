@@ -89,7 +89,10 @@ def materialize_inputs(inputs: list) -> None:
             raise RuntimeError(f"Dataitem {name} not found in project {PROJECT_NAME}")
         df = di.as_df()
         target_path = f"sql://postgres/{PG_DB}/public/{name}_v{di.id}"
-        di.write_df(df, target_path)
+        try:
+            di.write_df(df, target_path)
+        except:
+            pass
 
 
 ####################
