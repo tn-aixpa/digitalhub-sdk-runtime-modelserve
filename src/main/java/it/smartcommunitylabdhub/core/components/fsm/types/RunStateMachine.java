@@ -54,14 +54,6 @@ public class RunStateMachine {
                                 new Transaction<>(RunEvent.BUILD, RunState.READY,
                                                 (input, context) -> true, false));
 
-                // Update run state.
-                createState.setExitAction((context) -> {
-                        // update run state
-                        RunDTO runDTO = runService.getRun(context.get("runId").toString());
-                        runDTO.setState(RunState.READY.toString());
-                        runService.updateRun(runDTO, runDTO.getId());
-                });
-
                 readyState.addTransaction(
                                 new Transaction<>(RunEvent.RUNNING, RunState.RUNNING,
                                                 (input, context) -> true, false));
@@ -71,18 +63,25 @@ public class RunStateMachine {
                                 new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
                                                 (input, context) -> true, false));
 
-                errorState.setEntryAction((context) -> {
-                        RunDTO runDTO = runService.getRun(context.get("runId").toString());
-                        runDTO.setState(RunState.ERROR.toString());
-                        runService.updateRun(runDTO, runDTO.getId());
-                });
-
                 // Configure the StateMachine with the defined states and transitions
                 builder.withState(RunState.CREATED, createState)
+                                .withExitAction(RunState.CREATED, (context) -> {
+                                        // update run state
+                                        RunDTO runDTO = runService
+                                                        .getRun(context.get("runId").toString());
+                                        runDTO.setState(RunState.READY.toString());
+                                        runService.updateRun(runDTO, runDTO.getId());
+                                })
                                 .withState(RunState.READY, readyState)
                                 .withState(RunState.RUNNING, runningState)
                                 .withState(RunState.COMPLETED, completedState)
                                 .withErrorState(RunState.ERROR, errorState)
+                                .withEntryAction(RunState.ERROR, (context) -> {
+                                        RunDTO runDTO = runService
+                                                        .getRun(context.get("runId").toString());
+                                        runDTO.setState(RunState.ERROR.toString());
+                                        runService.updateRun(runDTO, runDTO.getId());
+                                })
                                 .withStateChangeListener((newState, context) -> log
                                                 .info("State Change Listener: " + newState
                                                                 + ", context: " + context));

@@ -21,9 +21,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import kotlin.jvm.Synchronized;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 
 @Getter
@@ -36,6 +36,8 @@ public class StateMachine<S, E, C> {
     private Map<S, State<S, E, C>> states;
     private Map<E, BiConsumer<?, C>> eventListeners;
     private BiConsumer<S, C> stateChangeListener;
+    private HashMap<S, Consumer<C>> entryActions;
+    private HashMap<S, Consumer<C>> exitActions;
     private C context;
 
     /**
@@ -55,6 +57,8 @@ public class StateMachine<S, E, C> {
         this.errorState = null;
         this.states = new HashMap<>();
         this.eventListeners = new HashMap<>();
+        this.entryActions = new HashMap<>();
+        this.exitActions = new HashMap<>();
         this.context = initialContext;
     }
 
@@ -76,6 +80,8 @@ public class StateMachine<S, E, C> {
         private Map<S, State<S, E, C>> states;
         private Map<E, BiConsumer<?, C>> eventListeners;
         private BiConsumer<S, C> stateChangeListener;
+        private HashMap<S, Consumer<C>> entryActions;
+        private HashMap<S, Consumer<C>> exitActions;
         private C context;
 
         public Builder(S initialState, C initialContext) {
@@ -83,6 +89,8 @@ public class StateMachine<S, E, C> {
             this.context = initialContext;
             this.states = new HashMap<>();
             this.eventListeners = new HashMap<>();
+            this.entryActions = new HashMap<>();
+            this.exitActions = new HashMap<>();
         }
 
         public Builder<S, E, C> withState(S state, State<S, E, C> stateDefinition) {
@@ -114,12 +122,36 @@ public class StateMachine<S, E, C> {
             return this;
         }
 
+        /**
+         * Set the entry action for a specific state.
+         *
+         * @param state The state for which to set the entry action.
+         * @param entryAction The entry action as a Consumer instance.
+         */
+        public Builder<S, E, C> withEntryAction(S state, Consumer<C> entryAction) {
+            entryActions.put(state, entryAction);
+            return this;
+        }
+
+        /**
+         * Set the exit action for a specific state.
+         *
+         * @param state The state for which to set the exit action.
+         * @param exitAction The exit action as a Consumer instance.
+         */
+        public Builder<S, E, C> withExitAction(S state, Consumer<C> exitAction) {
+            exitActions.put(state, exitAction);
+            return this;
+        }
+
         public StateMachine<S, E, C> build() {
             StateMachine<S, E, C> stateMachine = new StateMachine<>(currentState, context);
             stateMachine.states = states;
             stateMachine.errorState = errorState;
             stateMachine.eventListeners = eventListeners;
             stateMachine.stateChangeListener = stateChangeListener;
+            stateMachine.entryActions = entryActions;
+            stateMachine.exitActions = exitActions;
             return stateMachine;
         }
 
@@ -143,8 +175,10 @@ public class StateMachine<S, E, C> {
                     "Invalid current state: " + currentState + " : " + this.getUuid());
         }
 
-        // Exit action of the current state
-        currentStateDefinition.getExitAction().ifPresent(action -> action.accept(context));
+        // Exit action of the current state for the specific event
+        Optional.ofNullable(exitActions.get(currentState))
+                .ifPresent(action -> action.accept(context));
+
 
         Optional<Transaction<S, E, C>> matchingTransaction = Optional
                 .ofNullable(currentStateDefinition.getTransactions().get(eventName));
@@ -159,8 +193,9 @@ public class StateMachine<S, E, C> {
                             "Invalid next state: " + nextState + " : " + this.getUuid());
                 }
 
-                // Entry action of the next state
-                nextStateDefinition.getEntryAction().ifPresent(action -> action.accept(context));
+                // Entry action of the next state for the specific event
+                Optional.ofNullable(entryActions.get(nextState))
+                        .ifPresent(action -> action.accept(context));
 
                 // Notify event listener
                 notifyEventListeners(eventName, input.orElse(null));
