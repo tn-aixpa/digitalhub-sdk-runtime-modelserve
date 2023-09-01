@@ -12,6 +12,7 @@ class RunSpec(EntitySpec):
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
@@ -24,11 +25,12 @@ class RunSpec(EntitySpec):
             The outputs of the run.
         parameters : dict
             The parameters of the run.
-
         """
         self.inputs = inputs if inputs is not None else {}
         self.outputs = outputs if outputs is not None else {}
         self.parameters = parameters if parameters is not None else {}
+
+        self._any_setter(**kwargs)
 
     def get_inputs(self) -> dict:
         """
