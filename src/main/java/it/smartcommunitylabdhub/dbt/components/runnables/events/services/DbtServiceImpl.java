@@ -73,6 +73,7 @@ public class DbtServiceImpl implements KindService<Void> {
 				.withName("container-job-" + taskAccessor.getKind() + "-"
 						+ runDTO.getId())
 				.withImage("ltrubbianifbk/dbt_core:latest")
+				.withImagePullPolicy("IfNotPresent")
 				.withCommand("python", "dbt_wrapper.py")
 				.endContainer().withRestartPolicy("Never")
 				.endSpec()

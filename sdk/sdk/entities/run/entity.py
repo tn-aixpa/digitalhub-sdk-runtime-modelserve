@@ -56,8 +56,8 @@ class Run(Entity):
         self.kind = "run"
         self.id = get_uiid(uuid=uuid)
         self.task_id = task_id
+        self.task = task
         self.status = {}
-        self.task = task if task is not None else ""
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
 
         # Set new attributes
@@ -65,7 +65,7 @@ class Run(Entity):
 
         # Private attributes
         self._local = local
-        self._obj_attr += ["task_id", "status"]
+        self._obj_attr += ["task_id", "task", "status"]
         self._context = get_context(self.project)
 
     #############################
@@ -313,8 +313,9 @@ class Run(Entity):
         # Mandatory fields
         project = obj.get("project")
         task_id = obj.get("task_id")
-        if project is None or task_id is None:
-            raise EntityError("Project or task_id are not specified.")
+        task = obj.get("task")
+        if project is None or task_id is None or task is None:
+            raise EntityError("Project, task or task_id are not specified.")
 
         # Optional fields
         uuid = obj.get("id")
@@ -328,6 +329,7 @@ class Run(Entity):
         return {
             "project": project,
             "task_id": task_id,
+            "task": task,
             "kind": kind,
             "uuid": uuid,
             "spec": spec,

@@ -423,11 +423,6 @@ def main() -> None:
     # retrieve the run from core
     sdk.get_project(PROJECT_NAME)
     run: Run = sdk.get_run(PROJECT_NAME, RUN_ID)
-
-    print("=========== THE FIRST RUN ============")
-    print(run)
-    print("=========== END FIRST RUN ============")
-
     spec: RunSpec = run.spec
 
     # retrieve inputs and materialize
@@ -448,7 +443,7 @@ def main() -> None:
     initialize_dbt_project(sql, inputs, output, uuid)
     res = execute_dbt_project(output)
 
-    print("======================= Parse results ========================")
+    print("======================= PARSE RESULTS ==========================")
     result: RunResult = parse_dbt_results(res, output)
     try:
         path = get_path(result)
@@ -469,24 +464,22 @@ def main() -> None:
             compiled_code=compiled_code,
             uuid=uuid,
         )
+        print(dataitem.to_dict())
     except Exception as e:
         raise RuntimeError("Something got wrong during dataitem creation") from e
 
     dataitem_info = get_dataitem_info(output, dataitem)
     status_dict = {
-        "status": {
             **dataitem_info,
             **timings,
-        }
     }
     run = sdk.get_run(PROJECT_NAME, RUN_ID)
-    print(run)
     run.set_status(status_dict)
-    print("-----------------------")
-    print(run)
-    print("======================= UPDATE RUN ========================")
+
+    print("======================= UPDATE RUN =============================")
     try:
         sdk.update_run(run)
+        print(run.to_dict())
     except Exception as e:
         raise RuntimeError("Something got wrong during run update") from e
 
