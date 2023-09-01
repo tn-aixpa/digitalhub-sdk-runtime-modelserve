@@ -420,6 +420,11 @@ def main() -> None:
     # retrieve the run from core
     sdk.get_project(PROJECT_NAME)
     run: Run = sdk.get_run(PROJECT_NAME, RUN_ID)
+
+    print("=========== THE FIRST RUN ============")
+    print(run)
+    print("=========== END FIRST RUN ============")
+
     spec: RunSpec = run.spec
 
     # retrieve inputs and materialize
