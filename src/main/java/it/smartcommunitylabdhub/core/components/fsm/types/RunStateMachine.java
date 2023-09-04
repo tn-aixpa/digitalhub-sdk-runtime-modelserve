@@ -57,8 +57,14 @@ public class RunStateMachine {
                 readyState.addTransaction(
                                 new Transaction<>(RunEvent.RUNNING, RunState.RUNNING,
                                                 (input, context) -> true, false));
+
+                readyState.addTransaction(
+                                new Transaction<>(RunEvent.PENDING, RunState.READY,
+                                                (input, context) -> true, false));
+
                 readyState.addTransaction(new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
                                 (input, context) -> true, false));
+
                 runningState.addTransaction(
                                 new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
                                                 (input, context) -> true, false));

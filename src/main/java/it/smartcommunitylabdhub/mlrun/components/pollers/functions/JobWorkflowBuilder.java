@@ -1,5 +1,7 @@
 package it.smartcommunitylabdhub.mlrun.components.pollers.functions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -117,7 +119,8 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
 
 					} else if (stateMachine.getCurrentState().equals(RunState.COMPLETED)) {
 						// Get response body and store log as well as artifacts if present.
-						Optional.ofNullable(response.getBody()).ifPresentOrElse(b ->
+						Optional.ofNullable(response.getBody())
+								.ifPresentOrElse(b ->
 						// Get run uid from mlrun.
 						MapUtils.getNestedFieldValue(b, "data").ifPresent(data -> {
 							MapUtils.getNestedFieldValue(data, "metadata")
@@ -144,6 +147,10 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
 							// get Artifacts from results
 							MapUtils.getNestedFieldValue(data, "status")
 									.ifPresent(metadata -> {
+
+										List<Map<String, Object>> artifacts =
+												new ArrayList<>();
+
 										((List<Map<String, Object>>) metadata
 												.get("artifacts")).stream()
 														.forEach(artifact -> {
@@ -179,22 +186,24 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
 																			.createArtifact(
 																					artifactDTO);
 
-															// Add artifact key
-															MapUtils.computeAndAddElement(
-																	runDTO.getExtra(),
-																	"artifacts",
-																	Map.of("key",
-																			mlrunDataItemAccessor
-																					.getKey(),
-																			"id",
-																			ArtifactUtils
-																					.getKey(artifactDTO),
-																			"kind",
-																			mlrunDataItemAccessor
-																					.getKind()));
+															artifacts.add(Map.of(
+																	"key",
+																	mlrunDataItemAccessor
+																			.getKey(),
+																	"id",
+																	ArtifactUtils
+																			.getKey(artifactDTO),
+																	"kind",
+																	"artifact"));
 														});
 
 										// Save runs artifact keys
+										((Map<String, Object>) runDTO.getExtra()
+												.getOrDefault("status",
+														new HashMap<>())).put(
+																"artifacts",
+																artifacts);
+
 										this.runService.save(runDTO);
 									});
 						}), () -> {

@@ -25,8 +25,10 @@ public class MapUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> void computeAndAddElement(Map<String, Object> map, String key, T element) {
+	public static <T> Map<String, Object> computeAndAddElement(Map<String, Object> map, String key,
+			T element) {
 		((ArrayList<T>) map.computeIfAbsent(key, k -> new ArrayList<>())).add(element);
+		return map;
 	}
 
 	@SuppressWarnings("unchecked")

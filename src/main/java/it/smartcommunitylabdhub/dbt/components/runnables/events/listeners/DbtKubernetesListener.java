@@ -115,14 +115,20 @@ public class DbtKubernetesListener {
 		kubernetesClient.batch().v1().jobs().inNamespace(message.getK8sNamespace())
 				.withName(message.getK8sJobName())
 				.waitUntilCondition(pod -> pod.getStatus().getSucceeded() != null
-						&& pod.getStatus().getSucceeded() > 0, 5L, TimeUnit.MINUTES);
+						&& pod.getStatus().getSucceeded() > 0, 8L, TimeUnit.HOURS);
 
 		String jobLogs =
 				kubernetesClient.batch().v1().jobs().inNamespace(message.getK8sNamespace())
 						.withName(message.getK8sJobName())
 						.getLog();
 
-		System.out.println(jobLogs);
+		// Write job execution logs
+		logService.createLog(LogDTO.builder()
+				.run(message.getRunDTO().getId())
+				.project(message.getRunDTO().getProject())
+				.body(Map.of("content", jobLogs))
+				.build());
+
 
 		// Close watching job execution
 		watch.close();

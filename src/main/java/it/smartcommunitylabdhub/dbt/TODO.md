@@ -28,8 +28,12 @@ LEGGERE I DATI DAL BACKEND
 - [x] key in dataitems e' il nome dell'output
 - [x] la uuid del dataitem va generata nel wrapper e passata alla creazione del dataitem.
 
-TODO: processEvent deve esser sincronized.
+- [x]: processEvent deve esser sincronized.( in ogni caso non funziona )
 
 TODO: delete isAuto in StateMachine
 
 TODO: spostare la logica di exit e entry action dallo stato alla StateMachine come mappa di conseguenza quando ho sono in uno stato ed esco ad esempio controllo la mappa delle exit action con quello stato e se presente la eseguo
+
+- [x]: Salvare il log del pod in plain-text.
+
+TODO : Estrarre il builder di kubernetes creando una classe astratta che mi fornisce L'Env di base e chi estende la classe astratta fornisce il dettaglio dei parametri e termina la configurazione del job.
