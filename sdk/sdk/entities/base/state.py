@@ -11,20 +11,27 @@ class StateStatus(Enum):
     State status enumeration.
     """
 
-    CANCELLED = "CANCELLED"
     COMPLETED = "COMPLETED"
     CREATED = "CREATED"
     ERROR = "ERROR"
-    FAILED = "FAILED"
+    IDLE = "IDLE"
     PENDING = "PENDING"
     READY = "READY"
     RUNNING = "RUNNING"
+    STOP = "STOP"
 
 
 class State(ModelObj):
     def __init__(self, status: str, **kwargs) -> None:
         """
         Constructor.
+
+        Parameters
+        ----------
+        status : str
+            The status of the entity.
+        **kwargs
+            Keyword arguments.
         """
         self.status = status
 

@@ -1,12 +1,25 @@
 """
 Run specification module.
 """
+from __future__ import annotations
+
+import typing
+
+from pydantic.errors import ValidationError
+
 from sdk.entities.run.spec.base import RunSpec
+from sdk.entities.run.spec.models import RunParams
 from sdk.utils.exceptions import EntityError
 
+if typing.TYPE_CHECKING:
+    from pydantic import BaseModel
 
-REGISTRY = {
+
+REGISTRY_SPEC = {
     "run": RunSpec,
+}
+REGISTRY_MODEL = {
+    "run": RunParams,
 }
 
 
@@ -18,8 +31,8 @@ def build_spec(kind: str, **kwargs) -> RunSpec:
     ----------
     kind : str
         The type of RunSpec to build.
-    **kwargs : dict
-        Keywords to pass to the constructor.
+    **kwargs
+        Keywords arguments.
 
     Returns
     -------
@@ -28,10 +41,19 @@ def build_spec(kind: str, **kwargs) -> RunSpec:
 
     Raises
     ------
-    ValueError
-        If the given kind is not supported.
+    EntityError
+        If the given kind is not supported or if the given parameters are invalid.
     """
+    # First build the arguments model and validate them ...
     try:
-        return REGISTRY[kind](**kwargs)
+        model: BaseModel = REGISTRY_MODEL[kind](**kwargs)
     except KeyError:
-        raise EntityError(f"Unsupported kind: {kind}")
+        raise EntityError(f"Unsupported parameters kind: {kind}")
+    except ValidationError:
+        raise EntityError(f"Invalid parameters for kind: {kind}")
+
+    # ... then build the spec
+    try:
+        return REGISTRY_SPEC[kind](**model.model_dump())
+    except KeyError:
+        raise EntityError(f"Unsupported spec kind: {kind}")

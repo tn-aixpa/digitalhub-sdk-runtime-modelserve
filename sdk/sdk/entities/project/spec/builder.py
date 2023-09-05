@@ -5,7 +5,7 @@ from sdk.entities.project.spec.base import ProjectSpec
 from sdk.utils.exceptions import EntityError
 
 
-REGISTRY = {
+REGISTRY_SPEC = {
     "project": ProjectSpec,
 }
 
@@ -18,8 +18,8 @@ def build_spec(kind: str, **kwargs) -> ProjectSpec:
     ----------
     kind : str
         The type of ProjectSpec to build.
-    **kwargs : dict
-        Keywords to pass to the constructor.
+    **kwargs
+        Keywords arguments.
 
     Returns
     -------
@@ -28,10 +28,10 @@ def build_spec(kind: str, **kwargs) -> ProjectSpec:
 
     Raises
     ------
-    ValueError
+    EntityError
         If the given kind is not supported.
     """
     try:
-        return REGISTRY[kind](**kwargs)
+        return REGISTRY_SPEC[kind](**kwargs)
     except KeyError:
         raise EntityError(f"Unsupported kind: {kind}")

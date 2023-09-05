@@ -43,7 +43,7 @@ class BytesIOWrapper(BufferedReader):
             The encoding to use, by default None
         errors : str
             ...
-        **kwargs : dict
+        **kwargs
             Keyword arguments.
         """
         super().__init__(text_io_buffer, **kwargs)
@@ -60,7 +60,7 @@ class BytesIOWrapper(BufferedReader):
             The name of the method to call.
         *args : list
             Arguments list.
-        **kwargs : dict
+        **kwargs
             Keyword arguments.
 
         Returns

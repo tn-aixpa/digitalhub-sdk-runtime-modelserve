@@ -27,7 +27,9 @@ class RunSpec(EntitySpec):
         parameters : dict
             The parameters of the run.
         local_execution : bool
-            Flag to indicate if the run will be executed locally.
+            Flag to indicate if the run will be executed locally
+        **kwargs
+            Keywords arguments.
         """
         self.inputs = inputs if inputs is not None else {}
         self.outputs = outputs if outputs is not None else {}
@@ -71,3 +73,51 @@ class RunSpec(EntitySpec):
 
         """
         return self.parameters
+
+    def get_local_execution(self) -> bool:
+        """
+        Get the local_execution flag of the run.
+
+        Returns
+        -------
+        bool
+            The local_execution flag of the run.
+
+        """
+        return self.local_execution
+
+    @staticmethod
+    def get_dataitems_list(obj: dict) -> list[str]:
+        """
+        Get the list of dataitems used in the run.
+
+        Parameters
+        ----------
+        obj : dict
+            The object to get the dataitems from.
+
+        Returns
+        -------
+        list[str]
+            The list of dataitems used in the run.
+
+        """
+        return obj.get("dataitems", [])
+
+    @staticmethod
+    def get_artifacts_list(obj: dict) -> list[str]:
+        """
+        Get the list of artifacts used in the run.
+
+        Parameters
+        ----------
+        obj : dict
+            The object to get the artifacts from.
+
+        Returns
+        -------
+        list[str]
+            The list of artifacts used in the run.
+
+        """
+        return obj.get("artifacts", [])

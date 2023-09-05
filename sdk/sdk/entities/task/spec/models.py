@@ -85,9 +85,9 @@ class Resource(BaseModel):
     """Resource requests."""
 
 
-class K8sResources(BaseModel):
+class TaskTaskParams(BaseModel):
     """
-    K8sResources model.
+    "TaskTaskParams" model.
     """
 
     volumes: list[Volume] = []

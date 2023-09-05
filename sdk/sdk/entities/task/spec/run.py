@@ -1,8 +1,8 @@
 """
 Run Task specification module.
 """
-from sdk.entities.task.models import K8sResources
 from sdk.entities.task.spec.base import TaskSpec
+from sdk.entities.task.spec.models import TaskTaskParams
 
 
 class TaskSpecRun(TaskSpec):
@@ -10,21 +10,31 @@ class TaskSpecRun(TaskSpec):
 
     def __init__(
         self,
+        volumes: list[dict] | None = None,
+        volume_mounts: list[dict] | None = None,
+        env: list[dict] | None = None,
         resources: dict | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
 
         Parameters
         ----------
+        volumes : list[dict]
+            The volumes of the task.
+        volume_mounts : list[dict]
+            The volume mounts of the task.
+        env : list[dict]
+            The env variables of the task.
         resources : dict
-            The k8s resources of the task.
+            Kubernetes resources for the task.
+        **kwargs
+            Keywords arguments.
         """
-        resources = resources if resources is not None else {}
-        res = K8sResources(**resources) if resources is not None else None
-        self.volumes = [i.model_dump() for i in res.volumes] if res is not None else []
-        self.volume_mounts = (
-            [i.model_dump() for i in res.volume_mounts] if res is not None else []
-        )
-        self.env = [i.model_dump() for i in res.env] if res is not None else []
-        self.resources = res.resources.model_dump() if res.resources is not None else {}
+        self.volumes = volumes if volumes is not None else []
+        self.volume_mounts = volume_mounts if volume_mounts is not None else []
+        self.env = env if env is not None else []
+        self.resources = resources if resources is not None else {}
+
+        self._any_setter(**kwargs)

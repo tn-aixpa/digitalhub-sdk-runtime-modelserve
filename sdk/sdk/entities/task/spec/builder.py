@@ -5,17 +5,24 @@ from __future__ import annotations
 
 import typing
 
+from pydantic.errors import ValidationError
+
 from sdk.entities.task.spec.build import TaskSpecBuild
+from sdk.entities.task.spec.models import TaskTaskParams
 from sdk.entities.task.spec.run import TaskSpecRun
 from sdk.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
+    from pydantic import BaseModel
     from sdk.entities.task.spec.base import TaskSpec
 
 
-REGISTRY = {
+REGISTRY_SPEC = {
     "task": TaskSpecRun,
     "build": TaskSpecBuild,
+}
+REGISTRY_MODEL = {
+    "task": TaskTaskParams,
 }
 
 
@@ -27,8 +34,8 @@ def build_spec(kind: str, **kwargs) -> TaskSpec:
     ----------
     kind : str
         The type of TaskSpec to build.
-    **kwargs : dict
-        Keywords to pass to the constructor.
+    **kwargs
+        Keywords arguments.
 
     Returns
     -------
@@ -37,10 +44,19 @@ def build_spec(kind: str, **kwargs) -> TaskSpec:
 
     Raises
     ------
-    ValueError
+    EntityError
         If the given kind is not supported.
     """
+    # First build the arguments model and validate them ...
     try:
-        return REGISTRY[kind](**kwargs)
+        model: BaseModel = REGISTRY_MODEL[kind](**kwargs)
     except KeyError:
-        raise EntityError(f"Unsupported kind: {kind}")
+        raise EntityError(f"Unsupported parameters kind: {kind}")
+    except ValidationError:
+        raise EntityError(f"Invalid parameters for kind: {kind}")
+
+    # ... then build the spec
+    try:
+        return REGISTRY_SPEC[kind](**model.model_dump())
+    except KeyError:
+        raise EntityError(f"Unsupported spec kind: {kind}")
