@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
     from sdk.entities.workflow.spec.base import WorkflowSpec
 
 
-REGISTRY = {
+REGISTRY_SPEC = {
     "job": WorkflowSpecJob,
 }
 
@@ -25,8 +25,8 @@ def build_spec(kind: str, **kwargs) -> WorkflowSpec:
     ----------
     kind : str
         The type of WorkflowSpec to build.
-    **kwargs : dict
-        Keywords to pass to the constructor.
+    **kwargs
+        Keywords arguments.
 
     Returns
     -------
@@ -35,10 +35,10 @@ def build_spec(kind: str, **kwargs) -> WorkflowSpec:
 
     Raises
     ------
-    ValueError
+    EntityError
         If the given kind is not supported.
     """
     try:
-        return REGISTRY[kind](**kwargs)
+        return REGISTRY_SPEC[kind](**kwargs)
     except KeyError:
         raise EntityError(f"Unsupported kind: {kind}")

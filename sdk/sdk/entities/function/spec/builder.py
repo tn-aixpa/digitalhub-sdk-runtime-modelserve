@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
     from sdk.entities.function.spec.base import FunctionSpec
 
 
-REGISTRY = {
+REGISTRY_SPEC = {
     "job": FunctionSpecJob,
     "dbt": FunctionSpecDBT,
 }
@@ -28,7 +28,7 @@ def build_spec(kind: str, **kwargs) -> FunctionSpec:
     ----------
     kind : str
         The type of FunctionSpec to build.
-    **kwargs : dict
+    **kwargs
         Keywords arguments.
 
     Returns
@@ -42,6 +42,6 @@ def build_spec(kind: str, **kwargs) -> FunctionSpec:
         If the given kind is not supported.
     """
     try:
-        return REGISTRY[kind](**kwargs)
+        return REGISTRY_SPEC[kind](**kwargs)
     except KeyError:
         raise EntityError(f"Unsupported kind: {kind}")

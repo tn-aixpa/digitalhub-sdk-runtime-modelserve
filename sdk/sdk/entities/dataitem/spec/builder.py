@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
     from sdk.entities.dataitem.spec.base import DataitemSpec
 
 
-REGISTRY = {
+REGISTRY_SPEC = {
     "dataitem": TableDataitemSpec,
     "table": TableDataitemSpec,
 }
@@ -25,8 +25,8 @@ def build_spec(kind: str, **kwargs) -> DataitemSpec:
     ----------
     kind : str
         The type of DataItemSpec to build.
-    **kwargs : dict
-        Keywords to pass to the constructor.
+    **kwargs
+        Keywords arguments.
 
     Returns
     -------
@@ -35,10 +35,10 @@ def build_spec(kind: str, **kwargs) -> DataitemSpec:
 
     Raises
     ------
-    ValueError
+    EntityError
         If the given kind is not supported.
     """
     try:
-        return REGISTRY[kind](**kwargs)
+        return REGISTRY_SPEC[kind](**kwargs)
     except KeyError:
         raise ValueError(f"Unknown kind: {kind}")

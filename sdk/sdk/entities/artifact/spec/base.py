@@ -27,7 +27,7 @@ class ArtifactSpec(EntitySpec):
             The source path of the artifact.
         target_path : str
             The target path of the artifact.
-        **kwargs : dict
+        **kwargs
             Keywords arguments.
         """
         self.key = key
