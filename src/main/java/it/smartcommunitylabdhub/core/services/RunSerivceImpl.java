@@ -3,6 +3,7 @@ package it.smartcommunitylabdhub.core.services;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -148,14 +149,27 @@ public class RunSerivceImpl implements RunService {
                     // save run
                     Run run = runRepository.save(runEntityBuilder.build(runDTO));
 
-                    // exec run and return run dto
-                    return Optional.ofNullable(runDTOBuilder.build(run)).map(r -> {
+                    // check weather the run has local set to True in that case return
+                    // immediately the run without invoke the execution.
+                    Supplier<RunDTO> result = () -> {
+                        return Optional.ofNullable(runDTO.getSpec().get("local"))
+                                .filter(value -> value.equals(true))
+                                .map(value -> runDTOBuilder.build(run)) // return immediately
+                                .orElseGet(() -> { // execute and return
+                                    // exec run and return run dto
+                                    return Optional.ofNullable(runDTOBuilder.build(run)).map(r -> {
+                                        // publish event to the right listener
+                                        runPublisherFactory
+                                                .getPublisher(taskAccessor.getKind())
+                                                .publish(r);
+                                        return r;
+                                    }).orElseThrow(() -> new CoreException("", "",
+                                            HttpStatus.INTERNAL_SERVER_ERROR));
+                                });
+                    };
 
-                        // publish event to the right listener
-                        runPublisherFactory.getPublisher(taskAccessor.getKind()).publish(r);
-                        return r;
-                    }).orElseThrow(
-                            () -> new CoreException("", "", HttpStatus.INTERNAL_SERVER_ERROR));
+                    return result.get();
+
                 })
                 .orElseThrow(() -> new CoreException("RunNotFound",
                         "The run you are searching for does not exist.",
