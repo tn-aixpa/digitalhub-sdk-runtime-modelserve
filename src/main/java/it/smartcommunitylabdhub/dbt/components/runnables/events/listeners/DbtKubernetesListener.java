@@ -82,9 +82,10 @@ public class DbtKubernetesListener {
 
 						// when message is completed update run
 						if (event.getReason().equals("Completed")) {
-							message.getFsm().processEvent(RunEvent.BUILD, Optional.empty());
+							message.getFsm().processEvent(RunEvent.COMPLETED,
+									Optional.empty());
 							RunDTO runDTO = runService.getRun(message.getRunDTO().getId());
-							runDTO.setState(RunState.COMPLETED.name());
+							runDTO.setState(message.getFsm().getCurrentState().name());
 							runService.updateRun(runDTO, runDTO.getId());
 						}
 					}
