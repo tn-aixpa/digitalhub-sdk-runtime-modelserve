@@ -4,7 +4,7 @@ Project module.
 from __future__ import annotations
 
 import typing
-from typing import TypeVar, Callable
+from typing import Callable, TypeVar
 
 from sdk.entities.artifact.crud import (
     create_artifact_from_dict,
@@ -13,6 +13,8 @@ from sdk.entities.artifact.crud import (
     new_artifact,
 )
 from sdk.entities.base.entity import Entity
+from sdk.entities.base.metadata import build_metadata
+from sdk.entities.base.state import build_state
 from sdk.entities.dataitem.crud import (
     create_dataitem_from_dict,
     delete_dataitem,
@@ -25,7 +27,6 @@ from sdk.entities.function.crud import (
     get_function,
     new_function,
 )
-from sdk.entities.project.metadata import build_metadata
 from sdk.entities.project.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.crud import (
@@ -48,9 +49,10 @@ from sdk.utils.factories import get_client, set_context
 if typing.TYPE_CHECKING:
     from sdk.client.client import Client
     from sdk.entities.artifact.entity import Artifact
+    from sdk.entities.base.metadata import Metadata
+    from sdk.entities.base.state import State
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.function.entity import Function
-    from sdk.entities.project.metadata import ProjectMetadata
     from sdk.entities.project.spec.builder import ProjectSpec
     from sdk.entities.workflow.entity import Workflow
 
@@ -101,8 +103,9 @@ class Project(Entity):
     def __init__(
         self,
         name: str,
-        metadata: ProjectMetadata | None = None,
+        metadata: Metadata | None = None,
         spec: ProjectSpec | None = None,
+        state: State | None = None,
         local: bool = False,
         uuid: str | None = None,
         **kwargs,
@@ -114,12 +117,12 @@ class Project(Entity):
         ----------
         name : str
             Name of the object.
-        metadata : ProjectMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : ProjectSpec
             Specification of the object.
         local: bool
-            If True, run locally.
+            If True, export locally.
         **kwargs
             Keyword arguments.
         """
@@ -129,6 +132,7 @@ class Project(Entity):
         self.id = get_uiid(uuid=uuid)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.state = state if state is not None else build_state()
 
         # Set new attributes
         self._any_setter(**kwargs)
@@ -759,10 +763,13 @@ class Project(Entity):
         uuid = obj.get("id")
         kind = obj.get("kind", "project")
 
-        # Build metadata and spec
+        # Build metadata, spec, state
         _spec = {k: v for k, v in obj.get("spec", {}).items() if k in SPEC_LIST}
         spec = build_spec(kind=kind, **_spec)
         metadata = build_metadata(**obj.get("metadata", {"name": name}))
+        state = obj.get("state")
+        state = state if state is not None else {}
+        state = build_state(**state)
 
         return {
             "name": name,
@@ -770,6 +777,7 @@ class Project(Entity):
             "uuid": uuid,
             "metadata": metadata,
             "spec": spec,
+            "state": state,
         }
 
 
@@ -798,7 +806,7 @@ def project_from_parameters(
     source : str
         The source of the project.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     uuid : str
         UUID.
 

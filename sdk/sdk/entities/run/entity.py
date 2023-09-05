@@ -7,6 +7,7 @@ import typing
 
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
+from sdk.entities.base.state import build_state
 from sdk.entities.dataitem.crud import get_dataitem_from_key
 from sdk.entities.run.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
@@ -15,9 +16,10 @@ from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.run.spec.builder import RunSpec
     from sdk.entities.artifact.entity import Artifact
+    from sdk.entities.base.state import State
     from sdk.entities.dataitem.entity import Dataitem
+    from sdk.entities.run.spec.builder import RunSpec
 
 
 class Run(Entity):
@@ -31,6 +33,7 @@ class Run(Entity):
         task_id: str,
         task: str | None = None,
         spec: RunSpec | None = None,
+        state: State | None = None,
         local: bool = False,
         uuid: str | None = None,
         **kwargs,
@@ -48,8 +51,10 @@ class Run(Entity):
             Identifier of the task.
         spec : RunSpec
             Specification of the object.
+        state : State
+            State of the object.
         local: bool
-            If True, run locally.
+            If True, export locally.
         """
         super().__init__()
         self.project = project
@@ -59,6 +64,7 @@ class Run(Entity):
         self.task = task
         self.status = {}
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.state = state if state is not None else build_state()
 
         # Set new attributes
         self._any_setter(**kwargs)
@@ -321,10 +327,13 @@ class Run(Entity):
         uuid = obj.get("id")
         kind = obj.get("kind", "run")
 
-        # Build metadata and spec
+        # Build metadata, spec, state
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
+        state = obj.get("state")
+        state = state if state is not None else {}
+        state = build_state(**state)
 
         return {
             "project": project,
@@ -333,6 +342,7 @@ class Run(Entity):
             "kind": kind,
             "uuid": uuid,
             "spec": spec,
+            "state": state,
         }
 
 
@@ -344,6 +354,7 @@ def run_from_parameters(
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
+    local_execution: bool = False,
     local: bool = False,
 ) -> Run:
     """
@@ -365,8 +376,10 @@ def run_from_parameters(
         Outputs of the run.
     parameters : dict
         Parameters of the run.
-    local : bool
+    local_execution : bool
         Flag to determine if object has local execution.
+    local : bool
+        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
 
@@ -375,7 +388,13 @@ def run_from_parameters(
     Run
         Run object.
     """
-    spec = build_spec(kind, inputs=inputs, outputs=outputs, parameters=parameters)
+    spec = build_spec(
+        kind,
+        inputs=inputs,
+        outputs=outputs,
+        parameters=parameters,
+        local_execution=local_execution,
+    )
     return Run(
         project=project,
         task_id=task_id,

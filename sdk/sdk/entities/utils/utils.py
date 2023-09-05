@@ -95,7 +95,7 @@ def check_local_flag(project: str, local: bool) -> None:
     project : str
         Name of the project.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
 
     Raises
     ------
@@ -115,7 +115,7 @@ def save_or_export(obj: Entity, local: bool) -> None:
     obj : object
         The object to save or export.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
 
     Returns
     -------

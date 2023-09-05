@@ -93,7 +93,7 @@ def new_function(
     sql : str
         SQL query.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str

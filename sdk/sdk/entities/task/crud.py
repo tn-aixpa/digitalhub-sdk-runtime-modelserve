@@ -54,7 +54,7 @@ def new_task(
     resources : dict
         The Kubernetes resources for the Task.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     uuid : str
         UUID.
 

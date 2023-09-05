@@ -5,18 +5,19 @@ from __future__ import annotations
 
 import typing
 
-
 from sdk.entities.base.entity import Entity
+from sdk.entities.base.metadata import build_metadata
+from sdk.entities.base.state import build_state
 from sdk.entities.utils.utils import get_uiid
-from sdk.entities.workflow.metadata import build_metadata
 from sdk.entities.workflow.spec.builder import build_spec
 from sdk.utils.api import DTO_WKFL, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.workflow.metadata import WorkflowMetadata
-    from sdk.entities.workflow.spec.builder import WorkflowSpec
+    from sdk.entities.base.metadata import Metadata
+    from sdk.entities.base.state import State
+    from sdk.entities.workflow.spec.base import WorkflowSpec
 
 
 class Workflow(Entity):
@@ -30,8 +31,9 @@ class Workflow(Entity):
         name: str,
         uuid: str | None = None,
         kind: str | None = None,
-        metadata: WorkflowMetadata | None = None,
+        metadata: Metadata | None = None,
         spec: WorkflowSpec | None = None,
+        state: State | None = None,
         local: bool = False,
         embedded: bool = False,
         **kwargs,
@@ -49,12 +51,14 @@ class Workflow(Entity):
             UUID.
         kind : str
             Kind of the object.
-        metadata : WorkflowMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : WorkflowSpec
             Specification of the object.
+        state : State
+            State of the object.
         local: bool
-            If True, run locally.
+            If True, export locally.
         embedded: bool
             If True, embed object in backend.
         **kwargs
@@ -67,6 +71,7 @@ class Workflow(Entity):
         self.kind = kind if kind is not None else "job"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.state = state if state is not None else build_state()
         self.embedded = embedded
 
         # Set new attributes
@@ -199,12 +204,15 @@ class Workflow(Entity):
         kind = obj.get("kind", "job")
         embedded = obj.get("embedded")
 
-        # Build metadata and spec
+        # Build metadata, spec, state
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
         metadata = obj.get("metadata", {"name": name})
         metadata = build_metadata(**metadata)
+        state = obj.get("state")
+        state = state if state is not None else {}
+        state = build_state(**state)
 
         return {
             "project": project,
@@ -213,6 +221,7 @@ class Workflow(Entity):
             "uuid": uuid,
             "metadata": metadata,
             "spec": spec,
+            "state": state,
             "embedded": embedded,
         }
 
@@ -243,7 +252,7 @@ def workflow_from_parameters(
     spec : dict
         Specification of the object.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
