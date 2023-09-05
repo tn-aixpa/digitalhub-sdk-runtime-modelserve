@@ -80,6 +80,12 @@ public class RunStateMachine {
                                 })
                                 .withState(RunState.READY, readyState)
                                 .withState(RunState.RUNNING, runningState)
+                                .withEntryAction(RunState.RUNNING, (context) -> {
+                                        RunDTO runDTO = runService
+                                                        .getRun(context.get("runId").toString());
+                                        runDTO.setState(RunState.RUNNING.toString());
+                                        runService.updateRun(runDTO, runDTO.getId());
+                                })
                                 .withState(RunState.COMPLETED, completedState)
                                 .withErrorState(RunState.ERROR, errorState)
                                 .withEntryAction(RunState.ERROR, (context) -> {

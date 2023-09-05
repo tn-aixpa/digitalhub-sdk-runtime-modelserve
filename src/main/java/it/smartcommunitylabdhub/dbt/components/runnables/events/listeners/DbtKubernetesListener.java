@@ -14,7 +14,6 @@ import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
-import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.components.kubernetes.EventPrinter;
 import it.smartcommunitylabdhub.core.models.builders.entities.LogEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
@@ -78,6 +77,8 @@ public class DbtKubernetesListener {
 
 						if (event.getReason().equals("SuccessfulCreate")) {
 							message.getFsm().processEvent(RunEvent.BUILD, Optional.empty());
+							message.getFsm().processEvent(RunEvent.RUNNING,
+									Optional.empty());
 						}
 
 						// when message is completed update run
