@@ -6,7 +6,8 @@ from __future__ import annotations
 import typing
 
 from sdk.entities.base.entity import Entity
-from sdk.entities.function.metadata import build_metadata
+from sdk.entities.base.metadata import build_metadata
+from sdk.entities.base.state import build_state
 from sdk.entities.function.spec.builder import build_spec
 from sdk.entities.task.crud import create_task, new_task
 from sdk.entities.utils.utils import get_uiid
@@ -15,7 +16,8 @@ from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.function.metadata import FunctionMetadata
+    from sdk.entities.base.metadata import Metadata
+    from sdk.entities.base.state import State
     from sdk.entities.function.spec.base import FunctionSpec
     from sdk.entities.run.entity import Run
     from sdk.entities.task.entity import Task
@@ -31,8 +33,9 @@ class Function(Entity):
         project: str,
         name: str,
         kind: str | None = None,
-        metadata: FunctionMetadata | None = None,
+        metadata: Metadata | None = None,
         spec: FunctionSpec | None = None,
+        state: State | None = None,
         local: bool = False,
         embedded: bool = False,
         uuid: str | None = None,
@@ -51,14 +54,16 @@ class Function(Entity):
             UUID.
         kind : str
             Kind of the object.
-        metadata : FunctionMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : FunctionSpec
             Specification of the object.
+        state : State
+            State of the object.
         local: bool
-            If True, run locally.
+            If True, export locally.
         embedded: bool
-            If True, embed object in backend. the function
+            If True, embed object in backend.
         **kwargs
             Keyword arguments.
         """
@@ -69,6 +74,7 @@ class Function(Entity):
         self.kind = kind if kind is not None else "job"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.state = state if state is not None else build_state()
         self.embedded = embedded
 
         # Set new attributes
@@ -140,6 +146,7 @@ class Function(Entity):
         inputs: dict | None = None,
         outputs: list | None = None,
         parameters: dict | None = None,
+        local_execution: bool = False,
         resources: dict | None = None,
     ) -> Run:
         """
@@ -153,9 +160,10 @@ class Function(Entity):
             Function outputs. Used in Run.
         parameters : dict
             Function parameters. Used in Run.
+        local_execution : bool
+            Flag to determine if object has local execution.
         resources : dict
             K8s resource. Used in Task.
-
         Returns
         -------
         Run
@@ -179,7 +187,7 @@ class Function(Entity):
         inputs = inputs if inputs is not None else {}
         outputs = outputs if outputs is not None else []
         parameters = parameters if parameters is not None else {}
-        return self._task.run(inputs, outputs, parameters)
+        return self._task.run(inputs, outputs, parameters, local_execution)
 
     def update_task(self, new_spec: dict) -> dict:
         """
@@ -282,12 +290,15 @@ class Function(Entity):
         kind = obj.get("kind", "job")
         embedded = obj.get("embedded")
 
-        # Build metadata and spec
+        # Build metadata, spec, state
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
         metadata = obj.get("metadata", {"name": name})
         metadata = build_metadata(**metadata)
+        state = obj.get("state")
+        state = state if state is not None else {}
+        state = build_state(**state)
 
         return {
             "project": project,
@@ -296,6 +307,7 @@ class Function(Entity):
             "uuid": uuid,
             "metadata": metadata,
             "spec": spec,
+            "state": state,
             "embedded": embedded,
         }
 
@@ -344,7 +356,7 @@ def function_from_parameters(
     sql : str
         SQL query.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str

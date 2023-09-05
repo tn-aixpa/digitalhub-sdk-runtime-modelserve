@@ -6,7 +6,8 @@ from __future__ import annotations
 import typing
 
 from sdk.entities.base.entity import Entity
-from sdk.entities.dataitem.metadata import build_metadata
+from sdk.entities.base.metadata import build_metadata
+from sdk.entities.base.state import build_state
 from sdk.entities.dataitem.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
@@ -17,7 +18,9 @@ from sdk.utils.uri_utils import get_extension, map_uri_scheme
 
 if typing.TYPE_CHECKING:
     import pandas as pd
-    from sdk.entities.dataitem.metadata import DataitemMetadata
+
+    from sdk.entities.base.metadata import Metadata
+    from sdk.entities.base.state import State
     from sdk.entities.dataitem.spec.builder import DataitemSpec
 
 
@@ -31,8 +34,9 @@ class Dataitem(Entity):
         project: str,
         name: str,
         kind: str | None = None,
-        metadata: DataitemMetadata | None = None,
+        metadata: Metadata | None = None,
         spec: DataitemSpec | None = None,
+        state: State | None = None,
         local: bool = False,
         embedded: bool = False,
         uuid: str | None = None,
@@ -51,12 +55,14 @@ class Dataitem(Entity):
             UUID.
         kind : str
             Kind of the object.
-        metadata : DataitemMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : DataitemSpec
             Specification of the object.
+        state : State
+            State of the object.
         local: bool
-            If True, run locally.
+            If True, export locally.
         embedded: bool
             If True, embed object in backend.
         **kwargs
@@ -69,6 +75,7 @@ class Dataitem(Entity):
         self.kind = kind if kind is not None else "table"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.state = state if state is not None else build_state()
         self.embedded = embedded
 
         # Set new attributes
@@ -325,15 +332,18 @@ class Dataitem(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind", "dataitem")
+        kind = obj.get("kind", "table")
         embedded = obj.get("embedded")
 
-        # Build metadata and spec
+        # Build metadata, spec, state
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
         metadata = obj.get("metadata", {"name": name})
         metadata = build_metadata(**metadata)
+        state = obj.get("state")
+        state = state if state is not None else {}
+        state = build_state(**state)
 
         return {
             "project": project,
@@ -342,6 +352,7 @@ class Dataitem(Entity):
             "uuid": uuid,
             "metadata": metadata,
             "spec": spec,
+            "state": state,
             "embedded": embedded,
         }
 
@@ -353,8 +364,6 @@ def dataitem_from_parameters(
     kind: str = "table",
     key: str | None = None,
     path: str | None = None,
-    raw_code: str | None = None,
-    compiled_code: str | None = None,
     local: bool = False,
     embedded: bool = False,
     uuid: str | None = None,
@@ -376,12 +385,8 @@ def dataitem_from_parameters(
         Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
-    raw_code : str
-        Raw code of the dataitem.
-    compiled_code : str
-        Compiled code of the dataitem.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str

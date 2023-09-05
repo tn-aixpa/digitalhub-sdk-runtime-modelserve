@@ -12,6 +12,7 @@ class RunSpec(EntitySpec):
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
+        local_execution: bool = False,
         **kwargs,
     ) -> None:
         """
@@ -25,10 +26,13 @@ class RunSpec(EntitySpec):
             The outputs of the run.
         parameters : dict
             The parameters of the run.
+        local_execution : bool
+            Flag to indicate if the run will be executed locally.
         """
         self.inputs = inputs if inputs is not None else {}
         self.outputs = outputs if outputs is not None else {}
         self.parameters = parameters if parameters is not None else {}
+        self.local_execution = local_execution
 
         self._any_setter(**kwargs)
 

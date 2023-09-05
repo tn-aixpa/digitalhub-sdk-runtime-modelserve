@@ -40,6 +40,7 @@ def new_run(
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
+    local_execution: bool = False,
     local: bool = False,
 ) -> Run:
     """
@@ -61,8 +62,10 @@ def new_run(
         The outputs of the run.
     parameters : dict
         The parameters of the run.
-    local : bool
+    local_execution : bool
         Flag to determine if object has local execution.
+    local : bool
+        Flag to determine if object will be exported to backend.
 
     Returns
     -------
@@ -78,6 +81,7 @@ def new_run(
         inputs=inputs,
         outputs=outputs,
         parameters=parameters,
+        local_execution=local_execution,
         local=local,
     )
     save_or_export(obj, local)

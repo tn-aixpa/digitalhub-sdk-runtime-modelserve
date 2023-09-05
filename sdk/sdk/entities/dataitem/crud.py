@@ -56,8 +56,6 @@ def new_dataitem(
     kind: str = "table",
     key: str | None = None,
     path: str | None = None,
-    raw_code: str | None = None,
-    compiled_code: str | None = None,
     local: bool = False,
     embedded: bool = False,
     uuid: str | None = None,
@@ -79,12 +77,8 @@ def new_dataitem(
         Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
-    raw_code : str
-        Raw code of the dataitem.
-    compiled_code : str
-        Compiled code of the dataitem.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -103,8 +97,6 @@ def new_dataitem(
         kind=kind,
         key=key,
         path=path,
-        raw_code=raw_code,
-        compiled_code=compiled_code,
         local=local,
         embedded=embedded,
         uuid=uuid,

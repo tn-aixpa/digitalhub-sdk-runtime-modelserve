@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import typing
 
-
 from sdk.entities.base.entity import Entity
+from sdk.entities.base.state import build_state
 from sdk.entities.run.crud import new_run
 from sdk.entities.task.spec.builder import build_spec
 from sdk.entities.utils.utils import get_uiid
@@ -15,8 +15,9 @@ from sdk.utils.exceptions import EntityError
 from sdk.utils.factories import get_context
 
 if typing.TYPE_CHECKING:
+    from sdk.entities.base.state import State
     from sdk.entities.run.entity import Run
-    from sdk.entities.task.spec.builder import TaskSpec
+    from sdk.entities.task.spec.base import TaskSpec
 
 
 class Task(Entity):
@@ -31,6 +32,7 @@ class Task(Entity):
         uuid: str | None = None,
         kind: str | None = None,
         spec: TaskSpec | None = None,
+        state: State | None = None,
         local: bool = False,
         **kwargs,
     ) -> None:
@@ -49,6 +51,8 @@ class Task(Entity):
             Kind of the object.
         spec : TaskSpec
             Specification of the object.
+        state : State
+            State of the object.
         local : bool
             If True, run locally.
         **kwargs
@@ -60,6 +64,7 @@ class Task(Entity):
         self.id = get_uiid(uuid=uuid)
         self.kind = kind if kind is not None else "task"
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.state = state if state is not None else build_state()
 
         # Set new attributes
         self._any_setter(**kwargs)
@@ -121,7 +126,9 @@ class Task(Entity):
     #  Task methods
     #############################
 
-    def run(self, inputs: dict, outputs: list, parameters: dict) -> Run:
+    def run(
+        self, inputs: dict, outputs: list, parameters: dict, local_execution: bool
+    ) -> Run:
         """
         Run task.
 
@@ -135,6 +142,8 @@ class Task(Entity):
             The outputs of the run.
         parameters : dict
             The parameters of the run.
+        local_execution : bool
+            Flag to indicate if the run will be executed locally.
 
         Returns
         -------
@@ -152,6 +161,7 @@ class Task(Entity):
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
+            local_execution=local_execution,
             local=self._local,
         )
         return run
@@ -206,10 +216,13 @@ class Task(Entity):
         kind = obj.get("kind", "run")
         uuid = obj.get("id")
 
-        # Spec
+        # Build spec, state
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
+        state = obj.get("state")
+        state = state if state is not None else {}
+        state = build_state(**state)
 
         return {
             "project": project,
@@ -217,6 +230,7 @@ class Task(Entity):
             "kind": kind,
             "uuid": uuid,
             "spec": spec,
+            "state": state,
         }
 
 

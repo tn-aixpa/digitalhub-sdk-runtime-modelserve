@@ -75,7 +75,7 @@ def new_workflow(
     spec : dict
         Specification of the object.
     local : bool
-        Flag to determine if object has local execution.
+        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
