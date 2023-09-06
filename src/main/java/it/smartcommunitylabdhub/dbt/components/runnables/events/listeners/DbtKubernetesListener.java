@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.dbt.components.runnables.events.listeners;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -13,7 +12,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
-import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
+import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.components.kubernetes.EventPrinter;
 import it.smartcommunitylabdhub.core.models.builders.entities.LogEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
@@ -76,15 +75,13 @@ public class DbtKubernetesListener {
 
 
 						if (event.getReason().equals("SuccessfulCreate")) {
-							message.getFsm().processEvent(RunEvent.BUILD, Optional.empty());
-							message.getFsm().processEvent(RunEvent.RUNNING,
-									Optional.empty());
+							message.getFsm().goToState(RunState.READY);
+							message.getFsm().goToState(RunState.RUNNING);
 						}
 
 						// when message is completed update run
 						if (event.getReason().equals("Completed")) {
-							message.getFsm().processEvent(RunEvent.COMPLETED,
-									Optional.empty());
+							message.getFsm().goToState(RunState.COMPLETED);
 							RunDTO runDTO = runService.getRun(message.getRunDTO().getId());
 							runDTO.setState(message.getFsm().getCurrentState().name());
 							runService.updateRun(runDTO, runDTO.getId());

@@ -12,18 +12,19 @@
 
 package it.smartcommunitylabdhub.core.components.fsm;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 
 @Getter
@@ -36,9 +37,9 @@ public class StateMachine<S, E, C> {
     private Map<S, State<S, E, C>> states;
     private Map<E, BiConsumer<?, C>> eventListeners;
     private BiConsumer<S, C> stateChangeListener;
-    private HashMap<S, Consumer<C>> entryActions;
-    private HashMap<S, Consumer<C>> exitActions;
-    private C context;
+    private HashMap<S, Consumer<Optional<C>>> entryActions;
+    private HashMap<S, Consumer<Optional<C>>> exitActions;
+    private Context<C> initialContext;
 
     /**
      * Default constructor to create an empty StateMachine.
@@ -51,7 +52,7 @@ public class StateMachine<S, E, C> {
      * @param initialState The initial state of the StateMachine.
      * @param initialContext The initial context for the StateMachine.
      */
-    public StateMachine(S initialState, C initialContext) {
+    public StateMachine(S initialState, Context<C> initialContext) {
         this.uuid = UUID.randomUUID().toString();
         this.currentState = initialState;
         this.errorState = null;
@@ -59,7 +60,7 @@ public class StateMachine<S, E, C> {
         this.eventListeners = new HashMap<>();
         this.entryActions = new HashMap<>();
         this.exitActions = new HashMap<>();
-        this.context = initialContext;
+        this.initialContext = initialContext;
     }
 
     /**
@@ -69,7 +70,7 @@ public class StateMachine<S, E, C> {
      * @param initialContext The initial context for the StateMachine.
      * @return A new Builder instance to configure and build the StateMachine.
      */
-    public static <S, E, C> Builder<S, E, C> builder(S initialState, C initialContext) {
+    public static <S, E, C> Builder<S, E, C> builder(S initialState, Optional<C> initialContext) {
         return new Builder<>(initialState, initialContext);
     }
 
@@ -80,13 +81,13 @@ public class StateMachine<S, E, C> {
         private Map<S, State<S, E, C>> states;
         private Map<E, BiConsumer<?, C>> eventListeners;
         private BiConsumer<S, C> stateChangeListener;
-        private HashMap<S, Consumer<C>> entryActions;
-        private HashMap<S, Consumer<C>> exitActions;
-        private C context;
+        private HashMap<S, Consumer<Optional<C>>> entryActions;
+        private HashMap<S, Consumer<Optional<C>>> exitActions;
+        private Context<C> initialContext;
 
-        public Builder(S initialState, C initialContext) {
+        public Builder(S initialState, Optional<C> initialContext) {
             this.currentState = initialState;
-            this.context = initialContext;
+            this.initialContext = new Context<C>(initialContext);
             this.states = new HashMap<>();
             this.eventListeners = new HashMap<>();
             this.entryActions = new HashMap<>();
@@ -128,7 +129,7 @@ public class StateMachine<S, E, C> {
          * @param state The state for which to set the entry action.
          * @param entryAction The entry action as a Consumer instance.
          */
-        public Builder<S, E, C> withEntryAction(S state, Consumer<C> entryAction) {
+        public Builder<S, E, C> withEntryAction(S state, Consumer<Optional<C>> entryAction) {
             entryActions.put(state, entryAction);
             return this;
         }
@@ -139,13 +140,13 @@ public class StateMachine<S, E, C> {
          * @param state The state for which to set the exit action.
          * @param exitAction The exit action as a Consumer instance.
          */
-        public Builder<S, E, C> withExitAction(S state, Consumer<C> exitAction) {
+        public Builder<S, E, C> withExitAction(S state, Consumer<Optional<C>> exitAction) {
             exitActions.put(state, exitAction);
             return this;
         }
 
         public StateMachine<S, E, C> build() {
-            StateMachine<S, E, C> stateMachine = new StateMachine<>(currentState, context);
+            StateMachine<S, E, C> stateMachine = new StateMachine<>(currentState, initialContext);
             stateMachine.states = states;
             stateMachine.errorState = errorState;
             stateMachine.eventListeners = eventListeners;
@@ -157,155 +158,226 @@ public class StateMachine<S, E, C> {
 
     }
 
-    /**
-     * Process an event in the StateMachine and trigger the appropriate transitions and actions.
-     *
-     * @param eventName The event name.
-     * @param input The optional input associated with the event.
-     * @param <T> The type of the result from processing the event.
-     * @param <R> The type of the input for internal logic.
-     * @return An optional result from processing the event, if applicable.
+    /*
+     * @SuppressWarnings("unchecked")
+     * 
+     * @Synchronized public <T> Optional<T> processEvent(E eventName, Optional<?> input) { State<S,
+     * E, C> currentStateDefinition = states.get(currentState); if (currentStateDefinition == null)
+     * { throw new IllegalStateException( "Invalid current state: " + currentState + " : " +
+     * this.getUuid()); }
+     * 
+     * // Exit action of the current state for the specific event
+     * Optional.ofNullable(exitActions.get(currentState)) .ifPresent(action ->
+     * action.accept(context));
+     * 
+     * 
+     * Optional<Transaction<S, E, C>> matchingTransaction = Optional
+     * .ofNullable(currentStateDefinition.getTransactions().get(eventName));
+     * 
+     * if (matchingTransaction.isPresent()) { Transaction<S, E, C> transaction =
+     * matchingTransaction.get(); if (transaction.getGuard().test(input, context)) { S nextState =
+     * transaction.getNextState(); State<S, E, C> nextStateDefinition = states.get(nextState); if
+     * (nextStateDefinition == null) { throw new IllegalStateException( "Invalid next state: " +
+     * nextState + " : " + this.getUuid()); }
+     * 
+     * // Entry action of the next state for the specific event
+     * Optional.ofNullable(entryActions.get(nextState)) .ifPresent(action ->
+     * action.accept(context));
+     * 
+     * // Notify event listener notifyEventListeners(eventName, input.orElse(null));
+     * 
+     * // set new state currentState = nextState;
+     * 
+     * // Notify state change listener notifyStateChangeListener(currentState);
+     * 
+     * Optional<T> result = (Optional<T>) nextStateDefinition .getInternalLogic().map( internalFunc
+     * -> applyInternalFunc( (inputValue, contextValue, stateMachineValue) -> internalFunc
+     * .applyLogic(inputValue, contextValue, stateMachineValue), input.orElse(null))
+     * 
+     * ).orElse(Optional.empty());
+     * 
+     * return result; } else { log.info("Guard condition not met for transaction: " + transaction +
+     * " : " + this.getUuid()); // Handle error scenario return (Optional<T>)
+     * handleTransactionError(transaction, input); } } else {
+     * log.info("Invalid transaction for event: " + eventName + " : " + this.getUuid() + "\n" +
+     * "Current state : " + currentState.toString()); // Handle error scenario return (Optional<T>)
+     * handleInvalidTransactionError(eventName, input); } }
+     * 
+     * 
      */
     @SuppressWarnings("unchecked")
-    @Synchronized
-    public <T> Optional<T> processEvent(E eventName, Optional<?> input) {
-        State<S, E, C> currentStateDefinition = states.get(currentState);
-        if (currentStateDefinition == null) {
-            throw new IllegalStateException(
-                    "Invalid current state: " + currentState + " : " + this.getUuid());
+    // Modify the goToState method to follow valid paths
+    public <T> Optional<T> goToState(S targetState) {
+        // State<S, E, C> currentStateDefinition = states.get(currentState);
+        // State<S, E, C> targetStateDefinition = states.get(targetState);
+
+        // if (currentStateDefinition == null || targetStateDefinition == null) {
+        // throw new IllegalArgumentException("Invalid current or target state.");
+        // }
+
+        // Check if a valid path exists from the current state to the target state
+        List<S> path = findPath(currentState, targetState);
+        if (path.isEmpty()) {
+            // No valid path exists; transition to the error state
+            return goToErrorState();
         }
 
-        // Exit action of the current state for the specific event
-        Optional.ofNullable(exitActions.get(currentState))
-                .ifPresent(action -> action.accept(context));
+        // Copy State Machine context to first state
+        try {
+            states.get(currentState).setContext((Context<C>) initialContext.clone());
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
+        // Follow the path
+        // 1. apply internal logic
+        // 2. execute exit action
+        // 3. execute entry action of the current state.
+        for (int i = 0; i < path.size() - 1; i++) {
+
+            // Get state definition
+            S stateInPath = path.get(i);
+            State<S, E, C> stateDefinition = states.get(stateInPath);
+
+            // Apply internal logic of the target state
+            stateDefinition.getInternalLogic()
+                    .map(internalFunc -> applyInternalFunc(
+                            (contextStateValue, stateMachineValue) -> internalFunc.applyLogic(
+                                    contextStateValue,
+                                    stateMachineValue),
+                            currentState)) // Optional.empty() because no input is provided
+                    .orElse(Optional.empty());
 
 
-        Optional<Transaction<S, E, C>> matchingTransaction = Optional
-                .ofNullable(currentStateDefinition.getTransactions().get(eventName));
 
-        if (matchingTransaction.isPresent()) {
-            Transaction<S, E, C> transaction = matchingTransaction.get();
-            if (transaction.getGuard().test(input, context)) {
-                S nextState = transaction.getNextState();
-                State<S, E, C> nextStateDefinition = states.get(nextState);
-                if (nextStateDefinition == null) {
-                    throw new IllegalStateException(
-                            "Invalid next state: " + nextState + " : " + this.getUuid());
+            // execute exit action
+            Consumer<Optional<C>> exitAction = exitActions.get(stateInPath);
+            if (exitAction != null) {
+                exitAction.accept(stateDefinition.getContext().getValue());
+            }
+
+            // Get next state if exist and execute logic
+
+            Optional.ofNullable(path.get(i + 1)).ifPresent(nextState -> {
+
+                // Copy state machine context to next state if present otherwise set to null
+                try {
+                    states.get(nextState)
+                            .setContext((Context<C>) states.get(currentState).getContext().clone());
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
                 }
 
-                // Entry action of the next state for the specific event
-                Optional.ofNullable(entryActions.get(nextState))
-                        .ifPresent(action -> action.accept(context));
 
-                // Notify event listener
-                notifyEventListeners(eventName, input.orElse(null));
-
-                // set new state
+                // Update the current state and notify state change listener
                 currentState = nextState;
 
-                // Notify state change listener
                 notifyStateChangeListener(currentState);
 
-                Optional<T> result = (Optional<T>) nextStateDefinition
-                        .getInternalLogic().map(
-                                internalFunc -> applyInternalFunc(
-                                        (inputValue, contextValue,
-                                                stateMachineValue) -> internalFunc
-                                                        .applyLogic(inputValue, contextValue,
-                                                                stateMachineValue),
-                                        input.orElse(null))
+                // execute entry action
+                Optional.ofNullable(entryActions.get(nextState))
+                        .ifPresent(action -> action
+                                .accept(stateDefinition.getContext().getValue()));
 
-                        ).orElse(Optional.empty());
+            });
+        }
 
-                // Apply auto transition passing the input
-                List<Transaction<S, E, C>> autoTransactions =
-                        nextStateDefinition.getTransactions().entrySet().stream()
-                                .filter(entry -> entry.getValue().isAuto()).map(Map.Entry::getValue)
-                                .collect(Collectors.toList());
-                for (Transaction<S, E, C> autoTransaction : autoTransactions) {
-                    if (autoTransaction.getGuard().test(result, context)) {
-                        processEvent(autoTransaction.getEvent(), input);
-                    }
+        // Copy the context to the target state
+        // targetStateDefinition.setContext(Optional.of(currentContext.get().copy()));
+
+        return null;
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    // Implement the goToErrorState method to transition to the error state
+    private <T> Optional<T> goToErrorState() {
+        if (errorState != null) {
+            try {
+                states.get(errorState)
+                        .setContext((Context<C>) states.get(currentState).getContext().clone());
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            currentState = errorState;
+            State<S, E, C> errorStateDefinition = states.get(errorState);
+            if (errorStateDefinition != null) {
+                // Execute error logic
+                return (Optional<T>) errorStateDefinition.getInternalLogic()
+                        .map(internalFunc -> applyInternalFunc(
+                                (contextStateValue, stateMachineValue) -> internalFunc.applyLogic(
+                                        contextStateValue,
+                                        stateMachineValue),
+                                currentState)) // Optional.empty() because no input is provided
+                        .orElse(Optional.empty());
+            } else {
+                throw new IllegalStateException(
+                        "Invalid error state: " + errorState + " : " + this.getUuid());
+            }
+        } else {
+            throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
+        }
+    }
+
+    // Implement the findPath method to find a valid path using DFS
+    private List<S> findPath(S sourceState, S targetState) {
+        Set<S> visited = new HashSet<>();
+        LinkedList<S> path = new LinkedList<>();
+
+        // Call the recursive DFS function to find the path
+        if (dfs(sourceState, targetState, visited, path)) {
+            // If a valid path exists, return it
+            return path;
+        } else {
+            // If no valid path exists, return an empty list
+            return Collections.emptyList();
+        }
+    }
+
+    // Recursive DFS function to find a path
+    private boolean dfs(S currentState, S targetState, Set<S> visited, LinkedList<S> path) {
+        // Mark the current state as visited and add it to the path
+        visited.add(currentState);
+        path.addLast(currentState);
+
+        // If the current state is the target state, a valid path is found
+        if (currentState.equals(targetState)) {
+            return true;
+        }
+
+        // Get the current state's definition
+        State<S, E, C> stateDefinition = states.get(currentState);
+
+        // Iterate over the transitions from the current state
+        for (E event : stateDefinition.getTransactions().keySet()) {
+            Transaction<S, E, C> transaction = stateDefinition.getTransactions().get(event);
+
+            // Check if the next state in the transaction is unvisited
+            if (!visited.contains(transaction.getNextState())) {
+                // Recursively search for a path from the next state to the target state
+                if (dfs(transaction.getNextState(), targetState, visited, path)) {
+                    return true; // A valid path is found
                 }
-                return result;
-            } else {
-                log.info("Guard condition not met for transaction: " + transaction + " : "
-                        + this.getUuid());
-                // Handle error scenario
-                return (Optional<T>) handleTransactionError(transaction, input);
             }
-        } else {
-            log.info("Invalid transaction for event: " + eventName + " : " + this.getUuid() + "\n"
-                    + "Current state : "
-                    + currentState.toString());
-            // Handle error scenario
-            return (Optional<T>) handleInvalidTransactionError(eventName, input);
         }
+
+        // If no valid path is found from the current state, backtrack
+        path.removeLast();
+        return false;
     }
 
-    private <T> Optional<T> applyInternalFunc(StateLogic<S, E, C, T> stateLogic, Object value) {
-        return stateLogic.applyLogic(value, context, this);
+
+
+    private <T> Optional<T> applyInternalFunc(StateLogic<S, E, C, T> stateLogic, S state) {
+        Optional<C> context = states.get(state).getContext().getValue();
+        return stateLogic.applyLogic(context.orElse(null), this);
     }
 
-    private Optional<?> handleTransactionError(Transaction<S, E, C> transaction,
-            Optional<?> input) {
-        if (errorState != null) {
-            // Transition to the error state
-            currentState = errorState;
-            State<S, E, C> errorStateDefinition = states.get(errorState);
-            if (errorStateDefinition != null) {
-                // Execute error logic
-                return errorStateDefinition.getInternalLogic()
-                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null)))
-                        .orElse(Optional.empty());
-            } else {
-                throw new IllegalStateException(
-                        "Invalid error state: " + errorState + " : " + this.getUuid());
-            }
-        } else {
-            throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
-        }
-    }
-
-    private Optional<?> handleInvalidTransactionError(E eventName, Optional<?> input) {
-        if (errorState != null) {
-            // Transition to the error state
-            currentState = errorState;
-            State<S, E, C> errorStateDefinition = states.get(errorState);
-            if (errorStateDefinition != null) {
-                // Execute error logic
-                return errorStateDefinition.getInternalLogic()
-                        .map(errorLogic -> applyErrorLogic(errorLogic, input.orElse(null)))
-                        .orElse(Optional.empty());
-
-            } else {
-                throw new IllegalStateException(
-                        "Invalid error state: " + errorState + " : " + this.getUuid());
-            }
-        } else {
-            throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Optional<?> applyErrorLogic(Object errorLogic, Object value) {
-        BiFunction<Object, C, ?> errorFunction =
-                (arg0, arg1) -> ((BiFunction<Object, C, ?>) errorLogic).apply(arg0,
-                        arg1);
-        return Optional.of(errorFunction.apply(value, context));
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> void notifyEventListeners(E eventName, T input) {
-        BiConsumer<T, C> listener = (BiConsumer<T, C>) eventListeners.get(eventName);
-        if (listener != null) {
-            listener.accept(input, context);
-        }
-    }
 
     private void notifyStateChangeListener(S newState) {
         if (stateChangeListener != null) {
-            stateChangeListener.accept(newState, context);
+            stateChangeListener.accept(newState, initialContext.getValue().orElse(null));
         }
     }
 }

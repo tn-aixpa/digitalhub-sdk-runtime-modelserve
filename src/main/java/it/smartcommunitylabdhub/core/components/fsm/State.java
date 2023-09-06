@@ -18,12 +18,12 @@ import java.util.Optional;
 public class State<S, E, C> {
     private Optional<StateLogic<S, E, C, ?>> internalLogic;
     private Map<E, Transaction<S, E, C>> transactions;
-    private Optional<C> context;
+    private Context<C> context;
 
     public State() {
-        this.internalLogic = Optional.empty();
-        this.transactions = new HashMap<>();
-        this.context = Optional.empty();
+        internalLogic = Optional.empty();
+        transactions = new HashMap<>();
+        context = new Context<C>(Optional.empty());
     }
 
     /**
@@ -31,7 +31,7 @@ public class State<S, E, C> {
      *
      * @param context The context to add.
      */
-    public void setContext(Optional<C> context) {
+    public void setContext(Context<C> context) {
         this.context = context;
     }
 
@@ -40,8 +40,8 @@ public class State<S, E, C> {
      * 
      * @return context The context of the state.
      */
-    public Optional<C> getContext() {
-        return this.context;
+    public Context<C> getContext() {
+        return context;
     }
 
     /**

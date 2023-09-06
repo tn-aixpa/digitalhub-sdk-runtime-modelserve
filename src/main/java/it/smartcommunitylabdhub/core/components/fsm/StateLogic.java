@@ -18,10 +18,9 @@ public interface StateLogic<S, E, C, T> {
     /**
      * Apply the internal logic of the state.
      *
-     * @param input        The input value to apply the logic on.
-     * @param context      The context for the state machine.
+     * @param c The context for the state machine.
      * @param stateMachine The state machine instance.
      * @return The optional result from applying the logic.
      */
-    Optional<T> applyLogic(Object input, C context, StateMachine<S, E, C> stateMachine);
+    Optional<T> applyLogic(C context, StateMachine<S, E, C> stateMachine);
 }

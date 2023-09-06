@@ -106,10 +106,11 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
 							.equals(RunState.valueOf(
 									status.get("state").toString().toUpperCase()))) {
 
-						String mlrunState = status.get("state").toString();
-						stateMachine.processEvent(Optional
-								.ofNullable(RunEvent.valueOf(mlrunState.toUpperCase()))
-								.orElseGet(() -> RunEvent.ERROR), Optional.empty());
+						stateMachine.goToState(
+								Optional.ofNullable(RunState.valueOf(
+										status.get("state").toString().toUpperCase()))
+										.orElseGet(
+												() -> RunState.ERROR));
 
 						// Update run state
 						runDTO.setState(stateMachine.getCurrentState().name());
@@ -233,7 +234,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
 		// Init run state machine considering current state and context.
 		StateMachine<RunState, RunEvent, Map<String, Object>> fsm = runStateMachine
 				.create(RunState.valueOf(runDTO.getState()), Map.of("runId", runDTO.getId()));
-		fsm.processEvent(RunEvent.BUILD, Optional.empty());
+		fsm.goToState(RunState.READY);
 
 		// Define workflow steps
 		return WorkflowFactory.builder().step(getRunUpdate, runUrl, runDTO, fsm).build();
