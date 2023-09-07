@@ -35,7 +35,7 @@ public class StateMachine<S, E, C> {
     private S currentState;
     private S errorState;
     private Map<S, State<S, E, C>> states;
-    private Map<E, BiConsumer<?, C>> eventListeners;
+    private Map<E, Consumer<C>> eventListeners;
     private BiConsumer<S, C> stateChangeListener;
     private HashMap<S, Consumer<Optional<C>>> entryActions;
     private HashMap<S, Consumer<Optional<C>>> exitActions;
@@ -79,7 +79,7 @@ public class StateMachine<S, E, C> {
         private S currentState;
         private S errorState;
         private Map<S, State<S, E, C>> states;
-        private Map<E, BiConsumer<?, C>> eventListeners;
+        private Map<E, Consumer<C>> eventListeners;
         private BiConsumer<S, C> stateChangeListener;
         private HashMap<S, Consumer<Optional<C>>> entryActions;
         private HashMap<S, Consumer<Optional<C>>> exitActions;
@@ -107,7 +107,7 @@ public class StateMachine<S, E, C> {
             return this;
         }
 
-        public <T> Builder<S, E, C> withEventListener(E eventName, BiConsumer<T, C> listener) {
+        public <T> Builder<S, E, C> withEventListener(E eventName, Consumer<C> listener) {
             eventListeners.put(eventName, listener);
             return this;
         }
@@ -117,11 +117,6 @@ public class StateMachine<S, E, C> {
             return this;
         }
 
-        public Builder<S, E, C> withExternalEventListener(E eventName,
-                Consumer<Optional<?>> listener) {
-            eventListeners.put(eventName, (input, ctx) -> listener.accept((Optional<?>) input));
-            return this;
-        }
 
         /**
          * Set the entry action for a specific state.
@@ -158,62 +153,23 @@ public class StateMachine<S, E, C> {
 
     }
 
-    /*
-     * @SuppressWarnings("unchecked")
-     * 
-     * @Synchronized public <T> Optional<T> processEvent(E eventName, Optional<?> input) { State<S,
-     * E, C> currentStateDefinition = states.get(currentState); if (currentStateDefinition == null)
-     * { throw new IllegalStateException( "Invalid current state: " + currentState + " : " +
-     * this.getUuid()); }
-     * 
-     * // Exit action of the current state for the specific event
-     * Optional.ofNullable(exitActions.get(currentState)) .ifPresent(action ->
-     * action.accept(context));
-     * 
-     * 
-     * Optional<Transaction<S, E, C>> matchingTransaction = Optional
-     * .ofNullable(currentStateDefinition.getTransactions().get(eventName));
-     * 
-     * if (matchingTransaction.isPresent()) { Transaction<S, E, C> transaction =
-     * matchingTransaction.get(); if (transaction.getGuard().test(input, context)) { S nextState =
-     * transaction.getNextState(); State<S, E, C> nextStateDefinition = states.get(nextState); if
-     * (nextStateDefinition == null) { throw new IllegalStateException( "Invalid next state: " +
-     * nextState + " : " + this.getUuid()); }
-     * 
-     * // Entry action of the next state for the specific event
-     * Optional.ofNullable(entryActions.get(nextState)) .ifPresent(action ->
-     * action.accept(context));
-     * 
-     * // Notify event listener notifyEventListeners(eventName, input.orElse(null));
-     * 
-     * // set new state currentState = nextState;
-     * 
-     * // Notify state change listener notifyStateChangeListener(currentState);
-     * 
-     * Optional<T> result = (Optional<T>) nextStateDefinition .getInternalLogic().map( internalFunc
-     * -> applyInternalFunc( (inputValue, contextValue, stateMachineValue) -> internalFunc
-     * .applyLogic(inputValue, contextValue, stateMachineValue), input.orElse(null))
-     * 
-     * ).orElse(Optional.empty());
-     * 
-     * return result; } else { log.info("Guard condition not met for transaction: " + transaction +
-     * " : " + this.getUuid()); // Handle error scenario return (Optional<T>)
-     * handleTransactionError(transaction, input); } } else {
-     * log.info("Invalid transaction for event: " + eventName + " : " + this.getUuid() + "\n" +
-     * "Current state : " + currentState.toString()); // Handle error scenario return (Optional<T>)
-     * handleInvalidTransactionError(eventName, input); } }
-     * 
-     * 
+    /**
+     * Transition the state machine to the specified target state following a valid path.
+     *
+     * This method attempts to transition the state machine to the target state by following a valid
+     * path of states. It performs the following steps: 1. Checks if a valid path exists from the
+     * current state to the target state. 2. Copies the state machine's context to the first state
+     * in the path. 3. Follows the path and for each state: a. Applies the internal logic of the
+     * target state. b. Executes the exit action of the current state. c. Executes the entry action
+     * of the next state. 4. Finally, copies the context to the target state.
+     *
+     * @param targetState The state to transition to.
+     * @param <T> The type of the result from applying the logic.
+     * @return An optional result from applying the logic of the target state, or empty if the path
+     *         is invalid.
      */
     @SuppressWarnings("unchecked")
-    // Modify the goToState method to follow valid paths
     public <T> Optional<T> goToState(S targetState) {
-        // State<S, E, C> currentStateDefinition = states.get(currentState);
-        // State<S, E, C> targetStateDefinition = states.get(targetState);
-
-        // if (currentStateDefinition == null || targetStateDefinition == null) {
-        // throw new IllegalArgumentException("Invalid current or target state.");
-        // }
 
         // Check if a valid path exists from the current state to the target state
         List<S> path = findPath(currentState, targetState);
@@ -269,22 +225,28 @@ public class StateMachine<S, E, C> {
                 }
 
 
+                // Retrieve the transition event dynamically
+                Optional<E> transitionEvent = stateDefinition.getTransitionEvent(nextState);
+
+                if (transitionEvent.isPresent()) {
+                    // Notify event listeners for the transition event
+                    notifyEventListeners(currentState, transitionEvent.get());
+                }
+
+
                 // Update the current state and notify state change listener
                 currentState = nextState;
 
+                // Notify listener for state changed
                 notifyStateChangeListener(currentState);
 
-                // execute entry action
+                // Execute entry action
                 Optional.ofNullable(entryActions.get(nextState))
                         .ifPresent(action -> action
                                 .accept(stateDefinition.getContext().getValue()));
 
             });
         }
-
-        // Copy the context to the target state
-        // targetStateDefinition.setContext(Optional.of(currentContext.get().copy()));
-
         return null;
     }
 
@@ -320,7 +282,17 @@ public class StateMachine<S, E, C> {
         }
     }
 
-    // Implement the findPath method to find a valid path using DFS
+    /**
+     * Find a path from the source state to the target state in the state machine.
+     *
+     * This method initiates a depth-first search (DFS) to explore the state machine's transitions
+     * and find a valid path from the source state to the target state.
+     *
+     * @param sourceState The starting state of the path.
+     * @param targetState The state to reach.
+     * @return A list of states representing a valid path from the source state to the target state,
+     *         or an empty list if no valid path is found.
+     */
     private List<S> findPath(S sourceState, S targetState) {
         Set<S> visited = new HashSet<>();
         LinkedList<S> path = new LinkedList<>();
@@ -335,7 +307,19 @@ public class StateMachine<S, E, C> {
         }
     }
 
-    // Recursive DFS function to find a path
+    /**
+     * Depth-First Search (DFS) function to find a path between two states in the state machine.
+     *
+     * This function explores the state machine's transitions in a depth-first manner to find a path
+     * from the current state to the target state.
+     *
+     * @param currentState The current state being explored.
+     * @param targetState The target state to reach.
+     * @param visited A set to keep track of visited states during the search.
+     * @param path A linked list to record the current path being explored.
+     * @return True if a valid path is found from the current state to the target state, otherwise
+     *         false.
+     */
     private boolean dfs(S currentState, S targetState, Set<S> visited, LinkedList<S> path) {
         // Mark the current state as visited and add it to the path
         visited.add(currentState);
@@ -355,6 +339,7 @@ public class StateMachine<S, E, C> {
 
             // Check if the next state in the transaction is unvisited
             if (!visited.contains(transaction.getNextState())) {
+
                 // Recursively search for a path from the next state to the target state
                 if (dfs(transaction.getNextState(), targetState, visited, path)) {
                     return true; // A valid path is found
@@ -369,15 +354,45 @@ public class StateMachine<S, E, C> {
 
 
 
+    /**
+     * Applies the internal logic associated with a state, allowing for customized handling of state
+     * transitions and updates to the state machine's context.
+     *
+     * @param stateLogic The state logic implementation to apply.
+     * @param state The current state for which the internal logic is executed.
+     * @param <T> The type of result returned by the state logic.
+     * @return An optional result obtained from applying the internal logic, or empty if not
+     *         applicable.
+     */
     private <T> Optional<T> applyInternalFunc(StateLogic<S, E, C, T> stateLogic, S state) {
         Optional<C> context = states.get(state).getContext().getValue();
         return stateLogic.applyLogic(context.orElse(null), this);
     }
 
 
+    /**
+     * Notifies the state change listener, if registered, about a state transition.
+     *
+     * @param newState The new state to which the state machine has transitioned.
+     */
     private void notifyStateChangeListener(S newState) {
         if (stateChangeListener != null) {
             stateChangeListener.accept(newState, initialContext.getValue().orElse(null));
+        }
+    }
+
+    /**
+     * Notifies event listeners, if registered, about an event associated with a state.
+     *
+     * @param state The current state from which the event is triggered.
+     * @param eventName The event name that occurred.
+     */
+    private <T> void notifyEventListeners(S state, E eventName) {
+        Optional<C> context = states.get(state).getContext().getValue();
+        Consumer<C> listener = (Consumer<C>) eventListeners.get(eventName);
+        if (listener != null) {
+            listener.accept(context.orElse(null));
+
         }
     }
 }

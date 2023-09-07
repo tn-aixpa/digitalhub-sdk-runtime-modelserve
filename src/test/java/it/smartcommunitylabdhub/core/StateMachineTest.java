@@ -106,14 +106,14 @@ public class StateMachineTest {
                 });
 
                 // Add event listeners
-                builder.withEventListener("Event1", (input, context) -> System.out
-                                .println("Event1 Listener: " + input + ", context: " + context));
-                builder.withEventListener("Event2", (input, context) -> System.out
-                                .println("Event2 Listener: " + input + ", context: " + context));
-                builder.withEventListener("Event3", (input, context) -> System.out
-                                .println("Event3 Listener: " + input + ", context: " + context));
-                builder.withEventListener("Event4", (input, context) -> System.out
-                                .println("Event4 Listener: " + input + ", context: " + context));
+                builder.withEventListener("Event1", (context) -> System.out
+                                .println("Event1 Listener: context: " + context));
+                builder.withEventListener("Event2", (context) -> System.out
+                                .println("Event2 Listener: context: " + context));
+                builder.withEventListener("Event3", (context) -> System.out
+                                .println("Event3 Listener: context: " + context));
+                builder.withEventListener("Event4", (context) -> System.out
+                                .println("Event4 Listener: context: " + context));
 
                 builder.withExitAction("State1",
                                 (context) -> {

@@ -16,16 +16,13 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class k8sEventListener {
 
-    private final EventProcessor eventProcessor;
     private final Optional<KubernetesClient> kubernetesClient;
 
     private Watch watchEvents;
     private Watch watchService;
 
 
-    public k8sEventListener(EventProcessor eventProcessor,
-            Optional<KubernetesClient> kubernetesClient) {
-        this.eventProcessor = eventProcessor;
+    public k8sEventListener(Optional<KubernetesClient> kubernetesClient) {
         this.kubernetesClient = kubernetesClient;
     }
 

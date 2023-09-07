@@ -82,4 +82,22 @@ public class State<S, E, C> {
         return transactions;
     }
 
+
+    /**
+     * Retrieves the transition event associated with a given next state.
+     *
+     * @param nextState The next state for which to retrieve the transition event.
+     * @return An Optional containing the transition event if found, or an empty Optional if not
+     *         found.
+     */
+    public Optional<E> getTransitionEvent(S nextState) {
+        // Iterate over the transitions to find the event associated with the next state
+        for (Map.Entry<E, Transaction<S, E, C>> entry : transactions.entrySet()) {
+            if (entry.getValue().getNextState().equals(nextState)) {
+                return Optional.of(entry.getKey()); // Found the matching event
+            }
+        }
+        return Optional.empty(); // No matching event found
+    }
+
 }
