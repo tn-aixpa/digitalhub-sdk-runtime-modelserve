@@ -13,38 +13,39 @@
 package it.smartcommunitylabdhub.core.components.fsm;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
 
 @Getter
 @Setter
-@Log4j2
 public class StateMachine<S, E, C> {
     private String uuid;
     private S currentState;
     private S errorState;
-    private Map<S, State<S, E, C>> states;
-    private Map<E, Consumer<C>> eventListeners;
+    private ConcurrentHashMap<S, State<S, E, C>> states;
+    private ConcurrentHashMap<E, Consumer<C>> eventListeners;
     private BiConsumer<S, C> stateChangeListener;
-    private HashMap<S, Consumer<Optional<C>>> entryActions;
-    private HashMap<S, Consumer<Optional<C>>> exitActions;
+    private ConcurrentHashMap<S, Consumer<Optional<C>>> entryActions;
+    private ConcurrentHashMap<S, Consumer<Optional<C>>> exitActions;
     private Context<C> initialContext;
+    private ReentrantLock stateLock;
 
     /**
      * Default constructor to create an empty StateMachine.
      */
-    public StateMachine() {}
+    public StateMachine() {
+        this.stateLock = new ReentrantLock();
+    }
 
     /**
      * Constructor to create a StateMachine with the initial state and context.
@@ -55,12 +56,14 @@ public class StateMachine<S, E, C> {
     public StateMachine(S initialState, Context<C> initialContext) {
         this.uuid = UUID.randomUUID().toString();
         this.currentState = initialState;
-        this.errorState = null;
-        this.states = new HashMap<>();
-        this.eventListeners = new HashMap<>();
-        this.entryActions = new HashMap<>();
-        this.exitActions = new HashMap<>();
         this.initialContext = initialContext;
+        this.errorState = null;
+        this.states = new ConcurrentHashMap<>();
+        this.eventListeners = new ConcurrentHashMap<>();
+        this.entryActions = new ConcurrentHashMap<>();
+        this.exitActions = new ConcurrentHashMap<>();
+        this.stateLock = new ReentrantLock();
+
     }
 
     /**
@@ -78,27 +81,44 @@ public class StateMachine<S, E, C> {
     public static class Builder<S, E, C> {
         private S currentState;
         private S errorState;
-        private Map<S, State<S, E, C>> states;
-        private Map<E, Consumer<C>> eventListeners;
+        private ConcurrentHashMap<S, State<S, E, C>> states;
+        private ConcurrentHashMap<E, Consumer<C>> eventListeners;
         private BiConsumer<S, C> stateChangeListener;
-        private HashMap<S, Consumer<Optional<C>>> entryActions;
-        private HashMap<S, Consumer<Optional<C>>> exitActions;
+        private ConcurrentHashMap<S, Consumer<Optional<C>>> entryActions;
+        private ConcurrentHashMap<S, Consumer<Optional<C>>> exitActions;
         private Context<C> initialContext;
+        private ReentrantLock stateLock;
 
         public Builder(S initialState, Optional<C> initialContext) {
             this.currentState = initialState;
             this.initialContext = new Context<C>(initialContext);
-            this.states = new HashMap<>();
-            this.eventListeners = new HashMap<>();
-            this.entryActions = new HashMap<>();
-            this.exitActions = new HashMap<>();
+            this.states = new ConcurrentHashMap<>();
+            this.eventListeners = new ConcurrentHashMap<>();
+            this.entryActions = new ConcurrentHashMap<>();
+            this.exitActions = new ConcurrentHashMap<>();
+            this.stateLock = new ReentrantLock();
         }
 
+        /**
+         * Adds a state and its definition to the builder's configuration.
+         *
+         * @param state The state to add.
+         * @param stateDefinition The definition of the state.
+         * @return This builder instance, allowing for method chaining.
+         */
         public Builder<S, E, C> withState(S state, State<S, E, C> stateDefinition) {
             states.put(state, stateDefinition);
             return this;
         }
 
+        /**
+         * Sets the error state and its definition in the builder's configuration. If the error
+         * state doesn't exist in the states map, it will be added.
+         *
+         * @param errorState The error state to set.
+         * @param stateDefinition The definition of the error state.
+         * @return This builder instance, allowing for method chaining.
+         */
         public Builder<S, E, C> withErrorState(S errorState, State<S, E, C> stateDefinition) {
             this.errorState = errorState;
 
@@ -107,11 +127,24 @@ public class StateMachine<S, E, C> {
             return this;
         }
 
+        /**
+         * Adds an event listener to the builder's configuration.
+         *
+         * @param eventName The name of the event to listen for.
+         * @param listener The listener to handle the event.
+         * @return This builder instance, allowing for method chaining.
+         */
         public <T> Builder<S, E, C> withEventListener(E eventName, Consumer<C> listener) {
             eventListeners.put(eventName, listener);
             return this;
         }
 
+        /**
+         * Sets the state change listener for the builder's configuration.
+         *
+         * @param listener The listener to be notified when the state changes.
+         * @return This builder instance, allowing for method chaining.
+         */
         public Builder<S, E, C> withStateChangeListener(BiConsumer<S, C> listener) {
             stateChangeListener = listener;
             return this;
@@ -148,6 +181,7 @@ public class StateMachine<S, E, C> {
             stateMachine.stateChangeListener = stateChangeListener;
             stateMachine.entryActions = entryActions;
             stateMachine.exitActions = exitActions;
+            stateMachine.stateLock = stateLock;
             return stateMachine;
         }
 
@@ -169,116 +203,131 @@ public class StateMachine<S, E, C> {
      *         is invalid.
      */
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> goToState(S targetState) {
+    public <T> void goToState(S targetState) {
 
-        // Check if a valid path exists from the current state to the target state
-        List<S> path = findPath(currentState, targetState);
-        if (path.isEmpty()) {
-            // No valid path exists; transition to the error state
-            return goToErrorState();
-        }
-
-        // Copy State Machine context to first state
+        stateLock.lock();
         try {
-            states.get(currentState).setContext((Context<C>) initialContext.clone());
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+            // Check if a valid path exists from the current state to the target state
+            List<S> path = findPath(currentState, targetState);
+            if (path.isEmpty()) {
 
-        // Follow the path
-        // 1. apply internal logic
-        // 2. execute exit action
-        // 3. execute entry action of the current state.
-        for (int i = 0; i < path.size() - 1; i++) {
-
-            // Get state definition
-            S stateInPath = path.get(i);
-            State<S, E, C> stateDefinition = states.get(stateInPath);
-
-            // Apply internal logic of the target state
-            stateDefinition.getInternalLogic()
-                    .map(internalFunc -> applyInternalFunc(
-                            (contextStateValue, stateMachineValue) -> internalFunc.applyLogic(
-                                    contextStateValue,
-                                    stateMachineValue),
-                            currentState)) // Optional.empty() because no input is provided
-                    .orElse(Optional.empty());
-
-
-
-            // execute exit action
-            Consumer<Optional<C>> exitAction = exitActions.get(stateInPath);
-            if (exitAction != null) {
-                exitAction.accept(stateDefinition.getContext().getValue());
+                // No valid path exists; transition to the error state
+                goToErrorState();
             }
 
-            // Get next state if exist and execute logic
-
-            Optional.ofNullable(path.get(i + 1)).ifPresent(nextState -> {
-
-                // Copy state machine context to next state if present otherwise set to null
-                try {
-                    states.get(nextState)
-                            .setContext((Context<C>) states.get(currentState).getContext().clone());
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-
-
-                // Retrieve the transition event dynamically
-                Optional<E> transitionEvent = stateDefinition.getTransitionEvent(nextState);
-
-                if (transitionEvent.isPresent()) {
-                    // Notify event listeners for the transition event
-                    notifyEventListeners(currentState, transitionEvent.get());
-                }
-
-
-                // Update the current state and notify state change listener
-                currentState = nextState;
-
-                // Notify listener for state changed
-                notifyStateChangeListener(currentState);
-
-                // Execute entry action
-                Optional.ofNullable(entryActions.get(nextState))
-                        .ifPresent(action -> action
-                                .accept(stateDefinition.getContext().getValue()));
-
-            });
-        }
-        return null;
-    }
-
-
-
-    @SuppressWarnings("unchecked")
-    // Implement the goToErrorState method to transition to the error state
-    private <T> Optional<T> goToErrorState() {
-        if (errorState != null) {
+            // Copy State Machine context to first state
             try {
-                states.get(errorState)
-                        .setContext((Context<C>) states.get(currentState).getContext().clone());
+                states.get(currentState).setContext((Context<C>) initialContext.clone());
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
-            currentState = errorState;
-            State<S, E, C> errorStateDefinition = states.get(errorState);
-            if (errorStateDefinition != null) {
-                // Execute error logic
-                return (Optional<T>) errorStateDefinition.getInternalLogic()
+
+            // Follow the path
+            // 1. apply internal logic
+            // 2. execute exit action
+            // 3. execute entry action of the current state.
+            for (int i = 0; i < path.size() - 1; i++) {
+
+                // Get state definition
+                S stateInPath = path.get(i);
+                State<S, E, C> stateDefinition = states.get(stateInPath);
+
+                // Apply internal logic of the target state
+                stateDefinition.getInternalLogic()
                         .map(internalFunc -> applyInternalFunc(
                                 (contextStateValue, stateMachineValue) -> internalFunc.applyLogic(
                                         contextStateValue,
                                         stateMachineValue),
                                 currentState)) // Optional.empty() because no input is provided
                         .orElse(Optional.empty());
-            } else {
-                throw new IllegalStateException(
-                        "Invalid error state: " + errorState + " : " + this.getUuid());
+
+
+
+                // execute exit action
+                Consumer<Optional<C>> exitAction = exitActions.get(stateInPath);
+                if (exitAction != null) {
+                    exitAction.accept(stateDefinition.getContext().getValue());
+                }
+
+                // Get next state if exist and execute logic
+
+                Optional.ofNullable(path.get(i + 1)).ifPresent(nextState -> {
+
+                    // Copy state machine context to next state if present otherwise set to null
+                    try {
+                        states.get(nextState)
+                                .setContext(
+                                        (Context<C>) states.get(currentState).getContext().clone());
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    // Retrieve the transition event dynamically
+                    Optional<E> transitionEvent = stateDefinition.getTransitionEvent(nextState);
+
+                    if (transitionEvent.isPresent()) {
+                        // Notify event listeners for the transition event
+                        notifyEventListeners(currentState, transitionEvent.get());
+                    }
+
+
+                    // Update the current state and notify state change listener
+                    currentState = nextState;
+
+                    // Notify listener for state changed
+                    notifyStateChangeListener(currentState);
+
+                    // Execute entry action
+                    Optional.ofNullable(entryActions.get(nextState))
+                            .ifPresent(action -> action
+                                    .accept(stateDefinition.getContext().getValue()));
+
+                });
             }
-        } else {
-            throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
+        } finally {
+            stateLock.unlock();
+        }
+    }
+
+
+
+    @SuppressWarnings("unchecked")
+    // Implement the goToErrorState method to transition to the error state
+    private <T> void goToErrorState() {
+
+        // Lock access to errorState
+        stateLock.lock();
+        try {
+            if (errorState != null) {
+                try {
+                    states.get(errorState)
+                            .setContext((Context<C>) states.get(currentState).getContext().clone());
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+                currentState = errorState;
+                State<S, E, C> errorStateDefinition = states.get(errorState);
+                if (errorStateDefinition != null) {
+                    // Execute error logic
+                    errorStateDefinition.getInternalLogic()
+                            .map(internalFunc -> applyInternalFunc(
+                                    (contextStateValue, stateMachineValue) -> internalFunc
+                                            .applyLogic(
+                                                    contextStateValue,
+                                                    stateMachineValue),
+                                    currentState)) // Optional.empty() because no input is provided
+                            .orElse(Optional.empty());
+                } else {
+                    throw new IllegalStateException(
+                            "Invalid error state: " + errorState + " : " + this.getUuid());
+                }
+            } else {
+                throw new IllegalStateException("Error state not set" + " : " + this.getUuid());
+            }
+
+        } finally {
+            stateLock.unlock();
         }
     }
 

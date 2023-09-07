@@ -1,9 +1,10 @@
 package it.smartcommunitylabdhub.core.components.fsm;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 /** Context class */
-public class Context<C> implements Cloneable {
+public class Context<C> implements Cloneable, Serializable {
 	Optional<C> value;
 
 	public Context(Optional<C> context) {
