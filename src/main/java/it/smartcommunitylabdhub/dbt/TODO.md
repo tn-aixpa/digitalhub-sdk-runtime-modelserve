@@ -11,7 +11,7 @@ LEGGERE I DATI DAL BACKEND
 
 - [x] creare i log della run prendendoli da kubernetes
   - [x] da capire se vanno inseriti i log che mostro tramite lo script python o no.
-- TODO: dovrei creare per la run una state machine per passare da uno stato all'altro
+- [x] dovrei creare per la run una state machine per passare da uno stato all'altro
 
 - [x] aggiornare lo state della run monitorando gli Eventi di kuberntesClient
 
@@ -28,7 +28,7 @@ LEGGERE I DATI DAL BACKEND
 
 - [x]: processEvent deve esser sincronized.( in ogni caso non funziona )
 
-TODO: delete isAuto in StateMachine
+- [x] delete isAuto in StateMachine
 
 -[x] spostare la logica di exit e entry action dallo stato alla StateMachine come mappa di conseguenza quando ho sono in uno stato ed esco ad esempio controllo la mappa delle exit action con quello stato e se presente la eseguo
 
