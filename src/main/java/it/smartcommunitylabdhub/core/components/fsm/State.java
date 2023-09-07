@@ -18,30 +18,10 @@ import java.util.Optional;
 public class State<S, E, C> {
     private Optional<StateLogic<S, E, C, ?>> internalLogic;
     private Map<E, Transaction<S, E, C>> transactions;
-    private Context<C> context;
 
     public State() {
         internalLogic = Optional.empty();
         transactions = new HashMap<>();
-        context = new Context<C>(Optional.empty());
-    }
-
-    /**
-     * Add a context associated with this state.
-     *
-     * @param context The context to add.
-     */
-    public void setContext(Context<C> context) {
-        this.context = context;
-    }
-
-    /**
-     * Return an optionl context of the state
-     * 
-     * @return context The context of the state.
-     */
-    public Context<C> getContext() {
-        return context;
     }
 
     /**

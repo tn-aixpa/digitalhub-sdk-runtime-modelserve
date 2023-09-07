@@ -47,22 +47,22 @@ public class StateMachineTest {
                 // Define transactions for state 1
                 state1.addTransaction(
                                 new Transaction<>("Event1", "State2",
-                                                (input, context) -> input.isPresent()));
+                                                (context) -> true));
 
                 // Define transactions for state 2
                 state2.addTransaction(
                                 new Transaction<>("Event2", "State3",
-                                                (input, context) -> input.isPresent()));
+                                                (context) -> true));
 
                 // Define transactions for state 3
                 state3.addTransaction(
                                 new Transaction<>("Event3", "State4",
-                                                (input, context) -> input.isPresent()));
+                                                (context) -> true));
 
                 // Define transactions for state 4
                 state4.addTransaction(
                                 new Transaction<>("Event4", "State1",
-                                                (input, context) -> input.isPresent()));
+                                                (context) -> true));
 
                 // Set internal logic for state 1
                 state1.setInternalLogic((context, stateMachine) -> {
@@ -123,11 +123,10 @@ public class StateMachineTest {
                 // Build the state machine
                 StateMachine<String, String, Map<String, Object>> stateMachine = builder.build();
 
-
                 // Trigger events to test the state machine
                 stateMachine.goToState("State2");
                 stateMachine.goToState("State3");
-                stateMachine.goToState("State6");
+                stateMachine.goToState("State4");
 
                 // try {
                 // String ser = stateMachine.serialize();

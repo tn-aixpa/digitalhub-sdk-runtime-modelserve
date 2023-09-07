@@ -11,15 +11,14 @@
 
 package it.smartcommunitylabdhub.core.components.fsm;
 
-import java.util.Optional;
-import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class Transaction<S, E, C> {
     private E event;
     private S nextState;
-    private BiPredicate<Optional<?>, C> guard;
+    private Predicate<C> guard;
 
-    public Transaction(E event, S nextState, BiPredicate<Optional<?>, C> guard) {
+    public Transaction(E event, S nextState, Predicate<C> guard) {
         this.event = event;
         this.nextState = nextState;
         this.guard = guard;
@@ -48,7 +47,7 @@ public class Transaction<S, E, C> {
      *
      * @return The guard function.
      */
-    public BiPredicate<Optional<?>, C> getGuard() {
+    public Predicate<C> getGuard() {
         return guard;
     }
 }

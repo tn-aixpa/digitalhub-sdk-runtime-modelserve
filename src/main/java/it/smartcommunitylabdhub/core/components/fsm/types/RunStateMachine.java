@@ -53,22 +53,22 @@ public class RunStateMachine {
 
                 createState.addTransaction(
                                 new Transaction<>(RunEvent.BUILD, RunState.READY,
-                                                (input, context) -> true));
+                                                (context) -> true));
 
                 readyState.addTransaction(
                                 new Transaction<>(RunEvent.RUNNING, RunState.RUNNING,
-                                                (input, context) -> true));
+                                                (context) -> true));
 
                 readyState.addTransaction(
                                 new Transaction<>(RunEvent.PENDING, RunState.READY,
-                                                (input, context) -> true));
+                                                (context) -> true));
 
                 readyState.addTransaction(new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
-                                (input, context) -> true));
+                                (context) -> true));
 
                 runningState.addTransaction(
                                 new Transaction<>(RunEvent.COMPLETED, RunState.COMPLETED,
-                                                (input, context) -> true));
+                                                (context) -> true));
 
                 // Configure the StateMachine with the defined states and transitions
                 builder.withState(RunState.CREATED, createState)
