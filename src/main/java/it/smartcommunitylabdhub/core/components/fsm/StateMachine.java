@@ -20,14 +20,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
 @Getter
 @Setter
+@Log4j2
 public class StateMachine<S, E, C> {
     private String uuid;
     private S currentState;
@@ -38,14 +41,12 @@ public class StateMachine<S, E, C> {
     private ConcurrentHashMap<S, Consumer<Optional<C>>> entryActions;
     private ConcurrentHashMap<S, Consumer<Optional<C>>> exitActions;
     private Context<C> context;
-    private ReentrantLock stateLock;
+    private final ReentrantLock stateLock = new ReentrantLock();
 
     /**
      * Default constructor to create an empty StateMachine.
      */
-    public StateMachine() {
-        this.stateLock = new ReentrantLock();
-    }
+    public StateMachine() {}
 
     /**
      * Constructor to create a StateMachine with the initial state and context.
@@ -62,8 +63,6 @@ public class StateMachine<S, E, C> {
         this.eventListeners = new ConcurrentHashMap<>();
         this.entryActions = new ConcurrentHashMap<>();
         this.exitActions = new ConcurrentHashMap<>();
-        this.stateLock = new ReentrantLock();
-
     }
 
     /**
@@ -87,7 +86,6 @@ public class StateMachine<S, E, C> {
         private ConcurrentHashMap<S, Consumer<Optional<C>>> entryActions;
         private ConcurrentHashMap<S, Consumer<Optional<C>>> exitActions;
         private Context<C> initialContext;
-        private ReentrantLock stateLock;
 
         public Builder(S initialState, Optional<C> initialContext) {
             this.currentState = initialState;
@@ -96,7 +94,6 @@ public class StateMachine<S, E, C> {
             this.eventListeners = new ConcurrentHashMap<>();
             this.entryActions = new ConcurrentHashMap<>();
             this.exitActions = new ConcurrentHashMap<>();
-            this.stateLock = new ReentrantLock();
         }
 
         /**
@@ -181,7 +178,6 @@ public class StateMachine<S, E, C> {
             stateMachine.stateChangeListener = stateChangeListener;
             stateMachine.entryActions = entryActions;
             stateMachine.exitActions = exitActions;
-            stateMachine.stateLock = stateLock;
             return stateMachine;
         }
 
@@ -200,74 +196,80 @@ public class StateMachine<S, E, C> {
      * @param <T> The type of the result from applying the logic.
      * @return An optional result from applying the logic of the target state, or empty if the path
      *         is invalid.
+     * @throws InterruptedException
      */
     public <T> void goToState(S targetState) {
 
-        stateLock.lock();
-        try {
-            // Check if a valid path exists from the current state to the target state
-            List<S> path = findPath(currentState, targetState);
-            if (path.isEmpty()) {
-                // No valid path exists; transition to the error state
-                goToErrorState();
-            }
-
-            // Follow the path
-            // 1. apply internal logic
-            // 2. execute exit action
-            // 3. execute entry action of the current state.
-            for (int i = 0; i < path.size() - 1; i++) {
-
-                // Get state definition
-                S stateInPath = path.get(i);
-                State<S, E, C> stateDefinition = states.get(stateInPath);
-
-                // Apply internal logic of the target state
-                stateDefinition.getInternalLogic()
-                        .map(internalFunc -> applyInternalFunc(
-                                (contextStateValue, stateMachineValue) -> internalFunc.applyLogic(
-                                        contextStateValue,
-                                        stateMachineValue)))
-                        // Optional.empty() because no input is provided
-                        .orElse(Optional.empty());
-
-
-                // execute exit action
-                Consumer<Optional<C>> exitAction = exitActions.get(stateInPath);
-                if (exitAction != null) {
-                    exitAction.accept(context.getValue());
-                }
-
-                // Get next state if exist and execute logic
-
-                Optional.ofNullable(path.get(i + 1)).ifPresent(nextState -> {
-
-
-                    // Retrieve the transition event dynamically
-                    Optional<E> transitionEvent = stateDefinition.getTransitionEvent(nextState);
-
-                    if (transitionEvent.isPresent()) {
-                        // Notify event listeners for the transition event
-                        notifyEventListeners(currentState, transitionEvent.get());
+        acquireLock().ifPresent(lockAcquired -> {
+            if (lockAcquired) {
+                try {
+                    // Check if a valid path exists from the current state to the target state
+                    List<S> path = findPath(currentState, targetState);
+                    if (path.isEmpty()) {
+                        // No valid path exists; transition to the error state
+                        goToErrorState();
                     }
 
+                    // Follow the path
+                    // 1. apply internal logic
+                    // 2. execute exit action
+                    // 3. execute entry action of the current state.
+                    for (int i = 0; i < path.size() - 1; i++) {
 
-                    // Update the current state and notify state change listener
-                    currentState = nextState;
+                        // Get state definition
+                        S stateInPath = path.get(i);
+                        State<S, E, C> stateDefinition = states.get(stateInPath);
 
-                    // Notify listener for state changed
-                    notifyStateChangeListener(currentState);
+                        // Apply internal logic of the target state
+                        stateDefinition.getInternalLogic()
+                                .map(internalFunc -> applyInternalFunc(
+                                        (contextStateValue, stateMachineValue) -> internalFunc
+                                                .applyLogic(
+                                                        contextStateValue,
+                                                        stateMachineValue)))
+                                // Optional.empty() because no input is provided
+                                .orElse(Optional.empty());
 
-                    // Execute entry action
-                    Optional.ofNullable(entryActions.get(nextState))
-                            .ifPresent(action -> action
-                                    .accept(context.getValue()));
 
-                });
+                        // execute exit action
+                        Consumer<Optional<C>> exitAction = exitActions.get(stateInPath);
+                        if (exitAction != null) {
+                            exitAction.accept(context.getValue());
+                        }
+
+                        // Get next state if exist and execute logic
+
+                        Optional.ofNullable(path.get(i + 1)).ifPresent(nextState -> {
+
+
+                            // Retrieve the transition event dynamically
+                            Optional<E> transitionEvent =
+                                    stateDefinition.getTransitionEvent(nextState);
+
+                            if (transitionEvent.isPresent()) {
+                                // Notify event listeners for the transition event
+                                notifyEventListeners(currentState, transitionEvent.get());
+                            }
+
+
+                            // Update the current state and notify state change listener
+                            currentState = nextState;
+
+                            // Notify listener for state changed
+                            notifyStateChangeListener(currentState);
+
+                            // Execute entry action
+                            Optional.ofNullable(entryActions.get(nextState))
+                                    .ifPresent(action -> action
+                                            .accept(context.getValue()));
+
+                        });
+                    }
+                } finally {
+                    stateLock.unlock();
+                }
             }
-        } finally {
-            stateLock.unlock();
-        }
+        });
     }
 
 
@@ -437,4 +439,24 @@ public class StateMachine<S, E, C> {
 
         }
     }
+
+
+    /**
+     * Attempt to acquire a lock with a timeout.
+     *
+     * @return An {@code Optional<Boolean>} representing the lock acquisition result. If the lock is
+     *         acquired successfully, it contains {@code true}; otherwise, it contains
+     *         {@code false}.
+     */
+    private Optional<Boolean> acquireLock() {
+        try {
+            boolean lockAcquired = stateLock.tryLock(10L, TimeUnit.MINUTES);
+            return Optional.of(lockAcquired); // Return Optional with lock acquisition result.
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+            return Optional.empty(); // Return Optional.empty() in case of an interruption or
+                                     // exception.
+        }
+    }
+
 }

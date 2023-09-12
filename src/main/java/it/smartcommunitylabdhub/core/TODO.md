@@ -1,5 +1,5 @@
-- La run puo avere un parametro local = True o False,
-  nel caso di True costruisco la run e ritorno direttamente la run sara' poi a carico del SDK lanciare la Run e chiamare un Patch per aggiornare la run.
+- [x] La run puo avere un parametro local = True o False,
+      nel caso di True costruisco la run e ritorno direttamente la run sara' poi a carico del SDK lanciare la Run e chiamare un Patch per aggiornare la run.
 
 =================================================================================
 ================================= ROBA VECCHIA ==================================
