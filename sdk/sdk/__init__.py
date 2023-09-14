@@ -18,6 +18,7 @@ from sdk.entities.dataitem.crud import (
 from sdk.entities.function.crud import (
     delete_function,
     get_function,
+    get_function_from_task,
     import_function,
     new_function,
 )
@@ -63,6 +64,7 @@ __all__ = [
     "get_function",
     "delete_function",
     "import_function",
+    "get_function_from_task",
     "new_artifact",
     "get_artifact",
     "delete_artifact",

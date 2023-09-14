@@ -157,6 +157,25 @@ def get_function(project: str, name: str, uuid: str | None = None) -> Function:
     return function_from_dict(obj)
 
 
+def get_function_from_task(task: str) -> Function:
+    """
+    Get object from task.
+
+    Parameters
+    ----------
+    task : str
+        The task string.
+
+    Returns
+    -------
+    Function
+        Object instance.
+    """
+    splitted = task.split("/")
+    project = splitted[1]
+    fnc_name, fnc_version = splitted[-1].split(":")
+    return get_function(project, fnc_name, uuid=fnc_version)
+
 def import_function(file: str) -> Function:
     """
     Get object from file.
