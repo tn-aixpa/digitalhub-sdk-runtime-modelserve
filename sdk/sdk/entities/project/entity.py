@@ -109,7 +109,6 @@ class Project(Entity):
         state: State | None = None,
         local: bool = False,
         uuid: str | None = None,
-        **kwargs,
     ) -> None:
         """
         Initialize the Project instance.
@@ -134,9 +133,6 @@ class Project(Entity):
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
-
-        # Set new attributes
-        self._any_setter(**kwargs)
 
         # Private attributes
         self._local = local
@@ -774,7 +770,6 @@ class Project(Entity):
 
         return {
             "name": name,
-            "kind": kind,
             "uuid": uuid,
             "metadata": metadata,
             "spec": spec,
@@ -790,6 +785,7 @@ def project_from_parameters(
     source: str = "",
     local: bool = False,
     uuid: str | None = None,
+    **kwargs,
 ) -> Project:
     """
     Create project.
@@ -810,6 +806,8 @@ def project_from_parameters(
         Flag to determine if object will be exported to backend.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -817,7 +815,7 @@ def project_from_parameters(
         Project object.
     """
     meta = build_metadata(name=name, description=description)
-    spec = build_spec(kind, context=context, source=source)
+    spec = build_spec(kind, context=context, source=source, **kwargs)
     return Project(
         name=name,
         kind=kind,

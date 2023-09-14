@@ -36,7 +36,6 @@ class Run(Entity):
         state: State | None = None,
         local: bool = False,
         uuid: str | None = None,
-        **kwargs,
     ) -> None:
         """
         Initialize the Run instance.
@@ -65,9 +64,6 @@ class Run(Entity):
         self.status = {}
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
-
-        # Set new attributes
-        self._any_setter(**kwargs)
 
         # Private attributes
         self._local = local
@@ -339,7 +335,6 @@ class Run(Entity):
             "project": project,
             "task_id": task_id,
             "task": task,
-            "kind": kind,
             "uuid": uuid,
             "spec": spec,
             "state": state,
@@ -356,6 +351,7 @@ def run_from_parameters(
     parameters: dict | None = None,
     local_execution: bool = False,
     local: bool = False,
+    **kwargs,
 ) -> Run:
     """
     Create run.
@@ -382,6 +378,8 @@ def run_from_parameters(
         Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -394,12 +392,12 @@ def run_from_parameters(
         outputs=outputs,
         parameters=parameters,
         local_execution=local_execution,
+        **kwargs,
     )
     return Run(
         project=project,
         task_id=task_id,
         task=task,
-        kind=kind,
         spec=spec,
         local=local,
     )

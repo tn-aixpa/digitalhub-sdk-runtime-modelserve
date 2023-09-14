@@ -41,7 +41,6 @@ class Dataitem(Entity):
         local: bool = False,
         embedded: bool = True,
         uuid: str | None = None,
-        **kwargs,
     ) -> None:
         """
         Initialize the Dataitem instance.
@@ -66,8 +65,6 @@ class Dataitem(Entity):
             If True, export locally.
         embedded: bool
             If True, embed object in backend.
-        **kwargs
-            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -78,9 +75,6 @@ class Dataitem(Entity):
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
         self.embedded = embedded
-
-        # Set new attributes
-        self._any_setter(**kwargs)
 
         # Private attributes
         self._local = local
@@ -211,7 +205,10 @@ class Dataitem(Entity):
         str
             Path to the written dataframe.
         """
-        store = get_default_store()
+        if target_path is None:
+            store = get_default_store()
+        else:
+            store = get_store(target_path)
         return store.write_df(df, target_path, **kwargs)
 
     #############################
@@ -368,7 +365,7 @@ def dataitem_from_parameters(
     local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
-    **kwargs
+    **kwargs,
 ) -> Dataitem:
     """
     Create a new object instance.

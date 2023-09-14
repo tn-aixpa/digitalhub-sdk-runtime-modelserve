@@ -153,6 +153,10 @@ class DBTRuntime(Runtime):
         except Exception as e:
             raise RuntimeError("Something got wrong during run update") from e
 
+    ####################
+    # Parse inputs
+    ####################
+
     def materialize_inputs(self, inputs: list) -> None:
         """
         Materialize inputs in postgres.
@@ -174,8 +178,8 @@ class DBTRuntime(Runtime):
                     f"Dataitem {name} not found in project {self.project_name}"
                 )
             df = di.as_df()
-            db = os.getenv("POSTGRES_DB", "dbt")
-            schema = os.getenv("POSTGRES_SCHEMA", "public")
+            db = os.getenv("POSTGRES_DB")
+            schema = os.getenv("POSTGRES_SCHEMA")
             target_path = f"sql://postgres/{db}/{schema}/{name}_v{di.id}"
             di.write_df(df, target_path, if_exists="replace")
 

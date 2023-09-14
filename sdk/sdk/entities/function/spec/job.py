@@ -31,14 +31,7 @@ class FunctionSpecJob(FunctionSpec):
         requirements : list
             List of requirements for the Function.
         """
-        super().__init__(
-            source,
-            image,
-            tag,
-            handler,
-            command,
-            **kwargs,
-        )
+        super().__init__(source, image, tag, handler, command, **kwargs)
         if source is None:
             raise EntityError("Source must be provided.")
 

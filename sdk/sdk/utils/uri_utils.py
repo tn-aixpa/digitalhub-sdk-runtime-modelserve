@@ -173,9 +173,9 @@ def map_uri_scheme(uri: str) -> str:
         If the scheme is unknown.
     """
     scheme = get_uri_scheme(uri)
-    if scheme in ["", "file"]:
+    if scheme in ["", "file", "local"]:
         return "local"
-    if scheme in ["http", "https"]:
+    if scheme in ["http", "https", "remote"]:
         return "remote"
     if scheme in ["s3", "s3a", "s3n"]:
         return "s3"

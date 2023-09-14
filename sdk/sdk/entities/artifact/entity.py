@@ -39,7 +39,6 @@ class Artifact(Entity):
         state: State | None = None,
         local: bool = False,
         embedded: bool = True,
-        **kwargs,
     ) -> None:
         """
         Initialize the Artifact instance.
@@ -64,8 +63,6 @@ class Artifact(Entity):
             If True, export locally.
         embedded: bool
             If True, embed object in backend.
-        **kwargs
-            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -76,9 +73,6 @@ class Artifact(Entity):
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
         self.embedded = embedded
-
-        # Set new attributes
-        self._any_setter(**kwargs)
 
         # Private attributes
         self._local = local
@@ -446,6 +440,7 @@ def artifact_from_parameters(
     local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
+    **kwargs,
 ) -> Artifact:
     """
     Create artifact.
@@ -472,6 +467,8 @@ def artifact_from_parameters(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -479,7 +476,9 @@ def artifact_from_parameters(
         Artifact object.
     """
     meta = build_metadata(name=name, description=description)
-    spec = build_spec(kind, key=key, src_path=src_path, target_path=target_path)
+    spec = build_spec(
+        kind, key=key, src_path=src_path, target_path=target_path, **kwargs
+    )
     return Artifact(
         project=project,
         name=name,

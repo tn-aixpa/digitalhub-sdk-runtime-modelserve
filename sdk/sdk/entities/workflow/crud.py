@@ -58,6 +58,7 @@ def new_workflow(
     local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
+    **kwargs,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -80,6 +81,8 @@ def new_workflow(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -96,6 +99,7 @@ def new_workflow(
         local=local,
         embedded=embedded,
         uuid=uuid,
+        **kwargs,
     )
     save_or_export(obj, local)
     return obj

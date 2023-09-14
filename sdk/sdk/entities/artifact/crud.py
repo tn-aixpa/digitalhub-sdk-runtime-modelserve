@@ -60,6 +60,7 @@ def new_artifact(
     local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
+    **kwargs,
 ) -> Artifact:
     """
     Create an instance of the Artifact class with the provided parameters.
@@ -86,6 +87,8 @@ def new_artifact(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -104,6 +107,7 @@ def new_artifact(
         local=local,
         embedded=embedded,
         uuid=uuid,
+        **kwargs,
     )
     save_or_export(obj, local)
     return obj

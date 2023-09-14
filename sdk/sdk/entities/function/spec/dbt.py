@@ -29,14 +29,7 @@ class FunctionSpecDBT(FunctionSpec):
         sql : str
             SQL query to run inside DBT.
         """
-        super().__init__(
-            source,
-            image,
-            tag,
-            handler,
-            command,
-            **kwargs,
-        )
+        super().__init__(source, image, tag, handler, command, **kwargs)
         if sql is None:
             raise EntityError("SQL query must be provided.")
 

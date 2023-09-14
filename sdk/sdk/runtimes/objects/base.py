@@ -31,19 +31,6 @@ class Runtime:
         self.run_id = run_id
         self.project_name = project_name
 
-
     @abstractmethod
     def run(self) -> None:
-        ...
-
-    @abstractmethod
-    def parse_inputs(self, inputs: dict) -> None:
-        ...
-
-    @abstractmethod
-    def parse_outputs(self, outputs: dict) -> None:
-        ...
-
-    @abstractmethod
-    def parse_parameters(self, parameters: dict) -> None:
         ...

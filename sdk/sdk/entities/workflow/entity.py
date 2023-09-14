@@ -36,7 +36,6 @@ class Workflow(Entity):
         state: State | None = None,
         local: bool = False,
         embedded: bool = True,
-        **kwargs,
     ) -> None:
         """
         Initialize the Workflow instance.
@@ -61,8 +60,6 @@ class Workflow(Entity):
             If True, export locally.
         embedded: bool
             If True, embed object in backend.
-        **kwargs
-            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -73,9 +70,6 @@ class Workflow(Entity):
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
         self.embedded = embedded
-
-        # Set new attributes
-        self._any_setter(**kwargs)
 
         # Private attributes
         self._local = local
@@ -235,6 +229,7 @@ def workflow_from_parameters(
     local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
+    **kwargs,
 ) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -257,6 +252,8 @@ def workflow_from_parameters(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -264,7 +261,7 @@ def workflow_from_parameters(
         An instance of the created workflow.
     """
     meta = build_metadata(name=name, description=description)
-    spec = build_spec(kind, test=test)
+    spec = build_spec(kind, test=test, **kwargs)
     return Workflow(
         project=project,
         name=name,

@@ -40,7 +40,6 @@ class Function(Entity):
         local: bool = False,
         embedded: bool = True,
         uuid: str | None = None,
-        **kwargs,
     ) -> None:
         """
         Initialize the Function instance.
@@ -65,8 +64,6 @@ class Function(Entity):
             If True, export locally.
         embedded: bool
             If True, embed object in backend.
-        **kwargs
-            Keyword arguments.
         """
         super().__init__()
         self.project = project
@@ -77,9 +74,6 @@ class Function(Entity):
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
         self.embedded = embedded
-
-        # Set new attributes
-        self._any_setter(**kwargs)
 
         # Private attributes
         self._local = local
@@ -197,9 +191,7 @@ class Function(Entity):
                 **self._task.spec.to_dict(),
                 **run.spec.to_dict(),
             }
-            runtime = get_runtime(
-                self.kind, spec, run.id, self.project
-            )
+            runtime = get_runtime(self.kind, spec, run.id, self.project)
             return runtime.run()
 
         # otherwise, return run launched by backend
@@ -343,6 +335,7 @@ def function_from_parameters(
     local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
+    **kwargs,
 ) -> Function:
     """
     Create function.
@@ -377,6 +370,8 @@ def function_from_parameters(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -393,6 +388,7 @@ def function_from_parameters(
         command=command,
         requirements=requirements,
         sql=sql,
+        **kwargs,
     )
     return Function(
         project=project,

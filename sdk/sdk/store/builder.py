@@ -9,23 +9,12 @@ from pydantic import ValidationError
 
 from sdk.store.env_utils import get_env_store_config
 from sdk.store.models import StoreParameters
-from sdk.store.objects.local import LocalStore
-from sdk.store.objects.remote import RemoteStore
-from sdk.store.objects.s3 import S3Store
-from sdk.store.objects.sql import SqlStore
+from sdk.store.registry import REGISTRY_STORES
 from sdk.utils.exceptions import StoreError
 from sdk.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from sdk.store.objects.base import Store
-
-
-REGISTRY_STORES = {
-    "local": LocalStore,
-    "s3": S3Store,
-    "remote": RemoteStore,
-    "sql": SqlStore,
-}
 
 
 class StoreBuilder:
@@ -43,6 +32,7 @@ class StoreBuilder:
     def build(self, store_cfg: StoreParameters) -> None:
         """
         Build a store instance and register it.
+        It overrides any existing instance.
 
         Parameters
         ----------
@@ -53,9 +43,8 @@ class StoreBuilder:
         -------
         None
         """
-        scheme = store_cfg.type
-        if scheme not in self._instances:
-            self._instances[scheme] = self.build_store(store_cfg)
+        scheme = map_uri_scheme(store_cfg.type)
+        self._instances[scheme] = self.build_store(store_cfg)
 
     def get(self, uri: str) -> Store:
         """
@@ -72,12 +61,10 @@ class StoreBuilder:
             The store instance.
         """
         scheme = map_uri_scheme(uri)
-        try:
-            return self._instances[scheme]
-        except KeyError:
+        if scheme not in self._instances:
             store_cfg = get_env_store_config(scheme)
-            self.build_store(store_cfg)
-            return self._instances[scheme]
+            self._instances[scheme] = self.build_store(store_cfg)
+        return self._instances[scheme]
 
     def default(self) -> Store:
         """
@@ -96,6 +83,21 @@ class StoreBuilder:
         if self._default is None:
             raise StoreError("No default store set.")
         return self._default
+
+    def set_default(self, scheme: str) -> None:
+        """
+        Set the default store instance.
+
+        Parameters
+        ----------
+        scheme : str
+            Store scheme.
+
+        Returns
+        -------
+        None
+        """
+        self._default = self.get(scheme)
 
     def build_store(self, cfg: StoreParameters) -> Store:
         """
@@ -118,10 +120,8 @@ class StoreBuilder:
         """
         try:
             obj = REGISTRY_STORES[cfg.type](cfg.name, cfg.type, cfg.config)
-            if cfg.is_default:
-                if self._default is not None:
-                    raise StoreError("Only one default store!")
-                self._default = obj
+            if cfg.is_default and self._default is not None:
+                raise StoreError("Only one default store!")
             return obj
         except KeyError as exc:
             raise NotImplementedError from exc

@@ -39,6 +39,7 @@ def new_task(
     resources: dict | None = None,
     local: bool = False,
     uuid: str | None = None,
+    **kwargs,
 ) -> Task:
     """
     Create a new object instance.
@@ -57,6 +58,8 @@ def new_task(
         Flag to determine if object will be exported to backend.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -71,6 +74,7 @@ def new_task(
         resources=resources,
         local=local,
         uuid=uuid,
+        **kwargs,
     )
     save_or_export(obj, local)
     return obj

@@ -49,6 +49,7 @@ def new_project(
     source: str | None = None,
     local: bool = False,
     uuid: str | None = None,
+    **kwargs,
 ) -> Project:
     """
     Create a new project and an execution context.
@@ -80,6 +81,7 @@ def new_project(
         source=source,
         local=local,
         uuid=uuid,
+        **kwargs,
     )
     save_or_export(obj, local)
     return obj

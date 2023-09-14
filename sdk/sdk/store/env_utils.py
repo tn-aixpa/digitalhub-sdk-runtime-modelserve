@@ -61,6 +61,6 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             name="local",
             type="local",
             config=LocalStoreConfig(
-                path="sdk",
+                path="tempsdk",
             ),
         )

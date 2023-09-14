@@ -103,7 +103,7 @@ def new_dataitem(
         local=local,
         embedded=embedded,
         uuid=uuid,
-        **kwargs
+        **kwargs,
     )
     save_or_export(obj, local)
     return obj

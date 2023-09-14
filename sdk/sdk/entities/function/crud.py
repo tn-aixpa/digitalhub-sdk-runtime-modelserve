@@ -64,6 +64,7 @@ def new_function(
     local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
+    **kwargs,
 ) -> Function:
     """
     Create a new Function instance and persist it to the backend.
@@ -98,6 +99,8 @@ def new_function(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -125,6 +128,7 @@ def new_function(
         local=local,
         embedded=embedded,
         uuid=uuid,
+        **kwargs,
     )
     save_or_export(obj, local)
     return obj

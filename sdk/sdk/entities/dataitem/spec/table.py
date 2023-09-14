@@ -10,10 +10,7 @@ class TableDataitemSpec(DataitemSpec):
     """
 
     def __init__(
-        self,
-        key: str | None = None,
-        path: str | None = None,
-        **kwargs,
+        self, key: str | None = None, path: str | None = None, **kwargs
     ) -> None:
         """
         Constructor.

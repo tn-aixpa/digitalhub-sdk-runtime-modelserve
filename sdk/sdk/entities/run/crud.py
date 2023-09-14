@@ -42,6 +42,7 @@ def new_run(
     parameters: dict | None = None,
     local_execution: bool = False,
     local: bool = False,
+    **kwargs,
 ) -> Run:
     """
     Create a new object instance.
@@ -66,6 +67,8 @@ def new_run(
         Flag to determine if object has local execution.
     local : bool
         Flag to determine if object will be exported to backend.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -83,6 +86,7 @@ def new_run(
         parameters=parameters,
         local_execution=local_execution,
         local=local,
+        **kwargs,
     )
     save_or_export(obj, local)
     return obj
