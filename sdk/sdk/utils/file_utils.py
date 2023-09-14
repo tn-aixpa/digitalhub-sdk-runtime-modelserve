@@ -4,7 +4,6 @@ Common filesystem utils.
 import shutil
 from pathlib import Path
 
-
 ####################
 # Paths utils
 ####################

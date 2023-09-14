@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from pydantic.errors import ValidationError
+from pydantic import ValidationError
 
 from sdk.entities.task.spec.build import TaskSpecBuild
 from sdk.entities.task.spec.models import TaskTaskParams
@@ -14,6 +14,7 @@ from sdk.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
     from pydantic import BaseModel
+
     from sdk.entities.task.spec.base import TaskSpec
 
 

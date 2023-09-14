@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.run.entity import run_from_dict, run_from_parameters
-from sdk.entities.utils.utils import check_local_flag, save_or_export
 from sdk.utils.api import DTO_RUNS, api_base_delete, api_base_read, api_base_update
-from sdk.utils.factories import get_context
+from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:

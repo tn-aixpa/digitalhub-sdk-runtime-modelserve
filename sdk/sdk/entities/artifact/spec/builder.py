@@ -4,7 +4,6 @@ Artifact specification builder module.
 from sdk.entities.artifact.spec.base import ArtifactSpec
 from sdk.utils.exceptions import EntityError
 
-
 REGISTRY_SPEC = {
     "artifact": ArtifactSpec,
     "dataset": ArtifactSpec,

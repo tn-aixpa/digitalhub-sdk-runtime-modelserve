@@ -2,9 +2,9 @@
 Job Function specification module.
 """
 from sdk.entities.function.spec.base import FunctionSpec
-from sdk.entities.utils.utils import encode_source
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import is_python_module
+from sdk.utils.generic_utils import encode_source
 from sdk.utils.uri_utils import get_name_from_uri
 
 

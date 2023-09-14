@@ -5,15 +5,16 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.state import build_state
 from sdk.entities.function.spec.builder import build_spec
 from sdk.entities.task.crud import create_task, new_task
-from sdk.entities.utils.utils import get_uiid
+from sdk.runtimes.factory import get_runtime
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context
+from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.base.metadata import Metadata
@@ -37,7 +38,7 @@ class Function(Entity):
         spec: FunctionSpec | None = None,
         state: State | None = None,
         local: bool = False,
-        embedded: bool = False,
+        embedded: bool = True,
         uuid: str | None = None,
         **kwargs,
     ) -> None:
@@ -187,7 +188,22 @@ class Function(Entity):
         inputs = inputs if inputs is not None else {}
         outputs = outputs if outputs is not None else []
         parameters = parameters if parameters is not None else {}
-        return self._task.run(inputs, outputs, parameters, local_execution)
+        run = self._task.run(inputs, outputs, parameters, local_execution)
+
+        # If local execution, merge spec and run locally
+        if local_execution:
+            spec = {
+                **self.spec.to_dict(),
+                **self._task.spec.to_dict(),
+                **run.spec.to_dict(),
+            }
+            runtime = get_runtime(
+                self.kind, spec, run.id, self.project
+            )
+            return runtime.run()
+
+        # otherwise, return run launched by backend
+        return run
 
     def update_task(self, new_spec: dict) -> dict:
         """
@@ -325,7 +341,7 @@ def function_from_parameters(
     requirements: list | None = None,
     sql: str | None = None,
     local: bool = False,
-    embedded: bool = False,
+    embedded: bool = True,
     uuid: str | None = None,
 ) -> Function:
     """

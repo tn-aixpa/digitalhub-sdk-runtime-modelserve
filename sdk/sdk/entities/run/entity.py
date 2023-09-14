@@ -5,15 +5,15 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.state import build_state
 from sdk.entities.dataitem.crud import get_dataitem_from_key
 from sdk.entities.run.spec.builder import build_spec
-from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context
+from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.entity import Artifact

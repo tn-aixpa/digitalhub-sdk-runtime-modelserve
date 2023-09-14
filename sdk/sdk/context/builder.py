@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.context.entity import Context
+from sdk.context.context import Context
 
 if typing.TYPE_CHECKING:
     from sdk.entities.project.entity import Project

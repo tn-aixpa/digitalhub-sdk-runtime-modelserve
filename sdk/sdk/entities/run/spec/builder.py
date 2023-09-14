@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from pydantic.errors import ValidationError
+from pydantic import ValidationError
 
 from sdk.entities.run.spec.base import RunSpec
 from sdk.entities.run.spec.models import RunParams
@@ -49,8 +49,8 @@ def build_spec(kind: str, **kwargs) -> RunSpec:
         model: BaseModel = REGISTRY_MODEL[kind](**kwargs)
     except KeyError:
         raise EntityError(f"Unsupported parameters kind: {kind}")
-    except ValidationError:
-        raise EntityError(f"Invalid parameters for kind: {kind}")
+    except ValidationError as ve:
+        raise EntityError(f"Invalid parameters for kind: {kind}") from ve
 
     # ... then build the spec
     try:

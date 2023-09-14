@@ -90,14 +90,14 @@ class TaskTaskParams(BaseModel):
     "TaskTaskParams" model.
     """
 
-    volumes: list[Volume] = []
+    volumes: list[Volume] | None = []
     """Volumes."""
 
-    volume_mounts: list[VolumeMount] = []
+    volume_mounts: list[VolumeMount] | None = []
     """Volume mounts."""
 
-    env: list[Env] = []
+    env: list[Env] | None = []
     """Env variables."""
 
-    resources: Resource | None = None
+    resources: Resource | dict | None = {}
     """Resources restrictions."""

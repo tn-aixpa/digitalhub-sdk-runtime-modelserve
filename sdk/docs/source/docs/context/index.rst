@@ -1,7 +1,8 @@
-Entity utils
+Context
 ---------------
 
 .. toctree::
    :maxdepth: 1
 
-   utils
+   context
+   builder

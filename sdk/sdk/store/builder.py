@@ -7,7 +7,8 @@ import typing
 
 from pydantic import ValidationError
 
-from sdk.store.models import StoreConfig
+from sdk.store.env_utils import get_env_store_config
+from sdk.store.models import StoreParameters
 from sdk.store.objects.local import LocalStore
 from sdk.store.objects.remote import RemoteStore
 from sdk.store.objects.s3 import S3Store
@@ -19,7 +20,7 @@ if typing.TYPE_CHECKING:
     from sdk.store.objects.base import Store
 
 
-STORES = {
+REGISTRY_STORES = {
     "local": LocalStore,
     "s3": S3Store,
     "remote": RemoteStore,
@@ -39,20 +40,20 @@ class StoreBuilder:
         self._instances: dict[str, Store] = {}
         self._default: Store | None = None
 
-    def build(self, store_cfg: StoreConfig) -> None:
+    def build(self, store_cfg: StoreParameters) -> None:
         """
         Build a store instance and register it.
 
         Parameters
         ----------
-        store_cfg : StoreConfig
+        store_cfg : StoreParameters
             Store configuration.
 
         Returns
         -------
         None
         """
-        scheme = map_uri_scheme(store_cfg.uri)
+        scheme = store_cfg.type
         if scheme not in self._instances:
             self._instances[scheme] = self.build_store(store_cfg)
 
@@ -73,9 +74,10 @@ class StoreBuilder:
         scheme = map_uri_scheme(uri)
         try:
             return self._instances[scheme]
-        except KeyError as exc:
-            # TODO - Handle automated store creation
-            raise StoreError(f"Store with scheme '{scheme}' not found.") from exc
+        except KeyError:
+            store_cfg = get_env_store_config(scheme)
+            self.build_store(store_cfg)
+            return self._instances[scheme]
 
     def default(self) -> Store:
         """
@@ -95,13 +97,13 @@ class StoreBuilder:
             raise StoreError("No default store set.")
         return self._default
 
-    def build_store(self, cfg: StoreConfig) -> Store:
+    def build_store(self, cfg: StoreParameters) -> Store:
         """
         Build a store instance.
 
         Parameters
         ----------
-        cfg : StoreConfig
+        cfg : StoreParameters
             Store configuration.
 
         Returns
@@ -115,7 +117,7 @@ class StoreBuilder:
             If the store type is not implemented.
         """
         try:
-            obj = STORES[cfg.type](cfg.name, cfg.type, cfg.uri, cfg.config)
+            obj = REGISTRY_STORES[cfg.type](cfg.name, cfg.type, cfg.config)
             if cfg.is_default:
                 if self._default is not None:
                     raise StoreError("Only one default store!")
@@ -125,28 +127,28 @@ class StoreBuilder:
             raise NotImplementedError from exc
 
     @staticmethod
-    def _check_config(config: StoreConfig | dict) -> StoreConfig:
+    def _check_config(config: StoreParameters | dict) -> StoreParameters:
         """
         Check the store configuration validity.
 
         Parameters
         ----------
-        config : StoreConfig | dict
+        config : StoreParameters | dict
             The store configuration.
 
         Returns
         -------
-        StoreConfig
+        StoreParameters
             The store configuration.
 
         Raises
         ------
         TypeError
-            If the config parameter is not a StoreConfig instance or a well-formed dictionary.
+            If the config parameter is not a StoreParameters instance or a well-formed dictionary.
         """
-        if not isinstance(config, StoreConfig):
+        if not isinstance(config, StoreParameters):
             try:
-                return StoreConfig(**config)
+                return StoreParameters(**config)
             except TypeError as exc:
                 raise StoreError("Invalid store configuration type.") from exc
             except ValidationError as exc:

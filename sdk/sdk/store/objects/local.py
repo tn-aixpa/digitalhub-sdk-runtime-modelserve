@@ -6,11 +6,13 @@ from __future__ import annotations
 import typing
 
 from sdk.store.objects.base import Store
-from sdk.utils.file_utils import copy_file, get_dir, build_path
+from sdk.utils.file_utils import build_path, copy_file, get_dir
 from sdk.utils.uri_utils import get_name_from_uri, get_uri_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
+
+    from sdk.store.models import LocalStoreConfig
 
 
 class LocalStore(Store):
@@ -18,6 +20,14 @@ class LocalStore(Store):
     Local store class. It implements the Store interface and provides methods to fetch and persist
     artifacts on local filesystem based storage.
     """
+
+    def __init__(
+        self,
+        name: str,
+        store_type: str,
+        config: LocalStoreConfig,
+    ) -> None:
+        super().__init__(name, store_type, config)
 
     ############################
     # IO methods
@@ -97,7 +107,7 @@ class LocalStore(Store):
             Returns the URI of the artifact.
         """
         if dst is None:
-            dst = build_path(get_dir(self.uri), get_name_from_uri(src))
+            dst = build_path(get_dir(self.config.path), get_name_from_uri(src))
         self._check_local_dst(dst)
         return copy_file(src, dst)
 
@@ -122,7 +132,7 @@ class LocalStore(Store):
             Path of written dataframe.
         """
         if dst is None or not dst.endswith(".parquet"):
-            dst = build_path(get_uri_path(self.uri), "data.parquet")
+            dst = build_path(get_uri_path(self.config.path), "data.parquet")
         self._check_local_dst(dst)
         df.to_parquet(dst, index=False, **kwargs)
         return dst

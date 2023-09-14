@@ -13,7 +13,7 @@ from botocore.exceptions import ClientError
 
 from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
-from sdk.utils.uri_utils import get_uri_netloc, get_uri_path
+from sdk.utils.uri_utils import get_uri_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
@@ -133,7 +133,7 @@ class S3Store(Store):
         str
             The name of the S3 bucket.
         """
-        return get_uri_netloc(self.uri)
+        return str(self.config.bucket_name)
 
     def _get_client(self) -> S3Client:
         """
@@ -144,7 +144,12 @@ class S3Store(Store):
         S3Client
             Returns a client object that interacts with the S3 storage service.
         """
-        return boto3.client("s3", **self.config)
+        cfg = {
+            "endpoint_url": self.config.endpoint_url,
+            "aws_access_key_id": self.config.aws_access_key_id,
+            "aws_secret_access_key": self.config.aws_secret_access_key,
+        }
+        return boto3.client("s3", **cfg)
 
     @staticmethod
     def _get_key(path: str) -> str:
@@ -271,23 +276,6 @@ class S3Store(Store):
     ############################
     # Store interface methods
     ############################
-
-    def _validate_uri(self) -> None:
-        """
-        Validate the URI of the store.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        StoreError
-            If no bucket is specified in the URI.
-        """
-        super()._validate_uri()
-        if self._get_bucket() == "":
-            raise StoreError("No bucket specified in the URI for s3 store!")
 
     @staticmethod
     def is_local() -> bool:

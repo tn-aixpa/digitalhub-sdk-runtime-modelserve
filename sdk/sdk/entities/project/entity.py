@@ -6,6 +6,8 @@ from __future__ import annotations
 import typing
 from typing import Callable, TypeVar
 
+from sdk.client.factory import get_client
+from sdk.context.factory import set_context
 from sdk.entities.artifact.crud import (
     create_artifact_from_dict,
     delete_artifact,
@@ -28,7 +30,6 @@ from sdk.entities.function.crud import (
     new_function,
 )
 from sdk.entities.project.spec.builder import build_spec
-from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.crud import (
     create_workflow_from_dict,
     delete_workflow,
@@ -44,7 +45,7 @@ from sdk.utils.api import (
     api_base_create,
 )
 from sdk.utils.exceptions import BackendError, EntityError
-from sdk.utils.factories import get_client, set_context
+from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.client.client import Client

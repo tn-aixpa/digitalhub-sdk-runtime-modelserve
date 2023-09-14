@@ -4,7 +4,6 @@ Project specification builder module.
 from sdk.entities.project.spec.base import ProjectSpec
 from sdk.utils.exceptions import EntityError
 
-
 REGISTRY_SPEC = {
     "project": ProjectSpec,
 }

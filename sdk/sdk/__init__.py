@@ -34,14 +34,23 @@ from sdk.entities.workflow.crud import (
     import_workflow,
     new_workflow,
 )
-from sdk.store.models import StoreConfig
-from sdk.utils.factories import set_store
+
+from sdk.entities.task.crud import (
+    get_task,
+    delete_task,
+    import_task,
+    new_task
+)
+from sdk.store.factory import set_store
+from sdk.store.models import StoreParameters, S3StoreConfig, SQLStoreConfig, LocalStoreConfig, RemoteStoreConfig
+from sdk.runtimes.factory import get_runtime
 
 __all__ = [
+    "get_runtime",
     "set_dhub_env",
     "set_store",
     "DHCoreConfig",
-    "StoreConfig",
+    "StoreParameters",
     "new_project",
     "get_project",
     "delete_project",
@@ -66,4 +75,12 @@ __all__ = [
     "delete_run",
     "import_run",
     "update_run",
+    "new_task",
+    "get_task",
+    "delete_task",
+    "import_task",
+    "S3StoreConfig",
+    "SQLStoreConfig",
+    "LocalStoreConfig",
+    "RemoteStoreConfig",
 ]

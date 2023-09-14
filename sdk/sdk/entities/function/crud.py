@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.function.entity import function_from_dict, function_from_parameters
-from sdk.entities.utils.utils import check_local_flag, save_or_export
 from sdk.utils.api import DTO_FUNC, api_ctx_delete, api_ctx_read
-from sdk.utils.factories import get_context
+from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -62,7 +62,7 @@ def new_function(
     requirements: list | None = None,
     sql: str | None = None,
     local: bool = False,
-    embedded: bool = False,
+    embedded: bool = True,
     uuid: str | None = None,
 ) -> Function:
     """

@@ -10,3 +10,4 @@ Utils
    api
    uri_utils
    exceptions
+   entities_utils

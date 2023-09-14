@@ -5,14 +5,14 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.state import build_state
 from sdk.entities.run.crud import new_run
 from sdk.entities.task.spec.builder import build_spec
-from sdk.entities.utils.utils import get_uiid
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context
+from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.base.state import State
@@ -150,10 +150,7 @@ class Task(Entity):
         Run
             Run object.
         """
-        if self._local:
-            raise EntityError("Use .run_local() for local execution.")
-
-        run = new_run(
+        return new_run(
             project=self.project,
             task_id=self.id,
             task=self.task,
@@ -164,7 +161,6 @@ class Task(Entity):
             local_execution=local_execution,
             local=self._local,
         )
-        return run
 
     #############################
     # Generic Methods
@@ -208,8 +204,8 @@ class Task(Entity):
 
         # Mandatory fields
         project = obj.get("project")
-        task_id = obj.get("task_id")
-        if project is None or task_id is None:
+        task = obj.get("task")
+        if project is None or task is None:
             raise EntityError("Project or task_id are not specified.")
 
         # Optional fields
@@ -226,7 +222,7 @@ class Task(Entity):
 
         return {
             "project": project,
-            "task_id": task_id,
+            "task": task,
             "kind": kind,
             "uuid": uuid,
             "spec": spec,

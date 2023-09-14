@@ -13,12 +13,22 @@ from sdk.utils.file_utils import build_path
 if typing.TYPE_CHECKING:
     import pandas as pd
 
+    from sdk.store.models import RemoteStoreConfig
+
 
 class RemoteStore(Store):
     """
     HTTP store class. It implements the Store interface and provides methods to fetch
     artifacts from remote HTTP based storage.
     """
+
+    def __init__(
+        self,
+        name: str,
+        store_type: str,
+        config: RemoteStoreConfig,
+    ) -> None:
+        super().__init__(name, store_type, config)
 
     ############################
     # IO methods

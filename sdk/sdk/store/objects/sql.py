@@ -101,7 +101,7 @@ class SqlStore(Store):
             The SQL uri where the dataframe was saved.
         """
         if dst is None:
-            schema = self._get_store_schema()
+            schema = str(self.config.pg_schema)
             table = "table"
         else:
             schema = self._get_schema(dst)
@@ -112,16 +112,19 @@ class SqlStore(Store):
     # Private helper methods
     ############################
 
-    def _get_store_schema(self) -> str:
+    def _get_connection_string(self) -> str:
         """
-        Return Store URI Schema.
+        Get the connection string.
 
         Returns
         -------
         str
-            The name of the Store URI schema.
+            The connection string.
         """
-        return self.uri.split("/")[-1]
+        return (
+            f"postgresql+psycopg2://{self.config.user}:{self.config.password}@"
+            f"{self.config.host}:{self.config.port}/{self.config.database}"
+        )
 
     def _get_engine(self) -> Engine:
         """
@@ -132,7 +135,7 @@ class SqlStore(Store):
         Engine
             An SQLAlchemy engine.
         """
-        connection_string = self.config.get("connection_string")
+        connection_string = self._get_connection_string()
         if not isinstance(connection_string, str):
             raise StoreError("Connection string must be a string.")
         try:
@@ -289,26 +292,6 @@ class SqlStore(Store):
     ############################
     # Store interface methods
     ############################
-
-    def _validate_uri(self) -> None:
-        """
-        Validate the URI of the store.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        StoreError
-            If no bucket is specified in the URI.
-        """
-        super()._validate_uri()
-        pattern = r"^sql:\/\/(postgres\/)?(?P<database>.+)?\/(?P<schema>.+)$"
-        if re.match(pattern, self.uri) is None:
-            raise StoreError(
-                "Invalid Store URI. SQL Store URI must be in the form sql://postgres/<database>/<schema>/"
-            )
 
     @staticmethod
     def is_local() -> bool:

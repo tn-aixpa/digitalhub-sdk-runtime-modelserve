@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import typing
 
+from sdk.client.factory import get_client
+from sdk.context.factory import delete_context
 from sdk.entities.project.entity import project_from_dict, project_from_parameters
-from sdk.entities.utils.utils import save_or_export
 from sdk.utils.api import (
     DTO_ARTF,
     DTO_DTIT,
@@ -17,7 +18,7 @@ from sdk.utils.api import (
     api_base_read,
     api_ctx_delete,
 )
-from sdk.utils.factories import delete_context, get_client
+from sdk.utils.entities_utils import save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:

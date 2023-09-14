@@ -5,15 +5,16 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.state import build_state
 from sdk.entities.dataitem.spec.builder import build_spec
-from sdk.entities.utils.utils import get_uiid
+from sdk.store.factory import get_default_store, get_store
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context, get_default_store, get_store
 from sdk.utils.file_utils import clean_all, get_dir
+from sdk.utils.generic_utils import get_uiid
 from sdk.utils.uri_utils import get_extension, map_uri_scheme
 
 if typing.TYPE_CHECKING:
@@ -38,7 +39,7 @@ class Dataitem(Entity):
         spec: DataitemSpec | None = None,
         state: State | None = None,
         local: bool = False,
-        embedded: bool = False,
+        embedded: bool = True,
         uuid: str | None = None,
         **kwargs,
     ) -> None:
@@ -365,8 +366,9 @@ def dataitem_from_parameters(
     key: str | None = None,
     path: str | None = None,
     local: bool = False,
-    embedded: bool = False,
+    embedded: bool = True,
     uuid: str | None = None,
+    **kwargs
 ) -> Dataitem:
     """
     Create a new object instance.
@@ -391,6 +393,7 @@ def dataitem_from_parameters(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
 
     Returns
     -------
@@ -398,7 +401,7 @@ def dataitem_from_parameters(
         Dataitem object.
     """
     meta = build_metadata(name=name, description=description)
-    spec = build_spec(kind, key=key, path=path)
+    spec = build_spec(kind, key=key, path=path, **kwargs)
     return Dataitem(
         project=project,
         name=name,

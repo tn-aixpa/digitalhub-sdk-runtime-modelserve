@@ -1,14 +1,25 @@
 """
 Store module.
 """
+from __future__ import annotations
+
+import typing
 from abc import ABCMeta, abstractmethod
 from tempfile import mkdtemp
 
 import pandas as pd
 
 from sdk.utils.exceptions import StoreError
-from sdk.utils.file_utils import make_dir, build_path
-from sdk.utils.uri_utils import map_uri_scheme, get_name_from_uri
+from sdk.utils.file_utils import build_path, make_dir
+from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
+
+if typing.TYPE_CHECKING:
+    from sdk.store.models import (
+        LocalStoreConfig,
+        RemoteStoreConfig,
+        S3StoreConfig,
+        SQLStoreConfig,
+    )
 
 
 class Store(metaclass=ABCMeta):
@@ -20,8 +31,7 @@ class Store(metaclass=ABCMeta):
         self,
         name: str,
         store_type: str,
-        uri: str,
-        config: dict | None = None,
+        config: S3StoreConfig | LocalStoreConfig | RemoteStoreConfig | SQLStoreConfig,
     ) -> None:
         """
         Constructor.
@@ -34,7 +44,7 @@ class Store(metaclass=ABCMeta):
             Store type. Used to choose the right store implementation.
         uri : str
             Store URI.
-        config : dict | None
+        config : StoreConfig
             Store configuration.
 
         Returns
@@ -43,13 +53,10 @@ class Store(metaclass=ABCMeta):
         """
         self.name = name
         self.type = store_type
-        self.uri = uri
-        self.config = config if config is not None else {}
+        self.config = config
 
         # Private attributes
         self._registry: dict[str, str] = {}
-
-        self._validate_uri()
 
     ############################
     # IO methods
@@ -118,23 +125,6 @@ class Store(metaclass=ABCMeta):
     ############################
     # Helpers methods
     ############################
-
-    def _validate_uri(self) -> None:
-        """
-        Validate the URI of the store.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        StoreError
-            If the URI scheme is not valid.
-
-        """
-        if map_uri_scheme(self.uri) != self.type:
-            raise StoreError(f"Invalid URI scheme '{self.uri}' for {self.type} store.")
 
     @staticmethod
     def _check_local_dst(dst: str) -> None:

@@ -47,8 +47,16 @@ public class DbtServiceImpl extends K8sAbstractJobBuilder implements KindService
 		final String namespace = "default";
 
 		List<EnvVar> envVars = k8sJobBuilderHelper.getEnv();
-		envVars.addAll(List.of(new EnvVar("PROJECT_NAME", runDTO.getProject(), null),
-				new EnvVar("RUN_ID", runDTO.getId(), null)));
+		envVars.addAll(List.of(
+				new EnvVar("PROJECT_NAME", runDTO.getProject(), null),
+				new EnvVar("RUN_ID", runDTO.getId(), null),
+				new EnvVar("POSTGRES_HOST", "192.168.49.1", null),
+				new EnvVar("POSTGRES_PORT", "5433", null),
+				new EnvVar("POSTGRES_DB", "dbt", null),
+				new EnvVar("POSTGRES_USER", "testuser", null),
+				new EnvVar("POSTGRES_PASSWORD", "testpassword", null),
+				new EnvVar("POSTGRES_SCHEMA", "public", null)
+				));
 
 		Job job = new JobBuilder()
 				.withNewMetadata()

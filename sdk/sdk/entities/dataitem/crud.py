@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.dataitem.entity import dataitem_from_dict, dataitem_from_parameters
-from sdk.entities.utils.utils import check_local_flag, save_or_export, parse_entity_key
 from sdk.utils.api import DTO_DTIT, api_ctx_delete, api_ctx_read
-from sdk.utils.factories import get_context
+from sdk.utils.entities_utils import check_local_flag, parse_entity_key, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -57,8 +57,9 @@ def new_dataitem(
     key: str | None = None,
     path: str | None = None,
     local: bool = False,
-    embedded: bool = False,
+    embedded: bool = True,
     uuid: str | None = None,
+    **kwargs,
 ) -> Dataitem:
     """
     Create a new object instance.
@@ -83,6 +84,8 @@ def new_dataitem(
         Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -100,6 +103,7 @@ def new_dataitem(
         local=local,
         embedded=embedded,
         uuid=uuid,
+        **kwargs
     )
     save_or_export(obj, local)
     return obj

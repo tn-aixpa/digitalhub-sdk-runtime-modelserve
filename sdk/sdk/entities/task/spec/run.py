@@ -2,7 +2,6 @@
 Run Task specification module.
 """
 from sdk.entities.task.spec.base import TaskSpec
-from sdk.entities.task.spec.models import TaskTaskParams
 
 
 class TaskSpecRun(TaskSpec):

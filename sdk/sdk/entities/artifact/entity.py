@@ -5,15 +5,16 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.artifact.spec.builder import build_spec
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.state import build_state
-from sdk.entities.utils.utils import get_uiid
+from sdk.store.factory import get_store
 from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context, get_store
 from sdk.utils.file_utils import check_file
+from sdk.utils.generic_utils import get_uiid
 from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
 if typing.TYPE_CHECKING:
@@ -37,7 +38,7 @@ class Artifact(Entity):
         spec: ArtifactSpec | None = None,
         state: State | None = None,
         local: bool = False,
-        embedded: bool = False,
+        embedded: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -443,7 +444,7 @@ def artifact_from_parameters(
     src_path: str | None = None,
     target_path: str | None = None,
     local: bool = False,
-    embedded: bool = False,
+    embedded: bool = True,
     uuid: str | None = None,
 ) -> Artifact:
     """

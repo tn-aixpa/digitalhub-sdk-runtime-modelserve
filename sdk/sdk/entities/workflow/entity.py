@@ -5,14 +5,14 @@ from __future__ import annotations
 
 import typing
 
+from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.state import build_state
-from sdk.entities.utils.utils import get_uiid
 from sdk.entities.workflow.spec.builder import build_spec
 from sdk.utils.api import DTO_WKFL, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
-from sdk.utils.factories import get_context
+from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.base.metadata import Metadata
@@ -35,7 +35,7 @@ class Workflow(Entity):
         spec: WorkflowSpec | None = None,
         state: State | None = None,
         local: bool = False,
-        embedded: bool = False,
+        embedded: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -233,7 +233,7 @@ def workflow_from_parameters(
     kind: str = "job",
     test: str | None = None,
     local: bool = False,
-    embedded: bool = False,
+    embedded: bool = True,
     uuid: str | None = None,
 ) -> Workflow:
     """
