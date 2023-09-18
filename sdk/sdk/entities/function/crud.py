@@ -172,9 +172,10 @@ def get_function_from_task(task: str) -> Function:
         Object instance.
     """
     splitted = task.split("/")
-    project = splitted[1]
+    project = splitted[2]
     fnc_name, fnc_version = splitted[-1].split(":")
     return get_function(project, fnc_name, uuid=fnc_version)
+
 
 def import_function(file: str) -> Function:
     """

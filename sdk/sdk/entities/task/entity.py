@@ -60,8 +60,8 @@ class Task(Entity):
         """
         super().__init__()
         self.project = project
-        self.task = task
         self.id = get_uiid(uuid=uuid)
+        self.task = task if task is not None else ""
         self.kind = kind if kind is not None else "task"
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
@@ -232,8 +232,8 @@ class Task(Entity):
 
 def task_from_parameters(
     project: str,
-    kind: str = "task",
-    task: str = "",
+    kind: str | None = None,
+    task: str | None = None,
     resources: dict | None = None,
     local: bool = False,
     uuid: str | None = None,
@@ -264,7 +264,7 @@ def task_from_parameters(
     spec = build_spec(kind, resources=resources)
     return Task(
         project=project,
-        kind="task",
+        kind=kind,
         task=task,
         spec=spec,
         local=local,

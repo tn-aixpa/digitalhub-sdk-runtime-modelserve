@@ -5,19 +5,22 @@ from __future__ import annotations
 
 import os
 import typing
+from dataclasses import dataclass
 from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
 from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
-from sdk.entities.run.crud import get_run, update_run
+from sdk.entities.run.crud import get_run, update_run, run_from_dict
 from sdk.runtimes.objects.base import Runtime
+from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import decode_string, encode_string, get_uiid
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
 
     from sdk.entities.dataitem.entity import Dataitem
+    from sdk.entities.run.entity import Run
 
 
 ####################
@@ -67,6 +70,28 @@ postgres:
     target: dev
 """
 
+####################
+# Results parsing
+####################
+
+
+@dataclass
+class ParsedResults:
+    """
+    Parsed results class.
+    """
+
+    name: str
+    path: str
+    raw_code: str
+    compiled_code: str
+    timings: dict
+
+
+####################
+# Runtime
+####################
+
 
 class DBTRuntime(Runtime):
     """
@@ -90,72 +115,59 @@ class DBTRuntime(Runtime):
         self.model_dir = Path("models")
         self.dataitem_kind = "table"
 
-    def run(self) -> None:
+    def run(self) -> Run:
         """
-        Run the dbt function.
+        Run function.
 
         Returns
         -------
-        None
+        Run
+            The updated run.
         """
-        self.model_dir.mkdir(exist_ok=True, parents=True)
 
-        # retrieve inputs and output from run spec
-        inputs = self.spec.get("inputs", {}).get("dataitems", [])
-        self.materialize_inputs(inputs)
-        output = self.spec.get("outputs", {}).get("dataitems", ["output"])[0]
+        # Parse inputs/outputs
+        inputs = self.parse_inputs()
+        output = self.parse_outputs()
 
-        # retrieve model sql from run
-        sql = self.spec.get("sql")
-        sql_decoded = decode_string(sql)
-
-        # initialize dbt project, run dbt and inspect results
+        # Setup environment
         uuid = get_uiid()
-        self.initialize_dbt_project(sql_decoded, inputs, output, uuid)
-        res = self.execute_dbt_project(output)
+        self.setup(inputs, output, uuid)
 
-        # parse dbt results
-        result: RunResult = self.parse_dbt_results(res, output)
-        try:
-            path = self.get_path(result)
-            raw_code, compiled_code = self.get_code(result)
-            timings = self.get_timings(result)
-            name = result.node.name
-        except Exception as e:
-            raise RuntimeError("Something got wrong during object result access") from e
+        # Execute function
+        execution_results = self.execute(output)
 
-        # create dataitem and update run
-        try:
-            dataitem = new_dataitem(
-                project=self.project_name,
-                name=name,
-                kind=self.dataitem_kind,
-                path=path,
-                uuid=uuid,
-                raw_code=raw_code,
-                compiled_code=compiled_code,
-            )
-            print(dataitem.to_dict())
-        except Exception as e:
-            print(e.args)
-            raise RuntimeError("Something got wrong during dataitem creation") from e
+        # Parse results
+        parsed_result = self.parse_results(execution_results, output)
 
-        dataitem_info = self.get_dataitem_info(output, dataitem)
-        status_dict = {
-            **dataitem_info,
-            **timings,
-        }
-        run = get_run(self.project_name, self.run_id)
-        run.set_status(status_dict)
-        try:
-            update_run(run)
-            print(run.to_dict())
-        except Exception as e:
-            raise RuntimeError("Something got wrong during run update") from e
+        # Create dataitem
+        dataitem = self.create_dataitem(parsed_result, uuid)
+
+        # Update run
+        return self.update_run(parsed_result, output, dataitem)
 
     ####################
-    # Parse inputs
+    # Parse inputs/outputs
     ####################
+
+    def parse_inputs(self) -> list:
+        """
+        Parse inputs from run spec.
+
+        Returns
+        -------
+        list
+            The list of inputs dataitems names.
+
+        Raises
+        ------
+        EntityError
+            If inputs are not a list of dataitems.
+        """
+        inputs = self.spec.get("inputs", {}).get("dataitems", [])
+        if not isinstance(inputs, list):
+            raise EntityError("Inputs must be a list of dataitems")
+        self.materialize_inputs(inputs)
+        return inputs
 
     def materialize_inputs(self, inputs: list) -> None:
         """
@@ -169,12 +181,17 @@ class DBTRuntime(Runtime):
         Returns
         -------
         None
+
+        Raises
+        ------
+        EntityError
+            If dataitem is not found.
         """
         for name in inputs:
             try:
                 di = get_dataitem(self.project_name, name)
             except Exception:
-                raise RuntimeError(
+                raise EntityError(
                     f"Dataitem {name} not found in project {self.project_name}"
                 )
             df = di.as_df()
@@ -183,9 +200,71 @@ class DBTRuntime(Runtime):
             target_path = f"sql://postgres/{db}/{schema}/{name}_v{di.id}"
             di.write_df(df, target_path, if_exists="replace")
 
+    def parse_outputs(self) -> str:
+        """
+        Parse outputs from run spec.
+
+        Returns
+        -------
+        str
+            The output dataitem/table name.
+
+        Raises
+        ------
+        EntityError
+            If outputs are not a list of dataitems.
+        """
+        outputs = self.spec.get("outputs", {}).get("dataitems", [])
+        if not isinstance(outputs, list):
+            raise EntityError("Outputs must be a list of dataitems")
+        return outputs[0]
+
     ####################
-    # Configuration generation
+    # Setup environment
     ####################
+
+    def setup(self, inputs: list, output: str, uuid: str) -> None:
+        """
+        Initialize a dbt project with a model and a schema definition.
+
+        Parameters
+        ----------
+        inputs : list
+            The list of inputs.
+        output : str
+            The output table name.
+        uuid : str
+            The uuid of the model for outputs versioning.
+
+        Returns
+        -------
+        None
+        """
+        self.model_dir.mkdir(exist_ok=True, parents=True)
+
+        # Generate profile yaml file
+        self.generate_dbt_profile_yml()
+
+        # Generate project yaml file
+        self.generate_dbt_project_yml()
+
+        # Generate outputs confs
+        sql = self.decode_sql()
+        self.generate_outputs_conf(sql, output, uuid)
+
+        # Generate inputs confs
+        self.generate_inputs_conf(inputs)
+
+    def decode_sql(self) -> str:
+        """
+        Parse sql code.
+
+        Returns
+        -------
+        str
+            The decoded sql code.
+        """
+        return decode_string(self.spec.get("sql"))
 
     def generate_inputs_conf(self, inputs: list) -> None:
         """
@@ -261,43 +340,10 @@ class DBTRuntime(Runtime):
         Path("profiles.yml").write_text(PROFILE_TEMPLATE)
 
     ####################
-    # Functions for dbt
+    # Execute function
     ####################
 
-    def initialize_dbt_project(
-        self, sql: str, inputs: list, output: str, uuid: str
-    ) -> None:
-        """
-        Initialize a dbt project with a model and a schema definition.
-
-        Parameters
-        ----------
-        sql : str
-            The sql code.
-        inputs : list
-            The list of inputs.
-        output : str
-            The output table name.
-        uuid : str
-            The uuid of the model for outputs versioning.
-
-        Returns
-        -------
-        None
-        """
-        # Generate profile yaml file
-        self.generate_dbt_profile_yml()
-
-        # Generate project yaml file
-        self.generate_dbt_project_yml()
-
-        # Generate outputs confs
-        self.generate_outputs_conf(sql, output, uuid)
-
-        # Generate inputs confs
-        self.generate_inputs_conf(inputs)
-
-    def execute_dbt_project(self, output: str) -> dbtRunnerResult:
+    def execute(self, output: str) -> dbtRunnerResult:
         """
         Execute a dbt project with the specified outputs.
         It initializes a dbt runner, cleans the project and runs it.
@@ -318,10 +364,41 @@ class DBTRuntime(Runtime):
         return dbt.invoke(cli_args)
 
     ####################
-    # Functions for parsing dbt results
+    # Results parsing
     ####################
 
-    def parse_dbt_results(self, run_result: dbtRunnerResult, output: str) -> RunResult:
+    def parse_results(self, run_result: dbtRunnerResult, output: str) -> ParsedResults:
+        """
+        Parse dbt results.
+
+        Parameters
+        ----------
+        run_result : dbtRunnerResult
+            The dbt result.
+        output : str
+            The output table name.
+
+        Returns
+        -------
+        ParsedResults
+            Parsed results.
+
+        Raises
+        ------
+        RuntimeError
+            If something got wrong during object result access.
+        """
+        result: RunResult = self.validate_results(run_result, output)
+        try:
+            path = self.get_path(result)
+            raw_code, compiled_code = self.get_code(result)
+            timings = self.get_timings(result)
+            name = result.node.name
+        except Exception as e:
+            raise RuntimeError("Something got wrong during object result access") from e
+        return ParsedResults(name, path, raw_code, compiled_code, timings)
+
+    def validate_results(self, run_result: dbtRunnerResult, output: str) -> RunResult:
         """
         Parse dbt results.
 
@@ -352,7 +429,6 @@ class DBTRuntime(Runtime):
         if not result.node.name == output:
             raise RuntimeError("Wrong function name.")
 
-        print("Send info to core backend")
         return result
 
     def get_path(self, result: RunResult) -> str:
@@ -425,6 +501,44 @@ class DBTRuntime(Runtime):
             }
         }
 
+    ####################
+    # CRUD
+    ####################
+
+    def create_dataitem(self, result: ParsedResults, uuid: str) -> Dataitem:
+        """
+        Create new dataitem.
+
+        Parameters
+        ----------
+        result : ParsedResults
+            The parsed results.
+        uuid : str
+            The uuid of the model for outputs versioning.
+
+        Returns
+        -------
+        Dataitem
+            The dataitem.
+
+        Raises
+        ------
+        EntityError
+            If something got wrong during dataitem creation.
+        """
+        try:
+            return new_dataitem(
+                project=self.project_name,
+                name=result.name,
+                kind=self.dataitem_kind,
+                path=result.path,
+                uuid=uuid,
+                raw_code=result.raw_code,
+                compiled_code=result.compiled_code,
+            )
+        except Exception as e:
+            raise EntityError("Something got wrong during dataitem creation") from e
+
     def get_dataitem_info(self, output: str, dataitem: Dataitem) -> dict:
         """
         Create dataitem info.
@@ -445,3 +559,39 @@ class DBTRuntime(Runtime):
                 }
             ]
         }
+
+    def update_run(self, result: ParsedResults, output: str, dataitem: Dataitem) -> Run:
+        """
+        Update run with results infos.
+
+        Parameters
+        ----------
+        result : ParsedResults
+            The parsed results.
+        output : str
+            The output table name.
+        dataitem : Dataitem
+            The new created dataitem.
+
+        Returns
+        -------
+        Run
+            The updated run.
+
+        Raises
+        ------
+        EntityError
+            If something got wrong during run update.
+        """
+        dataitem_info = self.get_dataitem_info(output, dataitem)
+        status_dict = {
+            **dataitem_info,
+            **result.timings,
+        }
+        run = get_run(self.project_name, self.run_id)
+        run.set_status(status_dict)
+        try:
+            updated = update_run(run)
+        except Exception as e:
+            raise EntityError("Something got wrong during run update") from e
+        return run_from_dict(updated)

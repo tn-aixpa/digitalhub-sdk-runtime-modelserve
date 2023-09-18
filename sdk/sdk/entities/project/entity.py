@@ -818,7 +818,6 @@ def project_from_parameters(
     spec = build_spec(kind, context=context, source=source, **kwargs)
     return Project(
         name=name,
-        kind=kind,
         metadata=meta,
         spec=spec,
         local=local,
