@@ -6,5 +6,4 @@ Artifacts
 
    entity
    crud
-   spec
-   metadata
+   spec/index

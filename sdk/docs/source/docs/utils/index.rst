@@ -11,3 +11,4 @@ Utils
    uri_utils
    exceptions
    entities_utils
+   generic_utils

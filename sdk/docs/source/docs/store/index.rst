@@ -6,6 +6,7 @@ Stores
 
    models
    builder
+   factory
    objects/base
    objects/local
    objects/remote

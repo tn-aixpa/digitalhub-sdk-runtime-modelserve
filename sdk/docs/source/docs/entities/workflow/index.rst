@@ -5,6 +5,5 @@ Workflows
    :maxdepth: 1
 
    entity
-   spec
    crud
-   metadata
+   spec/index

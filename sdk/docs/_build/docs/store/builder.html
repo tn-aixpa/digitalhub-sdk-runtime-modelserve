@@ -41,8 +41,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/store/builder';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="sdk.store.objects.base" href="objects/base.html" />
-    <link rel="prev" title="sdk.store.models" href="models.html" />
+    <link rel="next" title="sdk.runtimes.factory" href="factory.html" />
+    <link rel="prev" title="sdk.runtimes.models" href="models.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -138,19 +138,41 @@
                     </li>
                 
 
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../context/index.html">
+                        Context
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../runtimes/index.html">
+                        Stores
+                      </a>
+                    </li>
+                
+
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="index.html">
                         Stores
                       </a>
                     </li>
                 
-
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../utils/index.html">
                         Utils
                       </a>
                     </li>
                 
+                </div>
+            </div>
+            
   </ul>
 </nav></div>
       
@@ -242,19 +264,41 @@ document.write(`
                     </li>
                 
 
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../context/index.html">
+                        Context
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../runtimes/index.html">
+                        Stores
+                      </a>
+                    </li>
+                
+
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="index.html">
                         Stores
                       </a>
                     </li>
                 
-
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../utils/index.html">
                         Utils
                       </a>
                     </li>
                 
+                </div>
+            </div>
+            
   </ul>
 </nav></div>
         
@@ -284,8 +328,9 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="models.html">sdk.store.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">sdk.runtimes.models</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">sdk.store.builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">sdk.runtimes.factory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="objects/base.html">sdk.store.objects.base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="objects/local.html">sdk.store.objects.local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="objects/remote.html">sdk.store.objects.remote</a></li>
@@ -370,16 +415,20 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#sdk.store.builder.StoreBuilder.get" title="sdk.store.builder.StoreBuilder.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(uri)</p></td>
 <td><p>Get a store instance by URI.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sdk.store.builder.StoreBuilder.set_default" title="sdk.store.builder.StoreBuilder.set_default"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_default</span></code></a>(scheme)</p></td>
+<td><p>Set the default store instance.</p></td>
+</tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.builder.StoreBuilder.build">
-<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="models.html#sdk.store.models.StoreConfig" title="sdk.store.models.StoreConfig"><span class="pre">StoreConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sdk.store.builder.StoreBuilder.build" title="Permalink to this definition">#</a></dt>
-<dd><p>Build a store instance and register it.</p>
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StoreParameters</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sdk.store.builder.StoreBuilder.build" title="Permalink to this definition">#</a></dt>
+<dd><p>Build a store instance and register it.
+It overrides any existing instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>store_cfg</strong><span class="classifier">StoreConfig</span></dt><dd><p>Store configuration.</p>
+<dt><strong>store_cfg</strong><span class="classifier">StoreParameters</span></dt><dd><p>Store configuration.</p>
 </dd>
 </dl>
 </dd>
@@ -432,13 +481,32 @@ document.write(`
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sdk.store.builder.StoreBuilder.set_default">
+<span class="sig-name descname"><span class="pre">set_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sdk.store.builder.StoreBuilder.set_default" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the default store instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>scheme</strong><span class="classifier">str</span></dt><dd><p>Store scheme.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sdk.store.builder.StoreBuilder.build_store">
-<span class="sig-name descname"><span class="pre">build_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="models.html#sdk.store.models.StoreConfig" title="sdk.store.models.StoreConfig"><span class="pre">StoreConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="objects/base.html#sdk.store.objects.base.Store" title="sdk.store.objects.base.Store"><span class="pre">Store</span></a></span></span><a class="headerlink" href="#sdk.store.builder.StoreBuilder.build_store" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">build_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StoreParameters</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="objects/base.html#sdk.store.objects.base.Store" title="sdk.store.objects.base.Store"><span class="pre">Store</span></a></span></span><a class="headerlink" href="#sdk.store.builder.StoreBuilder.build_store" title="Permalink to this definition">#</a></dt>
 <dd><p>Build a store instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>cfg</strong><span class="classifier">StoreConfig</span></dt><dd><p>Store configuration.</p>
+<dt><strong>cfg</strong><span class="classifier">StoreParameters</span></dt><dd><p>Store configuration.</p>
 </dd>
 </dl>
 </dd>
@@ -478,15 +546,15 @@ document.write(`
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">sdk.store.models</p>
+        <p class="prev-next-title">sdk.runtimes.models</p>
       </div>
     </a>
     <a class="right-next"
-       href="objects/base.html"
+       href="factory.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">sdk.store.objects.base</p>
+        <p class="prev-next-title">sdk.runtimes.factory</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -512,6 +580,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.builder.StoreBuilder.build"><code class="docutils literal notranslate"><span class="pre">StoreBuilder.build()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.builder.StoreBuilder.get"><code class="docutils literal notranslate"><span class="pre">StoreBuilder.get()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.builder.StoreBuilder.default"><code class="docutils literal notranslate"><span class="pre">StoreBuilder.default()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.builder.StoreBuilder.set_default"><code class="docutils literal notranslate"><span class="pre">StoreBuilder.set_default()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.builder.StoreBuilder.build_store"><code class="docutils literal notranslate"><span class="pre">StoreBuilder.build_store()</span></code></a></li>
 </ul>
 </li>

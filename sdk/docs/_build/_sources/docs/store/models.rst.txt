@@ -1,7 +1,7 @@
 
-sdk.store.models
+sdk.runtimes.models
 ================
 
-.. automodule:: sdk.store.models
+.. automodule:: sdk.runtimes.models
     :members:
     :show-inheritance:

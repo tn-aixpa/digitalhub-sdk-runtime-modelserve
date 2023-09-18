@@ -355,9 +355,7 @@ class Project(Entity):
         Artifact
            Object instance.
 
-        See Also
-        --------
-        sdk.new_artifact()
+
         """
         kwargs["project"] = self.name
         obj = new_artifact(**kwargs)
@@ -440,9 +438,7 @@ class Project(Entity):
         Function
            Object instance.
 
-        See Also
-        --------
-        sdk.new_function()
+
         """
         kwargs["project"] = self.name
         obj = new_function(**kwargs)
@@ -525,9 +521,7 @@ class Project(Entity):
         Workflow
             An instance of the created workflow.
 
-        See Also
-        --------
-        sdk.new_workflow()
+
         """
         kwargs["project"] = self.name
         obj = new_workflow(**kwargs)
@@ -610,9 +604,7 @@ class Project(Entity):
         Dataitem
            Object instance.
 
-        See Also
-        --------
-        sdk.new_dataitem()
+
         """
         kwargs["project"] = self.name
         obj = new_dataitem(**kwargs)

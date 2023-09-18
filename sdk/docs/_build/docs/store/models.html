@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>sdk.store.models &#8212; sdk  documentation</title>
+    <title>sdk.runtimes.models &#8212; sdk  documentation</title>
   
   
   
@@ -138,19 +138,41 @@
                     </li>
                 
 
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../context/index.html">
+                        Context
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../runtimes/index.html">
+                        Stores
+                      </a>
+                    </li>
+                
+
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="index.html">
                         Stores
                       </a>
                     </li>
                 
-
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../utils/index.html">
                         Utils
                       </a>
                     </li>
                 
+                </div>
+            </div>
+            
   </ul>
 </nav></div>
       
@@ -242,19 +264,41 @@ document.write(`
                     </li>
                 
 
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../context/index.html">
+                        Context
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../runtimes/index.html">
+                        Stores
+                      </a>
+                    </li>
+                
+
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="index.html">
                         Stores
                       </a>
                     </li>
                 
-
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../utils/index.html">
                         Utils
                       </a>
                     </li>
                 
+                </div>
+            </div>
+            
   </ul>
 </nav></div>
         
@@ -284,8 +328,9 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">sdk.store.models</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">sdk.runtimes.models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="builder.html">sdk.store.builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="factory.html">sdk.runtimes.factory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="objects/base.html">sdk.store.objects.base</a></li>
 <li class="toctree-l1"><a class="reference internal" href="objects/local.html">sdk.store.objects.local</a></li>
 <li class="toctree-l1"><a class="reference internal" href="objects/remote.html">sdk.store.objects.remote</a></li>
@@ -330,7 +375,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Stores</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">sdk.store.models</li>
+    <li class="breadcrumb-item active" aria-current="page">sdk.runtimes.models</li>
   </ul>
 </nav>
 </div>
@@ -347,46 +392,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="module-sdk.store.models">
-<span id="sdk-store-models"></span><h1>sdk.store.models<a class="headerlink" href="#module-sdk.store.models" title="Permalink to this heading">#</a></h1>
-<p>Store models module.</p>
-<dl class="py class pydantic_model">
-<dt class="sig sig-object py" id="sdk.store.models.StoreConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sdk.store.models.</span></span><span class="sig-name descname"><span class="pre">StoreConfig</span></span><a class="headerlink" href="#sdk.store.models.StoreConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>Store configuration class.</p>
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="sdk.store.models.StoreConfig.config">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sdk.store.models.StoreConfig.config" title="Permalink to this definition">#</a></dt>
-<dd><p>Dictionary containing credentials/configurations for the storage.</p>
-</dd></dl>
-
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="sdk.store.models.StoreConfig.is_default">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_default</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#sdk.store.models.StoreConfig.is_default" title="Permalink to this definition">#</a></dt>
-<dd><p>Flag to determine if the store is the default one.</p>
-</dd></dl>
-
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="sdk.store.models.StoreConfig.name">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#sdk.store.models.StoreConfig.name" title="Permalink to this definition">#</a></dt>
-<dd><p>Store id.</p>
-</dd></dl>
-
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="sdk.store.models.StoreConfig.type">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'local'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'s3'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'remote'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sql'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#sdk.store.models.StoreConfig.type" title="Permalink to this definition">#</a></dt>
-<dd><p>Store type to instantiate.</p>
-</dd></dl>
-
-<dl class="py attribute pydantic_field">
-<dt class="sig sig-object py" id="sdk.store.models.StoreConfig.uri">
-<em class="property"><span class="pre">field</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uri</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"> <span class="pre">[Required]</span></em><a class="headerlink" href="#sdk.store.models.StoreConfig.uri" title="Permalink to this definition">#</a></dt>
-<dd><p>Store URI.</p>
-</dd></dl>
-
-</dd></dl>
-
+  <section id="sdk-runtimes-models">
+<h1>sdk.runtimes.models<a class="headerlink" href="#sdk-runtimes-models" title="Permalink to this heading">#</a></h1>
 </section>
 
 
@@ -429,23 +436,6 @@ document.write(`
             
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.models.StoreConfig"><code class="docutils literal notranslate"><span class="pre">StoreConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.models.StoreConfig.config"><code class="docutils literal notranslate"><span class="pre">StoreConfig.config</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.models.StoreConfig.is_default"><code class="docutils literal notranslate"><span class="pre">StoreConfig.is_default</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.models.StoreConfig.name"><code class="docutils literal notranslate"><span class="pre">StoreConfig.name</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.models.StoreConfig.type"><code class="docutils literal notranslate"><span class="pre">StoreConfig.type</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sdk.store.models.StoreConfig.uri"><code class="docutils literal notranslate"><span class="pre">StoreConfig.uri</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">

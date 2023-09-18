@@ -5,6 +5,6 @@ Tasks
    :maxdepth: 1
 
    entity
-   spec
    crud
+   spec/index
    models

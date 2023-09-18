@@ -1,0 +1,7 @@
+
+sdk.entities.dataitem.spec.base
+==========================
+
+.. automodule:: sdk.entities.dataitem.spec.base
+    :members:
+    :show-inheritance:
