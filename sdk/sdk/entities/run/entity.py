@@ -61,13 +61,12 @@ class Run(Entity):
         self.id = get_uiid(uuid=uuid)
         self.task_id = task_id
         self.task = task
-        self.status = {}
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.state = state if state is not None else build_state()
 
         # Private attributes
         self._local = local
-        self._obj_attr += ["task_id", "task", "status"]
+        self._obj_attr += ["task_id", "task"]
         self._context = get_context(self.project)
 
     #############################
@@ -234,14 +233,14 @@ class Run(Entity):
             return get_dataitem_from_key(key)
         return [get_dataitem_from_key(r.get("id")) for r in result]
 
-    def set_status(self, status: dict) -> None:
+    def set_state(self, state: dict) -> None:
         """
-        Set run status.
+        Set run state.
 
         Parameters
         ----------
-        status : dict
-            Status to set.
+        state : dict
+            State to set.
 
         Returns
         -------
@@ -252,9 +251,9 @@ class Run(Entity):
         EntityError
             If status is not a dictionary.
         """
-        if not isinstance(status, dict):
+        if not isinstance(state, dict):
             raise EntityError("Status must be a dictionary.")
-        self.status = status
+        self.state = build_state(**state)
 
     #############################
     #  Getters and Setters
@@ -323,13 +322,14 @@ class Run(Entity):
         uuid = obj.get("id")
         kind = obj.get("kind", "run")
 
-        # Build metadata, spec, state
+        # Build metadata, spec, state, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
         state = obj.get("state")
         state = state if state is not None else {}
         state = build_state(**state)
+        status = obj.get("status")
 
         return {
             "project": project,

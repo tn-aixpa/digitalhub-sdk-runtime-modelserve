@@ -16,7 +16,7 @@ def get_dhub_env() -> DHCoreConfig:
         An object that contains endpoint, user, password, and token of a DHub Core configuration.
     """
     return DHCoreConfig(
-        endpoint=os.getenv("DHUB_CORE_ENDPOINT", "http://127.0.0.1:8080"),
+        endpoint=os.getenv("DHUB_CORE_ENDPOINT"),
         user=os.getenv("DHUB_CORE_USER"),
         password=os.getenv("DHUB_CORE_PASSWORD"),
         token=os.getenv("DHUB_CORE_TOKEN"),

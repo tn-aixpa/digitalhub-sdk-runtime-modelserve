@@ -65,7 +65,7 @@ postgres:
             user: {os.getenv("POSTGRES_USER")}
             pass: {os.getenv("POSTGRES_PASSWORD")}
             port: {os.getenv("POSTGRES_PORT")}
-            dbname: {os.getenv("POSTGRES_DB")}
+            dbname: {os.getenv("POSTGRES_DATABASE")}
             schema: public
     target: dev
 """
@@ -589,7 +589,7 @@ class DBTRuntime(Runtime):
             **result.timings,
         }
         run = get_run(self.project_name, self.run_id)
-        run.set_status(status_dict)
+        run.set_state(status_dict)
         try:
             updated = update_run(run)
         except Exception as e:

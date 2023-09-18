@@ -31,10 +31,10 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             name="s3",
             type="s3",
             config=S3StoreConfig(
-                endpoint_url=os.getenv("S3_ENDPOINT_URL", "http://192.168.49.2:30080"),
-                aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID", "minio"),
-                aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY", "minio123"),
-                bucket_name=os.getenv("S3_BUCKET_NAME", "mlrun"),
+                endpoint_url=os.getenv("S3_ENDPOINT_URL"),
+                aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID"),
+                aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY"),
+                bucket_name=os.getenv("S3_BUCKET_NAME"),
             ),
         )
     elif scheme == "sql":
@@ -42,12 +42,12 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             name="sql",
             type="sql",
             config=SQLStoreConfig(
-                host=os.getenv("POSTGRES_HOST", "127.0.0.1"),
-                port=os.getenv("POSTGRES_PORT", "5433"),
-                user=os.getenv("POSTGRES_USER", "testuser"),
-                password=os.getenv("POSTGRES_PASSWORD", "testpassword"),
-                database=os.getenv("POSTGRES_DATABASE", "dbt"),
-                pg_schema=os.getenv("POSTGRES_SCHEMA", "public"),
+                host=os.getenv("POSTGRES_HOST"),
+                port=os.getenv("POSTGRES_PORT"),
+                user=os.getenv("POSTGRES_USER"),
+                password=os.getenv("POSTGRES_PASSWORD"),
+                database=os.getenv("POSTGRES_DATABASE"),
+                pg_schema=os.getenv("POSTGRES_SCHEMA"),
             ),
         )
     elif scheme == "remote":
