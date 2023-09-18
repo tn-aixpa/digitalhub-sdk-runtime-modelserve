@@ -152,7 +152,7 @@ public class RunSerivceImpl implements RunService {
                     // check weather the run has local set to True in that case return
                     // immediately the run without invoke the execution.
                     Supplier<RunDTO> result = () -> {
-                        return Optional.ofNullable(runDTO.getSpec().get("local"))
+                        return Optional.ofNullable(runDTO.getSpec().get("local_execution"))
                                 .filter(value -> value.equals(true))
                                 .map(value -> runDTOBuilder.build(run)) // return immediately
                                 .orElseGet(() -> { // execute and return
