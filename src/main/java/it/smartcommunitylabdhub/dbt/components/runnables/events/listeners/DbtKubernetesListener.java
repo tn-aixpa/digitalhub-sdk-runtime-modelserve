@@ -22,6 +22,14 @@ import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.dbt.components.runnables.events.messages.DbtKubernetesMessage;
 import lombok.extern.log4j.Log4j2;
 
+/**
+ * DbtKubernetesListener.java
+ *
+ * This listener class asynchronously handles Kubernetes events related to Dbt (Data Build Tool)
+ * jobs. It monitors job events, logs them, and updates the state of the corresponding Run State
+ * Machine.
+ *
+ */
 @Component
 @Log4j2
 public class DbtKubernetesListener {
@@ -38,19 +46,27 @@ public class DbtKubernetesListener {
 	@Autowired
 	RunService runService;
 
+
+	/**
+	 * Asynchronously handle Dbt-related Kubernetes events.
+	 *
+	 * @param message The DbtKubernetesMessage containing event details.
+	 */
 	@EventListener
 	@Async
 	public void handle(DbtKubernetesMessage message) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String threadName = Thread.currentThread().getName();
 
+
+		// Log the initiation of Dbt Kubernetes Listener
 		log.info("Dbt Kubernetes Listener [" + threadName + "] "
 				+ message.getK8sJobName()
 				+ "@"
 				+ message.getK8sNamespace());
 
 
-		// Watching for current job events.
+		// Watch for current job events
 		Watch watch = kubernetesClient.v1().events().inAnyNamespace().watch(new Watcher<Event>() {
 			@Override
 			public void eventReceived(Action action, Event event) {
@@ -109,19 +125,20 @@ public class DbtKubernetesListener {
 			}
 		});
 
-		// Waiting Until job is succeded..this is thread blocking functionality for this reason
+		// Wait until job is succeded..this is thread blocking functionality for this reason
 		// every watcher is on @Async method.
 		kubernetesClient.batch().v1().jobs().inNamespace(message.getK8sNamespace())
 				.withName(message.getK8sJobName())
 				.waitUntilCondition(pod -> pod.getStatus().getSucceeded() != null
 						&& pod.getStatus().getSucceeded() > 0, 8L, TimeUnit.HOURS);
 
+		// Get job execution logs
 		String jobLogs =
 				kubernetesClient.batch().v1().jobs().inNamespace(message.getK8sNamespace())
 						.withName(message.getK8sJobName())
 						.getLog();
 
-		// Write job execution logs
+		// Write job execution logs to the log service
 		logService.createLog(LogDTO.builder()
 				.run(message.getRunDTO().getId())
 				.project(message.getRunDTO().getProject())
@@ -129,10 +146,10 @@ public class DbtKubernetesListener {
 				.build());
 
 
-		// Close watching job execution
+		// Close the job execution watch
 		watch.close();
 
-		// Clean up job
+		// Clean up the job
 		kubernetesClient.batch().v1().jobs().inNamespace(message.getK8sNamespace())
 				.withName(message.getK8sJobName())
 				.delete();

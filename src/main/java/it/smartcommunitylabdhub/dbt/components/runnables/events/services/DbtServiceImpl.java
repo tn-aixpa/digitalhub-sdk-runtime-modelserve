@@ -22,6 +22,18 @@ import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.dbt.components.runnables.events.messages.DbtKubernetesMessage;
 import lombok.extern.log4j.Log4j2;
 
+
+/**
+ * DbtServiceImpl.java
+ *
+ * This service class is responsible for preparing and running Kubernetes jobs for the Dbt (Data
+ * Build Tool) service.
+ *
+ * It constructs a Kubernetes Job with specific environment variables and settings, initiates a
+ * State Machine to manage the state of the Dbt job, and publishes events related to the job's
+ * execution.
+ *
+ */
 @Service
 @Qualifier("DbtService")
 @Log4j2
@@ -40,12 +52,23 @@ public class DbtServiceImpl extends K8sAbstractJobBuilder implements KindService
 	K8sJobBuilderHelper k8sJobBuilderHelper;
 
 
+	/**
+	 * Run a Dbt job in a Kubernetes cluster.
+	 *
+	 * @param runDTO The RunDTO containing job details.
+	 * @return {@code null} (void method)
+	 */
 	@Override
 	public Void run(RunDTO runDTO) {
 
+		// Log service execution initiation
 		log.info("----------------- PREPARE KUBERNETES JOB ----------------");
+
+		// Specify the Kubernetes namespace
 		final String namespace = "default";
 
+
+		// Prepare environment variables for the Kubernetes job
 		List<EnvVar> envVars = k8sJobBuilderHelper.getEnv();
 		envVars.addAll(List.of(
 				new EnvVar("PROJECT_NAME", runDTO.getProject(), null),
@@ -55,9 +78,9 @@ public class DbtServiceImpl extends K8sAbstractJobBuilder implements KindService
 				new EnvVar("POSTGRES_DB", "dbt", null),
 				new EnvVar("POSTGRES_USER", "testuser", null),
 				new EnvVar("POSTGRES_PASSWORD", "testpassword", null),
-				new EnvVar("POSTGRES_SCHEMA", "public", null)
-				));
+				new EnvVar("POSTGRES_SCHEMA", "public", null)));
 
+		// Build the Kubernetes Job configuration
 		Job job = new JobBuilder()
 				.withNewMetadata()
 				.withName(getJobName(runDTO))
@@ -78,15 +101,15 @@ public class DbtServiceImpl extends K8sAbstractJobBuilder implements KindService
 				.build();
 
 
-		// Init run state machine considering current state and context.
+		// Initialize the run state machine considering current state and context
 		StateMachine<RunState, RunEvent, Map<String, Object>> fsm = runStateMachine
 				.create(RunState.valueOf(runDTO.getState()), Map.of("runId", runDTO.getId()));
 
 
-		// Create Job in k8s
+		// Create the Kubernetes Job in the specified namespace
 		Job jobResult = kubernetesClient.resource(job).inNamespace(namespace).create();
 
-		// Send message to k8s event listener
+		// Send a message to the Kubernetes event listener
 		eventPublisher.publishEvent(DbtKubernetesMessage.builder()
 				.fsm(fsm)
 				.runDTO(runDTO)
