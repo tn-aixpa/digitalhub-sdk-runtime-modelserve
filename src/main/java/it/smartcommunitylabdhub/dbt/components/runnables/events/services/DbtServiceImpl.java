@@ -79,7 +79,7 @@ public class DbtServiceImpl extends K8sAbstractJobBuilder implements KindService
 				new EnvVar("S3_BUCKET_NAME", "mlrun", null),
 				new EnvVar("POSTGRES_HOST", "192.168.49.1", null),
 				new EnvVar("POSTGRES_PORT", "5433", null),
-				new EnvVar("POSTGRES_DB", "dbt", null),
+				new EnvVar("POSTGRES_DATABASE", "dbt", null),
 				new EnvVar("POSTGRES_USER", "testuser", null),
 				new EnvVar("POSTGRES_PASSWORD", "testpassword", null),
 				new EnvVar("POSTGRES_SCHEMA", "public", null)));
