@@ -6,9 +6,6 @@ from sdk.store.models import StoreParameters
 from sdk.store.objects.base import Store
 
 store_builder = StoreBuilder()
-for uri in ["local://", "s3://", "remote://", "sql://"]:
-    store_builder.get(uri)
-store_builder.set_default("s3://")
 
 
 def set_store(store_cfg: StoreParameters) -> None:

@@ -8,7 +8,7 @@ import typing
 from sdk.context.factory import get_context
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.state import build_state
+from sdk.entities.base.status import build_status, Status
 from sdk.entities.dataitem.crud import get_dataitem_from_key
 from sdk.entities.run.spec.builder import build_spec
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
@@ -17,7 +17,6 @@ from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.entity import Artifact
-    from sdk.entities.base.state import State
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.run.spec.builder import RunSpec
 
@@ -33,7 +32,7 @@ class Run(Entity):
         task_id: str,
         task: str | None = None,
         spec: RunSpec | None = None,
-        state: State | None = None,
+        status: Status | None = None,
         local: bool = False,
         uuid: str | None = None,
     ) -> None:
@@ -50,7 +49,7 @@ class Run(Entity):
             Identifier of the task.
         spec : RunSpec
             Specification of the object.
-        state : State
+        status : Status
             State of the object.
         local: bool
             If True, export locally.
@@ -62,7 +61,7 @@ class Run(Entity):
         self.task_id = task_id
         self.task = task
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
-        self.state = state if state is not None else build_state()
+        self.status = status if status is not None else build_status()
 
         # Private attributes
         self._local = local
@@ -233,14 +232,14 @@ class Run(Entity):
             return get_dataitem_from_key(key)
         return [get_dataitem_from_key(r.get("id")) for r in result]
 
-    def set_state(self, state: dict) -> None:
+    def set_status(self, status: dict | Status) -> None:
         """
-        Set run state.
+        Set run status.
 
         Parameters
         ----------
-        state : dict
-            State to set.
+        status : dict | Status
+            Status to set.
 
         Returns
         -------
@@ -249,11 +248,14 @@ class Run(Entity):
         Raises
         ------
         EntityError
-            If status is not a dictionary.
+            If status is not a dictionary or a Status object.
         """
-        if not isinstance(state, dict):
-            raise EntityError("Status must be a dictionary.")
-        self.state = build_state(**state)
+        if isinstance(status, Status):
+            self.status = status
+        elif isinstance(status, dict):
+            self.status = build_status(**status)
+        else:
+            raise EntityError("Status must be a dictionary or a Status object.")
 
     #############################
     #  Getters and Setters
@@ -322,13 +324,13 @@ class Run(Entity):
         uuid = obj.get("id")
         kind = obj.get("kind", "run")
 
-        # Build metadata, spec, state, status
+        # Build metadata, spec, status, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
-        state = obj.get("state")
-        state = state if state is not None else {}
-        state = build_state(**state)
+        status = obj.get("status")
+        status = status if status is not None else {}
+        status = build_status(**status)
         status = obj.get("status")
 
         return {
@@ -337,7 +339,7 @@ class Run(Entity):
             "task": task,
             "uuid": uuid,
             "spec": spec,
-            "state": state,
+            "status": status,
         }
 
 

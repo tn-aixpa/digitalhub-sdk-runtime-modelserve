@@ -7,7 +7,7 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.state import build_state
+from sdk.entities.base.status import build_status
 from sdk.entities.run.crud import new_run
 from sdk.entities.task.spec.builder import build_spec
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
@@ -15,7 +15,7 @@ from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.state import State
+    from sdk.entities.base.status import State
     from sdk.entities.run.entity import Run
     from sdk.entities.task.spec.base import TaskSpec
 
@@ -32,7 +32,7 @@ class Task(Entity):
         uuid: str | None = None,
         kind: str | None = None,
         spec: TaskSpec | None = None,
-        state: State | None = None,
+        status: Status | None = None,
         local: bool = False,
         **kwargs,
     ) -> None:
@@ -51,7 +51,7 @@ class Task(Entity):
             Kind of the object.
         spec : TaskSpec
             Specification of the object.
-        state : State
+        status : Status
             State of the object.
         local : bool
             If True, run locally.
@@ -64,7 +64,7 @@ class Task(Entity):
         self.task = task if task is not None else ""
         self.kind = kind if kind is not None else "task"
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
-        self.state = state if state is not None else build_state()
+        self.status = status if status is not None else build_status()
 
         # Set new attributes
         self._any_setter(**kwargs)
@@ -212,13 +212,13 @@ class Task(Entity):
         kind = obj.get("kind", "run")
         uuid = obj.get("id")
 
-        # Build spec, state
+        # Build spec, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
-        state = obj.get("state")
-        state = state if state is not None else {}
-        state = build_state(**state)
+        status = obj.get("status")
+        status = status if status is not None else {}
+        status = build_status(**status)
 
         return {
             "project": project,
@@ -226,7 +226,7 @@ class Task(Entity):
             "kind": kind,
             "uuid": uuid,
             "spec": spec,
-            "state": state,
+            "status": status,
         }
 
 

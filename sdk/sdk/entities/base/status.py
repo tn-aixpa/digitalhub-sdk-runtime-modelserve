@@ -1,14 +1,14 @@
 """
-State class module.
+Status class module.
 """
 from enum import Enum
 
 from sdk.entities.base.base_model import ModelObj
 
 
-class StateStatus(Enum):
+class StatusState(Enum):
     """
-    State status enumeration.
+    State enumeration.
     """
 
     COMPLETED = "COMPLETED"
@@ -21,24 +21,24 @@ class StateStatus(Enum):
     STOP = "STOP"
 
 
-class State(ModelObj):
-    def __init__(self, status: str, **kwargs) -> None:
+class Status(ModelObj):
+    def __init__(self, state: str, **kwargs) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        status : str
-            The status of the entity.
+        state : str
+            The state of the entity.
         **kwargs
             Keyword arguments.
         """
-        self.status = status
+        self.state = state
 
         self._any_setter(**kwargs)
 
     @classmethod
-    def from_dict(cls, obj: dict | None = None) -> "State":
+    def from_dict(cls, obj: dict | None = None) -> "Status":
         """
         Return entity specification object from dictionary.
 
@@ -56,9 +56,9 @@ class State(ModelObj):
         return cls(**obj)
 
 
-def build_state(**kwargs) -> State:
+def build_status(**kwargs) -> Status:
     """
-    Build entity state object.
+    Build entity status object.
 
     Parameters
     ----------
@@ -67,14 +67,14 @@ def build_state(**kwargs) -> State:
 
     Returns
     -------
-    State
-        An entity state object.
+    Status
+        An entity status object.
     """
     if kwargs:
-        if "status" not in kwargs:
-            kwargs["status"] = StateStatus.CREATED.value
+        if "state" not in kwargs:
+            kwargs["state"] = StatusState.CREATED.value
         else:
-            if kwargs["status"] not in StateStatus.__members__:
-                raise ValueError(f"Invalid state status: {kwargs['status']}")
-        return State(**kwargs)
-    return State(status=StateStatus.CREATED.value)
+            if kwargs["state"] not in StatusState.__members__:
+                raise ValueError(f"Invalid status status: {kwargs['state']}")
+        return Status(**kwargs)
+    return Status(state=StatusState.CREATED.value)

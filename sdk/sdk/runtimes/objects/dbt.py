@@ -10,10 +10,10 @@ from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
+from sdk.entities.base.status import build_status, StatusState
 from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
-from sdk.entities.run.crud import get_run, update_run, run_from_dict
+from sdk.entities.run.crud import get_run, run_from_dict, update_run
 from sdk.runtimes.objects.base import Runtime
-from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import decode_string, encode_string, get_uiid
 
 if typing.TYPE_CHECKING:
@@ -112,7 +112,8 @@ class DBTRuntime(Runtime):
         Runtime.__init__
         """
         super().__init__(spec, run_id, project_name)
-        self.model_dir = Path("models")
+        self.root_dir = Path("dbt_run")
+        self.model_dir = self.root_dir / "models"
         self.dataitem_kind = "table"
 
     def run(self) -> Run:
@@ -122,7 +123,7 @@ class DBTRuntime(Runtime):
         Returns
         -------
         Run
-            The updated run.
+            The executed run.
         """
 
         # Parse inputs/outputs
@@ -143,7 +144,7 @@ class DBTRuntime(Runtime):
         dataitem = self.create_dataitem(parsed_result, uuid)
 
         # Update run
-        return self.update_run(parsed_result, output, dataitem)
+        return self.update_run_results(dataitem, parsed_result, output)
 
     ####################
     # Parse inputs/outputs
@@ -157,15 +158,10 @@ class DBTRuntime(Runtime):
         -------
         list
             The list of inputs dataitems names.
-
-        Raises
-        ------
-        EntityError
-            If inputs are not a list of dataitems.
         """
         inputs = self.spec.get("inputs", {}).get("dataitems", [])
         if not isinstance(inputs, list):
-            raise EntityError("Inputs must be a list of dataitems")
+            self.handle_run_error("Inputs must be a list of dataitems")
         self.materialize_inputs(inputs)
         return inputs
 
@@ -181,17 +177,12 @@ class DBTRuntime(Runtime):
         Returns
         -------
         None
-
-        Raises
-        ------
-        EntityError
-            If dataitem is not found.
         """
         for name in inputs:
             try:
                 di = get_dataitem(self.project_name, name)
             except Exception:
-                raise EntityError(
+                self.handle_run_error(
                     f"Dataitem {name} not found in project {self.project_name}"
                 )
             df = di.as_df()
@@ -208,15 +199,10 @@ class DBTRuntime(Runtime):
         -------
         str
             The output dataitem/table name.
-
-        Raises
-        ------
-        EntityError
-            If outputs are not a list of dataitems.
         """
         outputs = self.spec.get("outputs", {}).get("dataitems", [])
         if not isinstance(outputs, list):
-            raise EntityError("Outputs must be a list of dataitems")
+            self.handle_run_error("Outputs must be a list of dataitems")
         return outputs[0]
 
     ####################
@@ -324,9 +310,11 @@ class DBTRuntime(Runtime):
         -------
         None
         """
-        # to clean project add clean-targets: [target, dbt_packages, logs]
-        Path("dbt_project.yml").write_text(
-            PROJECT_TEMPLATE.format(self.project_name.replace("-", "_"), self.model_dir)
+        project_path = self.root_dir / "dbt_project.yml"
+        project_path.write_text(
+            PROJECT_TEMPLATE.format(
+                self.project_name.replace("-", "_"), self.model_dir.name
+            )
         )
 
     def generate_dbt_profile_yml(self) -> None:
@@ -337,7 +325,8 @@ class DBTRuntime(Runtime):
         -------
         None
         """
-        Path("profiles.yml").write_text(PROFILE_TEMPLATE)
+        profiles_path = self.root_dir / "profiles.yml"
+        profiles_path.write_text(PROFILE_TEMPLATE)
 
     ####################
     # Execute function
@@ -358,10 +347,13 @@ class DBTRuntime(Runtime):
         dbtRunnerResult
             An object representing the result of the dbt execution.
         """
+        os.chdir(self.root_dir)
         dbt = dbtRunner()
         dbt.invoke("clean")
         cli_args = ["run", "--select", f"{output}"]
-        return dbt.invoke(cli_args)
+        res = dbt.invoke(cli_args)
+        os.chdir("..")
+        return res
 
     ####################
     # Results parsing
@@ -382,11 +374,6 @@ class DBTRuntime(Runtime):
         -------
         ParsedResults
             Parsed results.
-
-        Raises
-        ------
-        RuntimeError
-            If something got wrong during object result access.
         """
         result: RunResult = self.validate_results(run_result, output)
         try:
@@ -394,8 +381,8 @@ class DBTRuntime(Runtime):
             raw_code, compiled_code = self.get_code(result)
             timings = self.get_timings(result)
             name = result.node.name
-        except Exception as e:
-            raise RuntimeError("Something got wrong during object result access") from e
+        except Exception:
+            self.handle_run_error("Something got wrong during results parsing.")
         return ParsedResults(name, path, raw_code, compiled_code, timings)
 
     def validate_results(self, run_result: dbtRunnerResult, output: str) -> RunResult:
@@ -413,21 +400,26 @@ class DBTRuntime(Runtime):
         -------
         RunResult
             Run result.
+
+        Raises
+        ------
+        RuntimeError
+            If something got wrong during function execution.
         """
-        # Take last result, final result of the query
         try:
+            # Take last result, final result of the query
             result: RunResult = run_result.result[-1]
         except IndexError:
-            raise RuntimeError("No results found.")
+            self.handle_run_error("No results found.")
 
         if not result.status.value == "success":
-            raise RuntimeError("Execution is not successfull.")
+            self.handle_run_error("Something got wrong during function execution.")
 
         if not result.node.package_name == self.project_name.replace("-", "_"):
-            raise RuntimeError("Wrong project name.")
+            self.handle_run_error("Wrong project name.")
 
         if not result.node.name == output:
-            raise RuntimeError("Wrong function name.")
+            self.handle_run_error("Wrong output name.")
 
         return result
 
@@ -520,11 +512,6 @@ class DBTRuntime(Runtime):
         -------
         Dataitem
             The dataitem.
-
-        Raises
-        ------
-        EntityError
-            If something got wrong during dataitem creation.
         """
         try:
             return new_dataitem(
@@ -536,8 +523,8 @@ class DBTRuntime(Runtime):
                 raw_code=result.raw_code,
                 compiled_code=result.compiled_code,
             )
-        except Exception as e:
-            raise EntityError("Something got wrong during dataitem creation") from e
+        except Exception:
+            self.handle_run_error("Something got wrong during dataitem creation.")
 
     def get_dataitem_info(self, output: str, dataitem: Dataitem) -> dict:
         """
@@ -560,18 +547,20 @@ class DBTRuntime(Runtime):
             ]
         }
 
-    def update_run(self, result: ParsedResults, output: str, dataitem: Dataitem) -> Run:
+    def update_run_results(
+        self, dataitem: Dataitem, result: ParsedResults, output: str
+    ) -> Run:
         """
         Update run with results infos.
 
         Parameters
         ----------
+        dataitem : Dataitem
+            The dataitem.
         result : ParsedResults
             The parsed results.
         output : str
             The output table name.
-        dataitem : Dataitem
-            The new created dataitem.
 
         Returns
         -------
@@ -583,15 +572,50 @@ class DBTRuntime(Runtime):
         EntityError
             If something got wrong during run update.
         """
-        dataitem_info = self.get_dataitem_info(output, dataitem)
+
         status_dict = {
-            **dataitem_info,
-            **result.timings,
-        }
+                **self.get_dataitem_info(output, dataitem),
+                **result.timings,
+                "state": StatusState.COMPLETED.value,
+            }
+        return self.update_run(**status_dict)
+
+    def handle_run_error(self, msg: str) -> None:
+        """
+        Handle run error.
+
+        Parameters
+        ----------
+        msg : str
+            The error message.
+
+        Returns
+        -------
+        None
+        """
+        self.update_run(state=StatusState.ERROR.value, error=msg)
+        raise RuntimeError(msg)
+
+    def update_run(self, **kwargs) -> Run:
+        """
+        Update run status.
+
+        Parameters
+        ----------
+        **kwargs :
+            Keyword arguments.
+
+        Returns
+        -------
+        Run
+            The updated run.
+
+        Raises
+        ------
+        EntityError
+            If something got wrong during run update.
+        """
         run = get_run(self.project_name, self.run_id)
-        run.set_state(status_dict)
-        try:
-            updated = update_run(run)
-        except Exception as e:
-            raise EntityError("Something got wrong during run update") from e
-        return run_from_dict(updated)
+        run.set_status(build_status(**kwargs))
+        new_run = update_run(run)
+        return run_from_dict(new_run)

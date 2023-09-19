@@ -8,7 +8,7 @@ import typing
 from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
-from sdk.entities.base.state import build_state
+from sdk.entities.base.status import build_status
 from sdk.entities.dataitem.spec.builder import build_spec
 from sdk.store.factory import get_default_store, get_store
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
@@ -21,7 +21,7 @@ if typing.TYPE_CHECKING:
     import pandas as pd
 
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.state import State
+    from sdk.entities.base.status import State
     from sdk.entities.dataitem.spec.builder import DataitemSpec
 
 
@@ -37,7 +37,7 @@ class Dataitem(Entity):
         kind: str | None = None,
         metadata: Metadata | None = None,
         spec: DataitemSpec | None = None,
-        state: State | None = None,
+        status: Status | None = None,
         local: bool = False,
         embedded: bool = True,
         uuid: str | None = None,
@@ -59,7 +59,7 @@ class Dataitem(Entity):
             Metadata of the object.
         spec : DataitemSpec
             Specification of the object.
-        state : State
+        status : Status
             State of the object.
         local: bool
             If True, export locally.
@@ -73,7 +73,7 @@ class Dataitem(Entity):
         self.kind = kind if kind is not None else "table"
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
-        self.state = state if state is not None else build_state()
+        self.status = status if status is not None else build_status()
         self.embedded = embedded
 
         # Private attributes
@@ -333,15 +333,15 @@ class Dataitem(Entity):
         kind = obj.get("kind", "table")
         embedded = obj.get("embedded")
 
-        # Build metadata, spec, state
+        # Build metadata, spec, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(kind=kind, **spec)
         metadata = obj.get("metadata", {"name": name})
         metadata = build_metadata(**metadata)
-        state = obj.get("state")
-        state = state if state is not None else {}
-        state = build_state(**state)
+        status = obj.get("status")
+        status = status if status is not None else {}
+        status = build_status(**status)
 
         return {
             "project": project,
@@ -350,7 +350,7 @@ class Dataitem(Entity):
             "uuid": uuid,
             "metadata": metadata,
             "spec": spec,
-            "state": state,
+            "status": status,
             "embedded": embedded,
         }
 

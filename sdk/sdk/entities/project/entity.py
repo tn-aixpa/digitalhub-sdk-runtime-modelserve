@@ -16,7 +16,7 @@ from sdk.entities.artifact.crud import (
 )
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
-from sdk.entities.base.state import build_state
+from sdk.entities.base.status import build_status
 from sdk.entities.dataitem.crud import (
     create_dataitem_from_dict,
     delete_dataitem,
@@ -51,7 +51,7 @@ if typing.TYPE_CHECKING:
     from sdk.client.client import Client
     from sdk.entities.artifact.entity import Artifact
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.state import State
+    from sdk.entities.base.status import State
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.function.entity import Function
     from sdk.entities.project.spec.builder import ProjectSpec
@@ -106,7 +106,7 @@ class Project(Entity):
         name: str,
         metadata: Metadata | None = None,
         spec: ProjectSpec | None = None,
-        state: State | None = None,
+        status: Status | None = None,
         local: bool = False,
         uuid: str | None = None,
     ) -> None:
@@ -132,7 +132,7 @@ class Project(Entity):
         self.id = get_uiid(uuid=uuid)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
-        self.state = state if state is not None else build_state()
+        self.status = status if status is not None else build_status()
 
         # Private attributes
         self._local = local
@@ -752,20 +752,20 @@ class Project(Entity):
         uuid = obj.get("id")
         kind = obj.get("kind", "project")
 
-        # Build metadata, spec, state
+        # Build metadata, spec, status
         _spec = {k: v for k, v in obj.get("spec", {}).items() if k in SPEC_LIST}
         spec = build_spec(kind=kind, **_spec)
         metadata = build_metadata(**obj.get("metadata", {"name": name}))
-        state = obj.get("state")
-        state = state if state is not None else {}
-        state = build_state(**state)
+        status = obj.get("status")
+        status = status if status is not None else {}
+        status = build_status(**status)
 
         return {
             "name": name,
             "uuid": uuid,
             "metadata": metadata,
             "spec": spec,
-            "state": state,
+            "status": status,
         }
 
 
