@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.utils.StateHandler;
 import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
@@ -64,6 +63,6 @@ public class RunDTO implements BaseEntity {
     @JsonAnySetter
     public void setExtra(String key, Object value) {
         extra.put(key, value);
-        StatusFieldUtility.updateStatusField(extra, state, new StateHandler());
+        StatusFieldUtility.updateStateField(this);
     }
 }
