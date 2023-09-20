@@ -1,8 +1,24 @@
+TODO: 20/09/2011
+
+- il campo task nel modello Task non e' piu univoco
+- tutti task vengono eseguite quando invoco la sua run, la relazione e' 1 a 1
+- State machine usata solo per il singolo Task -> Run
+- Qubeflow ....verra' utilizzato per una di Task -> Run che vengono eseguiti in sequenza.
+
+- il builder della run non utilizza piu la stringa del task -> dbt://<project>/<function>..ma utilizza il kind vero e proprio della funziona. Quindi avro' kind: "build" di conseguenza faro' un build di DBT.
+
+- runBuilderFactory.getBuilder(taskAccessor.getKind()) prendera' poi il kind vero e proprio del task e il tipo di funzione non solo il tipo di funzione. runBuilderFactory.getBuilder(task.getKind(), taskAccessor.getKind()). taskAccessor.getKind() -> descrive il tipo della funzione.
+
+- Rinominare il campo "task" in Task, TaskDTO come "function"
+- In Run e RunDTO il campo task contiene una stringa di questo tipo "dbt+build://<project>/<function>:<version>
+
+- Variabili d'ambiente definite tutte con DHUB\_ come prefisso che fa eliminato quando le inietto nel container.
+
+================================= ROBA VECCHIA ==================================
+
 - [x] La run puo avere un parametro local = True o False,
       nel caso di True costruisco la run e ritorno direttamente la run sara' poi a carico del SDK lanciare la Run e chiamare un Patch per aggiornare la run.
 
-=================================================================================
-================================= ROBA VECCHIA ==================================
 // [x] creare nuova context api
 
 // [x] Done
