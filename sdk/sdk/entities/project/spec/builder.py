@@ -1,17 +1,20 @@
 """
 Project specification builder module.
 """
-from sdk.entities.project.spec.base import ProjectSpec
-from sdk.utils.exceptions import EntityError
+from __future__ import annotations
 
-REGISTRY_SPEC = {
-    "project": ProjectSpec,
-}
+import typing
+
+from sdk.entities.base.spec import spec_builder
+from sdk.entities.project.spec.registry import REGISTRY_MODEL, REGISTRY_SPEC
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.project.spec.objects.base import ProjectSpec
 
 
 def build_spec(kind: str, **kwargs) -> ProjectSpec:
     """
-    Build a ProjectSpec object with the given parameters.
+    Build an ProjectSpecJob object with the given parameters.
 
     Parameters
     ----------
@@ -23,14 +26,11 @@ def build_spec(kind: str, **kwargs) -> ProjectSpec:
     Returns
     -------
     ProjectSpec
-        A ProjectSpec object with the given parameters.
+        An ProjectSpec object with the given parameters.
 
     Raises
     ------
     EntityError
         If the given kind is not supported.
     """
-    try:
-        return REGISTRY_SPEC[kind](**kwargs)
-    except KeyError:
-        raise EntityError(f"Unsupported kind: {kind}")
+    return spec_builder(kind, REGISTRY_SPEC, REGISTRY_MODEL, **kwargs)

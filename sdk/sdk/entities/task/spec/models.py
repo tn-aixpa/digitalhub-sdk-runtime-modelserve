@@ -1,5 +1,5 @@
 """
-Models for task specifications.
+Task specification models module.
 """
 from pydantic import BaseModel
 
@@ -85,9 +85,9 @@ class Resource(BaseModel):
     """Resource requests."""
 
 
-class TaskTaskParams(BaseModel):
+class TaskParamsPerform(BaseModel):
     """
-    "TaskTaskParams" model.
+    TaskParamsPerform model.
     """
 
     volumes: list[Volume] | None = []
@@ -101,3 +101,15 @@ class TaskTaskParams(BaseModel):
 
     resources: Resource | dict | None = {}
     """Resources restrictions."""
+
+
+class TaskParamsBuild(BaseModel):
+    """
+    TaskParamsBuild model.
+    """
+
+    image: str
+    """Output image name."""
+
+    base_image: str
+    """Input image name."""

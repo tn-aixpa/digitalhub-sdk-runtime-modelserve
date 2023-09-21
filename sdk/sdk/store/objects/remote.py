@@ -22,12 +22,7 @@ class RemoteStore(Store):
     artifacts from remote HTTP based storage.
     """
 
-    def __init__(
-        self,
-        name: str,
-        store_type: str,
-        config: RemoteStoreConfig,
-    ) -> None:
+    def __init__(self, name: str, store_type: str, config: RemoteStoreConfig) -> None:
         super().__init__(name, store_type, config)
 
     ############################

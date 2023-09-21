@@ -1,9 +1,0 @@
-API
-===
-
-.. automodule:: sdk.utils.api
-    :members:
-    :private-members:
-    :special-members:
-    :undoc-members:
-    :show-inheritance:

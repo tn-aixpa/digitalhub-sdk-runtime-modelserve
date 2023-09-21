@@ -1,8 +1,0 @@
-
-Import modules from submodules.
-
-
-.. automodule:: sdk.__init__
-    :members:
-    :private-members:
-    :show-inheritance:

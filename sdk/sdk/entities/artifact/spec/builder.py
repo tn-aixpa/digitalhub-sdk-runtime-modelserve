@@ -1,13 +1,15 @@
 """
 Artifact specification builder module.
 """
-from sdk.entities.artifact.spec.base import ArtifactSpec
-from sdk.utils.exceptions import EntityError
+from __future__ import annotations
 
-REGISTRY_SPEC = {
-    "artifact": ArtifactSpec,
-    "dataset": ArtifactSpec,
-}
+import typing
+
+from sdk.entities.artifact.spec.registry import REGISTRY_MODEL, REGISTRY_SPEC
+from sdk.entities.base.spec import spec_builder
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.artifact.spec.objects.base import ArtifactSpec
 
 
 def build_spec(kind: str, **kwargs) -> ArtifactSpec:
@@ -31,7 +33,4 @@ def build_spec(kind: str, **kwargs) -> ArtifactSpec:
     EntityError
         If the given kind is not supported.
     """
-    try:
-        return REGISTRY_SPEC[kind](**kwargs)
-    except KeyError:
-        raise EntityError(f"Unsupported kind: {kind}")
+    return spec_builder(kind, REGISTRY_SPEC, REGISTRY_MODEL, **kwargs)

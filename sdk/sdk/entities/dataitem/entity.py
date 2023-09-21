@@ -9,6 +9,7 @@ from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.status import build_status
+from sdk.entities.dataitem.kinds import build_kind
 from sdk.entities.dataitem.spec.builder import build_spec
 from sdk.store.factory import get_default_store, get_store
 from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
@@ -21,7 +22,7 @@ if typing.TYPE_CHECKING:
     import pandas as pd
 
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.status import State
+    from sdk.entities.base.status import Status
     from sdk.entities.dataitem.spec.builder import DataitemSpec
 
 
@@ -70,7 +71,7 @@ class Dataitem(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else "table"
+        self.kind = kind if kind is not None else build_kind()
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.status = status if status is not None else build_status()
@@ -330,7 +331,8 @@ class Dataitem(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind", "table")
+        kind = obj.get("kind")
+        kind = build_kind(kind)
         embedded = obj.get("embedded")
 
         # Build metadata, spec, status
@@ -359,7 +361,7 @@ def dataitem_from_parameters(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "table",
+    kind: str | None = None,
     key: str | None = None,
     path: str | None = None,
     local: bool = False,
@@ -397,8 +399,9 @@ def dataitem_from_parameters(
     Dataitem
         Dataitem object.
     """
-    meta = build_metadata(name=name, description=description)
+    kind = build_kind(kind)
     spec = build_spec(kind, key=key, path=path, **kwargs)
+    meta = build_metadata(name=name, description=description)
     return Dataitem(
         project=project,
         name=name,

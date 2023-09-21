@@ -5,16 +5,11 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.workflow.spec.job import WorkflowSpecJob
-from sdk.utils.exceptions import EntityError
+from sdk.entities.base.spec import spec_builder
+from sdk.entities.workflow.spec.registry import REGISTRY_MODEL, REGISTRY_SPEC
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.workflow.spec.base import WorkflowSpec
-
-
-REGISTRY_SPEC = {
-    "job": WorkflowSpecJob,
-}
+    from sdk.entities.workflow.spec.objects.base import WorkflowSpec
 
 
 def build_spec(kind: str, **kwargs) -> WorkflowSpec:
@@ -38,7 +33,4 @@ def build_spec(kind: str, **kwargs) -> WorkflowSpec:
     EntityError
         If the given kind is not supported.
     """
-    try:
-        return REGISTRY_SPEC[kind](**kwargs)
-    except KeyError:
-        raise EntityError(f"Unsupported kind: {kind}")
+    return spec_builder(kind, REGISTRY_SPEC, REGISTRY_MODEL, **kwargs)

@@ -53,7 +53,7 @@ def new_artifact(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "artifact",
+    kind: str | None = None,
     key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,

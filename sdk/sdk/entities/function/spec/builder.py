@@ -5,24 +5,16 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.function.spec.dbt import FunctionSpecDBT
-from sdk.entities.function.spec.job import FunctionSpecJob
-from sdk.utils.exceptions import EntityError
+from sdk.entities.base.spec import spec_builder
+from sdk.entities.function.spec.registry import REGISTRY_MODEL, REGISTRY_SPEC
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.function.spec.base import FunctionSpec
-
-
-REGISTRY_SPEC = {
-    "job": FunctionSpecJob,
-    "dbt": FunctionSpecDBT,
-}
+    from sdk.entities.function.spec.objects.base import FunctionSpec
 
 
 def build_spec(kind: str, **kwargs) -> FunctionSpec:
     """
-    Build a FunctionSpecJob object with the given parameters.
-    Kwargs are passed to the spec constructor.
+    Build an FunctionSpecJob object with the given parameters.
 
     Parameters
     ----------
@@ -34,14 +26,11 @@ def build_spec(kind: str, **kwargs) -> FunctionSpec:
     Returns
     -------
     FunctionSpec
-        A FunctionSpec object with the given parameters.
+        An FunctionSpec object with the given parameters.
 
     Raises
     ------
     EntityError
         If the given kind is not supported.
     """
-    try:
-        return REGISTRY_SPEC[kind](**kwargs)
-    except KeyError:
-        raise EntityError(f"Unsupported kind: {kind}")
+    return spec_builder(kind, REGISTRY_SPEC, REGISTRY_MODEL, **kwargs)

@@ -9,15 +9,17 @@ from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.status import build_status
 from sdk.entities.run.crud import new_run
+from sdk.entities.task.kinds import build_kind
 from sdk.entities.task.spec.builder import build_spec
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
+from sdk.utils.uri_utils import get_uri_path, get_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.status import State
+    from sdk.entities.base.status import Status
     from sdk.entities.run.entity import Run
-    from sdk.entities.task.spec.base import TaskSpec
+    from sdk.entities.task.spec.objects.base import TaskSpec
 
 
 class Task(Entity):
@@ -28,13 +30,12 @@ class Task(Entity):
     def __init__(
         self,
         project: str,
-        task: str,
+        function: str | None = None,
         uuid: str | None = None,
         kind: str | None = None,
         spec: TaskSpec | None = None,
         status: Status | None = None,
         local: bool = False,
-        **kwargs,
     ) -> None:
         """
         Constructor.
@@ -43,8 +44,8 @@ class Task(Entity):
         ----------
         project : str
             Name of the project.
-        task : str
-            Task string.
+        function : str
+            Function string.
         uuid : str
             UUID.
         kind : str
@@ -55,23 +56,18 @@ class Task(Entity):
             State of the object.
         local : bool
             If True, run locally.
-        **kwargs
-            Keyword arguments.
         """
         super().__init__()
         self.project = project
         self.id = get_uiid(uuid=uuid)
-        self.task = task if task is not None else ""
-        self.kind = kind if kind is not None else "task"
+        self.function = function if function is not None else ""
+        self.kind = kind if kind is not None else build_kind()
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.status = status if status is not None else build_status()
 
-        # Set new attributes
-        self._any_setter(**kwargs)
-
         # Private attributes
         self._local = local
-        self._obj_attr += ["task"]
+        self._obj_attr += ["function"]
         self._context = get_context(self.project)
 
     #############################
@@ -134,8 +130,6 @@ class Task(Entity):
 
         Parameters
         ----------
-        task_id : str
-            The task id.
         inputs : dict
             The inputs of the run.
         outputs : list
@@ -153,7 +147,7 @@ class Task(Entity):
         return new_run(
             project=self.project,
             task_id=self.id,
-            task=self.task,
+            task=self._get_task_string(),
             kind="run",
             inputs=inputs,
             outputs=outputs,
@@ -161,6 +155,19 @@ class Task(Entity):
             local_execution=local_execution,
             local=self._local,
         )
+
+    def _get_task_string(self) -> str:
+        """
+        Get task string.
+
+        Returns
+        -------
+        str
+            Task string.
+        """
+        scheme = get_uri_scheme(self.function)
+        path = get_uri_path(self.function)
+        return f"{scheme}+{self.kind}://{path}"
 
     #############################
     # Generic Methods
@@ -204,12 +211,13 @@ class Task(Entity):
 
         # Mandatory fields
         project = obj.get("project")
-        task = obj.get("task")
-        if project is None or task is None:
-            raise EntityError("Project or task_id are not specified.")
+        function = obj.get("function")
+        if project is None or function is None:
+            raise EntityError("Project or function are not specified.")
 
         # Optional fields
-        kind = obj.get("kind", "run")
+        kind = obj.get("kind")
+        kind = build_kind(kind)
         uuid = obj.get("id")
 
         # Build spec, status
@@ -222,7 +230,7 @@ class Task(Entity):
 
         return {
             "project": project,
-            "task": task,
+            "function": function,
             "kind": kind,
             "uuid": uuid,
             "spec": spec,
@@ -232,8 +240,8 @@ class Task(Entity):
 
 def task_from_parameters(
     project: str,
-    kind: str | None = None,
-    task: str | None = None,
+    kind: str,
+    function: str,
     resources: dict | None = None,
     local: bool = False,
     uuid: str | None = None,
@@ -247,8 +255,8 @@ def task_from_parameters(
         Name of the project.
     kind : str
         Kind of the object.
-    task : str
-        The task string.
+    function : str
+        The function string.
     resources : dict
         The k8s resources.
     local : bool
@@ -261,11 +269,12 @@ def task_from_parameters(
     Task
         Task object.
     """
+    kind = build_kind(kind)
     spec = build_spec(kind, resources=resources)
     return Task(
         project=project,
         kind=kind,
-        task=task,
+        function=function,
         spec=spec,
         local=local,
         uuid=uuid,

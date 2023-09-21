@@ -36,7 +36,7 @@ def new_run(
     project: str,
     task_id: str,
     task: str,
-    kind: str = "run",
+    kind: str | None = None,
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,

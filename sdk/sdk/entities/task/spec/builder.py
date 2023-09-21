@@ -5,26 +5,11 @@ from __future__ import annotations
 
 import typing
 
-from pydantic import ValidationError
-
-from sdk.entities.task.spec.build import TaskSpecBuild
-from sdk.entities.task.spec.models import TaskTaskParams
-from sdk.entities.task.spec.run import TaskSpecRun
-from sdk.utils.exceptions import EntityError
+from sdk.entities.base.spec import spec_builder
+from sdk.entities.task.spec.registry import REGISTRY_MODEL, REGISTRY_SPEC
 
 if typing.TYPE_CHECKING:
-    from pydantic import BaseModel
-
-    from sdk.entities.task.spec.base import TaskSpec
-
-
-REGISTRY_SPEC = {
-    "task": TaskSpecRun,
-    "build": TaskSpecBuild,
-}
-REGISTRY_MODEL = {
-    "task": TaskTaskParams,
-}
+    from sdk.entities.task.spec.objects.base import TaskSpec
 
 
 def build_spec(kind: str, **kwargs) -> TaskSpec:
@@ -48,16 +33,4 @@ def build_spec(kind: str, **kwargs) -> TaskSpec:
     EntityError
         If the given kind is not supported.
     """
-    # First build the arguments model and validate them ...
-    try:
-        model: BaseModel = REGISTRY_MODEL[kind](**kwargs)
-    except KeyError:
-        raise EntityError(f"Unsupported parameters kind: {kind}")
-    except ValidationError:
-        raise EntityError(f"Invalid parameters for kind: {kind}")
-
-    # ... then build the spec
-    try:
-        return REGISTRY_SPEC[kind](**model.model_dump())
-    except KeyError:
-        raise EntityError(f"Unsupported spec kind: {kind}")
+    return spec_builder(kind, REGISTRY_SPEC, REGISTRY_MODEL, **kwargs)

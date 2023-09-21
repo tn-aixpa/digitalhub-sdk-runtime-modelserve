@@ -1,44 +1,36 @@
 """
-Dataitem specification module.
+Dataitem specification builder module.
 """
 from __future__ import annotations
 
 import typing
 
-from sdk.entities.dataitem.spec.table import TableDataitemSpec
+from sdk.entities.base.spec import spec_builder
+from sdk.entities.dataitem.spec.registry import REGISTRY_MODEL, REGISTRY_SPEC
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.dataitem.spec.base import DataitemSpec
-
-
-REGISTRY_SPEC = {
-    "dataitem": TableDataitemSpec,
-    "table": TableDataitemSpec,
-}
+    from sdk.entities.dataitem.spec.objects.base import DataitemSpec
 
 
 def build_spec(kind: str, **kwargs) -> DataitemSpec:
     """
-    Build a DataItemSpec object with the given parameters.
+    Build an DataitemSpecJob object with the given parameters.
 
     Parameters
     ----------
     kind : str
-        The type of DataItemSpec to build.
+        The type of DataitemSpec to build.
     **kwargs
         Keywords arguments.
 
     Returns
     -------
-    DataItemSpec
-        A DataItemSpec object with the given parameters.
+    DataitemSpec
+        An DataitemSpec object with the given parameters.
 
     Raises
     ------
     EntityError
         If the given kind is not supported.
     """
-    try:
-        return REGISTRY_SPEC[kind](**kwargs)
-    except KeyError:
-        raise ValueError(f"Unknown kind: {kind}")
+    return spec_builder(kind, REGISTRY_SPEC, REGISTRY_MODEL, **kwargs)

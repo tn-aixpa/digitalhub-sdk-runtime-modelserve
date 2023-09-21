@@ -9,6 +9,7 @@ from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.status import build_status
+from sdk.entities.function.kinds import build_kind
 from sdk.entities.function.spec.builder import build_spec
 from sdk.entities.task.crud import create_task, new_task
 from sdk.runtimes.factory import get_runtime
@@ -18,8 +19,8 @@ from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.status import State
-    from sdk.entities.function.spec.base import FunctionSpec
+    from sdk.entities.base.status import Status
+    from sdk.entities.function.spec.objects.base import FunctionSpec
     from sdk.entities.run.entity import Run
     from sdk.entities.task.entity import Task
 
@@ -69,7 +70,7 @@ class Function(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else "job"
+        self.kind = kind if kind is not None else build_kind()
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.status = status if status is not None else build_status()
@@ -138,6 +139,7 @@ class Function(Entity):
 
     def run(
         self,
+        action: str | None = None,
         inputs: dict | None = None,
         outputs: list | None = None,
         parameters: dict | None = None,
@@ -149,6 +151,8 @@ class Function(Entity):
 
         Parameters
         ----------
+        action : str
+            Action to execute.
         inputs : dict
             Function inputs. Used in Run.
         outputs : dict
@@ -164,15 +168,19 @@ class Function(Entity):
         Run
             Run instance.
         """
+        # Handle better this
+        if action != "perform":
+            action = "perform"
+
         # Create task if not exists
         if self._task is None:
             # https://docs.mlrun.org/en/latest/runtimes/configuring-job-resources.html
             # task spec k8s
-            task = f"{self.kind}://{self.project}/{self.name}:{self.id}"
+            function = f"{self.kind}://{self.project}/{self.name}:{self.id}"
             self._task = new_task(
                 project=self.project,
-                kind="task",
-                task=task,
+                kind=action,
+                function=function,
                 resources=resources,
                 local=self._local,
                 uuid=self.id,
@@ -218,18 +226,15 @@ class Function(Entity):
         """
         if self._task is None:
             raise EntityError("Task is not created.")
-        task_id = self._task.id
-        task_kind = self._task.kind
-        task_task = self._task.task
         self._task = create_task(
             project=self.project,
-            kind=task_kind,
-            task=task_task,
+            kind=self._task.kind,
+            function=self._task.function,
             resources=new_spec,
+            uuid=self._task.id,
             local=self._local,
         )
-        self._task.id = task_id
-        return self._task.save(task_id)
+        return self._task.save(self._task.id)
 
     #############################
     #  Getters and Setters
@@ -295,7 +300,8 @@ class Function(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind", "job")
+        kind = obj.get("kind")
+        kind = build_kind(kind)
         embedded = obj.get("embedded")
 
         # Build metadata, spec, status
@@ -324,7 +330,7 @@ def function_from_parameters(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "job",
+    kind: str | None = None,
     source: str | None = None,
     image: str | None = None,
     tag: str | None = None,
@@ -378,7 +384,7 @@ def function_from_parameters(
     Function
         Function object.
     """
-    meta = build_metadata(name=name, description=description)
+    kind = build_kind(kind)
     spec = build_spec(
         kind,
         source=source,
@@ -390,6 +396,7 @@ def function_from_parameters(
         sql=sql,
         **kwargs,
     )
+    meta = build_metadata(name=name, description=description)
     return Function(
         project=project,
         name=name,

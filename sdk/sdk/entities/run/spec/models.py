@@ -11,7 +11,10 @@ class Objects(BaseModel):
     """
 
     dataitems: list[str] | None = None
+    """List of dataitems names."""
+
     artifacts: list[str] | None = None
+    """List of artifacts names."""
 
 
 class RunParams(BaseModel):

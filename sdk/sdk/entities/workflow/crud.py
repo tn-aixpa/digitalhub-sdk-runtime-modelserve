@@ -53,7 +53,7 @@ def new_workflow(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "job",
+    kind: str | None = None,
     test: str | None = None,
     local: bool = False,
     embedded: bool = True,

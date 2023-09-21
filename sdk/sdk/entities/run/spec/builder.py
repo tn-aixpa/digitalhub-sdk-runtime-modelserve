@@ -1,31 +1,20 @@
 """
-Run specification module.
+Run specification builder module.
 """
 from __future__ import annotations
 
 import typing
 
-from pydantic import ValidationError
-
-from sdk.entities.run.spec.base import RunSpec
-from sdk.entities.run.spec.models import RunParams
-from sdk.utils.exceptions import EntityError
+from sdk.entities.base.spec import spec_builder
+from sdk.entities.run.spec.registry import REGISTRY_MODEL, REGISTRY_SPEC
 
 if typing.TYPE_CHECKING:
-    from pydantic import BaseModel
-
-
-REGISTRY_SPEC = {
-    "run": RunSpec,
-}
-REGISTRY_MODEL = {
-    "run": RunParams,
-}
+    from sdk.entities.run.spec.objects.base import RunSpec
 
 
 def build_spec(kind: str, **kwargs) -> RunSpec:
     """
-    Build a RunSpecJob object with the given parameters.
+    Build an RunSpecJob object with the given parameters.
 
     Parameters
     ----------
@@ -37,23 +26,11 @@ def build_spec(kind: str, **kwargs) -> RunSpec:
     Returns
     -------
     RunSpec
-        A RunSpec object with the given parameters.
+        An RunSpec object with the given parameters.
 
     Raises
     ------
     EntityError
-        If the given kind is not supported or if the given parameters are invalid.
+        If the given kind is not supported.
     """
-    # First build the arguments model and validate them ...
-    try:
-        model: BaseModel = REGISTRY_MODEL[kind](**kwargs)
-    except KeyError:
-        raise EntityError(f"Unsupported parameters kind: {kind}")
-    except ValidationError as ve:
-        raise EntityError(f"Invalid parameters for kind: {kind}") from ve
-
-    # ... then build the spec
-    try:
-        return REGISTRY_SPEC[kind](**model.model_dump())
-    except KeyError:
-        raise EntityError(f"Unsupported spec kind: {kind}")
+    return spec_builder(kind, REGISTRY_SPEC, REGISTRY_MODEL, **kwargs)

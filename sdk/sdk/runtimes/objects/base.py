@@ -15,12 +15,7 @@ class Runtime:
     Base Runtime class.
     """
 
-    def __init__(
-        self,
-        spec: dict,
-        run_id: str,
-        project_name: str,
-    ) -> None:
+    def __init__(self, spec: dict, run_id: str, project_name: str) -> None:
         """
         Constructor.
 

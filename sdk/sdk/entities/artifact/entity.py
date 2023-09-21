@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing
 
 from sdk.context.factory import get_context
+from sdk.entities.artifact.kinds import build_kind
 from sdk.entities.artifact.spec.builder import build_spec
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
@@ -20,7 +21,7 @@ from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.spec.builder import ArtifactSpec
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.status import State
+    from sdk.entities.base.status import Status
 
 
 class Artifact(Entity):
@@ -68,7 +69,7 @@ class Artifact(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else "artifact"
+        self.kind = kind if kind is not None else build_kind()
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.status = status if status is not None else build_status()
@@ -404,7 +405,8 @@ class Artifact(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind", "artifact")
+        kind = obj.get("kind")
+        kind = build_kind(kind)
         embedded = obj.get("embedded")
 
         # Build metadata, spec, status
@@ -433,7 +435,7 @@ def artifact_from_parameters(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "artifact",
+    kind: str | None = None,
     key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
@@ -475,10 +477,11 @@ def artifact_from_parameters(
     Artifact
         Artifact object.
     """
-    meta = build_metadata(name=name, description=description)
+    kind = build_kind(kind)
     spec = build_spec(
         kind, key=key, src_path=src_path, target_path=target_path, **kwargs
     )
+    meta = build_metadata(name=name, description=description)
     return Artifact(
         project=project,
         name=name,

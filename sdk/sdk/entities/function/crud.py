@@ -53,7 +53,7 @@ def new_function(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "job",
+    kind: str | None = None,
     source: str | None = None,
     image: str | None = None,
     tag: str | None = None,

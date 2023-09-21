@@ -10,7 +10,7 @@ from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
-from sdk.entities.base.status import build_status, StatusState
+from sdk.entities.base.status import StatusState, build_status
 from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
 from sdk.entities.run.crud import get_run, run_from_dict, update_run
 from sdk.runtimes.objects.base import Runtime
@@ -98,12 +98,7 @@ class DBTRuntime(Runtime):
     DBT Runtime class.
     """
 
-    def __init__(
-        self,
-        spec: dict,
-        run_id: str,
-        project_name: str,
-    ) -> None:
+    def __init__(self, spec: dict, run_id: str, project_name: str) -> None:
         """
         Constructor.
 
@@ -574,10 +569,10 @@ class DBTRuntime(Runtime):
         """
 
         status_dict = {
-                **self.get_dataitem_info(output, dataitem),
-                **result.timings,
-                "state": StatusState.COMPLETED.value,
-            }
+            **self.get_dataitem_info(output, dataitem),
+            **result.timings,
+            "state": StatusState.COMPLETED.value,
+        }
         return self.update_run(**status_dict)
 
     def handle_run_error(self, msg: str) -> None:

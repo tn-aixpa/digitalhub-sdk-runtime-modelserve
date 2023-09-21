@@ -8,8 +8,9 @@ import typing
 from sdk.context.factory import get_context
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.status import build_status, Status
+from sdk.entities.base.status import Status, build_status
 from sdk.entities.dataitem.crud import get_dataitem_from_key
+from sdk.entities.run.kinds import build_kind
 from sdk.entities.run.spec.builder import build_spec
 from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
 from sdk.utils.exceptions import EntityError
@@ -56,7 +57,7 @@ class Run(Entity):
         """
         super().__init__()
         self.project = project
-        self.kind = "run"
+        self.kind = build_kind()
         self.id = get_uiid(uuid=uuid)
         self.task_id = task_id
         self.task = task
@@ -322,7 +323,8 @@ class Run(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind", "run")
+        kind = obj.get("kind")
+        kind = build_kind(kind)
 
         # Build metadata, spec, status, status
         spec = obj.get("spec")
@@ -347,7 +349,7 @@ def run_from_parameters(
     project: str,
     task_id: str,
     task: str,
-    kind: str = "run",
+    kind: str | None = None,
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
@@ -388,6 +390,7 @@ def run_from_parameters(
     Run
         Run object.
     """
+    kind = build_kind(kind)
     spec = build_spec(
         kind,
         inputs=inputs,

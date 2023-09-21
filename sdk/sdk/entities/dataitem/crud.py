@@ -53,7 +53,7 @@ def new_dataitem(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "table",
+    kind: str | None = None,
     key: str | None = None,
     path: str | None = None,
     local: bool = False,

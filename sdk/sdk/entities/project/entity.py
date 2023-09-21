@@ -29,6 +29,7 @@ from sdk.entities.function.crud import (
     get_function,
     new_function,
 )
+from sdk.entities.project.kinds import build_kind
 from sdk.entities.project.spec.builder import build_spec
 from sdk.entities.workflow.crud import (
     create_workflow_from_dict,
@@ -51,7 +52,7 @@ if typing.TYPE_CHECKING:
     from sdk.client.client import Client
     from sdk.entities.artifact.entity import Artifact
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.status import State
+    from sdk.entities.base.status import Status
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.function.entity import Function
     from sdk.entities.project.spec.builder import ProjectSpec
@@ -128,7 +129,7 @@ class Project(Entity):
         """
         super().__init__()
         self.name = name
-        self.kind = "project"
+        self.kind = build_kind()
         self.id = get_uiid(uuid=uuid)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
@@ -750,7 +751,8 @@ class Project(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind", "project")
+        kind = obj.get("kind")
+        kind = build_kind(kind)
 
         # Build metadata, spec, status
         _spec = {k: v for k, v in obj.get("spec", {}).items() if k in SPEC_LIST}
@@ -772,7 +774,7 @@ class Project(Entity):
 def project_from_parameters(
     name: str,
     description: str = "",
-    kind: str = "project",
+    kind: str | None = None,
     context: str = "",
     source: str = "",
     local: bool = False,
@@ -806,8 +808,9 @@ def project_from_parameters(
     Project
         Project object.
     """
-    meta = build_metadata(name=name, description=description)
+    kind = build_kind(kind)
     spec = build_spec(kind, context=context, source=source, **kwargs)
+    meta = build_metadata(name=name, description=description)
     return Project(
         name=name,
         metadata=meta,

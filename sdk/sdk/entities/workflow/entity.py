@@ -9,6 +9,7 @@ from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.status import build_status
+from sdk.entities.workflow.kinds import build_kind
 from sdk.entities.workflow.spec.builder import build_spec
 from sdk.utils.api import DTO_WKFL, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
@@ -16,8 +17,8 @@ from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.status import State
-    from sdk.entities.workflow.spec.base import WorkflowSpec
+    from sdk.entities.base.status import Status
+    from sdk.entities.workflow.spec.objects.base import WorkflowSpec
 
 
 class Workflow(Entity):
@@ -65,7 +66,7 @@ class Workflow(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else "job"
+        self.kind = kind if kind is not None else build_kind()
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
         self.spec = spec if spec is not None else build_spec(self.kind, **{})
         self.status = status if status is not None else build_status()
@@ -195,7 +196,8 @@ class Workflow(Entity):
 
         # Optional fields
         uuid = obj.get("id")
-        kind = obj.get("kind", "job")
+        kind = obj.get("kind")
+        kind = build_kind(kind)
         embedded = obj.get("embedded")
 
         # Build metadata, spec, status
@@ -224,7 +226,7 @@ def workflow_from_parameters(
     project: str,
     name: str,
     description: str = "",
-    kind: str = "job",
+    kind: str | None = None,
     test: str | None = None,
     local: bool = False,
     embedded: bool = True,
@@ -260,8 +262,9 @@ def workflow_from_parameters(
     Workflow
         An instance of the created workflow.
     """
-    meta = build_metadata(name=name, description=description)
+    kind = build_kind(kind)
     spec = build_spec(kind, test=test, **kwargs)
+    meta = build_metadata(name=name, description=description)
     return Workflow(
         project=project,
         name=name,
