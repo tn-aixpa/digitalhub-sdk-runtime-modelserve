@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
@@ -20,8 +21,10 @@ import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Run;
+import it.smartcommunitylabdhub.core.models.entities.Task;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
+import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 
 @Service
@@ -32,6 +35,9 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Autowired
     RunRepository runRepository;
+
+    @Autowired
+    TaskRepository taskRepository;
 
     @Autowired
     FunctionDTOBuilder functionDTOBuilder;
@@ -172,7 +178,15 @@ public class FunctionServiceImpl implements FunctionService {
         }
 
         try {
-            List<Run> runs = this.runRepository.findByTask(TaskUtils.buildTaskString(function));
+            // Find and collect runs for a function
+            List<Run> runs =
+                    this.taskRepository.findByFunction(TaskUtils.buildTaskString(function))
+                            .stream()
+                            .flatMap(task -> this.runRepository
+                                    .findByTask(RunUtils.buildRunString(function, task)).stream())
+                            .collect(Collectors.toList());
+
+
             return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);
 
         } catch (CustomException e) {

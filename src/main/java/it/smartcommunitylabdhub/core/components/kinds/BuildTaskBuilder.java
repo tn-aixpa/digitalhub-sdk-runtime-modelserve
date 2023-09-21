@@ -18,7 +18,7 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 
-@RunBuilderComponent(type = "build")
+@RunBuilderComponent(platform = "build", perform = "build")
 public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
         // Implementation of the builder
 
@@ -30,19 +30,24 @@ public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
          *
          * @param taskDTO The input TaskDTO to be processed for building the TaskDTO.
          * @return The built TaskDTO of the "build" kind.
-         * @throws CoreException If the accessor for the TaskDTO is not found, leading
-         *                       to a failure in building the TaskDTO.
+         * @throws CoreException If the accessor for the TaskDTO is not found, leading to a failure
+         *         in building the TaskDTO.
          */
         @Override
         public TaskDTO build(TaskDTO taskDTO) {
                 // Use TaskUtils to parse the task and create the TaskAccessor
 
-                return Optional.ofNullable(TaskUtils.parseTask(taskDTO.getTask())).map(accessor -> {
-                        // Build the TaskDTO with the parsed task data
-                        return TaskDTO.builder().kind(taskDTO.getKind()).project(taskDTO.getProject())
-                                        .task(taskDTO.getTask()).spec(taskDTO.getSpec()).build();
-                }).orElseThrow(() -> new CoreException("TaskAccessorNotFound", "Cannot create accessor",
-                                HttpStatus.INTERNAL_SERVER_ERROR));
+                return Optional.ofNullable(TaskUtils.parseTask(taskDTO.getFunction()))
+                                .map(accessor -> {
+                                        // Build the TaskDTO with the parsed task data
+                                        return TaskDTO.builder().kind(taskDTO.getKind())
+                                                        .project(taskDTO.getProject())
+                                                        .function(taskDTO.getFunction())
+                                                        .spec(taskDTO.getSpec()).build();
+                                })
+                                .orElseThrow(() -> new CoreException("TaskAccessorNotFound",
+                                                "Cannot create accessor",
+                                                HttpStatus.INTERNAL_SERVER_ERROR));
 
         }
 }

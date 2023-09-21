@@ -129,10 +129,11 @@ public class RunSerivceImpl implements RunService {
                 .map(taskDTO -> {
 
                     // parse task to get accessor
-                    TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
+                    TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getFunction());
 
                     // build run from task
-                    RunDTO runDTO = (RunDTO) runBuilderFactory.getBuilder(taskAccessor.getKind())
+                    RunDTO runDTO = (RunDTO) runBuilderFactory
+                            .getBuilder(taskAccessor.getKind(), taskDTO.getKind())
                             .build(taskDTO);
 
                     // if extra field contained override if field in dto is present otherwise put in
@@ -160,7 +161,8 @@ public class RunSerivceImpl implements RunService {
                                     return Optional.ofNullable(runDTOBuilder.build(run)).map(r -> {
                                         // publish event to the right listener
                                         runPublisherFactory
-                                                .getPublisher(taskAccessor.getKind())
+                                                .getPublisher(taskAccessor.getKind(),
+                                                        taskDTO.getKind())
                                                 .publish(r);
                                         return r;
                                     }).orElseThrow(() -> new CoreException("", "",

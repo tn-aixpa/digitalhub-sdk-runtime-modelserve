@@ -28,7 +28,7 @@ public class TaskDTO implements BaseEntity {
     private String id;
 
     @NotNull
-    private String task;
+    private String function;
 
     @NotNull
     private String project;

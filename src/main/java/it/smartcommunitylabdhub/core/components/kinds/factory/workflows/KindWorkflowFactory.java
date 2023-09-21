@@ -22,44 +22,49 @@ public class KindWorkflowFactory {
      * @param workflows The list of KindWorkflows to be managed by the factory.
      */
     public KindWorkflowFactory(List<KindWorkflow<?, ?>> workflows) {
-        workflowMap = workflows.stream().collect(Collectors.toMap(this::getTypeFromAnnotation, Function.identity()));
+        workflowMap = workflows.stream()
+                .collect(Collectors.toMap(this::getWorflowNameFromAnnotation, Function.identity()));
     }
 
     /**
-     * Get the type string from the @RunWorkflowComponent annotation for a given
-     * KindWorkflow.
+     * Get the platform string from the @RunWorkflowComponent annotation for a given KindWorkflow.
      *
-     * @param workflow The KindWorkflow for which to extract the type string.
-     * @return The type string extracted from the @RunWorkflowComponent annotation.
-     * @throws IllegalArgumentException If no @RunWorkflowComponent annotation is
-     *                                  found for the workflow.
+     * @param workflow The KindWorkflow for which to extract the platform string.
+     * @return The platform string extracted from the @RunWorkflowComponent annotation.
+     * @throws IllegalArgumentException If no @RunWorkflowComponent annotation is found for the
+     *         workflow.
      */
-    private String getTypeFromAnnotation(KindWorkflow<?, ?> workflow) {
+    private String getWorflowNameFromAnnotation(KindWorkflow<?, ?> workflow) {
         Class<?> workflowClass = workflow.getClass();
         if (workflowClass.isAnnotationPresent(RunWorkflowComponent.class)) {
-            RunWorkflowComponent annotation = workflowClass.getAnnotation(RunWorkflowComponent.class);
-            return annotation.type();
+            RunWorkflowComponent annotation =
+                    workflowClass.getAnnotation(RunWorkflowComponent.class);
+            return annotation.platform() + "+" + annotation.perform();
         }
         throw new IllegalArgumentException(
-                "No @RunWorkflowComponent annotation found for workflow: " + workflowClass.getName());
+                "No @RunWorkflowComponent annotation found for workflow: "
+                        + workflowClass.getName());
     }
 
     /**
-     * Get the KindWorkflow for the given type.
+     * Get the KindWorkflow for the given platform.
      *
-     * @param type The type string representing the specific kind for which to
-     *             retrieve the KindWorkflow.
-     * @param <I>  The input type of the KindWorkflow.
-     * @param <O>  The output type (processed data) of the KindWorkflow.
-     * @return The KindWorkflow for the specified type.
-     * @throws IllegalArgumentException If no KindWorkflow is found for the given
-     *                                  type.
+     * @param platform The platform string representing the specific platform for which to retrieve
+     *        the KindWorkflow.
+     * @param perform The perform string representing the specific perform action for a given
+     *        platform.
+     * @param <I> The input platform of the KindWorkflow.
+     * @param <O> The output platform (processed data) of the KindWorkflow.
+     * @return The KindWorkflow for the specified platform.
+     * @throws IllegalArgumentException If no KindWorkflow is found for the given platform.
      */
-    public <I, O> KindWorkflow<I, O> getWorkflow(String type) {
+    public <I, O> KindWorkflow<I, O> getWorkflow(String platform, String perform) {
         @SuppressWarnings("unchecked")
-        KindWorkflow<I, O> workflow = (KindWorkflow<I, O>) workflowMap.get(type);
+        KindWorkflow<I, O> workflow =
+                (KindWorkflow<I, O>) workflowMap.get(platform + "+" + perform);
         if (workflow == null) {
-            throw new IllegalArgumentException("No workflow found for type: " + type);
+            throw new IllegalArgumentException(
+                    "No workflow found for platform: " + platform + "+" + perform);
         }
         return workflow;
     }

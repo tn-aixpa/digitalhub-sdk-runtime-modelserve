@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
+import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
@@ -17,7 +19,7 @@ import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
-@RunBuilderComponent(type = "dbt")
+@RunBuilderComponent(platform = "dbt", perform = "build")
 public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 
 	@Autowired
@@ -26,6 +28,9 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 	@Autowired
 	FunctionService functionService;
 
+	@Autowired
+	FunctionEntityBuilder functionEntityBuilder;
+
 	@Override
 	public RunDTO build(TaskDTO taskDTO) {
 
@@ -33,7 +38,7 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 		return taskRepository.findById(taskDTO.getId()).map(task -> {
 
 			// 2. produce function object for DBT and put it on spec.
-			TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
+			TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getFunction());
 			FunctionDTO functionDTO = functionService.getFunction(taskAccessor.getVersion());
 
 			// 3. Merge Task spec with function spec
@@ -47,7 +52,10 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 					.kind("run")
 					.taskId(task.getId())
 					.project(task.getProject())
-					.task(task.getTask())
+					.task(RunUtils.buildRunString(
+							functionEntityBuilder
+									.build(functionDTO),
+							task))
 					.spec(mergedSpec)
 					.build();
 

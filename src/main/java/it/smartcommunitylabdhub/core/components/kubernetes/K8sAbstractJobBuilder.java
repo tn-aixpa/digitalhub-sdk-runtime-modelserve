@@ -1,22 +1,24 @@
 package it.smartcommunitylabdhub.core.components.kubernetes;
 
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 
 
 public abstract class K8sAbstractJobBuilder {
 
-	public TaskAccessor getTaskAccessor(RunDTO runDTO) {
-		return TaskUtils.parseTask(runDTO.getTask());
+	public RunAccessor getRunAccessor(RunDTO runDTO) {
+		return RunUtils.parseRun(runDTO.getTask());
 	}
 
 	public String getJobName(RunDTO runDTO) {
-		return "job" + "-" + getTaskAccessor(runDTO).getKind() + "-" + runDTO.getId();
+		return "job" + "-" + getRunAccessor(runDTO).getKind() + "-"
+				+ getRunAccessor(runDTO).getPerform() + "-" + runDTO.getId();
 	}
 
 	public String getContainerName(RunDTO runDTO) {
-		return "container-job-" + getTaskAccessor(runDTO).getKind() + "-" + runDTO.getId();
+		return "container-job-" + getRunAccessor(runDTO).getKind() + "-"
+				+ getRunAccessor(runDTO).getPerform() + "-" + runDTO.getId();
 	}
 
 }

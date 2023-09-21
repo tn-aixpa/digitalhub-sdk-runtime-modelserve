@@ -13,5 +13,7 @@ import org.springframework.stereotype.Component;
 @Documented
 @Component
 public @interface RunWorkflowComponent {
-    String type();
+    String platform();
+
+    String perform();
 }

@@ -30,7 +30,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "tasks", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "task", "kind" })
+        @UniqueConstraint(columnNames = {"function", "kind"})
 
 })
 public class Task implements BaseEntity {
@@ -40,8 +40,8 @@ public class Task implements BaseEntity {
     private String id;
 
     @Column(nullable = false)
-    // COMMENT: {kind}://{project}/{function}:{version}
-    private String task;
+    // COMMENT: {function_kind}://{project}/{function}:{version}
+    private String function;
 
     @Column(nullable = false)
     private String kind;

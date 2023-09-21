@@ -21,16 +21,17 @@ public class TaskEntityBuilder {
                                 ConversionUtils.convert(taskDTO, "task"), taskDTO,
                                 builder -> builder
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(taskDTO.getExtra(),
+                                                                ConversionUtils.convert(
+                                                                                taskDTO.getExtra(),
                                                                                 "cbor")))
                                                 .with(f -> f.setSpec(
-                                                                ConversionUtils.convert(taskDTO.getSpec(),
+                                                                ConversionUtils.convert(
+                                                                                taskDTO.getSpec(),
                                                                                 "cbor"))));
         }
 
         /**
-         * Update a Task
-         * if element is not passed it override causing empty field
+         * Update a Task if element is not passed it override causing empty field
          * 
          * @param task
          * @return
@@ -38,18 +39,21 @@ public class TaskEntityBuilder {
         public Task update(Task task, TaskDTO taskDTO) {
                 return EntityFactory.combine(
                                 task, taskDTO, builder -> builder
-                                                .with(f -> f.setTask(taskDTO.getTask()))
+                                                .with(f -> f.setFunction(taskDTO.getFunction()))
                                                 .with(f -> f.setKind(taskDTO.getKind()))
                                                 .with(f -> f.setProject(taskDTO.getProject()))
                                                 .with(f -> f.setState(taskDTO.getState() == null
                                                                 ? State.CREATED
-                                                                : State.valueOf(taskDTO.getState())))
+                                                                : State.valueOf(taskDTO
+                                                                                .getState())))
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(taskDTO.getExtra(),
+                                                                ConversionUtils.convert(
+                                                                                taskDTO.getExtra(),
 
                                                                                 "cbor")))
                                                 .with(f -> f.setSpec(
-                                                                ConversionUtils.convert(taskDTO.getSpec(),
+                                                                ConversionUtils.convert(
+                                                                                taskDTO.getSpec(),
 
                                                                                 "cbor"))));
         }

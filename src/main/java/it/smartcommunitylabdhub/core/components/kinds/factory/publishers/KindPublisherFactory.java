@@ -22,44 +22,50 @@ public class KindPublisherFactory {
      * @param publishers The list of KindPublishers to be managed by the factory.
      */
     public KindPublisherFactory(List<KindPublisher<?, ?>> publishers) {
-        publisherMap = publishers.stream().collect(Collectors.toMap(this::getTypeFromAnnotation, Function.identity()));
+        publisherMap = publishers.stream()
+                .collect(Collectors.toMap(this::getPublisherNameFromAnnotation,
+                        Function.identity()));
     }
 
     /**
-     * Get the type string from the @RunPublisherComponent annotation for a given
-     * KindPublisher.
+     * Get the platform string from the @RunPublisherComponent annotation for a given KindPublisher.
      *
-     * @param publisher The KindPublisher for which to extract the type string.
-     * @return The type string extracted from the @RunPublisherComponent annotation.
-     * @throws IllegalArgumentException If no @RunPublisherComponent annotation is
-     *                                  found for the publisher.
+     * @param publisher The KindPublisher for which to extract the platform string.
+     * @return The platform string extracted from the @RunPublisherComponent annotation.
+     * @throws IllegalArgumentException If no @RunPublisherComponent annotation is found for the
+     *         publisher.
      */
-    private String getTypeFromAnnotation(KindPublisher<?, ?> publisher) {
+    private String getPublisherNameFromAnnotation(KindPublisher<?, ?> publisher) {
         Class<?> publisherClass = publisher.getClass();
         if (publisherClass.isAnnotationPresent(RunPublisherComponent.class)) {
-            RunPublisherComponent annotation = publisherClass.getAnnotation(RunPublisherComponent.class);
-            return annotation.type();
+            RunPublisherComponent annotation =
+                    publisherClass.getAnnotation(RunPublisherComponent.class);
+            return annotation.platform() + "+" + annotation.perform();
         }
         throw new IllegalArgumentException(
-                "No @RunPublisherComponent annotation found for publisher: " + publisherClass.getName());
+                "No @RunPublisherComponent annotation found for publisher: "
+                        + publisherClass.getName());
     }
 
     /**
-     * Get the KindPublisher for the given type.
+     * Get the KindPublisher for the given platform.
      *
-     * @param type The type string representing the specific kind for which to
-     *             retrieve the KindPublisher.
-     * @param <I>  The input type of the KindPublisher.
-     * @param <O>  The output type (published data) of the KindPublisher.
-     * @return The KindPublisher for the specified type.
-     * @throws IllegalArgumentException If no KindPublisher is found for the given
-     *                                  type.
+     * @param platform The platform string representing the specific platform for which to retrieve
+     *        the KindPublisher.
+     * @param perform The perform string representing the specific perform action for a given
+     *        platform.
+     * @param <I> The input platform of the KindPublisher.
+     * @param <O> The output platform (published data) of the KindPublisher.
+     * @return The KindPublisher for the specified platform.
+     * @throws IllegalArgumentException If no KindPublisher is found for the given platform.
      */
-    public <I, O> KindPublisher<I, O> getPublisher(String type) {
+    public <I, O> KindPublisher<I, O> getPublisher(String platform, String perform) {
         @SuppressWarnings("unchecked")
-        KindPublisher<I, O> publisher = (KindPublisher<I, O>) publisherMap.get(type);
+        KindPublisher<I, O> publisher =
+                (KindPublisher<I, O>) publisherMap.get(platform + "+" + perform);
         if (publisher == null) {
-            throw new IllegalArgumentException("No publisher found for type: " + type);
+            throw new IllegalArgumentException(
+                    "No publisher found for platform: " + platform + "+" + perform);
         }
         return publisher;
     }

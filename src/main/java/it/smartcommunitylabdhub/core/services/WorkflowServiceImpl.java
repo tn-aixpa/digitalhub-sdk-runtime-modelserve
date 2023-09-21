@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
@@ -22,6 +23,7 @@ import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
+import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
 
 @Service
@@ -32,6 +34,9 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Autowired
     RunRepository runRepository;
+
+    @Autowired
+    TaskRepository taskRepository;
 
     @Autowired
     WorkflowEntityBuilder workflowEntityBuilder;
@@ -103,7 +108,8 @@ public class WorkflowServiceImpl implements WorkflowService {
         return workflowRepository.findById(uuid)
                 .map(workflow -> {
                     try {
-                        Workflow workflowUpdated = workflowEntityBuilder.update(workflow, workflowDTO);
+                        Workflow workflowUpdated =
+                                workflowEntityBuilder.update(workflow, workflowDTO);
                         workflowRepository.save(workflowUpdated);
                         return workflowDTOBuilder.build(workflowUpdated, false);
                     } catch (CustomException e) {
@@ -149,7 +155,13 @@ public class WorkflowServiceImpl implements WorkflowService {
         }
 
         try {
-            List<Run> runs = this.runRepository.findByTask(TaskUtils.buildTaskString(workflow));
+            List<Run> runs =
+                    this.taskRepository.findByFunction(TaskUtils.buildTaskString(workflow))
+                            .stream()
+                            .flatMap(task -> this.runRepository
+                                    .findByTask(RunUtils.buildRunString(workflow, task)).stream())
+                            .collect(Collectors.toList());
+
             return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);
 
         } catch (CustomException e) {

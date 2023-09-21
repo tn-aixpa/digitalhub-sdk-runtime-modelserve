@@ -36,7 +36,7 @@ import it.smartcommunitylabdhub.core.utils.MapUtils;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-@RunWorkflowComponent(type = "job")
+@RunWorkflowComponent(platform = "job", perform = "build")
 public class JobWorkflowBuilder extends BaseWorkflowBuilder
 		implements KindWorkflow<RunDTO, Workflow> {
 

@@ -9,8 +9,10 @@ import org.springframework.http.HttpStatus;
 import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
+import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
@@ -18,7 +20,7 @@ import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
-@RunBuilderComponent(type = "job")
+@RunBuilderComponent(platform = "job", perform = "build")
 public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
         @Autowired
         TaskRepository taskRepository;
@@ -26,12 +28,15 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
         @Autowired
         FunctionService functionService;
 
+        @Autowired
+        FunctionEntityBuilder functionEntityBuilder;
+
         @Override
         public RunDTO build(TaskDTO taskDTO) {
                 // 1. get function get if exist otherwise throw exeception.
                 return taskRepository.findById(taskDTO.getId()).map(task -> {
                         // 1. produce function object for mlrun and put it on spec.
-                        TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getTask());
+                        TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getFunction());
 
                         FunctionDTO functionDTO =
                                         functionService.getFunction(taskAccessor.getVersion());
@@ -55,11 +60,15 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
                                                                 taskDTO.getSpec(),
                                                                 (oldValue, newValue) -> newValue);
 
+
                                                 // 5. produce a run object and store it
                                                 return RunDTO.builder().kind("run")
                                                                 .taskId(task.getId())
                                                                 .project(task.getProject())
-                                                                .task(task.getTask())
+                                                                .task(RunUtils.buildRunString(
+                                                                                functionEntityBuilder
+                                                                                                .build(functionDTO),
+                                                                                task))
                                                                 .spec(mergedSpec).build();
 
                                         })

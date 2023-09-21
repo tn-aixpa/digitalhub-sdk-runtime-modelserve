@@ -36,7 +36,8 @@ public class Run implements BaseEntity {
     private String id;
 
     @Column(nullable = false)
-    // COMMENT: {kind}://{project_name}/{function_name}:{version(uuid)}
+    // COMMENT: {kind}+{action}://{project_name}/{function_name}:{version(uuid)} action can be
+    // 'build', 'other...'
     private String task;
 
     @Column(nullable = false)
