@@ -20,7 +20,7 @@ import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
-@RunBuilderComponent(platform = "job", perform = "build")
+@RunBuilderComponent(platform = "job", perform = "perform")
 public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
         @Autowired
         TaskRepository taskRepository;

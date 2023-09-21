@@ -19,7 +19,7 @@ import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
-@RunBuilderComponent(platform = "dbt", perform = "build")
+@RunBuilderComponent(platform = "dbt", perform = "perform")
 public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 
 	@Autowired

@@ -18,7 +18,7 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 
-@RunBuilderComponent(platform = "build", perform = "build")
+@RunBuilderComponent(platform = "build", perform = "perform")
 public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
         // Implementation of the builder
 

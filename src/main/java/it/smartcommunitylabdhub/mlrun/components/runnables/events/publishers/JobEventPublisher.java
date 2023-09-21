@@ -7,7 +7,7 @@ import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPub
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.mlrun.components.runnables.events.messages.JobMessage;
 
-@RunPublisherComponent(platform = "job", perform = "build")
+@RunPublisherComponent(platform = "job", perform = "perform")
 public class JobEventPublisher implements KindPublisher<RunDTO, Void> {
 
     private final ApplicationEventPublisher applicationEventPublisher;

@@ -14,7 +14,7 @@ import it.smartcommunitylabdhub.dbt.components.runnables.events.messages.DbtMess
  * Event mechanism.
  *
  */
-@RunPublisherComponent(platform = "dbt", perform = "build")
+@RunPublisherComponent(platform = "dbt", perform = "perform")
 public class DbtEventPublisher implements KindPublisher<RunDTO, Void> {
 
     private final ApplicationEventPublisher applicationEventPublisher;
