@@ -78,7 +78,8 @@ class Function(Entity):
 
         # Private attributes
         self._local = local
-        self._task: Task | None = None
+        self._function = f"{self.kind}://{self.project}/{self.name}:{self.id}"
+        self._tasks: dict[str, Task] = {}
         self._context = get_context(self.project)
 
     #############################
@@ -139,7 +140,7 @@ class Function(Entity):
 
     def run(
         self,
-        action: str | None = None,
+        action: str = "perform",
         inputs: dict | None = None,
         outputs: list | None = None,
         parameters: dict | None = None,
@@ -168,50 +169,43 @@ class Function(Entity):
         Run
             Run instance.
         """
-        # Handle better this
-        if action != "perform":
-            action = "perform"
 
         # Create task if not exists
-        if self._task is None:
-            # https://docs.mlrun.org/en/latest/runtimes/configuring-job-resources.html
-            # task spec k8s
-            function = f"{self.kind}://{self.project}/{self.name}:{self.id}"
-            self._task = new_task(
+        if self._tasks.get(action) is None:
+            self._tasks[action] = new_task(
                 project=self.project,
                 kind=action,
-                function=function,
+                function=self._function,
                 resources=resources,
                 local=self._local,
                 uuid=self.id,
             )
 
         # Run function from task
-        inputs = inputs if inputs is not None else {}
-        outputs = outputs if outputs is not None else []
-        parameters = parameters if parameters is not None else {}
-        run = self._task.run(inputs, outputs, parameters, local_execution)
+        run = self._tasks[action].run(inputs, outputs, parameters, local_execution)
 
         # If local execution, merge spec and run locally
         if local_execution:
             spec = {
                 **self.spec.to_dict(),
-                **self._task.spec.to_dict(),
+                **self._tasks[action].spec.to_dict(),
                 **run.spec.to_dict(),
             }
-            runtime = get_runtime(self.kind, spec, run.id, self.project)
+            runtime = get_runtime(self.kind, action, spec, run.id, self.project)
             return runtime.run()
 
         # otherwise, return run launched by backend
         return run
 
-    def update_task(self, new_spec: dict) -> dict:
+    def update_task(self, action: str, spec: dict) -> dict:
         """
         Update task.
 
         Parameters
         ----------
-        new_spec : dict
+        action : str
+            Action to execute.
+        spec : dict
             The new Specification of the object.
 
         Returns
@@ -224,17 +218,18 @@ class Function(Entity):
         EntityError
             If the task is not created.
         """
-        if self._task is None:
+        if self._tasks[action] is None:
             raise EntityError("Task is not created.")
-        self._task = create_task(
+        _id = self._tasks[action].id
+        self._tasks[action] = create_task(
             project=self.project,
-            kind=self._task.kind,
-            function=self._task.function,
-            resources=new_spec,
-            uuid=self._task.id,
+            kind=self._tasks.kind,
+            function=self._function,
+            resources=spec,
+            uuid=_id,
             local=self._local,
         )
-        return self._task.save(self._task.id)
+        return self._tasks[action].save(_id)
 
     #############################
     #  Getters and Setters

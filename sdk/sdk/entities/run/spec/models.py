@@ -22,13 +22,13 @@ class RunParams(BaseModel):
     Run parameters.
     """
 
-    inputs: Objects | None = None
+    inputs: Objects | None = {}
     """List of input dataitems and artifacts names."""
 
-    outputs: Objects | None = None
+    outputs: Objects | None = {}
     """List of output dataitems and artifacts names."""
 
-    parameters: dict | None = None
+    parameters: dict | None = {}
     """Parameters to be used in the run."""
 
     local_execution: bool = False

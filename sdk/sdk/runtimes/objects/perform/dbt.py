@@ -1,5 +1,5 @@
 """
-DBT Runtime module.
+Runtime perform DBT module.
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from dbt.cli.main import dbtRunner, dbtRunnerResult
 from sdk.entities.base.status import StatusState, build_status
 from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
 from sdk.entities.run.crud import get_run, run_from_dict, update_run
-from sdk.runtimes.objects.base import Runtime
+from sdk.runtimes.objects.perform.base import RuntimePerform
 from sdk.utils.generic_utils import decode_string, encode_string, get_uiid
 
 if typing.TYPE_CHECKING:
@@ -93,9 +93,9 @@ class ParsedResults:
 ####################
 
 
-class DBTRuntime(Runtime):
+class RuntimePerformDBT(RuntimePerform):
     """
-    DBT Runtime class.
+    Runtime perform DBT class.
     """
 
     def __init__(self, spec: dict, run_id: str, project_name: str) -> None:

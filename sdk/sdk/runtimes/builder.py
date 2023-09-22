@@ -5,8 +5,6 @@ from __future__ import annotations
 
 import typing
 
-from sdk.runtimes.registry import REGISTRY_RUNTIMES
-
 if typing.TYPE_CHECKING:
     from sdk.runtimes.objects.base import Runtime
 
@@ -16,14 +14,20 @@ class RuntimeBuilder:
     The runtimes builder. It implements the builder pattern to create a Runtime instance.
     """
 
-    def build(self, kind: str, *args, **kwargs) -> Runtime:
+    def build(
+        self, framework: str, action: str, registry: dict, *args, **kwargs
+    ) -> Runtime:
         """
         Method to create a runtime instance.
 
         Parameters
         ----------
-        kind : str
-            The runtime kind.
+        framework : str
+            The runtime framework.
+        action : str
+            The runtime action.
+        registry : dict
+            The registry of runtimes.
         *args
             Arguments list.
         **kwargs
@@ -35,6 +39,8 @@ class RuntimeBuilder:
             Returns the Runtime instance.
         """
         try:
-            return REGISTRY_RUNTIMES[kind](*args, **kwargs)
+            return registry[framework](*args, **kwargs)
         except KeyError:
-            raise ValueError(f"Unknown kind: {kind}")
+            raise ValueError(
+                f"Invalid operation '{action}' for framewrok '{framework}'"
+            )
