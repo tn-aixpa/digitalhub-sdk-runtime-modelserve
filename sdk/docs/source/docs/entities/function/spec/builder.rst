@@ -1,7 +1,0 @@
-
-sdk.entities.function.spec.builder
-==========================
-
-.. automodule:: sdk.entities.function.spec.builder
-    :members:
-    :show-inheritance:
