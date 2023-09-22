@@ -22,6 +22,15 @@ if typing.TYPE_CHECKING:
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.run.entity import Run
 
+####################
+# ENV
+####################
+POSTGRES_HOST = os.getenv("POSTGRES_HOST")
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT")
+POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE")
+POSTGRES_SCHEMA = os.getenv("POSTGRES_SCHEMA")
 
 ####################
 # Templates
@@ -61,12 +70,12 @@ postgres:
     outputs:
         dev:
             type: postgres
-            host: {os.getenv("POSTGRES_HOST")}
-            user: {os.getenv("POSTGRES_USER")}
-            pass: {os.getenv("POSTGRES_PASSWORD")}
-            port: {os.getenv("POSTGRES_PORT")}
-            dbname: {os.getenv("POSTGRES_DATABASE")}
-            schema: public
+            host: {POSTGRES_HOST}
+            user: {POSTGRES_USER}
+            pass: {POSTGRES_PASSWORD}
+            port: {POSTGRES_PORT}
+            dbname: {POSTGRES_DATABASE}
+            schema: {POSTGRES_SCHEMA}
     target: dev
 """
 
@@ -111,7 +120,7 @@ class RuntimePerformDBT(RuntimePerform):
         self.model_dir = self.root_dir / "models"
         self.dataitem_kind = "table"
 
-    def run(self) -> Run:
+    def perform(self) -> Run:
         """
         Run function.
 
@@ -180,11 +189,8 @@ class RuntimePerformDBT(RuntimePerform):
                 self.handle_run_error(
                     f"Dataitem {name} not found in project {self.project_name}"
                 )
-            df = di.as_df()
-            db = os.getenv("POSTGRES_DB")
-            schema = os.getenv("POSTGRES_SCHEMA")
-            target_path = f"sql://postgres/{db}/{schema}/{name}_v{di.id}"
-            di.write_df(df, target_path, if_exists="replace")
+            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
+            di.write_df(target_path, if_exists="replace")
 
     def parse_outputs(self) -> str:
         """
@@ -373,7 +379,8 @@ class RuntimePerformDBT(RuntimePerform):
         result: RunResult = self.validate_results(run_result, output)
         try:
             path = self.get_path(result)
-            raw_code, compiled_code = self.get_code(result)
+            raw_code = self.get_raw_code(result)
+            compiled_code = self.get_compiled_code(result)
             timings = self.get_timings(result)
             name = result.node.name
         except Exception:
@@ -436,9 +443,9 @@ class RuntimePerformDBT(RuntimePerform):
         components = "/".join(components.split("."))
         return f"sql://postgres/{components}"
 
-    def get_code(self, result: RunResult) -> tuple:
+    def get_raw_code(self, result: RunResult) -> str:
         """
-        Get code from dbt result.
+        Get raw code from dbt result.
 
         Parameters
         ----------
@@ -447,12 +454,26 @@ class RuntimePerformDBT(RuntimePerform):
 
         Returns
         -------
-        tuple
-            A tuple containing raw and compiled code.
+        str
+            The raw code.
         """
-        raw_code = encode_string(result.node.raw_code)
-        compiled_code = encode_string(result.node.compiled_code)
-        return raw_code, compiled_code
+        return encode_string(str(result.node.raw_code))
+
+    def get_compiled_code(self, result: RunResult) -> str:
+        """
+        Get compiled code from dbt result.
+
+        Parameters
+        ----------
+        result : RunResult
+            The dbt result.
+
+        Returns
+        -------
+        str
+            The compiled code.
+        """
+        return encode_string(str(result.node.compiled_code))
 
     def get_timings(self, result: RunResult) -> dict:
         """
@@ -475,6 +496,12 @@ class RuntimePerformDBT(RuntimePerform):
                 compile_timing = entry
             elif entry.name == "execute":
                 execute_timing = entry
+        if compile_timing is None or execute_timing is None:
+            raise
+        if execute_timing.started_at is None or execute_timing.completed_at is None:
+            raise
+        if compile_timing.started_at is None or compile_timing.completed_at is None:
+            raise
         return {
             "timing": {
                 "compile": {
@@ -492,7 +519,7 @@ class RuntimePerformDBT(RuntimePerform):
     # CRUD
     ####################
 
-    def create_dataitem(self, result: ParsedResults, uuid: str) -> Dataitem:
+    def create_dataitem(self, result: ParsedResults, uuid: str) -> Dataitem | None:
         """
         Create new dataitem.
 
@@ -587,6 +614,11 @@ class RuntimePerformDBT(RuntimePerform):
         Returns
         -------
         None
+
+        Raises
+        ------
+        RuntimeError
+            Always.
         """
         self.update_run(state=StatusState.ERROR.value, error=msg)
         raise RuntimeError(msg)

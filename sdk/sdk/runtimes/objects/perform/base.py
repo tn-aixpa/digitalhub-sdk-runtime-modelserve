@@ -34,6 +34,17 @@ class RuntimePerform(Runtime):
         self.run_id = run_id
         self.project_name = project_name
 
-    @abstractmethod
     def run(self) -> Run:
+        """
+        Run the perform.
+
+        Returns
+        -------
+        Run
+            The run object.
+        """
+        return self.perform()
+
+    @abstractmethod
+    def perform(self) -> Run:
         ...

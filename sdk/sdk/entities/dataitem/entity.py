@@ -187,17 +187,19 @@ class Dataitem(Entity):
         return df
 
     def write_df(
-        self, df: pd.DataFrame, target_path: str | None = None, **kwargs
+        self, target_path: str | None = None, df: pd.DataFrame | None = None, **kwargs
     ) -> str:
         """
         Write pandas DataFrame as parquet.
+        If no target_path is passed, the dataitem will be written into the default store.
+        If no DataFrame is passed, the dataitem will be written into the target_path.
 
         Parameters
         ----------
-        df : pd.DataFrame
-            DataFrame to write.
         target_path : str
             Path to write the dataframe to
+        df : pd.DataFrame
+            DataFrame to write.
         **kwargs
             Keyword arguments.
 
@@ -210,6 +212,8 @@ class Dataitem(Entity):
             store = get_default_store()
         else:
             store = get_store(target_path)
+        if df is None:
+            df = self.as_df()
         return store.write_df(df, target_path, **kwargs)
 
     #############################

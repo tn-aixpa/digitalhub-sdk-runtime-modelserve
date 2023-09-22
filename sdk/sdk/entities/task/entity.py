@@ -123,7 +123,11 @@ class Task(Entity):
     #############################
 
     def run(
-        self, inputs: dict, outputs: list, parameters: dict, local_execution: bool
+        self,
+        inputs: dict | None,
+        outputs: dict | None = None,
+        parameters: dict | None = None,
+        local_execution: bool = False
     ) -> Run:
         """
         Run task.
@@ -132,7 +136,7 @@ class Task(Entity):
         ----------
         inputs : dict
             The inputs of the run.
-        outputs : list
+        outputs : dict
             The outputs of the run.
         parameters : dict
             The parameters of the run.
@@ -148,7 +152,6 @@ class Task(Entity):
             project=self.project,
             task_id=self.id,
             task=self._get_task_string(),
-            kind="run",
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,

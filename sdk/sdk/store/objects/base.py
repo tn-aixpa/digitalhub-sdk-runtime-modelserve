@@ -14,12 +14,7 @@ from sdk.utils.file_utils import build_path, make_dir
 from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from sdk.store.models import (
-        LocalStoreConfig,
-        RemoteStoreConfig,
-        S3StoreConfig,
-        SQLStoreConfig,
-    )
+    from sdk.store.models import StoreConfig
 
 
 class Store(metaclass=ABCMeta):
@@ -31,7 +26,7 @@ class Store(metaclass=ABCMeta):
         self,
         name: str,
         store_type: str,
-        config: S3StoreConfig | LocalStoreConfig | RemoteStoreConfig | SQLStoreConfig,
+        config: StoreConfig
     ) -> None:
         """
         Constructor.

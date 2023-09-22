@@ -1,6 +1,13 @@
 """
 Base Runtime module.
 """
+from __future__ import annotations
+
+import typing
+from abc import abstractmethod
+
+if typing.TYPE_CHECKING:
+    from sdk.entities.run.entity import Run
 
 
 class Runtime:
@@ -24,3 +31,7 @@ class Runtime:
         self.spec = spec
         self.run_id = run_id
         self.project_name = project_name
+
+    @abstractmethod
+    def run(self) -> Run:
+        ...

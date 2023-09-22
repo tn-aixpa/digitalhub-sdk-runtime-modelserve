@@ -78,7 +78,6 @@ class Function(Entity):
 
         # Private attributes
         self._local = local
-        self._function = f"{self.kind}://{self.project}/{self.name}:{self.id}"
         self._tasks: dict[str, Task] = {}
         self._context = get_context(self.project)
 
@@ -142,7 +141,7 @@ class Function(Entity):
         self,
         action: str = "perform",
         inputs: dict | None = None,
-        outputs: list | None = None,
+        outputs: dict | None = None,
         parameters: dict | None = None,
         local_execution: bool = False,
         resources: dict | None = None,
@@ -175,7 +174,7 @@ class Function(Entity):
             self._tasks[action] = new_task(
                 project=self.project,
                 kind=action,
-                function=self._function,
+                function=self._get_function_string(),
                 resources=resources,
                 local=self._local,
                 uuid=self.id,
@@ -197,7 +196,7 @@ class Function(Entity):
         # otherwise, return run launched by backend
         return run
 
-    def update_task(self, action: str, spec: dict) -> dict:
+    def update_task(self, action: str, spec: dict) -> None:
         """
         Update task.
 
@@ -210,26 +209,36 @@ class Function(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Task from backend.
+        None
 
         Raises
         ------
         EntityError
-            If the task is not created.
+            If the task is not already created.
         """
-        if self._tasks[action] is None:
+        if self._tasks.get(action) is None:
             raise EntityError("Task is not created.")
         _id = self._tasks[action].id
         self._tasks[action] = create_task(
             project=self.project,
-            kind=self._tasks.kind,
-            function=self._function,
+            kind=action,
+            function=self._get_function_string(),
             resources=spec,
             uuid=_id,
             local=self._local,
         )
-        return self._tasks[action].save(_id)
+        self._tasks[action].save(_id)
+
+    def _get_function_string(self) -> str:
+        """
+        Get function string.
+
+        Returns
+        -------
+        str
+            Function string.
+        """
+        return f"{self.kind}://{self.project}/{self.name}:{self.id}"
 
     #############################
     #  Getters and Setters

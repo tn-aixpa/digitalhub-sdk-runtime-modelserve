@@ -34,6 +34,17 @@ class RuntimeBuild(Runtime):
         self.run_id = run_id
         self.project_name = project_name
 
+    def run(self) -> Run:
+        """
+        Run the build.
+
+        Returns
+        -------
+        Run
+            The run object.
+        """
+        return self.build()
+
     @abstractmethod
     def build(self) -> Run:
         ...
