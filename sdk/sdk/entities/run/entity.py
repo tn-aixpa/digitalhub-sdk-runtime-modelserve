@@ -131,6 +131,32 @@ class Run(Entity):
     #  Run Methods
     #############################
 
+    def merge(self, function: dict, task: dict) -> None:
+        """
+        Merge function, task and run specifications.
+
+        Parameters
+        ----------
+        function : dict
+            Function specification.
+        task : dict
+            Task specification.
+
+        Returns
+        -------
+        None
+        """
+        self.spec = build_spec(
+            self.kind,
+            **{
+                **function.get("spec"),
+                **task.get("spec"),
+                **self.spec.to_dict(),
+            },
+            merged=True,
+        )
+        self.save(self.id)
+
     def refresh(self) -> dict:
         """
         Get run from backend.
@@ -145,21 +171,6 @@ class Run(Entity):
 
         api = api_base_read(DTO_RUNS, self.id)
         return self._context.read_object(api)
-
-    def delete(self) -> dict:
-        """
-        Delete run from backend.
-
-        Returns
-        -------
-        dict
-            Delete response from backend.
-        """
-        if self._local:
-            raise EntityError("Cannot delete local run.")
-
-        api = api_base_delete(DTO_RUNS, self.id)
-        return self._context.delete_object(api)
 
     def stop(self) -> dict:
         """

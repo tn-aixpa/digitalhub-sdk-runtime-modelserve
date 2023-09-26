@@ -39,7 +39,11 @@ class EntitySpec(ModelObj):
 
 
 def spec_builder(
-    kind: str, registry_spec: dict, registry_models: dict | None = None, **kwargs
+    kind: str,
+    registry_spec: dict,
+    registry_models: dict | None = None,
+    ignore_validation: bool = False,
+    **kwargs,
 ) -> EntitySpec:
     """
     Build an Spec object with the given parameters.
@@ -58,8 +62,10 @@ def spec_builder(
     EntitySpec
         An Spec object with the given parameters.
     """
-
-    params = validate_params(kind, registry_models, **kwargs)
+    if not ignore_validation:
+        params = validate_params(kind, registry_models, **kwargs)
+    else:
+        params = kwargs
     try:
         return registry_spec[kind](**params)
     except KeyError:

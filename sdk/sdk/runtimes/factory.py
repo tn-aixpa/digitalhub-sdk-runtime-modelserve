@@ -16,16 +16,14 @@ if typing.TYPE_CHECKING:
 runtime_builder = RuntimeBuilder()
 
 
-def get_runtime(function_kind: str, task_kind: str, *args, **kwargs) -> Runtime:
+def get_runtime(run: dict, *args, **kwargs) -> Runtime:
     """
     Get runtime instance by framework and operation.
 
     Parameters
     ----------
-    function_kind : str
-        Runtime framework.
-    task_kind : str
-        Operation to execute.
+    run: dict
+        Run object.
     *args
         Arguments list.
     **kwargs
@@ -36,8 +34,10 @@ def get_runtime(function_kind: str, task_kind: str, *args, **kwargs) -> Runtime:
     Runtime
         Runtime instance.
     """
+    function_kind, task_kind = run.spec.task.split(":")[0].split("+")
+    registry = {}
     if task_kind == TaskKinds.BUILD.value:
         registry = REGISTRY_RUNTIMES_BUILD
     elif task_kind == TaskKinds.JOB.value:
         registry = REGISTRY_RUNTIMES_JOB
-    return runtime_builder.build(function_kind, task_kind, registry, *args, **kwargs)
+    return runtime_builder.build(function_kind, task_kind, registry, run)

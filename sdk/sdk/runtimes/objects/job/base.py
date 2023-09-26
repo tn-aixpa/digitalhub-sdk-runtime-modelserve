@@ -17,22 +17,18 @@ class RuntimeJob(Runtime):
     Base Runtime job class.
     """
 
-    def __init__(self, spec: dict, run_id: str, project_name: str) -> None:
+    def __init__(self, run: Run) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        spec : dict
-            Run merged specification.
-        run_id : str
-            The run id.
-        project_name : str
-            The project name.
+        run: Run
+            Run object.
         """
-        self.spec = spec
-        self.run_id = run_id
-        self.project_name = project_name
+        self.spec = run.spec
+        self.run_id = run.id
+        self.project_name = run.project
 
     def run(self) -> Run:
         """

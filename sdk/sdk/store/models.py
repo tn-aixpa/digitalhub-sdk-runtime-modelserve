@@ -65,7 +65,7 @@ class LocalStoreConfig(StoreConfig):
     Local store configuration class.
     """
 
-    path: str | None = "sdk"
+    path: str
     """Local path."""
 
 

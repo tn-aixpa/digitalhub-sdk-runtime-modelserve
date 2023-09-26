@@ -11,7 +11,7 @@ from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.status import build_status
 from sdk.entities.function.kinds import build_kind
 from sdk.entities.function.spec.builder import build_spec
-from sdk.entities.task.crud import create_task, new_task
+from sdk.entities.task.crud import create_task, new_task, delete_task
 from sdk.runtimes.factory import get_runtime
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError
@@ -140,11 +140,13 @@ class Function(Entity):
     def run(
         self,
         action: str,
+        resources: dict | None = None,
+        image: str | None = None,
+        base_image: str | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
         local_execution: bool = False,
-        resources: dict | None = None,
     ) -> Run:
         """
         Run function.
@@ -152,17 +154,21 @@ class Function(Entity):
         Parameters
         ----------
         action : str
-            Action to execute.
-        inputs : dict
-            Function inputs. Used in Run.
-        outputs : dict
-            Function outputs. Used in Run.
-        parameters : dict
-            Function parameters. Used in Run.
-        local_execution : bool
-            Flag to determine if object has local execution.
+            Action to execute. Task parameter.
         resources : dict
-            K8s resource. Used in Task.
+            K8s resource. Task parameter.
+        image : str
+            Output image name. Task parameter.
+        base_image : str
+            Base image name. Task parameter.
+        inputs : dict
+            Function inputs. Run parameter.
+        outputs : dict
+            Function outputs. Run parameter.
+        parameters : dict
+            Function parameters. Run parameter.
+        local_execution : bool
+            Flag to determine if object has local execution. Run parameter.
         Returns
         -------
         Run
@@ -170,64 +176,26 @@ class Function(Entity):
         """
 
         # Create task if not exists
-        if self._tasks.get(action) is None:
-            self._tasks[action] = new_task(
-                project=self.project,
+        active_task = self._tasks.get(action)
+        if active_task is None:
+            active_task = self.new_task(
                 kind=action,
-                function=self._get_function_string(),
                 resources=resources,
-                local=self._local,
-                uuid=self.id,
+                image=image,
+                base_image=base_image,
             )
 
         # Run function from task
-        run = self._tasks[action].run(inputs, outputs, parameters, local_execution)
+        run = active_task.run(inputs, outputs, parameters, local_execution)
 
         # If local execution, merge spec and run locally
         if local_execution:
-            spec = {
-                **self.spec.to_dict(),
-                **self._tasks[action].spec.to_dict(),
-                **run.spec.to_dict(),
-            }
-            runtime = get_runtime(self.kind, action, spec, run.id, self.project)
+            run.merge(self.to_dict(), active_task.to_dict())
+            runtime = get_runtime(run)
             return runtime.run()
 
         # otherwise, return run launched by backend
         return run
-
-    def update_task(self, action: str, spec: dict) -> None:
-        """
-        Update task.
-
-        Parameters
-        ----------
-        action : str
-            Action to execute.
-        spec : dict
-            The new Specification of the object.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        EntityError
-            If the task is not already created.
-        """
-        if self._tasks.get(action) is None:
-            raise EntityError("Task is not created.")
-        _id = self._tasks[action].id
-        self._tasks[action] = create_task(
-            project=self.project,
-            kind=action,
-            function=self._get_function_string(),
-            resources=spec,
-            uuid=_id,
-            local=self._local,
-        )
-        self._tasks[action].save(_id)
 
     def _get_function_string(self) -> str:
         """
@@ -239,6 +207,130 @@ class Function(Entity):
             Function string.
         """
         return f"{self.kind}://{self.project}/{self.name}:{self.id}"
+
+    #############################
+    #  CRUD Methods for Tasks
+    #############################
+
+    def new_task(self, **kwargs) -> Task:
+        """
+        Create new task.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        Task
+            New task.
+        """
+        kwargs["project"] = self.project
+        kwargs["function"] = self._get_function_string()
+        kwargs["local"] = self._local
+        task = new_task(**kwargs)
+        self._tasks[kwargs["kind"]] = task
+        return task
+
+    def update_task(self, kind: str, **kwargs) -> None:
+        """
+        Update task.
+
+        Parameters
+        ----------
+        kind : str
+            Kind of the task.
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If task does not exist.
+        """
+        self._raise_if_not_exists(kind)
+
+        # Update kwargs
+        kwargs["project"] = self.project
+        kwargs["kind"] = kind
+        kwargs["function"] = self._get_function_string()
+        kwargs["local"] = self._local
+        kwargs["uuid"] = self._tasks[kind].id
+
+        # Update task
+        task = create_task(**kwargs)
+        task.save(kwargs["uuid"])
+        self._tasks[kind] = task
+
+    def get_task(self, kind: str) -> Task:
+        """
+        Get task.
+
+        Parameters
+        ----------
+        kind : str
+            Kind of the task.
+
+        Returns
+        -------
+        Task
+            Task.
+
+        Raises
+        ------
+        EntityError
+            If task is not created.
+        """
+        self._raise_if_not_exists(kind)
+        return self._tasks[kind]
+
+    def delete_task(self, kind: str) -> None:
+        """
+        Delete task.
+
+        Parameters
+        ----------
+        kind : str
+            Kind of the task.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If task is not created.
+        """
+        self._raise_if_not_exists(kind)
+        delete_task(self.project, self._tasks[kind].name)
+        self._tasks[kind] = None
+
+    def _raise_if_not_exists(self, kind: str) -> None:
+        """
+        Raise error if task is not created.
+
+        Parameters
+        ----------
+        kind : str
+            Kind of the task.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If task does not exist.
+        """
+        if self._tasks.get(kind) is None:
+            raise EntityError("Task does not exist.")
 
     #############################
     #  Getters and Setters

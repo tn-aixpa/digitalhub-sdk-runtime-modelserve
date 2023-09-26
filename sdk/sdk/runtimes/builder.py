@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
+    from sdk.entities.run.entity import Run
     from sdk.runtimes.objects.base import Runtime
 
 
@@ -15,7 +16,11 @@ class RuntimeBuilder:
     """
 
     def build(
-        self, framework: str, action: str, registry: dict, *args, **kwargs
+        self,
+        framework: str,
+        action: str,
+        registry: dict,
+        run: Run,
     ) -> Runtime:
         """
         Method to create a runtime instance.
@@ -28,10 +33,7 @@ class RuntimeBuilder:
             The runtime action.
         registry : dict
             The registry of runtimes.
-        *args
-            Arguments list.
-        **kwargs
-            Keyword arguments.
+        run : Run
 
         Returns
         -------
@@ -39,7 +41,7 @@ class RuntimeBuilder:
             Returns the Runtime instance.
         """
         try:
-            return registry[framework](*args, **kwargs)
+            return registry[framework](run)
         except KeyError:
             raise ValueError(
                 f"Invalid operation '{action}' for framewrok '{framework}'"

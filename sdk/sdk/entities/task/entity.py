@@ -8,7 +8,7 @@ import typing
 from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.status import build_status
-from sdk.entities.run.crud import new_run
+from sdk.entities.run.crud import new_run, delete_run, get_run
 from sdk.entities.task.kinds import build_kind
 from sdk.entities.task.spec.builder import build_spec
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
@@ -147,15 +147,11 @@ class Task(Entity):
         Run
             Run object.
         """
-        return new_run(
-            project=self.project,
-            task_id=self.id,
-            task=self._get_task_string(),
+        return self.new_run(
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
             local_execution=local_execution,
-            local=self._local,
         )
 
     def _get_task_string(self) -> str:
@@ -169,6 +165,61 @@ class Task(Entity):
         """
         splitted = self.function.split("://")
         return f"{splitted[0]}+{self.kind}://{splitted[1]}"
+
+    #############################
+    # CRUD Methods for Run
+    #############################
+
+    def new_run(self, **kwargs) -> Run:
+        """
+        Create a new run.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        Run
+            Run object.
+        """
+        kwargs["project"] = self.project
+        kwargs["task_id"] = self.id
+        kwargs["task"] = self._get_task_string()
+        kwargs["local"] = self._local
+        return new_run(**kwargs)
+
+    def get_run(self, uuid: str) -> Run:
+        """
+        Get run.
+
+        Parameters
+        ----------
+        uuid : str
+            UUID.
+
+        Returns
+        -------
+        Run
+            Run object.
+        """
+        return get_run(self.project, uuid)
+
+    def delete_run(self, uuid: str) -> None:
+        """
+        Delete run.
+
+        Parameters
+        ----------
+        uuid : str
+            UUID.
+
+        Returns
+        -------
+        None
+        """
+        delete_run(self.project, uuid)
 
     #############################
     # Generic Methods
@@ -244,6 +295,8 @@ def task_from_parameters(
     kind: str,
     function: str,
     resources: dict | None = None,
+    image: str | None = None,
+    base_image: str | None = None,
     local: bool = False,
     uuid: str | None = None,
 ) -> Task:
@@ -271,7 +324,9 @@ def task_from_parameters(
         Task object.
     """
     kind = build_kind(kind)
-    spec = build_spec(kind, function=function, resources=resources)
+    spec = build_spec(
+        kind, function=function, resources=resources, image=image, base_image=base_image
+    )
     return Task(
         project=project,
         kind=kind,

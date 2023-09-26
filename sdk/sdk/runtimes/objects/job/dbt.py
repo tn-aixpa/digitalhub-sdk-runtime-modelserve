@@ -107,7 +107,7 @@ class RuntimeJobDBT(RuntimeJob):
     Runtime job DBT class.
     """
 
-    def __init__(self, spec: dict, run_id: str, project_name: str) -> None:
+    def __init__(self, run: Run) -> None:
         """
         Constructor.
 
@@ -115,7 +115,7 @@ class RuntimeJobDBT(RuntimeJob):
         --------
         Runtime.__init__
         """
-        super().__init__(spec, run_id, project_name)
+        super().__init__(run)
         self.root_dir = Path("dbt_run")
         self.model_dir = self.root_dir / "models"
         self.dataitem_kind = "table"
@@ -163,7 +163,7 @@ class RuntimeJobDBT(RuntimeJob):
         list
             The list of inputs dataitems names.
         """
-        inputs = self.spec.get("inputs", {}).get("dataitems", [])
+        inputs = self.spec.inputs.get("dataitems", [])
         if not isinstance(inputs, list):
             self.handle_run_error("Inputs must be a list of dataitems")
         self.materialize_inputs(inputs)
@@ -203,7 +203,7 @@ class RuntimeJobDBT(RuntimeJob):
         str
             The output dataitem/table name.
         """
-        outputs = self.spec.get("outputs", {}).get("dataitems", [])
+        outputs = self.spec.outputs.get("dataitems", [])
         if not isinstance(outputs, list):
             self.handle_run_error("Outputs must be a list of dataitems")
         return outputs[0]
@@ -253,7 +253,7 @@ class RuntimeJobDBT(RuntimeJob):
         str
             The decoded sql code.
         """
-        return decode_string(self.spec.get("sql"))
+        return decode_string(self.spec.sql)
 
     def generate_inputs_conf(self, inputs: list) -> None:
         """
