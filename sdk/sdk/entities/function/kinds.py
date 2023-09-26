@@ -11,7 +11,7 @@ class FunctionKinds(Enum):
     Function kind enum class.
     """
 
-    JOB = "job"
+    MLRUN = "job"
     DBT = "dbt"
 
 
@@ -29,4 +29,4 @@ def build_kind(kind: str | None = None) -> str:
     str
         Function kind.
     """
-    return kind_builder(FunctionKinds, FunctionKinds.JOB.value, kind)
+    return kind_builder(FunctionKinds, FunctionKinds.MLRUN.value, kind)

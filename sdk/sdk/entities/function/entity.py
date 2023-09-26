@@ -139,7 +139,7 @@ class Function(Entity):
 
     def run(
         self,
-        action: str = "perform",
+        action: str,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -358,7 +358,7 @@ def function_from_parameters(
         Identifier of the Function.
     description : str
         Description of the Function.
-    kind : str, default "job"
+    kind : str
         The type of the Function.
     source : str
         Path to the Function's source code on the local file system.

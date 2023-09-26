@@ -8,7 +8,7 @@ from sdk.utils.generic_utils import encode_source
 from sdk.utils.uri_utils import get_name_from_uri
 
 
-class FunctionSpecJob(FunctionSpec):
+class FunctionSpecMLRun(FunctionSpec):
     """
     Specification for a Function job.
     """
@@ -28,16 +28,28 @@ class FunctionSpecJob(FunctionSpec):
 
         Parameters
         ----------
+        image : str
+            Name of the Function's container image.
+        tag : str
+            Tag of the Function's container image.
+        handler : str
+            Function handler name.
+        command : str
+            Command to run inside the container.
         requirements : list
             List of requirements for the Function.
         """
-        super().__init__(source, image, tag, handler, command, **kwargs)
+        super().__init__(source, **kwargs)
         if source is None:
             raise EntityError("Source must be provided.")
 
         if not is_python_module(source):
             raise EntityError("Source is not a valid python file.")
 
+        self.image = image
+        self.tag = tag
+        self.handler = handler
+        self.command = command
         self.requirements = requirements if requirements is not None else []
         self.build = {
             "functionSourceCode": encode_source(source),

@@ -14,10 +14,6 @@ class FunctionSpecDBT(FunctionSpec):
     def __init__(
         self,
         source: str = "",
-        image: str | None = None,
-        tag: str | None = None,
-        handler: str | None = None,
-        command: str | None = None,
         sql: str | None = None,
         **kwargs,
     ) -> None:
@@ -29,7 +25,7 @@ class FunctionSpecDBT(FunctionSpec):
         sql : str
             SQL query to run inside DBT.
         """
-        super().__init__(source, image, tag, handler, command, **kwargs)
+        super().__init__(source, **kwargs)
         if sql is None:
             raise EntityError("SQL query must be provided.")
 

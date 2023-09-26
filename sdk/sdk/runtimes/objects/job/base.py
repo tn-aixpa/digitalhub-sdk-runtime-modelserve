@@ -12,9 +12,9 @@ if typing.TYPE_CHECKING:
     from sdk.entities.run.entity import Run
 
 
-class RuntimePerform(Runtime):
+class RuntimeJob(Runtime):
     """
-    Base Runtime class.
+    Base Runtime job class.
     """
 
     def __init__(self, spec: dict, run_id: str, project_name: str) -> None:
@@ -36,15 +36,15 @@ class RuntimePerform(Runtime):
 
     def run(self) -> Run:
         """
-        Run the perform.
+        Run the job.
 
         Returns
         -------
         Run
             The run object.
         """
-        return self.perform()
+        return self.job()
 
     @abstractmethod
-    def perform(self) -> Run:
+    def job(self) -> Run:
         ...

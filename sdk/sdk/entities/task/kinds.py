@@ -11,8 +11,9 @@ class TaskKinds(Enum):
     Task kind enum class.
     """
 
-    PERFORM = "perform"
+    JOB = "perform"
     BUILD = "build"
+    DEPLOY = "deploy"
 
 
 def build_kind(kind: str | None = None) -> str:
@@ -29,4 +30,4 @@ def build_kind(kind: str | None = None) -> str:
     str
         Task kind.
     """
-    return kind_builder(TaskKinds, TaskKinds.PERFORM.value, kind)
+    return kind_builder(TaskKinds, TaskKinds.JOB.value, kind)

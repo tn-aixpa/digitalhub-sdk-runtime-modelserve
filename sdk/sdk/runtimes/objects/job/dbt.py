@@ -1,5 +1,5 @@
 """
-Runtime perform DBT module.
+Runtime job DBT module.
 """
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from dbt.cli.main import dbtRunner, dbtRunnerResult
 from sdk.entities.base.status import StatusState, build_status
 from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
 from sdk.entities.run.crud import get_run, run_from_dict, update_run
-from sdk.runtimes.objects.perform.base import RuntimePerform
+from sdk.runtimes.objects.job.base import RuntimeJob
 from sdk.utils.generic_utils import decode_string, encode_string, get_uiid
 
 if typing.TYPE_CHECKING:
@@ -102,9 +102,9 @@ class ParsedResults:
 ####################
 
 
-class RuntimePerformDBT(RuntimePerform):
+class RuntimeJobDBT(RuntimeJob):
     """
-    Runtime perform DBT class.
+    Runtime job DBT class.
     """
 
     def __init__(self, spec: dict, run_id: str, project_name: str) -> None:
@@ -120,7 +120,7 @@ class RuntimePerformDBT(RuntimePerform):
         self.model_dir = self.root_dir / "models"
         self.dataitem_kind = "table"
 
-    def perform(self) -> Run:
+    def job(self) -> Run:
         """
         Run function.
 
@@ -189,7 +189,9 @@ class RuntimePerformDBT(RuntimePerform):
                 self.handle_run_error(
                     f"Dataitem {name} not found in project {self.project_name}"
                 )
-            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
+            target_path = (
+                f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
+            )
             di.write_df(target_path, if_exists="replace")
 
     def parse_outputs(self) -> str:

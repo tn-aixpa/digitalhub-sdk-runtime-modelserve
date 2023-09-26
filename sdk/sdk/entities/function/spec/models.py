@@ -25,9 +25,9 @@ class FunctionParams(BaseModel):
     """Command to run inside the container."""
 
 
-class FunctionParamsJob(FunctionParams):
+class FunctionParamsMLRun(FunctionParams):
     """
-    Function job parameters model.
+    Function mlrun parameters model.
     """
 
     requirements: list

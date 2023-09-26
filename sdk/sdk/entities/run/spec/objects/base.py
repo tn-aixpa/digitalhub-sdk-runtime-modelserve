@@ -9,6 +9,7 @@ class RunSpec(EntitySpec):
 
     def __init__(
         self,
+        task: str | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -20,6 +21,8 @@ class RunSpec(EntitySpec):
 
         Parameters
         ----------
+        task : str
+            The task associated with the run.
         inputs : dict
             The inputs of the run.
         outputs : dict
@@ -31,6 +34,7 @@ class RunSpec(EntitySpec):
         **kwargs
             Keywords arguments.
         """
+        self.task = task
         self.inputs = inputs if inputs is not None else {}
         self.outputs = outputs if outputs is not None else {}
         self.parameters = parameters if parameters is not None else {}

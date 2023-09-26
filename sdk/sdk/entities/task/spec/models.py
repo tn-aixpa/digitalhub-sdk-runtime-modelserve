@@ -85,7 +85,16 @@ class Resource(BaseModel):
     """Resource requests."""
 
 
-class TaskParamsPerform(BaseModel):
+class TaskSpec(BaseModel):
+    """
+    Base task model.
+    """
+
+    function: str | None = None
+    """Task function."""
+
+
+class TaskParamsPerform(TaskSpec):
     """
     TaskParamsPerform model.
     """
@@ -103,7 +112,7 @@ class TaskParamsPerform(BaseModel):
     """Resources restrictions."""
 
 
-class TaskParamsBuild(BaseModel):
+class TaskParamsBuild(TaskSpec):
     """
     TaskParamsBuild model.
     """

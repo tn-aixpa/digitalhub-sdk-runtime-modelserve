@@ -22,6 +22,9 @@ class RunParams(BaseModel):
     Run parameters.
     """
 
+    task: str | None = None
+    """The task associated with the run."""
+
     inputs: Objects | None = {}
     """List of input dataitems and artifacts names."""
 

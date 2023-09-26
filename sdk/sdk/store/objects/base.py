@@ -22,12 +22,7 @@ class Store(metaclass=ABCMeta):
     Store abstract class.
     """
 
-    def __init__(
-        self,
-        name: str,
-        store_type: str,
-        config: StoreConfig
-    ) -> None:
+    def __init__(self, name: str, store_type: str, config: StoreConfig) -> None:
         """
         Constructor.
 

@@ -14,7 +14,6 @@ from sdk.entities.task.spec.builder import build_spec
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
-from sdk.utils.uri_utils import get_uri_path, get_uri_scheme
 
 if typing.TYPE_CHECKING:
     from sdk.entities.base.status import Status
@@ -127,7 +126,7 @@ class Task(Entity):
         inputs: dict | None,
         outputs: dict | None = None,
         parameters: dict | None = None,
-        local_execution: bool = False
+        local_execution: bool = False,
     ) -> Run:
         """
         Run task.
@@ -168,9 +167,8 @@ class Task(Entity):
         str
             Task string.
         """
-        scheme = get_uri_scheme(self.function)
-        path = get_uri_path(self.function)
-        return f"{scheme}+{self.kind}://{path}"
+        splitted = self.function.split("://")
+        return f"{splitted[0]}+{self.kind}://{splitted[1]}"
 
     #############################
     # Generic Methods
@@ -273,7 +271,7 @@ def task_from_parameters(
         Task object.
     """
     kind = build_kind(kind)
-    spec = build_spec(kind, resources=resources)
+    spec = build_spec(kind, function=function, resources=resources)
     return Task(
         project=project,
         kind=kind,

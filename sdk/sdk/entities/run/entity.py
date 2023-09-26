@@ -393,6 +393,7 @@ def run_from_parameters(
     kind = build_kind(kind)
     spec = build_spec(
         kind,
+        task=task,
         inputs=inputs,
         outputs=outputs,
         parameters=parameters,

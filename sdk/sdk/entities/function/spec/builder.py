@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
 
 def build_spec(kind: str, **kwargs) -> FunctionSpec:
     """
-    Build an FunctionSpecJob object with the given parameters.
+    Build an FunctionSpec object with the given parameters.
 
     Parameters
     ----------
