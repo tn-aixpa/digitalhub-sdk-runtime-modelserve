@@ -13,7 +13,7 @@ from dbt.cli.main import dbtRunner, dbtRunnerResult
 from sdk.entities.base.status import StatusState, build_status
 from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
 from sdk.entities.run.crud import get_run, run_from_dict, update_run
-from sdk.runtimes.objects.job.base import RuntimeJob
+from sdk.runtimes.objects.base import Runtime
 from sdk.utils.generic_utils import decode_string, encode_string, get_uiid
 
 if typing.TYPE_CHECKING:
@@ -102,7 +102,7 @@ class ParsedResults:
 ####################
 
 
-class RuntimeJobDBT(RuntimeJob):
+class RuntimeJobDBT(Runtime):
     """
     Runtime job DBT class.
     """
@@ -111,16 +111,19 @@ class RuntimeJobDBT(RuntimeJob):
         """
         Constructor.
 
-        See Also
-        --------
-        Runtime.__init__
+        Parameters
+        ----------
+        run: Run
+            Run object.
         """
-        super().__init__(run)
+        self.spec = run.spec
+        self.run_id = run.id
+        self.project_name = run.project
         self.root_dir = Path("dbt_run")
         self.model_dir = self.root_dir / "models"
         self.dataitem_kind = "table"
 
-    def job(self) -> Run:
+    def run(self) -> Run:
         """
         Run function.
 

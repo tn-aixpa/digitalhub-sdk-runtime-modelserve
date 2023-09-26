@@ -5,18 +5,13 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.task.kinds import TaskKinds
-from sdk.runtimes.builder import RuntimeBuilder
-from sdk.runtimes.registry import REGISTRY_RUNTIMES_BUILD, REGISTRY_RUNTIMES_JOB
+from sdk.runtimes.registry import REGISTRY_RUNTIMES
 
 if typing.TYPE_CHECKING:
-    from sdk.runtimes.objects.job.base import Runtime
+    from sdk.runtimes.objects.base import Runtime
 
 
-runtime_builder = RuntimeBuilder()
-
-
-def get_runtime(run: dict, *args, **kwargs) -> Runtime:
+def get_runtime(run: dict) -> Runtime:
     """
     Get runtime instance by framework and operation.
 
@@ -24,20 +19,16 @@ def get_runtime(run: dict, *args, **kwargs) -> Runtime:
     ----------
     run: dict
         Run object.
-    *args
-        Arguments list.
-    **kwargs
-        Keyword arguments.
 
     Returns
     -------
     Runtime
         Runtime instance.
     """
-    function_kind, task_kind = run.spec.task.split(":")[0].split("+")
-    registry = {}
-    if task_kind == TaskKinds.BUILD.value:
-        registry = REGISTRY_RUNTIMES_BUILD
-    elif task_kind == TaskKinds.JOB.value:
-        registry = REGISTRY_RUNTIMES_JOB
-    return runtime_builder.build(function_kind, task_kind, registry, run)
+    framework, action = run.get_function_and_task()
+    try:
+        return REGISTRY_RUNTIMES.get(framework)[action](run)
+    except TypeError:
+        raise ValueError(f"Unkwnon framewrok '{framework}'")
+    except KeyError:
+        raise ValueError(f"Invalid operation '{action}' for framewrok '{framework}'")

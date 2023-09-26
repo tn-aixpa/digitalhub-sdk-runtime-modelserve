@@ -176,9 +176,9 @@ class Function(Entity):
         """
 
         # Create task if not exists
-        active_task = self._tasks.get(action)
-        if active_task is None:
-            active_task = self.new_task(
+        task = self._tasks.get(action)
+        if task is None:
+            task = self.new_task(
                 kind=action,
                 resources=resources,
                 image=image,
@@ -186,11 +186,11 @@ class Function(Entity):
             )
 
         # Run function from task
-        run = active_task.run(inputs, outputs, parameters, local_execution)
+        run = task.run(inputs, outputs, parameters, local_execution)
 
         # If local execution, merge spec and run locally
         if local_execution:
-            run.merge(self.to_dict(), active_task.to_dict())
+            run.merge(self.to_dict(), task.to_dict())
             runtime = get_runtime(run)
             return runtime.run()
 

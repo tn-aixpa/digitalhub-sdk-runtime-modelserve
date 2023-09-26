@@ -1,8 +1,12 @@
-REGISTRY_RUNTIMES_BUILD = {}
-REGISTRY_RUNTIMES_JOB = {}
-try:
-    from sdk.runtimes.objects.job.dbt import RuntimeJobDBT
+from sdk.entities.function.kinds import FunctionKinds
+from sdk.entities.task.kinds import TaskKinds
 
-    REGISTRY_RUNTIMES_JOB["dbt"] = RuntimeJobDBT
+REGISTRY_RUNTIMES = {}
+try:
+    from sdk.runtimes.objects.dbt import RuntimeJobDBT
+
+    REGISTRY_RUNTIMES[FunctionKinds.DBT.value] = {
+        TaskKinds.JOB.value: RuntimeJobDBT,
+    }
 except ImportError:
     ...

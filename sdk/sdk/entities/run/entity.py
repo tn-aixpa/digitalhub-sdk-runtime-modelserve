@@ -269,6 +269,17 @@ class Run(Entity):
         else:
             raise EntityError("Status must be a dictionary or a Status object.")
 
+    def get_function_and_task(self) -> tuple[str, str]:
+        """
+        Get function and task from run.
+
+        Returns
+        -------
+        tuple[str, str]
+            Function and task.
+        """
+        return self.spec.task.split(":")[0].split("+")
+
     #############################
     #  Getters and Setters
     #############################
