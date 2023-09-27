@@ -7,7 +7,7 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.task.entity import task_from_dict, task_from_parameters
-from sdk.utils.api import DTO_TASK, api_base_delete, api_base_read, api_base_update
+from sdk.utils.api import DTO_TASK, api_base_delete, api_base_read
 from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 

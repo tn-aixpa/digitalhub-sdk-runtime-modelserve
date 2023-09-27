@@ -11,7 +11,7 @@ from sdk.entities.base.metadata import build_metadata
 from sdk.entities.base.status import build_status
 from sdk.entities.function.kinds import build_kind
 from sdk.entities.function.spec.builder import build_spec
-from sdk.entities.task.crud import create_task, new_task, delete_task
+from sdk.entities.task.crud import create_task, delete_task, new_task
 from sdk.runtimes.factory import get_runtime
 from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
 from sdk.utils.exceptions import EntityError

@@ -12,7 +12,7 @@ from sdk.entities.base.status import Status, build_status
 from sdk.entities.dataitem.crud import get_dataitem_from_key
 from sdk.entities.run.kinds import build_kind
 from sdk.entities.run.spec.builder import build_spec
-from sdk.utils.api import DTO_RUNS, api_base_create, api_base_delete, api_base_read
+from sdk.utils.api import DTO_RUNS, api_base_create, api_base_read
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
 

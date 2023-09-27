@@ -8,7 +8,7 @@ import typing
 from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.status import build_status
-from sdk.entities.run.crud import new_run, delete_run, get_run
+from sdk.entities.run.crud import delete_run, get_run, new_run
 from sdk.entities.task.kinds import build_kind
 from sdk.entities.task.spec.builder import build_spec
 from sdk.utils.api import DTO_TASK, api_base_create, api_base_update

@@ -8,11 +8,11 @@ annotated-types==0.5.0
     # via pydantic
 black==23.7.0
     # via sdk (pyproject.toml)
-boto3==1.28.31
+boto3==1.28.55
     # via
     #   moto
     #   sdk (pyproject.toml)
-botocore==1.31.33
+botocore==1.31.55
     # via
     #   boto3
     #   moto
@@ -31,7 +31,7 @@ click==8.1.7
     #   bumpver
 colorama==0.4.6
     # via bumpver
-cryptography==41.0.3
+cryptography==41.0.4
     # via moto
 greenlet==2.0.2
     # via sqlalchemy
@@ -65,7 +65,7 @@ packaging==23.1
     # via
     #   black
     #   pytest
-pandas==2.0.3
+pandas==2.1.1
     # via sdk (pyproject.toml)
 pathspec==0.11.2
     # via black
@@ -73,13 +73,15 @@ platformdirs==3.10.0
     # via black
 pluggy==1.2.0
     # via pytest
-pyarrow==12.0.1
+psycopg2-binary==2.9.7
+    # via sdk (pyproject.toml)
+pyarrow==13.0.0
     # via sdk (pyproject.toml)
 pycparser==2.21
     # via cffi
-pydantic==2.2.1
+pydantic==2.4.1
     # via sdk (pyproject.toml)
-pydantic-core==2.6.1
+pydantic-core==2.10.1
     # via pydantic
 pytest==7.4.0
     # via sdk (pyproject.toml)
@@ -98,11 +100,13 @@ requests==2.31.0
     #   responses
 responses==0.23.3
     # via moto
-s3transfer==0.6.2
+ruff==0.0.291
+    # via sdk (pyproject.toml)
+s3transfer==0.7.0
     # via boto3
 six==1.16.0
     # via python-dateutil
-sqlalchemy==2.0.20
+sqlalchemy==2.0.21
     # via sdk (pyproject.toml)
 toml==0.10.2
     # via bumpver
