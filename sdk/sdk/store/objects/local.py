@@ -22,7 +22,20 @@ class LocalStore(Store):
     """
 
     def __init__(self, name: str, store_type: str, config: LocalStoreConfig) -> None:
-        super().__init__(name, store_type, config)
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        config : LocalStoreConfig
+            Local store configuration.
+
+        See Also
+        --------
+        Store.__init__
+        """
+        super().__init__(name, store_type)
+        self.config = config
 
     ############################
     # IO methods

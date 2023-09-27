@@ -10,7 +10,8 @@ from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
-from sdk.entities.base.status import StatusState, build_status
+from sdk.entities.base.status import StatusState
+from sdk.entities.builders.status import build_status
 from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
 from sdk.entities.run.crud import get_run, run_from_dict, update_run
 from sdk.runtimes.objects.base import Runtime

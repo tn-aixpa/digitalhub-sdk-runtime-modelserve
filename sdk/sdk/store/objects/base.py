@@ -1,9 +1,6 @@
 """
 Store module.
 """
-from __future__ import annotations
-
-import typing
 from abc import ABCMeta, abstractmethod
 from tempfile import mkdtemp
 
@@ -13,16 +10,13 @@ from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import build_path, make_dir
 from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
-if typing.TYPE_CHECKING:
-    from sdk.store.models import StoreConfig
-
 
 class Store(metaclass=ABCMeta):
     """
     Store abstract class.
     """
 
-    def __init__(self, name: str, store_type: str, config: StoreConfig) -> None:
+    def __init__(self, name: str, store_type: str) -> None:
         """
         Constructor.
 
@@ -34,8 +28,6 @@ class Store(metaclass=ABCMeta):
             Store type. Used to choose the right store implementation.
         uri : str
             Store URI.
-        config : StoreConfig
-            Store configuration.
 
         Returns
         -------
@@ -43,7 +35,6 @@ class Store(metaclass=ABCMeta):
         """
         self.name = name
         self.type = store_type
-        self.config = config
 
         # Private attributes
         self._registry: dict[str, str] = {}

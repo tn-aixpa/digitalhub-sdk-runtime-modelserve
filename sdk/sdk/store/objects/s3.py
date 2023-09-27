@@ -18,6 +18,8 @@ from sdk.utils.uri_utils import get_uri_path
 if typing.TYPE_CHECKING:
     import pandas as pd
 
+    from sdk.store.models import S3StoreConfig
+
 
 # Type aliases
 S3Client = Type["botocore.client.S3"]
@@ -28,6 +30,22 @@ class S3Store(Store):
     S3 store class. It implements the Store interface and provides methods to fetch and persist
     artifacts on S3 based storage.
     """
+
+    def __init__(self, name: str, store_type: str, config: S3StoreConfig) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        config : S3StoreConfig
+            S3 store configuration.
+
+        See Also
+        --------
+        Store.__init__
+        """
+        super().__init__(name, store_type)
+        self.config = config
 
     ############################
     # IO methods

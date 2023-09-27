@@ -7,13 +7,14 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.metadata import build_metadata
-from sdk.entities.base.status import build_status
-from sdk.entities.function.kinds import build_kind
-from sdk.entities.function.spec.builder import build_spec
+from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.metadata import build_metadata
+from sdk.entities.builders.spec import build_spec
+from sdk.entities.builders.status import build_status
 from sdk.entities.task.crud import create_task, delete_task, new_task
 from sdk.runtimes.factory import get_runtime
-from sdk.utils.api import DTO_FUNC, api_ctx_create, api_ctx_update
+from sdk.utils.api import api_ctx_create, api_ctx_update
+from sdk.utils.commons import FUNC
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
 
@@ -70,9 +71,9 @@ class Function(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else build_kind()
+        self.kind = kind if kind is not None else build_kind(FUNC)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
-        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.spec = spec if spec is not None else build_spec(FUNC, self.kind, **{})
         self.status = status if status is not None else build_status()
         self.embedded = embedded
 
@@ -105,11 +106,11 @@ class Function(Entity):
         obj = self.to_dict(include_all_non_private=True)
 
         if uuid is None:
-            api = api_ctx_create(self.project, DTO_FUNC)
+            api = api_ctx_create(self.project, FUNC)
             return self._context.create_object(obj, api)
 
         self.id = uuid
-        api = api_ctx_update(self.project, DTO_FUNC, self.name, uuid)
+        api = api_ctx_update(self.project, FUNC, self.name, uuid)
         return self._context.update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -397,13 +398,13 @@ class Function(Entity):
         # Optional fields
         uuid = obj.get("id")
         kind = obj.get("kind")
-        kind = build_kind(kind)
+        kind = build_kind(FUNC, kind)
         embedded = obj.get("embedded")
 
         # Build metadata, spec, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
-        spec = build_spec(kind=kind, **spec)
+        spec = build_spec(FUNC, kind=kind, **spec)
         metadata = obj.get("metadata", {"name": name})
         metadata = build_metadata(**metadata)
         status = obj.get("status")
@@ -480,8 +481,9 @@ def function_from_parameters(
     Function
         Function object.
     """
-    kind = build_kind(kind)
+    kind = build_kind(FUNC, kind)
     spec = build_spec(
+        FUNC,
         kind,
         source=source,
         image=image,

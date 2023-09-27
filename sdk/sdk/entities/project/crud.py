@@ -8,16 +8,8 @@ import typing
 from sdk.client.factory import get_client
 from sdk.context.factory import delete_context
 from sdk.entities.project.entity import project_from_dict, project_from_parameters
-from sdk.utils.api import (
-    DTO_ARTF,
-    DTO_DTIT,
-    DTO_FUNC,
-    DTO_PROJ,
-    DTO_WKFL,
-    api_base_delete,
-    api_base_read,
-    api_ctx_delete,
-)
+from sdk.utils.api import api_base_delete, api_base_read, api_ctx_delete
+from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from sdk.utils.entities_utils import save_or_export
 from sdk.utils.io_utils import read_yaml
 
@@ -128,7 +120,7 @@ def get_project(name: str) -> Project:
     Project
         Object instance.
     """
-    api = api_base_read(DTO_PROJ, name)
+    api = api_base_read(PROJ, name)
     obj_be = get_client().read_object(api)
 
     # Extract spec
@@ -194,8 +186,8 @@ def delete_project(name: str, delete_all: bool = False) -> list[dict]:
 
     # Delete all objects related to project -> must be done by backend
     if delete_all:
-        for dto in [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]:
-            api_proj = f"/api/v1/{DTO_PROJ}/{name}/{dto}"
+        for dto in [ARTF, FUNC, WKFL, DTIT]:
+            api_proj = f"/api/v1/{PROJ}/{name}/{dto}"
             try:
                 objs = client.read_object(api_proj)
                 for obj in objs:
@@ -206,7 +198,7 @@ def delete_project(name: str, delete_all: bool = False) -> list[dict]:
 
     # Delete project
     try:
-        api = api_base_delete(DTO_PROJ, name)
+        api = api_base_delete(PROJ, name)
         responses.append(client.delete_object(api))
     except Exception:
         ...

@@ -7,7 +7,8 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.run.entity import run_from_dict, run_from_parameters
-from sdk.utils.api import DTO_RUNS, api_base_delete, api_base_read, api_base_update
+from sdk.utils.api import api_base_delete, api_base_read, api_base_update
+from sdk.utils.commons import RUNS
 from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
@@ -108,7 +109,7 @@ def get_run(project: str, name: str) -> Run:
     Run
         Object instance.
     """
-    api = api_base_read(DTO_RUNS, name)
+    api = api_base_read(RUNS, name)
     obj = get_context(project).read_object(api)
     return run_from_dict(obj)
 
@@ -147,7 +148,7 @@ def delete_run(project: str, name: str) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_delete(DTO_RUNS, name)
+    api = api_base_delete(RUNS, name)
     return get_context(project).delete_object(api)
 
 
@@ -166,7 +167,7 @@ def update_run(run: Run) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_update(DTO_RUNS, run.id)
+    api = api_base_update(RUNS, run.id)
     return get_context(run.project).update_object(
         run.to_dict(include_all_non_private=True), api
     )

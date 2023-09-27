@@ -4,6 +4,7 @@ S3Store module.
 from __future__ import annotations
 
 import re
+import typing
 
 import pandas as pd
 from sqlalchemy import create_engine
@@ -14,12 +15,31 @@ from sdk.store.objects.base import Store
 from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import build_path
 
+if typing.TYPE_CHECKING:
+    from sdk.store.models import SQLStoreConfig
+
 
 class SqlStore(Store):
     """
     SQL store class. It implements the Store interface and provides methods to fetch and persist
     artifacts on SQL based storage.
     """
+
+    def __init__(self, name: str, store_type: str, config: SQLStoreConfig) -> None:
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        config : SQLStoreConfig
+            SQL store configuration.
+
+        See Also
+        --------
+        Store.__init__
+        """
+        super().__init__(name, store_type)
+        self.config = config
 
     ############################
     # IO methods

@@ -7,7 +7,8 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.artifact.entity import artifact_from_dict, artifact_from_parameters
-from sdk.utils.api import DTO_ARTF, api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.commons import ARTF
 from sdk.utils.entities_utils import check_local_flag, parse_entity_key, save_or_export
 from sdk.utils.io_utils import read_yaml
 
@@ -131,7 +132,7 @@ def get_artifact(project: str, name: str, uuid: str | None = None) -> Artifact:
     Artifact
         Object instance.
     """
-    api = api_ctx_read(project, DTO_ARTF, name, uuid=uuid)
+    api = api_ctx_read(project, ARTF, name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return artifact_from_dict(obj)
 
@@ -186,5 +187,5 @@ def delete_artifact(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, DTO_ARTF, name, uuid=uuid)
+    api = api_ctx_delete(project, ARTF, name, uuid=uuid)
     return get_context(project).delete_object(api)

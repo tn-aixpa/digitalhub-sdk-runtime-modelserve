@@ -15,8 +15,10 @@ from sdk.entities.artifact.crud import (
     new_artifact,
 )
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.metadata import build_metadata
-from sdk.entities.base.status import build_status
+from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.metadata import build_metadata
+from sdk.entities.builders.spec import build_spec
+from sdk.entities.builders.status import build_status
 from sdk.entities.dataitem.crud import (
     create_dataitem_from_dict,
     delete_dataitem,
@@ -29,22 +31,14 @@ from sdk.entities.function.crud import (
     get_function,
     new_function,
 )
-from sdk.entities.project.kinds import build_kind
-from sdk.entities.project.spec.builder import build_spec
 from sdk.entities.workflow.crud import (
     create_workflow_from_dict,
     delete_workflow,
     get_workflow,
     new_workflow,
 )
-from sdk.utils.api import (
-    DTO_ARTF,
-    DTO_DTIT,
-    DTO_FUNC,
-    DTO_PROJ,
-    DTO_WKFL,
-    api_base_create,
-)
+from sdk.utils.api import api_base_create
+from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from sdk.utils.exceptions import BackendError, EntityError
 from sdk.utils.generic_utils import get_uiid
 
@@ -55,14 +49,14 @@ if typing.TYPE_CHECKING:
     from sdk.entities.base.status import Status
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.function.entity import Function
-    from sdk.entities.project.spec.builder import ProjectSpec
+    from sdk.entities.project.spec.objects.base import ProjectSpec
     from sdk.entities.workflow.entity import Workflow
 
     Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)
 
 
-DTO_LIST = [DTO_ARTF, DTO_FUNC, DTO_WKFL, DTO_DTIT]
-SPEC_LIST = DTO_LIST + ["source", "context"]
+LIST = [ARTF, FUNC, WKFL, DTIT]
+SPEC_LIST = LIST + ["source", "context"]
 
 
 def constructor_from_dict(
@@ -86,13 +80,13 @@ def constructor_from_dict(
     EntityError
         If dto is not valid.
     """
-    if dto == DTO_ARTF:
+    if dto == ARTF:
         return create_artifact_from_dict
-    if dto == DTO_FUNC:
+    if dto == FUNC:
         return create_function_from_dict
-    if dto == DTO_WKFL:
+    if dto == WKFL:
         return create_workflow_from_dict
-    if dto == DTO_DTIT:
+    if dto == DTIT:
         return create_dataitem_from_dict
     raise EntityError(f"DTO {dto} is not valid.")
 
@@ -129,10 +123,10 @@ class Project(Entity):
         """
         super().__init__()
         self.name = name
-        self.kind = build_kind()
+        self.kind = build_kind(PROJ)
         self.id = get_uiid(uuid=uuid)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
-        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.spec = spec if spec is not None else build_spec(PROJ, self.kind, **{})
         self.status = status if status is not None else build_status()
 
         # Private attributes
@@ -169,15 +163,15 @@ class Project(Entity):
         # Try to create project
         # (try to avoid error response if project already exists)
         try:
-            api = api_base_create(DTO_PROJ)
+            api = api_base_create(PROJ)
             response = self.client.create_object(obj, api)
-            responses[DTO_PROJ] = response
+            responses[PROJ] = response
         except BackendError:
-            responses[DTO_PROJ] = obj
+            responses[PROJ] = obj
 
         # Try to save objects related to project
         # (try to avoid error response if object does not exists)
-        for i in DTO_LIST:
+        for i in LIST:
             responses[i] = []
             for j in self._get_objects(i):
                 try:
@@ -210,7 +204,7 @@ class Project(Entity):
         self._export_object(filename, obj)
 
         # Export objects related to project if not embedded
-        for i in DTO_LIST:
+        for i in LIST:
             for j in self._get_objects(i):
                 _obj = constructor_from_dict(i)(j)
                 if not _obj.embedded:
@@ -335,7 +329,7 @@ class Project(Entity):
         EntityError
             If kind is not valid.
         """
-        if kind not in DTO_LIST:
+        if kind not in LIST:
             raise EntityError(f"Kind {kind} is not valid.")
 
     #############################
@@ -360,7 +354,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_artifact(**kwargs)
-        self._add_object(obj, DTO_ARTF)
+        self._add_object(obj, ARTF)
         return obj
 
     def get_artifact(self, name: str, uuid: str | None = None) -> Artifact:
@@ -384,7 +378,7 @@ class Project(Entity):
             name=name,
             uuid=uuid,
         )
-        self._add_object(obj, DTO_ARTF)
+        self._add_object(obj, ARTF)
         return obj
 
     def delete_artifact(self, name: str, uuid: str | None = None) -> None:
@@ -404,7 +398,7 @@ class Project(Entity):
         """
         if not self.local:
             delete_artifact(self.name, name)
-        self._delete_object(name, DTO_ARTF, uuid=uuid)
+        self._delete_object(name, ARTF, uuid=uuid)
 
     def set_artifact(self, artifact: Artifact) -> None:
         """
@@ -419,7 +413,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(artifact, DTO_ARTF)
+        self._add_object(artifact, ARTF)
 
     #############################
     #  Functions
@@ -443,7 +437,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_function(**kwargs)
-        self._add_object(obj, DTO_FUNC)
+        self._add_object(obj, FUNC)
         return obj
 
     def get_function(self, name: str, uuid: str | None = None) -> Function:
@@ -467,7 +461,7 @@ class Project(Entity):
             name=name,
             uuid=uuid,
         )
-        self._add_object(obj, DTO_FUNC)
+        self._add_object(obj, FUNC)
         return obj
 
     def delete_function(self, name: str, uuid: str | None = None) -> None:
@@ -487,7 +481,7 @@ class Project(Entity):
         """
         if not self.local:
             delete_function(self.name, name)
-        self._delete_object(name, DTO_FUNC, uuid=uuid)
+        self._delete_object(name, FUNC, uuid=uuid)
 
     def set_function(self, function: Function) -> None:
         """
@@ -502,7 +496,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(function, DTO_FUNC)
+        self._add_object(function, FUNC)
 
     #############################
     #  Workflows
@@ -526,7 +520,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_workflow(**kwargs)
-        self._add_object(obj, DTO_WKFL)
+        self._add_object(obj, WKFL)
         return obj
 
     def get_workflow(self, name: str, uuid: str | None = None) -> Workflow:
@@ -550,7 +544,7 @@ class Project(Entity):
             name=name,
             uuid=uuid,
         )
-        self._add_object(obj, DTO_WKFL)
+        self._add_object(obj, WKFL)
         return obj
 
     def delete_workflow(self, name: str, uuid: str | None = None) -> None:
@@ -570,7 +564,7 @@ class Project(Entity):
         """
         if not self.local:
             delete_workflow(self.name, name)
-        self._delete_object(name, DTO_WKFL, uuid=uuid)
+        self._delete_object(name, WKFL, uuid=uuid)
 
     def set_workflow(self, workflow: Workflow) -> None:
         """
@@ -585,7 +579,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(workflow, DTO_WKFL)
+        self._add_object(workflow, WKFL)
 
     #############################
     #  Dataitems
@@ -609,7 +603,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_dataitem(**kwargs)
-        self._add_object(obj, DTO_DTIT)
+        self._add_object(obj, DTIT)
         return obj
 
     def get_dataitem(self, name: str, uuid: str | None = None) -> Dataitem:
@@ -633,7 +627,7 @@ class Project(Entity):
             name=name,
             uuid=uuid,
         )
-        self._add_object(obj, DTO_DTIT)
+        self._add_object(obj, DTIT)
         return obj
 
     def delete_dataitem(self, name: str, uuid: str | None = None) -> None:
@@ -653,7 +647,7 @@ class Project(Entity):
         """
         if not self.local:
             delete_dataitem(self.name, name)
-        self._delete_object(name, DTO_DTIT, uuid=uuid)
+        self._delete_object(name, DTIT, uuid=uuid)
 
     def set_dataitem(self, dataitem: Dataitem) -> None:
         """
@@ -668,7 +662,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(dataitem, DTO_DTIT)
+        self._add_object(dataitem, DTIT)
 
     #############################
     #  Getters and Setters
@@ -752,11 +746,11 @@ class Project(Entity):
         # Optional fields
         uuid = obj.get("id")
         kind = obj.get("kind")
-        kind = build_kind(kind)
+        kind = build_kind(PROJ, kind)
 
         # Build metadata, spec, status
         _spec = {k: v for k, v in obj.get("spec", {}).items() if k in SPEC_LIST}
-        spec = build_spec(kind=kind, **_spec)
+        spec = build_spec(PROJ, kind=kind, **_spec)
         metadata = build_metadata(**obj.get("metadata", {"name": name}))
         status = obj.get("status")
         status = status if status is not None else {}
@@ -808,8 +802,8 @@ def project_from_parameters(
     Project
         Project object.
     """
-    kind = build_kind(kind)
-    spec = build_spec(kind, context=context, source=source, **kwargs)
+    kind = build_kind(PROJ, kind)
+    spec = build_spec(PROJ, kind, context=context, source=source, **kwargs)
     meta = build_metadata(name=name, description=description)
     return Project(
         name=name,

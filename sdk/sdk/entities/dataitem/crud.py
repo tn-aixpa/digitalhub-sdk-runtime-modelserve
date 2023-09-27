@@ -7,7 +7,8 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.dataitem.entity import dataitem_from_dict, dataitem_from_parameters
-from sdk.utils.api import DTO_DTIT, api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.commons import DTIT
 from sdk.utils.entities_utils import check_local_flag, parse_entity_key, save_or_export
 from sdk.utils.io_utils import read_yaml
 
@@ -128,7 +129,7 @@ def get_dataitem(project: str, name: str, uuid: str | None = None) -> Dataitem:
         Object instance.
 
     """
-    api = api_ctx_read(project, DTO_DTIT, name, uuid=uuid)
+    api = api_ctx_read(project, DTIT, name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return dataitem_from_dict(obj)
 
@@ -183,5 +184,5 @@ def delete_dataitem(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, DTO_DTIT, name, uuid=uuid)
+    api = api_ctx_delete(project, DTIT, name, uuid=uuid)
     return get_context(project).delete_object(api)

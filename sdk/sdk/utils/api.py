@@ -6,19 +6,6 @@ API_BASE = "/api/v1"
 API_CONTEXT = f"{API_BASE}/-"
 
 ####################
-# DTO TYPES
-####################
-
-DTO_PROJ = "projects"
-DTO_ARTF = "artifacts"
-DTO_FUNC = "functions"
-DTO_WKFL = "workflows"
-DTO_DTIT = "dataitems"
-DTO_TASK = "tasks"
-DTO_RUNS = "runs"
-DTO_LOGS = "logs"
-
-####################
 # Context APIs
 ####################
 

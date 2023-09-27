@@ -7,12 +7,13 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.metadata import build_metadata
-from sdk.entities.base.status import build_status
-from sdk.entities.dataitem.kinds import build_kind
-from sdk.entities.dataitem.spec.builder import build_spec
+from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.metadata import build_metadata
+from sdk.entities.builders.spec import build_spec
+from sdk.entities.builders.status import build_status
 from sdk.store.factory import get_default_store, get_store
-from sdk.utils.api import DTO_DTIT, api_ctx_create, api_ctx_update
+from sdk.utils.api import api_ctx_create, api_ctx_update
+from sdk.utils.commons import DTIT
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import clean_all, get_dir
 from sdk.utils.generic_utils import get_uiid
@@ -23,7 +24,7 @@ if typing.TYPE_CHECKING:
 
     from sdk.entities.base.metadata import Metadata
     from sdk.entities.base.status import Status
-    from sdk.entities.dataitem.spec.builder import DataitemSpec
+    from sdk.entities.dataitem.spec.objects.base import DataitemSpec
 
 
 class Dataitem(Entity):
@@ -71,9 +72,9 @@ class Dataitem(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else build_kind()
+        self.kind = kind if kind is not None else build_kind(DTIT)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
-        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.spec = spec if spec is not None else build_spec(DTIT, self.kind, **{})
         self.status = status if status is not None else build_status()
         self.embedded = embedded
 
@@ -110,11 +111,11 @@ class Dataitem(Entity):
         obj = self.to_dict()
 
         if uuid is None:
-            api = api_ctx_create(self.project, DTO_DTIT)
+            api = api_ctx_create(self.project, DTIT)
             return self._context.create_object(obj, api)
 
         self.id = uuid
-        api = api_ctx_update(self.project, DTO_DTIT, self.name, uuid)
+        api = api_ctx_update(self.project, DTIT, self.name, uuid)
         return self._context.update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -336,13 +337,13 @@ class Dataitem(Entity):
         # Optional fields
         uuid = obj.get("id")
         kind = obj.get("kind")
-        kind = build_kind(kind)
+        kind = build_kind(DTIT, kind)
         embedded = obj.get("embedded")
 
         # Build metadata, spec, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
-        spec = build_spec(kind=kind, **spec)
+        spec = build_spec(DTIT, kind=kind, **spec)
         metadata = obj.get("metadata", {"name": name})
         metadata = build_metadata(**metadata)
         status = obj.get("status")
@@ -403,8 +404,8 @@ def dataitem_from_parameters(
     Dataitem
         Dataitem object.
     """
-    kind = build_kind(kind)
-    spec = build_spec(kind, key=key, path=path, **kwargs)
+    kind = build_kind(DTIT, kind)
+    spec = build_spec(DTIT, kind, key=key, path=path, **kwargs)
     meta = build_metadata(name=name, description=description)
     return Dataitem(
         project=project,

@@ -7,7 +7,8 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.task.entity import task_from_dict, task_from_parameters
-from sdk.utils.api import DTO_TASK, api_base_delete, api_base_read
+from sdk.utils.api import api_base_delete, api_base_read
+from sdk.utils.commons import TASK
 from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
@@ -96,7 +97,7 @@ def get_task(project: str, name: str) -> Task:
     Task
         Object instance.
     """
-    api = api_base_read(DTO_TASK, name)
+    api = api_base_read(TASK, name)
     obj = get_context(project).read_object(api)
     return task_from_dict(obj)
 
@@ -135,5 +136,5 @@ def delete_task(project: str, name: str) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_delete(DTO_TASK, name)
+    api = api_base_delete(TASK, name)
     return get_context(project).delete_object(api)

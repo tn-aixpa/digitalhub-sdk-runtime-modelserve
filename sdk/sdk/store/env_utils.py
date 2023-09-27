@@ -31,10 +31,10 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             name="s3",
             type="s3",
             config=S3StoreConfig(
-                endpoint_url=os.getenv("S3_ENDPOINT_URL"),
-                aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID"),
-                aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY"),
-                bucket_name=os.getenv("S3_BUCKET_NAME"),
+                endpoint_url=os.getenv("S3_ENDPOINT_URL"),  # type: ignore
+                aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID"),  # type: ignore
+                aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY"),  # type: ignore
+                bucket_name=os.getenv("S3_BUCKET_NAME"),  # type: ignore
             ),
         )
     elif scheme == "sql":
@@ -42,12 +42,12 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             name="sql",
             type="sql",
             config=SQLStoreConfig(
-                host=os.getenv("POSTGRES_HOST"),
-                port=os.getenv("POSTGRES_PORT"),
-                user=os.getenv("POSTGRES_USER"),
-                password=os.getenv("POSTGRES_PASSWORD"),
-                database=os.getenv("POSTGRES_DATABASE"),
-                pg_schema=os.getenv("POSTGRES_SCHEMA"),
+                host=os.getenv("POSTGRES_HOST"),  # type: ignore
+                port=os.getenv("POSTGRES_PORT"),  # type: ignore
+                user=os.getenv("POSTGRES_USER"),  # type: ignore
+                password=os.getenv("POSTGRES_PASSWORD"),  # type: ignore
+                database=os.getenv("POSTGRES_DATABASE"),  # type: ignore
+                pg_schema=os.getenv("POSTGRES_SCHEMA"),  # type: ignore
             ),
         )
     elif scheme == "remote":

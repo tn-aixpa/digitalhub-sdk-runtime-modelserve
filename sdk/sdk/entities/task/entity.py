@@ -7,11 +7,12 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.status import build_status
+from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.spec import build_spec
+from sdk.entities.builders.status import build_status
 from sdk.entities.run.crud import delete_run, get_run, new_run
-from sdk.entities.task.kinds import build_kind
-from sdk.entities.task.spec.builder import build_spec
-from sdk.utils.api import DTO_TASK, api_base_create, api_base_update
+from sdk.utils.api import api_base_create, api_base_update
+from sdk.utils.commons import TASK
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
 
@@ -60,8 +61,8 @@ class Task(Entity):
         self.project = project
         self.id = get_uiid(uuid=uuid)
         self.function = function if function is not None else ""
-        self.kind = kind if kind is not None else build_kind()
-        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.kind = kind if kind is not None else build_kind(TASK)
+        self.spec = spec if spec is not None else build_spec(TASK, self.kind, **{})
         self.status = status if status is not None else build_status()
 
         # Private attributes
@@ -93,11 +94,11 @@ class Task(Entity):
         obj = self.to_dict()
 
         if uuid is None:
-            api = api_base_create(DTO_TASK)
+            api = api_base_create(TASK)
             return self._context.create_object(obj, api)
 
         self.id = uuid
-        api = api_base_update(DTO_TASK, self.id)
+        api = api_base_update(TASK, self.id)
         return self._context.update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -269,13 +270,13 @@ class Task(Entity):
 
         # Optional fields
         kind = obj.get("kind")
-        kind = build_kind(kind)
+        kind = build_kind(TASK, kind)
         uuid = obj.get("id")
 
         # Build spec, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
-        spec = build_spec(kind=kind, **spec)
+        spec = build_spec(TASK, kind=kind, **spec)
         status = obj.get("status")
         status = status if status is not None else {}
         status = build_status(**status)
@@ -323,9 +324,14 @@ def task_from_parameters(
     Task
         Task object.
     """
-    kind = build_kind(kind)
+    kind = build_kind(TASK, kind)
     spec = build_spec(
-        kind, function=function, resources=resources, image=image, base_image=base_image
+        TASK,
+        kind,
+        function=function,
+        resources=resources,
+        image=image,
+        base_image=base_image,
     )
     return Task(
         project=project,

@@ -7,7 +7,8 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.function.entity import function_from_dict, function_from_parameters
-from sdk.utils.api import DTO_FUNC, api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.commons import FUNC
 from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
@@ -152,7 +153,7 @@ def get_function(project: str, name: str, uuid: str | None = None) -> Function:
     Function
         Object instance.
     """
-    api = api_ctx_read(project, DTO_FUNC, name, uuid=uuid)
+    api = api_ctx_read(project, FUNC, name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return function_from_dict(obj)
 
@@ -213,5 +214,5 @@ def delete_function(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, DTO_FUNC, name, uuid=uuid)
+    api = api_ctx_delete(project, FUNC, name, uuid=uuid)
     return get_context(project).delete_object(api)

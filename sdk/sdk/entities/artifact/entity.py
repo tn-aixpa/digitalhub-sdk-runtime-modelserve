@@ -6,20 +6,21 @@ from __future__ import annotations
 import typing
 
 from sdk.context.factory import get_context
-from sdk.entities.artifact.kinds import build_kind
-from sdk.entities.artifact.spec.builder import build_spec
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.metadata import build_metadata
-from sdk.entities.base.status import build_status
+from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.metadata import build_metadata
+from sdk.entities.builders.spec import build_spec
+from sdk.entities.builders.status import build_status
 from sdk.store.factory import get_store
-from sdk.utils.api import DTO_ARTF, api_ctx_create, api_ctx_update
+from sdk.utils.api import api_ctx_create, api_ctx_update
+from sdk.utils.commons import ARTF
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import check_file
 from sdk.utils.generic_utils import get_uiid
 from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.artifact.spec.builder import ArtifactSpec
+    from sdk.entities.artifact.spec.objects.base import ArtifactSpec
     from sdk.entities.base.metadata import Metadata
     from sdk.entities.base.status import Status
 
@@ -69,9 +70,9 @@ class Artifact(Entity):
         self.project = project
         self.name = name
         self.id = get_uiid(uuid=uuid)
-        self.kind = kind if kind is not None else build_kind()
+        self.kind = kind if kind is not None else build_kind(ARTF)
         self.metadata = metadata if metadata is not None else build_metadata(name=name)
-        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.spec = spec if spec is not None else build_spec(ARTF, self.kind, **{})
         self.status = status if status is not None else build_status()
         self.embedded = embedded
 
@@ -108,11 +109,11 @@ class Artifact(Entity):
         obj = self.to_dict()
 
         if uuid is None:
-            api = api_ctx_create(self.project, DTO_ARTF)
+            api = api_ctx_create(self.project, ARTF)
             return self._context.create_object(obj, api)
 
         self.id = uuid
-        api = api_ctx_update(self.project, DTO_ARTF, self.name, uuid)
+        api = api_ctx_update(self.project, ARTF, self.name, uuid)
         return self._context.update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -406,13 +407,13 @@ class Artifact(Entity):
         # Optional fields
         uuid = obj.get("id")
         kind = obj.get("kind")
-        kind = build_kind(kind)
+        kind = build_kind(ARTF, obj.get("kind"))
         embedded = obj.get("embedded")
 
         # Build metadata, spec, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
-        spec = build_spec(kind=kind, **spec)
+        spec = build_spec(ARTF, kind=kind, **spec)
         metadata = obj.get("metadata", {"name": name})
         metadata = build_metadata(**metadata)
         status = obj.get("status")
@@ -477,9 +478,9 @@ def artifact_from_parameters(
     Artifact
         Artifact object.
     """
-    kind = build_kind(kind)
+    kind = build_kind(ARTF, kind)
     spec = build_spec(
-        kind, key=key, src_path=src_path, target_path=target_path, **kwargs
+        ARTF, kind, key=key, src_path=src_path, target_path=target_path, **kwargs
     )
     meta = build_metadata(name=name, description=description)
     return Artifact(

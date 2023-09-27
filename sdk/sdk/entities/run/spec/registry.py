@@ -5,9 +5,9 @@ from sdk.entities.run.kinds import RunKinds
 from sdk.entities.run.spec.models import RunParams
 from sdk.entities.run.spec.objects import RunSpecRun
 
-REGISTRY_SPEC = {
+RUN_SPEC = {
     RunKinds.RUN.value: RunSpecRun,
 }
-REGISTRY_MODEL = {
+RUN_MODEL = {
     RunKinds.RUN.value: RunParams,
 }

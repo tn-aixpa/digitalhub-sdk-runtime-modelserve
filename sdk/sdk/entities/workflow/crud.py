@@ -7,7 +7,8 @@ import typing
 
 from sdk.context.factory import get_context
 from sdk.entities.workflow.entity import workflow_from_dict, workflow_from_parameters
-from sdk.utils.api import DTO_WKFL, api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.commons import WKFL
 from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
@@ -124,7 +125,7 @@ def get_workflow(project: str, name: str, uuid: str | None = None) -> Workflow:
     Workflow
         Object instance.
     """
-    api = api_ctx_read(project, DTO_WKFL, name, uuid=uuid)
+    api = api_ctx_read(project, WKFL, name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return workflow_from_dict(obj)
 
@@ -165,5 +166,5 @@ def delete_workflow(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, DTO_WKFL, name, uuid=uuid)
+    api = api_ctx_delete(project, WKFL, name, uuid=uuid)
     return get_context(project).delete_object(api)

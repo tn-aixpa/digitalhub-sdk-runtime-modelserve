@@ -23,7 +23,20 @@ class RemoteStore(Store):
     """
 
     def __init__(self, name: str, store_type: str, config: RemoteStoreConfig) -> None:
-        super().__init__(name, store_type, config)
+        """
+        Constructor.
+
+        Parameters
+        ----------
+        config : RemoteStoreConfig
+            Remote store configuration.
+
+        See Also
+        --------
+        Store.__init__
+        """
+        super().__init__(name, store_type)
+        self.config = config
 
     ############################
     # IO methods

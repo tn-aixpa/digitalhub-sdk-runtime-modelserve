@@ -8,18 +8,20 @@ import typing
 from sdk.context.factory import get_context
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.status import Status, build_status
+from sdk.entities.base.status import Status
+from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.spec import build_spec
+from sdk.entities.builders.status import build_status
 from sdk.entities.dataitem.crud import get_dataitem_from_key
-from sdk.entities.run.kinds import build_kind
-from sdk.entities.run.spec.builder import build_spec
-from sdk.utils.api import DTO_RUNS, api_base_create, api_base_read
+from sdk.utils.api import api_base_create, api_base_read
+from sdk.utils.commons import RUNS
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.entity import Artifact
     from sdk.entities.dataitem.entity import Dataitem
-    from sdk.entities.run.spec.builder import RunSpec
+    from sdk.entities.run.spec.objects.base import RunSpec
 
 
 class Run(Entity):
@@ -57,11 +59,11 @@ class Run(Entity):
         """
         super().__init__()
         self.project = project
-        self.kind = build_kind()
+        self.kind = build_kind(RUNS)
         self.id = get_uiid(uuid=uuid)
         self.task_id = task_id
         self.task = task
-        self.spec = spec if spec is not None else build_spec(self.kind, **{})
+        self.spec = spec if spec is not None else build_spec(RUNS, self.kind, **{})
         self.status = status if status is not None else build_status()
 
         # Private attributes
@@ -96,7 +98,7 @@ class Run(Entity):
         obj.pop("status", None)
 
         # We only need to create the run, no need to update it
-        api = api_base_create(DTO_RUNS)
+        api = api_base_create(RUNS)
         response = self._context.create_object(obj, api)
 
         # Set id
@@ -147,13 +149,14 @@ class Run(Entity):
         None
         """
         self.spec = build_spec(
+            RUNS,
             self.kind,
             **{
                 **function.get("spec"),
                 **task.get("spec"),
                 **self.spec.to_dict(),
             },
-            merged=True,
+            ignore_validation=True,
         )
         self.save(self.id)
 
@@ -169,7 +172,7 @@ class Run(Entity):
         if self._local:
             raise EntityError("Cannot refresh local run.")
 
-        api = api_base_read(DTO_RUNS, self.id)
+        api = api_base_read(RUNS, self.id)
         return self._context.read_object(api)
 
     def stop(self) -> dict:
@@ -187,7 +190,7 @@ class Run(Entity):
         dict
             Logs from backend.
         """
-        api = api_base_read(DTO_RUNS, self.id) + "/log"
+        api = api_base_read(RUNS, self.id) + "/log"
         return self._context.read_object(api)
 
     def get_artifacts(self, output_key: str | None = None) -> Artifact | list[Artifact]:
@@ -346,12 +349,12 @@ class Run(Entity):
         # Optional fields
         uuid = obj.get("id")
         kind = obj.get("kind")
-        kind = build_kind(kind)
+        kind = build_kind(RUNS, kind)
 
         # Build metadata, spec, status, status
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
-        spec = build_spec(kind=kind, **spec)
+        spec = build_spec(RUNS, kind=kind, **spec)
         status = obj.get("status")
         status = status if status is not None else {}
         status = build_status(**status)
@@ -412,8 +415,9 @@ def run_from_parameters(
     Run
         Run object.
     """
-    kind = build_kind(kind)
+    kind = build_kind(RUNS, kind)
     spec = build_spec(
+        RUNS,
         kind,
         task=task,
         inputs=inputs,
