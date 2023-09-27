@@ -9,5 +9,4 @@ class RunKinds(Enum):
     Run kind enum class.
     """
 
-
     RUN = "run"

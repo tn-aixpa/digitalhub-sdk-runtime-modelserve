@@ -6,13 +6,14 @@ from __future__ import annotations
 import typing
 
 from pydantic import BaseModel, ValidationError
-from sdk.entities.artifact.spec.registry import ARTIFACT_SPEC, ARTIFACT_MODEL
-from sdk.entities.dataitem.spec.registry import DATAITEM_SPEC, DATAITEM_MODEL
-from sdk.entities.function.spec.registry import FUNCTION_SPEC, FUNCTION_MODEL
-from sdk.entities.project.spec.registry import PROJECT_SPEC, PROJECT_MODEL
-from sdk.entities.run.spec.registry import RUN_SPEC, RUN_MODEL
-from sdk.entities.task.spec.registry import TASK_SPEC, TASK_MODEL
-from sdk.entities.workflow.spec.registry import WORKFLOW_SPEC, WORKFLOW_MODEL
+
+from sdk.entities.artifact.spec.registry import ARTIFACT_MODEL, ARTIFACT_SPEC
+from sdk.entities.dataitem.spec.registry import DATAITEM_MODEL, DATAITEM_SPEC
+from sdk.entities.function.spec.registry import FUNCTION_MODEL, FUNCTION_SPEC
+from sdk.entities.project.spec.registry import PROJECT_MODEL, PROJECT_SPEC
+from sdk.entities.run.spec.registry import RUN_MODEL, RUN_SPEC
+from sdk.entities.task.spec.registry import TASK_MODEL, TASK_SPEC
+from sdk.entities.workflow.spec.registry import WORKFLOW_MODEL, WORKFLOW_SPEC
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
 from sdk.utils.exceptions import EntityError
 
@@ -111,7 +112,9 @@ class SpecBuilder:
             raise EntityError(f"Unsupported spec kind '{kind}' for entity '{module}'")
 
 
-def build_spec(module: str, kind: str, ignore_validation: bool = False, **kwargs) -> EntitySpec:
+def build_spec(
+    module: str, kind: str, ignore_validation: bool = False, **kwargs
+) -> EntitySpec:
     """
     Wrapper for SpecBuilder.build.
 

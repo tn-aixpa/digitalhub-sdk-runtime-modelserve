@@ -9,5 +9,4 @@ class ProjectKinds(Enum):
     Project kind enum class.
     """
 
-
     PROJECT = "project"

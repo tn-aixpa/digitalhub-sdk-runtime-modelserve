@@ -9,5 +9,4 @@ class WorkflowKinds(Enum):
     Workflow kind enum class.
     """
 
-
     WORKFLOW = "workflow"

@@ -9,5 +9,4 @@ class ArtifactKinds(Enum):
     Artifact kind enum class.
     """
 
-
     ARTIFACT = "artifact"

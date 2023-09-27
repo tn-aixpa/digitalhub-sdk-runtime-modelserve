@@ -9,7 +9,6 @@ class DataitemKinds(Enum):
     Dataitem kind enum class.
     """
 
-
     DATAITEM = "dataitem"
     TABLE = "table"
     DBT = "dbt"

@@ -9,7 +9,6 @@ class TaskKinds(Enum):
     Task kind enum class.
     """
 
-
     JOB = "perform"
     BUILD = "build"
     DEPLOY = "deploy"
