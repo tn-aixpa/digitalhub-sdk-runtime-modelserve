@@ -36,7 +36,7 @@ from sdk.entities.workflow.crud import (
     import_workflow,
     new_workflow,
 )
-from sdk.runtimes.factory import get_runtime
+from sdk.runtimes.builder import build_runtime
 from sdk.store.factory import set_store
 from sdk.store.models import (
     LocalStoreConfig,
@@ -47,7 +47,7 @@ from sdk.store.models import (
 )
 
 __all__ = [
-    "get_runtime",
+    "build_runtime",
     "set_dhub_env",
     "set_store",
     "DHCoreConfig",

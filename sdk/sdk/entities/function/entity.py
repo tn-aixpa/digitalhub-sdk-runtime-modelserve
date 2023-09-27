@@ -12,7 +12,7 @@ from sdk.entities.builders.metadata import build_metadata
 from sdk.entities.builders.spec import build_spec
 from sdk.entities.builders.status import build_status
 from sdk.entities.task.crud import create_task, delete_task, new_task
-from sdk.runtimes.factory import get_runtime
+from sdk.runtimes.builder import build_runtime
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import FUNC
 from sdk.utils.exceptions import EntityError
@@ -192,7 +192,7 @@ class Function(Entity):
         # If local execution, merge spec and run locally
         if local_execution:
             run.merge(self.to_dict(), task.to_dict())
-            runtime = get_runtime(run)
+            runtime = build_runtime(run)
             return runtime.run()
 
         # otherwise, return run launched by backend

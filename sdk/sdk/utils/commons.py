@@ -2,6 +2,10 @@
 Common constants used in the SDK.
 """
 
+####################
+# Entities
+####################
+
 PROJ = "projects"
 ARTF = "artifacts"
 FUNC = "functions"

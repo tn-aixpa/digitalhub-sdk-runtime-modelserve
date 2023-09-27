@@ -1,3 +1,6 @@
+"""
+Runtime registry module.
+"""
 from sdk.entities.function.kinds import FunctionKinds
 from sdk.entities.task.kinds import TaskKinds
 
