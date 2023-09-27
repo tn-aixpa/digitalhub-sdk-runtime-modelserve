@@ -189,13 +189,12 @@ class Function(Entity):
         # Run function from task
         run = task.run(inputs, outputs, parameters, local_execution)
 
-        # If local execution, merge spec and run locally
+        # If local execution, build run and run it
         if local_execution:
-            run.merge(self.to_dict(), task.to_dict())
-            runtime = build_runtime(run)
-            return runtime.run()
+            run.build(local=True)
+            return run.run(local=True)
 
-        # otherwise, return run launched by backend
+        # otherwise, call api backend to run build and run
         return run
 
     def _get_function_string(self) -> str:

@@ -140,10 +140,7 @@ def api_base_create(dto: str) -> str:
     return f"{API_BASE}/{dto}"
 
 
-def api_base_read(
-    dto: str,
-    name: str,
-) -> str:
+def api_base_read(dto: str, name: str) -> str:
     """
     Read base API.
 
@@ -152,7 +149,7 @@ def api_base_read(
     dto : str
         The type of the DTO.
     name : str
-        The name of the DTO.
+        The name or UUID of the DTO.
 
     Returns
     -------
@@ -171,7 +168,7 @@ def api_base_update(dto: str, name: str) -> str:
     dto : str
         The type of the DTO.
     name : str
-        The name of the DTO.
+        The name or UUID of the DTO.
 
     Returns
     -------
@@ -190,7 +187,7 @@ def api_base_delete(dto: str, name: str) -> str:
     dto : str
         The type of the DTO.
     name : str
-        The name of the DTO.
+        The name or UUID of the DTO.
 
     Returns
     -------

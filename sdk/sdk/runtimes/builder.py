@@ -5,7 +5,8 @@ from __future__ import annotations
 
 import typing
 
-from sdk.runtimes.registry import REGISTRY_RUNTIMES
+from sdk.entities.function.kinds import FunctionKinds
+from sdk.runtimes.objects.dbt import RuntimeDBT
 
 if typing.TYPE_CHECKING:
     from sdk.entities.run.entity import Run
@@ -17,41 +18,60 @@ class RuntimeBuilder:
     Runtime builder class.
     """
 
-    def build(self, run: Run) -> Runtime:
+    def __init__(self) -> None:
+        """
+        Constructor.
+        """
+        self._modules = {}
+
+    def register(self, function_kind: str, runtime: Runtime) -> None:
+        """
+        Register runtime.
+
+        Parameters
+        ----------
+        function_kind : str
+            The function kind.
+        runtime : Runtime
+            Runtime instance.
+        """
+        self._modules[function_kind] = runtime
+
+    def build(self, function_kind: str) -> Runtime:
         """
         Build runtimes.
 
+        Parameters
+        ----------
+        function_kind : str
+            The function kind.
+
         Returns
         -------
-        dict
-            Runtimes.
+        Runtime
+            Runtime instance.
         """
-        framework, action = run.get_function_and_task()
-        try:
-            return REGISTRY_RUNTIMES.get(framework)[action](run)
-        except TypeError:
-            raise ValueError(f"Unkwnon framewrok '{framework}'")
-        except KeyError:
-            raise ValueError(
-                f"Invalid operation '{action}' for framewrok '{framework}'"
-            )
+        if function_kind not in self._modules:
+            raise ValueError(f"Runtime {function_kind} not found")
+        return self._modules[function_kind]()
 
 
-def build_runtime(run: Run) -> Runtime:
+def build_runtime(function_kind: str) -> Runtime:
     """
     Wrapper for RuntimeBuilder.build.
 
     Parameters
     ----------
-    run: dict
-        Run object.
+    function_kind : str
+        The function kind.
 
     Returns
     -------
     Runtime
         Runtime instance.
     """
-    return runtime_builder.build(run)
+    return runtime_builder.build(function_kind)
 
 
 runtime_builder = RuntimeBuilder()
+runtime_builder.register(FunctionKinds.DBT.value, RuntimeDBT)

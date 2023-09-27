@@ -9,6 +9,8 @@ class TaskKinds(Enum):
     Task kind enum class.
     """
 
+    # TODO: change name of perform to job and perform to transform
     JOB = "perform"
     BUILD = "build"
     DEPLOY = "deploy"
+    TRANSFORM = "perform"

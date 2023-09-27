@@ -4,24 +4,34 @@ Run module.
 from __future__ import annotations
 
 import typing
+from collections import namedtuple
 
 from sdk.context.builder import get_context
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
-from sdk.entities.base.status import Status
+from sdk.entities.base.status import StatusState
 from sdk.entities.builders.kinds import build_kind
 from sdk.entities.builders.spec import build_spec
 from sdk.entities.builders.status import build_status
 from sdk.entities.dataitem.crud import get_dataitem_from_key
-from sdk.utils.api import api_base_create, api_base_read
-from sdk.utils.commons import RUNS
+from sdk.runtimes.builder import build_runtime
+from sdk.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
+from sdk.utils.commons import FUNC, RUNS, TASK
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import get_uiid
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifact.entity import Artifact
+    from sdk.entities.base.status import Status
     from sdk.entities.dataitem.entity import Dataitem
     from sdk.entities.run.spec.objects.base import RunSpec
+    from sdk.runtimes.objects.base import Runtime
+
+
+TaskString = namedtuple(
+    "TaskString",
+    ["function_kind", "task_kind", "function_name", "function_id", "task_id"],
+)
 
 
 class Run(Entity):
@@ -92,21 +102,19 @@ class Run(Entity):
         if self._local:
             raise EntityError("Use .export() for local execution.")
 
-        obj = self.to_dict()
+        obj = self.to_dict(include_all_non_private=True)
 
-        # Pop status, backend handles it
-        obj.pop("status", None)
+        if uuid is None:
+            api = api_base_create(RUNS)
+            response = self._context.create_object(obj, api)
+            id_ = response.get("id")
+            if id_ is not None:
+                self.id = id_
+            return response
 
-        # We only need to create the run, no need to update it
-        api = api_base_create(RUNS)
-        response = self._context.create_object(obj, api)
-
-        # Set id
-        id_ = response.get("id")
-        if id_ is not None:
-            self.id = id_
-
-        return response
+        self.id = uuid
+        api = api_base_update(RUNS, uuid)
+        return self._context.update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -133,32 +141,49 @@ class Run(Entity):
     #  Run Methods
     #############################
 
-    def merge(self, function: dict, task: dict) -> None:
+    def build(self, local: bool = True):
         """
-        Merge function, task and run specifications.
+        Build run.
 
         Parameters
         ----------
-        function : dict
-            Function specification.
-        task : dict
-            Task specification.
+        local : bool
+            If True, build locally, otherwise build on backend.
 
         Returns
         -------
         None
         """
-        self.spec = build_spec(
-            RUNS,
-            self.kind,
-            **{
-                **function.get("spec"),
-                **task.get("spec"),
-                **self.spec.to_dict(),
-            },
-            ignore_validation=True,
-        )
+        function = self._get_function()
+        task = self._get_task()
+        runtime = self._get_runtime()
+        new_spec = runtime.build(function, task, self.to_dict())
+        self.spec = build_spec(RUNS, self.kind, ignore_validation=True, **new_spec)
+        self._set_status({"state": StatusState.PENDING.value})
         self.save(self.id)
+
+    def run(self, local: bool = True) -> Run:
+        """
+        Run run.
+
+        Parameters
+        ----------
+        local : bool
+            If True, run locally, otherwise run from backend.
+
+        Returns
+        -------
+        Run
+            Run object.
+        """
+        runtime = self._get_runtime()
+        try:
+            status = runtime.run(self.to_dict(include_all_non_private=True))
+        except Exception as e:
+            status = {"state": StatusState.ERROR.value, "message": str(e)}
+        self._set_status(status)
+        self.save(self.id)
+        return self
 
     def refresh(self) -> dict:
         """
@@ -190,8 +215,36 @@ class Run(Entity):
         dict
             Logs from backend.
         """
-        api = api_base_read(RUNS, self.id) + "/log"
+        api = api_ctx_read(
+            self.project,
+        )
         return self._context.read_object(api)
+
+    def _set_status(self, status: dict) -> None:
+        """
+        Set run status.
+
+        Parameters
+        ----------
+        status : dict
+            Status to set.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If status is not a dictionary or a Status object.
+        """
+        if not isinstance(status, dict):
+            raise EntityError("Status must be a dictionary.")
+        self.status = build_status(**status)
+
+    #############################
+    #  Artifacts and Dataitems
+    #############################
 
     def get_artifacts(self, output_key: str | None = None) -> Artifact | list[Artifact]:
         """
@@ -235,6 +288,7 @@ class Run(Entity):
             Dataitem(s) from backend.
         """
         resp = self.refresh()
+        print(resp)
         result = resp.get("status", {}).get("dataitems")
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
@@ -247,41 +301,65 @@ class Run(Entity):
             return get_dataitem_from_key(key)
         return [get_dataitem_from_key(r.get("id")) for r in result]
 
-    def set_status(self, status: dict | Status) -> None:
-        """
-        Set run status.
+    #############################
+    #  Functions and Tasks
+    #############################
 
-        Parameters
-        ----------
-        status : dict | Status
-            Status to set.
+    def _parse_task_string(self) -> TaskString:
+        """
+        Parse task string.
 
         Returns
         -------
         None
-
-        Raises
-        ------
-        EntityError
-            If status is not a dictionary or a Status object.
         """
-        if isinstance(status, Status):
-            self.status = status
-        elif isinstance(status, dict):
-            self.status = build_status(**status)
-        else:
-            raise EntityError("Status must be a dictionary or a Status object.")
+        kinds, func = self.spec.task.split("://")
+        fnc_kind, tsk_kind = kinds.split("+")
+        fnc_name, fnc_id = func.split("/")[1].split(":")
+        return TaskString(fnc_kind, tsk_kind, fnc_name, fnc_id, self.task_id)
 
-    def get_function_and_task(self) -> tuple[str, str]:
+    def _get_function(self) -> dict:
         """
-        Get function and task from run.
+        Get function from backend. Reimplemented to avoid circular imports.
 
         Returns
         -------
-        tuple[str, str]
-            Function and task.
+        dict
+            Function from backend.
         """
-        return self.spec.task.split(":")[0].split("+")
+        parsed = self._parse_task_string()
+        api = api_ctx_read(self.project, FUNC, parsed.function_name, parsed.function_id)
+        return self._context.read_object(api)
+
+    def _get_task(self) -> dict:
+        """
+        Get task from backend. Reimplemented to avoid circular imports.
+
+        Returns
+        -------
+        dict
+            Task from backend.
+        """
+        parsed = self._parse_task_string()
+        api = api_base_read(TASK, parsed.task_id)
+        return self._context.read_object(api)
+
+    #############################
+    # Runtimes
+    #############################
+
+    def _get_runtime(self) -> Runtime:
+        """
+        Build runtime to build run or execute it.
+
+        Returns
+        -------
+        Runtime
+            Runtime object.
+
+        """
+        fnc_kind = self._parse_task_string().function_kind
+        return build_runtime(fnc_kind)
 
     #############################
     #  Getters and Setters
