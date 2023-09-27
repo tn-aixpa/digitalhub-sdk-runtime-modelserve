@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.context.factory import get_context
+from sdk.context.builder import get_context
 from sdk.entities.artifact.crud import get_artifact_from_key
 from sdk.entities.base.entity import Entity
 from sdk.entities.base.status import Status

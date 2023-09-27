@@ -37,7 +37,7 @@ from sdk.entities.workflow.crud import (
     new_workflow,
 )
 from sdk.runtimes.builder import build_runtime
-from sdk.store.factory import set_store
+from sdk.store.builder import set_store
 from sdk.store.models import (
     LocalStoreConfig,
     RemoteStoreConfig,

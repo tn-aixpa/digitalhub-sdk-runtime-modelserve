@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.context.factory import get_context
+from sdk.context.builder import get_context
 from sdk.entities.dataitem.entity import dataitem_from_dict, dataitem_from_parameters
 from sdk.utils.api import api_ctx_delete, api_ctx_read
 from sdk.utils.commons import DTIT

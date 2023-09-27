@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 import typing
 
-from sdk.context.factory import get_context
+from sdk.context.builder import get_context
 from sdk.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.context.factory import get_context
+from sdk.context.builder import get_context
 from sdk.entities.task.entity import task_from_dict, task_from_parameters
 from sdk.utils.api import api_base_delete, api_base_read
 from sdk.utils.commons import TASK

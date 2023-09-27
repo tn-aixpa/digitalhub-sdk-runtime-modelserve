@@ -6,8 +6,8 @@ from __future__ import annotations
 import typing
 from typing import Callable, TypeVar
 
-from sdk.client.factory import get_client
-from sdk.context.factory import set_context
+from sdk.client.builder import get_client
+from sdk.context.builder import set_context
 from sdk.entities.artifact.crud import (
     create_artifact_from_dict,
     delete_artifact,

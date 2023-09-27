@@ -35,3 +35,18 @@ class ClientBuilder:
         if not self._instance:
             self._instance = Client(*args, **kwargs)
         return self._instance
+
+
+def get_client() -> Client:
+    """
+    Wrapper around ClientBuilder.build.
+
+    Returns
+    -------
+    Client
+        The client instance.
+    """
+    return client_builder.build()
+
+
+client_builder = ClientBuilder()

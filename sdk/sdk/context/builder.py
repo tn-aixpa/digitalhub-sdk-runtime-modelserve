@@ -72,3 +72,55 @@ class ContextBuilder:
         None
         """
         self._instances.pop(project, None)
+
+
+def set_context(project: Project) -> None:
+    """
+    Set current context to the given project.
+
+    Parameters
+    ----------
+    project : Project
+        The project object used to set the current context.
+
+    Returns
+    -------
+    None
+    """
+    context_builder.build(project)
+
+
+def get_context(project: str) -> Context:
+    """
+    Get specific context by project name.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    Context
+        The context for the given project name.
+    """
+    return context_builder.get(project)
+
+
+def delete_context(project: str) -> None:
+    """
+    Delete the context for the given project name.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    None
+    """
+    context_builder.remove(project)
+
+
+context_builder = ContextBuilder()
