@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import typing
 
-from sdk.entities.function.kinds import FunctionKinds
+from sdk.entities.functions.kinds import FunctionKinds
 from sdk.runtimes.objects.dbt import RuntimeDBT
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.run.entity import Run
     from sdk.runtimes.objects.base import Runtime
 
 

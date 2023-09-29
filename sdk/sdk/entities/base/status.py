@@ -3,14 +3,15 @@ Status class module.
 """
 from enum import Enum
 
-from sdk.entities.base.base_model import ModelObj
+from sdk.entities.base.base import ModelObj
 
 
-class StatusState(Enum):
+class State(Enum):
     """
     State enumeration.
     """
 
+    BUILT = "BUILT"
     COMPLETED = "COMPLETED"
     CREATED = "CREATED"
     ERROR = "ERROR"
@@ -22,7 +23,11 @@ class StatusState(Enum):
 
 
 class Status(ModelObj):
-    def __init__(self, state: str, **kwargs) -> None:
+    """
+    Base Status class.
+    """
+
+    def __init__(self, state: str) -> None:
         """
         Constructor.
 
@@ -30,12 +35,8 @@ class Status(ModelObj):
         ----------
         state : str
             The state of the entity.
-        **kwargs
-            Keyword arguments.
         """
         self.state = state
-
-        self._any_setter(**kwargs)
 
     @classmethod
     def from_dict(cls, obj: dict | None = None) -> "Status":

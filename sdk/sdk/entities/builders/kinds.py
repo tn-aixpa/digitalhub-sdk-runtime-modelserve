@@ -3,13 +3,13 @@ Kinds builder module.
 """
 from enum import Enum
 
-from sdk.entities.artifact.kinds import ArtifactKinds
-from sdk.entities.dataitem.kinds import DataitemKinds
-from sdk.entities.function.kinds import FunctionKinds
-from sdk.entities.project.kinds import ProjectKinds
-from sdk.entities.run.kinds import RunKinds
-from sdk.entities.task.kinds import TaskKinds
-from sdk.entities.workflow.kinds import WorkflowKinds
+from sdk.entities.artifacts.kinds import ArtifactKinds
+from sdk.entities.dataitems.kinds import DataitemKinds
+from sdk.entities.functions.kinds import FunctionKinds
+from sdk.entities.projects.kinds import ProjectKinds
+from sdk.entities.runs.kinds import RunKinds
+from sdk.entities.tasks.kinds import TaskKinds
+from sdk.entities.workflows.kinds import WorkflowKinds
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
 from sdk.utils.exceptions import EntityError
 

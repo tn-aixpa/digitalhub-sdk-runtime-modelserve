@@ -1,7 +1,7 @@
 """
 Entity specification module.
 """
-from sdk.entities.base.base_model import ModelObj
+from sdk.entities.base.base import ModelObj
 
 
 class EntitySpec(ModelObj):

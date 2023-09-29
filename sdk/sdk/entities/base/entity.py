@@ -3,7 +3,7 @@ Abstract entity module.
 """
 from abc import ABCMeta, abstractmethod
 
-from sdk.entities.base.base_model import ModelObj
+from sdk.entities.base.base import ModelObj
 from sdk.utils.io_utils import write_yaml
 
 

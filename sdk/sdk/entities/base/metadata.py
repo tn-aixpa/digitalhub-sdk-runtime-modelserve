@@ -1,7 +1,7 @@
 """
 Entity metadata module.
 """
-from sdk.entities.base.base_model import ModelObj
+from sdk.entities.base.base import ModelObj
 
 
 class Metadata(ModelObj):
@@ -10,24 +10,23 @@ class Metadata(ModelObj):
     """
 
     def __init__(
-        self, name: str | None = None, description: str | None = None, **kwargs
+        self, project: str, created: str | None = None, updated: str | None = None
     ) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        name : str
-            Name of the object.
-        description : str
-            Description of the entity.
-        **kwargs
-            Keyword arguments.
+        project : str
+            Name of the project.
+        created : str
+            Created date.
+        updated : str
+            Updated date.
         """
-        self.name = name
-        self.description = description
-
-        self._any_setter(**kwargs)
+        self.project = project
+        self.created = created
+        self.updated = updated
 
     @classmethod
     def from_dict(cls, obj: dict | None = None) -> "Metadata":

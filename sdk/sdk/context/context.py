@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.project.entity import Project
+    from sdk.entities.projects.entity import Project
 
 
 class Context:
@@ -30,7 +30,7 @@ class Context:
         -------
         None
         """
-        self.name = project.name
+        self.name = project.metadata.name
         self.client = project.client
         self.local = project.local
 

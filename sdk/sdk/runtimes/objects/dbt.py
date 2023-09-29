@@ -10,20 +10,18 @@ from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
-from sdk.entities.base.status import StatusState
-from sdk.entities.builders.status import build_status
-from sdk.entities.dataitem.crud import get_dataitem, new_dataitem
-from sdk.entities.dataitem.kinds import DataitemKinds
-from sdk.entities.task.kinds import TaskKinds
+from sdk.entities.base.status import State
+from sdk.entities.dataitems.crud import get_dataitem, new_dataitem
+from sdk.entities.dataitems.kinds import DataitemKinds
+from sdk.entities.tasks.kinds import TaskKinds
 from sdk.runtimes.objects.base import Runtime
 from sdk.utils.exceptions import EntityError
-from sdk.utils.generic_utils import decode_string, encode_string, get_uiid
+from sdk.utils.generic_utils import build_uuid, decode_string, encode_string
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
 
-    from sdk.entities.dataitem.entity import Dataitem
-    from sdk.entities.run.entity import Run
+    from sdk.entities.dataitems.entity import Dataitem
 
 ####################
 # ENV
@@ -139,7 +137,7 @@ class RuntimeDBT(Runtime):
             Status of the executed run.
         """
         # Verify if run is in pending state and task is allowed
-        if not run.get("status").get("state") == StatusState.PENDING.value:
+        if not run.get("status").get("state") == State.PENDING.value:
             raise EntityError("Run is not in pending state. Build it again.")
         action = run.get("spec").get("task").split(":")[0].split("+")[1]
         if action == TaskKinds.TRANSFORM.value:
@@ -178,7 +176,7 @@ class RuntimeDBT(Runtime):
         output = self.parse_outputs(spec.get("outputs", {}).get("dataitems", []))
 
         # Setup environment
-        uuid = get_uiid()
+        uuid = build_uuid()
         self.setup(inputs, output, uuid, project, spec.get("sql"))
 
         # Execute function
@@ -194,7 +192,7 @@ class RuntimeDBT(Runtime):
         return {
             **self.get_dataitem_info(output, dataitem),
             **parsed_result.timings,
-            "state": StatusState.COMPLETED.value,
+            "state": State.COMPLETED.value,
         }
 
     ####################

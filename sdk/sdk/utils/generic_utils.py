@@ -9,7 +9,7 @@ from uuid import uuid4
 from sdk.utils.io_utils import read_text
 
 
-def get_uiid(uuid: str | None = None) -> str:
+def build_uuid(uuid: str | None = None) -> str:
     """
     Create a uuid if not given
 

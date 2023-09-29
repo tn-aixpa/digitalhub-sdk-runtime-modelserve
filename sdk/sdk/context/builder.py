@@ -8,7 +8,7 @@ import typing
 from sdk.context.context import Context
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.project.entity import Project
+    from sdk.entities.projects.entity import Project
 
 
 class ContextBuilder:
@@ -36,8 +36,8 @@ class ContextBuilder:
         -------
         None
         """
-        if project_object.name not in self._instances:
-            self._instances[project_object.name] = Context(project_object)
+        if project_object.metadata.name not in self._instances:
+            self._instances[project_object.metadata.name] = Context(project_object)
 
     def get(self, project: str) -> Context:
         """
@@ -76,7 +76,7 @@ class ContextBuilder:
 
 def set_context(project: Project) -> None:
     """
-    Set current context to the given project.
+    Wrapper for ContextBuilder.build().
 
     Parameters
     ----------
@@ -92,7 +92,7 @@ def set_context(project: Project) -> None:
 
 def get_context(project: str) -> Context:
     """
-    Get specific context by project name.
+    Wrapper for ContextBuilder.get().
 
     Parameters
     ----------
@@ -109,7 +109,7 @@ def get_context(project: str) -> Context:
 
 def delete_context(project: str) -> None:
     """
-    Delete the context for the given project name.
+    Wrapper for ContextBuilder.remove().
 
     Parameters
     ----------
