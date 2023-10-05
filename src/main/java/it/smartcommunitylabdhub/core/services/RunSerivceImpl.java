@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.core.services;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -21,16 +20,13 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
-import it.smartcommunitylabdhub.core.utils.MapUtils;
 
 @Service
 public class RunSerivceImpl implements RunService {
@@ -165,6 +161,7 @@ public class RunSerivceImpl implements RunService {
                                 // 6. get result
 
 
+                                ////////////////////// OLD BUILDER CODE
                                 // Build run from task
                                 // RunDTO runDTO = (RunDTO) runBuilderFactory
                                 // .getBuilder(taskAccessor.getKind(), taskDTO.getKind())
@@ -182,6 +179,9 @@ public class RunSerivceImpl implements RunService {
                                 // MapUtils.mergeMaps(runDTO.getSpec(), executionDTO.getSpec(),
                                 // (oldValue, newValue) -> newValue);
                                 // runDTO.setSpec(mergedSpec);
+
+                                ////////////////////// OLD CODE
+
 
                                 // Save run
                                 Run run = runRepository.save(runEntityBuilder.build(runDTO));

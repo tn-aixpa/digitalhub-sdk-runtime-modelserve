@@ -9,8 +9,6 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.Function;
-import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 public class RunUtils {
