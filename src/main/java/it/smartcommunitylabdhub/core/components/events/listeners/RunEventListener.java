@@ -14,8 +14,6 @@ import it.smartcommunitylabdhub.core.components.pollers.PollingService;
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 
 @Component
 public class RunEventListener {

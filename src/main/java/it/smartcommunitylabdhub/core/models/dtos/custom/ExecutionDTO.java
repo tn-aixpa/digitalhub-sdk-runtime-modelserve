@@ -24,7 +24,7 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class RunExecDTO {
+public class ExecutionDTO {
     @NotNull
     @JsonProperty("task_id")
     String taskId;

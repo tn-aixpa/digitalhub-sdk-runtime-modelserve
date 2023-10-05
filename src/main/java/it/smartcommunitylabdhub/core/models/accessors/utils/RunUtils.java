@@ -6,8 +6,10 @@ import java.util.regex.Pattern;
 import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
-import it.smartcommunitylabdhub.core.models.entities.Task;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
@@ -15,6 +17,7 @@ public class RunUtils {
 
 	private static final Pattern RUN_PATTERN =
 			Pattern.compile("([^:/]+)\\+([^+]+)://([^/]+)/([^/]+):(.+)");
+
 
 	private RunUtils() {}
 
@@ -34,15 +37,15 @@ public class RunUtils {
 				HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	public static <T extends BaseEntity> String buildRunString(T type, Task task) {
-		if (type instanceof Function) {
+	public static <T extends BaseEntity> String buildRunString(T type, TaskDTO task) {
+		if (type instanceof FunctionDTO) {
 
-			Function f = (Function) type;
+			FunctionDTO f = (FunctionDTO) type;
 			return f.getKind() + "+" + task.getKind() + "://" + f.getProject() + "/"
 					+ f.getName() + ":" + f.getId();
-		} else if (type instanceof Workflow) {
+		} else if (type instanceof WorkflowDTO) {
 
-			Workflow w = (Workflow) type;
+			WorkflowDTO w = (WorkflowDTO) type;
 			return w.getKind() + "+" + task.getKind() + "://" + w.getProject() + "/"
 					+ w.getName() + ":" + w.getId();
 		} else {

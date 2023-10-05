@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Workflow;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
@@ -14,8 +16,7 @@ public class TaskUtils {
 
 	private static final Pattern TASK_PATTERN = Pattern.compile("([^:/]+)://([^/]+)/([^:]+):(.+)");
 
-	private TaskUtils() {
-	}
+	private TaskUtils() {}
 
 	public static TaskAccessor parseTask(String taskString) {
 		Matcher matcher = TASK_PATTERN.matcher(taskString);
@@ -27,21 +28,23 @@ public class TaskUtils {
 
 			return new TaskAccessor(kind, project, function, version);
 		}
-		throw new CoreException("InvalidTaskStringCase", "Cannot create accessor for the given task string.",
+		throw new CoreException("InvalidTaskStringCase",
+				"Cannot create accessor for the given task string.",
 				HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	public static <T extends BaseEntity> String buildTaskString(T type) {
-		if (type instanceof Function) {
+		if (type instanceof FunctionDTO) {
 
-			Function f = (Function) type;
+			FunctionDTO f = (FunctionDTO) type;
 			return f.getKind() + "://" + f.getProject() + "/" + f.getName() + ":" + f.getId();
-		} else if (type instanceof Workflow) {
+		} else if (type instanceof WorkflowDTO) {
 
-			Workflow w = (Workflow) type;
+			WorkflowDTO w = (WorkflowDTO) type;
 			return w.getKind() + "://" + w.getProject() + "/" + w.getName() + ":" + w.getId();
 		} else {
-			throw new CoreException("CannotComposeTaskField", "Cannot compose task field for the given object.",
+			throw new CoreException("CannotComposeTaskField",
+					"Cannot compose task field for the given object.",
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 

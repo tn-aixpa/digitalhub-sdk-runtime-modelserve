@@ -15,13 +15,13 @@ import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.Function;
 import it.smartcommunitylabdhub.core.models.entities.Run;
-import it.smartcommunitylabdhub.core.models.entities.Task;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
@@ -44,6 +44,9 @@ public class FunctionServiceImpl implements FunctionService {
 
     @Autowired
     FunctionEntityBuilder functionEntityBuilder;
+
+    @Autowired
+    TaskDTOBuilder taskDTOBuilder;
 
     @Override
     public List<FunctionDTO> getFunctions(Pageable pageable) {
@@ -177,13 +180,18 @@ public class FunctionServiceImpl implements FunctionService {
                     HttpStatus.NOT_FOUND);
         }
 
+        FunctionDTO functionDTO = functionDTOBuilder.build(function, false);
         try {
             // Find and collect runs for a function
             List<Run> runs =
-                    this.taskRepository.findByFunction(TaskUtils.buildTaskString(function))
+                    this.taskRepository.findByFunction(TaskUtils.buildTaskString(functionDTO))
                             .stream()
                             .flatMap(task -> this.runRepository
-                                    .findByTask(RunUtils.buildRunString(function, task)).stream())
+                                    .findByTask(
+                                            RunUtils.buildRunString(
+                                                    functionDTO,
+                                                    taskDTOBuilder.build(task)))
+                                    .stream())
                             .collect(Collectors.toList());
 
 

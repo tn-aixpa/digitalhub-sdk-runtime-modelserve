@@ -53,9 +53,8 @@ public class DbtRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 					.taskId(task.getId())
 					.project(task.getProject())
 					.task(RunUtils.buildRunString(
-							functionEntityBuilder
-									.build(functionDTO),
-							task))
+							functionDTO,
+							taskDTO))
 					.spec(mergedSpec)
 					.build();
 

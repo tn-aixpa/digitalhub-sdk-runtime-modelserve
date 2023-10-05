@@ -14,6 +14,7 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
+import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
@@ -43,6 +44,9 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     @Autowired
     WorkflowDTOBuilder workflowDTOBuilder;
+
+    @Autowired
+    TaskDTOBuilder taskDTOBuilder;
 
     @Override
     public List<WorkflowDTO> getWorkflows(Pageable pageable) {
@@ -154,12 +158,16 @@ public class WorkflowServiceImpl implements WorkflowService {
                     HttpStatus.NOT_FOUND);
         }
 
+        WorkflowDTO workflowDTO = workflowDTOBuilder.build(workflow, false);
+
         try {
             List<Run> runs =
-                    this.taskRepository.findByFunction(TaskUtils.buildTaskString(workflow))
+                    this.taskRepository.findByFunction(TaskUtils.buildTaskString(workflowDTO))
                             .stream()
                             .flatMap(task -> this.runRepository
-                                    .findByTask(RunUtils.buildRunString(workflow, task)).stream())
+                                    .findByTask(RunUtils.buildRunString(workflowDTO,
+                                            taskDTOBuilder.build(task)))
+                                    .stream())
                             .collect(Collectors.toList());
 
             return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);

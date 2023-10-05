@@ -10,7 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.FrameworkFactory;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.RuntimeFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilderFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPublisherFactory;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
@@ -19,10 +21,13 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
+import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.custom.RunExecDTO;
+import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
+import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
@@ -38,6 +43,15 @@ public class RunSerivceImpl implements RunService {
 
     @Autowired
     TaskService taskService;
+
+    @Autowired
+    FunctionService functionService;
+
+    @Autowired
+    FrameworkFactory frameworkFactory;
+
+    @Autowired
+    RuntimeFactory runtimeFactory;
 
     @Autowired
     KindBuilderFactory runBuilderFactory;
@@ -89,7 +103,6 @@ public class RunSerivceImpl implements RunService {
                                 HttpStatus.NOT_FOUND));
     }
 
-
     @Override
     public RunDTO updateRun(RunDTO runDTO, String uuid) {
 
@@ -123,54 +136,88 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public RunDTO createRun(RunExecDTO runExecDTO) {
+    public RunDTO createRun(ExecutionDTO executionDTO) {
 
-        return Optional.ofNullable(this.taskService.getTask(runExecDTO.getTaskId()))
+        return Optional.ofNullable(this.taskService.getTask(executionDTO.getTaskId()))
                 .map(taskDTO -> {
-
-                    // parse task to get accessor
+                    // Parse task to get accessor
                     TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getFunction());
 
-                    // build run from task
-                    RunDTO runDTO = (RunDTO) runBuilderFactory
-                            .getBuilder(taskAccessor.getKind(), taskDTO.getKind())
-                            .build(taskDTO);
+                    return Optional
+                            .ofNullable(functionService.getFunction(taskAccessor.getVersion()))
+                            .map(functionDTO -> {
 
-                    // if extra field contained override if field in dto is present otherwise put in
-                    // extra runDTO
-                    runExecDTO.overrideFields(runDTO);
+                                // 1. retrieve Runtime and build run
+                                Runtime runtime = ((Runtime) runtimeFactory
+                                        .getRuntime(taskAccessor.getRuntime(), taskDTO.getKind()));
 
-                    // add also run spec
-                    // runDTO.getSpec().putAll(runExecDTO.getSpec());
-                    Map<String, Object> mergedSpec =
-                            MapUtils.mergeMaps(runDTO.getSpec(), runExecDTO.getSpec(),
-                                    (oldValue, newValue) -> newValue);
-                    runDTO.setSpec(mergedSpec);
 
-                    // save run
-                    Run run = runRepository.save(runEntityBuilder.build(runDTO));
+                                // 2. create Builder
+                                // 3. build Run
+                                RunDTO runDTO = runtime.builder(
+                                        functionDTO,
+                                        taskDTO,
+                                        executionDTO);
 
-                    // check weather the run has local set to True in that case return
-                    // immediately the run without invoke the execution.
-                    Supplier<RunDTO> result = () -> {
-                        return Optional.ofNullable(runDTO.getSpec().get("local_execution"))
-                                .filter(value -> value.equals(true))
-                                .map(value -> runDTOBuilder.build(run)) // return immediately
-                                .orElseGet(() -> { // execute and return
-                                    // exec run and return run dto
-                                    return Optional.ofNullable(runDTOBuilder.build(run)).map(r -> {
-                                        // publish event to the right listener
-                                        runPublisherFactory
-                                                .getPublisher(taskAccessor.getKind(),
-                                                        taskDTO.getKind())
-                                                .publish(r);
-                                        return r;
-                                    }).orElseThrow(() -> new CoreException("", "",
-                                            HttpStatus.INTERNAL_SERVER_ERROR));
-                                });
-                    };
 
-                    return result.get();
+                                // 4. create Runner
+                                // 5. execute Run
+                                // 6. get result
+
+
+                                // Build run from task
+                                // RunDTO runDTO = (RunDTO) runBuilderFactory
+                                // .getBuilder(taskAccessor.getKind(), taskDTO.getKind())
+                                // .build(taskDTO);
+
+                                // // If extra field contained override if field in dto is present
+                                // otherwise put
+                                // in
+                                // // extra runDTO
+                                // executionDTO.overrideFields(runDTO);
+
+                                // // Add also Run Spec
+                                // // runDTO.getSpec().putAll(executionDTO.getSpec());
+                                // Map<String, Object> mergedSpec =
+                                // MapUtils.mergeMaps(runDTO.getSpec(), executionDTO.getSpec(),
+                                // (oldValue, newValue) -> newValue);
+                                // runDTO.setSpec(mergedSpec);
+
+                                // Save run
+                                Run run = runRepository.save(runEntityBuilder.build(runDTO));
+
+                                // Check weather the run has local set to True in that case return
+                                // immediately the run without invoke the execution.
+                                Supplier<RunDTO> result = () -> {
+                                    return Optional
+                                            .ofNullable(runDTO.getSpec().get("local_execution"))
+                                            .filter(value -> value.equals(true))
+                                            .map(value -> runDTOBuilder.build(run)) // return
+                                                                                    // immediately
+                                            .orElseGet(() -> { // execute and return
+                                                // exec run and return run dto
+                                                return Optional.ofNullable(runDTOBuilder.build(run))
+                                                        .map(r -> {
+                                                            // publish event to the right listener
+                                                            runPublisherFactory
+                                                                    .getPublisher(
+                                                                            taskAccessor
+                                                                                    .getRuntime(),
+                                                                            taskDTO.getKind())
+                                                                    .publish(r);
+                                                            return r;
+                                                        })
+                                                        .orElseThrow(() -> new CoreException("", "",
+                                                                HttpStatus.INTERNAL_SERVER_ERROR));
+                                            });
+                                };
+
+                                return result.get();
+                            }).orElseThrow(() -> new CoreException("RunNotFound",
+                                    "The run you are searching for does not exist.",
+                                    HttpStatus.NOT_FOUND));
+
+
 
                 })
                 .orElseThrow(() -> new CoreException("RunNotFound",

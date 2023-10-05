@@ -16,6 +16,25 @@ TODO: 20/09/2011
 
 - Variabili d'ambiente definite tutte con DHUB\_ come prefisso che fa eliminato quando le inietto nel container.
 
+- IL runtime dobbiamo avere due funzioni
+  - build()
+  - run() -> non in termini di eseguo ma traduco nel framework specifico della run
+
+========================= PROCEDURA =====================
+
+5519 cd src/main/java/it/smartcommunitylabdhub/dbt/config
+5520 rm -rf sdk
+5521 cp -r ../../../../../../../sdk .
+5522 ls
+5523 cat docker-compose.yaml
+5524 minikube docker-env
+5525 eval $(minikube -p minikube docker-env)
+5526 docker images
+5527 docker build -t ltrubbianifbk/dbt_core .
+5528 docker push ltrubbianifbk/dbt_core:latest
+5529 exit
+5530 clear
+
 ================================= ROBA VECCHIA ==================================
 
 - [x] La run puo avere un parametro local = True o False,

@@ -1,10 +1,14 @@
 package it.smartcommunitylabdhub.core.config;
 
 import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.BuilderFactory;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.Framework;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.FrameworkFactory;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.RuntimeFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilderFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPublisher;
@@ -28,5 +32,23 @@ public class RunConfig {
     @Bean
     protected KindWorkflowFactory runWorkflowFactory(List<KindWorkflow<?, ?>> builders) {
         return new KindWorkflowFactory(builders);
+    }
+
+    @Bean
+    protected FrameworkFactory frameworkFactory(
+            List<Framework<?>> frameworks) {
+        return new FrameworkFactory(frameworks);
+    }
+
+    @Bean
+    protected RuntimeFactory runtimeFactory(
+            List<Runtime> runtimes) {
+        return new RuntimeFactory(runtimes);
+    }
+
+    @Bean
+    protected BuilderFactory builderFactory(
+            List<Builder> builders) {
+        return new BuilderFactory(builders);
     }
 }
