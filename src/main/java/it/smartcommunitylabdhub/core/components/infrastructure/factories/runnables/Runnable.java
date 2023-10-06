@@ -4,4 +4,8 @@ import java.io.Serializable;
 
 public interface Runnable extends Serializable {
 	String framework();
+
+	String getProject();
+
+	String getId();
 }

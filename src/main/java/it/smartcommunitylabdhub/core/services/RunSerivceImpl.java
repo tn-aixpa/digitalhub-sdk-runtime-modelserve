@@ -9,7 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.Framework;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.FrameworkFactory;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.RuntimeFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilderFactory;
@@ -145,45 +147,17 @@ public class RunSerivceImpl implements RunService {
 
                                 // 1. retrieve Runtime and build run
                                 Runtime runtime = ((Runtime) runtimeFactory
-                                        .getRuntime(taskAccessor.getRuntime(), taskDTO.getKind()));
+                                        .getRuntime(taskAccessor.getRuntime()));
 
 
                                 // 2. create Builder
                                 // 3. build Run
-                                RunDTO runDTO = runtime.builder(
+                                RunDTO runDTO = runtime.build(
                                         functionDTO,
                                         taskDTO,
                                         executionDTO);
 
-
-                                // 4. create Runner
-                                // 5. execute Run
-                                // 6. get result
-
-
-                                ////////////////////// OLD BUILDER CODE
-                                // Build run from task
-                                // RunDTO runDTO = (RunDTO) runBuilderFactory
-                                // .getBuilder(taskAccessor.getKind(), taskDTO.getKind())
-                                // .build(taskDTO);
-
-                                // // If extra field contained override if field in dto is present
-                                // otherwise put
-                                // in
-                                // // extra runDTO
-                                // executionDTO.overrideFields(runDTO);
-
-                                // // Add also Run Spec
-                                // // runDTO.getSpec().putAll(executionDTO.getSpec());
-                                // Map<String, Object> mergedSpec =
-                                // MapUtils.mergeMaps(runDTO.getSpec(), executionDTO.getSpec(),
-                                // (oldValue, newValue) -> newValue);
-                                // runDTO.setSpec(mergedSpec);
-
-                                ////////////////////// OLD CODE
-
-
-                                // Save run
+                                // 4. Save run
                                 Run run = runRepository.save(runEntityBuilder.build(runDTO));
 
                                 // Check weather the run has local set to True in that case return
@@ -197,15 +171,20 @@ public class RunSerivceImpl implements RunService {
                                             .orElseGet(() -> { // execute and return
                                                 // exec run and return run dto
                                                 return Optional.ofNullable(runDTOBuilder.build(run))
-                                                        .map(r -> {
-                                                            // publish event to the right listener
-                                                            runPublisherFactory
-                                                                    .getPublisher(
-                                                                            taskAccessor
-                                                                                    .getRuntime(),
-                                                                            taskDTO.getKind())
-                                                                    .publish(r);
-                                                            return r;
+                                                        .map(savedRun -> {
+
+                                                            // TODO: this is dispathed in asyn msg
+                                                            Runnable runnable =
+                                                                    runtime.run(savedRun);
+
+
+                                                            // TODO: Move this on async event
+                                                            Framework<Runnable> framework =
+                                                                    frameworkFactory.getFramework(
+                                                                            runnable.framework());
+                                                            framework.execute(runnable);
+
+                                                            return savedRun;
                                                         })
                                                         .orElseThrow(() -> new CoreException("", "",
                                                                 HttpStatus.INTERNAL_SERVER_ERROR));
@@ -213,7 +192,7 @@ public class RunSerivceImpl implements RunService {
                                 };
 
                                 return result.get();
-                            }).orElseThrow(() -> new CoreException("RunNotFound",
+                            }).orElseThrow(() -> new CoreException("FunctionNotFound",
                                     "The run you are searching for does not exist.",
                                     HttpStatus.NOT_FOUND));
 

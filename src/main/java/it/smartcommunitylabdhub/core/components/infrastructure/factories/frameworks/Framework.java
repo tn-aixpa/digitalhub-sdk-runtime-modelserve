@@ -1,11 +1,12 @@
 /**
- * KindInfrastructure.java
+ * Framework.java
  *
  */
 
 package it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks;
 
-public interface Framework<R extends Runnable> {
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 
-	void execute(Runnable runnable);
+public interface Framework<R extends Runnable> {
+	void execute(R runnable);
 }

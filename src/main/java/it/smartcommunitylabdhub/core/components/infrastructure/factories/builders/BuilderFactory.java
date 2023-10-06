@@ -51,19 +51,27 @@ public class BuilderFactory {
         /**
          * Get the Builder for the given platform.
          *
-         * @param builder The builder platform
+         * @param runtime The builder platform
          * @param task The task
          * @return The Builder for the specified platform.
          * @throws IllegalArgumentException If no Builder is found for the given platform.
          */
-        public Builder getBuilder(String builder, String task) {
+        public Builder getBuilder(String runtime, String task) {
 
                 Builder concreteBuilder =
-                                (Builder) builderMap.get(builder + "+" + task);
+                                (Builder) builderMap.get(runtime + "+" + task);
                 if (concreteBuilder == null) {
                         throw new IllegalArgumentException(
-                                        "No builder found for name: " + builder + "+" + task);
+                                        "No builder found for name: " + runtime + "+" + task);
                 }
                 return concreteBuilder;
+        }
+
+
+        public Map<String, Builder> getBuilders(String runtime) {
+                return builderMap.entrySet().stream()
+                                .filter(entry -> entry.getKey().startsWith(runtime))
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         }
 }

@@ -41,7 +41,7 @@ public class RuntimeFactory {
                 if (runtimeClass.isAnnotationPresent(RuntimeComponent.class)) {
                         RuntimeComponent annotation =
                                         runtimeClass.getAnnotation(RuntimeComponent.class);
-                        return annotation.runtime() + "+" + annotation.task();
+                        return annotation.runtime();
                 }
                 throw new IllegalArgumentException(
                                 "No @RuntimeComponent annotation found for runtime: "
@@ -56,13 +56,13 @@ public class RuntimeFactory {
          * @return The Runtime for the specified platform.
          * @throws IllegalArgumentException If no Runtime is found for the given platform.
          */
-        public Runtime getRuntime(String runtime, String task) {
+        public Runtime getRuntime(String runtime) {
 
                 Runtime concreteRuntime =
-                                (Runtime) runtimeMap.get(runtime + "+" + task);
+                                (Runtime) runtimeMap.get(runtime);
                 if (concreteRuntime == null) {
                         throw new IllegalArgumentException(
-                                        "No runtime found for name: " + runtime + "+" + task);
+                                        "No runtime found for name: " + runtime);
                 }
                 return concreteRuntime;
         }

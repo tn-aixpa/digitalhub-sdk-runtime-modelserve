@@ -1,35 +1,19 @@
-package it.smartcommunitylabdhub.dbt;
+package it.smartcommunitylabdhub.dbt.components;
 
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import it.smartcommunitylabdhub.core.annotations.BuilderComponent;
-import it.smartcommunitylabdhub.core.components.infrastructure.builders.BaseBuilder;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.BaseBuilder;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
-import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
 import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
-import it.smartcommunitylabdhub.core.repositories.TaskRepository;
-import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
-import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
-@BuilderComponent(runtime = "dbt", task = "job")
-public class DbtBuilder extends BaseBuilder implements Builder {
+@BuilderComponent(runtime = "dbt", task = "transform")
+public class DbtTransformBuilder extends BaseBuilder implements Builder {
 
-	@Autowired
-	TaskRepository taskRepository;
-
-	@Autowired
-	TaskService taskService;
-
-	@Autowired
-	FunctionService functionService;
-
-	@Autowired
-	FunctionEntityBuilder functionEntityBuilder;
 
 	@Override
 	public RunDTO build(FunctionDTO functionDTO, TaskDTO taskDTO, ExecutionDTO executionDTO) {

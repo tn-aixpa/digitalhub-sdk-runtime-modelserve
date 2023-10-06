@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import it.smartcommunitylabdhub.core.annotations.FrameworkComponent;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 
 public class FrameworkFactory {
         private final Map<String, Framework<?>> builderMap;
@@ -40,12 +41,9 @@ public class FrameworkFactory {
                 if (builderClass.isAnnotationPresent(FrameworkComponent.class)) {
                         FrameworkComponent annotation =
                                         builderClass.getAnnotation(FrameworkComponent.class);
-                        String key = annotation.runtime() + "+" + annotation.task();
-                        if (!annotation.name().isEmpty()) {
-                                key.concat("+" + annotation.name());
-                        }
 
-                        return key;
+
+                        return annotation.framework();
                 }
                 throw new IllegalArgumentException(
                                 "No @FrameworkComponent annotation found for builder: "
@@ -55,26 +53,22 @@ public class FrameworkFactory {
         /**
          * Get the Framework for the given framework.
          *
-         * @param framework The framework string representing the specific framework for which to
+         * @param runtime The framework string representing the specific framework for which to
          *        retrieve the Framework.
          * @param task The task string representing the specific task action for a given framework.
          * @param <R> Is a runnable that exteds Runnable
          * @return The Framework for the specified framework.
          * @throws IllegalArgumentException If no Framework is found for the given framework.
          */
-        public <R extends Runnable> Framework<R> getBuilder(String framework, String task,
-                        String name) {
+        public <R extends Runnable> Framework<R> getFramework(String framework) {
 
-                String key = framework + "+" + task;
-                if (!name.isEmpty()) {
-                        key.concat("+" + name);
-                }
+
                 @SuppressWarnings("unchecked")
                 Framework<R> builder =
-                                (Framework<R>) builderMap.get(key);
+                                (Framework<R>) builderMap.get(framework);
                 if (builder == null) {
                         throw new IllegalArgumentException(
-                                        "No builder found for name: " + key);
+                                        "No builder found for name: " + framework);
                 }
                 return builder;
         }

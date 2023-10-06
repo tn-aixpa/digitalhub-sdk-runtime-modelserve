@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.infrastructure.builders;
+package it.smartcommunitylabdhub.core.components.infrastructure.factories.builders;
 
 
 import java.util.Map;

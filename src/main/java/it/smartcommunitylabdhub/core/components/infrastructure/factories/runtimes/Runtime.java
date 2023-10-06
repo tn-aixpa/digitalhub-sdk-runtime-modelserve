@@ -10,7 +10,7 @@ import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
  * Runtime expose builder and run method
  */
 public interface Runtime {
-	RunDTO builder(FunctionDTO functionDTO, TaskDTO taskDTO, ExecutionDTO executionDTO);
+	RunDTO build(FunctionDTO functionDTO, TaskDTO taskDTO, ExecutionDTO executionDTO);
 
-	Runnable runner(RunDTO runDTO);
+	Runnable run(RunDTO runDTO);
 }

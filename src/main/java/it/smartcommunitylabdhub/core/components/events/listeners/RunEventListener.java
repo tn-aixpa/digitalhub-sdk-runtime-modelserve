@@ -35,7 +35,7 @@ public class RunEventListener {
         // This kindWorkflowFactory allow specific workflow generation based on task
         // field type
         workflows.add((Workflow) kindWorkflowFactory
-                .getWorkflow(runAccessor.getKind(), runAccessor.getPerform())
+                .getWorkflow(runAccessor.getRuntime(), runAccessor.getTask())
                 .build(message.getRunDTO()));
 
         // Create new run poller

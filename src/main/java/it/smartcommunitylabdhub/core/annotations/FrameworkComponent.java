@@ -13,12 +13,7 @@ import org.springframework.stereotype.Component;
 @Documented
 @Component
 public @interface FrameworkComponent {
-    String runtime(); // runtime can be dbt, nefertem, dss, kfp...
-
-    String task(); // define the task type that have to be executed by the framework for
-                   // a specific runtime
-
-    String name() default ""; // framework take care to create the component for the context
+    String framework(); // framework take care to create the component for the context
     // execution local, serve, deploy
 
 }

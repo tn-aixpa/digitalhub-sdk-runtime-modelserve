@@ -12,13 +12,13 @@ public abstract class K8sAbstractJobBuilder {
 	}
 
 	public String getJobName(RunDTO runDTO) {
-		return "job" + "-" + getRunAccessor(runDTO).getKind() + "-"
-				+ getRunAccessor(runDTO).getPerform() + "-" + runDTO.getId();
+		return "job" + "-" + getRunAccessor(runDTO).getRuntime() + "-"
+				+ getRunAccessor(runDTO).getTask() + "-" + runDTO.getId();
 	}
 
 	public String getContainerName(RunDTO runDTO) {
-		return "container-job-" + getRunAccessor(runDTO).getKind() + "-"
-				+ getRunAccessor(runDTO).getPerform() + "-" + runDTO.getId();
+		return "container-job-" + getRunAccessor(runDTO).getRuntime() + "-"
+				+ getRunAccessor(runDTO).getTask() + "-" + runDTO.getId();
 	}
 
 }

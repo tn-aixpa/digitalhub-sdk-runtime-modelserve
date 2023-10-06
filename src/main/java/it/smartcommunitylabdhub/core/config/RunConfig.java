@@ -7,6 +7,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.builder
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.BuilderFactory;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.Framework;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.FrameworkFactory;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.RunnerFactory;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.RuntimeFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
@@ -50,5 +52,11 @@ public class RunConfig {
     protected BuilderFactory builderFactory(
             List<Builder> builders) {
         return new BuilderFactory(builders);
+    }
+
+    @Bean
+    protected RunnerFactory runnerFactory(
+            List<Runner> runners) {
+        return new RunnerFactory(runners);
     }
 }
