@@ -25,6 +25,7 @@ public class DbtTransformRunner implements Runner {
 				.envs(Map.of(
 						"PROJECT_NAME", runDTO.getProject(),
 						"RUN_ID", runDTO.getId()))
+				.state(runDTO.getState())
 				.build();
 
 		k8sJobRunnable.setId(runDTO.getId());

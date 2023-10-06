@@ -5,12 +5,11 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.Framework;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.FrameworkFactory;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.RuntimeFactory;
@@ -46,9 +45,6 @@ public class RunSerivceImpl implements RunService {
     FunctionService functionService;
 
     @Autowired
-    FrameworkFactory frameworkFactory;
-
-    @Autowired
     RuntimeFactory runtimeFactory;
 
     @Autowired
@@ -59,6 +55,9 @@ public class RunSerivceImpl implements RunService {
 
     @Autowired
     RunEntityBuilder runEntityBuilder;
+
+    @Autowired
+    ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<RunDTO> getRuns(Pageable pageable) {
@@ -173,16 +172,12 @@ public class RunSerivceImpl implements RunService {
                                                 return Optional.ofNullable(runDTOBuilder.build(run))
                                                         .map(savedRun -> {
 
-                                                            // TODO: this is dispathed in asyn msg
                                                             Runnable runnable =
                                                                     runtime.run(savedRun);
 
+                                                            // Dispatch Runnable
+                                                            eventPublisher.publishEvent(runnable);
 
-                                                            // TODO: Move this on async event
-                                                            Framework<Runnable> framework =
-                                                                    frameworkFactory.getFramework(
-                                                                            runnable.framework());
-                                                            framework.execute(runnable);
 
                                                             return savedRun;
                                                         })

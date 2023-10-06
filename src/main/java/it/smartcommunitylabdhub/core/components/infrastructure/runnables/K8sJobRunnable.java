@@ -22,6 +22,8 @@ public class K8sJobRunnable extends BaseRunnable {
 
 	String command;
 
+	String state;
+
 	String[] args;
 
 	Map<String, String> envs;
