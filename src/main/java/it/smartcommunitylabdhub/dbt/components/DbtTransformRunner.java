@@ -1,9 +1,7 @@
 package it.smartcommunitylabdhub.dbt.components;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import io.fabric8.kubernetes.api.model.EnvVar;
 import it.smartcommunitylabdhub.core.annotations.RunnerComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;

@@ -2,25 +2,16 @@ package it.smartcommunitylabdhub.core.components.infrastructure.frameworks;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.batch.v1.Job;
 import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import it.smartcommunitylabdhub.core.annotations.FrameworkComponent;
-import it.smartcommunitylabdhub.core.components.fsm.StateMachine;
-import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
-import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
-import it.smartcommunitylabdhub.core.components.fsm.types.RunStateMachine;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.frameworks.Framework;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.runnables.K8sJobRunnable;
 import it.smartcommunitylabdhub.core.components.kubernetes.K8sJobBuilderHelper;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.dbt.components.runnables.events.messages.DbtKubernetesMessage;
 import lombok.extern.log4j.Log4j2;
 
 @FrameworkComponent(framework = "k8sjob")
