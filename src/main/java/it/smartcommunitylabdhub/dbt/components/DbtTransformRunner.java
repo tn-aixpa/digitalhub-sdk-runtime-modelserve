@@ -6,6 +6,8 @@ import it.smartcommunitylabdhub.core.annotations.RunnerComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
 import it.smartcommunitylabdhub.core.components.infrastructure.runnables.K8sJobRunnable;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 
 
@@ -15,9 +17,12 @@ public class DbtTransformRunner implements Runner {
 	@Override
 	public Runnable produce(RunDTO runDTO) {
 
+		RunAccessor runAccessor = RunUtils.parseRun(runDTO.getTask());
+
 		@SuppressWarnings("unchecked")
 		K8sJobRunnable k8sJobRunnable = K8sJobRunnable.builder()
-				.name((String) runDTO.getSpec().get("name"))
+				.runtime(runAccessor.getRuntime())
+				.task(runAccessor.getTask())
 				.image((String) runDTO.getSpec().get("image"))
 				.command((String) runDTO.getSpec().get("command"))
 				.args(((List<String>) runDTO.getSpec().get("args"))

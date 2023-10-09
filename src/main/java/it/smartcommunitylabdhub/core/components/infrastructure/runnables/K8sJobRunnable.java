@@ -16,7 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class K8sJobRunnable extends BaseRunnable {
 
-	String name;
+	String runtime;
+
+	String task;
 
 	String image;
 

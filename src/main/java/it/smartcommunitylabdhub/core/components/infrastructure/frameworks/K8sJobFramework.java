@@ -84,8 +84,9 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 		});
 
 		// Generate jobName and ContainerName
-		String jobName = getJobName(runnable.getName(), runnable.getId());
-		String containerName = getContainerName(runnable.getName(), runnable.getId());
+		String jobName = getJobName(runnable.getRuntime(), runnable.getTask(), runnable.getId());
+		String containerName =
+				getContainerName(runnable.getRuntime(), runnable.getTask(), runnable.getId());
 
 		// Build the Kubernetes Job configuration
 		Job job = new JobBuilder()
@@ -231,12 +232,13 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 	}
 
 	// Generate and return job name
-	private String getJobName(String name, String id) {
-		return "job" + "-" + name + "-" + id;
+	private String getJobName(String runtime, String task, String id) {
+		return "j" + "-" + runtime + "-" + task + "-" + id;
 	}
 
 	// Generate and return container name
-	private String getContainerName(String name, String id) {
-		return "container-job-" + name + "-" + id;
+	private String getContainerName(String runtime, String task, String id) {
+		return "c" + "-" + runtime + "-" + task + "-" + id;
 	}
+
 }
