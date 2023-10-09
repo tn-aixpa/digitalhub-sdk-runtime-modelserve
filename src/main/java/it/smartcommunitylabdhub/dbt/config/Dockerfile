@@ -18,9 +18,9 @@ RUN python -m pip install requests
 COPY create-user.sh /digitalhub-core/
 RUN chmod +x /digitalhub-core/create-user.sh
 
-COPY ./sdk ./sdk
-RUN chmod -R 775 /digitalhub-core/sdk
-RUN pip3 install ./sdk
+COPY ./sdk ./lib
+RUN chmod -R 775 /digitalhub-core/lib
+RUN pip3 install -e ./lib
 
 # Copy wrapper and set entry point
 COPY dbt_wrapper.py /digitalhub-core/

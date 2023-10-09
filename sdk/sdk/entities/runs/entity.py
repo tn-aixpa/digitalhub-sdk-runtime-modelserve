@@ -17,7 +17,7 @@ from sdk.entities.builders.status import build_status
 from sdk.entities.dataitems.crud import get_dataitem_from_key
 from sdk.runtimes.builder import build_runtime
 from sdk.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
-from sdk.utils.commons import FUNC, RUNS, TASK
+from sdk.utils.commons import FUNC, RUNS, TASK, DTIT, ARTF
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid
 
@@ -138,6 +138,21 @@ class Run(Entity):
         self._export_object(filename, obj)
 
     #############################
+    #  Context
+    #############################
+
+    def _context(self) -> Context:
+        """
+        Get context.
+
+        Returns
+        -------
+        Context
+            Context.
+        """
+        return get_context(self.metadata.project)
+
+    #############################
     #  Run Methods
     #############################
 
@@ -187,20 +202,21 @@ class Run(Entity):
         self.save(self.id)
         return self
 
-    def refresh(self) -> dict:
+    def refresh(self) -> Run:
         """
         Get run from backend.
 
         Returns
         -------
-        dict
-            Mapping representation of Run from backend.
+        Run
+            Run object.
         """
         if self._local:
             raise EntityError("Cannot refresh local run.")
 
         api = api_base_read(RUNS, self.id)
-        return self._context().read_object(api)
+        obj = self._context().read_object(api)
+        return self.from_dict(obj)
 
     def stop(self) -> dict:
         """
@@ -262,18 +278,7 @@ class Run(Entity):
         Artifact | list[Artifact]
             Artifact(s) from backend.
         """
-        resp = self.refresh()
-        result = resp.get("status", {}).get("artifacts")
-        if result is None:
-            raise EntityError("Run has no result (maybe try when it finishes).")
-        if output_key is not None:
-            key = next(
-                (r.get("id") for r in result if r.get("key") == output_key), None
-            )
-            if key is None:
-                raise EntityError(f"No artifact found with key '{output_key}'.")
-            return get_artifact_from_key(key)
-        return [get_artifact_from_key(r.get("id")) for r in result]
+        return self._get_objects(ARTF, get_artifact_from_key, output_key)
 
     def get_dataitem(self, output_key: str | None = None) -> Dataitem | list[Dataitem]:
         """
@@ -289,8 +294,39 @@ class Run(Entity):
         Dataitem | list[Dataitem]
             Dataitem(s) from backend.
         """
-        resp = self.refresh()
-        result = resp.get("status", {}).get("dataitems")
+        return self._get_objects(DTIT, get_dataitem_from_key, output_key)
+
+    def _get_objects(self, object_type: str, func: callable, output_key: str | None = None) -> list:
+        """
+        Get objects from backend produced by the run through its key.
+
+        Parameters
+        ----------
+        object_type : str
+            Type of the object to get.
+        func : callable
+            Function to get object from backend.
+        output_key : str
+            Key of the object to get. If not provided, returns all objects.
+
+        Returns
+        -------
+        list
+            Objects from backend.
+
+        Raises
+        ------
+        EntityError
+            If object type is not supported or if run has
+            no result or if object with key is not found.
+        """
+        self = self.from_dict(self.refresh())
+        if object_type == DTIT:
+            result = self.status.dataitems
+        elif object_type == ARTF:
+            result = self.status.artifacts
+        else:
+            raise EntityError(f"Object type '{object_type}' not supported.")
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
         if output_key is not None:
@@ -298,9 +334,9 @@ class Run(Entity):
                 (r.get("id") for r in result if r.get("key") == output_key), None
             )
             if key is None:
-                raise EntityError(f"No dataitem found with key '{output_key}'.")
-            return get_dataitem_from_key(key)
-        return [get_dataitem_from_key(r.get("id")) for r in result]
+                raise EntityError(f"No {object_type} found with key '{output_key}'.")
+            return func(key)
+        return [func(r.get("id")) for r in result]
 
     #############################
     #  Functions and Tasks
@@ -363,21 +399,6 @@ class Run(Entity):
         """
         fnc_kind = self._parse_task_string().function_kind
         return build_runtime(fnc_kind)
-
-    #############################
-    #  Context
-    #############################
-
-    def _context(self) -> Context:
-        """
-        Get context.
-
-        Returns
-        -------
-        Context
-            Context.
-        """
-        return get_context(self.metadata.project)
 
     #############################
     #  Getters and Setters
@@ -455,7 +476,7 @@ class Run(Entity):
 
         spec = obj.get("spec")
         spec = spec if spec is not None else {"task": task, "task_id": task_id}
-        spec = build_spec(RUNS, kind, **spec)
+        spec = build_spec(RUNS, kind, ignore_validation=True, **spec)
 
         status = obj.get("status")
         status = status if status is not None else {}
@@ -467,9 +488,6 @@ class Run(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
-            "project": project,
-            "task_id": task_id,
-            "task": task,
         }
 
 

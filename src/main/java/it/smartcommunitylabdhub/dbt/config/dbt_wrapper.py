@@ -12,17 +12,10 @@ def main():
     """
 
     project = sdk.get_project(os.getenv("PROJECT_NAME"))
-    run = sdk.get_run(project.name, os.getenv("RUN_ID"))
-    task = sdk.get_task(project.name, run.task_id)
-    func = sdk.get_function_from_task(task.task)
-
-    spec = {
-        **func.spec.to_dict(),
-        **task.spec.to_dict(),
-        **run.spec.to_dict(),
-    }
-
-    sdk.get_runtime(func.kind, spec, run.id, project.name).run()
+    run = sdk.get_run(project.metadata.name, os.getenv("RUN_ID"))
+    run.spec.local_execution = True
+    run.build()
+    run.run()
 
 if __name__ == "__main__":
     main()
