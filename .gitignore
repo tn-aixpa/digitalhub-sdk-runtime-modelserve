@@ -40,3 +40,5 @@ build/
 
 ### Sonar ###
 .scannerwork/
+
+/wrapper/sdk
