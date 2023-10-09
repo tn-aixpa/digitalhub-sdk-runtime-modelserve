@@ -107,6 +107,7 @@ class Run(Entity):
         obj["project"] = self.metadata.project
         obj["task_id"] = self.spec.task_id
         obj["task"] = self.spec.task
+        obj["local_execution"] = self.spec.local_execution
 
         if uuid is None:
             api = api_base_create(RUNS)
@@ -420,7 +421,7 @@ class Run(Entity):
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
-        _obj._local = _obj._context.local
+        _obj._local = _obj._context().local
         return _obj
 
     @staticmethod
@@ -527,7 +528,11 @@ def run_from_parameters(
     """
     uuid: str = build_uuid(uuid)
     kind: str = build_kind(RUNS, kind)
-    metadata: RunMetadata = build_metadata(RUNS, project=project, name=uuid)
+    metadata: RunMetadata = build_metadata(
+        RUNS,
+        project=project,
+        name=uuid,
+    )
     spec = build_spec(
         RUNS,
         kind,

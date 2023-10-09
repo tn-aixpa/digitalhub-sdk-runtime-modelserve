@@ -99,11 +99,11 @@ class Artifact(Entity):
 
         if uuid is None:
             api = api_ctx_create(self.metadata.project, ARTF)
-            return self._context()()().create_object(obj, api)
+            return self._context().create_object(obj, api)
 
         self.id = uuid
         api = api_ctx_update(self.metadata.project, ARTF, self.metadata.name, uuid)
-        return self._context()()().update_object(obj, api)
+        return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -125,6 +125,21 @@ class Artifact(Entity):
             else f"artifact_{self.metadata.project}_{self.metadata.name}.yaml"
         )
         self._export_object(filename, obj)
+
+    #############################
+    #  Context
+    #############################
+
+    def _context(self) -> Context:
+        """
+        Get context.
+
+        Returns
+        -------
+        Context
+            Context.
+        """
+        return get_context(self.metadata.project)
 
     #############################
     #  Artifacts Methods
@@ -226,21 +241,6 @@ class Artifact(Entity):
 
         # Upload artifact and return remote path
         return store.upload(src, trg)
-
-    #############################
-    #  Context
-    #############################
-
-    def _context(self) -> Context:
-        """
-        Get context.
-
-        Returns
-        -------
-        Context
-            Context.
-        """
-        return get_context(self.metadata.project)
 
     #############################
     #  Private Helpers
@@ -383,7 +383,7 @@ class Artifact(Entity):
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
-        _obj._local = _obj._context.local
+        _obj._local = _obj._context().local
         return _obj
 
     @staticmethod
@@ -443,7 +443,7 @@ class Artifact(Entity):
 def artifact_from_parameters(
     project: str,
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     key: str | None = None,
     src_path: str | None = None,
@@ -488,13 +488,7 @@ def artifact_from_parameters(
     """
     uuid = build_uuid(uuid)
     kind = build_kind(ARTF, kind)
-    key = (
-        key if key is not None else f"store://{project}/artifacts/{kind}/{name}:{uuid}"
-    )
-    spec = build_spec(
-        ARTF, kind, key=key, src_path=src_path, target_path=target_path, **kwargs
-    )
-    meta = build_metadata(
+    metadata = build_metadata(
         ARTF,
         project=project,
         name=name,
@@ -502,11 +496,22 @@ def artifact_from_parameters(
         description=description,
         embedded=embedded,
     )
+    key = (
+        key if key is not None else f"store://{project}/artifacts/{kind}/{name}:{uuid}"
+    )
+    spec = build_spec(
+        ARTF,
+        kind,
+        key=key,
+        src_path=src_path,
+        target_path=target_path,
+        **kwargs,
+    )
     status = build_status(ARTF)
     return Artifact(
         uuid=uuid,
         kind=kind,
-        metadata=meta,
+        metadata=metadata,
         spec=spec,
         status=status,
         local=local,

@@ -8,6 +8,7 @@ import typing
 from sdk.context.builder import get_context
 from sdk.entities.base.entity import Entity
 from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.metadata import build_metadata
 from sdk.entities.builders.spec import build_spec
 from sdk.entities.builders.status import build_status
 from sdk.entities.runs.crud import delete_run, get_run, new_run
@@ -17,9 +18,11 @@ from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.status import Status
+    from sdk.context.context import Context
     from sdk.entities.runs.entity import Run
+    from sdk.entities.tasks.metadata import TaskMetadata
     from sdk.entities.tasks.spec.objects.base import TaskSpec
+    from sdk.entities.tasks.status import TaskStatus
 
 
 class Task(Entity):
@@ -29,46 +32,41 @@ class Task(Entity):
 
     def __init__(
         self,
-        project: str,
-        function: str | None = None,
-        uuid: str | None = None,
-        kind: str | None = None,
-        spec: TaskSpec | None = None,
-        status: Status | None = None,
+        uuid: str,
+        kind: str,
+        metadata: TaskMetadata,
+        spec: TaskSpec,
+        status: TaskStatus,
         local: bool = False,
     ) -> None:
         """
-        Constructor.
+        Initialize the Task instance.
 
         Parameters
         ----------
-        project : str
-            Name of the project.
-        function : str
-            Function string.
         uuid : str
             UUID.
         kind : str
             Kind of the object.
+        metadata : TaskMetadata
+            Metadata of the object.
         spec : TaskSpec
             Specification of the object.
-        status : Status
+        status : TaskStatus
             State of the object.
-        local : bool
-            If True, run locally.
+        local: bool
+            If True, export locally.
         """
         super().__init__()
-        self.project = project
-        self.id = build_uuid(uuid=uuid)
-        self.function = function if function is not None else ""
+
+        self.id = uuid
         self.kind = kind
-        self.spec = spec if spec is not None else build_spec(TASK, self.kind, **{})
-        self.status = status if status is not None else build_status(TASK)
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
 
         # Private attributes
         self._local = local
-        self._obj_attr += ["function"]
-        self._context = get_context(self.project)
 
     #############################
     #  Save / Export
@@ -93,13 +91,17 @@ class Task(Entity):
 
         obj = self.to_dict()
 
+        # TODO: Remove this when backend is fixed
+        obj["project"] = self.metadata.project
+        obj["function"] = self.spec.function
+
         if uuid is None:
             api = api_base_create(TASK)
-            return self._context.create_object(obj, api)
+            return self._context().create_object(obj, api)
 
         self.id = uuid
         api = api_base_update(TASK, self.id)
-        return self._context.update_object(obj, api)
+        return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -117,6 +119,21 @@ class Task(Entity):
         obj = self.to_dict()
         filename = filename if filename is not None else f"task_{self.id}.yaml"
         self._export_object(filename, obj)
+
+    #############################
+    #  Context
+    #############################
+
+    def _context(self) -> Context:
+        """
+        Get context.
+
+        Returns
+        -------
+        Context
+            Context.
+        """
+        return get_context(self.metadata.project)
 
     #############################
     #  Task methods
@@ -149,6 +166,10 @@ class Task(Entity):
             Run object.
         """
         return self.new_run(
+            project=self.metadata.project,
+            task=self._get_task_string(),
+            task_id=self.id,
+            local=self._local,
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
@@ -164,7 +185,7 @@ class Task(Entity):
         str
             Task string.
         """
-        splitted = self.function.split("://")
+        splitted = self.spec.function.split("://")
         return f"{splitted[0]}+{self.kind}://{splitted[1]}"
 
     #############################
@@ -185,10 +206,6 @@ class Task(Entity):
         Run
             Run object.
         """
-        kwargs["project"] = self.project
-        kwargs["task_id"] = self.id
-        kwargs["task"] = self._get_task_string()
-        kwargs["local"] = self._local
         return new_run(**kwargs)
 
     def get_run(self, uuid: str) -> Run:
@@ -205,7 +222,7 @@ class Task(Entity):
         Run
             Run object.
         """
-        return get_run(self.project, uuid)
+        return get_run(self.metadata.project, uuid)
 
     def delete_run(self, uuid: str) -> None:
         """
@@ -220,7 +237,7 @@ class Task(Entity):
         -------
         None
         """
-        delete_run(self.project, uuid)
+        delete_run(self.metadata.project, uuid)
 
     #############################
     # Generic Methods
@@ -243,7 +260,7 @@ class Task(Entity):
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
-        _obj._local = _obj._context.local
+        _obj._local = _obj._context().local
         return _obj
 
     @staticmethod
@@ -264,28 +281,34 @@ class Task(Entity):
 
         # Mandatory fields
         project = obj.get("project")
-        function = obj.get("function")
-        if project is None or function is None:
-            raise EntityError("Project or function are not specified.")
+        if project is None:
+            raise EntityError("Project or name are not specified.")
 
-        # Optional fields
+        # Build UUID, kind, metadata, spec and status
+        uuid = obj.get("id")
+        uuid = build_uuid(uuid)
+
         kind = obj.get("kind")
         kind = build_kind(TASK, kind)
-        uuid = obj.get("id")
 
-        # Build spec, status
+        metadata = obj.get("metadata")
+        metadata = (
+            metadata if metadata is not None else {"project": project, "name": uuid}
+        )
+        metadata = build_metadata(TASK, **metadata)
+
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(TASK, kind=kind, **spec)
+
         status = obj.get("status")
         status = status if status is not None else {}
         status = build_status(TASK, **status)
 
         return {
-            "project": project,
-            "function": function,
-            "kind": kind,
             "uuid": uuid,
+            "kind": kind,
+            "metadata": metadata,
             "spec": spec,
             "status": status,
         }
@@ -324,7 +347,13 @@ def task_from_parameters(
     Task
         Task object.
     """
+    uuid = build_uuid(uuid)
     kind = build_kind(TASK, kind)
+    metadata = build_metadata(
+        TASK,
+        project=project,
+        name=uuid,
+    )
     spec = build_spec(
         TASK,
         kind,
@@ -333,13 +362,14 @@ def task_from_parameters(
         image=image,
         base_image=base_image,
     )
+    status = build_status(TASK)
     return Task(
-        project=project,
-        kind=kind,
-        function=function,
-        spec=spec,
-        local=local,
         uuid=uuid,
+        kind=kind,
+        metadata=metadata,
+        spec=spec,
+        status=status,
+        local=local,
     )
 
 

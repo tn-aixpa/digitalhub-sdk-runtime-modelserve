@@ -53,7 +53,7 @@ def create_workflow_from_dict(obj: dict) -> Workflow:
 def new_workflow(
     project: str,
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     test: str | None = None,
     local: bool = False,

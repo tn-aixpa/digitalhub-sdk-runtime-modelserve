@@ -23,7 +23,10 @@ class RunParams(BaseModel):
     """
 
     task: str | None = None
-    """The task associated with the run."""
+    """The task string associated with the run."""
+
+    task_id: str | None = None
+    """The task id associated with the run."""
 
     inputs: Objects | None = {}
     """List of input dataitems and artifacts names."""

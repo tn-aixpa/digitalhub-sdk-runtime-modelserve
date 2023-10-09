@@ -36,7 +36,7 @@ def create_project(**kwargs) -> Project:
 
 def new_project(
     name: str,
-    description: str = "",
+    description: str | None = None,
     context: str | None = None,
     source: str | None = None,
     local: bool = False,

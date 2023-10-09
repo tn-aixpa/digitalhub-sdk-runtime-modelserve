@@ -18,9 +18,10 @@ from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.status import Status
+    from sdk.context.context import Context
+    from sdk.entities.functions.metadata import FunctionMetadata
     from sdk.entities.functions.spec.objects.base import FunctionSpec
+    from sdk.entities.functions.status import FunctionStatus
     from sdk.entities.runs.entity import Run
     from sdk.entities.tasks.entity import Task
 
@@ -32,62 +33,42 @@ class Function(Entity):
 
     def __init__(
         self,
-        project: str,
-        name: str,
-        kind: str | None = None,
-        metadata: Metadata | None = None,
-        spec: FunctionSpec | None = None,
-        status: Status | None = None,
+        uuid: str,
+        kind: str,
+        metadata: FunctionMetadata,
+        spec: FunctionSpec,
+        status: FunctionStatus,
         local: bool = False,
-        embedded: bool = True,
-        uuid: str | None = None,
     ) -> None:
         """
         Initialize the Function instance.
 
         Parameters
         ----------
-        project : str
-            Name of the project.
-        name : str
-            Name of the object.
         uuid : str
             UUID.
         kind : str
             Kind of the object.
-        metadata : Metadata
+        metadata : FunctionMetadata
             Metadata of the object.
         spec : FunctionSpec
             Specification of the object.
-        status : Status
+        status : FunctionStatus
             State of the object.
         local: bool
             If True, export locally.
-        embedded: bool
-            If True, embed object in backend.
         """
         super().__init__()
-        self.project = project
-        self.name = name
-        self.id = build_uuid(uuid=uuid)
+
+        self.id = uuid
         self.kind = kind
-        self.metadata = (
-            metadata if metadata is not None else build_metadata(FUNC, project=project)
-        )
-        self.spec = spec if spec is not None else build_spec(FUNC, self.kind, **{})
-        self.status = (
-            status
-            if status is not None
-            else build_status(
-                FUNC,
-            )
-        )
-        self.embedded = embedded
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
 
         # Private attributes
         self._local = local
         self._tasks: dict[str, Task] = {}
-        self._context = get_context(self.project)
 
     #############################
     #  Save / Export
@@ -112,13 +93,18 @@ class Function(Entity):
 
         obj = self.to_dict(include_all_non_private=True)
 
+        # TODO: Remove this when backend is fixed
+        obj["project"] = self.metadata.project
+        obj["name"] = self.metadata.name
+        obj["embedded"] = self.metadata.embedded
+
         if uuid is None:
-            api = api_ctx_create(self.project, FUNC)
-            return self._context.create_object(obj, api)
+            api = api_ctx_create(self.metadata.project, FUNC)
+            return self._context().create_object(obj, api)
 
         self.id = uuid
-        api = api_ctx_update(self.project, FUNC, self.name, uuid)
-        return self._context.update_object(obj, api)
+        api = api_ctx_update(self.metadata.project, FUNC, self.metadata.name, uuid)
+        return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -137,9 +123,24 @@ class Function(Entity):
         filename = (
             filename
             if filename is not None
-            else f"function_{self.project}_{self.name}.yaml"
+            else f"function_{self.metadata.project}_{self.metadata.name}.yaml"
         )
         self._export_object(filename, obj)
+
+    #############################
+    #  Context
+    #############################
+
+    def _context(self) -> Context:
+        """
+        Get context.
+
+        Returns
+        -------
+        Context
+            Context.
+        """
+        return get_context(self.metadata.project)
 
     #############################
     #  Function Methods
@@ -213,7 +214,7 @@ class Function(Entity):
         str
             Function string.
         """
-        return f"{self.kind}://{self.project}/{self.name}:{self.id}"
+        return f"{self.kind}://{self.metadata.project}/{self.metadata.name}:{self.id}"
 
     #############################
     #  CRUD Methods for Tasks
@@ -233,7 +234,7 @@ class Function(Entity):
         Task
             New task.
         """
-        kwargs["project"] = self.project
+        kwargs["project"] = self.metadata.project
         kwargs["function"] = self._get_function_string()
         kwargs["local"] = self._local
         task = new_task(**kwargs)
@@ -263,7 +264,7 @@ class Function(Entity):
         self._raise_if_not_exists(kind)
 
         # Update kwargs
-        kwargs["project"] = self.project
+        kwargs["project"] = self.metadata.project
         kwargs["kind"] = kind
         kwargs["function"] = self._get_function_string()
         kwargs["local"] = self._local
@@ -315,7 +316,7 @@ class Function(Entity):
             If task is not created.
         """
         self._raise_if_not_exists(kind)
-        delete_task(self.project, self._tasks[kind].name)
+        delete_task(self.metadata.project, self._tasks[kind].name)
         self._tasks[kind] = None
 
     def _raise_if_not_exists(self, kind: str) -> None:
@@ -376,7 +377,7 @@ class Function(Entity):
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
-        _obj._local = _obj._context.local
+        _obj._local = _obj._context().local
         return _obj
 
     @staticmethod
@@ -401,38 +402,42 @@ class Function(Entity):
         if project is None or name is None:
             raise EntityError("Project or name are not specified.")
 
-        # Optional fields
+        # Build UUID, kind, metadata, spec and status
         uuid = obj.get("id")
+        uuid = build_uuid(uuid)
+
         kind = obj.get("kind")
         kind = build_kind(FUNC, kind)
-        embedded = obj.get("embedded")
 
-        # Build metadata, spec, status
+        metadata = obj.get("metadata")
+        metadata = (
+            metadata
+            if metadata is not None
+            else {"project": project, "name": name, "version": uuid}
+        )
+        metadata = build_metadata(FUNC, **metadata)
+
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(FUNC, kind=kind, **spec)
-        metadata = obj.get("metadata", {"name": name})
-        metadata = build_metadata(FUNC, **metadata)
+
         status = obj.get("status")
         status = status if status is not None else {}
         status = build_status(FUNC, **status)
 
         return {
-            "project": project,
-            "name": name,
-            "kind": kind,
             "uuid": uuid,
+            "kind": kind,
             "metadata": metadata,
             "spec": spec,
             "status": status,
-            "embedded": embedded,
         }
 
 
 def function_from_parameters(
     project: str,
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     source: str | None = None,
     image: str | None = None,
@@ -487,6 +492,7 @@ def function_from_parameters(
     Function
         Function object.
     """
+    uuid = build_uuid(uuid)
     kind = build_kind(FUNC, kind)
     spec = build_spec(
         FUNC,
@@ -500,7 +506,7 @@ def function_from_parameters(
         sql=sql,
         **kwargs,
     )
-    meta = build_metadata(
+    metadata = build_metadata(
         FUNC,
         project=project,
         name=name,
@@ -508,15 +514,14 @@ def function_from_parameters(
         description=description,
         embedded=embedded,
     )
+    status = build_status(FUNC)
     return Function(
-        project=project,
-        name=name,
-        kind=kind,
-        metadata=meta,
-        spec=spec,
-        local=local,
-        embedded=embedded,
         uuid=uuid,
+        kind=kind,
+        metadata=metadata,
+        spec=spec,
+        status=status,
+        local=local,
     )
 
 

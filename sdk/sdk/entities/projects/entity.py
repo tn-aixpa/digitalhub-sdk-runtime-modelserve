@@ -750,7 +750,7 @@ class Project(Entity):
 
         # Build UUID, kind, metadata, spec and status
         uuid = obj.get("id")
-        uuid = build_uuid(uuid=uuid)
+        uuid = build_uuid(uuid)
 
         kind = obj.get("kind")
         kind = build_kind(PROJ, kind)
@@ -782,7 +782,7 @@ class Project(Entity):
 
 def project_from_parameters(
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     context: str = "",
     source: str = "",
@@ -817,17 +817,27 @@ def project_from_parameters(
     Project
         Project object.
     """
-    uuid = build_uuid(uuid=uuid)
+    uuid = build_uuid(uuid)
     kind = build_kind(PROJ, kind)
-    spec = build_spec(PROJ, kind, context=context, source=source, **kwargs)
-    meta = build_metadata(
-        PROJ, project=name, name=name, version=uuid, description=description
+    spec = build_spec(
+        PROJ,
+        kind,
+        context=context,
+        source=source,
+        **kwargs,
+    )
+    metadata = build_metadata(
+        PROJ,
+        project=name,
+        name=name,
+        version=uuid,
+        description=description,
     )
     status = build_status(PROJ)
     return Project(
         uuid=uuid,
         kind=kind,
-        metadata=meta,
+        metadata=metadata,
         spec=spec,
         status=status,
         local=local,
