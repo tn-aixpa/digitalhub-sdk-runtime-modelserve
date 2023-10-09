@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 
 @Component
 public class FunctionToMlrunConverter implements Converter<FunctionDTO, Map<String, Object>> {
@@ -22,23 +22,31 @@ public class FunctionToMlrunConverter implements Converter<FunctionDTO, Map<Stri
                 return Stream.of(
                                 new AbstractMap.SimpleEntry<>("metadata",
                                                 Stream.of(
-                                                                new AbstractMap.SimpleEntry<>("name",
+                                                                new AbstractMap.SimpleEntry<>(
+                                                                                "name",
                                                                                 functionDTO.getName()),
-                                                                new AbstractMap.SimpleEntry<>("project",
+                                                                new AbstractMap.SimpleEntry<>(
+                                                                                "project",
                                                                                 functionDTO.getProject()),
                                                                 new AbstractMap.SimpleEntry<>("tag",
-                                                                                Optional.ofNullable(functionDTO
-                                                                                                .getExtra().get("tag"))
+                                                                                Optional.ofNullable(
+                                                                                                functionDTO
+                                                                                                                .getExtra()
+                                                                                                                .get("tag"))
                                                                                                 .orElse("")),
-                                                                new AbstractMap.SimpleEntry<>("categories",
-                                                                                Optional.ofNullable(functionDTO
-                                                                                                .getExtra()
-                                                                                                .get("categories"))
+                                                                new AbstractMap.SimpleEntry<>(
+                                                                                "categories",
+                                                                                Optional.ofNullable(
+                                                                                                functionDTO
+                                                                                                                .getExtra()
+                                                                                                                .get("categories"))
                                                                                                 .orElse(new ArrayList<>())))
-                                                                .filter(entry -> entry.getValue() != null) // exclude
-                                                                                                           // null
-                                                                                                           // values
-                                                                .collect(Collectors.toMap(Map.Entry::getKey,
+                                                                .filter(entry -> entry
+                                                                                .getValue() != null) // exclude
+                                                                                                     // null
+                                                                                                     // values
+                                                                .collect(Collectors.toMap(
+                                                                                Map.Entry::getKey,
                                                                                 Map.Entry::getValue))),
                                 new AbstractMap.SimpleEntry<>("kind", functionDTO.getKind()),
                                 new AbstractMap.SimpleEntry<>("spec", functionDTO.getSpec()))

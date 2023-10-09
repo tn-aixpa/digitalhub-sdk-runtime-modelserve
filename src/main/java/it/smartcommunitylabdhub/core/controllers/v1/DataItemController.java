@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.DataItemService;
 import jakarta.validation.Valid;
 
@@ -39,8 +39,8 @@ public class DataItemController {
     }
 
     @Operation(summary = "Create dataItem", description = "Create an dataItem and return")
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> createDataItem(@Valid @RequestBody DataItemDTO dataItemDTO) {
         return ResponseEntity.ok(this.dataItemService.createDataItem(dataItemDTO));
     }
@@ -53,8 +53,8 @@ public class DataItemController {
     }
 
     @Operation(summary = "Update specific dataItem", description = "Update and return the dataItem")
-    @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PutMapping(path = "/{uuid}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<DataItemDTO> updateDataItem(@Valid @RequestBody DataItemDTO dataItemDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.dataItemService.updateDataItem(dataItemDTO, uuid));

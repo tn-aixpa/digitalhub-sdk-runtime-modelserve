@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -22,7 +22,8 @@ public class WorkflowDTOBuilder {
                                 .with(dto -> dto.setProject(workflow.getProject()))
                                 .with(dto -> dto.setName(workflow.getName()))
 
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(workflow.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(workflow.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
@@ -30,7 +31,8 @@ public class WorkflowDTOBuilder {
                                                                                 workflow.getSpec(),
 
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(workflow.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(workflow.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
@@ -38,31 +40,36 @@ public class WorkflowDTOBuilder {
                                                                                 workflow.getExtra(),
 
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(workflow.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(workflow.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setCreated(workflow.getCreated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(workflow.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(workflow.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setUpdated(workflow.getUpdated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(workflow.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(workflow.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setEmbedded(workflow.getEmbedded())))
+                                                                .setEmbedded(workflow
+                                                                                .getEmbedded())))
                                 .withIfElse(embeddable, (dto, condition) ->
 
                                 Optional.ofNullable(workflow.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setState(workflow.getState() == null
-                                                                                ? State.CREATED.name()
-                                                                                : workflow.getState()
-                                                                                                .name())))
+                                                                .setState(workflow
+                                                                                .getState() == null
+                                                                                                ? State.CREATED.name()
+                                                                                                : workflow.getState()
+                                                                                                                .name())))
 
                 );
         }

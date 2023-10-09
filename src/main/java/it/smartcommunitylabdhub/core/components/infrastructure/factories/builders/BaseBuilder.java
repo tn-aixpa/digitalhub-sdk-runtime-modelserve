@@ -2,7 +2,7 @@ package it.smartcommunitylabdhub.core.components.infrastructure.factories.builde
 
 
 import java.util.Map;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
 public class BaseBuilder {

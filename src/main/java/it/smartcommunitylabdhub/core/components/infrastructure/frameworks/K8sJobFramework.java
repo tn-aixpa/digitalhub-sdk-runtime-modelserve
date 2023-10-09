@@ -25,8 +25,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.runnables.K8sJobR
 import it.smartcommunitylabdhub.core.components.kubernetes.EventPrinter;
 import it.smartcommunitylabdhub.core.components.kubernetes.K8sJobBuilderHelper;
 import it.smartcommunitylabdhub.core.models.builders.entities.LogEntityBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import lombok.extern.log4j.Log4j2;
@@ -91,7 +91,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 		// Create labels for job
 		Map<String, String> labels = Map.of(
 				"app.kubernetes.io/instance", "dhcore-" + jobName,
-				"app.kubernetes.io/version", runnable.getId(),
+				"app.kubernetes.io/version", "0.0.3",
 				"app.kubernetes.io/component", "job",
 				"app.kubernetes.io/part-of", "dhcore-k8sjob",
 				"app.kubernetes.io/managed-by", "dhcore");
@@ -123,6 +123,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 		Job jobResult = kubernetesClient.resource(job).inNamespace(namespace).create();
 
 
+		// TODO: change this part as a poller instead of a watcher using kubeclient and jobId
 		// Initialize the run state machine considering current state and context
 		StateMachine<RunState, RunEvent, Map<String, Object>> fsm = runStateMachine
 				.create(RunState.valueOf(runnable.getState()),
@@ -197,8 +198,8 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 		// every watcher is on @Async method.
 		kubernetesClient.batch().v1().jobs().inNamespace(namespace)
 				.withName(jobName)
-				.waitUntilCondition(pod -> pod.getStatus().getSucceeded() != null
-						&& pod.getStatus().getSucceeded() > 0, 8L, TimeUnit.HOURS);
+				.waitUntilCondition(j -> j.getStatus().getSucceeded() != null
+						&& j.getStatus().getSucceeded() > 0, 8L, TimeUnit.HOURS);
 
 		// Get job execution logs
 		String jobLogs =

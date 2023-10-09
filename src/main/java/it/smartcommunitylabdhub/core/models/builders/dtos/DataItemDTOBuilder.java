@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -20,7 +20,8 @@ public class DataItemDTOBuilder {
                                 .with(dto -> dto.setProject(dataItem.getProject()))
                                 .with(dto -> dto.setName(dataItem.getName()))
 
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(dataItem.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(dataItem.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
@@ -28,7 +29,8 @@ public class DataItemDTOBuilder {
                                                                                 dataItem.getSpec(),
 
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(dataItem.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(dataItem.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
@@ -36,31 +38,36 @@ public class DataItemDTOBuilder {
                                                                                 dataItem.getExtra(),
 
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(dataItem.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(dataItem.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setCreated(dataItem.getCreated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(dataItem.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(dataItem.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setUpdated(dataItem.getUpdated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(dataItem.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(dataItem.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setEmbedded(dataItem.getEmbedded())))
+                                                                .setEmbedded(dataItem
+                                                                                .getEmbedded())))
                                 .withIfElse(embeddable, (dto, condition) ->
 
                                 Optional.ofNullable(dataItem.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setState(dataItem.getState() == null
-                                                                                ? State.CREATED.name()
-                                                                                : dataItem.getState()
-                                                                                                .name()))
+                                                                .setState(dataItem
+                                                                                .getState() == null
+                                                                                                ? State.CREATED.name()
+                                                                                                : dataItem.getState()
+                                                                                                                .name()))
 
                                 ));
         }

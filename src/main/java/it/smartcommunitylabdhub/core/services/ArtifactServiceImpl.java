@@ -14,8 +14,8 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.ArtifactDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.ArtifactEntityBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 
@@ -95,7 +95,8 @@ public class ArtifactServiceImpl implements ArtifactService {
         return artifactRepository.findById(uuid)
                 .map(artifact -> {
                     try {
-                        Artifact artifactUpdated = artifactEntityBuilder.update(artifact, artifactDTO);
+                        Artifact artifactUpdated =
+                                artifactEntityBuilder.update(artifact, artifactDTO);
                         artifactRepository.save(artifactUpdated);
                         return artifactDTOBuilder.build(artifactUpdated, false);
                     } catch (CustomException e) {

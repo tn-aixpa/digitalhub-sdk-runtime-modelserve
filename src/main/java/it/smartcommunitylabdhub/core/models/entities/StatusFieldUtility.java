@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.dtos.utils;
+package it.smartcommunitylabdhub.core.models.entities;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -39,11 +39,14 @@ public class StatusFieldUtility {
 
             if (extra.containsKey("status")) {
                 Map<String, Object> statusMap = (Map<String, Object>) extra.get("status");
-                if (statusMap.containsKey("state")) {
-                    stateField.set(dto, statusMap.get("state").toString().toUpperCase());
-                } else {
-                    if (statusMap.isEmpty()) {
-                        extra.remove("status");
+                if (statusMap != null && statusMap.containsKey("state")) {
+                    Object stateValue = statusMap.get("state");
+                    if (stateValue != null) {
+                        stateField.set(dto, stateValue.toString().toUpperCase());
+                    } else {
+                        if (statusMap.isEmpty()) {
+                            extra.remove("status");
+                        }
                     }
                 }
             }

@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
-import it.smartcommunitylabdhub.core.models.entities.Task;
+import it.smartcommunitylabdhub.core.models.entities.task.Task;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component

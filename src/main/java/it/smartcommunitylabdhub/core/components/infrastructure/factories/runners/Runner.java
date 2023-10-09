@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.factories.runners;
 
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 
 
 /**

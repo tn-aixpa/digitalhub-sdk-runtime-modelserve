@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.entities.Run;
+import it.smartcommunitylabdhub.core.models.entities.run.Run;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 
 @Component
 public class RunEntityBuilder {
@@ -21,17 +21,18 @@ public class RunEntityBuilder {
                                 ConversionUtils.convert(runDTO, "run"), runDTO,
                                 builder -> builder
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(runDTO.getExtra(),
+                                                                ConversionUtils.convert(
+                                                                                runDTO.getExtra(),
                                                                                 "cbor")))
                                                 .with(f -> f.setSpec(
-                                                                ConversionUtils.convert(runDTO.getSpec(),
+                                                                ConversionUtils.convert(
+                                                                                runDTO.getSpec(),
                                                                                 "cbor"))));
 
         }
 
         /**
-         * Update a Run
-         * if element is not passed it override causing empty field
+         * Update a Run if element is not passed it override causing empty field
          * 
          * @param run
          * @return
@@ -45,13 +46,16 @@ public class RunEntityBuilder {
                                                 .with(f -> f.setTask(runDTO.getTask()))
                                                 .with(f -> f.setState(runDTO.getState() == null
                                                                 ? RunState.CREATED
-                                                                : RunState.valueOf(runDTO.getState())))
+                                                                : RunState.valueOf(
+                                                                                runDTO.getState())))
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(runDTO.getExtra(),
+                                                                ConversionUtils.convert(
+                                                                                runDTO.getExtra(),
 
                                                                                 "cbor")))
                                                 .with(f -> f.setSpec(
-                                                                ConversionUtils.convert(runDTO.getSpec(),
+                                                                ConversionUtils.convert(
+                                                                                runDTO.getSpec(),
 
                                                                                 "cbor"))));
         }

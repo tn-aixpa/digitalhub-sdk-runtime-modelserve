@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.ProjectDTO;
-import it.smartcommunitylabdhub.core.models.entities.Artifact;
-import it.smartcommunitylabdhub.core.models.entities.Function;
-import it.smartcommunitylabdhub.core.models.entities.Project;
-import it.smartcommunitylabdhub.core.models.entities.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.project.Project;
+import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -38,8 +38,9 @@ public class ProjectDTOBuilder {
                                 .with(dto -> dto.setName(project.getName()))
                                 .with(dto -> dto.setDescription(project.getDescription()))
                                 .with(dto -> dto.setSource(project.getSource()))
-                                .with(dto -> dto.setState(project.getState() == null ? State.CREATED.name()
-                                                : project.getState().name()))
+                                .with(dto -> dto.setState(
+                                                project.getState() == null ? State.CREATED.name()
+                                                                : project.getState().name()))
                                 .with(dto -> dto.setExtra(ConversionUtils.reverse(
                                                 project.getExtra(),
                                                 "cbor")))
@@ -51,7 +52,8 @@ public class ProjectDTOBuilder {
                                                                 .collect(Collectors.toList())))
                                 .with(dto -> dto.setArtifacts(
                                                 artifacts.stream()
-                                                                .map(a -> artifactDTOBuilder.build(a,
+                                                                .map(a -> artifactDTOBuilder.build(
+                                                                                a,
                                                                                 embeddable))
                                                                 .collect(Collectors.toList())))
                                 .with(dto -> dto.setWorkflows(

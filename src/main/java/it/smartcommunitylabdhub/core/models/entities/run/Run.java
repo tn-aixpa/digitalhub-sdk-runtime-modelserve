@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities;
+package it.smartcommunitylabdhub.core.models.entities.run;
 
 import java.util.Date;
 import java.util.UUID;
@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import it.smartcommunitylabdhub.core.models.enums.State;
+import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,18 +22,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Builder
 @Entity
-@Table(name = "functions")
-public class Function implements BaseEntity {
+@Table(name = "runs")
+public class Run implements BaseEntity {
 
     @Id
     @Column(unique = true)
     private String id;
+
+    @Column(nullable = false)
+    // COMMENT: {kind}+{action}://{project_name}/{function_name}:{version(uuid)} action can be
+    // 'build', 'other...'
+    private String task;
 
     @Column(nullable = false)
     private String kind;
@@ -41,8 +46,8 @@ public class Function implements BaseEntity {
     @Column(nullable = false)
     private String project;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(nullable = false, name = "task_id")
+    private String taskId;
 
     @Lob
     private byte[] spec;
@@ -57,10 +62,8 @@ public class Function implements BaseEntity {
     @UpdateTimestamp
     private Date updated;
 
-    private Boolean embedded;
-
     @Enumerated(EnumType.STRING)
-    private State state;
+    private RunState state;
 
     @PrePersist
     public void prePersist() {
@@ -68,5 +71,4 @@ public class Function implements BaseEntity {
             this.id = UUID.randomUUID().toString();
         }
     }
-
 }

@@ -16,8 +16,8 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
-import it.smartcommunitylabdhub.core.models.entities.Task;
+import it.smartcommunitylabdhub.core.models.entities.task.Task;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 

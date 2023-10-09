@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import it.smartcommunitylabdhub.core.models.entities.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 
 public interface DataItemRepository extends JpaRepository<DataItem, String> {
 
@@ -22,15 +21,19 @@ public interface DataItemRepository extends JpaRepository<DataItem, String> {
         // CONTEXT SPECIFIC QUERY //
         ////////////////////////////
 
-        Page<DataItem> findAllByProjectAndNameOrderByCreatedDesc(String project, String name, Pageable pageable);
+        Page<DataItem> findAllByProjectAndNameOrderByCreatedDesc(String project, String name,
+                        Pageable pageable);
 
-        @Query("SELECT a FROM DataItem a WHERE a.project = :project AND (a.name, a.project, a.created) IN " +
+        @Query("SELECT a FROM DataItem a WHERE a.project = :project AND (a.name, a.project, a.created) IN "
+                        +
                         "(SELECT a2.name, a2.project, MAX(a2.created) FROM DataItem a2 WHERE a2.project = :project GROUP BY a2.name, a2.project) "
                         +
                         "ORDER BY a.created DESC")
-        Page<DataItem> findAllLatestDataItemsByProject(@Param("project") String project, Pageable pageable);
+        Page<DataItem> findAllLatestDataItemsByProject(@Param("project") String project,
+                        Pageable pageable);
 
-        Optional<DataItem> findByProjectAndNameAndId(@Param("project") String project, @Param("name") String name,
+        Optional<DataItem> findByProjectAndNameAndId(@Param("project") String project,
+                        @Param("name") String name,
                         @Param("id") String id);
 
         @Query("SELECT a FROM DataItem a WHERE a.project = :project AND a.name = :name " +
@@ -42,7 +45,8 @@ public interface DataItemRepository extends JpaRepository<DataItem, String> {
 
         @Modifying
         @Query("DELETE FROM DataItem a WHERE a.project = :project AND a.name = :name AND a.id = :id")
-        void deleteByProjectAndNameAndId(@Param("project") String project, @Param("name") String name,
+        void deleteByProjectAndNameAndId(@Param("project") String project,
+                        @Param("name") String name,
                         @Param("id") String id);
 
         boolean existsByProjectAndName(String project, String name);

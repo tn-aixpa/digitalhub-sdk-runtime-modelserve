@@ -23,7 +23,7 @@ import it.smartcommunitylabdhub.core.components.workflows.functions.BaseWorkflow
 import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import lombok.extern.log4j.Log4j2;
 
@@ -54,35 +54,54 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                         HttpEntity<String> entity = new HttpEntity<>(headers);
 
                         return functionService.getAllLatestFunctions().stream()
-                                        .filter(function -> function.getKind().equals("job")).map(function -> {
-                                                String requestUrl = url.replace("{project}", function.getProject())
-                                                                .replace("{function}", function.getName());
+                                        .filter(function -> function.getKind().equals("job"))
+                                        .map(function -> {
+                                                String requestUrl = url
+                                                                .replace("{project}", function
+                                                                                .getProject())
+                                                                .replace("{function}",
+                                                                                function.getName());
 
                                                 try {
-                                                        ResponseEntity<Map<String, Object>> response = restTemplate
-                                                                        .exchange(requestUrl, HttpMethod.GET, entity,
-                                                                                        responseType);
+                                                        ResponseEntity<Map<String, Object>> response =
+                                                                        restTemplate
+                                                                                        .exchange(requestUrl,
+                                                                                                        HttpMethod.GET,
+                                                                                                        entity,
+                                                                                                        responseType);
 
-                                                        return Optional.ofNullable(response.getBody()).map(body -> {
-                                                                FunctionFieldAccessor mlrunFunctionAccessor = FunctionKind
-                                                                                .valueOf(function.getKind()
-                                                                                                .toUpperCase())
-                                                                                .createAccessor((Map<String, Object>) body
-                                                                                                .get("func"));
+                                                        return Optional.ofNullable(
+                                                                        response.getBody())
+                                                                        .map(body -> {
+                                                                                FunctionFieldAccessor mlrunFunctionAccessor =
+                                                                                                FunctionKind
+                                                                                                                .valueOf(function
+                                                                                                                                .getKind()
+                                                                                                                                .toUpperCase())
+                                                                                                                .createAccessor((Map<String, Object>) body
+                                                                                                                                .get("func"));
 
-                                                                if (!mlrunFunctionAccessor.getHash().equals(Optional
-                                                                                .ofNullable(function.getExtra()
-                                                                                                .get("mlrun_hash"))
-                                                                                .orElse(""))) {
-                                                                        // Function need to be updated in mlrun
-                                                                        return function;
-                                                                }
-                                                                return null;
-                                                        }).orElseGet(() -> null);
+                                                                                if (!mlrunFunctionAccessor
+                                                                                                .getHash()
+                                                                                                .equals(Optional
+                                                                                                                .ofNullable(function
+                                                                                                                                .getExtra()
+                                                                                                                                .get("mlrun_hash"))
+                                                                                                                .orElse(""))) {
+                                                                                        // Function
+                                                                                        // need to
+                                                                                        // be
+                                                                                        // updated
+                                                                                        // in mlrun
+                                                                                        return function;
+                                                                                }
+                                                                                return null;
+                                                                        }).orElseGet(() -> null);
 
                                                 } catch (HttpClientErrorException e) {
                                                         log.error(e.getMessage());
-                                                        HttpStatusCode statusCode = e.getStatusCode();
+                                                        HttpStatusCode statusCode =
+                                                                        e.getStatusCode();
                                                         if (statusCode.is4xxClientError()) {
                                                                 // Function will be created on mlrun
                                                                 return function;
@@ -103,44 +122,61 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
 
                         return functions.stream().map(function -> {
                                 try {
-                                        String requestUrl = functionUrl.replace("{project}", function.getProject())
+                                        String requestUrl = functionUrl
+                                                        .replace("{project}", function.getProject())
                                                         .replace("{function}", function.getName());
 
                                         // Convert function DTO into Map<String, Object>
-                                        Map<String, Object> requestBody = ConversionUtils.convert(function,
-                                                        "mlrunFunction");
+                                        Map<String, Object> requestBody =
+                                                        ConversionUtils.convert(function,
+                                                                        "mlrunFunction");
 
                                         // Compose request
-                                        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+                                        HttpEntity<Map<String, Object>> entity =
+                                                        new HttpEntity<>(requestBody, headers);
 
                                         // Get response
-                                        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(requestUrl,
-                                                        HttpMethod.POST, entity, responseType);
+                                        ResponseEntity<Map<String, Object>> response =
+                                                        restTemplate.exchange(requestUrl,
+                                                                        HttpMethod.POST, entity,
+                                                                        responseType);
 
                                         if (response.getStatusCode().is2xxSuccessful()) {
 
                                                 // Set mlrun -> core : hash
                                                 Optional.ofNullable(response.getBody())
-                                                                .ifPresent(b -> function.setExtra("mlrun_hash",
-                                                                                Optional.ofNullable(b.get("hash_key"))
+                                                                .ifPresent(b -> function.setExtra(
+                                                                                "mlrun_hash",
+                                                                                Optional.ofNullable(
+                                                                                                b.get("hash_key"))
                                                                                                 .orElse("")));
 
                                                 // Set mlrun -> core : status
-                                                ResponseEntity<Map<String, Object>> funcResponse = restTemplate
-                                                                .exchange(requestUrl, HttpMethod.GET, entity,
-                                                                                responseType);
+                                                ResponseEntity<Map<String, Object>> funcResponse =
+                                                                restTemplate
+                                                                                .exchange(requestUrl,
+                                                                                                HttpMethod.GET,
+                                                                                                entity,
+                                                                                                responseType);
 
-                                                Optional.ofNullable(funcResponse.getBody()).ifPresent(body -> {
-                                                        FunctionFieldAccessor mlrunFunctionAccessor = FunctionKind
-                                                                        .valueOf(function.getKind().toUpperCase())
-                                                                        .createAccessor((Map<String, Object>) body
-                                                                                        .get("func"));
+                                                Optional.ofNullable(funcResponse.getBody())
+                                                                .ifPresent(body -> {
+                                                                        FunctionFieldAccessor mlrunFunctionAccessor =
+                                                                                        FunctionKind
+                                                                                                        .valueOf(function
+                                                                                                                        .getKind()
+                                                                                                                        .toUpperCase())
+                                                                                                        .createAccessor((Map<String, Object>) body
+                                                                                                                        .get("func"));
 
-                                                        function.setExtra("status", mlrunFunctionAccessor.getStatus());
-                                                });
+                                                                        function.setExtra("status",
+                                                                                        mlrunFunctionAccessor
+                                                                                                        .getStatus());
+                                                                });
 
                                                 // Update our function
-                                                return functionService.updateFunction(function, function.getId());
+                                                return functionService.updateFunction(function,
+                                                                function.getId());
                                         }
                                         return null;
                                 } catch (HttpClientErrorException ex) {
@@ -153,35 +189,32 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                 /*
                  * // COMMENT: Update project with function in mlrun
                  * 
-                 * @SuppressWarnings("unchecked") Function<List<FunctionDTO>, Object>
-                 * updateProject = functions -> { HttpHeaders headers = new HttpHeaders();
+                 * @SuppressWarnings("unchecked") Function<List<FunctionDTO>, Object> updateProject
+                 * = functions -> { HttpHeaders headers = new HttpHeaders();
                  * headers.setContentType(MediaType.APPLICATION_JSON);
                  * 
                  * functions.stream().forEach(function -> { try { String requestUrl = projectUrl
                  * .replace("{project}", function.getProject());
                  * 
                  * // Get the project HttpEntity<String> entityGet = new HttpEntity<>(headers);
-                 * ResponseEntity<Map<String, Object>> response = restTemplate
-                 * .exchange(requestUrl, HttpMethod.GET, entityGet, responseType);
+                 * ResponseEntity<Map<String, Object>> response = restTemplate .exchange(requestUrl,
+                 * HttpMethod.GET, entityGet, responseType);
                  * 
-                 * Optional.ofNullable(response.getBody()).ifPresent(body -> {
-                 * ProjectFieldAccessor projectFieldAccessor = ProjectKind.MLRUN
-                 * .createAccessor(body);
+                 * Optional.ofNullable(response.getBody()).ifPresent(body -> { ProjectFieldAccessor
+                 * projectFieldAccessor = ProjectKind.MLRUN .createAccessor(body);
                  * 
                  * FunctionKind functionKind = FunctionKind.valueOf(
-                 * function.getKind().toUpperCase()); FunctionFieldAccessor
-                 * functionFieldAccessor = functionKind
-                 * .createAccessor(ConversionUtils.convert(function, "mlrunFunction"));
+                 * function.getKind().toUpperCase()); FunctionFieldAccessor functionFieldAccessor =
+                 * functionKind .createAccessor(ConversionUtils.convert(function, "mlrunFunction"));
                  * 
                  * // Create a new function into project Map<String, Object> newFunction =
                  * Stream.of( new AbstractMap.SimpleEntry<>("url", functionKind.invokeMethod(
-                 * functionFieldAccessor, "getCodeOrigin")), new
-                 * AbstractMap.SimpleEntry<>("name", functionFieldAccessor.getName()), new
-                 * AbstractMap.SimpleEntry<>("kind", functionFieldAccessor.getKind()), new
-                 * AbstractMap.SimpleEntry<>("image", functionFieldAccessor.getImage()), new
-                 * AbstractMap.SimpleEntry<>("handler", functionFieldAccessor
-                 * .getDefaultHandler())) .filter(entry -> entry.getValue() != null) // exclude
-                 * // null // values .collect(Collectors.toMap(Map.Entry::getKey,
+                 * functionFieldAccessor, "getCodeOrigin")), new AbstractMap.SimpleEntry<>("name",
+                 * functionFieldAccessor.getName()), new AbstractMap.SimpleEntry<>("kind",
+                 * functionFieldAccessor.getKind()), new AbstractMap.SimpleEntry<>("image",
+                 * functionFieldAccessor.getImage()), new AbstractMap.SimpleEntry<>("handler",
+                 * functionFieldAccessor .getDefaultHandler())) .filter(entry -> entry.getValue() !=
+                 * null) // exclude // null // values .collect(Collectors.toMap(Map.Entry::getKey,
                  * Map.Entry::getValue));
                  * 
                  * ((List<Map<String, Object>>) projectFieldAccessor
@@ -194,14 +227,15 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
                  * 
                  * });
                  * 
-                 * } catch (HttpClientErrorException ex) { System.out.println(ex.getMessage());
-                 * } });
+                 * } catch (HttpClientErrorException ex) { System.out.println(ex.getMessage()); }
+                 * });
                  * 
                  * return null; };
                  */
 
                 // Define workflow steps
-                return WorkflowFactory.builder().step(compareMlrunCoreFunctions, functionUrl).step(storeFunctions)
+                return WorkflowFactory.builder().step(compareMlrunCoreFunctions, functionUrl)
+                                .step(storeFunctions)
                                 .build();
 
                 // .step(updateProject)

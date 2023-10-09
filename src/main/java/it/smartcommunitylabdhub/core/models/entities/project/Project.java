@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities;
+package it.smartcommunitylabdhub.core.models.entities.project;
 
 import java.util.Date;
 import java.util.UUID;
@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
+import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,29 +22,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "artifacts")
-public class Artifact implements BaseEntity {
+@Table(name = "projects")
+public class Project implements BaseEntity {
+
     @Id
     @Column(unique = true)
     private String id;
 
-    @Column(nullable = false)
-    private String kind;
-
-    @Column(nullable = false)
-    private String project;
-
-    @Column(nullable = false)
+    @Column(unique = true)
     private String name;
 
-    @Lob
-    private byte[] spec;
+    private String description;
+
+    private String source;
 
     @Lob
     private byte[] extra;
@@ -56,10 +52,8 @@ public class Artifact implements BaseEntity {
     @UpdateTimestamp
     private Date updated;
 
-    private Boolean embedded;
-
     @Enumerated(EnumType.STRING)
-    private ArtifactState state;
+    private State state;
 
     @PrePersist
     public void prePersist() {
@@ -67,5 +61,4 @@ public class Artifact implements BaseEntity {
             this.id = UUID.randomUUID().toString();
         }
     }
-
 }

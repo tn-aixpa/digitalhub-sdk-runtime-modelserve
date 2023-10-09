@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.dtos;
+package it.smartcommunitylabdhub.core.models.entities.run;
 
 import java.lang.reflect.Field;
 import java.util.Date;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
+import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 
 import java.util.HashMap;
@@ -62,8 +62,10 @@ public class RunDTO implements BaseEntity {
 
     @JsonAnySetter
     public void setExtra(String key, Object value) {
-        extra.put(key, value);
-        StatusFieldUtility.updateStateField(this);
+        if (value != null) {
+            extra.put(key, value);
+            StatusFieldUtility.updateStateField(this);
+        }
     }
 
     public void overrideFields(RunDTO runDTO) {

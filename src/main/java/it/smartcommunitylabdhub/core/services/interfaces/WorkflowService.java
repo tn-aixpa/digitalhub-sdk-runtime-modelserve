@@ -1,8 +1,7 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 
 @Component
 public class ArtifactDTOBuilder {
@@ -20,46 +20,53 @@ public class ArtifactDTOBuilder {
                                 .with(dto -> dto.setProject(artifact.getProject()))
                                 .with(dto -> dto.setName(artifact.getName()))
 
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(artifact.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setSpec(ConversionUtils.reverse(
                                                                                 artifact.getSpec(),
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(artifact.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setExtra(ConversionUtils.reverse(
                                                                                 artifact.getExtra(),
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(artifact.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setCreated(artifact.getCreated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(artifact.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setUpdated(artifact.getUpdated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(artifact.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(artifact.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setEmbedded(artifact.getEmbedded())))
+                                                                .setEmbedded(artifact
+                                                                                .getEmbedded())))
                                 .withIfElse(embeddable, (dto, condition) ->
 
                                 Optional.ofNullable(artifact.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setState(artifact.getState() == null
-                                                                                ? ArtifactState.CREATED
-                                                                                                .name()
-                                                                                : artifact.getState()
-                                                                                                .name()))
+                                                                .setState(artifact
+                                                                                .getState() == null
+                                                                                                ? ArtifactState.CREATED
+                                                                                                                .name()
+                                                                                                : artifact.getState()
+                                                                                                                .name()))
 
                                 )
 

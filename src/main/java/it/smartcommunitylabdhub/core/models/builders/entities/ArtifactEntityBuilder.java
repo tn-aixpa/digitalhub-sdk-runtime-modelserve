@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 
 @Component
 public class ArtifactEntityBuilder {
@@ -21,19 +21,20 @@ public class ArtifactEntityBuilder {
                                 ConversionUtils.convert(artifactDTO, "artifact"), artifactDTO,
                                 builder -> builder
                                                 .with(a -> a.setExtra(
-                                                                ConversionUtils.convert(artifactDTO.getExtra(),
+                                                                ConversionUtils.convert(artifactDTO
+                                                                                .getExtra(),
 
                                                                                 "cbor")))
                                                 .with(a -> a.setSpec(
-                                                                ConversionUtils.convert(artifactDTO.getSpec(),
+                                                                ConversionUtils.convert(artifactDTO
+                                                                                .getSpec(),
 
                                                                                 "cbor"))));
 
         }
 
         /**
-         * Update a artifact
-         * if element is not passed it override causing empty field
+         * Update a artifact if element is not passed it override causing empty field
          * 
          * @param artifact
          * @return
@@ -48,13 +49,16 @@ public class ArtifactEntityBuilder {
                                                                 : ArtifactState.valueOf(
                                                                                 artifactDTO.getState())))
                                                 .with(a -> a.setExtra(
-                                                                ConversionUtils.convert(artifactDTO.getExtra(),
+                                                                ConversionUtils.convert(artifactDTO
+                                                                                .getExtra(),
 
                                                                                 "cbor")))
                                                 .with(a -> a.setSpec(
-                                                                ConversionUtils.convert(artifactDTO.getSpec(),
+                                                                ConversionUtils.convert(artifactDTO
+                                                                                .getSpec(),
 
                                                                                 "cbor")))
-                                                .with(a -> a.setEmbedded(artifactDTO.getEmbedded())));
+                                                .with(a -> a.setEmbedded(
+                                                                artifactDTO.getEmbedded())));
         }
 }

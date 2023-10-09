@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import it.smartcommunitylabdhub.core.annotations.RunPublisherComponent;
 import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPublisher;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.mlrun.components.runnables.events.messages.JobMessage;
 
 @RunPublisherComponent(platform = "job", perform = "perform")

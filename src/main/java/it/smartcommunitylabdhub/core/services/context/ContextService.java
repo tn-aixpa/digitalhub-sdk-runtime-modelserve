@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.entities.Project;
+import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.repositories.ProjectRepository;
 
 @Service
@@ -16,7 +16,8 @@ public class ContextService {
     public Project checkContext(String projectName) throws CustomException {
 
         return this.projectRepository.findByName(projectName)
-                .orElseThrow(() -> new CustomException("(Context) Project " + "[" + projectName + "] not found", null));
+                .orElseThrow(() -> new CustomException(
+                        "(Context) Project " + "[" + projectName + "] not found", null));
 
     }
 

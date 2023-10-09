@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities;
+package it.smartcommunitylabdhub.core.models.entities.log;
 
 import java.util.Date;
 import java.util.UUID;
@@ -22,33 +22,33 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Builder
 @Entity
-@Table(name = "workflows")
-public class Workflow implements BaseEntity {
+@Table(name = "logs")
+public class Log implements BaseEntity {
 
     @Id
     @Column(unique = true)
     private String id;
 
     @Column(nullable = false)
-    private String kind;
-
-    @Column(nullable = false)
     private String project;
 
     @Column(nullable = false)
-    private String name;
+    private String run;
 
     @Lob
-    private byte[] spec;
+    private byte[] body;
 
     @Lob
     private byte[] extra;
+
+    @Enumerated(EnumType.STRING)
+    private State state;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -57,16 +57,10 @@ public class Workflow implements BaseEntity {
     @UpdateTimestamp
     private Date updated;
 
-    private Boolean embedded;
-
-    @Enumerated(EnumType.STRING)
-    private State state;
-
     @PrePersist
     public void prePersist() {
         if (id == null) {
             this.id = UUID.randomUUID().toString();
         }
     }
-
 }

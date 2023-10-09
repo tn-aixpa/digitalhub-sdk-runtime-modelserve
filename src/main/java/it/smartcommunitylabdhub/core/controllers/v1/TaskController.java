@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import jakarta.validation.Valid;
 
@@ -32,7 +32,8 @@ public class TaskController {
 
     @Operation(summary = "Get specific task", description = "Given a uuid return a specific task")
     @GetMapping(path = "/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<TaskDTO> getTask(@ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
+    public ResponseEntity<TaskDTO> getTask(
+            @ValidateField @PathVariable(name = "uuid", required = true) String uuid) {
         return ResponseEntity.ok(this.taskService.getTask(uuid));
     }
 
@@ -43,15 +44,15 @@ public class TaskController {
     }
 
     @Operation(summary = "Create a task", description = "Create and return a new task")
-    @PostMapping(path = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PostMapping(path = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
         return ResponseEntity.ok(this.taskService.createTask(taskDTO));
     }
 
     @Operation(summary = "Update a task", description = "Update and return a task")
-    @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PutMapping(path = "/{uuid}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<TaskDTO> updateTask(@Valid @RequestBody TaskDTO functionDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.taskService.updateTask(functionDTO, uuid));

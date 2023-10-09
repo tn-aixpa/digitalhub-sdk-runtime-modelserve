@@ -1,8 +1,8 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.factories.builders;
 
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 
 
 /**

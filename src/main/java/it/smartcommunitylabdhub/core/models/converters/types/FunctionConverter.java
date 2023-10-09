@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -19,7 +19,8 @@ public class FunctionConverter implements Converter<FunctionDTO, Function> {
                 .kind(functionDTO.getKind())
                 .project(functionDTO.getProject())
                 .embedded(functionDTO.getEmbedded())
-                .state(functionDTO.getState() == null ? State.CREATED : State.valueOf(functionDTO.getState()))
+                .state(functionDTO.getState() == null ? State.CREATED
+                        : State.valueOf(functionDTO.getState()))
                 .build();
     }
 
@@ -31,7 +32,8 @@ public class FunctionConverter implements Converter<FunctionDTO, Function> {
                 .kind(function.getKind())
                 .project(function.getProject())
                 .embedded(function.getEmbedded())
-                .state(function.getState() == null ? State.CREATED.name() : function.getState().name())
+                .state(function.getState() == null ? State.CREATED.name()
+                        : function.getState().name())
                 .created(function.getCreated())
                 .updated(function.getUpdated())
                 .build();

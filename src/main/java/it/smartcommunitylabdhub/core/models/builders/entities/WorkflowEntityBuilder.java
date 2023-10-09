@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -21,19 +21,20 @@ public class WorkflowEntityBuilder {
                                 ConversionUtils.convert(workflowDTO, "workflow"), workflowDTO,
                                 builder -> builder
                                                 .with(w -> w.setExtra(
-                                                                ConversionUtils.convert(workflowDTO.getExtra(),
+                                                                ConversionUtils.convert(workflowDTO
+                                                                                .getExtra(),
 
                                                                                 "cbor")))
                                                 .with(w -> w.setSpec(
-                                                                ConversionUtils.convert(workflowDTO.getSpec(),
+                                                                ConversionUtils.convert(workflowDTO
+                                                                                .getSpec(),
 
                                                                                 "cbor"))));
 
         }
 
         /**
-         * Update a workflow
-         * if element is not passed it override causing empty field
+         * Update a workflow if element is not passed it override causing empty field
          * 
          * @param workflow
          * @return
@@ -45,15 +46,19 @@ public class WorkflowEntityBuilder {
                                                 .with(w -> w.setProject(workflowDTO.getProject()))
                                                 .with(w -> w.setState(workflowDTO.getState() == null
                                                                 ? State.CREATED
-                                                                : State.valueOf(workflowDTO.getState())))
+                                                                : State.valueOf(workflowDTO
+                                                                                .getState())))
                                                 .with(w -> w.setExtra(
-                                                                ConversionUtils.convert(workflowDTO.getExtra(),
+                                                                ConversionUtils.convert(workflowDTO
+                                                                                .getExtra(),
 
                                                                                 "cbor")))
                                                 .with(w -> w.setSpec(
-                                                                ConversionUtils.convert(workflowDTO.getSpec(),
+                                                                ConversionUtils.convert(workflowDTO
+                                                                                .getSpec(),
 
                                                                                 "cbor")))
-                                                .with(w -> w.setEmbedded(workflowDTO.getEmbedded())));
+                                                .with(w -> w.setEmbedded(
+                                                                workflowDTO.getEmbedded())));
         }
 }

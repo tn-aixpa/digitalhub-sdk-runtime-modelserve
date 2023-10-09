@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
 import it.smartcommunitylabdhub.core.models.builders.dtos.DataItemDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.DataItemEntityBuilder;
@@ -38,7 +38,8 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             // Check that project context is the same as the project passed to the
             // dataItemDTO
             if (!projectName.equals(dataItemDTO.getProject())) {
-                throw new CustomException("Project Context and DataItem Project does not match", null);
+                throw new CustomException("Project Context and DataItem Project does not match",
+                        null);
             }
 
             // Check project context
@@ -50,7 +51,8 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                     .flatMap(id -> dataItemRepository.findById(id)
                             .map(a -> {
                                 throw new CustomException(
-                                        "The project already contains an dataItem with the specified UUID.", null);
+                                        "The project already contains an dataItem with the specified UUID.",
+                                        null);
                             }))
                     .orElseGet(() -> {
                         // Build an dataItem and store it in the database
@@ -91,7 +93,8 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     }
 
     @Override
-    public List<DataItemDTO> getByProjectNameAndDataItemName(String projectName, String dataItemName,
+    public List<DataItemDTO> getByProjectNameAndDataItemName(String projectName,
+            String dataItemName,
             Pageable pageable) {
         try {
             checkContext(projectName);
@@ -120,8 +123,9 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             // Check project context
             checkContext(projectName);
 
-            return this.dataItemRepository.findByProjectAndNameAndId(projectName, dataItemName, uuid).map(
-                    dataItem -> dataItemDTOBuilder.build(dataItem, false))
+            return this.dataItemRepository
+                    .findByProjectAndNameAndId(projectName, dataItemName, uuid).map(
+                            dataItem -> dataItemDTOBuilder.build(dataItem, false))
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
@@ -134,13 +138,15 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     }
 
     @Override
-    public DataItemDTO getLatestByProjectNameAndDataItemName(String projectName, String dataItemName) {
+    public DataItemDTO getLatestByProjectNameAndDataItemName(String projectName,
+            String dataItemName) {
         try {
             // Check project context
             checkContext(projectName);
 
-            return this.dataItemRepository.findLatestDataItemByProjectAndName(projectName, dataItemName).map(
-                    dataItem -> dataItemDTOBuilder.build(dataItem, false))
+            return this.dataItemRepository
+                    .findLatestDataItemByProjectAndName(projectName, dataItemName).map(
+                            dataItem -> dataItemDTOBuilder.build(dataItem, false))
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
@@ -153,12 +159,14 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     }
 
     @Override
-    public DataItemDTO createOrUpdateDataItem(String projectName, String dataItemName, DataItemDTO dataItemDTO) {
+    public DataItemDTO createOrUpdateDataItem(String projectName, String dataItemName,
+            DataItemDTO dataItemDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // dataItemDTO
             if (!projectName.equals(dataItemDTO.getProject())) {
-                throw new CustomException("Project Context and DataItem Project does not match.", null);
+                throw new CustomException("Project Context and DataItem Project does not match.",
+                        null);
             }
             if (!dataItemName.equals(dataItemDTO.getName())) {
                 throw new CustomException(
@@ -178,8 +186,9 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
                             DataItem existingDataItem = optionalDataItem.get();
 
                             // Update the existing dataItem version
-                            final DataItem dataItemUpdated = dataItemEntityBuilder.update(existingDataItem,
-                                    dataItemDTO);
+                            final DataItem dataItemUpdated =
+                                    dataItemEntityBuilder.update(existingDataItem,
+                                            dataItemDTO);
                             return Optional.of(this.dataItemRepository.save(dataItemUpdated));
 
                         } else {
@@ -206,17 +215,20 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     }
 
     @Override
-    public DataItemDTO updateDataItem(String projectName, String dataItemName, String uuid, DataItemDTO dataItemDTO) {
+    public DataItemDTO updateDataItem(String projectName, String dataItemName, String uuid,
+            DataItemDTO dataItemDTO) {
 
         try {
             // Check that project context is the same as the project passed to the
             // dataItemDTO
             if (!projectName.equals(dataItemDTO.getProject())) {
-                throw new CustomException("Project Context and DataItem Project does not match", null);
+                throw new CustomException("Project Context and DataItem Project does not match",
+                        null);
             }
             if (!uuid.equals(dataItemDTO.getId())) {
                 throw new CustomException(
-                        "Trying to update an dataItem with an ID different from the one passed in the request.", null);
+                        "Trying to update an dataItem with an ID different from the one passed in the request.",
+                        null);
             }
             // Check project context
             checkContext(dataItemDTO.getProject());
@@ -242,10 +254,13 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
 
     @Override
     @Transactional
-    public Boolean deleteSpecificDataItemVersion(String projectName, String dataItemName, String uuid) {
+    public Boolean deleteSpecificDataItemVersion(String projectName, String dataItemName,
+            String uuid) {
         try {
-            if (this.dataItemRepository.existsByProjectAndNameAndId(projectName, dataItemName, uuid)) {
-                this.dataItemRepository.deleteByProjectAndNameAndId(projectName, dataItemName, uuid);
+            if (this.dataItemRepository.existsByProjectAndNameAndId(projectName, dataItemName,
+                    uuid)) {
+                this.dataItemRepository.deleteByProjectAndNameAndId(projectName, dataItemName,
+                        uuid);
                 return true;
             }
             throw new CoreException(

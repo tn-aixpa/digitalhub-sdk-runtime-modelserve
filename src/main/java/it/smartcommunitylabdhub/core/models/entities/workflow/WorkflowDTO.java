@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.dtos;
+package it.smartcommunitylabdhub.core.models.entities.workflow;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
+import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class FunctionDTO implements BaseEntity {
+public class WorkflowDTO implements BaseEntity {
 
     @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
@@ -52,11 +52,14 @@ public class FunctionDTO implements BaseEntity {
     @JsonAnyGetter
     public Map<String, Object> getExtra() {
         return StatusFieldUtility.addStatusField(extra, state);
+
     }
 
     @JsonAnySetter
     public void setExtra(String key, Object value) {
-        extra.put(key, value);
-        StatusFieldUtility.updateStateField(this);
+        if (value != null) {
+            extra.put(key, value);
+            StatusFieldUtility.updateStateField(this);
+        }
     }
 }

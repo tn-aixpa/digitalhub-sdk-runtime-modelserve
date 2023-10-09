@@ -4,6 +4,9 @@ TODO: 20/09/2011
 
 -[x] Rinominare il campo "task" in Task, TaskDTO come "function"
 
+- Creare modelli METADATI per tutti i tipi che abbiamo Project, artifact, function....
+- Definire un Poller che controlla il risultato del job.
+
 - In Run e RunDTO il campo task contiene una stringa di questo tipo "dbt+<perform>://<project>/<function>:<version>
 
 - tutti task vengono eseguite quando invoco la sua run, la relazione e' 1 a 1

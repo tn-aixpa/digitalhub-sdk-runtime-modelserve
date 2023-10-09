@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 import jakarta.validation.Valid;
 
@@ -39,8 +39,8 @@ public class ArtifactController {
     }
 
     @Operation(summary = "Create artifact", description = "Create an artifact and return")
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> createArtifact(@Valid @RequestBody ArtifactDTO artifactDTO) {
         return ResponseEntity.ok(this.artifactService.createArtifact(artifactDTO));
     }
@@ -53,8 +53,8 @@ public class ArtifactController {
     }
 
     @Operation(summary = "Update specific artifact", description = "Update and return the artifact")
-    @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PutMapping(path = "/{uuid}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ArtifactDTO> updateArtifact(@Valid @RequestBody ArtifactDTO artifactDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.artifactService.updateArtifact(artifactDTO, uuid));

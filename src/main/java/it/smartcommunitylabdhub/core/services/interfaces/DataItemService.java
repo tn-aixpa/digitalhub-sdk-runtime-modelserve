@@ -1,10 +1,9 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
-import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
-
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 
 public interface DataItemService {
     List<DataItemDTO> getDataItems(Pageable pageable);

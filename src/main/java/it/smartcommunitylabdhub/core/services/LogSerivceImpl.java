@@ -14,8 +14,8 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.LogDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.LogEntityBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
-import it.smartcommunitylabdhub.core.models.entities.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
 import it.smartcommunitylabdhub.core.repositories.LogRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 
@@ -58,7 +58,8 @@ public class LogSerivceImpl implements LogService {
                                 HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                 })
-                .orElseThrow(() -> new CoreException("LogNotFound", "The log you are searching for does not exist.",
+                .orElseThrow(() -> new CoreException("LogNotFound",
+                        "The log you are searching for does not exist.",
                         HttpStatus.NOT_FOUND));
 
     }

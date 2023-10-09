@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import it.smartcommunitylabdhub.core.models.entities.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 
 public interface FunctionRepository extends JpaRepository<Function, String> {
 
@@ -28,15 +27,19 @@ public interface FunctionRepository extends JpaRepository<Function, String> {
         // CONTEXT SPECIFIC QUERY //
         ////////////////////////////
 
-        Page<Function> findAllByProjectAndNameOrderByCreatedDesc(String project, String name, Pageable pageable);
+        Page<Function> findAllByProjectAndNameOrderByCreatedDesc(String project, String name,
+                        Pageable pageable);
 
-        @Query("SELECT a FROM Function a WHERE a.project = :project AND (a.name, a.project, a.created) IN " +
+        @Query("SELECT a FROM Function a WHERE a.project = :project AND (a.name, a.project, a.created) IN "
+                        +
                         "(SELECT a2.name, a2.project, MAX(a2.created) FROM Function a2 WHERE a2.project = :project GROUP BY a2.name, a2.project) "
                         +
                         "ORDER BY a.created DESC")
-        Page<Function> findAllLatestFunctionsByProject(@Param("project") String project, Pageable pageable);
+        Page<Function> findAllLatestFunctionsByProject(@Param("project") String project,
+                        Pageable pageable);
 
-        Optional<Function> findByProjectAndNameAndId(@Param("project") String project, @Param("name") String name,
+        Optional<Function> findByProjectAndNameAndId(@Param("project") String project,
+                        @Param("name") String name,
                         @Param("id") String id);
 
         @Query("SELECT a FROM Function a WHERE a.project = :project AND a.name = :name " +
@@ -53,7 +56,8 @@ public interface FunctionRepository extends JpaRepository<Function, String> {
 
         @Modifying
         @Query("DELETE FROM Function a WHERE a.project = :project AND a.name = :name AND a.id = :id")
-        void deleteByProjectAndNameAndId(@Param("project") String project, @Param("name") String name,
+        void deleteByProjectAndNameAndId(@Param("project") String project,
+                        @Param("name") String name,
                         @Param("id") String id);
 
         boolean existsByProjectAndName(String project, String name);

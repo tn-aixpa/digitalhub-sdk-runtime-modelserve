@@ -5,9 +5,9 @@ import it.smartcommunitylabdhub.core.annotations.BuilderComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.BaseBuilder;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
 @BuilderComponent(runtime = "dbt", task = "transform")
@@ -30,6 +30,7 @@ public class DbtTransformBuilder extends BaseBuilder implements Builder {
 						functionDTO,
 						taskDTO))
 				.spec(mergedSpec)
+				.extra(inputRunDTO.getExtra())
 				.build();
 
 		// 3. Merge the rest of the spec from executionDTO and the current RunDTO

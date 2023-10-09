@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -19,7 +19,8 @@ public class WorkflowConverter implements Converter<WorkflowDTO, Workflow> {
                 .kind(workflowDTO.getKind())
                 .project(workflowDTO.getProject())
                 .embedded(workflowDTO.getEmbedded())
-                .state(workflowDTO.getState() == null ? State.CREATED : State.valueOf(workflowDTO.getState()))
+                .state(workflowDTO.getState() == null ? State.CREATED
+                        : State.valueOf(workflowDTO.getState()))
                 .build();
     }
 
@@ -31,7 +32,8 @@ public class WorkflowConverter implements Converter<WorkflowDTO, Workflow> {
                 .kind(workflow.getKind())
                 .project(workflow.getProject())
                 .embedded(workflow.getEmbedded())
-                .state(workflow.getState() == null ? State.CREATED.name() : workflow.getState().name())
+                .state(workflow.getState() == null ? State.CREATED.name()
+                        : workflow.getState().name())
                 .created(workflow.getCreated())
                 .updated(workflow.getUpdated())
                 .build();

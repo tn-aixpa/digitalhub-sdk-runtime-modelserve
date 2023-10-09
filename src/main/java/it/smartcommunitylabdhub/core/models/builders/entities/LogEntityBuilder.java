@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
-import it.smartcommunitylabdhub.core.models.entities.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -21,16 +21,17 @@ public class LogEntityBuilder {
                                 ConversionUtils.convert(logDTO, "log"), logDTO,
                                 builder -> builder
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(logDTO.getExtra(),
+                                                                ConversionUtils.convert(
+                                                                                logDTO.getExtra(),
                                                                                 "cbor")))
                                                 .with(f -> f.setBody(
-                                                                ConversionUtils.convert(logDTO.getBody(),
+                                                                ConversionUtils.convert(
+                                                                                logDTO.getBody(),
                                                                                 "cbor"))));
         }
 
         /**
-         * Update a Log
-         * if element is not passed it override causing empty field
+         * Update a Log if element is not passed it override causing empty field
          * 
          * @param log
          * @return
@@ -44,11 +45,13 @@ public class LogEntityBuilder {
                                                                 ? State.CREATED
                                                                 : State.valueOf(logDTO.getState())))
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(logDTO.getExtra(),
+                                                                ConversionUtils.convert(
+                                                                                logDTO.getExtra(),
 
                                                                                 "cbor")))
                                                 .with(f -> f.setBody(
-                                                                ConversionUtils.convert(logDTO.getBody(),
+                                                                ConversionUtils.convert(
+                                                                                logDTO.getBody(),
 
                                                                                 "cbor"))));
         }

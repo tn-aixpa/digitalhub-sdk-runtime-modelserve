@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
@@ -38,7 +38,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             // Check that project context is the same as the project passed to the
             // functionDTO
             if (!projectName.equals(functionDTO.getProject())) {
-                throw new CustomException("Project Context and Function Project does not match", null);
+                throw new CustomException("Project Context and Function Project does not match",
+                        null);
             }
 
             // Check project context
@@ -50,7 +51,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                     .flatMap(id -> functionRepository.findById(id)
                             .map(a -> {
                                 throw new CustomException(
-                                        "The project already contains an function with the specified UUID.", null);
+                                        "The project already contains an function with the specified UUID.",
+                                        null);
                             }))
                     .orElseGet(() -> {
                         // Build an function and store it in the database
@@ -91,7 +93,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public List<FunctionDTO> getByProjectNameAndFunctionName(String projectName, String functionName,
+    public List<FunctionDTO> getByProjectNameAndFunctionName(String projectName,
+            String functionName,
             Pageable pageable) {
         try {
             checkContext(projectName);
@@ -120,8 +123,9 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             // Check project context
             checkContext(projectName);
 
-            return this.functionRepository.findByProjectAndNameAndId(projectName, functionName, uuid).map(
-                    function -> functionDTOBuilder.build(function, false))
+            return this.functionRepository
+                    .findByProjectAndNameAndId(projectName, functionName, uuid).map(
+                            function -> functionDTOBuilder.build(function, false))
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -134,13 +138,15 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public FunctionDTO getLatestByProjectNameAndFunctionName(String projectName, String functionName) {
+    public FunctionDTO getLatestByProjectNameAndFunctionName(String projectName,
+            String functionName) {
         try {
             // Check project context
             checkContext(projectName);
 
-            return this.functionRepository.findLatestFunctionByProjectAndName(projectName, functionName).map(
-                    function -> functionDTOBuilder.build(function, false))
+            return this.functionRepository
+                    .findLatestFunctionByProjectAndName(projectName, functionName).map(
+                            function -> functionDTOBuilder.build(function, false))
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -153,12 +159,14 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public FunctionDTO createOrUpdateFunction(String projectName, String functionName, FunctionDTO functionDTO) {
+    public FunctionDTO createOrUpdateFunction(String projectName, String functionName,
+            FunctionDTO functionDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // functionDTO
             if (!projectName.equals(functionDTO.getProject())) {
-                throw new CustomException("Project Context and Function Project does not match.", null);
+                throw new CustomException("Project Context and Function Project does not match.",
+                        null);
             }
             if (!functionName.equals(functionDTO.getName())) {
                 throw new CustomException(
@@ -178,8 +186,9 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             Function existingFunction = optionalFunction.get();
 
                             // Update the existing function version
-                            final Function functionUpdated = functionEntityBuilder.update(existingFunction,
-                                    functionDTO);
+                            final Function functionUpdated =
+                                    functionEntityBuilder.update(existingFunction,
+                                            functionDTO);
                             return Optional.of(this.functionRepository.save(functionUpdated));
 
                         } else {
@@ -206,17 +215,20 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public FunctionDTO updateFunction(String projectName, String functionName, String uuid, FunctionDTO functionDTO) {
+    public FunctionDTO updateFunction(String projectName, String functionName, String uuid,
+            FunctionDTO functionDTO) {
 
         try {
             // Check that project context is the same as the project passed to the
             // functionDTO
             if (!projectName.equals(functionDTO.getProject())) {
-                throw new CustomException("Project Context and Function Project does not match", null);
+                throw new CustomException("Project Context and Function Project does not match",
+                        null);
             }
             if (!uuid.equals(functionDTO.getId())) {
                 throw new CustomException(
-                        "Trying to update an function with an ID different from the one passed in the request.", null);
+                        "Trying to update an function with an ID different from the one passed in the request.",
+                        null);
             }
             // Check project context
             checkContext(functionDTO.getProject());
@@ -242,10 +254,13 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
 
     @Override
     @Transactional
-    public Boolean deleteSpecificFunctionVersion(String projectName, String functionName, String uuid) {
+    public Boolean deleteSpecificFunctionVersion(String projectName, String functionName,
+            String uuid) {
         try {
-            if (this.functionRepository.existsByProjectAndNameAndId(projectName, functionName, uuid)) {
-                this.functionRepository.deleteByProjectAndNameAndId(projectName, functionName, uuid);
+            if (this.functionRepository.existsByProjectAndNameAndId(projectName, functionName,
+                    uuid)) {
+                this.functionRepository.deleteByProjectAndNameAndId(projectName, functionName,
+                        uuid);
                 return true;
             }
             throw new CoreException(

@@ -11,7 +11,7 @@ import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindS
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.*;

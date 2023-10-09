@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
-import it.smartcommunitylabdhub.core.models.entities.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component

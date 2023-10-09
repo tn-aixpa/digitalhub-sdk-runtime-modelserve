@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import it.smartcommunitylabdhub.core.models.entities.Project;
+import it.smartcommunitylabdhub.core.models.entities.project.Project;
 
 public interface ProjectRepository extends JpaRepository<Project, String> {
 

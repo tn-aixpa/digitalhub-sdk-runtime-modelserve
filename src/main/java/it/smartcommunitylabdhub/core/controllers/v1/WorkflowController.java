@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
 import jakarta.validation.Valid;
 
@@ -40,8 +40,8 @@ public class WorkflowController {
     }
 
     @Operation(summary = "Create workflow", description = "Create an workflow and return")
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<WorkflowDTO> createWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO) {
         return ResponseEntity.ok(this.workflowService.createWorkflow(workflowDTO));
     }
@@ -54,8 +54,8 @@ public class WorkflowController {
     }
 
     @Operation(summary = "Update specific workflow", description = "Update and return the workflow")
-    @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PutMapping(path = "/{uuid}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<WorkflowDTO> updateWorkflow(@Valid @RequestBody WorkflowDTO workflowDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.workflowService.updateWorkflow(workflowDTO, uuid));

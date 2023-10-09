@@ -3,8 +3,7 @@ package it.smartcommunitylabdhub.core.services.interfaces;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 
 public interface TaskService {
 

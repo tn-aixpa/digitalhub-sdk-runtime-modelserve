@@ -3,8 +3,7 @@ package it.smartcommunitylabdhub.core.services.context.interfaces;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 
 public interface ArtifactContextService {
 
@@ -22,9 +21,11 @@ public interface ArtifactContextService {
         ArtifactDTO getLatestByProjectNameAndArtifactName(
                         String projectName, String artifactName);
 
-        ArtifactDTO createOrUpdateArtifact(String projectName, String artifactName, ArtifactDTO artifactDTO);
+        ArtifactDTO createOrUpdateArtifact(String projectName, String artifactName,
+                        ArtifactDTO artifactDTO);
 
-        ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid, ArtifactDTO artifactDTO);
+        ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid,
+                        ArtifactDTO artifactDTO);
 
         Boolean deleteSpecificArtifactVersion(String projectName, String artifactName, String uuid);
 

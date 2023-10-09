@@ -9,9 +9,10 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners
 import it.smartcommunitylabdhub.core.components.infrastructure.runtimes.BaseRuntime;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
+import it.smartcommunitylabdhub.core.models.shared.RunStatus;
 
 @RuntimeComponent(runtime = "dbt")
 public class DbtRuntime extends BaseRuntime {
@@ -33,6 +34,13 @@ public class DbtRuntime extends BaseRuntime {
 		RunAccessor runAccessor = RunUtils.parseRun(runDTO.getTask());
 		Runner runner = getRunner(runAccessor.getTask());
 		return runner.produce(runDTO);
+	}
+
+
+	@Override
+	public RunStatus parse() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'parse'");
 	}
 
 }

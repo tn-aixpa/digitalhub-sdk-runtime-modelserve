@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities;
+package it.smartcommunitylabdhub.core.models.entities.function;
 
 import java.util.Date;
 import java.util.UUID;
@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,25 +28,21 @@ import lombok.Setter;
 @Setter
 @Builder
 @Entity
-@Table(name = "tasks", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"function", "kind"})
-
-})
-public class Task implements BaseEntity {
+@Table(name = "functions")
+public class Function implements BaseEntity {
 
     @Id
     @Column(unique = true)
     private String id;
 
     @Column(nullable = false)
-    // COMMENT: {function_kind}://{project}/{function}:{version}
-    private String function;
-
-    @Column(nullable = false)
     private String kind;
 
     @Column(nullable = false)
     private String project;
+
+    @Column(nullable = false)
+    private String name;
 
     @Lob
     private byte[] spec;
@@ -62,6 +57,8 @@ public class Task implements BaseEntity {
     @UpdateTimestamp
     private Date updated;
 
+    private Boolean embedded;
+
     @Enumerated(EnumType.STRING)
     private State state;
 
@@ -71,4 +68,5 @@ public class Task implements BaseEntity {
             this.id = UUID.randomUUID().toString();
         }
     }
+
 }

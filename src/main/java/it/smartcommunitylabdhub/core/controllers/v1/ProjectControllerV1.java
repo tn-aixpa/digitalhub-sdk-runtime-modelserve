@@ -15,14 +15,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.dtos.ProjectDTO;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
 import jakarta.validation.Valid;
 
@@ -42,8 +41,8 @@ public class ProjectControllerV1 {
     }
 
     @Operation(summary = "Create project", description = "Create an project and return")
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) {
         return ResponseEntity.ok(this.projectService.createProject(projectDTO));
     }
@@ -56,8 +55,8 @@ public class ProjectControllerV1 {
     }
 
     @Operation(summary = "Update specific project", description = "Update and return the project")
-    @PutMapping(path = "/{uuidOrName}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PutMapping(path = "/{uuidOrName}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<ProjectDTO> updateProject(
             @RequestBody ProjectDTO projectDTO,
             @ValidateField @PathVariable(name = "uuidOrName", required = true) String uuidOrName) {
@@ -73,19 +72,22 @@ public class ProjectControllerV1 {
 
     @Operation(summary = "List project functions", description = "Get all project function list")
     @GetMapping(path = "/{uuidOrName}/functions", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<FunctionDTO>> projectFunctions(@ValidateField @PathVariable String uuidOrName) {
+    public ResponseEntity<List<FunctionDTO>> projectFunctions(
+            @ValidateField @PathVariable String uuidOrName) {
         return ResponseEntity.ok(this.projectService.getProjectFunctions(uuidOrName));
     }
 
     @Operation(summary = "List project workflows", description = "Get all project workflow list")
     @GetMapping(path = "/{uuidOrName}/workflows", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<WorkflowDTO>> projectWorkflows(@ValidateField @PathVariable String uuidOrName) {
+    public ResponseEntity<List<WorkflowDTO>> projectWorkflows(
+            @ValidateField @PathVariable String uuidOrName) {
         return ResponseEntity.ok(this.projectService.getProjectWorkflows(uuidOrName));
     }
 
     @Operation(summary = "List project artifacts", description = "Get all project artifact list")
     @GetMapping(path = "/{uuidOrName}/artifacts", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<ArtifactDTO>> projectArtifacts(@ValidateField @PathVariable String uuidOrName) {
+    public ResponseEntity<List<ArtifactDTO>> projectArtifacts(
+            @ValidateField @PathVariable String uuidOrName) {
         return ResponseEntity.ok(this.projectService.getProjectArtifacts(uuidOrName));
     }
 

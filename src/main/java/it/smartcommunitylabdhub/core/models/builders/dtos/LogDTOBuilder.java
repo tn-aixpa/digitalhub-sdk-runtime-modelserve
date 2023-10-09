@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
-import it.smartcommunitylabdhub.core.models.entities.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -16,8 +16,10 @@ public class LogDTOBuilder {
                                 .with(dto -> dto.setId(log.getId()))
                                 .with(dto -> dto.setRun(log.getRun()))
                                 .with(dto -> dto.setProject(log.getProject()))
-                                .with(dto -> dto.setBody(ConversionUtils.reverse(log.getBody(), "cbor")))
-                                .with(dto -> dto.setExtra(ConversionUtils.reverse(log.getExtra(), "cbor")))
+                                .with(dto -> dto.setBody(
+                                                ConversionUtils.reverse(log.getBody(), "cbor")))
+                                .with(dto -> dto.setExtra(
+                                                ConversionUtils.reverse(log.getExtra(), "cbor")))
                                 .with(dto -> dto.setCreated(log.getCreated()))
                                 .with(dto -> dto.setUpdated(log.getUpdated()))
                                 .with(dto -> dto.setState(log.getState() == null

@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -22,7 +22,8 @@ public class FunctionDTOBuilder {
                                 .with(dto -> dto.setProject(function.getProject()))
                                 .with(dto -> dto.setName(function.getName()))
 
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(function.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
@@ -30,7 +31,8 @@ public class FunctionDTOBuilder {
                                                                                 function.getSpec(),
 
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(function.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
@@ -38,31 +40,36 @@ public class FunctionDTOBuilder {
                                                                                 function.getExtra(),
 
                                                                                 "cbor"))))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(function.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setCreated(function.getCreated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(function.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
                                                                 .setUpdated(function.getUpdated())))
-                                .withIfElse(embeddable, (dto, condition) -> Optional.ofNullable(function.getEmbedded())
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(function.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setEmbedded(function.getEmbedded())))
+                                                                .setEmbedded(function
+                                                                                .getEmbedded())))
                                 .withIfElse(embeddable, (dto, condition) ->
 
                                 Optional.ofNullable(function.getEmbedded())
                                                 .filter(embedded -> !condition
                                                                 || (condition && embedded))
                                                 .ifPresent(embedded -> dto
-                                                                .setState(function.getState() == null
-                                                                                ? State.CREATED.name()
-                                                                                : function.getState()
-                                                                                                .name()))
+                                                                .setState(function
+                                                                                .getState() == null
+                                                                                                ? State.CREATED.name()
+                                                                                                : function.getState()
+                                                                                                                .name()))
 
                                 )
 

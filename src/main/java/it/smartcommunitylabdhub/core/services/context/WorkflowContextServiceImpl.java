@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
@@ -38,7 +38,8 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             // Check that project context is the same as the project passed to the
             // workflowDTO
             if (!projectName.equals(workflowDTO.getProject())) {
-                throw new CustomException("Project Context and Workflow Project does not match", null);
+                throw new CustomException("Project Context and Workflow Project does not match",
+                        null);
             }
 
             // Check project context
@@ -50,7 +51,8 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
                     .flatMap(id -> workflowRepository.findById(id)
                             .map(a -> {
                                 throw new CustomException(
-                                        "The project already contains an workflow with the specified UUID.", null);
+                                        "The project already contains an workflow with the specified UUID.",
+                                        null);
                             }))
                     .orElseGet(() -> {
                         // Build an workflow and store it in the database
@@ -91,7 +93,8 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     }
 
     @Override
-    public List<WorkflowDTO> getByProjectNameAndWorkflowName(String projectName, String workflowName,
+    public List<WorkflowDTO> getByProjectNameAndWorkflowName(String projectName,
+            String workflowName,
             Pageable pageable) {
         try {
             checkContext(projectName);
@@ -120,8 +123,9 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             // Check project context
             checkContext(projectName);
 
-            return this.workflowRepository.findByProjectAndNameAndId(projectName, workflowName, uuid).map(
-                    workflow -> workflowDTOBuilder.build(workflow, false))
+            return this.workflowRepository
+                    .findByProjectAndNameAndId(projectName, workflowName, uuid).map(
+                            workflow -> workflowDTOBuilder.build(workflow, false))
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
@@ -134,13 +138,15 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     }
 
     @Override
-    public WorkflowDTO getLatestByProjectNameAndWorkflowName(String projectName, String workflowName) {
+    public WorkflowDTO getLatestByProjectNameAndWorkflowName(String projectName,
+            String workflowName) {
         try {
             // Check project context
             checkContext(projectName);
 
-            return this.workflowRepository.findLatestWorkflowByProjectAndName(projectName, workflowName).map(
-                    workflow -> workflowDTOBuilder.build(workflow, false))
+            return this.workflowRepository
+                    .findLatestWorkflowByProjectAndName(projectName, workflowName).map(
+                            workflow -> workflowDTOBuilder.build(workflow, false))
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
@@ -153,12 +159,14 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     }
 
     @Override
-    public WorkflowDTO createOrUpdateWorkflow(String projectName, String workflowName, WorkflowDTO workflowDTO) {
+    public WorkflowDTO createOrUpdateWorkflow(String projectName, String workflowName,
+            WorkflowDTO workflowDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // workflowDTO
             if (!projectName.equals(workflowDTO.getProject())) {
-                throw new CustomException("Project Context and Workflow Project does not match.", null);
+                throw new CustomException("Project Context and Workflow Project does not match.",
+                        null);
             }
             if (!workflowName.equals(workflowDTO.getName())) {
                 throw new CustomException(
@@ -178,8 +186,9 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
                             Workflow existingWorkflow = optionalWorkflow.get();
 
                             // Update the existing workflow version
-                            final Workflow workflowUpdated = workflowEntityBuilder.update(existingWorkflow,
-                                    workflowDTO);
+                            final Workflow workflowUpdated =
+                                    workflowEntityBuilder.update(existingWorkflow,
+                                            workflowDTO);
                             return Optional.of(this.workflowRepository.save(workflowUpdated));
 
                         } else {
@@ -206,17 +215,20 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     }
 
     @Override
-    public WorkflowDTO updateWorkflow(String projectName, String workflowName, String uuid, WorkflowDTO workflowDTO) {
+    public WorkflowDTO updateWorkflow(String projectName, String workflowName, String uuid,
+            WorkflowDTO workflowDTO) {
 
         try {
             // Check that project context is the same as the project passed to the
             // workflowDTO
             if (!projectName.equals(workflowDTO.getProject())) {
-                throw new CustomException("Project Context and Workflow Project does not match", null);
+                throw new CustomException("Project Context and Workflow Project does not match",
+                        null);
             }
             if (!uuid.equals(workflowDTO.getId())) {
                 throw new CustomException(
-                        "Trying to update an workflow with an ID different from the one passed in the request.", null);
+                        "Trying to update an workflow with an ID different from the one passed in the request.",
+                        null);
             }
             // Check project context
             checkContext(workflowDTO.getProject());
@@ -242,10 +254,13 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
 
     @Override
     @Transactional
-    public Boolean deleteSpecificWorkflowVersion(String projectName, String workflowName, String uuid) {
+    public Boolean deleteSpecificWorkflowVersion(String projectName, String workflowName,
+            String uuid) {
         try {
-            if (this.workflowRepository.existsByProjectAndNameAndId(projectName, workflowName, uuid)) {
-                this.workflowRepository.deleteByProjectAndNameAndId(projectName, workflowName, uuid);
+            if (this.workflowRepository.existsByProjectAndNameAndId(projectName, workflowName,
+                    uuid)) {
+                this.workflowRepository.deleteByProjectAndNameAndId(projectName, workflowName,
+                        uuid);
                 return true;
             }
             throw new CoreException(

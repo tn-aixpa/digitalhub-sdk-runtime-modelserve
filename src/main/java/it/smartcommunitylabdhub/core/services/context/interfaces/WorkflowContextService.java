@@ -3,8 +3,7 @@ package it.smartcommunitylabdhub.core.services.context.interfaces;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 
 public interface WorkflowContextService {
 
@@ -22,9 +21,11 @@ public interface WorkflowContextService {
         WorkflowDTO getLatestByProjectNameAndWorkflowName(
                         String projectName, String workflowName);
 
-        WorkflowDTO createOrUpdateWorkflow(String projectName, String workflowName, WorkflowDTO workflowDTO);
+        WorkflowDTO createOrUpdateWorkflow(String projectName, String workflowName,
+                        WorkflowDTO workflowDTO);
 
-        WorkflowDTO updateWorkflow(String projectName, String workflowName, String uuid, WorkflowDTO workflowDTO);
+        WorkflowDTO updateWorkflow(String projectName, String workflowName, String uuid,
+                        WorkflowDTO workflowDTO);
 
         Boolean deleteSpecificWorkflowVersion(String projectName, String workflowName, String uuid);
 

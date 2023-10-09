@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 
 @Component
 public class ArtifactConverter implements Converter<ArtifactDTO, Artifact> {
@@ -32,7 +32,8 @@ public class ArtifactConverter implements Converter<ArtifactDTO, Artifact> {
                 .kind(artifact.getKind())
                 .project(artifact.getProject())
                 .embedded(artifact.getEmbedded())
-                .state(artifact.getState() == null ? ArtifactState.CREATED.name() : artifact.getState().name())
+                .state(artifact.getState() == null ? ArtifactState.CREATED.name()
+                        : artifact.getState().name())
                 .created(artifact.getCreated())
                 .updated(artifact.getUpdated())
                 .build();

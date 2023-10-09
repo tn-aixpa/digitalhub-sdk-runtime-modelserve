@@ -3,11 +3,10 @@ package it.smartcommunitylabdhub.core.services.interfaces;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.dtos.ProjectDTO;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 
 public interface ProjectService {
 

@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.dtos;
+package it.smartcommunitylabdhub.core.models.entities.artifact;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.utils.StatusFieldUtility;
+import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -56,7 +56,9 @@ public class ArtifactDTO implements BaseEntity {
 
 	@JsonAnySetter
 	public void setExtra(String key, Object value) {
-		extra.put(key, value);
-		StatusFieldUtility.updateStateField(this);
+		if (value != null) {
+			extra.put(key, value);
+			StatusFieldUtility.updateStateField(this);
+		}
 	}
 }

@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import jakarta.validation.Valid;
 
@@ -40,8 +40,8 @@ public class FunctionController {
     }
 
     @Operation(summary = "Create function", description = "Create an function and return")
-    @PostMapping(value = "", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PostMapping(value = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<FunctionDTO> createFunction(@Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionService.createFunction(functionDTO));
     }
@@ -54,8 +54,8 @@ public class FunctionController {
     }
 
     @Operation(summary = "Update specific function", description = "Update and return the function")
-    @PutMapping(path = "/{uuid}", consumes = { MediaType.APPLICATION_JSON_VALUE,
-            "application/x-yaml" }, produces = "application/json; charset=UTF-8")
+    @PutMapping(path = "/{uuid}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "application/x-yaml"}, produces = "application/json; charset=UTF-8")
     public ResponseEntity<FunctionDTO> updateFunction(@Valid @RequestBody FunctionDTO functionDTO,
             @ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.functionService.updateFunction(functionDTO, uuid));

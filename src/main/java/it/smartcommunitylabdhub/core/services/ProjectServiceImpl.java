@@ -17,14 +17,14 @@ import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.dtos.ProjectDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.ProjectEntityBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.dtos.ProjectDTO;
-import it.smartcommunitylabdhub.core.models.dtos.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.Artifact;
-import it.smartcommunitylabdhub.core.models.entities.Function;
-import it.smartcommunitylabdhub.core.models.entities.Project;
-import it.smartcommunitylabdhub.core.models.entities.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.project.Project;
+import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
 import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
@@ -152,11 +152,15 @@ public class ProjectServiceImpl implements ProjectService {
                     final Project projectUpdated = projectEntityBuilder.update(project, projectDTO);
                     this.projectRepository.save(projectUpdated);
 
-                    List<Function> functions = functionRepository.findByProject(projectUpdated.getName());
-                    List<Artifact> artifacts = artifactRepository.findByProject(projectUpdated.getName());
-                    List<Workflow> workflows = workflowRepository.findByProject(projectUpdated.getName());
+                    List<Function> functions =
+                            functionRepository.findByProject(projectUpdated.getName());
+                    List<Artifact> artifacts =
+                            artifactRepository.findByProject(projectUpdated.getName());
+                    List<Workflow> workflows =
+                            workflowRepository.findByProject(projectUpdated.getName());
 
-                    return projectDTOBuilder.build(projectUpdated, artifacts, functions, workflows, true);
+                    return projectDTOBuilder.build(projectUpdated, artifacts, functions, workflows,
+                            true);
                 })
                 .orElseThrow(() -> new CoreException(
                         "ProjectNotMatch",

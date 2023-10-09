@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -21,16 +21,17 @@ public class FunctionEntityBuilder {
                                 ConversionUtils.convert(functionDTO, "function"), functionDTO,
                                 builder -> builder
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(functionDTO.getExtra(),
+                                                                ConversionUtils.convert(functionDTO
+                                                                                .getExtra(),
                                                                                 "cbor")))
                                                 .with(f -> f.setSpec(
-                                                                ConversionUtils.convert(functionDTO.getSpec(),
+                                                                ConversionUtils.convert(functionDTO
+                                                                                .getSpec(),
                                                                                 "cbor"))));
         }
 
         /**
-         * Update a function
-         * if element is not passed it override causing empty field
+         * Update a function if element is not passed it override causing empty field
          * 
          * @param function
          * @return
@@ -42,15 +43,19 @@ public class FunctionEntityBuilder {
                                                 .with(f -> f.setProject(functionDTO.getProject()))
                                                 .with(f -> f.setState(functionDTO.getState() == null
                                                                 ? State.CREATED
-                                                                : State.valueOf(functionDTO.getState())))
+                                                                : State.valueOf(functionDTO
+                                                                                .getState())))
                                                 .with(f -> f.setExtra(
-                                                                ConversionUtils.convert(functionDTO.getExtra(),
+                                                                ConversionUtils.convert(functionDTO
+                                                                                .getExtra(),
 
                                                                                 "cbor")))
                                                 .with(f -> f.setSpec(
-                                                                ConversionUtils.convert(functionDTO.getSpec(),
+                                                                ConversionUtils.convert(functionDTO
+                                                                                .getSpec(),
 
                                                                                 "cbor")))
-                                                .with(f -> f.setEmbedded(functionDTO.getEmbedded())));
+                                                .with(f -> f.setEmbedded(
+                                                                functionDTO.getEmbedded())));
         }
 }

@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
@@ -19,7 +19,8 @@ public class DataItemConverter implements Converter<DataItemDTO, DataItem> {
                 .kind(dataItemDTO.getKind())
                 .project(dataItemDTO.getProject())
                 .embedded(dataItemDTO.getEmbedded())
-                .state(dataItemDTO.getState() == null ? State.CREATED : State.valueOf(dataItemDTO.getState()))
+                .state(dataItemDTO.getState() == null ? State.CREATED
+                        : State.valueOf(dataItemDTO.getState()))
                 .build();
     }
 
@@ -31,7 +32,8 @@ public class DataItemConverter implements Converter<DataItemDTO, DataItem> {
                 .kind(dataItem.getKind())
                 .project(dataItem.getProject())
                 .embedded(dataItem.getEmbedded())
-                .state(dataItem.getState() == null ? State.CREATED.name() : dataItem.getState().name())
+                .state(dataItem.getState() == null ? State.CREATED.name()
+                        : dataItem.getState().name())
                 .created(dataItem.getCreated())
                 .updated(dataItem.getUpdated())
                 .build();

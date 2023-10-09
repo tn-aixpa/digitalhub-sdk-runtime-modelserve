@@ -3,8 +3,7 @@ package it.smartcommunitylabdhub.core.services.context.interfaces;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-
-import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 
 public interface FunctionContextService {
 
@@ -22,9 +21,11 @@ public interface FunctionContextService {
         FunctionDTO getLatestByProjectNameAndFunctionName(
                         String projectName, String functionName);
 
-        FunctionDTO createOrUpdateFunction(String projectName, String functionName, FunctionDTO functionDTO);
+        FunctionDTO createOrUpdateFunction(String projectName, String functionName,
+                        FunctionDTO functionDTO);
 
-        FunctionDTO updateFunction(String projectName, String functionName, String uuid, FunctionDTO functionDTO);
+        FunctionDTO updateFunction(String projectName, String functionName, String uuid,
+                        FunctionDTO functionDTO);
 
         Boolean deleteSpecificFunctionVersion(String projectName, String functionName, String uuid);
 

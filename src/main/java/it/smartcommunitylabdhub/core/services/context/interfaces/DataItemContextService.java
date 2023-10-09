@@ -3,8 +3,7 @@ package it.smartcommunitylabdhub.core.services.context.interfaces;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-
-import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 
 public interface DataItemContextService {
 
@@ -22,9 +21,11 @@ public interface DataItemContextService {
         DataItemDTO getLatestByProjectNameAndDataItemName(
                         String projectName, String dataItemName);
 
-        DataItemDTO createOrUpdateDataItem(String projectName, String dataItemName, DataItemDTO dataItemDTO);
+        DataItemDTO createOrUpdateDataItem(String projectName, String dataItemName,
+                        DataItemDTO dataItemDTO);
 
-        DataItemDTO updateDataItem(String projectName, String dataItemName, String uuid, DataItemDTO dataItemDTO);
+        DataItemDTO updateDataItem(String projectName, String dataItemName, String uuid,
+                        DataItemDTO dataItemDTO);
 
         Boolean deleteSpecificDataItemVersion(String projectName, String dataItemName, String uuid);
 

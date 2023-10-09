@@ -14,8 +14,8 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.dtos.DataItemDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.DataItemEntityBuilder;
-import it.smartcommunitylabdhub.core.models.dtos.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.DataItemService;
 
@@ -95,7 +95,8 @@ public class DataItemServiceImpl implements DataItemService {
         return dataItemRepository.findById(uuid)
                 .map(dataItem -> {
                     try {
-                        DataItem dataItemUpdated = dataItemEntityBuilder.update(dataItem, dataItemDTO);
+                        DataItem dataItemUpdated =
+                                dataItemEntityBuilder.update(dataItem, dataItemDTO);
                         dataItemRepository.save(dataItemUpdated);
                         return dataItemDTOBuilder.build(dataItemUpdated, false);
                     } catch (CustomException e) {
