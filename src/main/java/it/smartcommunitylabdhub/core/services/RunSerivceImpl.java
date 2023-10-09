@@ -22,7 +22,6 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
 import it.smartcommunitylabdhub.core.models.entities.Run;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
@@ -133,9 +132,9 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public RunDTO createRun(ExecutionDTO executionDTO) {
+    public RunDTO createRun(RunDTO inputRunDTO) {
 
-        return Optional.ofNullable(this.taskService.getTask(executionDTO.getTaskId()))
+        return Optional.ofNullable(this.taskService.getTask(inputRunDTO.getTaskId()))
                 .map(taskDTO -> {
                     // Parse task to get accessor
                     TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getFunction());
@@ -151,19 +150,20 @@ public class RunSerivceImpl implements RunService {
 
                                 // 2. create Builder
                                 // 3. build Run
-                                RunDTO runDTO = runtime.build(
+                                RunDTO buildRunDTO = runtime.build(
                                         functionDTO,
                                         taskDTO,
-                                        executionDTO);
+                                        inputRunDTO);
 
                                 // 4. Save run
-                                Run run = runRepository.save(runEntityBuilder.build(runDTO));
+                                Run run = runRepository.save(runEntityBuilder.build(buildRunDTO));
 
                                 // Check weather the run has local set to True in that case return
                                 // immediately the run without invoke the execution.
                                 Supplier<RunDTO> result = () -> {
                                     return Optional
-                                            .ofNullable(runDTO.getSpec().get("local_execution"))
+                                            .ofNullable(
+                                                    buildRunDTO.getSpec().get("local_execution"))
                                             .filter(value -> value.equals(true))
                                             .map(value -> runDTOBuilder.build(run)) // return
                                                                                     // immediately
@@ -172,6 +172,7 @@ public class RunSerivceImpl implements RunService {
                                                 return Optional.ofNullable(runDTOBuilder.build(run))
                                                         .map(savedRun -> {
 
+                                                            // Create Runnable
                                                             Runnable runnable =
                                                                     runtime.run(savedRun);
 
@@ -179,6 +180,7 @@ public class RunSerivceImpl implements RunService {
                                                             eventPublisher.publishEvent(runnable);
 
 
+                                                            // Return saved run
                                                             return savedRun;
                                                         })
                                                         .orElseThrow(() -> new CoreException("", "",

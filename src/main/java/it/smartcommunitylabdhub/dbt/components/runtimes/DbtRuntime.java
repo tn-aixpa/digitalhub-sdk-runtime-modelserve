@@ -12,7 +12,6 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
-import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
 
 @RuntimeComponent(runtime = "dbt")
 public class DbtRuntime extends BaseRuntime {
@@ -23,9 +22,9 @@ public class DbtRuntime extends BaseRuntime {
 
 
 	@Override
-	public RunDTO build(FunctionDTO function, TaskDTO task, ExecutionDTO executionDTO) {
+	public RunDTO build(FunctionDTO function, TaskDTO task, RunDTO inputRunDTO) {
 		Builder builder = getBuilder(task.getKind());
-		return builder.build(function, task, executionDTO);
+		return builder.build(function, task, inputRunDTO);
 	}
 
 

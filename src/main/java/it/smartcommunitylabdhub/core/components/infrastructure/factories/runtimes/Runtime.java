@@ -4,13 +4,12 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnabl
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
-import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
 
 /**
  * Runtime expose builder and run method
  */
 public interface Runtime {
-	RunDTO build(FunctionDTO functionDTO, TaskDTO taskDTO, ExecutionDTO executionDTO);
+	RunDTO build(FunctionDTO functionDTO, TaskDTO taskDTO, RunDTO inputRunDTO);
 
 	Runnable run(RunDTO runDTO);
 }

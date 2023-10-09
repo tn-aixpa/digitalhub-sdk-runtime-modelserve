@@ -8,15 +8,13 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.dtos.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
 import it.smartcommunitylabdhub.core.models.dtos.TaskDTO;
-import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 
 @BuilderComponent(runtime = "dbt", task = "transform")
 public class DbtTransformBuilder extends BaseBuilder implements Builder {
 
-
 	@Override
-	public RunDTO build(FunctionDTO functionDTO, TaskDTO taskDTO, ExecutionDTO executionDTO) {
+	public RunDTO build(FunctionDTO functionDTO, TaskDTO taskDTO, RunDTO inputRunDTO) {
 		// 1. Merge Task spec with function spec
 		Map<String, Object> mergedSpec =
 				MapUtils.mergeMaps(functionDTO.getSpec(), taskDTO.getSpec(),
@@ -34,7 +32,7 @@ public class DbtTransformBuilder extends BaseBuilder implements Builder {
 				.build();
 
 		// 3. Merge the rest of the spec from executionDTO and the current RunDTO
-		return mergeSpec(executionDTO, runDTO);
+		return mergeSpec(inputRunDTO, runDTO);
 
 	}
 

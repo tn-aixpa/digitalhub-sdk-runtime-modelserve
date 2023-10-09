@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.dtos;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.Map;
 
@@ -32,12 +33,11 @@ public class RunDTO implements BaseEntity {
 
     private String task;
 
-    @NotNull
     private String project;
 
-    @NotNull
-    private String kind; // for instance run
+    private String kind;
 
+    @NotNull
     @JsonProperty("task_id")
     private String taskId;
 
@@ -64,5 +64,23 @@ public class RunDTO implements BaseEntity {
     public void setExtra(String key, Object value) {
         extra.put(key, value);
         StatusFieldUtility.updateStateField(this);
+    }
+
+    public void overrideFields(RunDTO runDTO) {
+        Class<?> runClass = runDTO.getClass();
+
+        for (Map.Entry<String, Object> entry : extra.entrySet()) {
+            String fieldName = entry.getKey();
+            Object value = entry.getValue();
+
+            try {
+                Field field = runClass.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(runDTO, value);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                // put field in extra
+                runDTO.getExtra().put(fieldName, value);
+            }
+        }
     }
 }

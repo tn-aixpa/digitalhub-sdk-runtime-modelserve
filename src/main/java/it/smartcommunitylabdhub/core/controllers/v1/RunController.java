@@ -20,7 +20,6 @@ import it.smartcommunitylabdhub.core.annotations.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.dtos.LogDTO;
 import it.smartcommunitylabdhub.core.models.dtos.RunDTO;
-import it.smartcommunitylabdhub.core.models.dtos.custom.ExecutionDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import jakarta.validation.Valid;
@@ -60,8 +59,8 @@ public class RunController {
             description = "Create a run and then execute it")
     @PostMapping(path = "", consumes = {MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml"}, produces = "application/json; charset=UTF-8")
-    public ResponseEntity<RunDTO> createRun(@Valid @RequestBody ExecutionDTO executionDTO) {
-        return ResponseEntity.ok(this.runService.createRun(executionDTO));
+    public ResponseEntity<RunDTO> createRun(@Valid @RequestBody RunDTO inputRunDTO) {
+        return ResponseEntity.ok(this.runService.createRun(inputRunDTO));
     }
 
 
