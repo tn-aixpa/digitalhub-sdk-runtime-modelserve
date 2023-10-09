@@ -53,7 +53,7 @@ def create_artifact_from_dict(obj: dict) -> Artifact:
 def new_artifact(
     project: str,
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     key: str | None = None,
     src_path: str | None = None,

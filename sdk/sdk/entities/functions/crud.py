@@ -53,7 +53,7 @@ def create_function_from_dict(obj: dict) -> Function:
 def new_function(
     project: str,
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     source: str | None = None,
     image: str | None = None,

@@ -312,7 +312,7 @@ class Dataitem(Entity):
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
-        _obj._local = _obj._context.local
+        _obj._local = _obj._context().local
         return _obj
 
     @staticmethod
@@ -372,7 +372,7 @@ class Dataitem(Entity):
 def dataitem_from_parameters(
     project: str,
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     key: str | None = None,
     path: str | None = None,
@@ -416,8 +416,7 @@ def dataitem_from_parameters(
     key = (
         key if key is not None else f"store://{project}/dataitems/{kind}/{name}:{uuid}"
     )
-    spec = build_spec(DTIT, kind, key=key, path=path, **kwargs)
-    meta = build_metadata(
+    metadata = build_metadata(
         DTIT,
         project=project,
         name=name,
@@ -425,9 +424,21 @@ def dataitem_from_parameters(
         description=description,
         embedded=embedded,
     )
+    spec = build_spec(
+        DTIT,
+        kind,
+        key=key,
+        path=path,
+        **kwargs,
+    )
     status = build_status(DTIT)
     return Dataitem(
-        uuid=uuid, kind=kind, metadata=meta, spec=spec, status=status, local=local
+        uuid=uuid,
+        kind=kind,
+        metadata=metadata,
+        spec=spec,
+        status=status,
+        local=local,
     )
 
 

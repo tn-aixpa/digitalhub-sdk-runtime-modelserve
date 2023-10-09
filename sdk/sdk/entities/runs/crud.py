@@ -35,8 +35,8 @@ def create_run(**kwargs) -> Run:
 
 def new_run(
     project: str,
-    task_id: str,
     task: str,
+    task_id: str,
     kind: str | None = None,
     inputs: dict | None = None,
     outputs: list | None = None,
@@ -52,10 +52,10 @@ def new_run(
     ----------
     project : str
         Name of the project.
-    task_id : str
-        The task id of the run.
     task : str
         The task string of the run.
+    task_id : str
+        The task id of the run.
     kind : str, default "run"
         The type of the Run.
     inputs : dict
@@ -79,8 +79,8 @@ def new_run(
     check_local_flag(project, local)
     obj = create_run(
         project=project,
-        task_id=task_id,
         task=task,
+        task_id=task_id,
         kind=kind,
         inputs=inputs,
         outputs=outputs,

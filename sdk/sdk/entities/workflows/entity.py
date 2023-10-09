@@ -17,9 +17,10 @@ from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.status import Status
+    from sdk.context.context import Context
+    from sdk.entities.workflows.metadata import WorkflowMetadata
     from sdk.entities.workflows.spec.objects.base import WorkflowSpec
+    from sdk.entities.workflows.status import WorkflowStatus
 
 
 class Workflow(Entity):
@@ -29,56 +30,41 @@ class Workflow(Entity):
 
     def __init__(
         self,
-        project: str,
-        name: str,
-        uuid: str | None = None,
-        kind: str | None = None,
-        metadata: Metadata | None = None,
-        spec: WorkflowSpec | None = None,
-        status: Status | None = None,
+        uuid: str,
+        kind: str,
+        metadata: WorkflowMetadata,
+        spec: WorkflowSpec,
+        status: WorkflowStatus,
         local: bool = False,
-        embedded: bool = True,
     ) -> None:
         """
         Initialize the Workflow instance.
 
         Parameters
         ----------
-        project : str
-            Name of the project.
-        name : str
-            Name of the object.
         uuid : str
             UUID.
         kind : str
             Kind of the object.
-        metadata : Metadata
+        metadata : WorkflowMetadata
             Metadata of the object.
         spec : WorkflowSpec
             Specification of the object.
-        status : Status
+        status : WorkflowStatus
             State of the object.
         local: bool
             If True, export locally.
-        embedded: bool
-            If True, embed object in backend.
         """
         super().__init__()
-        self.id = build_uuid(uuid=uuid)
-        self.kind = kind
-        self.metadata = (
-            metadata if metadata is not None else build_metadata(WKFL, project=project)
-        )
-        self.spec = spec if spec is not None else build_spec(WKFL, self.kind, **{})
-        self.status = status if status is not None else build_status(WKFL)
 
-        self.project = project
-        self.name = name
-        self.embedded = embedded
+        self.id = uuid
+        self.kind = kind
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
 
         # Private attributes
         self._local = local
-        self._context = get_context(self.project)
 
     #############################
     #  Save / Export
@@ -103,13 +89,18 @@ class Workflow(Entity):
 
         obj = self.to_dict()
 
+        # TODO: Remove this when backend is fixed
+        obj["project"] = self.metadata.project
+        obj["name"] = self.metadata.name
+        obj["embedded"] = self.metadata.embedded
+
         if uuid is None:
-            api = api_ctx_create(self.project, WKFL)
-            return self._context.create_object(obj, api)
+            api = api_ctx_create(self.metadata.project, WKFL)
+            return self._context().create_object(obj, api)
 
         self.id = uuid
-        api = api_ctx_update(self.project, WKFL, self.name, uuid)
-        return self._context.update_object(obj, api)
+        api = api_ctx_update(self.metadata.project, WKFL, self.metadata.name, uuid)
+        return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -128,13 +119,24 @@ class Workflow(Entity):
         filename = (
             filename
             if filename is not None
-            else f"workflow_{self.project}_{self.name}.yaml"
+            else f"workflow_{self.metadata.project}_{self.metadata.name}.yaml"
         )
         self._export_object(filename, obj)
 
     #############################
-    #  Workflow Methods
+    #  Context
     #############################
+
+    def _context(self) -> Context:
+        """
+        Get context.
+
+        Returns
+        -------
+        Context
+            Context.
+        """
+        return get_context(self.metadata.project)
 
     #############################
     #  Getters and Setters
@@ -173,7 +175,7 @@ class Workflow(Entity):
         """
         parsed_dict = cls._parse_dict(obj)
         _obj = cls(**parsed_dict)
-        _obj._local = _obj._context.local
+        _obj._local = _obj._context().local
         return _obj
 
     @staticmethod
@@ -198,38 +200,42 @@ class Workflow(Entity):
         if project is None or name is None:
             raise EntityError("Project or name are not specified.")
 
-        # Optional fields
+        # Build UUID, kind, metadata, spec and status
         uuid = obj.get("id")
+        uuid = build_uuid(uuid)
+
         kind = obj.get("kind")
         kind = build_kind(WKFL, kind)
-        embedded = obj.get("embedded")
 
-        # Build metadata, spec, status
+        metadata = obj.get("metadata")
+        metadata = (
+            metadata
+            if metadata is not None
+            else {"project": project, "name": name, "version": uuid}
+        )
+        metadata = build_metadata(WKFL, **metadata)
+
         spec = obj.get("spec")
         spec = spec if spec is not None else {}
         spec = build_spec(WKFL, kind=kind, **spec)
-        metadata = obj.get("metadata", {"name": name})
-        metadata = build_metadata(WKFL, **metadata)
+
         status = obj.get("status")
         status = status if status is not None else {}
         status = build_status(WKFL, **status)
 
         return {
-            "project": project,
-            "name": name,
-            "kind": kind,
             "uuid": uuid,
+            "kind": kind,
             "metadata": metadata,
             "spec": spec,
             "status": status,
-            "embedded": embedded,
         }
 
 
 def workflow_from_parameters(
     project: str,
     name: str,
-    description: str = "",
+    description: str | None = None,
     kind: str | None = None,
     test: str | None = None,
     local: bool = False,
@@ -266,9 +272,9 @@ def workflow_from_parameters(
     Workflow
         An instance of the created workflow.
     """
+    uuid = build_uuid(uuid)
     kind = build_kind(WKFL, kind)
-    spec = build_spec(WKFL, kind, test=test, **kwargs)
-    meta = build_metadata(
+    metadata = build_metadata(
         WKFL,
         project=project,
         name=name,
@@ -276,15 +282,20 @@ def workflow_from_parameters(
         description=description,
         embedded=embedded,
     )
+    spec = build_spec(
+        WKFL,
+        kind,
+        test=test,
+        **kwargs,
+    )
+    status = build_status(WKFL)
     return Workflow(
-        project=project,
-        name=name,
-        kind=kind,
-        metadata=meta,
-        spec=spec,
-        local=local,
-        embedded=embedded,
         uuid=uuid,
+        kind=kind,
+        metadata=metadata,
+        spec=spec,
+        status=status,
+        local=local,
     )
 
 
