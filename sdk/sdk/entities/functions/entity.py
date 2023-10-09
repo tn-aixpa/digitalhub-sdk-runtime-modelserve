@@ -444,6 +444,7 @@ def function_from_parameters(
     tag: str | None = None,
     handler: str | None = None,
     command: str | None = None,
+    arguments: list | None = None,
     requirements: list | None = None,
     sql: str | None = None,
     local: bool = False,
@@ -474,6 +475,8 @@ def function_from_parameters(
         Function handler name.
     command : str
         Command to run inside the container.
+    arguments : list
+        List of arguments for the command.
     requirements : list
         List of requirements for the Function.
     sql : str
@@ -502,6 +505,7 @@ def function_from_parameters(
         tag=tag,
         handler=handler,
         command=command,
+        args=arguments,
         requirements=requirements,
         sql=sql,
         **kwargs,

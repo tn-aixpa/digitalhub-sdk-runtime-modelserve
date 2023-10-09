@@ -467,9 +467,6 @@ class Run(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
-            "project": project,
-            "task_id": task_id,
-            "task": task,
         }
 
 
