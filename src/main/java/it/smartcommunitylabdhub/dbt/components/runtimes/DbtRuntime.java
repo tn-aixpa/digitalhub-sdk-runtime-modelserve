@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.dbt.components;
+package it.smartcommunitylabdhub.dbt.components.runtimes;
 
 import it.smartcommunitylabdhub.core.annotations.RuntimeComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;

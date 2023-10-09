@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.dbt.components;
+package it.smartcommunitylabdhub.dbt.components.runners;
 
 import java.util.List;
 import java.util.Map;

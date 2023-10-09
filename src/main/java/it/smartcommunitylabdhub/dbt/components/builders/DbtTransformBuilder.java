@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.dbt.components;
+package it.smartcommunitylabdhub.dbt.components.builders;
 
 import java.util.Map;
 import it.smartcommunitylabdhub.core.annotations.BuilderComponent;
