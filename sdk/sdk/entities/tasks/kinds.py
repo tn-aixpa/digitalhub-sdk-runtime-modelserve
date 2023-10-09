@@ -10,7 +10,7 @@ class TaskKinds(Enum):
     """
 
     # TODO: change name of perform to job and perform to transform
-    JOB = "perform"
+    JOB = "job"
     BUILD = "build"
     DEPLOY = "deploy"
-    TRANSFORM = "perform"
+    TRANSFORM = "transform"
