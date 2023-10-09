@@ -19,9 +19,17 @@ public class ProjectEntityBuilder {
         public Project build(ProjectDTO projectDTO) {
                 return EntityFactory.combine(
                                 ConversionUtils.convert(projectDTO, "project"), projectDTO,
-                                builder -> builder.with(p -> p.setExtra(
-                                                ConversionUtils.convert(projectDTO.getExtra(),
-                                                                "cbor"))));
+                                builder -> builder
+                                                .with(p -> p.setExtra(
+                                                                ConversionUtils.convert(projectDTO
+                                                                                .getExtra(),
+                                                                                "cbor")))
+                                                .with(p -> p.setMetadata(
+                                                                ConversionUtils.convert(projectDTO
+                                                                                .getMetadata(),
+                                                                                "metadata")))
+
+                );
         }
 
         /**
@@ -43,6 +51,10 @@ public class ProjectEntityBuilder {
                                                 .with(p -> p.setExtra(
                                                                 ConversionUtils.convert(projectDTO
                                                                                 .getExtra(),
-                                                                                "cbor"))));
+                                                                                "cbor")))
+                                                .with(p -> p.setMetadata(
+                                                                ConversionUtils.convert(projectDTO
+                                                                                .getMetadata(),
+                                                                                "metadata"))));
         }
 }

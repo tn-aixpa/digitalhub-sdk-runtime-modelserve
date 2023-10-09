@@ -12,8 +12,8 @@ import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,6 +53,8 @@ public class ProjectDTO implements BaseEntity {
 
     @JsonIgnore
     private String state;
+
+    private ProjectMetadata metadata;
 
     @JsonAnyGetter
     public Map<String, Object> getExtra() {

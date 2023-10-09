@@ -1,10 +1,10 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes;
 
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
+import it.smartcommunitylabdhub.core.models.base.RunStatus;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
-import it.smartcommunitylabdhub.core.models.shared.RunStatus;
 
 /**
  * Runtime expose builder, run and parse method

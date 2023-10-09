@@ -13,6 +13,7 @@ import it.smartcommunitylabdhub.core.models.converters.types.DateTimeConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.FunctionConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.IntegerConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.LogConverter;
+import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.ProjectConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.RunConverter;
 import it.smartcommunitylabdhub.core.models.converters.types.TaskConverter;
@@ -33,6 +34,7 @@ public class ConverterConfig {
         factory.registerConverter("workflow", WorkflowConverter::new);
         factory.registerConverter("project", ProjectConverter::new);
         factory.registerConverter("cbor", CBORConverter::new);
+        factory.registerConverter("metadata", MetadataConverter::new);
         factory.registerConverter("integer", IntegerConverter::new);
         factory.registerConverter("datetime", DateTimeConverter::new);
         factory.registerConverter("run", RunConverter::new);

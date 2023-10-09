@@ -9,9 +9,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
+import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
-
 import java.util.HashMap;
 
 import jakarta.validation.constraints.NotNull;

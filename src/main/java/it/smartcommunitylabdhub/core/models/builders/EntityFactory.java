@@ -2,12 +2,12 @@ package it.smartcommunitylabdhub.core.models.builders;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import it.smartcommunitylabdhub.core.models.interfaces.BaseEntity;
+import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 
 public class EntityFactory {
 
-    public static <T extends BaseEntity, U extends BaseEntity> T create(Supplier<T> entitySupplier, U entity,
+    public static <T extends BaseEntity, U extends BaseEntity> T create(Supplier<T> entitySupplier,
+            U entity,
             Consumer<EntityBuilder<T, U>> buildFunction) {
         EntityBuilder<T, U> builder = new EntityBuilder<>(entitySupplier);
         buildFunction.accept(builder);
