@@ -94,9 +94,9 @@ class TaskSpec(BaseModel):
     """Task function."""
 
 
-class TaskParamsPerform(TaskSpec):
+class TaskParamsJob(TaskSpec):
     """
-    TaskParamsPerform model.
+    TaskParamsJob model.
     """
 
     volumes: list[Volume] | None = []

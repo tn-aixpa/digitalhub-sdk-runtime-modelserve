@@ -168,8 +168,8 @@ class RuntimeDBT(Runtime):
         dict
             Status of the executed run.
         """
-        project = run.get("project")
         spec = run.get("spec")
+        project = run.get("metadata").get("project")
 
         # Parse inputs/outputs
         inputs = self.parse_inputs(spec.get("inputs", {}).get("dataitems", []), project)
@@ -630,12 +630,16 @@ class RuntimeDBT(Runtime):
         dataitem : Dataitem
             The dataitem.
         """
+        kind = dataitem.kind
+        project = dataitem.metadata.project
+        name = dataitem.metadata.name
+        version = dataitem.id
         return {
             "dataitems": [
                 {
                     "key": output,
-                    "kind": dataitem.kind,
-                    "id": f"store://{dataitem.project}/dataitems/{dataitem.kind}/{dataitem.name}:{dataitem.id}",
+                    "kind": kind,
+                    "id": f"store://{project}/dataitems/{kind}/{name}:{version}",
                 }
             ]
         }

@@ -105,17 +105,12 @@ class Run(Entity):
 
         # TODO: Remove this when backend is fixed
         obj["project"] = self.metadata.project
-        obj["task_id"] = self.spec.task_id
         obj["task"] = self.spec.task
-        obj["local_execution"] = self.spec.local_execution
+        obj["task_id"] = self.spec.task_id
 
         if uuid is None:
             api = api_base_create(RUNS)
-            response = self._context().create_object(obj, api)
-            id_ = response.get("id")
-            if id_ is not None:
-                self.id = id_
-            return response
+            return self._context().create_object(obj, api)
 
         self.id = uuid
         api = api_base_update(RUNS, uuid)
