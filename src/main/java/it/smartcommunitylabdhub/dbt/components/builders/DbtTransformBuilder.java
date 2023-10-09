@@ -22,6 +22,7 @@ public class DbtTransformBuilder extends BaseBuilder implements Builder {
 
 		// 2. produce a run object and store it
 		RunDTO runDTO = RunDTO.builder()
+				.id(inputRunDTO.getId())
 				.kind("run")
 				.taskId(taskDTO.getId())
 				.project(taskDTO.getProject())

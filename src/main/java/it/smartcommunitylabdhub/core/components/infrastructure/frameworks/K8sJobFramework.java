@@ -88,10 +88,19 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 		String containerName =
 				getContainerName(runnable.getRuntime(), runnable.getTask(), runnable.getId());
 
+		// Create labels for job
+		Map<String, String> labels = Map.of(
+				"app.kubernetes.io/instance", "dhcore-" + jobName,
+				"app.kubernetes.io/version", runnable.getId(),
+				"app.kubernetes.io/component", "job",
+				"app.kubernetes.io/part-of", "dhcore-k8sjob",
+				"app.kubernetes.io/managed-by", "dhcore");
+
 		// Build the Kubernetes Job configuration
 		Job job = new JobBuilder()
 				.withNewMetadata()
 				.withName(jobName)
+				.withLabels(labels)
 				.endMetadata()
 				.withNewSpec()
 				.withNewTemplate()
@@ -114,17 +123,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 		Job jobResult = kubernetesClient.resource(job).inNamespace(namespace).create();
 
 
-		// TODO: instead of emit event to watch the job ...just monitor it here
-		// // Send a message to the Kubernetes event listener
-		// eventPublisher.publishEvent(DbtKubernetesMessage.builder()
-		// .fsm(fsm)
-		// .runDTO(runDTO)
-		// .k8sNamespace(namespace)
-		// .k8sJobName(getJobName(runDTO))
-		// .k8sUuid(jobResult.getMetadata().getUid())
-		// .build());
-
-		// // Initialize the run state machine considering current state and context
+		// Initialize the run state machine considering current state and context
 		StateMachine<RunState, RunEvent, Map<String, Object>> fsm = runStateMachine
 				.create(RunState.valueOf(runnable.getState()),
 						Map.of("runId", runnable.getId()));
