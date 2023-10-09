@@ -2,6 +2,7 @@ package it.smartcommunitylabdhub.dbt.components.runners;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import it.smartcommunitylabdhub.core.annotations.RunnerComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
@@ -17,16 +18,44 @@ public class DbtTransformRunner implements Runner {
 	@Override
 	public Runnable produce(RunDTO runDTO) {
 
+		return Optional.ofNullable(runDTO)
+				.map(dto -> validateRunDTO(dto))
+				.orElseThrow(() -> new IllegalArgumentException("Invalid runDTO"));
+
+	}
+
+
+	@SuppressWarnings("unchecked")
+	private K8sJobRunnable validateRunDTO(RunDTO runDTO) {
+
+		// Create accessor
 		RunAccessor runAccessor = RunUtils.parseRun(runDTO.getTask());
 
-		@SuppressWarnings("unchecked")
+		// Check for valid parameters image, command and args
+		String image = (String) runDTO.getSpec().get("image");
+		if (image == null) {
+			throw new IllegalArgumentException(
+					"Invalid argument: image not found in runDTO spec");
+		}
+
+		String command = (String) runDTO.getSpec().get("command");
+		if (command == null) {
+			throw new IllegalArgumentException(
+					"Invalid argument: command not found in runDTO spec");
+		}
+
+		List<String> args = (List<String>) runDTO.getSpec().get("args");
+		if (args == null) {
+			throw new IllegalArgumentException(
+					"Invalid argument: args not found in runDTO spec");
+		}
+
 		K8sJobRunnable k8sJobRunnable = K8sJobRunnable.builder()
 				.runtime(runAccessor.getRuntime())
 				.task(runAccessor.getTask())
-				.image((String) runDTO.getSpec().get("image"))
-				.command((String) runDTO.getSpec().get("command"))
-				.args(((List<String>) runDTO.getSpec().get("args"))
-						.toArray(String[]::new))
+				.image(image)
+				.command(command)
+				.args(args.toArray(String[]::new))
 				.envs(Map.of(
 						"PROJECT_NAME", runDTO.getProject(),
 						"RUN_ID", runDTO.getId()))
