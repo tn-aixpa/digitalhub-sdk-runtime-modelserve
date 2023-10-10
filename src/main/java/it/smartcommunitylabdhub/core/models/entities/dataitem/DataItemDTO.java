@@ -35,6 +35,9 @@ public class DataItemDTO implements BaseEntity {
 
     @ValidateField
     private String project;
+
+    private DataItemMetadata metadata;
+
     private Map<String, Object> spec;
 
     @Builder.Default

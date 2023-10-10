@@ -8,6 +8,9 @@ RUN apt-get update && \
     apt-get install -y python3.10 &&\
     rm -rf /var/lib/apt/lists/*
 
+#
+RUN pip install --upgrade pip
+
 # 
 RUN python -m pip install dbt-postgres==1.6.3
 
