@@ -43,7 +43,6 @@ from sdk.utils.exceptions import BackendError, EntityError
 from sdk.utils.generic_utils import build_uuid
 
 if typing.TYPE_CHECKING:
-    from sdk.client.client import Client
     from sdk.entities.artifacts.entity import Artifact
     from sdk.entities.dataitems.entity import Dataitem
     from sdk.entities.functions.entity import Function
@@ -132,8 +131,8 @@ class Project(Entity):
         self.status = status
 
         # Private attributes
+        self._client = get_client(local)
         self._local = local
-        self._client = get_client() if not self.local else None
 
         # Set context
         set_context(self)
@@ -157,8 +156,6 @@ class Project(Entity):
             Mapping representation of Project from backend.
         """
         responses: dict = {}
-        if self.local:
-            raise EntityError("Use .export() for local execution.")
 
         obj = self.to_dict()
 
@@ -169,7 +166,7 @@ class Project(Entity):
         # (try to avoid error response if project already exists)
         try:
             api = api_base_create(PROJ)
-            response = self.client.create_object(obj, api)
+            response = self._client.create_object(obj, api)
             responses[PROJ] = response
         except BackendError:
             responses[PROJ] = obj
@@ -354,8 +351,6 @@ class Project(Entity):
         -------
         Artifact
            Object instance.
-
-
         """
         kwargs["project"] = self.metadata.name
         obj = new_artifact(**kwargs)
@@ -401,8 +396,7 @@ class Project(Entity):
         -------
         None
         """
-        if not self.local:
-            delete_artifact(self.metadata.name, name)
+        delete_artifact(self.metadata.name, name)
         self._delete_object(name, ARTF, uuid=uuid)
 
     def set_artifact(self, artifact: Artifact) -> None:
@@ -437,8 +431,6 @@ class Project(Entity):
         -------
         Function
            Object instance.
-
-
         """
         kwargs["project"] = self.metadata.name
         obj = new_function(**kwargs)
@@ -484,8 +476,7 @@ class Project(Entity):
         -------
         None
         """
-        if not self.local:
-            delete_function(self.metadata.name, name)
+        delete_function(self.metadata.name, name)
         self._delete_object(name, FUNC, uuid=uuid)
 
     def set_function(self, function: Function) -> None:
@@ -520,8 +511,6 @@ class Project(Entity):
         -------
         Workflow
             An instance of the created workflow.
-
-
         """
         kwargs["project"] = self.metadata.name
         obj = new_workflow(**kwargs)
@@ -567,8 +556,7 @@ class Project(Entity):
         -------
         None
         """
-        if not self.local:
-            delete_workflow(self.metadata.name, name)
+        delete_workflow(self.metadata.name, name)
         self._delete_object(name, WKFL, uuid=uuid)
 
     def set_workflow(self, workflow: Workflow) -> None:
@@ -603,8 +591,6 @@ class Project(Entity):
         -------
         Dataitem
            Object instance.
-
-
         """
         kwargs["project"] = self.metadata.name
         obj = new_dataitem(**kwargs)
@@ -650,8 +636,7 @@ class Project(Entity):
         -------
         None
         """
-        if not self.local:
-            delete_dataitem(self.metadata.name, name)
+        delete_dataitem(self.metadata.name, name)
         self._delete_object(name, DTIT, uuid=uuid)
 
     def set_dataitem(self, dataitem: Dataitem) -> None:
@@ -668,41 +653,6 @@ class Project(Entity):
         None
         """
         self._add_object(dataitem, DTIT)
-
-    #############################
-    #  Getters and Setters
-    #############################
-
-    @property
-    def client(self) -> Client:
-        """
-        Get client.
-
-        Returns
-        -------
-        Client
-            Client instance.
-
-        Raises
-        ------
-        EntityError
-            If client is not specified.
-        """
-        if self._client is not None:
-            return self._client
-        raise EntityError("Client is not specified.")
-
-    @property
-    def local(self) -> bool:
-        """
-        Get local flag.
-
-        Returns
-        -------
-        bool
-            Local flag.
-        """
-        return self._local
 
     #############################
     #  Generic Methods
@@ -724,8 +674,7 @@ class Project(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        _obj = cls(**parsed_dict)
-        return _obj
+        return cls(**parsed_dict)
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -786,8 +735,8 @@ def project_from_parameters(
     kind: str | None = None,
     context: str = "",
     source: str = "",
-    local: bool = False,
     uuid: str | None = None,
+    local: bool = False,
     **kwargs,
 ) -> Project:
     """
@@ -805,10 +754,10 @@ def project_from_parameters(
         The context of the project.
     source : str
         The source of the project.
-    local : bool
-        Flag to determine if object will be exported to backend.
     uuid : str
         UUID.
+    local : bool
+        Flag to determine if object will be exported to backend.
     **kwargs
         Keyword arguments.
 

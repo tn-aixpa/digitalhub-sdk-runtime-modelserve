@@ -49,7 +49,6 @@ class Run(Entity):
         metadata: RunMetadata,
         spec: RunSpec,
         status: RunStatus,
-        local: bool = False,
     ) -> None:
         """
         Initialize the Run instance.
@@ -66,8 +65,6 @@ class Run(Entity):
             Specification of the object.
         status : RunStatus
             State of the object.
-        local: bool
-            If True, export locally.
         """
         super().__init__()
 
@@ -76,9 +73,6 @@ class Run(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
-
-        # Private attributes
-        self._local = local
 
     #############################
     #  Save / Export
@@ -98,9 +92,6 @@ class Run(Entity):
         dict
             Mapping representation of Run from backend.
         """
-        if self._local:
-            raise EntityError("Use .export() for local execution.")
-
         obj = self.to_dict(include_all_non_private=True)
 
         # TODO: Remove this when backend is fixed
@@ -194,7 +185,6 @@ class Run(Entity):
         """
         runtime = self._get_runtime()
         try:
-            # inserire await, wrappare runtime.run in un async
             status = runtime.run(self.to_dict(include_all_non_private=True))
         except Exception as e:
             status = {"state": State.ERROR.value, "message": str(e)}
@@ -398,7 +388,6 @@ class Run(Entity):
         -------
         Runtime
             Runtime object.
-
         """
         fnc_kind = self._parse_task_string().function_kind
         return build_runtime(fnc_kind)
@@ -423,9 +412,7 @@ class Run(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        _obj = cls(**parsed_dict)
-        _obj._local = _obj._context().local
-        return _obj
+        return cls(**parsed_dict)
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -488,7 +475,6 @@ def run_from_parameters(
     outputs: list | None = None,
     parameters: dict | None = None,
     local_execution: bool = False,
-    local: bool = False,
     **kwargs,
 ) -> Run:
     """
@@ -514,8 +500,6 @@ def run_from_parameters(
         Parameters of the run.
     local_execution : bool
         Flag to determine if object has local execution.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     **kwargs
@@ -550,7 +534,6 @@ def run_from_parameters(
         kind=kind,
         metadata=metadata,
         spec=spec,
-        local=local,
         status=status,
     )
 

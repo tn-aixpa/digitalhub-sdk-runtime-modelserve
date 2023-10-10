@@ -9,7 +9,7 @@ from sdk.context.builder import get_context
 from sdk.entities.dataitems.entity import dataitem_from_dict, dataitem_from_parameters
 from sdk.utils.api import api_ctx_delete, api_ctx_read
 from sdk.utils.commons import DTIT
-from sdk.utils.entities_utils import check_local_flag, parse_entity_key, save_or_export
+from sdk.utils.entities_utils import parse_entity_key
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -57,7 +57,6 @@ def new_dataitem(
     kind: str | None = None,
     key: str | None = None,
     path: str | None = None,
-    local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -79,8 +78,6 @@ def new_dataitem(
         Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -92,8 +89,7 @@ def new_dataitem(
     -------
     Dataitem
        Object instance.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_dataitem(
         project=project,
         name=name,
@@ -101,12 +97,11 @@ def new_dataitem(
         kind=kind,
         key=key,
         path=path,
-        local=local,
         embedded=embedded,
         uuid=uuid,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 

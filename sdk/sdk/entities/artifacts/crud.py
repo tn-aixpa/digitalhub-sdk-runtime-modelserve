@@ -9,7 +9,7 @@ from sdk.context.builder import get_context
 from sdk.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
 from sdk.utils.api import api_ctx_delete, api_ctx_read
 from sdk.utils.commons import ARTF
-from sdk.utils.entities_utils import check_local_flag, parse_entity_key, save_or_export
+from sdk.utils.entities_utils import parse_entity_key
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -58,7 +58,6 @@ def new_artifact(
     key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
-    local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -82,8 +81,6 @@ def new_artifact(
         Path to the artifact on local file system.
     targeth_path : str
         Destination path of the artifact.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -95,8 +92,7 @@ def new_artifact(
     -------
     Artifact
        Object instance.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_artifact(
         project=project,
         name=name,
@@ -105,12 +101,11 @@ def new_artifact(
         key=key,
         src_path=src_path,
         target_path=target_path,
-        local=local,
         embedded=embedded,
         uuid=uuid,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 

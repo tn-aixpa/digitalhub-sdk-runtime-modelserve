@@ -40,7 +40,6 @@ class Dataitem(Entity):
         metadata: DataitemMetadata,
         spec: DataitemSpec,
         status: DataitemStatus,
-        local: bool = False,
     ) -> None:
         """
         Initialize the Dataitem instance.
@@ -57,8 +56,6 @@ class Dataitem(Entity):
             Specification of the object.
         status : DataitemStatus
             State of the object.
-        local: bool
-            If True, export locally.
         """
         super().__init__()
         self.id = uuid
@@ -66,9 +63,6 @@ class Dataitem(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
-
-        # Private attributes
-        self._local = local
 
     #############################
     #  Save / Export
@@ -88,9 +82,6 @@ class Dataitem(Entity):
         dict
             Mapping representation of Dataitem from backend.
         """
-        if self._local:
-            raise EntityError("Use .export() for local execution.")
-
         obj = self.to_dict()
 
         # TODO: Remove this when backend is fixed
@@ -295,9 +286,7 @@ class Dataitem(Entity):
             Dataitem instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        _obj = cls(**parsed_dict)
-        _obj._local = _obj._context().local
-        return _obj
+        return cls(**parsed_dict)
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -360,7 +349,6 @@ def dataitem_from_parameters(
     kind: str | None = None,
     key: str | None = None,
     path: str | None = None,
-    local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -382,8 +370,6 @@ def dataitem_from_parameters(
         Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -422,7 +408,6 @@ def dataitem_from_parameters(
         metadata=metadata,
         spec=spec,
         status=status,
-        local=local,
     )
 
 

@@ -9,7 +9,6 @@ from sdk.context.builder import get_context
 from sdk.entities.functions.entity import function_from_dict, function_from_parameters
 from sdk.utils.api import api_ctx_delete, api_ctx_read
 from sdk.utils.commons import FUNC
-from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -63,7 +62,6 @@ def new_function(
     arguments: list | None = None,
     requirements: list | None = None,
     sql: str | None = None,
-    local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -97,8 +95,6 @@ def new_function(
         List of requirements for the Function.
     sql : str
         SQL query.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -115,8 +111,7 @@ def new_function(
     ------
     EntityError
         If the context local flag does not match the local flag of the function.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_function(
         project=project,
         name=name,
@@ -130,12 +125,11 @@ def new_function(
         arguments=arguments,
         requirements=requirements,
         sql=sql,
-        local=local,
         embedded=embedded,
         uuid=uuid,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 

@@ -9,7 +9,6 @@ from sdk.context.builder import get_context
 from sdk.entities.tasks.entity import task_from_dict, task_from_parameters
 from sdk.utils.api import api_base_delete, api_base_read
 from sdk.utils.commons import TASK
-from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -38,7 +37,6 @@ def new_task(
     kind: str | None = None,
     function: str = "",
     resources: dict | None = None,
-    local: bool = False,
     uuid: str | None = None,
     **kwargs,
 ) -> Task:
@@ -55,8 +53,6 @@ def new_task(
         The function string identifying the function.
     resources : dict
         The Kubernetes resources for the Task.
-    local : bool
-        Flag to determine if object will be exported to backend.
     uuid : str
         UUID.
     **kwargs
@@ -66,18 +62,16 @@ def new_task(
     -------
     Task
        Object instance.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_task(
         project=project,
         kind=kind,
         function=function,
         resources=resources,
-        local=local,
         uuid=uuid,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 

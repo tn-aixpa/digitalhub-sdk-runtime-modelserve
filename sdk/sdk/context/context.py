@@ -31,8 +31,8 @@ class Context:
         None
         """
         self.name = project.metadata.name
-        self.client = project.client
-        self.local = project.local
+        self.client = project._client
+        self.local = project._local
 
     def create_object(self, obj: dict, api: str) -> dict:
         """

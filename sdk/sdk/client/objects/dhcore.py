@@ -1,20 +1,18 @@
 """
-Client module.
+DHCore Client module.
 """
 import requests
 
 from sdk.client.env_utils import get_dhub_env
+from sdk.client.objects.base import Client
 from sdk.utils.exceptions import BackendError
 
 
-class Client:
+class ClientDHCore(Client):
     """
     The client. It's a singleton. Use the builder to get an instance.
     It is used to make requests to the DHCore API.
     """
-
-    def __init__(self) -> None:
-        self.session = requests.Session()
 
     def create_object(self, obj: dict, api: str) -> dict:
         """
@@ -108,7 +106,7 @@ class Client:
         """
         endpoint = self._get_endpoint(api)
         try:
-            response = self.session.request(call_type, endpoint, timeout=60, **kwargs)
+            response = requests.request(call_type, endpoint, timeout=60, **kwargs)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as exc:
@@ -142,6 +140,3 @@ class Client:
         raise BackendError(
             "Endpoint not set. Please set env variables with 'set_dhub_env()' function."
         )
-
-    def __del__(self) -> None:
-        self.session.close()

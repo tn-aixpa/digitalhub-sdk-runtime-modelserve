@@ -9,7 +9,6 @@ from sdk.context.builder import get_context
 from sdk.entities.runs.entity import run_from_dict, run_from_parameters
 from sdk.utils.api import api_base_delete, api_base_read, api_base_update
 from sdk.utils.commons import RUNS
-from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -42,7 +41,6 @@ def new_run(
     outputs: list | None = None,
     parameters: dict | None = None,
     local_execution: bool = False,
-    local: bool = False,
     **kwargs,
 ) -> Run:
     """
@@ -66,8 +64,6 @@ def new_run(
         The parameters of the run.
     local_execution : bool
         Flag to determine if object has local execution.
-    local : bool
-        Flag to determine if object will be exported to backend.
     **kwargs
         Keyword arguments.
 
@@ -75,8 +71,7 @@ def new_run(
     -------
     Run
        Object instance.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_run(
         project=project,
         task=task,
@@ -86,10 +81,9 @@ def new_run(
         outputs=outputs,
         parameters=parameters,
         local_execution=local_execution,
-        local=local,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 
