@@ -15,14 +15,12 @@ class Entity(ModelObj, metaclass=ABCMeta):
     def __init__(self) -> None:
         self._obj_attr = [
             "id",
-            "name",
             "kind",
             "metadata",
             "spec",
-            "project",
-            "embedded",
+            "status",
         ]
-        self._essential_attr = ["name", "kind"]
+        self._essential_attr = ["kind", "metadata"]
 
     @abstractmethod
     def save(self, uuid: str | None = None) -> dict:

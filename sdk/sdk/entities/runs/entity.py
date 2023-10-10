@@ -216,7 +216,8 @@ class Run(Entity):
 
         api = api_base_read(RUNS, self.id)
         obj = self._context().read_object(api)
-        return self.from_dict(obj)
+        self = self.from_dict(obj)
+        return self
 
     def stop(self) -> dict:
         """
@@ -320,7 +321,7 @@ class Run(Entity):
             If object type is not supported or if run has
             no result or if object with key is not found.
         """
-        self = self.from_dict(self.refresh())
+        self.refresh()
         if object_type == DTIT:
             result = self.status.dataitems
         elif object_type == ARTF:
