@@ -20,11 +20,16 @@ public class TaskEntityBuilder {
                 return EntityFactory.combine(
                                 ConversionUtils.convert(taskDTO, "task"), taskDTO,
                                 builder -> builder
-                                                .with(f -> f.setExtra(
+                                                .with(t -> t.setMetadata(
+                                                                ConversionUtils.convert(taskDTO
+                                                                                .getMetadata(),
+                                                                                "metadata")))
+
+                                                .with(t -> t.setExtra(
                                                                 ConversionUtils.convert(
                                                                                 taskDTO.getExtra(),
                                                                                 "cbor")))
-                                                .with(f -> f.setSpec(
+                                                .with(t -> t.setSpec(
                                                                 ConversionUtils.convert(
                                                                                 taskDTO.getSpec(),
                                                                                 "cbor"))));
@@ -39,19 +44,24 @@ public class TaskEntityBuilder {
         public Task update(Task task, TaskDTO taskDTO) {
                 return EntityFactory.combine(
                                 task, taskDTO, builder -> builder
-                                                .with(f -> f.setFunction(taskDTO.getFunction()))
-                                                .with(f -> f.setKind(taskDTO.getKind()))
-                                                .with(f -> f.setProject(taskDTO.getProject()))
-                                                .with(f -> f.setState(taskDTO.getState() == null
+                                                .with(t -> t.setFunction(taskDTO.getFunction()))
+                                                .with(t -> t.setKind(taskDTO.getKind()))
+                                                .with(t -> t.setProject(taskDTO.getProject()))
+                                                .with(t -> t.setState(taskDTO.getState() == null
                                                                 ? State.CREATED
                                                                 : State.valueOf(taskDTO
                                                                                 .getState())))
-                                                .with(f -> f.setExtra(
+                                                .with(t -> t.setMetadata(
+                                                                ConversionUtils.convert(taskDTO
+                                                                                .getMetadata(),
+                                                                                "metadata")))
+
+                                                .with(t -> t.setExtra(
                                                                 ConversionUtils.convert(
                                                                                 taskDTO.getExtra(),
 
                                                                                 "cbor")))
-                                                .with(f -> f.setSpec(
+                                                .with(t -> t.setSpec(
                                                                 ConversionUtils.convert(
                                                                                 taskDTO.getSpec(),
 

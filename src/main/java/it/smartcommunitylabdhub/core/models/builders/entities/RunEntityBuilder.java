@@ -20,11 +20,15 @@ public class RunEntityBuilder {
                 return EntityFactory.combine(
                                 ConversionUtils.convert(runDTO, "run"), runDTO,
                                 builder -> builder
-                                                .with(f -> f.setExtra(
+                                                .with(r -> r.setMetadata(
+                                                                ConversionUtils.convert(
+                                                                                runDTO.getMetadata(),
+                                                                                "metadata")))
+                                                .with(r -> r.setExtra(
                                                                 ConversionUtils.convert(
                                                                                 runDTO.getExtra(),
                                                                                 "cbor")))
-                                                .with(f -> f.setSpec(
+                                                .with(r -> r.setSpec(
                                                                 ConversionUtils.convert(
                                                                                 runDTO.getSpec(),
                                                                                 "cbor"))));
@@ -40,20 +44,25 @@ public class RunEntityBuilder {
         public Run update(Run run, RunDTO runDTO) {
                 return EntityFactory.combine(
                                 run, runDTO, builder -> builder
-                                                .with(f -> f.setKind(runDTO.getKind()))
-                                                .with(f -> f.setTaskId(runDTO.getTaskId()))
-                                                .with(f -> f.setProject(runDTO.getProject()))
-                                                .with(f -> f.setTask(runDTO.getTask()))
-                                                .with(f -> f.setState(runDTO.getState() == null
+                                                .with(r -> r.setKind(runDTO.getKind()))
+                                                .with(r -> r.setTaskId(runDTO.getTaskId()))
+                                                .with(r -> r.setProject(runDTO.getProject()))
+                                                .with(r -> r.setTask(runDTO.getTask()))
+                                                .with(r -> r.setState(runDTO.getState() == null
                                                                 ? RunState.CREATED
                                                                 : RunState.valueOf(
                                                                                 runDTO.getState())))
-                                                .with(f -> f.setExtra(
+                                                .with(r -> r.setMetadata(
+                                                                ConversionUtils.convert(
+                                                                                runDTO.getMetadata(),
+                                                                                "metadata")))
+
+                                                .with(r -> r.setExtra(
                                                                 ConversionUtils.convert(
                                                                                 runDTO.getExtra(),
 
                                                                                 "cbor")))
-                                                .with(f -> f.setSpec(
+                                                .with(r -> r.setSpec(
                                                                 ConversionUtils.convert(
                                                                                 runDTO.getSpec(),
 

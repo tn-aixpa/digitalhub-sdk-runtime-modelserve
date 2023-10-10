@@ -1,15 +1,22 @@
 package it.smartcommunitylabdhub.core.models.builders.dtos;
 
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
+import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
 public class RunDTOBuilder {
+
+        @Autowired
+        MetadataConverter<RunMetadata> metadataConverter;
 
         public RunDTO build(Run run) {
                 return EntityFactory.create(RunDTO::new, run, builder -> builder
@@ -18,6 +25,13 @@ public class RunDTOBuilder {
                                 .with(dto -> dto.setTaskId(run.getTaskId()))
                                 .with(dto -> dto.setProject(run.getProject()))
                                 .with(dto -> dto.setTask(run.getTask()))
+                                .with(dto -> dto.setMetadata(Optional
+                                                .ofNullable(metadataConverter.reverseByClass(
+                                                                run.getMetadata(),
+                                                                RunMetadata.class))
+                                                .orElseGet(RunMetadata::new)
+
+                                ))
                                 .with(dto -> dto.setSpec(
                                                 ConversionUtils.reverse(run.getSpec(), "cbor")))
                                 .with(dto -> dto.setExtra(

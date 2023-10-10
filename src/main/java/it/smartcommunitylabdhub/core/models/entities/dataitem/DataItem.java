@@ -44,6 +44,9 @@ public class DataItem implements BaseEntity {
     private String name;
 
     @Lob
+    private byte[] metadata;
+
+    @Lob
     private byte[] spec;
 
     @Lob

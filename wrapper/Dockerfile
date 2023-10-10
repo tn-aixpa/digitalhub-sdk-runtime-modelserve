@@ -8,7 +8,7 @@ RUN apt-get update && \
     apt-get install -y python3.10 &&\
     rm -rf /var/lib/apt/lists/*
 
-# 
+# Install dbt-postgres
 RUN python -m pip install dbt-postgres==1.6.3
 
 # Copy and install sdk

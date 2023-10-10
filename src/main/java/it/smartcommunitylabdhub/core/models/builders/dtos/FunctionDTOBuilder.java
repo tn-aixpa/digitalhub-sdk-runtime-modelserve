@@ -1,17 +1,23 @@
 package it.smartcommunitylabdhub.core.models.builders.dtos;
 
 import java.util.Optional;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
+import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
 @Component
 public class FunctionDTOBuilder {
+
+        @Autowired
+        MetadataConverter<FunctionMetadata> metadataConverter;
+
 
         public FunctionDTO build(
                         Function function,
@@ -21,6 +27,18 @@ public class FunctionDTOBuilder {
                                 .with(dto -> dto.setKind(function.getKind()))
                                 .with(dto -> dto.setProject(function.getProject()))
                                 .with(dto -> dto.setName(function.getName()))
+
+                                .withIfElse(embeddable, (dto, condition) -> Optional
+                                                .ofNullable(function.getEmbedded())
+                                                .filter(embedded -> !condition
+                                                                || (condition && embedded))
+                                                .ifPresent(embedded -> dto.setMetadata(Optional
+                                                                .ofNullable(metadataConverter
+                                                                                .reverseByClass(function
+                                                                                                .getMetadata(),
+                                                                                                FunctionMetadata.class))
+                                                                .orElseGet(FunctionMetadata::new))))
+
 
                                 .withIfElse(embeddable, (dto, condition) -> Optional
                                                 .ofNullable(function.getEmbedded())

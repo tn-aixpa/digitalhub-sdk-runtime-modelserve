@@ -12,7 +12,7 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 public class DataItemEntityBuilder {
 
         /**
-         * Build a dataItem from a dataItemDTO and store extra values as a cbor
+         * Build d dataItem from d dataItemDTO and store extra values as d cbor
          * 
          * @return
          */
@@ -20,11 +20,15 @@ public class DataItemEntityBuilder {
                 return EntityFactory.combine(
                                 ConversionUtils.convert(dataItemDTO, "dataitem"), dataItemDTO,
                                 builder -> builder
-                                                .with(a -> a.setExtra(
+                                                .with(d -> d.setMetadata(
+                                                                ConversionUtils.convert(dataItemDTO
+                                                                                .getMetadata(),
+                                                                                "metadata")))
+                                                .with(d -> d.setExtra(
                                                                 ConversionUtils.convert(dataItemDTO
                                                                                 .getExtra(),
                                                                                 "cbor")))
-                                                .with(a -> a.setSpec(
+                                                .with(d -> d.setSpec(
                                                                 ConversionUtils.convert(dataItemDTO
                                                                                 .getSpec(),
                                                                                 "cbor"))));
@@ -32,7 +36,7 @@ public class DataItemEntityBuilder {
         }
 
         /**
-         * Update a dataItem if element is not passed it override causing empty field
+         * Update d dataItem if element is not passed it override causing empty field
          * 
          * @param dataItem
          * @return
@@ -40,23 +44,28 @@ public class DataItemEntityBuilder {
         public DataItem update(DataItem dataItem, DataItemDTO dataItemDTO) {
                 return EntityFactory.combine(
                                 dataItem, dataItemDTO, builder -> builder
-                                                .with(a -> a.setKind(dataItemDTO.getKind()))
-                                                .with(a -> a.setProject(dataItemDTO.getProject()))
-                                                .with(a -> a.setState(dataItemDTO.getState() == null
+                                                .with(d -> d.setKind(dataItemDTO.getKind()))
+                                                .with(d -> d.setProject(dataItemDTO.getProject()))
+                                                .with(d -> d.setState(dataItemDTO.getState() == null
                                                                 ? State.CREATED
                                                                 : State.valueOf(dataItemDTO
                                                                                 .getState())))
-                                                .with(a -> a.setExtra(
+
+                                                .with(d -> d.setMetadata(
+                                                                ConversionUtils.convert(dataItemDTO
+                                                                                .getMetadata(),
+                                                                                "metadata")))
+                                                .with(d -> d.setExtra(
                                                                 ConversionUtils.convert(dataItemDTO
                                                                                 .getExtra(),
 
                                                                                 "cbor")))
-                                                .with(a -> a.setSpec(
+                                                .with(d -> d.setSpec(
                                                                 ConversionUtils.convert(dataItemDTO
                                                                                 .getSpec(),
 
                                                                                 "cbor")))
-                                                .with(a -> a.setEmbedded(
+                                                .with(d -> d.setEmbedded(
                                                                 dataItemDTO.getEmbedded())));
         }
 }
