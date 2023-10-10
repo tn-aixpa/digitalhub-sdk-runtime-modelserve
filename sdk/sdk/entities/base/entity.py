@@ -21,6 +21,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
             "status",
         ]
         self._essential_attr = ["kind", "metadata"]
+        self._local = False
 
     @abstractmethod
     def save(self, uuid: str | None = None) -> dict:
@@ -89,6 +90,18 @@ class Entity(ModelObj, metaclass=ABCMeta):
         """
         Abstract method for creating objects from a dictionary.
         """
+
+    @property
+    def local(self) -> bool:
+        """
+        Get local flag.
+
+        Returns
+        -------
+        bool
+            Local flag.
+        """
+        return self._local
 
     def __repr__(self) -> str:
         """

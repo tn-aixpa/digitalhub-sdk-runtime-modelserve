@@ -347,22 +347,6 @@ class Artifact(Entity):
             raise EntityError(f"File {dst} already exists.")
 
     #############################
-    #  Getters and Setters
-    #############################
-
-    @property
-    def local(self) -> bool:
-        """
-        Get local flag.
-
-        Returns
-        -------
-        bool
-            Local flag.
-        """
-        return self._local
-
-    #############################
     #  Generic Methods
     #############################
 

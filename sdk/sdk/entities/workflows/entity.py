@@ -139,22 +139,6 @@ class Workflow(Entity):
         return get_context(self.metadata.project)
 
     #############################
-    #  Getters and Setters
-    #############################
-
-    @property
-    def local(self) -> bool:
-        """
-        Get local flag.
-
-        Returns
-        -------
-        bool
-            Local flag.
-        """
-        return self._local
-
-    #############################
     #  Generic Methods
     #############################
 

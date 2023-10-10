@@ -276,22 +276,6 @@ class Dataitem(Entity):
         return ext
 
     #############################
-    #  Getters and Setters
-    #############################
-
-    @property
-    def local(self) -> bool:
-        """
-        Get local flag.
-
-        Returns
-        -------
-        bool
-            Local flag.
-        """
-        return self._local
-
-    #############################
     #  Generic Methods
     #############################
 
