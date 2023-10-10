@@ -51,14 +51,15 @@ public class ProjectDTOBuilder {
                                 .with(dto -> dto.setExtra(ConversionUtils.reverse(
                                                 project.getExtra(),
                                                 "cbor")))
-                                .with(dto -> dto.setMetadata(Optional
+                                .with(dto -> dto.setMetadata((ProjectMetadata) Optional
                                                 .ofNullable(
                                                                 metadataConverter.reverseByClass(
                                                                                 project.getMetadata(),
                                                                                 ProjectMetadata.class))
-                                                .orElseGet(ProjectMetadata::new)
+                                                .orElseGet(() -> new ProjectMetadata())
 
                                 ))
+
                                 .with(dto -> dto.setFunctions(
                                                 functions.stream()
                                                                 .map(f -> functionDTOBuilder.build(

@@ -36,8 +36,6 @@ public class RunDTO implements BaseEntity {
 
     private String kind;
 
-    private RunMetadata metadata;
-
     @NotNull
     @JsonProperty("task_id")
     private String taskId;

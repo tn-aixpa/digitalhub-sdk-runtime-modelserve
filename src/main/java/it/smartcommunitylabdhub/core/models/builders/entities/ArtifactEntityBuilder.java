@@ -20,10 +20,6 @@ public class ArtifactEntityBuilder {
                 return EntityFactory.combine(
                                 ConversionUtils.convert(artifactDTO, "artifact"), artifactDTO,
                                 builder -> builder
-                                                .with(p -> p.setMetadata(
-                                                                ConversionUtils.convert(artifactDTO
-                                                                                .getMetadata(),
-                                                                                "metadata")))
                                                 .with(a -> a.setExtra(
                                                                 ConversionUtils.convert(artifactDTO
                                                                                 .getExtra(),
@@ -52,11 +48,6 @@ public class ArtifactEntityBuilder {
                                                                 ? ArtifactState.CREATED
                                                                 : ArtifactState.valueOf(
                                                                                 artifactDTO.getState())))
-                                                .with(a -> a.setMetadata(
-                                                                ConversionUtils.convert(artifactDTO
-                                                                                .getMetadata(),
-
-                                                                                "metadata")))
                                                 .with(a -> a.setExtra(
                                                                 ConversionUtils.convert(artifactDTO
                                                                                 .getExtra(),

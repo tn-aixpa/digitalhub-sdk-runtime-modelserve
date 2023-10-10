@@ -20,10 +20,6 @@ public class FunctionEntityBuilder {
                 return EntityFactory.combine(
                                 ConversionUtils.convert(functionDTO, "function"), functionDTO,
                                 builder -> builder
-                                                .with(f -> f.setMetadata(
-                                                                ConversionUtils.convert(functionDTO
-                                                                                .getMetadata(),
-                                                                                "metadata")))
                                                 .with(f -> f.setExtra(
                                                                 ConversionUtils.convert(functionDTO
                                                                                 .getExtra(),
@@ -49,11 +45,6 @@ public class FunctionEntityBuilder {
                                                                 ? State.CREATED
                                                                 : State.valueOf(functionDTO
                                                                                 .getState())))
-                                                .with(f -> f.setMetadata(
-                                                                ConversionUtils.convert(functionDTO
-                                                                                .getMetadata(),
-                                                                                "metadata")))
-
                                                 .with(f -> f.setExtra(
                                                                 ConversionUtils.convert(functionDTO
                                                                                 .getExtra(),

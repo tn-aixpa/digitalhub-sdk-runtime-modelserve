@@ -49,9 +49,6 @@ public class Task implements BaseEntity {
     private String project;
 
     @Lob
-    private byte[] metadata;
-
-    @Lob
     private byte[] spec;
 
     @Lob

@@ -36,9 +36,6 @@ public class TaskDTO implements BaseEntity {
     @NotNull
     private String kind; // for instance build
 
-
-    private TaskMetadata metadata;
-
     @Builder.Default
     private Map<String, Object> spec = new HashMap<>();
 

@@ -32,9 +32,6 @@ public class ArtifactDTO implements BaseEntity {
 	private String name;
 	private String kind;
 
-
-	private ArtifactMetadata metadata;
-
 	@ValidateField
 	private String project;
 	private Map<String, Object> spec;

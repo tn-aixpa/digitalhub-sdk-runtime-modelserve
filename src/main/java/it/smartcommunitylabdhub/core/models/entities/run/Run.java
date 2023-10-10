@@ -50,9 +50,6 @@ public class Run implements BaseEntity {
     private String taskId;
 
     @Lob
-    private byte[] metadata;
-
-    @Lob
     private byte[] spec;
 
     @Lob

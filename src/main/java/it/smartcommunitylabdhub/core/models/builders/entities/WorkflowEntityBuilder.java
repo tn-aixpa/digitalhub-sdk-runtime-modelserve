@@ -20,11 +20,6 @@ public class WorkflowEntityBuilder {
                 return EntityFactory.combine(
                                 ConversionUtils.convert(workflowDTO, "workflow"), workflowDTO,
                                 builder -> builder
-                                                .with(w -> w.setMetadata(
-                                                                ConversionUtils.convert(workflowDTO
-                                                                                .getMetadata(),
-                                                                                "metadata")))
-
                                                 .with(w -> w.setExtra(
                                                                 ConversionUtils.convert(workflowDTO
                                                                                 .getExtra(),
@@ -53,10 +48,6 @@ public class WorkflowEntityBuilder {
                                                                 ? State.CREATED
                                                                 : State.valueOf(workflowDTO
                                                                                 .getState())))
-                                                .with(w -> w.setMetadata(
-                                                                ConversionUtils.convert(workflowDTO
-                                                                                .getMetadata(),
-                                                                                "metadata")))
                                                 .with(w -> w.setExtra(
                                                                 ConversionUtils.convert(workflowDTO
                                                                                 .getExtra(),

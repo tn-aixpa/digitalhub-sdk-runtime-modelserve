@@ -17,7 +17,7 @@ from sdk.entities.builders.status import build_status
 from sdk.entities.dataitems.crud import get_dataitem_from_key
 from sdk.runtimes.builder import build_runtime
 from sdk.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
-from sdk.utils.commons import FUNC, RUNS, TASK, DTIT, ARTF
+from sdk.utils.commons import ARTF, DTIT, FUNC, RUNS, TASK
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid
 
@@ -297,7 +297,9 @@ class Run(Entity):
         """
         return self._get_objects(DTIT, get_dataitem_from_key, output_key)
 
-    def _get_objects(self, object_type: str, func: callable, output_key: str | None = None) -> list:
+    def _get_objects(
+        self, object_type: str, func: callable, output_key: str | None = None
+    ) -> list:
         """
         Get objects from backend produced by the run through its key.
 
@@ -400,22 +402,6 @@ class Run(Entity):
         """
         fnc_kind = self._parse_task_string().function_kind
         return build_runtime(fnc_kind)
-
-    #############################
-    #  Getters and Setters
-    #############################
-
-    @property
-    def local(self) -> bool:
-        """
-        Get local flag.
-
-        Returns
-        -------
-        bool
-            Local flag.
-        """
-        return self._local
 
     #############################
     #  Generic Methods

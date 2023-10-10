@@ -44,9 +44,6 @@ public class Function implements BaseEntity {
     private String name;
 
     @Lob
-    private byte[] metadata;
-
-    @Lob
     private byte[] spec;
 
     @Lob

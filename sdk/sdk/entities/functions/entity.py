@@ -4,6 +4,7 @@ Function module.
 from __future__ import annotations
 
 import typing
+from concurrent.futures import ThreadPoolExecutor
 
 from sdk.context.builder import get_context
 from sdk.entities.base.entity import Entity
@@ -200,7 +201,9 @@ class Function(Entity):
         # If local execution, build run and run it
         if local_execution:
             run.build(local=True)
-            return run.run(local=True)
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                result = executor.submit(run.run, local=True)
+            return result.result()
 
         # otherwise, call api backend to run build and run
         return run
@@ -339,22 +342,6 @@ class Function(Entity):
         """
         if self._tasks.get(kind) is None:
             raise EntityError("Task does not exist.")
-
-    #############################
-    #  Getters and Setters
-    #############################
-
-    @property
-    def local(self) -> bool:
-        """
-        Get local flag.
-
-        Returns
-        -------
-        bool
-            Local flag.
-        """
-        return self._local
 
     #############################
     #  Generic Methods
