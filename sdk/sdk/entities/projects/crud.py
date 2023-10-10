@@ -10,7 +10,6 @@ from sdk.context.builder import delete_context
 from sdk.entities.projects.entity import project_from_dict, project_from_parameters
 from sdk.utils.api import api_base_delete, api_base_read, api_ctx_delete
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
-from sdk.utils.entities_utils import save_or_export
 from sdk.utils.exceptions import EntityError
 from sdk.utils.io_utils import read_yaml
 

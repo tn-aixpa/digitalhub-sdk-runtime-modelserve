@@ -43,7 +43,6 @@ from sdk.utils.exceptions import BackendError, EntityError
 from sdk.utils.generic_utils import build_uuid
 
 if typing.TYPE_CHECKING:
-    from sdk.client.objects.base import Client
     from sdk.entities.artifacts.entity import Artifact
     from sdk.entities.dataitems.entity import Dataitem
     from sdk.entities.functions.entity import Function

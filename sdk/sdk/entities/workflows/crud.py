@@ -9,7 +9,6 @@ from sdk.context.builder import get_context
 from sdk.entities.workflows.entity import workflow_from_dict, workflow_from_parameters
 from sdk.utils.api import api_ctx_delete, api_ctx_read
 from sdk.utils.commons import WKFL
-from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:

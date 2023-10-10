@@ -9,7 +9,7 @@ from sdk.context.builder import get_context
 from sdk.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
 from sdk.utils.api import api_ctx_delete, api_ctx_read
 from sdk.utils.commons import ARTF
-from sdk.utils.entities_utils import check_local_flag, parse_entity_key, save_or_export
+from sdk.utils.entities_utils import parse_entity_key
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:

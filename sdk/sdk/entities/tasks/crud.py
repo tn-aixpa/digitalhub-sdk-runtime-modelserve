@@ -9,7 +9,6 @@ from sdk.context.builder import get_context
 from sdk.entities.tasks.entity import task_from_dict, task_from_parameters
 from sdk.utils.api import api_base_delete, api_base_read
 from sdk.utils.commons import TASK
-from sdk.utils.entities_utils import check_local_flag, save_or_export
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
