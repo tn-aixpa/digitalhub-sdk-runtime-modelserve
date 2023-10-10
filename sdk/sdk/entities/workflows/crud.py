@@ -56,7 +56,6 @@ def new_workflow(
     description: str | None = None,
     kind: str | None = None,
     test: str | None = None,
-    local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -76,8 +75,6 @@ def new_workflow(
         Kind of the object.
     spec : dict
         Specification of the object.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -89,20 +86,18 @@ def new_workflow(
     -------
     Workflow
         An instance of the created workflow.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_workflow(
         project=project,
         name=name,
         description=description,
         kind=kind,
         test=test,
-        local=local,
         embedded=embedded,
         uuid=uuid,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 

@@ -37,7 +37,6 @@ class Task(Entity):
         metadata: TaskMetadata,
         spec: TaskSpec,
         status: TaskStatus,
-        local: bool = False,
     ) -> None:
         """
         Initialize the Task instance.
@@ -54,8 +53,6 @@ class Task(Entity):
             Specification of the object.
         status : TaskStatus
             State of the object.
-        local: bool
-            If True, export locally.
         """
         super().__init__()
 
@@ -64,9 +61,6 @@ class Task(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
-
-        # Private attributes
-        self._local = local
 
     #############################
     #  Save / Export
@@ -86,9 +80,6 @@ class Task(Entity):
         dict
             Mapping representation of Task from backend.
         """
-        if self._local:
-            raise EntityError("Use .export() for local execution.")
-
         obj = self.to_dict()
 
         # TODO: Remove this when backend is fixed
@@ -169,7 +160,6 @@ class Task(Entity):
             project=self.metadata.project,
             task=self._get_task_string(),
             task_id=self.id,
-            local=self._local,
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
@@ -259,9 +249,7 @@ class Task(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        _obj = cls(**parsed_dict)
-        _obj._local = _obj._context().local
-        return _obj
+        return cls(**parsed_dict)
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -321,7 +309,6 @@ def task_from_parameters(
     resources: dict | None = None,
     image: str | None = None,
     base_image: str | None = None,
-    local: bool = False,
     uuid: str | None = None,
 ) -> Task:
     """
@@ -337,8 +324,6 @@ def task_from_parameters(
         The function string.
     resources : dict
         The k8s resources.
-    local : bool
-        Flag to indicate if the task is local or not.
     uuid : str
         UUID.
 
@@ -369,7 +354,6 @@ def task_from_parameters(
         metadata=metadata,
         spec=spec,
         status=status,
-        local=local,
     )
 
 

@@ -39,7 +39,6 @@ class Function(Entity):
         metadata: FunctionMetadata,
         spec: FunctionSpec,
         status: FunctionStatus,
-        local: bool = False,
     ) -> None:
         """
         Initialize the Function instance.
@@ -56,8 +55,6 @@ class Function(Entity):
             Specification of the object.
         status : FunctionStatus
             State of the object.
-        local: bool
-            If True, export locally.
         """
         super().__init__()
 
@@ -66,9 +63,6 @@ class Function(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
-
-        # Private attributes
-        self._local = local
         self._tasks: dict[str, Task] = {}
 
     #############################
@@ -89,9 +83,6 @@ class Function(Entity):
         dict
             Mapping representation of Function from backend.
         """
-        if self._local:
-            raise EntityError("Use .export() for local execution.")
-
         obj = self.to_dict(include_all_non_private=True)
 
         # TODO: Remove this when backend is fixed
@@ -198,15 +189,15 @@ class Function(Entity):
         # Run function from task
         run = task.run(inputs, outputs, parameters, local_execution)
 
-        # If local execution, build run and run it
-        if local_execution:
-            run.build(local=True)
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                result = executor.submit(run.run, local=True)
-            return result.result()
+        # If execution is done by backend, return run
+        if not local_execution:
+            return run
 
-        # otherwise, call api backend to run build and run
-        return run
+        # If local execution, build run and run it
+        run.build(local=True)
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            result = executor.submit(run.run, local=True)
+        return result.result()
 
     def _get_function_string(self) -> str:
         """
@@ -239,7 +230,6 @@ class Function(Entity):
         """
         kwargs["project"] = self.metadata.project
         kwargs["function"] = self._get_function_string()
-        kwargs["local"] = self._local
         task = new_task(**kwargs)
         self._tasks[kwargs["kind"]] = task
         return task
@@ -270,7 +260,6 @@ class Function(Entity):
         kwargs["project"] = self.metadata.project
         kwargs["kind"] = kind
         kwargs["function"] = self._get_function_string()
-        kwargs["local"] = self._local
         kwargs["uuid"] = self._tasks[kind].id
 
         # Update task
@@ -363,9 +352,7 @@ class Function(Entity):
             Self instance.
         """
         parsed_dict = cls._parse_dict(obj)
-        _obj = cls(**parsed_dict)
-        _obj._local = _obj._context().local
-        return _obj
+        return cls(**parsed_dict)
 
     @staticmethod
     def _parse_dict(obj: dict) -> dict:
@@ -434,7 +421,6 @@ def function_from_parameters(
     arguments: list | None = None,
     requirements: list | None = None,
     sql: str | None = None,
-    local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -468,8 +454,6 @@ def function_from_parameters(
         List of requirements for the Function.
     sql : str
         SQL query.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -512,7 +496,6 @@ def function_from_parameters(
         metadata=metadata,
         spec=spec,
         status=status,
-        local=local,
     )
 
 

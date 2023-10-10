@@ -11,6 +11,7 @@ from sdk.entities.projects.entity import project_from_dict, project_from_paramet
 from sdk.utils.api import api_base_delete, api_base_read, api_ctx_delete
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from sdk.utils.entities_utils import save_or_export
+from sdk.utils.exceptions import EntityError
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -39,8 +40,8 @@ def new_project(
     description: str | None = None,
     context: str | None = None,
     source: str | None = None,
-    local: bool = False,
     uuid: str | None = None,
+    local: bool = False,
     **kwargs,
 ) -> Project:
     """
@@ -56,36 +57,35 @@ def new_project(
         The path to the project's execution context.
     source : str
         The path to the project's source code.
-    local : bool
-        Flag to determine if project wil be executed locally.
     uuid : str
         UUID.
+    local : bool
+        Flag to determine if backend is present.
 
     Returns
     -------
     Project
-        A Project instance with its context.
+        A Project instance.
     """
     obj = create_project(
         name=name,
         description=description,
         context=context,
         source=source,
-        local=local,
         uuid=uuid,
+        local=local,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 
 def load_project(
-    name: str,
-    filename: str = "project.yaml",
-    local: bool = False,
+    name: str | None = None,
+    filename: str | None = None,
 ) -> Project:
     """
-    Load project and context from backend.
+    Load project and context from backend or file.
 
     Parameters
     ----------
@@ -93,17 +93,17 @@ def load_project(
         Name of the project.
     filename : str
         Path to file where to load project from.
-    local : bool
-        Flag to determine if project wil be executed locally.
 
     Returns
     -------
     Project
         A Project instance with setted context.
     """
-    if local:
+    if name is not None:
+        return get_project(name)
+    if filename is not None:
         return import_project(filename)
-    return get_project(name)
+    raise EntityError("Either name or filename must be provided.")
 
 
 def get_project(name: str) -> Project:

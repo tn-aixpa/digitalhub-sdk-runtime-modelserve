@@ -42,7 +42,6 @@ def new_run(
     outputs: list | None = None,
     parameters: dict | None = None,
     local_execution: bool = False,
-    local: bool = False,
     **kwargs,
 ) -> Run:
     """
@@ -66,8 +65,6 @@ def new_run(
         The parameters of the run.
     local_execution : bool
         Flag to determine if object has local execution.
-    local : bool
-        Flag to determine if object will be exported to backend.
     **kwargs
         Keyword arguments.
 
@@ -75,8 +72,7 @@ def new_run(
     -------
     Run
        Object instance.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_run(
         project=project,
         task=task,
@@ -86,10 +82,9 @@ def new_run(
         outputs=outputs,
         parameters=parameters,
         local_execution=local_execution,
-        local=local,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 

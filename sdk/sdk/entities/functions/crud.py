@@ -63,7 +63,6 @@ def new_function(
     arguments: list | None = None,
     requirements: list | None = None,
     sql: str | None = None,
-    local: bool = False,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -97,8 +96,6 @@ def new_function(
         List of requirements for the Function.
     sql : str
         SQL query.
-    local : bool
-        Flag to determine if object will be exported to backend.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -115,8 +112,7 @@ def new_function(
     ------
     EntityError
         If the context local flag does not match the local flag of the function.
-    """
-    check_local_flag(project, local)
+    """,
     obj = create_function(
         project=project,
         name=name,
@@ -130,12 +126,11 @@ def new_function(
         arguments=arguments,
         requirements=requirements,
         sql=sql,
-        local=local,
         embedded=embedded,
         uuid=uuid,
         **kwargs,
     )
-    save_or_export(obj, local)
+    obj.save()
     return obj
 
 
