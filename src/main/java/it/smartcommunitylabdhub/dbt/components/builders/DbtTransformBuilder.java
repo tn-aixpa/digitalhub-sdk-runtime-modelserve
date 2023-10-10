@@ -30,6 +30,7 @@ public class DbtTransformBuilder extends BaseBuilder implements Builder {
 						functionDTO,
 						taskDTO))
 				.spec(mergedSpec)
+				.metadata(inputRunDTO.getMetadata())
 				.extra(inputRunDTO.getExtra())
 				.build();
 
