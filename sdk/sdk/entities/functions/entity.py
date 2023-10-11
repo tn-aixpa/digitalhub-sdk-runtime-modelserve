@@ -63,7 +63,14 @@ class Function(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+
+        # Private attributes
         self._tasks: dict[str, Task] = {}
+
+        self.project = self.metadata.project
+        self.name = self.metadata.name
+        self.embedded = self.metadata.embedded
+        self._obj_attr.extend(["project", "name", "embedded"])
 
     #############################
     #  Save / Export
@@ -84,11 +91,6 @@ class Function(Entity):
             Mapping representation of Function from backend.
         """
         obj = self.to_dict(include_all_non_private=True)
-
-        # TODO: Remove this when backend is fixed
-        obj["project"] = self.metadata.project
-        obj["name"] = self.metadata.name
-        obj["embedded"] = self.metadata.embedded
 
         if uuid is None:
             api = api_ctx_create(self.metadata.project, FUNC)

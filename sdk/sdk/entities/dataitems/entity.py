@@ -64,6 +64,11 @@ class Dataitem(Entity):
         self.spec = spec
         self.status = status
 
+        self.project = self.metadata.project
+        self.name = self.metadata.name
+        self.embedded = self.metadata.embedded
+        self._obj_attr.extend(["project", "name", "embedded"])
+
     #############################
     #  Save / Export
     #############################
@@ -84,11 +89,6 @@ class Dataitem(Entity):
         """
         obj = self.to_dict()
 
-        # TODO: Remove this when backend is fixed
-        obj["project"] = self.metadata.project
-        obj["name"] = self.metadata.name
-        obj["embedded"] = self.metadata.embedded
-
         if uuid is None:
             api = api_ctx_create(self.metadata.project, DTIT)
             return self._context().create_object(obj, api)
@@ -97,7 +97,6 @@ class Dataitem(Entity):
         self.metadata.updated = get_timestamp()
         obj["metadata"]["updated"] = self.metadata.updated
         api = api_ctx_update(self.metadata.project, DTIT, self.metadata.name, uuid)
-        print(obj)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:

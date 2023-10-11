@@ -132,7 +132,9 @@ class Project(Entity):
 
         # Private attributes
         self._client = get_client(local)
-        self._local = local
+
+        self.name = self.metadata.name
+        self._obj_attr.append("name")
 
         # Set context
         set_context(self)
@@ -155,13 +157,14 @@ class Project(Entity):
         list
             Mapping representation of Project from backend.
         """
-        responses: dict = {}
-
-        obj = self.to_dict()
-
-        # TODO: Remove this when backend is fixed
-        obj["name"] = self.metadata.name
-
+        # Try to refresh project if local client
+        if self._client.is_local():
+            try:
+                obj = self._refresh().to_dict()
+            except BackendError:
+                obj = self.to_dict()
+        else:
+            obj = self.to_dict()
 
         if uuid is None:
             # Try to create project
@@ -169,29 +172,26 @@ class Project(Entity):
             try:
                 api = api_base_create(PROJ)
                 response = self._client.create_object(obj, api)
-                responses[PROJ] = response
             except BackendError:
-                responses[PROJ] = obj
+                response = obj
 
             # Try to save objects related to project
             # (try to avoid error response if object does not exists)
             for i in LIST:
-                responses[i] = []
                 for j in self._get_objects(i):
                     try:
                         _obj = constructor_from_dict(i)(j)
-                        resp = _obj.save(uuid=_obj.id)
-                        responses[i].append(resp)
+                        _obj.save(uuid=_obj.id)
                     except BackendError:
                         ...
-            return responses
+            return response
 
         self.id = uuid
         self.metadata.updated = get_timestamp()
         obj["metadata"]["updated"] = self.metadata.updated
         api = api_base_update(PROJ, self.id)
-        responses[PROJ] = self._client.update_object(obj, api)
-        return responses
+        response = self._client.update_object(obj, api)
+        return response
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -207,7 +207,15 @@ class Project(Entity):
         -------
         None
         """
-        obj = self.to_dict()
+        # Try to refresh project if local client
+        if self._client.is_local():
+            try:
+                obj = self._refresh().to_dict()
+            except BackendError:
+                obj = self.to_dict()
+        else:
+            obj = self.to_dict()
+
         obj = self._parse_spec(obj)
 
         filename = filename if filename is not None else "project.yaml"
@@ -240,13 +248,25 @@ class Project(Entity):
         for i in spec:
             new_spec[i] = []
             for j in spec[i]:
-                if not j.get("embedded", False):
+                if not j.get("embedded", True):
                     _dict = {k: v for k, v in j.items() if k in ["kind", "name", "id"]}
                     new_spec[i].append(_dict)
                 else:
                     new_spec[i].append(j)
         obj["spec"] = new_spec
         return obj
+
+    def _refresh(self) -> "Project":
+        """
+        Refresh object from backend.
+
+        Returns
+        -------
+        None
+        """
+        api = api_base_update(PROJ, self.metadata.name)
+        obj = self._client.read_object(api)
+        return self.from_dict(obj)
 
     #############################
     #  Generic operations for objects (artifacts, functions, workflows, dataitems)

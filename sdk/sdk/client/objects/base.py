@@ -24,3 +24,7 @@ class Client:
     @abstractmethod
     def delete_object(self, api: str) -> dict:
         ...
+
+    @abstractmethod
+    def is_local() -> bool:
+        ...

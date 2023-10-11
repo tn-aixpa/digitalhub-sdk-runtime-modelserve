@@ -60,6 +60,11 @@ class Workflow(Entity):
         self.spec = spec
         self.status = status
 
+        self.project = self.metadata.project
+        self.name = self.metadata.name
+        self.embedded = self.metadata.embedded
+        self._obj_attr.extend(["project", "name", "embedded"])
+
     #############################
     #  Save / Export
     #############################
@@ -79,11 +84,6 @@ class Workflow(Entity):
             Mapping representation of Workflow from backend.
         """
         obj = self.to_dict()
-
-        # TODO: Remove this when backend is fixed
-        obj["project"] = self.metadata.project
-        obj["name"] = self.metadata.name
-        obj["embedded"] = self.metadata.embedded
 
         if uuid is None:
             api = api_ctx_create(self.metadata.project, WKFL)

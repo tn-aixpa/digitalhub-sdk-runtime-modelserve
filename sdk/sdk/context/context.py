@@ -32,7 +32,7 @@ class Context:
         """
         self.name = project.metadata.name
         self.client = project._client
-        self.local = project._local
+        self.local = project._client.is_local()
 
     def create_object(self, obj: dict, api: str) -> dict:
         """

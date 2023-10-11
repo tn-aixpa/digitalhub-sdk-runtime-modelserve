@@ -2,7 +2,8 @@
 Local Client module.
 """
 from sdk.client.objects.base import Client
-from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL, RUNS, TASK
+from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
+from sdk.utils.exceptions import BackendError
 
 
 class ClientLocal(Client):
@@ -82,14 +83,18 @@ class ClientLocal(Client):
         if len(parsed) == 2:
             dto, name = parsed
             obj = self._db.get(dto, {}).get(name)
+            if dto == PROJ:
+                obj = self._get_project_spec(obj, name)
+            msg = f"Object '{dto}' named '{name}' not found"
 
         # Artifact, DataItem, Function, Workflow
         elif len(parsed) == 4:
             project, dto, name, uuid = parsed
             obj = self._db.get(dto, {}).get(project, {}).get(name, {}).get(uuid)
+            msg = f"Object '{dto}' named '{name}:{uuid}' for project '{project}' not found"
 
         if obj is None or not isinstance(obj, dict):
-            raise ValueError(f"Object not found: {api}")
+            raise BackendError(msg)
 
         return obj
 
@@ -116,14 +121,17 @@ class ClientLocal(Client):
             if len(parsed) == 2:
                 dto, name = parsed
                 self._db[dto][name] = obj
+                msg = f"Object '{dto}' named '{name}' not found"
 
             # Artifact, DataItem, Function, Workflow
             elif len(parsed) == 4:
                 project, dto, name, uuid = parsed
                 self._db[dto][project][name][uuid] = obj
                 self._db[dto][project][name]["latest"] = obj
+                msg = f"Object '{dto}' named '{name}:{uuid}' for project '{project}' not found"
+
         except KeyError:
-            raise ValueError(f"Object not found: {api}")
+            raise BackendError(msg)
 
         return obj
 
@@ -142,27 +150,25 @@ class ClientLocal(Client):
             A generic dictionary.
         """
         parsed = self._parse_api(api)
+        fallback = "No element found"
 
         # Project, Task, Run
         if len(parsed) == 2:
             dto, name = parsed
-            self._db[dto].pop(name, None)
+            deleted = self._db[dto].pop(name, fallback)
 
         # Artifact, DataItem, Function, Workflow
+        # No uuid
         elif len(parsed) == 3:
-            dto, project, name = parsed
-            self._db[dto][project].pop(name, None)
-            if not self._db[dto][project]:
-                self._db[dto].pop(project, None)
+            project, dto, name = parsed
+            deleted = self._db[dto][project].pop(name, fallback)
+
+        # uuid
         elif len(parsed) == 4:
             project, dto, name, uuid = parsed
-            self._db[dto][project][name].pop(uuid, None)
-            if not self._db[dto][project][name]:
-                self._db[dto][project].pop(name, None)
-            if not self._db[dto][project]:
-                self._db[dto].pop(project, None)
+            deleted = self._db[dto][project][name].pop(uuid, fallback)
 
-        return {}
+        return {"deleted": deleted}
 
     @staticmethod
     def _parse_api(api: str) -> list[str]:
@@ -184,3 +190,42 @@ class ClientLocal(Client):
         if splitted[0] == "-":
             return splitted[1:]
         return splitted
+
+    def _get_project_spec(self, obj: dict, name: str) -> dict:
+        """
+        Read the project spec.
+
+        Parameters
+        ----------
+        obj : dict
+            The project object.
+        name : str
+            The project name.
+
+        Returns
+        -------
+        dict
+            The project object with the spec.
+        """
+        if obj is None or not isinstance(obj, dict):
+            raise BackendError(f"Project not found: {name}")
+        for i in [FUNC, WKFL, ARTF, DTIT]:
+            objs = self._db.get(i, {}).get(name, {})
+            obj["spec"][i] = []
+            for _, j in objs.items():
+                for k, v in j.items():
+                    if k != "latest":
+                        obj["spec"][i].append(v)
+        return obj
+
+    @staticmethod
+    def is_local() -> bool:
+        """
+        Declare if Client is local.
+
+        Returns
+        -------
+        bool
+            True
+        """
+        return True

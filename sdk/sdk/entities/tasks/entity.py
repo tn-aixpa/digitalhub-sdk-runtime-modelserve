@@ -62,6 +62,10 @@ class Task(Entity):
         self.spec = spec
         self.status = status
 
+        self.project = self.metadata.project
+        self.function = self.spec.function
+        self._obj_attr.extend(["project", "function"])
+
     #############################
     #  Save / Export
     #############################
@@ -81,10 +85,6 @@ class Task(Entity):
             Mapping representation of Task from backend.
         """
         obj = self.to_dict()
-
-        # TODO: Remove this when backend is fixed
-        obj["project"] = self.metadata.project
-        obj["function"] = self.spec.function
 
         if uuid is None:
             api = api_base_create(TASK)

@@ -140,3 +140,15 @@ class ClientDHCore(Client):
         raise BackendError(
             "Endpoint not set. Please set env variables with 'set_dhub_env()' function."
         )
+
+    @staticmethod
+    def is_local() -> bool:
+        """
+        Declare if Client is local.
+
+        Returns
+        -------
+        bool
+            False
+        """
+        return False

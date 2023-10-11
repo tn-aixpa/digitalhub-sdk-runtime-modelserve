@@ -80,8 +80,7 @@ def new_project(
 
 
 def load_project(
-    name: str | None = None,
-    filename: str | None = None,
+    name: str | None = None, filename: str | None = None, local: bool = False
 ) -> Project:
     """
     Load project and context from backend or file.
@@ -92,6 +91,8 @@ def load_project(
         Name of the project.
     filename : str
         Path to file where to load project from.
+    local : bool
+        Flag to determine if backend is present.
 
     Returns
     -------
@@ -99,13 +100,13 @@ def load_project(
         A Project instance with setted context.
     """
     if name is not None:
-        return get_project(name)
+        return get_project(name, local)
     if filename is not None:
-        return import_project(filename)
+        return import_project(filename, local)
     raise EntityError("Either name or filename must be provided.")
 
 
-def get_project(name: str) -> Project:
+def get_project(name: str, local: bool = False) -> Project:
     """
     Retrieves project details from the backend.
 
@@ -113,6 +114,8 @@ def get_project(name: str) -> Project:
     ----------
     name : str
         The name or UUID.
+    local : bool
+        Flag to determine if backend is present.
 
     Returns
     -------
@@ -120,35 +123,31 @@ def get_project(name: str) -> Project:
         Object instance.
     """
     api = api_base_read(PROJ, name)
-    obj_be = get_client().read_object(api)
+    client = get_client(local)
+    obj = client.read_object(api)
 
-    # Extract spec
-    spec = {}
-    spec["source"] = obj_be.get("source", None)
-    spec["context"] = obj_be.get("context", "./")
-    spec["functions"] = obj_be.get("functions", [])
-    spec["artifacts"] = obj_be.get("artifacts", [])
-    spec["workflows"] = obj_be.get("workflows", [])
-    spec["dataitems"] = obj_be.get("dataitems", [])
+    # Handle backend data structure
+    if not client.is_local():
+        # Extract spec
+        spec = {}
+        spec["source"] = obj.get("source", None)
+        spec["context"] = obj.get("context", name)
+        spec["functions"] = obj.get("functions", [])
+        spec["artifacts"] = obj.get("artifacts", [])
+        spec["workflows"] = obj.get("workflows", [])
+        spec["dataitems"] = obj.get("dataitems", [])
 
-    # Filter out spec from object
-    fields = [
-        "functions",
-        "artifacts",
-        "workflows",
-        "source",
-        "context",
-        "metadata",
-        "spec",
-    ]
+        # Filter out spec from object
+        fields = ["functions", "artifacts", "workflows", "source", "context", "spec"]
+        obj = {k: v for k, v in obj.items() if k not in fields}
 
-    # Set spec for new object and create Project instance
-    obj = {k: v for k, v in obj_be.items() if k not in fields}
-    obj["spec"] = spec
+        # Set spec for new object and create Project instance
+        obj["spec"] = spec
+
     return project_from_dict(obj)
 
 
-def import_project(file: str) -> Project:
+def import_project(file: str, local: bool = False) -> Project:
     """
     Import an Project object from a file using the specified file path.
 
@@ -156,6 +155,8 @@ def import_project(file: str) -> Project:
     ----------
     file : str
         Path to the file.
+    local : bool
+        Flag to determine if backend is present.
 
     Returns
     -------
@@ -163,10 +164,11 @@ def import_project(file: str) -> Project:
         Object instance.
     """
     obj = read_yaml(file)
+    obj["local"] = local
     return project_from_dict(obj)
 
 
-def delete_project(name: str, delete_all: bool = False) -> list[dict]:
+def delete_project(name: str, local: bool = False) -> list[dict]:
     """
     Delete a project.
 
@@ -174,34 +176,16 @@ def delete_project(name: str, delete_all: bool = False) -> list[dict]:
     ----------
     name : str
         Name of the project.
+    local : bool
+        Flag to determine if backend is present.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    client = get_client()
-    responses = []
-
-    # Delete all objects related to project -> must be done by backend
-    if delete_all:
-        for dto in [ARTF, FUNC, WKFL, DTIT]:
-            api_proj = f"/api/v1/{PROJ}/{name}/{dto}"
-            try:
-                objs = client.read_object(api_proj)
-                for obj in objs:
-                    api = api_ctx_delete(name, dto, obj["name"])
-                    responses.append(client.delete_object(api))
-            except Exception:
-                ...
-
-    # Delete project
-    try:
-        api = api_base_delete(PROJ, name)
-        responses.append(client.delete_object(api))
-    except Exception:
-        ...
-
+    client = get_client(local)
+    api = api_base_delete(PROJ, name)
+    response = client.delete_object(api)
     delete_context(name)
-
-    return responses
+    return response

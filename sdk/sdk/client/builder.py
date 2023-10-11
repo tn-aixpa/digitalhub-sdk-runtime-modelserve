@@ -18,8 +18,7 @@ class ClientBuilder:
     """
 
     def __init__(self) -> None:
-        self._local_client: ClientLocal = None
-        self._dhcore_client: ClientDHCore = None
+        self._client = None
 
     def build(self, local: bool = False) -> Client:
         """
@@ -35,16 +34,15 @@ class ClientBuilder:
         Client
             Returns the client instance.
         """
-        if local:
-            if self._local_client is None:
-                self._local_client = ClientLocal()
-            return self._local_client
-        if self._dhcore_client is None:
-            self._dhcore_client = ClientDHCore()
-        return self._dhcore_client
+        if self._client is None:
+            if local:
+                self._client = ClientLocal()
+            else:
+                self._client = ClientDHCore()
+        return self._client
 
 
-def get_client(local: bool = False) -> ClientDHCore:
+def get_client(local: bool = False) -> Client:
     """
     Wrapper around ClientBuilder.build.
 

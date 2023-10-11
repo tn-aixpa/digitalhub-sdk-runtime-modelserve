@@ -74,6 +74,11 @@ class Run(Entity):
         self.spec = spec
         self.status = status
 
+        self.project = self.metadata.project
+        self.task = self.spec.task
+        self.task_id = self.spec.task_id
+        self._obj_attr.extend(["project", "task", "task_id"])
+
     #############################
     #  Save / Export
     #############################
@@ -93,11 +98,6 @@ class Run(Entity):
             Mapping representation of Run from backend.
         """
         obj = self.to_dict(include_all_non_private=True)
-
-        # TODO: Remove this when backend is fixed
-        obj["project"] = self.metadata.project
-        obj["task"] = self.spec.task
-        obj["task_id"] = self.spec.task_id
 
         if uuid is None:
             api = api_base_create(RUNS)
