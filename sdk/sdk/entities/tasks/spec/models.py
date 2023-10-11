@@ -122,3 +122,9 @@ class TaskParamsBuild(TaskSpec):
 
     base_image: str
     """Input image name."""
+
+
+class TaskParamsTransform(TaskSpec):
+    """
+    TaskParamsTransform model.
+    """

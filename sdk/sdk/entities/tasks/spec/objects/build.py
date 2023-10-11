@@ -1,11 +1,11 @@
 """
-Build Task specification module.
+Task Build specification module.
 """
 from sdk.entities.tasks.spec.objects.base import TaskSpec
 
 
 class TaskSpecBuild(TaskSpec):
-    """Task build specification."""
+    """Task Build specification."""
 
     def __init__(
         self,
