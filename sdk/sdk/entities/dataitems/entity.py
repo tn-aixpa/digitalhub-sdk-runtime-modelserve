@@ -16,7 +16,7 @@ from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import DTIT
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import clean_all, get_dir
-from sdk.utils.generic_utils import build_uuid
+from sdk.utils.generic_utils import build_uuid, get_timestamp
 from sdk.utils.uri_utils import get_extension, map_uri_scheme
 
 if typing.TYPE_CHECKING:
@@ -94,7 +94,10 @@ class Dataitem(Entity):
             return self._context().create_object(obj, api)
 
         self.id = uuid
+        self.metadata.updated = get_timestamp()
+        obj["metadata"]["updated"] = self.metadata.updated
         api = api_ctx_update(self.metadata.project, DTIT, self.metadata.name, uuid)
+        print(obj)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:

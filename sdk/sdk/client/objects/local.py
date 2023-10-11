@@ -44,11 +44,13 @@ class ClientLocal(Client):
             The created object.
         """
         parsed = self._parse_api(api)
+
         # Project, Task, Run
         if len(parsed) == 1:
             (dto,) = parsed
             name = obj.get("metadata", {}).get("name")
             self._db[dto][name] = obj
+
         # Artifact, DataItem, Function, Workflow
         if len(parsed) == 2:
             project, dto = parsed
@@ -57,6 +59,7 @@ class ClientLocal(Client):
             self._db[dto].setdefault(project, {}).setdefault(name, {})
             self._db[dto][project][name][uuid] = obj
             self._db[dto][project][name]["latest"] = obj
+
         return obj
 
     def read_object(self, api: str) -> dict:
@@ -74,16 +77,20 @@ class ClientLocal(Client):
             The object, or None if it doesn't exist.
         """
         parsed = self._parse_api(api)
+
         # Project, Task, Run
         if len(parsed) == 2:
             dto, name = parsed
             obj = self._db.get(dto, {}).get(name)
+
         # Artifact, DataItem, Function, Workflow
         elif len(parsed) == 4:
             project, dto, name, uuid = parsed
             obj = self._db.get(dto, {}).get(project, {}).get(name, {}).get(uuid)
+
         if obj is None or not isinstance(obj, dict):
             raise ValueError(f"Object not found: {api}")
+
         return obj
 
     def update_object(self, obj: dict, api: str) -> dict:
@@ -103,16 +110,21 @@ class ClientLocal(Client):
             The updated object.
         """
         parsed = self._parse_api(api)
+
         try:
+            # Project, Task, Run
             if len(parsed) == 2:
                 dto, name = parsed
                 self._db[dto][name] = obj
+
+            # Artifact, DataItem, Function, Workflow
             elif len(parsed) == 4:
                 project, dto, name, uuid = parsed
                 self._db[dto][project][name][uuid] = obj
                 self._db[dto][project][name]["latest"] = obj
         except KeyError:
             raise ValueError(f"Object not found: {api}")
+
         return obj
 
     def delete_object(self, api: str) -> dict:
@@ -130,9 +142,18 @@ class ClientLocal(Client):
             A generic dictionary.
         """
         parsed = self._parse_api(api)
+
+        # Project, Task, Run
         if len(parsed) == 2:
             dto, name = parsed
             self._db[dto].pop(name, None)
+
+        # Artifact, DataItem, Function, Workflow
+        elif len(parsed) == 3:
+            dto, project, name = parsed
+            self._db[dto][project].pop(name, None)
+            if not self._db[dto][project]:
+                self._db[dto].pop(project, None)
         elif len(parsed) == 4:
             project, dto, name, uuid = parsed
             self._db[dto][project][name].pop(uuid, None)
@@ -140,6 +161,7 @@ class ClientLocal(Client):
                 self._db[dto][project].pop(name, None)
             if not self._db[dto][project]:
                 self._db[dto].pop(project, None)
+
         return {}
 
     @staticmethod

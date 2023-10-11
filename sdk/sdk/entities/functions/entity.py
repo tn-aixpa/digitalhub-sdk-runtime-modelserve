@@ -16,7 +16,7 @@ from sdk.entities.tasks.crud import create_task, delete_task, new_task
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import FUNC
 from sdk.utils.exceptions import EntityError
-from sdk.utils.generic_utils import build_uuid
+from sdk.utils.generic_utils import build_uuid, get_timestamp
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
@@ -95,6 +95,8 @@ class Function(Entity):
             return self._context().create_object(obj, api)
 
         self.id = uuid
+        self.metadata.updated = get_timestamp()
+        obj["metadata"]["updated"] = self.metadata.updated
         api = api_ctx_update(self.metadata.project, FUNC, self.metadata.name, uuid)
         return self._context().update_object(obj, api)
 

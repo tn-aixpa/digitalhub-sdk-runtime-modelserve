@@ -19,7 +19,7 @@ from sdk.runtimes.builder import build_runtime
 from sdk.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
 from sdk.utils.commons import ARTF, DTIT, FUNC, RUNS, TASK
 from sdk.utils.exceptions import EntityError
-from sdk.utils.generic_utils import build_uuid
+from sdk.utils.generic_utils import build_uuid, get_timestamp
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
@@ -104,6 +104,8 @@ class Run(Entity):
             return self._context().create_object(obj, api)
 
         self.id = uuid
+        self.metadata.updated = get_timestamp()
+        obj["metadata"]["updated"] = self.metadata.updated
         api = api_base_update(RUNS, uuid)
         return self._context().update_object(obj, api)
 
@@ -201,9 +203,6 @@ class Run(Entity):
         Run
             Run object.
         """
-        if self._local:
-            raise EntityError("Cannot refresh local run.")
-
         api = api_base_read(RUNS, self.id)
         obj = self._context().read_object(api)
         self = self.from_dict(obj)
@@ -512,7 +511,7 @@ def run_from_parameters(
     """
     uuid: str = build_uuid(uuid)
     kind: str = build_kind(RUNS, kind)
-    metadata: RunMetadata = build_metadata(
+    metadata = build_metadata(
         RUNS,
         project=project,
         name=uuid,

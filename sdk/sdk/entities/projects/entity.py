@@ -37,10 +37,10 @@ from sdk.entities.workflows.crud import (
     get_workflow,
     new_workflow,
 )
-from sdk.utils.api import api_base_create
+from sdk.utils.api import api_base_create, api_base_update
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from sdk.utils.exceptions import BackendError, EntityError
-from sdk.utils.generic_utils import build_uuid
+from sdk.utils.generic_utils import build_uuid, get_timestamp
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifacts.entity import Artifact
@@ -162,27 +162,35 @@ class Project(Entity):
         # TODO: Remove this when backend is fixed
         obj["name"] = self.metadata.name
 
-        # Try to create project
-        # (try to avoid error response if project already exists)
-        try:
-            api = api_base_create(PROJ)
-            response = self._client.create_object(obj, api)
-            responses[PROJ] = response
-        except BackendError:
-            responses[PROJ] = obj
 
-        # Try to save objects related to project
-        # (try to avoid error response if object does not exists)
-        for i in LIST:
-            responses[i] = []
-            for j in self._get_objects(i):
-                try:
-                    _obj = constructor_from_dict(i)(j)
-                    resp = _obj.save(uuid=_obj.id)
-                    responses[i].append(resp)
-                except BackendError:
-                    ...
+        if uuid is None:
+            # Try to create project
+            # (try to avoid error response if project already exists)
+            try:
+                api = api_base_create(PROJ)
+                response = self._client.create_object(obj, api)
+                responses[PROJ] = response
+            except BackendError:
+                responses[PROJ] = obj
 
+            # Try to save objects related to project
+            # (try to avoid error response if object does not exists)
+            for i in LIST:
+                responses[i] = []
+                for j in self._get_objects(i):
+                    try:
+                        _obj = constructor_from_dict(i)(j)
+                        resp = _obj.save(uuid=_obj.id)
+                        responses[i].append(resp)
+                    except BackendError:
+                        ...
+            return responses
+
+        self.id = uuid
+        self.metadata.updated = get_timestamp()
+        obj["metadata"]["updated"] = self.metadata.updated
+        api = api_base_update(PROJ, self.id)
+        responses[PROJ] = self._client.update_object(obj, api)
         return responses
 
     def export(self, filename: str | None = None) -> None:

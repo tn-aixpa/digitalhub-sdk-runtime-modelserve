@@ -4,6 +4,7 @@ General utilities module.
 from __future__ import annotations
 
 import base64
+from datetime import datetime
 from uuid import uuid4
 
 from sdk.utils.io_utils import read_text
@@ -26,6 +27,18 @@ def build_uuid(uuid: str | None = None) -> str:
     if uuid is not None:
         return uuid
     return str(uuid4())
+
+
+def get_timestamp() -> str:
+    """
+    Get the current timestamp timezoned.
+
+    Returns
+    -------
+    str
+        The current timestamp.
+    """
+    return datetime.now().astimezone().isoformat()
 
 
 def decode_string(string: str) -> str:

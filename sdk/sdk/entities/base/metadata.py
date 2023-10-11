@@ -2,6 +2,7 @@
 Entity metadata module.
 """
 from sdk.entities.base.base import ModelObj
+from sdk.utils.generic_utils import get_timestamp
 
 
 class Metadata(ModelObj):
@@ -25,8 +26,8 @@ class Metadata(ModelObj):
             Updated date.
         """
         self.project = project
-        self.created = created
-        self.updated = updated
+        self.created = created if created is not None else get_timestamp()
+        self.updated = updated if updated is not None else self.created
 
     @classmethod
     def from_dict(cls, obj: dict | None = None) -> "Metadata":
@@ -43,6 +44,5 @@ class Metadata(ModelObj):
         Metadata
             An entity metadata object.
         """
-        if obj is None:
-            obj = {}
+        obj = obj if obj is not None else {}
         return cls(**obj)

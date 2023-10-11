@@ -16,7 +16,7 @@ from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import ARTF
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import check_file
-from sdk.utils.generic_utils import build_uuid
+from sdk.utils.generic_utils import build_uuid, get_timestamp
 from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
 if typing.TYPE_CHECKING:
@@ -93,6 +93,8 @@ class Artifact(Entity):
             return self._context().create_object(obj, api)
 
         self.id = uuid
+        self.metadata.updated = get_timestamp()
+        obj["metadata"]["updated"] = self.metadata.updated
         api = api_ctx_update(self.metadata.project, ARTF, self.metadata.name, uuid)
         return self._context().update_object(obj, api)
 

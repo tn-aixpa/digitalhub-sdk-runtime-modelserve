@@ -15,7 +15,7 @@ from sdk.entities.runs.crud import delete_run, get_run, new_run
 from sdk.utils.api import api_base_create, api_base_update
 from sdk.utils.commons import TASK
 from sdk.utils.exceptions import EntityError
-from sdk.utils.generic_utils import build_uuid
+from sdk.utils.generic_utils import build_uuid, get_timestamp
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
@@ -91,6 +91,8 @@ class Task(Entity):
             return self._context().create_object(obj, api)
 
         self.id = uuid
+        self.metadata.updated = get_timestamp()
+        obj["metadata"]["updated"] = self.metadata.updated
         api = api_base_update(TASK, self.id)
         return self._context().update_object(obj, api)
 
