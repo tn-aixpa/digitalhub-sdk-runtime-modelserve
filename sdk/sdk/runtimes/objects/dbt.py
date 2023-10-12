@@ -1,5 +1,5 @@
 """
-Runtime job DBT module.
+Runtime DBT module.
 """
 from __future__ import annotations
 
@@ -105,10 +105,8 @@ class ParsedResults:
 
 class RuntimeDBT(Runtime):
     """
-    Runtime job DBT class.
+    Runtime DBT class.
     """
-
-    tasks = [TaskKinds.TRANSFORM.value]
 
     def __init__(self) -> None:
         """
@@ -139,21 +137,15 @@ class RuntimeDBT(Runtime):
         # Verify if run is in pending state and task is allowed
         if not run.get("status").get("state") == State.PENDING.value:
             raise EntityError("Run is not in pending state. Build it again.")
+
+        # Get action
         action = run.get("spec").get("task").split(":")[0].split("+")[1]
+
+        # Execute action
         if action == TaskKinds.TRANSFORM.value:
             return self.transform(run)
+
         raise EntityError(f"Task {action} not allowed for DBT runtime")
-
-    def get_allowed_tasks(self) -> list:
-        """
-        Get allowed tasks.
-
-        Returns
-        -------
-        list
-            The list of allowed tasks.
-        """
-        return self.tasks
 
     ####################
     # TRANSFORM TASK

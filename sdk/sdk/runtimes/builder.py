@@ -6,7 +6,6 @@ from __future__ import annotations
 import typing
 
 from sdk.entities.functions.kinds import FunctionKinds
-from sdk.runtimes.objects.dbt import RuntimeDBT
 
 if typing.TYPE_CHECKING:
     from sdk.runtimes.objects.base import Runtime
@@ -73,4 +72,26 @@ def build_runtime(function_kind: str) -> Runtime:
 
 
 runtime_builder = RuntimeBuilder()
-runtime_builder.register(FunctionKinds.DBT.value, RuntimeDBT)
+
+
+# Handle imports
+try:
+    from sdk.runtimes.objects.dbt import RuntimeDBT
+
+    runtime_builder.register(FunctionKinds.DBT.value, RuntimeDBT)
+except ImportError:
+    ...
+
+try:
+    from sdk.runtimes.objects.mlrun import RuntimeMLRun
+
+    runtime_builder.register(FunctionKinds.MLRUN.value, RuntimeMLRun)
+except ImportError:
+    ...
+
+try:
+    from sdk.runtimes.objects.nefertem import RuntimeNefertem
+
+    runtime_builder.register(FunctionKinds.NEFERTEM.value, RuntimeNefertem)
+except ImportError:
+    ...

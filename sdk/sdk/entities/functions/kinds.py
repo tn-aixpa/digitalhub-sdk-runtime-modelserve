@@ -11,3 +11,4 @@ class FunctionKinds(Enum):
 
     MLRUN = "job"
     DBT = "dbt"
+    NEFERTEM = "nefertem"

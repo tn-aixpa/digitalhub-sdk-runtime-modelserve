@@ -2,10 +2,7 @@
 Dataitem specification registry module.
 """
 from sdk.entities.dataitems.kinds import DataitemKinds
-from sdk.entities.dataitems.spec.objects.dbt import (
-    DataitemParamsDBT,
-    DataitemSpecDBT,
-)
+from sdk.entities.dataitems.spec.objects.dbt import DataitemParamsDBT, DataitemSpecDBT
 from sdk.entities.dataitems.spec.objects.table import (
     DataitemParamsTable,
     DataitemSpecTable,

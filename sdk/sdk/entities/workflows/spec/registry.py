@@ -2,10 +2,7 @@
 Workflow specification registry module.
 """
 from sdk.entities.workflows.kinds import WorkflowKinds
-from sdk.entities.workflows.spec.objects.job import (
-    WorkflowParamsJob,
-    WorkflowSpecJob,
-)
+from sdk.entities.workflows.spec.objects.job import WorkflowParamsJob, WorkflowSpecJob
 
 WORKFLOW_SPEC = {
     WorkflowKinds.WORKFLOW.value: WorkflowSpecJob,
