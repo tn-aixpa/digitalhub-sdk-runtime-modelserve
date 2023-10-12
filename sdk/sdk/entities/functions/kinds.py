@@ -9,6 +9,6 @@ class FunctionKinds(Enum):
     Function kind enum class.
     """
 
-    MLRUN = "job"
+    MLRUN = "mlrun"
     DBT = "dbt"
     NEFERTEM = "nefertem"
