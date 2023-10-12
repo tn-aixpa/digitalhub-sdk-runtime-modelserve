@@ -4,6 +4,11 @@ Abstract entity module.
 from abc import ABCMeta, abstractmethod
 
 from sdk.entities.base.base import ModelObj
+from sdk.entities.builders.kinds import build_kind
+from sdk.entities.builders.metadata import build_metadata
+from sdk.entities.builders.spec import build_spec
+from sdk.entities.builders.status import build_status
+from sdk.utils.generic_utils import build_uuid
 from sdk.utils.io_utils import write_yaml
 
 
@@ -84,11 +89,54 @@ class Entity(ModelObj, metaclass=ABCMeta):
         return {k: v for k, v in dict_.items() if k in self._essential_attr}
 
     @classmethod
-    @abstractmethod
-    def from_dict(cls, obj: dict) -> "Entity":
+    def from_dict(cls, entity: str, obj: dict) -> "Entity":
         """
-        Abstract method for creating objects from a dictionary.
+        Create object instance from a dictionary.
+
+        Parameters
+        ----------
+        entity : str
+            Entity type.
+        obj : dict
+            Dictionary to create object from.
+
+        Returns
+        -------
+        Workflow
+            Self instance.
         """
+        parsed_dict = cls._parse_dict(entity, obj)
+        return cls(**parsed_dict)
+
+    @staticmethod
+    def _parse_dict(entity: str, obj: dict) -> dict:
+        """
+        Get dictionary and parse it to a valid entity dictionary.
+
+        Parameters
+        ----------
+        entity : str
+            Entity type.
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+        """
+        uuid = build_uuid(obj.get("id"))
+        kind = build_kind(entity, obj.get("kind"))
+        metadata = build_metadata(entity, **obj.get("metadata"))
+        spec = build_spec(entity, kind, ignore_validation=True, **obj.get("spec"))
+        status = build_status(entity, **obj.get("status"))
+        return {
+            "uuid": uuid,
+            "kind": kind,
+            "metadata": metadata,
+            "spec": spec,
+            "status": status,
+        }
 
     def __repr__(self) -> str:
         """

@@ -205,7 +205,7 @@ class Run(Entity):
         """
         api = api_base_read(RUNS, self.id)
         obj = self._context().read_object(api)
-        self = self.from_dict(obj)
+        self = self.from_dict(RUNS, obj)
         return self
 
     def stop(self) -> dict:
@@ -391,78 +391,6 @@ class Run(Entity):
         fnc_kind = self._parse_task_string().function_kind
         return build_runtime(fnc_kind)
 
-    #############################
-    #  Generic Methods
-    #############################
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> "Run":
-        """
-        Create object instance from a dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to create object from.
-
-        Returns
-        -------
-        Run
-            Self instance.
-        """
-        parsed_dict = cls._parse_dict(obj)
-        return cls(**parsed_dict)
-
-    @staticmethod
-    def _parse_dict(obj: dict) -> dict:
-        """
-        Parse dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            Parsed dictionary.
-        """
-
-        # Mandatory fields
-        project = obj.get("project")
-        task_id = obj.get("task_id")
-        task = obj.get("task")
-        if project is None or task_id is None or task is None:
-            raise EntityError("Project, task or task_id are not specified.")
-
-        # Build UUID, kind, metadata, spec and status
-        uuid = obj.get("id")
-        uuid = build_uuid(uuid)
-
-        kind = obj.get("kind")
-        kind = build_kind(RUNS, kind)
-
-        metadata = obj.get("metadata")
-        metadata = metadata if metadata is not None else {"project": project}
-        metadata = build_metadata(RUNS, **metadata)
-
-        spec = obj.get("spec")
-        spec = spec if spec is not None else {"task": task, "task_id": task_id}
-        spec = build_spec(RUNS, kind, ignore_validation=True, **spec)
-
-        status = obj.get("status")
-        status = status if status is not None else {}
-        status = build_status(RUNS, **status)
-
-        return {
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-        }
-
 
 def run_from_parameters(
     project: str,
@@ -551,4 +479,4 @@ def run_from_dict(obj: dict) -> Run:
     Run
         Run object.
     """
-    return Run.from_dict(obj)
+    return Run.from_dict(RUNS, obj)

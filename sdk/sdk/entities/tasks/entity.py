@@ -231,78 +231,6 @@ class Task(Entity):
         """
         delete_run(self.metadata.project, uuid)
 
-    #############################
-    # Generic Methods
-    #############################
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> "Task":
-        """
-        Create object instance from a dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to create object from.
-
-        Returns
-        -------
-        Task
-            Self instance.
-        """
-        parsed_dict = cls._parse_dict(obj)
-        return cls(**parsed_dict)
-
-    @staticmethod
-    def _parse_dict(obj: dict) -> dict:
-        """
-        Parse dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            Parsed dictionary.
-        """
-
-        # Mandatory fields
-        project = obj.get("project")
-        if project is None:
-            raise EntityError("Project or name are not specified.")
-
-        # Build UUID, kind, metadata, spec and status
-        uuid = obj.get("id")
-        uuid = build_uuid(uuid)
-
-        kind = obj.get("kind")
-        kind = build_kind(TASK, kind)
-
-        metadata = obj.get("metadata")
-        metadata = (
-            metadata if metadata is not None else {"project": project, "name": uuid}
-        )
-        metadata = build_metadata(TASK, **metadata)
-
-        spec = obj.get("spec")
-        spec = spec if spec is not None else {}
-        spec = build_spec(TASK, kind=kind, **spec)
-
-        status = obj.get("status")
-        status = status if status is not None else {}
-        status = build_status(TASK, **status)
-
-        return {
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-        }
-
 
 def task_from_parameters(
     project: str,
@@ -373,4 +301,4 @@ def task_from_dict(obj: dict) -> Task:
     Task
         Task object.
     """
-    return Task.from_dict(obj)
+    return Task.from_dict(TASK, obj)

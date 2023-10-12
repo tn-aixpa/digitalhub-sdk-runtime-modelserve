@@ -336,81 +336,6 @@ class Function(Entity):
         if self._tasks.get(kind) is None:
             raise EntityError("Task does not exist.")
 
-    #############################
-    #  Generic Methods
-    #############################
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> "Function":
-        """
-        Create object instance from a dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to create object from.
-
-        Returns
-        -------
-        Function
-            Self instance.
-        """
-        parsed_dict = cls._parse_dict(obj)
-        return cls(**parsed_dict)
-
-    @staticmethod
-    def _parse_dict(obj: dict) -> dict:
-        """
-        Parse dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            Parsed dictionary.
-        """
-
-        # Mandatory fields
-        project = obj.get("project")
-        name = obj.get("name")
-        if project is None or name is None:
-            raise EntityError("Project or name are not specified.")
-
-        # Build UUID, kind, metadata, spec and status
-        uuid = obj.get("id")
-        uuid = build_uuid(uuid)
-
-        kind = obj.get("kind")
-        kind = build_kind(FUNC, kind)
-
-        metadata = obj.get("metadata")
-        metadata = (
-            metadata
-            if metadata is not None
-            else {"project": project, "name": name, "version": uuid}
-        )
-        metadata = build_metadata(FUNC, **metadata)
-
-        spec = obj.get("spec")
-        spec = spec if spec is not None else {}
-        spec = build_spec(FUNC, kind=kind, **spec)
-
-        status = obj.get("status")
-        status = status if status is not None else {}
-        status = build_status(FUNC, **status)
-
-        return {
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-        }
-
 
 def function_from_parameters(
     project: str,
@@ -517,4 +442,4 @@ def function_from_dict(obj: dict) -> Function:
     Function
         Function object.
     """
-    return Function.from_dict(obj)
+    return Function.from_dict(FUNC, obj)

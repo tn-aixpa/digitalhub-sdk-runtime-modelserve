@@ -131,81 +131,6 @@ class Workflow(Entity):
         """
         return get_context(self.metadata.project)
 
-    #############################
-    #  Generic Methods
-    #############################
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> "Workflow":
-        """
-        Create object instance from a dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to create object from.
-
-        Returns
-        -------
-        Workflow
-            Self instance.
-        """
-        parsed_dict = cls._parse_dict(obj)
-        return cls(**parsed_dict)
-
-    @staticmethod
-    def _parse_dict(obj: dict) -> dict:
-        """
-        Parse dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            Parsed dictionary.
-        """
-
-        # Mandatory fields
-        project = obj.get("project")
-        name = obj.get("name")
-        if project is None or name is None:
-            raise EntityError("Project or name are not specified.")
-
-        # Build UUID, kind, metadata, spec and status
-        uuid = obj.get("id")
-        uuid = build_uuid(uuid)
-
-        kind = obj.get("kind")
-        kind = build_kind(WKFL, kind)
-
-        metadata = obj.get("metadata")
-        metadata = (
-            metadata
-            if metadata is not None
-            else {"project": project, "name": name, "version": uuid}
-        )
-        metadata = build_metadata(WKFL, **metadata)
-
-        spec = obj.get("spec")
-        spec = spec if spec is not None else {}
-        spec = build_spec(WKFL, kind=kind, **spec)
-
-        status = obj.get("status")
-        status = status if status is not None else {}
-        status = build_status(WKFL, **status)
-
-        return {
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-        }
-
 
 def workflow_from_parameters(
     project: str,
@@ -284,4 +209,4 @@ def workflow_from_dict(obj: dict) -> Workflow:
     Workflow
         Workflow instance.
     """
-    return Workflow.from_dict(obj)
+    return Workflow.from_dict(WKFL, obj)

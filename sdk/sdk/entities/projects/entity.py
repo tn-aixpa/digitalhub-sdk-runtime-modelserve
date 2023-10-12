@@ -266,7 +266,7 @@ class Project(Entity):
         """
         api = api_base_update(PROJ, self.metadata.name)
         obj = self._client.read_object(api)
-        return self.from_dict(obj)
+        return self.from_dict(PROJ, obj)
 
     #############################
     #  Generic operations for objects (artifacts, functions, workflows, dataitems)
@@ -682,80 +682,6 @@ class Project(Entity):
         """
         self._add_object(dataitem, DTIT)
 
-    #############################
-    #  Generic Methods
-    #############################
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> "Project":
-        """
-        Create object instance from a dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to create object from.
-
-        Returns
-        -------
-        Project
-            Self instance.
-        """
-        parsed_dict = cls._parse_dict(obj)
-        return cls(**parsed_dict)
-
-    @staticmethod
-    def _parse_dict(obj: dict) -> dict:
-        """
-        Parse a dictionary and return a parsed dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            Parsed dictionary.
-        """
-
-        # Mandatory fields
-        name = obj.get("name")
-        if name is None:
-            raise EntityError("Name is not specified.")
-
-        # Build UUID, kind, metadata, spec and status
-        uuid = obj.get("id")
-        uuid = build_uuid(uuid)
-
-        kind = obj.get("kind")
-        kind = build_kind(PROJ, kind)
-
-        metadata = obj.get("metadata")
-        metadata = (
-            metadata
-            if metadata is not None
-            else {"project": name, "name": name, "version": uuid}
-        )
-        metadata = build_metadata(ARTF, **metadata)
-
-        spec = obj.get("spec")
-        spec = spec if spec is not None else {}
-        spec = build_spec(PROJ, kind=kind, **spec)
-
-        status = obj.get("status")
-        status = status if status is not None else {}
-        status = build_status(PROJ, **status)
-
-        return {
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-        }
-
 
 def project_from_parameters(
     name: str,
@@ -835,4 +761,4 @@ def project_from_dict(obj: dict) -> Project:
     Project
         Project object.
     """
-    return Project.from_dict(obj)
+    return Project.from_dict(PROJ, obj)

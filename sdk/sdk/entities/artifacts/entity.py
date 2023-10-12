@@ -339,81 +339,6 @@ class Artifact(Entity):
         if check_file(dst) and not overwrite:
             raise EntityError(f"File {dst} already exists.")
 
-    #############################
-    #  Generic Methods
-    #############################
-
-    @classmethod
-    def from_dict(cls, obj: dict) -> "Artifact":
-        """
-        Create object instance from a dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to create object from.
-
-        Returns
-        -------
-        Artifact
-            Artifact instance.
-        """
-        parsed_dict = cls._parse_dict(obj)
-        return cls(**parsed_dict)
-
-    @staticmethod
-    def _parse_dict(obj: dict) -> dict:
-        """
-        Parse dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            Parsed dictionary.
-        """
-
-        # Mandatory fields
-        project = obj.get("project")
-        name = obj.get("name")
-        if project is None or name is None:
-            raise EntityError("Project or name are not specified.")
-
-        # Build UUID, kind, metadata, spec and status
-        uuid = obj.get("id")
-        uuid = build_uuid(uuid)
-
-        kind = obj.get("kind")
-        kind = build_kind(ARTF, kind)
-
-        metadata = obj.get("metadata")
-        metadata = (
-            metadata
-            if metadata is not None
-            else {"project": project, "name": name, "version": uuid}
-        )
-        metadata = build_metadata(ARTF, **metadata)
-
-        spec = obj.get("spec")
-        spec = spec if spec is not None else {}
-        spec = build_spec(ARTF, kind=kind, **spec)
-
-        status = obj.get("status")
-        status = status if status is not None else {}
-        status = build_status(ARTF, **status)
-
-        return {
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-        }
-
 
 def artifact_from_parameters(
     project: str,
@@ -503,4 +428,4 @@ def artifact_from_dict(obj: dict) -> Artifact:
     Artifact
         Artifact object.
     """
-    return Artifact.from_dict(obj)
+    return Artifact.from_dict(ARTF, obj)
