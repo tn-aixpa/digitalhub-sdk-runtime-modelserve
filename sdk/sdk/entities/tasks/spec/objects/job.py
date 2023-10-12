@@ -1,7 +1,7 @@
 """
 Task Job specification module.
 """
-from sdk.entities.tasks.spec.objects.base import TaskSpec
+from sdk.entities.tasks.spec.objects.base import TaskParams, TaskSpec
 
 
 class TaskSpecJob(TaskSpec):
@@ -35,3 +35,21 @@ class TaskSpecJob(TaskSpec):
         self.volume_mounts = volume_mounts if volume_mounts is not None else []
         self.env = env if env is not None else []
         self.resources = resources if resources is not None else {}
+
+
+class TaskParamsJob(TaskParams):
+    """
+    TaskParamsJob model.
+    """
+
+    volumes: list[dict] | None = []
+    """Volumes."""
+
+    volume_mounts: list[dict] | None = []
+    """Volume mounts."""
+
+    env: list[dict] | None = []
+    """Env variables."""
+
+    resources: dict | None = {}
+    """Resources restrictions."""

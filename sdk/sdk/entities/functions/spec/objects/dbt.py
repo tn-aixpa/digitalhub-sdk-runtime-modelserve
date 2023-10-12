@@ -1,7 +1,7 @@
 """
 DBT Function specification module.
 """
-from sdk.entities.functions.spec.objects.base import FunctionSpec
+from sdk.entities.functions.spec.objects.base import FunctionParams, FunctionSpec
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import decode_string, encode_string
 
@@ -41,8 +41,28 @@ class FunctionSpecDBT(FunctionSpec):
         if sql is None:
             raise EntityError("SQL query must be provided.")
 
+        # This is to avoid re-encoding the SQL query when
+        # it is already encoded.
         try:
             sql = decode_string(sql)
         except Exception:
             ...
         self.sql = encode_string(sql)
+
+
+class FunctionParamsDBT(FunctionParams):
+    """
+    Function DBT parameters model.
+    """
+
+    image: str
+    """Name of the Function's container image."""
+
+    command: str
+    """Command to run inside the container."""
+
+    args: list
+    """List of arguments for the command."""
+
+    sql: str
+    """SQL query to run inside the container."""

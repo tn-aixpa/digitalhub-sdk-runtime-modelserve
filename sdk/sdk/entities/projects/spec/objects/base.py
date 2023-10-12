@@ -1,6 +1,8 @@
 """
 Project base specification module.
 """
+from pydantic import BaseModel
+
 from sdk.entities.base.spec import EntitySpec
 
 
@@ -51,3 +53,23 @@ class ProjectSpec(EntitySpec):
         self.artifacts = artifacts if artifacts is not None else []
         self.workflows = workflows if workflows is not None else []
         self.dataitems = dataitems if dataitems is not None else []
+
+
+class ProjectParams(BaseModel):
+    context: str
+    """The project's context."""
+
+    source: str
+    """The project's source."""
+
+    functions: list
+    """List of project's functions."""
+
+    artifacts: list
+    """List of project's artifacts."""
+
+    workflows: list
+    """List of project's workflows."""
+
+    dataitems: list
+    """List of project's dataitems."""

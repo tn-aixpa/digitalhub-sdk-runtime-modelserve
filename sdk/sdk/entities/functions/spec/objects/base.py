@@ -1,6 +1,8 @@
 """
 Base Function specification module.
 """
+from pydantic import BaseModel
+
 from sdk.entities.base.spec import EntitySpec
 
 
@@ -27,3 +29,12 @@ class FunctionSpec(EntitySpec):
         self.source = source
 
         self._any_setter(**kwargs)
+
+
+class FunctionParams(BaseModel):
+    """
+    Function parameters model.
+    """
+
+    source: str
+    """Path to the Function's source code on the local file system."""

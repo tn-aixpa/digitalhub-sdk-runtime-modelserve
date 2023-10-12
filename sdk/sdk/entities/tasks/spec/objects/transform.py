@@ -1,7 +1,7 @@
 """
 Task Transform specification module.
 """
-from sdk.entities.tasks.spec.objects.base import TaskSpec
+from sdk.entities.tasks.spec.objects.base import TaskParams, TaskSpec
 
 
 class TaskSpecTransform(TaskSpec):
@@ -16,3 +16,9 @@ class TaskSpecTransform(TaskSpec):
         Constructor.
         """
         super().__init__(function, **kwargs)
+
+
+class TaskParamsTransform(TaskParams):
+    """
+    TaskParamsTransform model.
+    """

@@ -1,7 +1,7 @@
 """
 Job Function specification module.
 """
-from sdk.entities.functions.spec.objects.base import FunctionSpec
+from sdk.entities.functions.spec.objects.base import FunctionParams, FunctionSpec
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import is_python_module
 from sdk.utils.generic_utils import encode_source
@@ -56,3 +56,24 @@ class FunctionSpecMLRun(FunctionSpec):
             "code_origin": source,
             "origin_filename": get_name_from_uri(source),
         }
+
+
+class FunctionParamsMLRun(FunctionParams):
+    """
+    Function mlrun parameters model.
+    """
+
+    image: str
+    """Name of the Function's container image."""
+
+    tag: str
+    """Tag of the Function's container image."""
+
+    handler: str
+    """Function handler name."""
+
+    command: str
+    """Command to run inside the container."""
+
+    requirements: list
+    """List of requirements for the Function."""

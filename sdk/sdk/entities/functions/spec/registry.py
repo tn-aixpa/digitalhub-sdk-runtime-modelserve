@@ -2,8 +2,14 @@
 Function specification registry module.
 """
 from sdk.entities.functions.kinds import FunctionKinds
-from sdk.entities.functions.spec.models import FunctionParamsDBT, FunctionParamsMLRun
-from sdk.entities.functions.spec.objects import FunctionSpecDBT, FunctionSpecMLRun
+from sdk.entities.functions.spec.objects.dbt import (
+    FunctionParamsDBT,
+    FunctionSpecDBT,
+)
+from sdk.entities.functions.spec.objects.mlrun import (
+    FunctionParamsMLRun,
+    FunctionSpecMLRun,
+)
 
 FUNCTION_SPEC = {
     FunctionKinds.MLRUN.value: FunctionSpecMLRun,

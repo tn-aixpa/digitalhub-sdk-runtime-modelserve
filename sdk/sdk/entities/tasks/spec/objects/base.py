@@ -1,6 +1,8 @@
 """
 Task specification module.
 """
+from pydantic import BaseModel
+
 from sdk.entities.base.spec import EntitySpec
 
 
@@ -21,3 +23,12 @@ class TaskSpec(EntitySpec):
         self.function = function
 
         self._any_setter(**kwargs)
+
+
+class TaskParams(BaseModel):
+    """
+    Base task model.
+    """
+
+    function: str | None = None
+    """Task function."""

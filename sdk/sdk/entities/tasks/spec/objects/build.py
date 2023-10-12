@@ -1,7 +1,7 @@
 """
 Task Build specification module.
 """
-from sdk.entities.tasks.spec.objects.base import TaskSpec
+from sdk.entities.tasks.spec.objects.base import TaskParams, TaskSpec
 
 
 class TaskSpecBuild(TaskSpec):
@@ -31,3 +31,15 @@ class TaskSpecBuild(TaskSpec):
         super().__init__(function, **kwargs)
         self.image = image
         self.base_image = base_image
+
+
+class TaskParamsBuild(TaskParams):
+    """
+    TaskParamsBuild model.
+    """
+
+    image: str
+    """Output image name."""
+
+    base_image: str
+    """Input image name."""

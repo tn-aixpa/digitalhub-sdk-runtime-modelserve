@@ -1,7 +1,7 @@
 """
 DBT Dataitem specification module.
 """
-from sdk.entities.dataitems.spec.objects.base import DataitemSpec
+from sdk.entities.dataitems.spec.objects.base import DataitemParams, DataitemSpec
 
 
 class DataitemSpecDBT(DataitemSpec):
@@ -34,3 +34,15 @@ class DataitemSpecDBT(DataitemSpec):
         super().__init__(key, path, **kwargs)
         self.raw_code = raw_code
         self.compiled_code = compiled_code
+
+
+class DataitemParamsDBT(DataitemParams):
+    """
+    Dataitem DBT parameters.
+    """
+
+    raw_code: str
+    "The raw code of the dataitem."
+
+    compiled_code: str
+    "The compiled code of the dataitem."

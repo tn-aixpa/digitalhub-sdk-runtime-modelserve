@@ -1,6 +1,8 @@
 """
 Run base specification module.
 """
+from pydantic import BaseModel
+
 from sdk.entities.base.spec import EntitySpec
 
 
@@ -45,3 +47,39 @@ class RunSpec(EntitySpec):
         self.local_execution = local_execution
 
         self._any_setter(**kwargs)
+
+
+class Objects(BaseModel):
+    """
+    Run inputs specification.
+    """
+
+    dataitems: list[str] | None = None
+    """List of dataitems names."""
+
+    artifacts: list[str] | None = None
+    """List of artifacts names."""
+
+
+class RunParams(BaseModel):
+    """
+    Run parameters.
+    """
+
+    task: str | None = None
+    """The task string associated with the run."""
+
+    task_id: str | None = None
+    """The task id associated with the run."""
+
+    inputs: Objects | None = {}
+    """List of input dataitems and artifacts names."""
+
+    outputs: Objects | None = {}
+    """List of output dataitems and artifacts names."""
+
+    parameters: dict | None = {}
+    """Parameters to be used in the run."""
+
+    local_execution: bool = False
+    """Flag to indicate if the run will be executed locally."""

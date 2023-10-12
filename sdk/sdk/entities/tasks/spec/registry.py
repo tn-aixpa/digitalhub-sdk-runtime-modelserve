@@ -2,14 +2,10 @@
 Task specification registry module.
 """
 from sdk.entities.tasks.kinds import TaskKinds
-from sdk.entities.tasks.spec.models import (
-    TaskParamsBuild,
-    TaskParamsJob,
+from sdk.entities.tasks.spec.objects.build import TaskParamsBuild, TaskSpecBuild
+from sdk.entities.tasks.spec.objects.job import TaskParamsJob, TaskSpecJob
+from sdk.entities.tasks.spec.objects.transform import (
     TaskParamsTransform,
-)
-from sdk.entities.tasks.spec.objects import (
-    TaskSpecBuild,
-    TaskSpecJob,
     TaskSpecTransform,
 )
 
