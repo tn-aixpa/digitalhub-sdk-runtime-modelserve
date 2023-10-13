@@ -3,10 +3,10 @@ Task specification module.
 """
 from pydantic import BaseModel
 
-from sdk.entities.base.spec import EntitySpec
+from sdk.entities.base.spec import Spec
 
 
-class TaskSpec(EntitySpec):
+class TaskSpec(Spec):
     """Task specification."""
 
     def __init__(self, function: str | None = None, **kwargs) -> None:

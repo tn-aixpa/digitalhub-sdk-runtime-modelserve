@@ -3,10 +3,10 @@ Dataitem specification module.
 """
 from pydantic import BaseModel
 
-from sdk.entities.base.spec import EntitySpec
+from sdk.entities.base.spec import Spec
 
 
-class DataitemSpec(EntitySpec):
+class DataitemSpec(Spec):
     """
     Dataitem specifications.
     """

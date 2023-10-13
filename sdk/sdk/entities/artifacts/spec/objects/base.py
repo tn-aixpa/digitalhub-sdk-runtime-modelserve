@@ -3,10 +3,10 @@ Artifact base specification module.
 """
 from pydantic import BaseModel
 
-from sdk.entities.base.spec import EntitySpec
+from sdk.entities.base.spec import Spec
 
 
-class ArtifactSpec(EntitySpec):
+class ArtifactSpec(Spec):
     """
     Artifact specification.
     """

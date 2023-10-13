@@ -3,10 +3,10 @@ Project base specification module.
 """
 from pydantic import BaseModel
 
-from sdk.entities.base.spec import EntitySpec
+from sdk.entities.base.spec import Spec
 
 
-class ProjectSpec(EntitySpec):
+class ProjectSpec(Spec):
     """
     Project specification.
     """

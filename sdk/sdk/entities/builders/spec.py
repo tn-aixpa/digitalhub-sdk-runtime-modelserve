@@ -18,7 +18,7 @@ from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
 from sdk.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.spec import EntitySpec
+    from sdk.entities.base.spec import Spec
 
 
 class SpecBuilder:
@@ -84,7 +84,7 @@ class SpecBuilder:
         kind: str,
         ignore_validation: bool = False,
         **kwargs,
-    ) -> EntitySpec:
+    ) -> Spec:
         """
         Build an Spec object with the given parameters.
 
@@ -112,7 +112,7 @@ class SpecBuilder:
 
 def build_spec(
     module: str, kind: str, ignore_validation: bool = False, **kwargs
-) -> EntitySpec:
+) -> Spec:
     """
     Wrapper for SpecBuilder.build.
 

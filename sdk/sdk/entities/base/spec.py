@@ -4,13 +4,13 @@ Entity specification module.
 from sdk.entities.base.base import ModelObj
 
 
-class EntitySpec(ModelObj):
+class Spec(ModelObj):
     """
     A class representing the specification of an entity.
     """
 
     @classmethod
-    def from_dict(cls, obj: dict | None = None) -> "EntitySpec":
+    def from_dict(cls, obj: dict | None = None) -> "Spec":
         """
         Return entity specification object from dictionary.
 

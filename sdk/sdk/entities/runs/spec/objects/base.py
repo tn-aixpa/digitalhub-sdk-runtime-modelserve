@@ -3,10 +3,10 @@ Run base specification module.
 """
 from pydantic import BaseModel
 
-from sdk.entities.base.spec import EntitySpec
+from sdk.entities.base.spec import Spec
 
 
-class RunSpec(EntitySpec):
+class RunSpec(Spec):
     """Run specification."""
 
     def __init__(

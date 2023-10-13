@@ -15,9 +15,9 @@ from sdk.utils.generic_utils import build_uuid
 from sdk.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.status import Status
     from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.spec import EntitySpec
+    from sdk.entities.base.spec import Spec
+    from sdk.entities.base.status import Status
 
 
 class Entity(ModelObj, metaclass=ABCMeta):
@@ -30,7 +30,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         uuid: str,
         kind: str,
         metadata: Metadata,
-        spec: EntitySpec,
+        spec: Spec,
         status: Status,
     ) -> None:
         """

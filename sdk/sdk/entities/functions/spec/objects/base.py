@@ -3,10 +3,10 @@ Base Function specification module.
 """
 from pydantic import BaseModel
 
-from sdk.entities.base.spec import EntitySpec
+from sdk.entities.base.spec import Spec
 
 
-class FunctionSpec(EntitySpec):
+class FunctionSpec(Spec):
     """
     Specification for a Function.
     """
