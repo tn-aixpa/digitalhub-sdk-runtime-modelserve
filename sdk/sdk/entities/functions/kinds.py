@@ -12,3 +12,4 @@ class FunctionKinds(Enum):
     MLRUN = "mlrun"
     DBT = "dbt"
     NEFERTEM = "nefertem"
+    PYTHON = "python"

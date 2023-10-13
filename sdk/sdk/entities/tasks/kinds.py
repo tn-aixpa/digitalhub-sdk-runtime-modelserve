@@ -17,3 +17,4 @@ class TaskKinds(Enum):
     VALIDATE = "validate"
     PROFILE = "profile"
     INFER = "infer"
+    PYTHON = "python"

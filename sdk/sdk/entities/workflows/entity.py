@@ -13,7 +13,6 @@ from sdk.entities.builders.spec import build_spec
 from sdk.entities.builders.status import build_status
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import WKFL
-from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid, get_timestamp
 
 if typing.TYPE_CHECKING:

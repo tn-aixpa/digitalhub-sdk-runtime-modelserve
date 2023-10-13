@@ -182,7 +182,7 @@ class RuntimeDBT(Runtime):
 
         # Return run status
         return {
-            **self.get_dataitem_info(output, dataitem),
+            **self._get_dataitem_info(output, dataitem),
             **parsed_result.timings,
             "state": State.COMPLETED.value,
         }
@@ -611,7 +611,8 @@ class RuntimeDBT(Runtime):
         except Exception:
             raise RuntimeError("Something got wrong during dataitem creation.")
 
-    def get_dataitem_info(self, output: str, dataitem: Dataitem) -> dict:
+    @staticmethod
+    def _get_dataitem_info(output: str, dataitem: Dataitem) -> dict:
         """
         Create dataitem info.
 

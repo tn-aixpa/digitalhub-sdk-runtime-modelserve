@@ -14,7 +14,6 @@ from sdk.entities.builders.status import build_status
 from sdk.entities.runs.crud import delete_run, get_run, new_run
 from sdk.utils.api import api_base_create, api_base_update
 from sdk.utils.commons import TASK
-from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid, get_timestamp
 
 if typing.TYPE_CHECKING:

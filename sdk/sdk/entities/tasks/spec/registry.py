@@ -7,6 +7,7 @@ from sdk.entities.tasks.spec.objects.infer import TaskParamsInfer, TaskSpecInfer
 from sdk.entities.tasks.spec.objects.job import TaskParamsJob, TaskSpecJob
 from sdk.entities.tasks.spec.objects.mlrun import TaskParamsMLRun, TaskSpecMLRun
 from sdk.entities.tasks.spec.objects.profile import TaskParamsProfile, TaskSpecProfile
+from sdk.entities.tasks.spec.objects.python import TaskParamsPython, TaskSpecPython
 from sdk.entities.tasks.spec.objects.transform import (
     TaskParamsTransform,
     TaskSpecTransform,
@@ -24,6 +25,7 @@ TASK_SPEC = {
     TaskKinds.VALIDATE.value: TaskSpecValidate,
     TaskKinds.PROFILE.value: TaskSpecProfile,
     TaskKinds.INFER.value: TaskSpecInfer,
+    TaskKinds.PYTHON.value: TaskSpecPython,
 }
 TASK_MODEL = {
     TaskKinds.BUILD.value: TaskParamsBuild,
@@ -33,4 +35,5 @@ TASK_MODEL = {
     TaskKinds.VALIDATE.value: TaskParamsValidate,
     TaskKinds.PROFILE.value: TaskParamsProfile,
     TaskKinds.INFER.value: TaskParamsInfer,
+    TaskKinds.PYTHON.value: TaskParamsPython,
 }
