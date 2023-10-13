@@ -2,7 +2,7 @@ Client
 ---------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    client
    env_utils

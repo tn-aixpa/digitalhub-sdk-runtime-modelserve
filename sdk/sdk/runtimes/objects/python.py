@@ -4,7 +4,6 @@ Runtime Python module.
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
 import typing
 from pathlib import Path
@@ -15,7 +14,7 @@ from sdk.entities.base.status import State
 from sdk.entities.tasks.kinds import TaskKinds
 from sdk.runtimes.objects.base import Runtime
 from sdk.utils.exceptions import EntityError
-from sdk.utils.generic_utils import build_uuid, decode_string
+from sdk.utils.generic_utils import decode_string
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifacts.entity import Artifact

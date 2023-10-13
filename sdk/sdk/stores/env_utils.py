@@ -3,13 +3,11 @@ Environment utilities for the stores.
 """
 import os
 
-from sdk.stores.models import (
-    LocalStoreConfig,
-    RemoteStoreConfig,
-    S3StoreConfig,
-    SQLStoreConfig,
-    StoreParameters,
-)
+from sdk.stores.objects.base import StoreParameters
+from sdk.stores.objects.local import LocalStoreConfig
+from sdk.stores.objects.remote import RemoteStoreConfig
+from sdk.stores.objects.s3 import S3StoreConfig
+from sdk.stores.objects.sql import SQLStoreConfig
 
 
 def get_env_store_config(scheme: str) -> StoreParameters:

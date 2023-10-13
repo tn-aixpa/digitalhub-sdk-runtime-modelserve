@@ -3,8 +3,10 @@ Store module.
 """
 from abc import ABCMeta, abstractmethod
 from tempfile import mkdtemp
+from typing import Literal
 
 import pandas as pd
+from pydantic import BaseModel
 
 from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import build_path, make_dir
@@ -155,3 +157,27 @@ class Store(metaclass=ABCMeta):
         """
         Method to check if store is local.
         """
+
+
+class StoreConfig(BaseModel):
+    """
+    Store configuration base class.
+    """
+
+
+class StoreParameters(BaseModel):
+    """
+    Store configuration class.
+    """
+
+    name: str
+    """Store id."""
+
+    type: Literal["local", "s3", "remote", "sql"]
+    """Store type to instantiate."""
+
+    config: StoreConfig | None = None
+    """Configuration for the store."""
+
+    is_default: bool = False
+    """Flag to determine if the store is the default one."""

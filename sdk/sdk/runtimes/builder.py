@@ -75,10 +75,12 @@ runtime_builder = RuntimeBuilder()
 
 
 # Handle imports
-from sdk.runtimes.objects.python import RuntimePython
+try:
+    from sdk.runtimes.objects.python import RuntimePython
 
-runtime_builder.register(FunctionKinds.PYTHON.value, RuntimePython)
-
+    runtime_builder.register(FunctionKinds.PYTHON.value, RuntimePython)
+except ImportError:
+    ...
 
 try:
     from sdk.runtimes.objects.dbt import RuntimeDBT

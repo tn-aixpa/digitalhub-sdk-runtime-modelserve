@@ -7,8 +7,8 @@ import typing
 
 from pydantic import ValidationError
 
+from sdk.stores.objects.base import StoreParameters
 from sdk.stores.env_utils import get_env_store_config
-from sdk.stores.models import StoreParameters
 from sdk.stores.registry import REGISTRY_STORES
 from sdk.utils.exceptions import StoreError
 from sdk.utils.uri_utils import map_uri_scheme

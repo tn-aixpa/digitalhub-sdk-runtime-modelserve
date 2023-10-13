@@ -11,18 +11,34 @@ import boto3
 import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 
-from sdk.stores.objects.base import Store
+from sdk.stores.objects.base import Store, StoreConfig
 from sdk.utils.exceptions import StoreError
 from sdk.utils.uri_utils import get_uri_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
 
-    from sdk.stores.models import S3StoreConfig
-
 
 # Type aliases
 S3Client = Type["botocore.client.S3"]
+
+
+class S3StoreConfig(StoreConfig):
+    """
+    S3 store configuration class.
+    """
+
+    endpoint_url: str
+    """S3 endpoint URL."""
+
+    aws_access_key_id: str
+    """AWS access key ID."""
+
+    aws_secret_access_key: str
+    """AWS secret access key."""
+
+    bucket_name: str
+    """S3 bucket name."""
 
 
 class S3Store(Store):

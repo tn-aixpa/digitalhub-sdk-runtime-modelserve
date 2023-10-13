@@ -5,14 +5,21 @@ from __future__ import annotations
 
 import typing
 
-from sdk.stores.objects.base import Store
+from sdk.stores.objects.base import Store, StoreConfig
 from sdk.utils.file_utils import build_path, copy_file, get_dir
 from sdk.utils.uri_utils import get_name_from_uri, get_uri_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
 
-    from sdk.stores.models import LocalStoreConfig
+
+class LocalStoreConfig(StoreConfig):
+    """
+    Local store configuration class.
+    """
+
+    path: str
+    """Local path."""
 
 
 class LocalStore(Store):

@@ -1,22 +1,40 @@
 """
 S3Store module.
 """
-from __future__ import annotations
-
 import re
-import typing
 
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 
-from sdk.stores.objects.base import Store
+from sdk.stores.objects.base import Store, StoreConfig
 from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import build_path
 
-if typing.TYPE_CHECKING:
-    from sdk.stores.models import SQLStoreConfig
+
+class SQLStoreConfig(StoreConfig):
+    """
+    SQL store configuration class.
+    """
+
+    host: str
+    """SQL host."""
+
+    port: int
+    """SQL port."""
+
+    user: str
+    """SQL user."""
+
+    password: str
+    """SQL password."""
+
+    database: str
+    """SQL database name."""
+
+    pg_schema: str
+    """SQL schema name."""
 
 
 class SqlStore(Store):
