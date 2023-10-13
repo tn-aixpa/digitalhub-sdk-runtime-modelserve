@@ -85,7 +85,7 @@ def new_workflow(
     -------
     Workflow
         An instance of the created workflow.
-    """,
+    """
     obj = create_workflow(
         project=project,
         name=name,

@@ -41,8 +41,8 @@ class DataitemParamsDBT(DataitemParams):
     Dataitem DBT parameters.
     """
 
-    raw_code: str
+    raw_code: str | None = None
     "The raw code of the dataitem."
 
-    compiled_code: str
+    compiled_code: str | None = None
     "The compiled code of the dataitem."

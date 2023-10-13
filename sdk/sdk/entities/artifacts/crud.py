@@ -92,7 +92,7 @@ def new_artifact(
     -------
     Artifact
        Object instance.
-    """,
+    """
     obj = create_artifact(
         project=project,
         name=name,

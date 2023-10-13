@@ -111,7 +111,7 @@ def new_function(
     ------
     EntityError
         If the context local flag does not match the local flag of the function.
-    """,
+    """
     obj = create_function(
         project=project,
         name=name,

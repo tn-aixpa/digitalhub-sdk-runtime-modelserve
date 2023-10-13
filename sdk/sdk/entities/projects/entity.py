@@ -122,13 +122,7 @@ class Project(Entity):
         local: bool
             If True, export locally.
         """
-        super().__init__()
-
-        self.id = uuid
-        self.kind = kind
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
+        super().__init__(uuid, kind, metadata, spec, status)
 
         # Private attributes
         self._client = get_client(local)

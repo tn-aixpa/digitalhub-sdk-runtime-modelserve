@@ -72,13 +72,13 @@ class RunParams(BaseModel):
     task_id: str | None = None
     """The task id associated with the run."""
 
-    inputs: Objects | None = {}
+    inputs: Objects | None = None
     """List of input dataitems and artifacts names."""
 
-    outputs: Objects | None = {}
+    outputs: Objects | None = None
     """List of output dataitems and artifacts names."""
 
-    parameters: dict | None = {}
+    parameters: dict | None = None
     """Parameters to be used in the run."""
 
     local_execution: bool = False

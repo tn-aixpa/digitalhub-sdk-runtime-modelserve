@@ -89,7 +89,7 @@ def new_dataitem(
     -------
     Dataitem
        Object instance.
-    """,
+    """
     obj = create_dataitem(
         project=project,
         name=name,

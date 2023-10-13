@@ -115,6 +115,7 @@ class ClientLocal(Client):
             The updated object.
         """
         parsed = self._parse_api(api)
+        msg = None
 
         try:
             # Project, Task, Run

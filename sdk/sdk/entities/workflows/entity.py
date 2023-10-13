@@ -49,15 +49,9 @@ class Workflow(Entity):
         spec : WorkflowSpec
             Specification of the object.
         status : WorkflowStatus
-            State of the object.
+            Status of the object.
         """
-        super().__init__()
-
-        self.id = uuid
-        self.kind = kind
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
+        super().__init__(uuid, kind, metadata, spec, status)
 
         self.project = self.metadata.project
         self.name = self.metadata.name

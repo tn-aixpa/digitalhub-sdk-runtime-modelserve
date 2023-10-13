@@ -51,15 +51,9 @@ class Task(Entity):
         spec : TaskSpec
             Specification of the object.
         status : TaskStatus
-            State of the object.
+            Status of the object.
         """
-        super().__init__()
-
-        self.id = uuid
-        self.kind = kind
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
+        super().__init__(uuid, kind, metadata, spec, status)
 
         self.project = self.metadata.project
         self.function = self.spec.function

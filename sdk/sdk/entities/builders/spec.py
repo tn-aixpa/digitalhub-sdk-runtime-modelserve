@@ -74,11 +74,9 @@ class SpecBuilder:
             model: BaseModel = self._modules[module]["registry_models"][kind](**kwargs)
             return model.model_dump()
         except KeyError:
-            return kwargs
             raise EntityError(f"Unsupported parameters kind: {kind}")
-        except ValidationError as ve:
-            return kwargs
-            raise EntityError(f"Invalid parameters for kind: {kind}") from ve
+        except ValidationError as err:
+            raise EntityError(f"Invalid parameters for kind: {kind}") from err
 
     def build(
         self,

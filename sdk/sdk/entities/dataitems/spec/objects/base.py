@@ -37,7 +37,7 @@ class DataitemParams(BaseModel):
     Dataitem parameters.
     """
 
-    key: str
+    key: str | None = None
     """The key of the dataitem."""
-    path: str
+    path: str | None = None
     "The path of the dataitem."

@@ -63,17 +63,17 @@ class FunctionParamsMLRun(FunctionParams):
     Function mlrun parameters model.
     """
 
-    image: str
+    image: str | None = None
     """Name of the Function's container image."""
 
-    tag: str
+    tag: str | None = None
     """Tag of the Function's container image."""
 
-    handler: str
+    handler: str | None = None
     """Function handler name."""
 
-    command: str
+    command: str | None = None
     """Command to run inside the container."""
 
-    requirements: list
+    requirements: list | None = None
     """List of requirements for the Function."""

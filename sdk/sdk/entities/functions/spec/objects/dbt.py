@@ -55,14 +55,14 @@ class FunctionParamsDBT(FunctionParams):
     Function DBT parameters model.
     """
 
-    image: str
+    image: str | None = None
     """Name of the Function's container image."""
 
-    command: str
+    command: str | None = None
     """Command to run inside the container."""
 
-    args: list
+    args: list | None = None
     """List of arguments for the command."""
 
-    sql: str
+    sql: str | None = None
     """SQL query to run inside the container."""

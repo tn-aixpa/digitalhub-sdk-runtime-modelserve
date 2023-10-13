@@ -42,14 +42,14 @@ class TaskParamsMLRun(TaskParams):
     TaskParamsMLRun model.
     """
 
-    volumes: list[dict] | None = []
+    volumes: list[dict] | None = None
     """Volumes."""
 
-    volume_mounts: list[dict] | None = []
+    volume_mounts: list[dict] | None = None
     """Volume mounts."""
 
-    env: list[dict] | None = []
+    env: list[dict] | None = None
     """Env variables."""
 
-    resources: dict | None = {}
+    resources: dict | None = None
     """Resources restrictions."""

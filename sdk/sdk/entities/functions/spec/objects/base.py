@@ -36,5 +36,5 @@ class FunctionParams(BaseModel):
     Function parameters model.
     """
 
-    source: str
+    source: str | None = None
     """Path to the Function's source code on the local file system."""

@@ -55,14 +55,9 @@ class Dataitem(Entity):
         spec : DataitemSpec
             Specification of the object.
         status : DataitemStatus
-            State of the object.
+            Status of the object.
         """
-        super().__init__()
-        self.id = uuid
-        self.kind = kind
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
+        super().__init__(uuid, kind, metadata, spec, status)
 
         self.project = self.metadata.project
         self.name = self.metadata.name
@@ -130,8 +125,8 @@ class Dataitem(Entity):
         to a temporary folder and deleted after the method is executed. If no file_format is passed,
         the function will try to infer it from the dataitem.spec.path attribute.
         The path of the dataitem is specified in the spec attribute, and must be a store aware path.
-        If the dataitem is stored on an s3 bucket, the path must be s3://<bucket>/<path_to_dataitem>.
-        If the dataitem is stored on a database (Postgres is the only one supported), the path must
+        If the dataitem is stored on s3 bucket, the path must be s3://<bucket>/<path_to_dataitem>.
+        If the dataitem is stored on database (Postgres is the only one supported), the path must
         be sql://postgres/<database>/<schema>/<table/view>.
 
         Parameters

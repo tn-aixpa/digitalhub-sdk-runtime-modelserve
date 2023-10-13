@@ -38,8 +38,8 @@ class TaskParamsBuild(TaskParams):
     TaskParamsBuild model.
     """
 
-    image: str
+    image: str | None = None
     """Output image name."""
 
-    base_image: str
+    base_image: str | None = None
     """Input image name."""

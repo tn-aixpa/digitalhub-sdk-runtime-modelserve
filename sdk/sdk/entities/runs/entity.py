@@ -64,15 +64,9 @@ class Run(Entity):
         spec : RunSpec
             Specification of the object.
         status : RunStatus
-            State of the object.
+            Status of the object.
         """
-        super().__init__()
-
-        self.id = uuid
-        self.kind = kind
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
+        super().__init__(uuid, kind, metadata, spec, status)
 
         self.project = self.metadata.project
         self.task = self.spec.task
@@ -149,14 +143,9 @@ class Run(Entity):
     #  Run Methods
     #############################
 
-    def build(self, local: bool = True):
+    def build(self) -> None:
         """
         Build run.
-
-        Parameters
-        ----------
-        local : bool
-            If True, build locally, otherwise build on backend.
 
         Returns
         -------
@@ -166,19 +155,14 @@ class Run(Entity):
         task = self._get_task()
         runtime = self._get_runtime()
         new_spec = runtime.build(function, task, self.to_dict())
-        # inserire validazione per task string
+        # Insert task string validation
         self.spec = build_spec(RUNS, self.kind, ignore_validation=True, **new_spec)
         self._set_status({"state": State.PENDING.value})
         self.save(self.id)
 
-    def run(self, local: bool = True) -> Run:
+    def run(self) -> Run:
         """
         Run run.
-
-        Parameters
-        ----------
-        local : bool
-            If True, run locally, otherwise run from backend.
 
         Returns
         -------
@@ -188,8 +172,8 @@ class Run(Entity):
         runtime = self._get_runtime()
         try:
             status = runtime.run(self.to_dict(include_all_non_private=True))
-        except Exception as e:
-            status = {"state": State.ERROR.value, "message": str(e)}
+        except Exception as err:
+            status = {"state": State.ERROR.value, "message": str(err)}
         self._set_status(status)
         self.save(self.id)
         return self
@@ -205,14 +189,12 @@ class Run(Entity):
         """
         api = api_base_read(RUNS, self.id)
         obj = self._context().read_object(api)
-        self = self.from_dict(RUNS, obj)
+        refreshed_run = self.from_dict(RUNS, obj)
+        self.kind = refreshed_run.kind
+        self.metadata = refreshed_run.metadata
+        self.spec = refreshed_run.spec
+        self.status = refreshed_run.status
         return self
-
-    def stop(self) -> dict:
-        """
-        Not implemented yet.
-        """
-        raise NotImplementedError
 
     def logs(self) -> dict:
         """
@@ -223,9 +205,7 @@ class Run(Entity):
         dict
             Logs from backend.
         """
-        api = api_ctx_read(
-            self.metadata.project,
-        )
+        api = api_base_read(RUNS, self.id) + "/logs"
         return self._context().read_object(api)
 
     def _set_status(self, status: dict) -> None:

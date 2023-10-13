@@ -50,9 +50,9 @@ class RuntimeNefertem(Runtime):
         # Execute action
         if action == TaskKinds.VALIDATE.value:
             return self.validate(run)
-        elif action == TaskKinds.PROFILE.value:
+        if action == TaskKinds.PROFILE.value:
             return self.profile(run)
-        elif action == TaskKinds.INFER.value:
+        if action == TaskKinds.INFER.value:
             return self.infer(run)
 
         raise EntityError(f"Task {action} not allowed for runtime")

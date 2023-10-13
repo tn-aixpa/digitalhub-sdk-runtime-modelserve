@@ -10,16 +10,13 @@ class Runtime:
     """
 
     @abstractmethod
-    def run(self, run: dict) -> dict:
-        # Runner, si occupa di esegure la run
-        ...
-
-    @abstractmethod
     def build(self, function: dict, task: dict, run: dict) -> dict:
-        # Builder, si occupa di fare merge delle spec
-        ...
+        """
+        Build run spec.
+        """
 
     @abstractmethod
-    def get_allowed_tasks(self) -> list:
-        # return list of tasks
-        ...
+    def run(self, run: dict) -> dict:
+        """
+        Execute run task.
+        """

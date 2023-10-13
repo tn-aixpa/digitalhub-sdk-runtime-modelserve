@@ -61,17 +61,17 @@ class FunctionParamsPython(FunctionParams):
     Function Python parameters model.
     """
 
-    handler: str
+    handler: str | None = None
     """Name of the Function."""
 
-    image: str
+    image: str | None = None
     """Name of the Function's container image."""
 
-    command: str
+    command: str | None = None
     """Command to run inside the container."""
 
-    args: list
+    args: list | None = None
     """List of arguments for the command."""
 
-    requirements: list
+    requirements: list | None = None
     """List of requirements for the Function."""

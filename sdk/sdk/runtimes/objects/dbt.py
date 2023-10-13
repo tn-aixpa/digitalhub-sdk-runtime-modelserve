@@ -117,7 +117,21 @@ class RuntimeDBT(Runtime):
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
-        Merge specs.
+        Build run spec.
+
+        Parameters
+        ----------
+        function : dict
+            The function.
+        task : dict
+            The task.
+        run : dict
+            The run.
+
+        Returns
+        -------
+        dict
+            The run spec.
         """
         return {
             **function.get("spec"),
@@ -555,12 +569,16 @@ class RuntimeDBT(Runtime):
                 compile_timing = entry
             elif entry.name == "execute":
                 execute_timing = entry
-        if compile_timing is None or execute_timing is None:
-            raise
-        if execute_timing.started_at is None or execute_timing.completed_at is None:
-            raise
-        if compile_timing.started_at is None or compile_timing.completed_at is None:
-            raise
+        if (
+            (compile_timing is None or execute_timing is None)
+            or (
+                execute_timing.started_at is None or execute_timing.completed_at is None
+            )
+            or (
+                compile_timing.started_at is None or compile_timing.completed_at is None
+            )
+        ):
+            raise RuntimeError("Something got wrong during timings parsing.")
         return {
             "timing": {
                 "compile": {

@@ -54,15 +54,9 @@ class Function(Entity):
         spec : FunctionSpec
             Specification of the object.
         status : FunctionStatus
-            State of the object.
+            Status of the object.
         """
-        super().__init__()
-
-        self.id = uuid
-        self.kind = kind
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
+        super().__init__(uuid, kind, metadata, spec, status)
 
         # Private attributes
         self._tasks: dict[str, Task] = {}
@@ -198,9 +192,9 @@ class Function(Entity):
             return run
 
         # If local execution, build run and run it
-        run.build(local=True)
+        run.build()
         with ThreadPoolExecutor(max_workers=1) as executor:
-            result = executor.submit(run.run, local=True)
+            result = executor.submit(run.run)
         return result.result()
 
     def _get_function_string(self) -> str:

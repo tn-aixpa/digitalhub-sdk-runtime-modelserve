@@ -56,20 +56,24 @@ class ProjectSpec(EntitySpec):
 
 
 class ProjectParams(BaseModel):
-    context: str
+    """
+    Parameters model for project.
+    """
+
+    context: str | None = None
     """The project's context."""
 
-    source: str
+    source: str | None = None
     """The project's source."""
 
-    functions: list
+    functions: list | None = None
     """List of project's functions."""
 
-    artifacts: list
+    artifacts: list | None = None
     """List of project's artifacts."""
 
-    workflows: list
+    workflows: list | None = None
     """List of project's workflows."""
 
-    dataitems: list
+    dataitems: list | None = None
     """List of project's dataitems."""

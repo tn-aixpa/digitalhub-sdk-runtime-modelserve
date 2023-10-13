@@ -71,7 +71,7 @@ def new_run(
     -------
     Run
        Object instance.
-    """,
+    """
     obj = create_run(
         project=project,
         task=task,

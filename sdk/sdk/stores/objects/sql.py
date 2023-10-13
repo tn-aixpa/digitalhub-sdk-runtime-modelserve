@@ -217,7 +217,7 @@ class SqlStore(Store):
         match = re.match(pattern, path)
         if match is None:
             raise ValueError(
-                "Invalid SQL path. Path must be in the form sql://postgres/<database>/<schema>/<table>"
+                "Invalid SQL path. Must be sql://postgres/<database>/<schema>/<table>"
             )
         return match.groupdict()
 

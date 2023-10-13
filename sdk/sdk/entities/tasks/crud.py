@@ -62,7 +62,7 @@ def new_task(
     -------
     Task
        Object instance.
-    """,
+    """
     obj = create_task(
         project=project,
         kind=kind,

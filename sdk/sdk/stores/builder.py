@@ -3,18 +3,28 @@ Store builder module.
 """
 from __future__ import annotations
 
+import os
 import typing
 
 from pydantic import ValidationError
 
+from sdk.stores.objects.local import LocalStore, LocalStoreConfig
+from sdk.stores.objects.remote import RemoteStore, RemoteStoreConfig
+from sdk.stores.objects.s3 import S3Store, S3StoreConfig
+from sdk.stores.objects.sql import SqlStore, SQLStoreConfig
 from sdk.stores.objects.base import StoreParameters
-from sdk.stores.env_utils import get_env_store_config
-from sdk.stores.registry import REGISTRY_STORES
 from sdk.utils.exceptions import StoreError
 from sdk.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from sdk.stores.objects.base import Store
+
+REGISTRY_STORES = {
+    "local": LocalStore,
+    "s3": S3Store,
+    "remote": RemoteStore,
+    "sql": SqlStore,
+}
 
 
 class StoreBuilder:
@@ -154,6 +164,66 @@ class StoreBuilder:
             except ValidationError as exc:
                 raise StoreError("Malformed store configuration parameters.") from exc
         return config
+
+
+def get_env_store_config(scheme: str) -> StoreParameters:
+    """
+    Get a store configuration from the environment.
+
+    Parameters
+    ----------
+    scheme : str
+        URI scheme.
+
+    Returns
+    -------
+    StoreParameters
+        The store configuration based on the scheme.
+
+    Raises
+    ------
+    ValueError
+        If the scheme is not supported.
+    """
+    if scheme == "s3":
+        return StoreParameters(
+            name="s3",
+            type="s3",
+            config=S3StoreConfig(
+                endpoint_url=os.getenv("S3_ENDPOINT_URL"),  # type: ignore
+                aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID"),  # type: ignore
+                aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY"),  # type: ignore
+                bucket_name=os.getenv("S3_BUCKET_NAME"),  # type: ignore
+            ),
+        )
+    if scheme == "sql":
+        return StoreParameters(
+            name="sql",
+            type="sql",
+            config=SQLStoreConfig(
+                host=os.getenv("POSTGRES_HOST"),  # type: ignore
+                port=os.getenv("POSTGRES_PORT"),  # type: ignore
+                user=os.getenv("POSTGRES_USER"),  # type: ignore
+                password=os.getenv("POSTGRES_PASSWORD"),  # type: ignore
+                database=os.getenv("POSTGRES_DATABASE"),  # type: ignore
+                pg_schema=os.getenv("POSTGRES_SCHEMA"),  # type: ignore
+            ),
+        )
+    if scheme == "remote":
+        return StoreParameters(
+            name="remote",
+            type="remote",
+            config=RemoteStoreConfig(),
+        )
+    if scheme == "local":
+        return StoreParameters(
+            name="local",
+            type="local",
+            config=LocalStoreConfig(
+                path="tempsdk",
+            ),
+        )
+    raise ValueError(f"Unsupported scheme {scheme}")
 
 
 def set_store(store_cfg: StoreParameters) -> None:

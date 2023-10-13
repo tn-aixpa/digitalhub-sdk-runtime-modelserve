@@ -195,8 +195,8 @@ class RuntimePython(Runtime):
         """
         # Execute script
         filepath = self.root / "stdout.txt"
-        with open(filepath, "w") as stdout:
-            subprocess.run(["python", str(path)], stdout=stdout)
+        with open(filepath, "w", encoding="utf-8") as stdout:
+            subprocess.run(["python", str(path)], stdout=stdout, check=False)
         return filepath
 
     ####################
