@@ -52,32 +52,6 @@ class SpecBuilder:
             "registry_models": registry_models,
         }
 
-    def validate_params(self, module: str, kind: str, **kwargs) -> dict:
-        """
-        Validate the parameters for the given kind of object.
-
-        Parameters
-        ----------
-        module : str
-            The name of the module.
-        kind : str
-            The kind of the object.
-        kwargs : dict
-            The parameters to validate.
-
-        Returns
-        -------
-        dict
-            The validated parameters.
-        """
-        try:
-            model: BaseModel = self._modules[module]["registry_models"][kind](**kwargs)
-            return model.model_dump()
-        except KeyError:
-            raise EntityError(f"Unsupported parameters kind: {kind}")
-        except ValidationError as err:
-            raise EntityError(f"Invalid parameters for kind: {kind}") from err
-
     def build(
         self,
         module: str,
@@ -103,11 +77,37 @@ class SpecBuilder:
             An Spec object with the given parameters.
         """
         if not ignore_validation:
-            kwargs = self.validate_params(module, kind, **kwargs)
+            kwargs = self._validate_arguments(module, kind, **kwargs)
         try:
             return self._modules[module]["registry_spec"][kind](**kwargs)
         except KeyError:
             raise EntityError(f"Unsupported spec kind '{kind}' for entity '{module}'")
+
+    def _validate_arguments(self, module: str, kind: str, **kwargs) -> dict:
+        """
+        Validate the parameters for the given kind of object.
+
+        Parameters
+        ----------
+        module : str
+            The name of the module.
+        kind : str
+            The kind of the object.
+        kwargs : dict
+            The parameters to validate.
+
+        Returns
+        -------
+        dict
+            The validated parameters.
+        """
+        try:
+            model: BaseModel = self._modules[module]["registry_models"][kind](**kwargs)
+            return model.model_dump()
+        except KeyError:
+            raise EntityError(f"Unsupported parameters kind: {kind}")
+        except ValidationError as err:
+            raise EntityError(f"Invalid parameters for kind: {kind}") from err
 
 
 def build_spec(

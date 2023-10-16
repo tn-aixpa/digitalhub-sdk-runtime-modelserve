@@ -42,7 +42,7 @@ class Status(ModelObj):
         self.message = message
 
     @classmethod
-    def from_dict(cls, obj: dict | None = None) -> "Status":
+    def from_dict(cls, obj: dict) -> "Status":
         """
         Return entity specification object from dictionary.
 
@@ -56,5 +56,4 @@ class Status(ModelObj):
         EntitySpec
             An entity specification object.
         """
-        obj = obj if obj is not None else {}
         return cls(**obj)

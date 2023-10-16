@@ -10,7 +10,7 @@ from sdk.context.builder import delete_context
 from sdk.entities.projects.entity import project_from_dict, project_from_parameters
 from sdk.utils.api import api_base_delete, api_base_read, api_base_update
 from sdk.utils.commons import PROJ
-from sdk.utils.exceptions import EntityError, BackendError
+from sdk.utils.exceptions import BackendError, EntityError
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:

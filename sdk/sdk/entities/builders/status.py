@@ -65,14 +65,31 @@ class StatusBuilder:
         """
         if module not in self._modules:
             raise ValueError(f"Invalid module name: {module}")
+        kwargs = self._parse_arguments(**kwargs)
+        return self._modules[module](**kwargs)
 
+    @staticmethod
+    def _parse_arguments(**kwargs) -> dict:
+        """
+        Parse keyword arguments and add default values.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        dict
+            Keyword arguments with default values.
+        """
         state = kwargs.get("state")
         if state is None:
             kwargs["state"] = State.CREATED.value
         else:
             if kwargs["state"] not in State.__members__:
                 raise ValueError(f"Invalid state: {state}")
-        return self._modules[module](**kwargs)
+        return kwargs
 
 
 def build_status(module: str, **kwargs) -> Status:

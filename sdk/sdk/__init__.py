@@ -1,8 +1,8 @@
 """
 Import modules from submodules.
 """
-from sdk.client.objects.dhcore import DHCoreConfig
 from sdk.client.builder import set_dhub_env
+from sdk.client.objects.dhcore import DHCoreConfig
 from sdk.entities.artifacts.crud import (
     delete_artifact,
     get_artifact,

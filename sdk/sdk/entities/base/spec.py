@@ -10,7 +10,7 @@ class Spec(ModelObj):
     """
 
     @classmethod
-    def from_dict(cls, obj: dict | None = None) -> "Spec":
+    def from_dict(cls, obj: dict) -> "Spec":
         """
         Return entity specification object from dictionary.
 
@@ -24,5 +24,4 @@ class Spec(ModelObj):
         EntitySpec
             An entity specification object.
         """
-        obj = obj if obj is not None else {}
         return cls(**obj)

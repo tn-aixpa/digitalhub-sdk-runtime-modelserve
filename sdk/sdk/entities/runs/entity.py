@@ -17,7 +17,7 @@ from sdk.entities.builders.status import build_status
 from sdk.entities.dataitems.crud import get_dataitem_from_key
 from sdk.runtimes.builder import build_runtime
 from sdk.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
-from sdk.utils.commons import ARTF, DTIT, FUNC, RUNS, TASK
+from sdk.utils.commons import ARTF, DTIT, FUNC, LOGS, RUNS, TASK
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid, get_timestamp
 
@@ -206,9 +206,9 @@ class Run(Entity):
         dict
             Logs from backend.
         """
-        if self._context().is_local():
+        if self._context().local:
             return {}
-        api = api_base_read(RUNS, self.id) + "/logs"
+        api = api_base_read(LOGS, self.id)
         return self._context().read_object(api)
 
     def _set_status(self, status: dict) -> None:

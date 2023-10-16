@@ -257,11 +257,9 @@ class Dataitem(Entity):
         if scheme == "sql":
             return "parquet"
         ext = get_extension(path)
-        if ext is None:
-            raise EntityError(
-                "Unknown file format. Only csv and parquet are supported."
-            )
-        return ext
+        if ext is not None:
+            return ext
+        raise EntityError("Unknown file format. Only csv and parquet are supported.")
 
 
 def dataitem_from_parameters(

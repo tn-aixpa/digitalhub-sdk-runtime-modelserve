@@ -66,6 +66,31 @@ class KindBuilder:
         """
         if module not in self._modules:
             raise EntityError(f"Module '{module}' is not registered.")
+        return self._validate_arguments(module, kind)
+
+    def _validate_arguments(self, module: str, kind: str) -> dict:
+        """
+        Validate kind.
+
+        Parameters
+        ----------
+        module : str
+            Module name.
+        kind : str
+            Kind to check.
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        dict
+            Keyword arguments with default values.
+
+        Raises
+        ------
+        EntityError
+            If kind is not valid.
+        """
         if kind is None:
             return self._modules[module]["default"]
         if kind not in self._modules[module]["values"]:

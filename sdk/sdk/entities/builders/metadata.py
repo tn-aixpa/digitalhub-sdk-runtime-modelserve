@@ -13,6 +13,7 @@ from sdk.entities.runs.metadata import RunMetadata
 from sdk.entities.tasks.metadata import TaskMetadata
 from sdk.entities.workflows.metadata import WorkflowMetadata
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
+from sdk.utils.generic_utils import get_timestamp
 
 if typing.TYPE_CHECKING:
     from sdk.entities.base.metadata import Metadata
@@ -64,7 +65,29 @@ class MetadataBuilder:
         """
         if module not in self._modules:
             raise ValueError(f"Invalid module name: {module}")
+        kwargs = self._parse_arguments(**kwargs)
         return self._modules[module](**kwargs)
+
+    @staticmethod
+    def _parse_arguments(**kwargs) -> dict:
+        """
+        Parse keyword arguments and add default values.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the entity metadata attributes.
+        """
+        if "created" not in kwargs or kwargs["created"] is None:
+            kwargs["created"] = get_timestamp()
+        if "updated" not in kwargs or kwargs["updated"] is None:
+            kwargs["updated"] = kwargs["created"]
+        return kwargs
 
 
 def build_metadata(module: str, **kwargs) -> Metadata:
