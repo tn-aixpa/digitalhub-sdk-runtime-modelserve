@@ -209,12 +209,15 @@ class Run(Entity):
     def logs(self) -> dict:
         """
         Get run's logs from backend.
+        Returns empty dictionary if context is local.
 
         Returns
         -------
         dict
             Logs from backend.
         """
+        if self._context().is_local():
+            return {}
         api = api_base_read(RUNS, self.id) + "/logs"
         return self._context().read_object(api)
 
