@@ -4,6 +4,7 @@ General utilities module.
 from __future__ import annotations
 
 import base64
+import os
 from datetime import datetime
 from uuid import uuid4
 
@@ -90,3 +91,33 @@ def encode_source(path: str) -> str:
         The file content encoded in base64.
     """
     return encode_string(read_text(path))
+
+
+def set_dhub_env(
+    endpoint: str | None = None,
+    user: str | None = None,
+    password: str | None = None,
+    token: str | None = None,
+) -> None:
+    """
+    Function to set environment variables for DHub Core config.
+
+    Parameters
+    ----------
+    endpoint : str
+        The endpoint of DHub Core.
+    user : str
+        The user of DHub Core.
+    password : str
+        The password of DHub Core.
+    token : str
+        The token of DHub Core.
+
+    Returns
+    -------
+    None
+    """
+    os.environ["DHUB_CORE_ENDPOINT"] = endpoint
+    os.environ["DHUB_CORE_USER"] = user
+    os.environ["DHUB_CORE_PASSWORD"] = password
+    os.environ["DHUB_CORE_TOKEN"] = token

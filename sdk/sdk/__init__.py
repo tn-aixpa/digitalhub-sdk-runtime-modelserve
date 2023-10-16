@@ -1,8 +1,6 @@
 """
 Import modules from submodules.
 """
-from sdk.client.builder import set_dhub_env
-from sdk.client.objects.dhcore import DHCoreConfig
 from sdk.entities.artifacts.crud import (
     delete_artifact,
     get_artifact,
@@ -47,4 +45,5 @@ from sdk.entities.workflows.crud import (
     new_workflow,
     update_workflow,
 )
+from sdk.utils.generic_utils import set_dhub_env
 from sdk.stores.builder import set_store

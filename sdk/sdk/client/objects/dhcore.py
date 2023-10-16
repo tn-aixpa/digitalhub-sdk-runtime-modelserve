@@ -4,7 +4,6 @@ DHCore Client module.
 import os
 
 import requests
-from pydantic import BaseModel
 
 from sdk.client.objects.base import Client
 from sdk.utils.exceptions import BackendError
@@ -106,10 +105,10 @@ class ClientDHCore(Client):
         dict
             The response object.
         """
-        endpoint = self._get_endpoint(api)
+        url = self._get_endpoint() + api
         response = None
         try:
-            response = requests.request(call_type, endpoint, timeout=60, **kwargs)
+            response = requests.request(call_type, url, timeout=60, **kwargs)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException:
@@ -120,31 +119,26 @@ class ClientDHCore(Client):
             raise BackendError(msg)
 
     @staticmethod
-    def _get_endpoint(api: str) -> str:
+    def _get_endpoint() -> str:
         """
-        Get the endpoint.
-
-        Parameters
-        ----------
-        api : str
-            The api path.
+        Get DHub Core endpoint environment variables.
 
         Returns
         -------
         str
-            The endpoint formatted with the api path.
+            DHub Core endpoint environment variables.
 
         Raises
         ------
         Exception
             If the endpoint of DHCore is not set in the env variables.
         """
-        endpoint = get_dhub_env().endpoint
-        if endpoint is not None:
-            return endpoint + api
-        raise BackendError(
-            "Endpoint not set. Please set env variables with 'set_dhub_env()' function."
-        )
+        endpoint = os.getenv("DHUB_CORE_ENDPOINT")
+        if endpoint is None:
+            raise BackendError("Endpoint not set as environment variables.")
+        if endpoint.endswith("/"):
+            endpoint = endpoint[:-1]
+        return endpoint
 
     @staticmethod
     def is_local() -> bool:
@@ -157,38 +151,3 @@ class ClientDHCore(Client):
             False
         """
         return False
-
-
-class DHCoreConfig(BaseModel):
-    """
-    DigitalHUB backend configuration.
-    """
-
-    endpoint: str
-    """Backend endpoint."""
-
-    user: str | None = None
-    """User."""
-
-    password: str | None = None
-    """Password."""
-
-    token: str | None = None
-    """Auth token."""
-
-
-def get_dhub_env() -> DHCoreConfig:
-    """
-    Function to get DHub Core environment variables.
-
-    Returns
-    -------
-    DHCoreConfig
-        An object that contains endpoint, user, password, and token of a DHub Core configuration.
-    """
-    return DHCoreConfig(
-        endpoint=os.getenv("DHUB_CORE_ENDPOINT"),
-        user=os.getenv("DHUB_CORE_USER"),
-        password=os.getenv("DHUB_CORE_PASSWORD"),
-        token=os.getenv("DHUB_CORE_TOKEN"),
-    )
