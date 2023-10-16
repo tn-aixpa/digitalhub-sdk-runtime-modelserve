@@ -107,14 +107,17 @@ class ClientDHCore(Client):
             The response object.
         """
         endpoint = self._get_endpoint(api)
+        response = None
         try:
             response = requests.request(call_type, endpoint, timeout=60, **kwargs)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as exc:
-            raise BackendError(
-                f"Request error: {exc}. Text response: {response.text}"
-            ) from exc
+        except requests.exceptions.RequestException:
+            if response is None:
+                msg = "Unable to connect to DHCore backend."
+            else:
+                msg = f"Backend error: {response.status_code} - {response.text}"
+            raise BackendError(msg)
 
     @staticmethod
     def _get_endpoint(api: str) -> str:
@@ -189,22 +192,3 @@ def get_dhub_env() -> DHCoreConfig:
         password=os.getenv("DHUB_CORE_PASSWORD"),
         token=os.getenv("DHUB_CORE_TOKEN"),
     )
-
-
-def set_dhub_env(config: DHCoreConfig) -> None:
-    """
-    Function to set environment variables for DHub Core config.
-
-    Parameters
-    ----------
-    config : DHCoreConfig
-        An object that contains endpoint, user, password, and token of a DHub Core configuration.
-
-    Returns
-    -------
-    None
-    """
-    os.environ["DHUB_CORE_ENDPOINT"] = config.endpoint
-    os.environ["DHUB_CORE_USER"] = config.user or ""
-    os.environ["DHUB_CORE_PASSWORD"] = config.password or ""
-    os.environ["DHUB_CORE_TOKEN"] = config.token or ""

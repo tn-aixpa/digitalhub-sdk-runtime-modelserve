@@ -7,7 +7,7 @@ import typing
 
 from sdk.context.builder import get_context
 from sdk.entities.functions.entity import function_from_dict, function_from_parameters
-from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from sdk.utils.commons import FUNC
 from sdk.utils.io_utils import read_yaml
 
@@ -156,26 +156,6 @@ def get_function(project: str, name: str, uuid: str | None = None) -> Function:
     return function_from_dict(obj)
 
 
-def get_function_from_task(task: str) -> Function:
-    """
-    Get object from task.
-
-    Parameters
-    ----------
-    task : str
-        The task string.
-
-    Returns
-    -------
-    Function
-        Object instance.
-    """
-    splitted = task.split("/")
-    project = splitted[2]
-    fnc_name, fnc_version = splitted[-1].split(":")
-    return get_function(project, fnc_name, uuid=fnc_version)
-
-
 def import_function(file: str) -> Function:
     """
     Get object from file.
@@ -214,3 +194,23 @@ def delete_function(project: str, name: str, uuid: str | None = None) -> dict:
     """
     api = api_ctx_delete(project, FUNC, name, uuid=uuid)
     return get_context(project).delete_object(api)
+
+
+def update_function(function: Function) -> dict:
+    """
+    Update a function.
+
+    Parameters
+    ----------
+    function : Function
+        The function to update.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_update(
+        function.metadata.project, FUNC, function.metadata.name, uuid=function.id
+    )
+    return get_context(function.metadata.project).update_object(function.to_dict(), api)

@@ -7,7 +7,7 @@ import typing
 
 from sdk.context.builder import get_context
 from sdk.entities.workflows.entity import workflow_from_dict, workflow_from_parameters
-from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from sdk.utils.commons import WKFL
 from sdk.utils.io_utils import read_yaml
 
@@ -162,3 +162,23 @@ def delete_workflow(project: str, name: str, uuid: str | None = None) -> dict:
     """
     api = api_ctx_delete(project, WKFL, name, uuid=uuid)
     return get_context(project).delete_object(api)
+
+
+def update_workflow(workflow: Workflow) -> dict:
+    """
+    Update a workflow.
+
+    Parameters
+    ----------
+    workflow : Workflow
+        The workflow to update.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_update(
+        workflow.metadata.project, WKFL, workflow.metadata.name, uuid=workflow.id
+    )
+    return get_context(workflow.metadata.project).update_object(workflow.to_dict(), api)

@@ -148,8 +148,7 @@ def delete_run(project: str, name: str) -> dict:
 
 def update_run(run: Run) -> dict:
     """
-    Update run in the backend. Warning, this will overwrite the entire run.
-    Thi should only be used for updating the status of a run in the wrappers.
+    Update run.
 
     Parameters
     ----------
@@ -162,6 +161,6 @@ def update_run(run: Run) -> dict:
         Response from backend.
     """
     api = api_base_update(RUNS, run.id)
-    return get_context(run.project).update_object(
+    return get_context(run.metadata.project).update_object(
         run.to_dict(include_all_non_private=True), api
     )

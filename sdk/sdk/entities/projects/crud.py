@@ -8,9 +8,9 @@ import typing
 from sdk.client.builder import get_client
 from sdk.context.builder import delete_context
 from sdk.entities.projects.entity import project_from_dict, project_from_parameters
-from sdk.utils.api import api_base_delete, api_base_read
+from sdk.utils.api import api_base_delete, api_base_read, api_base_update
 from sdk.utils.commons import PROJ
-from sdk.utils.exceptions import EntityError
+from sdk.utils.exceptions import EntityError, BackendError
 from sdk.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -106,6 +106,34 @@ def load_project(
     raise EntityError("Either name or filename must be provided.")
 
 
+def get_or_create_project(
+    name: str,
+    local: bool = False,
+    **kwargs,
+) -> Project:
+    """
+    Get or create a project.
+
+    Parameters
+    ----------
+    name : str
+        Name of the project.
+    local : bool
+        Flag to determine if backend is present.
+    **kwargs
+        Keyword arguments.
+
+    Returns
+    -------
+    Project
+        A Project instance.
+    """
+    try:
+        return get_project(name, local)
+    except BackendError:
+        return new_project(name, local=local, **kwargs)
+
+
 def get_project(name: str, local: bool = False) -> Project:
     """
     Retrieves project details from the backend.
@@ -189,3 +217,22 @@ def delete_project(name: str, local: bool = False) -> list[dict]:
     response = client.delete_object(api)
     delete_context(name)
     return response
+
+
+def update_project(project: Project) -> dict:
+    """
+    Update a project.
+
+    Parameters
+    ----------
+    project : Project
+        The project to update.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_base_update(PROJ, project.metadata.name)
+    client = get_client(project.local)
+    return client.update_object(project.to_dict(), api)

@@ -7,7 +7,7 @@ import typing
 
 from sdk.context.builder import get_context
 from sdk.entities.dataitems.entity import dataitem_from_dict, dataitem_from_parameters
-from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from sdk.utils.commons import DTIT
 from sdk.utils.entities_utils import parse_entity_key
 from sdk.utils.io_utils import read_yaml
@@ -181,3 +181,23 @@ def delete_dataitem(project: str, name: str, uuid: str | None = None) -> dict:
     """
     api = api_ctx_delete(project, DTIT, name, uuid=uuid)
     return get_context(project).delete_object(api)
+
+
+def update_dataitem(dataitem: Dataitem) -> dict:
+    """
+    Update a dataitem.
+
+    Parameters
+    ----------
+    dataitem : Dataitem
+        The dataitem to update.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_update(
+        dataitem.metadata.project, DTIT, dataitem.metadata.name, uuid=dataitem.id
+    )
+    return get_context(dataitem.metadata.project).update_object(dataitem.to_dict(), api)

@@ -3,6 +3,7 @@ Client builder module.
 """
 from __future__ import annotations
 
+import os
 import typing
 
 from sdk.client.objects.dhcore import ClientDHCore
@@ -10,6 +11,7 @@ from sdk.client.objects.local import ClientLocal
 
 if typing.TYPE_CHECKING:
     from sdk.client.objects.base import Client
+    from sdk.client.objects.dhcore import DHCoreConfig
 
 
 class ClientBuilder:
@@ -60,3 +62,22 @@ def get_client(local: bool = False) -> Client:
 
 
 client_builder = ClientBuilder()
+
+
+def set_dhub_env(config: DHCoreConfig) -> None:
+    """
+    Function to set environment variables for DHub Core config.
+
+    Parameters
+    ----------
+    config : DHCoreConfig
+        An object that contains endpoint, user, password, and token of a DHub Core configuration.
+
+    Returns
+    -------
+    None
+    """
+    os.environ["DHUB_CORE_ENDPOINT"] = config.endpoint
+    os.environ["DHUB_CORE_USER"] = config.user or ""
+    os.environ["DHUB_CORE_PASSWORD"] = config.password or ""
+    os.environ["DHUB_CORE_TOKEN"] = config.token or ""

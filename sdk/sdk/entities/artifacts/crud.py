@@ -7,7 +7,7 @@ import typing
 
 from sdk.context.builder import get_context
 from sdk.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
-from sdk.utils.api import api_ctx_delete, api_ctx_read
+from sdk.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from sdk.utils.commons import ARTF
 from sdk.utils.entities_utils import parse_entity_key
 from sdk.utils.io_utils import read_yaml
@@ -184,3 +184,23 @@ def delete_artifact(project: str, name: str, uuid: str | None = None) -> dict:
     """
     api = api_ctx_delete(project, ARTF, name, uuid=uuid)
     return get_context(project).delete_object(api)
+
+
+def update_artifact(artifact: Artifact) -> dict:
+    """
+    Update a artifact.
+
+    Parameters
+    ----------
+    artifact : Artifact
+        The artifact to update.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_update(
+        artifact.metadata.project, ARTF, artifact.metadata.name, uuid=artifact.id
+    )
+    return get_context(artifact.metadata.project).update_object(artifact.to_dict(), api)

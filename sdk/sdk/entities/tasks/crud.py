@@ -7,7 +7,7 @@ import typing
 
 from sdk.context.builder import get_context
 from sdk.entities.tasks.entity import task_from_dict, task_from_parameters
-from sdk.utils.api import api_base_delete, api_base_read
+from sdk.utils.api import api_base_delete, api_base_read, api_base_update
 from sdk.utils.commons import TASK
 from sdk.utils.io_utils import read_yaml
 
@@ -132,3 +132,21 @@ def delete_task(project: str, name: str) -> dict:
     """
     api = api_base_delete(TASK, name)
     return get_context(project).delete_object(api)
+
+
+def update_task(task: Task) -> dict:
+    """
+    Update task.
+
+    Parameters
+    ----------
+    task : Task
+        The task object to update.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_base_update(TASK, task.id)
+    return get_context(task.metadata.project).update_object(task.to_dict(), api)
