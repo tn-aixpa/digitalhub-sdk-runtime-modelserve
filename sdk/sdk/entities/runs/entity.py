@@ -169,21 +169,11 @@ class Run(Entity):
         Run
             Run object.
         """
-        # Get runtime
         runtime = self._get_runtime()
-
-        # Set status to running
-        status = {"state": State.RUNNING.value}
-        self._set_status(status)
-        self.save(self.id)
-
-        # Execute run and handle errors
         try:
             status = runtime.run(self.to_dict(include_all_non_private=True))
         except Exception as err:
             status = {"state": State.ERROR.value, "message": str(err)}
-
-        # Set resuting status and save run
         self._set_status(status)
         self.save(self.id)
         return self
