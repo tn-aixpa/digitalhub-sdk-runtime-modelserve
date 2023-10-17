@@ -108,11 +108,7 @@ class Dataitem(Entity):
         None
         """
         obj = self.to_dict()
-        filename = (
-            filename
-            if filename is not None
-            else f"dataitem_{self.metadata.project}_{self.metadata.name}.yaml"
-        )
+        filename = filename if filename is not None else f"dataitem_{self.metadata.project}_{self.metadata.name}.yaml"
         self._export_object(filename, obj)
 
     #############################
@@ -163,9 +159,7 @@ class Dataitem(Entity):
 
         return df
 
-    def write_df(
-        self, target_path: str | None = None, df: pd.DataFrame | None = None, **kwargs
-    ) -> str:
+    def write_df(self, target_path: str | None = None, df: pd.DataFrame | None = None, **kwargs) -> str:
         """
         Write pandas DataFrame as parquet.
         If no target_path is passed, the dataitem will be written into the default store.
@@ -303,9 +297,7 @@ def dataitem_from_parameters(
     """
     uuid = build_uuid(uuid)
     kind = build_kind(DTIT, kind)
-    key = (
-        key if key is not None else f"store://{project}/dataitems/{kind}/{name}:{uuid}"
-    )
+    key = key if key is not None else f"store://{project}/dataitems/{kind}/{name}:{uuid}"
     metadata = build_metadata(
         DTIT,
         project=project,

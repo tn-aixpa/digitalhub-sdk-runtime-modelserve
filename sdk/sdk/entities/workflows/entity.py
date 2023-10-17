@@ -102,11 +102,7 @@ class Workflow(Entity):
         None
         """
         obj = self.to_dict()
-        filename = (
-            filename
-            if filename is not None
-            else f"workflow_{self.metadata.project}_{self.metadata.name}.yaml"
-        )
+        filename = filename if filename is not None else f"workflow_{self.metadata.project}_{self.metadata.name}.yaml"
         self._export_object(filename, obj)
 
     #############################

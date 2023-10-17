@@ -210,7 +210,5 @@ def update_function(function: Function) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(
-        function.metadata.project, FUNC, function.metadata.name, uuid=function.id
-    )
+    api = api_ctx_update(function.metadata.project, FUNC, function.metadata.name, uuid=function.id)
     return get_context(function.metadata.project).update_object(function.to_dict(), api)

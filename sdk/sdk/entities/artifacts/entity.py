@@ -106,11 +106,7 @@ class Artifact(Entity):
         None
         """
         obj = self.to_dict()
-        filename = (
-            filename
-            if filename is not None
-            else f"artifact_{self.metadata.project}_{self.metadata.name}.yaml"
-        )
+        filename = filename if filename is not None else f"artifact_{self.metadata.project}_{self.metadata.name}.yaml"
         self._export_object(filename, obj)
 
     #############################
@@ -162,9 +158,7 @@ class Artifact(Entity):
 
         return store.download(trg)
 
-    def download(
-        self, target: str | None = None, dst: str | None = None, overwrite: bool = False
-    ) -> str:
+    def download(self, target: str | None = None, dst: str | None = None, overwrite: bool = False) -> str:
         """
         Download artifact from backend.
 
@@ -234,9 +228,7 @@ class Artifact(Entity):
     #############################
 
     @staticmethod
-    def _parameter_or_default(
-        parameter: str | None = None, default: str | None = None
-    ) -> str:
+    def _parameter_or_default(parameter: str | None = None, default: str | None = None) -> str:
         """
         Check whether a parameter is specified or not. If not, return the default value. If also
         the default value is not specified, raise an exception. If parameter is specified, but
@@ -387,9 +379,7 @@ def artifact_from_parameters(
         description=description,
         embedded=embedded,
     )
-    key = (
-        key if key is not None else f"store://{project}/artifacts/{kind}/{name}:{uuid}"
-    )
+    key = key if key is not None else f"store://{project}/artifacts/{kind}/{name}:{uuid}"
     spec = build_spec(
         ARTF,
         kind,

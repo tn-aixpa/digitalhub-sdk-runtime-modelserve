@@ -11,8 +11,8 @@ if typing.TYPE_CHECKING:
 
 class Context:
     """
-    The context for a project. It contains the project name, the client and the local store.
-    It is a simplified version of the project class, used to avoid circular dependencies.
+    The context for a project. It contains the project name and the client.
+    It exposes CRUD operations for the entities.
     The context is created by the context builder.
     """
 

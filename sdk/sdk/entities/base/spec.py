@@ -1,6 +1,8 @@
 """
 Entity specification module.
 """
+from pydantic import BaseModel
+
 from sdk.entities.base.base import ModelObj
 
 
@@ -25,3 +27,28 @@ class Spec(ModelObj):
             An entity specification object.
         """
         return cls(**obj)
+
+
+class SpecRegistry(dict):
+    """
+    Specification registry generic class.
+    """
+
+    def register(self, kind: str, spec: Spec, model: BaseModel) -> None:
+        """
+        Register for object specification.
+
+        Parameters
+        ----------
+        kind : Enum
+            Object kind.
+        spec : Spec
+            Object specification.
+        model : BaseModel
+            Object model.
+
+        Returns
+        -------
+        None
+        """
+        self[kind] = {"spec": spec, "model": model}

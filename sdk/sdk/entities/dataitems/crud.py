@@ -197,7 +197,5 @@ def update_dataitem(dataitem: Dataitem) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(
-        dataitem.metadata.project, DTIT, dataitem.metadata.name, uuid=dataitem.id
-    )
+    api = api_ctx_update(dataitem.metadata.project, DTIT, dataitem.metadata.name, uuid=dataitem.id)
     return get_context(dataitem.metadata.project).update_object(dataitem.to_dict(), api)

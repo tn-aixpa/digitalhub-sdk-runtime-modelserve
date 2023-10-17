@@ -161,6 +161,4 @@ def update_run(run: Run) -> dict:
         Response from backend.
     """
     api = api_base_update(RUNS, run.id)
-    return get_context(run.metadata.project).update_object(
-        run.to_dict(include_all_non_private=True), api
-    )
+    return get_context(run.metadata.project).update_object(run.to_dict(include_all_non_private=True), api)

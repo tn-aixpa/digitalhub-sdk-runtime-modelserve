@@ -79,9 +79,7 @@ def new_project(
     return obj
 
 
-def load_project(
-    name: str | None = None, filename: str | None = None, local: bool = False
-) -> Project:
+def load_project(name: str | None = None, filename: str | None = None, local: bool = False) -> Project:
     """
     Load project and context from backend or file.
 

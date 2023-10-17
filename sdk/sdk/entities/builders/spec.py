@@ -7,34 +7,26 @@ import typing
 
 from pydantic import BaseModel, ValidationError
 
-from sdk.entities.artifacts.spec.registry import ARTIFACT_MODEL, ARTIFACT_SPEC
-from sdk.entities.dataitems.spec.registry import DATAITEM_MODEL, DATAITEM_SPEC
-from sdk.entities.functions.spec.registry import FUNCTION_MODEL, FUNCTION_SPEC
-from sdk.entities.projects.spec.registry import PROJECT_MODEL, PROJECT_SPEC
-from sdk.entities.runs.spec.registry import RUN_MODEL, RUN_SPEC
-from sdk.entities.tasks.spec.registry import TASK_MODEL, TASK_SPEC
-from sdk.entities.workflows.spec.registry import WORKFLOW_MODEL, WORKFLOW_SPEC
+from sdk.entities.artifacts.spec.registry import artifact_registry
+from sdk.entities.dataitems.spec.registry import dataitem_registry
+from sdk.entities.functions.spec.registry import function_registry
+from sdk.entities.projects.spec.registry import project_registry
+from sdk.entities.runs.spec.registry import run_registry
+from sdk.entities.tasks.spec.registry import task_registry
+from sdk.entities.workflows.spec.registry import workflow_registry
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
 from sdk.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
-    from sdk.entities.base.spec import Spec
+    from sdk.entities.base.spec import Spec, SpecRegistry
 
 
-class SpecBuilder:
+class SpecBuilder(dict):
     """
-    Builder that create and validate spec.
+    Spec builder class.
     """
 
-    def __init__(self) -> None:
-        """
-        Constructor.
-        """
-        self._modules = {}
-
-    def register(
-        self, module: str, registry_spec: dict, registry_models: dict | None = None
-    ) -> None:
+    def register(self, module: str, registry: SpecRegistry) -> None:
         """
         Register a module.
 
@@ -42,15 +34,10 @@ class SpecBuilder:
         ----------
         module : str
             The name of the module.
-        registry_spec : dict
+        registry : SpecRegistry
             The registry of Spec objects.
-        registry_models : dict
-            The registry of Model objects.
         """
-        self._modules[module] = {
-            "registry_spec": registry_spec,
-            "registry_models": registry_models,
-        }
+        self[module] = registry
 
     def build(
         self,
@@ -79,7 +66,7 @@ class SpecBuilder:
         if not ignore_validation:
             kwargs = self._validate_arguments(module, kind, **kwargs)
         try:
-            return self._modules[module]["registry_spec"][kind](**kwargs)
+            return self[module][kind]["spec"](**kwargs)
         except KeyError:
             raise EntityError(f"Unsupported spec kind '{kind}' for entity '{module}'")
 
@@ -102,7 +89,7 @@ class SpecBuilder:
             The validated parameters.
         """
         try:
-            model: BaseModel = self._modules[module]["registry_models"][kind](**kwargs)
+            model: BaseModel = self[module][kind]["model"](**kwargs)
             return model.model_dump()
         except KeyError:
             raise EntityError(f"Unsupported parameters kind: {kind}")
@@ -110,9 +97,7 @@ class SpecBuilder:
             raise EntityError(f"Invalid parameters for kind: {kind}") from err
 
 
-def build_spec(
-    module: str, kind: str, ignore_validation: bool = False, **kwargs
-) -> Spec:
+def build_spec(module: str, kind: str, ignore_validation: bool = False, **kwargs) -> Spec:
     """
     Wrapper for SpecBuilder.build.
 
@@ -134,10 +119,10 @@ def build_spec(
 
 
 spec_builder = SpecBuilder()
-spec_builder.register(ARTF, ARTIFACT_SPEC, ARTIFACT_MODEL)
-spec_builder.register(DTIT, DATAITEM_SPEC, DATAITEM_MODEL)
-spec_builder.register(FUNC, FUNCTION_SPEC, FUNCTION_MODEL)
-spec_builder.register(PROJ, PROJECT_SPEC, PROJECT_MODEL)
-spec_builder.register(RUNS, RUN_SPEC, RUN_MODEL)
-spec_builder.register(TASK, TASK_SPEC, TASK_MODEL)
-spec_builder.register(WKFL, WORKFLOW_SPEC, WORKFLOW_MODEL)
+spec_builder.register(ARTF, artifact_registry)
+spec_builder.register(DTIT, dataitem_registry)
+spec_builder.register(FUNC, function_registry)
+spec_builder.register(PROJ, project_registry)
+spec_builder.register(RUNS, run_registry)
+spec_builder.register(TASK, task_registry)
+spec_builder.register(WKFL, workflow_registry)

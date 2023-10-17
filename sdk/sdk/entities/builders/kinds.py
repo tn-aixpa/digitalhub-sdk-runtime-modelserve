@@ -14,16 +14,10 @@ from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
 from sdk.utils.exceptions import EntityError
 
 
-class KindBuilder:
+class KindBuilder(dict):
     """
-    Builder that create and validate kinds.
+    Kind builder class.
     """
-
-    def __init__(self) -> None:
-        """
-        Constructor.
-        """
-        self._modules = {}
 
     def register(self, module: str, kinds: Enum, default: str) -> None:
         """
@@ -38,7 +32,7 @@ class KindBuilder:
         default : str
             Default kind.
         """
-        self._modules[module] = {
+        self[module] = {
             "default": str(default),
             "values": [str(item.value) for item in kinds],  # type: ignore[attr-defined]
         }
@@ -64,7 +58,7 @@ class KindBuilder:
         EntityError
             If kind is not valid.
         """
-        if module not in self._modules:
+        if module not in self:
             raise EntityError(f"Module '{module}' is not registered.")
         return self._validate_arguments(module, kind)
 
@@ -92,8 +86,8 @@ class KindBuilder:
             If kind is not valid.
         """
         if kind is None:
-            return self._modules[module]["default"]
-        if kind not in self._modules[module]["values"]:
+            return self[module]["default"]
+        if kind not in self[module]["values"]:
             raise EntityError(f"Invalid kind '{kind}' for object.")
         return kind
 

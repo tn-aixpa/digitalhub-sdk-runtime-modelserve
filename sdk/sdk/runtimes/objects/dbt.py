@@ -246,9 +246,7 @@ class RuntimeDBT(Runtime):
                 di = get_dataitem(project, name)
             except Exception:
                 raise RuntimeError(f"Dataitem {name} not found in project {project}")
-            target_path = (
-                f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
-            )
+            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
             di.write_df(target_path, if_exists="replace")
 
     def parse_outputs(self, outputs: list) -> str:
@@ -273,9 +271,7 @@ class RuntimeDBT(Runtime):
     # Setup environment
     ####################
 
-    def setup(
-        self, inputs: list, output: str, uuid: str, project: str, sql: str
-    ) -> None:
+    def setup(self, inputs: list, output: str, uuid: str, project: str, sql: str) -> None:
         """
         Initialize a dbt project with a model and a schema definition.
 
@@ -336,9 +332,7 @@ class RuntimeDBT(Runtime):
         None
         """
         project_path = self.root_dir / "dbt_project.yml"
-        project_path.write_text(
-            PROJECT_TEMPLATE.format(project.replace("-", "_"), self.model_dir.name)
-        )
+        project_path.write_text(PROJECT_TEMPLATE.format(project.replace("-", "_"), self.model_dir.name))
 
     def generate_outputs_conf(self, sql: str, output: str, uuid: str) -> None:
         """
@@ -425,9 +419,7 @@ class RuntimeDBT(Runtime):
     # Results parsing
     ####################
 
-    def parse_results(
-        self, run_result: dbtRunnerResult, output: str, project: str
-    ) -> ParsedResults:
+    def parse_results(self, run_result: dbtRunnerResult, output: str, project: str) -> ParsedResults:
         """
         Parse dbt results.
 
@@ -456,9 +448,7 @@ class RuntimeDBT(Runtime):
             raise RuntimeError("Something got wrong during results parsing.")
         return ParsedResults(name, path, raw_code, compiled_code, timings)
 
-    def validate_results(
-        self, run_result: dbtRunnerResult, output: str, project: str
-    ) -> RunResult:
+    def validate_results(self, run_result: dbtRunnerResult, output: str, project: str) -> RunResult:
         """
         Parse dbt results.
 
@@ -571,12 +561,8 @@ class RuntimeDBT(Runtime):
                 execute_timing = entry
         if (
             (compile_timing is None or execute_timing is None)
-            or (
-                execute_timing.started_at is None or execute_timing.completed_at is None
-            )
-            or (
-                compile_timing.started_at is None or compile_timing.completed_at is None
-            )
+            or (execute_timing.started_at is None or execute_timing.completed_at is None)
+            or (compile_timing.started_at is None or compile_timing.completed_at is None)
         ):
             raise RuntimeError("Something got wrong during timings parsing.")
         return {
@@ -596,9 +582,7 @@ class RuntimeDBT(Runtime):
     # CRUD
     ####################
 
-    def create_dataitem(
-        self, result: ParsedResults, project: str, uuid: str
-    ) -> Dataitem | None:
+    def create_dataitem(self, result: ParsedResults, project: str, uuid: str) -> Dataitem | None:
         """
         Create new dataitem.
 

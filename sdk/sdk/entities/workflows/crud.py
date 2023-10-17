@@ -178,7 +178,5 @@ def update_workflow(workflow: Workflow) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(
-        workflow.metadata.project, WKFL, workflow.metadata.name, uuid=workflow.id
-    )
+    api = api_ctx_update(workflow.metadata.project, WKFL, workflow.metadata.name, uuid=workflow.id)
     return get_context(workflow.metadata.project).update_object(workflow.to_dict(), api)

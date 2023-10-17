@@ -8,35 +8,15 @@ from typing import Callable, TypeVar
 
 from sdk.client.builder import get_client
 from sdk.context.builder import set_context
-from sdk.entities.artifacts.crud import (
-    create_artifact_from_dict,
-    delete_artifact,
-    get_artifact,
-    new_artifact,
-)
+from sdk.entities.artifacts.crud import create_artifact_from_dict, delete_artifact, get_artifact, new_artifact
 from sdk.entities.base.entity import Entity
 from sdk.entities.builders.kinds import build_kind
 from sdk.entities.builders.metadata import build_metadata
 from sdk.entities.builders.spec import build_spec
 from sdk.entities.builders.status import build_status
-from sdk.entities.dataitems.crud import (
-    create_dataitem_from_dict,
-    delete_dataitem,
-    get_dataitem,
-    new_dataitem,
-)
-from sdk.entities.functions.crud import (
-    create_function_from_dict,
-    delete_function,
-    get_function,
-    new_function,
-)
-from sdk.entities.workflows.crud import (
-    create_workflow_from_dict,
-    delete_workflow,
-    get_workflow,
-    new_workflow,
-)
+from sdk.entities.dataitems.crud import create_dataitem_from_dict, delete_dataitem, get_dataitem, new_dataitem
+from sdk.entities.functions.crud import create_function_from_dict, delete_function, get_function, new_function
+from sdk.entities.workflows.crud import create_workflow_from_dict, delete_workflow, get_workflow, new_workflow
 from sdk.utils.api import api_base_create, api_base_update
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from sdk.utils.exceptions import BackendError, EntityError

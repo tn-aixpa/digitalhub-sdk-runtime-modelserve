@@ -179,9 +179,7 @@ class SqlStore(Store):
         try:
             return create_engine(connection_string, future=True)
         except Exception as ex:
-            raise StoreError(
-                f"Something wrong with connection string. Arguments: {str(ex.args)}"
-            )
+            raise StoreError(f"Something wrong with connection string. Arguments: {str(ex.args)}")
 
     def _check_factory(self) -> Engine:
         """
@@ -211,14 +209,10 @@ class SqlStore(Store):
         dict
             A dictionary containing the components of the path.
         """
-        pattern = (
-            r"^sql:\/\/(postgres\/)?(?P<database>.+)?\/(?P<schema>.+)\/(?P<table>.+)$"
-        )
+        pattern = r"^sql:\/\/(postgres\/)?(?P<database>.+)?\/(?P<schema>.+)\/(?P<table>.+)$"
         match = re.match(pattern, path)
         if match is None:
-            raise ValueError(
-                "Invalid SQL path. Must be sql://postgres/<database>/<schema>/<table>"
-            )
+            raise ValueError("Invalid SQL path. Must be sql://postgres/<database>/<schema>/<table>")
         return match.groupdict()
 
     def _get_schema(self, uri: str) -> str:

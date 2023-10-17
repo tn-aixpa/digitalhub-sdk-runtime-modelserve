@@ -1,15 +1,9 @@
 """
 Project specification registry module.
 """
+from sdk.entities.base.spec import SpecRegistry
 from sdk.entities.projects.kinds import ProjectKinds
-from sdk.entities.projects.spec.objects.project import (
-    ProjectParamsProject,
-    ProjectSpecProject,
-)
+from sdk.entities.projects.spec.objects.project import ProjectParamsProject, ProjectSpecProject
 
-PROJECT_SPEC = {
-    ProjectKinds.PROJECT.value: ProjectSpecProject,
-}
-PROJECT_MODEL = {
-    ProjectKinds.PROJECT.value: ProjectParamsProject,
-}
+project_registry = SpecRegistry()
+project_registry.register(ProjectKinds.PROJECT.value, ProjectSpecProject, ProjectParamsProject)

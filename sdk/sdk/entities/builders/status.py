@@ -19,16 +19,10 @@ if typing.TYPE_CHECKING:
     from sdk.entities.base.status import Status
 
 
-class StatusBuilder:
+class StatusBuilder(dict):
     """
-    Status factory class.
+    Status builder class.
     """
-
-    def __init__(self):
-        """
-        Constructor.
-        """
-        self._modules = {}
 
     def register(self, module: str, status: Status) -> None:
         """
@@ -45,7 +39,7 @@ class StatusBuilder:
         -------
         None
         """
-        self._modules[module] = status
+        self[module] = status
 
     def build(self, module: str, **kwargs) -> Status:
         """
@@ -63,10 +57,10 @@ class StatusBuilder:
         Status
             An entity status object.
         """
-        if module not in self._modules:
+        if module not in self:
             raise ValueError(f"Invalid module name: {module}")
         kwargs = self._parse_arguments(**kwargs)
-        return self._modules[module](**kwargs)
+        return self[module](**kwargs)
 
     @staticmethod
     def _parse_arguments(**kwargs) -> dict:

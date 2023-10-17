@@ -118,9 +118,7 @@ class Run(Entity):
         """
         obj = self.to_dict()
         filename = (
-            filename
-            if filename is not None
-            else f"run_{self.metadata.project}_{self.spec.task_id}_{self.id}.yaml"
+            filename if filename is not None else f"run_{self.metadata.project}_{self.spec.task_id}_{self.id}.yaml"
         )
         self._export_object(filename, obj)
 
@@ -269,9 +267,7 @@ class Run(Entity):
         """
         return self._get_objects(DTIT, get_dataitem_from_key, output_key)
 
-    def _get_objects(
-        self, object_type: str, func: callable, output_key: str | None = None
-    ) -> list:
+    def _get_objects(self, object_type: str, func: callable, output_key: str | None = None) -> list:
         """
         Get objects from backend produced by the run through its key.
 
@@ -305,9 +301,7 @@ class Run(Entity):
         if result is None:
             raise EntityError("Run has no result (maybe try when it finishes).")
         if output_key is not None:
-            key = next(
-                (r.get("id") for r in result if r.get("key") == output_key), None
-            )
+            key = next((r.get("id") for r in result if r.get("key") == output_key), None)
             if key is None:
                 raise EntityError(f"No {object_type} found with key '{output_key}'.")
             return func(key)
@@ -340,9 +334,7 @@ class Run(Entity):
             Function from backend.
         """
         parsed = self._parse_task_string()
-        api = api_ctx_read(
-            self.metadata.project, FUNC, parsed.function_name, parsed.function_id
-        )
+        api = api_ctx_read(self.metadata.project, FUNC, parsed.function_name, parsed.function_id)
         return self._context().read_object(api)
 
     def _get_task(self) -> dict:

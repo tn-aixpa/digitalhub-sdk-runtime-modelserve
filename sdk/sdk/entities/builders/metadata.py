@@ -19,16 +19,10 @@ if typing.TYPE_CHECKING:
     from sdk.entities.base.metadata import Metadata
 
 
-class MetadataBuilder:
+class MetadataBuilder(dict):
     """
-    Metadata factory class.
+    Metadata builder class.
     """
-
-    def __init__(self):
-        """
-        Constructor.
-        """
-        self._modules = {}
 
     def register(self, module: str, metadata: Metadata) -> None:
         """
@@ -45,7 +39,7 @@ class MetadataBuilder:
         -------
         None
         """
-        self._modules[module] = metadata
+        self[module] = metadata
 
     def build(self, module: str, **kwargs) -> Metadata:
         """
@@ -63,10 +57,10 @@ class MetadataBuilder:
         Metadata
             An entity metadata object.
         """
-        if module not in self._modules:
+        if module not in self:
             raise ValueError(f"Invalid module name: {module}")
         kwargs = self._parse_arguments(**kwargs)
-        return self._modules[module](**kwargs)
+        return self[module](**kwargs)
 
     @staticmethod
     def _parse_arguments(**kwargs) -> dict:

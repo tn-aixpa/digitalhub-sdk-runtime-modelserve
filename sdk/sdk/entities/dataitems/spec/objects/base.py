@@ -11,9 +11,7 @@ class DataitemSpec(Spec):
     Dataitem specifications.
     """
 
-    def __init__(
-        self, key: str | None = None, path: str | None = None, **kwargs
-    ) -> None:
+    def __init__(self, key: str | None = None, path: str | None = None, **kwargs) -> None:
         """
         Constructor.
 

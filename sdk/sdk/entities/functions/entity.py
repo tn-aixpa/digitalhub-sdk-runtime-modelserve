@@ -110,11 +110,7 @@ class Function(Entity):
         None
         """
         obj = self.to_dict()
-        filename = (
-            filename
-            if filename is not None
-            else f"function_{self.metadata.project}_{self.metadata.name}.yaml"
-        )
+        filename = filename if filename is not None else f"function_{self.metadata.project}_{self.metadata.name}.yaml"
         self._export_object(filename, obj)
 
     #############################
