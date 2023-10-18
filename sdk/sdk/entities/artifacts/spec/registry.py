@@ -6,4 +6,4 @@ from sdk.entities.artifacts.spec.objects.artifact import ArtifactParamsArtifact,
 from sdk.entities.base.spec import SpecRegistry
 
 artifact_registry = SpecRegistry()
-artifact_registry.register(ArtifactKinds.ARTIFACT, ArtifactSpecArtifact, ArtifactParamsArtifact)
+artifact_registry.register(ArtifactKinds.ARTIFACT.value, ArtifactSpecArtifact, ArtifactParamsArtifact)
