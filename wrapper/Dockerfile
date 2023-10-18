@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 
 # Repo info
-LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core-wrapper
+LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 
 # Set working dir
 WORKDIR /digitalhub-core/
