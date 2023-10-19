@@ -1,14 +1,14 @@
 """
-Workflow base specification module.
+Model base specification module.
 """
 from pydantic import BaseModel
 
 from sdk.entities.base.spec import Spec
 
 
-class WorkflowSpec(Spec):
+class ModelSpec(Spec):
     """
-    Workflow specifications.
+    Model specifications.
     """
 
     def __init__(self) -> None:
@@ -17,7 +17,7 @@ class WorkflowSpec(Spec):
         """
 
 
-class WorkflowParams(BaseModel):
+class ModelParams(BaseModel):
     """
-    Workflow parameters.
+    Model parameters.
     """

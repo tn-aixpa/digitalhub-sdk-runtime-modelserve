@@ -85,7 +85,7 @@ class Project(Entity):
         local: bool = False,
     ) -> None:
         """
-        Initialize the Project instance.
+        Constructor.
 
         Parameters
         ----------
@@ -102,7 +102,12 @@ class Project(Entity):
         local: bool
             If True, export locally.
         """
-        super().__init__(uuid, kind, metadata, spec, status)
+        super().__init__()
+        self.id = uuid
+        self.kind = kind
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
 
         # Private attributes
         self._client = get_client(local)
@@ -398,7 +403,7 @@ class Project(Entity):
         -------
         None
         """
-        delete_artifact(self.metadata.name, name)
+        delete_artifact(self.metadata.name, name, uuid=uuid)
         self._delete_object(name, ARTF, uuid=uuid)
 
     def set_artifact(self, artifact: Artifact) -> None:
@@ -478,7 +483,7 @@ class Project(Entity):
         -------
         None
         """
-        delete_function(self.metadata.name, name)
+        delete_function(self.metadata.name, name, uuid=uuid)
         self._delete_object(name, FUNC, uuid=uuid)
 
     def set_function(self, function: Function) -> None:
@@ -558,7 +563,7 @@ class Project(Entity):
         -------
         None
         """
-        delete_workflow(self.metadata.name, name)
+        delete_workflow(self.metadata.name, name, uuid=uuid)
         self._delete_object(name, WKFL, uuid=uuid)
 
     def set_workflow(self, workflow: Workflow) -> None:
@@ -638,7 +643,7 @@ class Project(Entity):
         -------
         None
         """
-        delete_dataitem(self.metadata.name, name)
+        delete_dataitem(self.metadata.name, name, uuid=uuid)
         self._delete_object(name, DTIT, uuid=uuid)
 
     def set_dataitem(self, dataitem: Dataitem) -> None:

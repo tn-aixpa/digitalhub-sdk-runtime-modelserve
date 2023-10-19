@@ -18,17 +18,12 @@ class Context:
 
     def __init__(self, project: Project) -> None:
         """
-        Initialize the context.
+        Constructor.
 
         Parameters
         ----------
-
         project : Project
             The project to create the context for.
-
-        Returns
-        -------
-        None
         """
         self.name = project.metadata.name
         self.client = project._client

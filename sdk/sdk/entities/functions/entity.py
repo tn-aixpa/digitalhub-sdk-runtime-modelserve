@@ -41,7 +41,7 @@ class Function(Entity):
         status: FunctionStatus,
     ) -> None:
         """
-        Initialize the Function instance.
+        Constructor.
 
         Parameters
         ----------
@@ -56,7 +56,12 @@ class Function(Entity):
         status : FunctionStatus
             Status of the object.
         """
-        super().__init__(uuid, kind, metadata, spec, status)
+        super().__init__()
+        self.id = uuid
+        self.kind = kind
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
 
         # Private attributes
         self._tasks: dict[str, Task] = {}

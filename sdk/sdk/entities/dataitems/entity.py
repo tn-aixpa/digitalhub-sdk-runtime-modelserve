@@ -42,7 +42,7 @@ class Dataitem(Entity):
         status: DataitemStatus,
     ) -> None:
         """
-        Initialize the Dataitem instance.
+        Constructor.
 
         Parameters
         ----------
@@ -57,7 +57,12 @@ class Dataitem(Entity):
         status : DataitemStatus
             Status of the object.
         """
-        super().__init__(uuid, kind, metadata, spec, status)
+        super().__init__()
+        self.id = uuid
+        self.kind = kind
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
 
         self.project = self.metadata.project
         self.name = self.metadata.name

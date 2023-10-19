@@ -1,5 +1,5 @@
 """
-Workflow module.
+Model module.
 """
 from __future__ import annotations
 
@@ -12,28 +12,28 @@ from sdk.entities.builders.metadata import build_metadata
 from sdk.entities.builders.spec import build_spec
 from sdk.entities.builders.status import build_status
 from sdk.utils.api import api_ctx_create, api_ctx_update
-from sdk.utils.commons import WKFL
+from sdk.utils.commons import MDLS
 from sdk.utils.generic_utils import build_uuid, get_timestamp
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
-    from sdk.entities.workflows.metadata import WorkflowMetadata
-    from sdk.entities.workflows.spec.objects.base import WorkflowSpec
-    from sdk.entities.workflows.status import WorkflowStatus
+    from sdk.entities.models.metadata import ModelMetadata
+    from sdk.entities.models.spec.objects.base import ModelSpec
+    from sdk.entities.models.status import ModelStatus
 
 
-class Workflow(Entity):
+class Model(Entity):
     """
-    A class representing a workflow.
+    A class representing a model.
     """
 
     def __init__(
         self,
         uuid: str,
         kind: str,
-        metadata: WorkflowMetadata,
-        spec: WorkflowSpec,
-        status: WorkflowStatus,
+        metadata: ModelMetadata,
+        spec: ModelSpec,
+        status: ModelStatus,
     ) -> None:
         """
         Constructor.
@@ -44,11 +44,11 @@ class Workflow(Entity):
             UUID.
         kind : str
             Kind of the object.
-        metadata : WorkflowMetadata
+        metadata : ModelMetadata
             Metadata of the object.
-        spec : WorkflowSpec
+        spec : ModelSpec
             Specification of the object.
-        status : WorkflowStatus
+        status : ModelStatus
             Status of the object.
         """
         super().__init__()
@@ -69,7 +69,7 @@ class Workflow(Entity):
 
     def save(self, uuid: str | None = None) -> dict:
         """
-        Save workflow into backend.
+        Save model into backend.
 
         Parameters
         ----------
@@ -79,18 +79,18 @@ class Workflow(Entity):
         Returns
         -------
         dict
-            Mapping representation of Workflow from backend.
+            Mapping representation of Model from backend.
         """
         obj = self.to_dict()
 
         if uuid is None:
-            api = api_ctx_create(self.metadata.project, WKFL)
+            api = api_ctx_create(self.metadata.project, MDLS)
             return self._context().create_object(obj, api)
 
         self.id = uuid
         self.metadata.updated = get_timestamp()
         obj["metadata"]["updated"] = self.metadata.updated
-        api = api_ctx_update(self.metadata.project, WKFL, self.metadata.name, uuid)
+        api = api_ctx_update(self.metadata.project, MDLS, self.metadata.name, uuid)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -107,7 +107,7 @@ class Workflow(Entity):
         None
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"workflow_{self.metadata.project}_{self.metadata.name}.yaml"
+        filename = filename if filename is not None else f"model_{self.metadata.project}_{self.metadata.name}.yaml"
         self._export_object(filename, obj)
 
     #############################
@@ -126,7 +126,7 @@ class Workflow(Entity):
         return get_context(self.metadata.project)
 
 
-def workflow_from_parameters(
+def model_from_parameters(
     project: str,
     name: str,
     description: str | None = None,
@@ -134,18 +134,18 @@ def workflow_from_parameters(
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
-) -> Workflow:
+) -> Model:
     """
-    Create a new Workflow instance with the specified parameters.
+    Create a new Model instance with the specified parameters.
 
     Parameters
     ----------
     project : str
-        A string representing the project associated with this workflow.
+        A string representing the project associated with this model.
     name : str
-        The name of the workflow.
+        The name of the model.
     description : str
-        A description of the workflow.
+        A description of the model.
     kind : str
         Kind of the object.
     embedded : bool
@@ -157,13 +157,13 @@ def workflow_from_parameters(
 
     Returns
     -------
-    Workflow
-        An instance of the created workflow.
+    Model
+        An instance of the created model.
     """
     uuid = build_uuid(uuid)
-    kind = build_kind(WKFL, kind)
+    kind = build_kind(MDLS, kind)
     metadata = build_metadata(
-        WKFL,
+        MDLS,
         project=project,
         name=name,
         version=uuid,
@@ -171,12 +171,12 @@ def workflow_from_parameters(
         embedded=embedded,
     )
     spec = build_spec(
-        WKFL,
+        MDLS,
         kind,
         **kwargs,
     )
-    status = build_status(WKFL)
-    return Workflow(
+    status = build_status(MDLS)
+    return Model(
         uuid=uuid,
         kind=kind,
         metadata=metadata,
@@ -185,18 +185,18 @@ def workflow_from_parameters(
     )
 
 
-def workflow_from_dict(obj: dict) -> Workflow:
+def model_from_dict(obj: dict) -> Model:
     """
-    Create Workflow instance from a dictionary.
+    Create Model instance from a dictionary.
 
     Parameters
     ----------
     obj : dict
-        Dictionary to create Workflow from.
+        Dictionary to create Model from.
 
     Returns
     -------
-    Workflow
-        Workflow instance.
+    Model
+        Model instance.
     """
-    return Workflow.from_dict(WKFL, obj)
+    return Model.from_dict(MDLS, obj)

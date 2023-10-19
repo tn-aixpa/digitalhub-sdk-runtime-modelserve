@@ -1,9 +1,6 @@
 """
 Abstract entity module.
 """
-from __future__ import annotations
-
-import typing
 from abc import ABCMeta, abstractmethod
 
 from sdk.entities.base.base import ModelObj
@@ -14,34 +11,16 @@ from sdk.entities.builders.status import build_status
 from sdk.utils.generic_utils import build_uuid
 from sdk.utils.io_utils import write_yaml
 
-if typing.TYPE_CHECKING:
-    from sdk.entities.base.metadata import Metadata
-    from sdk.entities.base.spec import Spec
-    from sdk.entities.base.status import Status
-
 
 class Entity(ModelObj, metaclass=ABCMeta):
     """
     Abstract class for entities.
     """
 
-    def __init__(
-        self,
-        uuid: str,
-        kind: str,
-        metadata: Metadata,
-        spec: Spec,
-        status: Status,
-    ) -> None:
+    def __init__(self) -> None:
         """
         Constructor.
         """
-        self.id = uuid
-        self.kind = kind
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
-
         # Attributes to render as dict
         self._obj_attr = [
             "id",

@@ -51,7 +51,7 @@ class Run(Entity):
         status: RunStatus,
     ) -> None:
         """
-        Initialize the Run instance.
+        Constructor.
 
         Parameters
         ----------
@@ -66,7 +66,12 @@ class Run(Entity):
         status : RunStatus
             Status of the object.
         """
-        super().__init__(uuid, kind, metadata, spec, status)
+        super().__init__()
+        self.id = uuid
+        self.kind = kind
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
 
         self.project = self.metadata.project
         self.task = self.spec.task

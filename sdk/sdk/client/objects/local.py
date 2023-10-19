@@ -2,7 +2,7 @@
 Local Client module.
 """
 from sdk.client.objects.base import Client
-from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
+from sdk.utils.commons import ARTF, DTIT, FUNC, MDLS, PROJ, RUNS, TASK, WKFL
 from sdk.utils.exceptions import BackendError
 
 
@@ -14,19 +14,16 @@ class ClientLocal(Client):
 
     def __init__(self) -> None:
         super().__init__()
-        self._db = {}
-        self.setup()
-
-    def setup(self) -> None:
-        """
-        Setup the in-memory database.
-
-        Returns
-        -------
-        None
-        """
-        for i in [PROJ, ARTF, DTIT, FUNC, WKFL, RUNS, TASK]:
-            self._db[i] = {}
+        self._db = {
+            PROJ: {},
+            FUNC: {},
+            WKFL: {},
+            RUNS: {},
+            TASK: {},
+            ARTF: {},
+            DTIT: {},
+            MDLS: {},
+        }
 
     def create_object(self, obj: dict, api: str) -> dict:
         """
@@ -52,7 +49,7 @@ class ClientLocal(Client):
             name = obj.get("metadata", {}).get("name")
             self._db[dto][name] = obj
 
-        # Artifact, DataItem, Function, Workflow
+        # Artifact, Dataitem, Model, Function, Workflow
         if len(parsed) == 2:
             project, dto = parsed
             name = obj.get("metadata", {}).get("name")
@@ -87,7 +84,7 @@ class ClientLocal(Client):
                 obj = self._get_project_spec(obj, name)
             msg = f"Object '{dto}' named '{name}' not found"
 
-        # Artifact, DataItem, Function, Workflow
+        # Artifact, Dataitem, Model, Function, Workflow
         elif len(parsed) == 4:
             project, dto, name, uuid = parsed
             obj = self._db.get(dto, {}).get(project, {}).get(name, {}).get(uuid)
@@ -124,7 +121,7 @@ class ClientLocal(Client):
                 self._db[dto][name] = obj
                 msg = f"Object '{dto}' named '{name}' not found"
 
-            # Artifact, DataItem, Function, Workflow
+            # Artifact, Dataitem, Model, Function, Workflow
             elif len(parsed) == 4:
                 project, dto, name, uuid = parsed
                 self._db[dto][project][name][uuid] = obj
@@ -158,7 +155,7 @@ class ClientLocal(Client):
             dto, name = parsed
             deleted = self._db[dto].pop(name, fallback)
 
-        # Artifact, DataItem, Function, Workflow
+        # Artifact, Dataitem, Model, Function, Workflow
         # No uuid
         elif len(parsed) == 3:
             project, dto, name = parsed

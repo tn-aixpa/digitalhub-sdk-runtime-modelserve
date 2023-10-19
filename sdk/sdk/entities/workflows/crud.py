@@ -54,7 +54,6 @@ def new_workflow(
     name: str,
     description: str | None = None,
     kind: str | None = None,
-    test: str | None = None,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -72,8 +71,6 @@ def new_workflow(
         A description of the workflow.
     kind : str
         Kind of the object.
-    spec : dict
-        Specification of the object.
     embedded : bool
         Flag to determine if object must be embedded in project.
     uuid : str
@@ -91,7 +88,6 @@ def new_workflow(
         name=name,
         description=description,
         kind=kind,
-        test=test,
         embedded=embedded,
         uuid=uuid,
         **kwargs,
