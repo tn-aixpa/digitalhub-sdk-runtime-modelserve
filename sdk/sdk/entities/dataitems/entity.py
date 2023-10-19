@@ -11,7 +11,7 @@ from sdk.entities.builders.kinds import build_kind
 from sdk.entities.builders.metadata import build_metadata
 from sdk.entities.builders.spec import build_spec
 from sdk.entities.builders.status import build_status
-from sdk.artifact_stores.builder import get_default_store, get_store
+from sdk.stores.builder import get_default_store, get_store
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import DTIT
 from sdk.utils.exceptions import EntityError

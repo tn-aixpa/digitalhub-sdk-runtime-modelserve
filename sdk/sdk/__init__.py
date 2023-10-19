@@ -16,5 +16,5 @@ from sdk.entities.projects.crud import (
 from sdk.entities.runs.crud import delete_run, get_run, import_run, new_run, update_run
 from sdk.entities.tasks.crud import delete_task, get_task, import_task, new_task, update_task
 from sdk.entities.workflows.crud import delete_workflow, get_workflow, import_workflow, new_workflow, update_workflow
-from sdk.artifact_stores.builder import set_store
+from sdk.stores.builder import set_store
 from sdk.utils.generic_utils import set_dhub_env

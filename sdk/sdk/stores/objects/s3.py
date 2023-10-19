@@ -11,7 +11,7 @@ import boto3
 import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 
-from sdk.artifact_stores.objects.base import Store, StoreConfig
+from sdk.stores.objects.base import Store, StoreConfig
 from sdk.utils.exceptions import StoreError
 from sdk.utils.uri_utils import get_uri_path
 

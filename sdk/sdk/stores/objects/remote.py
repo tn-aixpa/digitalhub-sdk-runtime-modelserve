@@ -7,7 +7,7 @@ import typing
 
 import requests
 
-from sdk.artifact_stores.objects.base import Store, StoreConfig
+from sdk.stores.objects.base import Store, StoreConfig
 from sdk.utils.file_utils import build_path
 
 if typing.TYPE_CHECKING:
