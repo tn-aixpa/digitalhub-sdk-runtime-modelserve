@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 
-from sdk.stores.objects.base import Store, StoreConfig
+from sdk.artifact_stores.objects.base import Store, StoreConfig
 from sdk.utils.exceptions import StoreError
 from sdk.utils.file_utils import build_path
 

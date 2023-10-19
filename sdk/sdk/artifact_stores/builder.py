@@ -8,16 +8,16 @@ import typing
 
 from pydantic import ValidationError
 
-from sdk.stores.objects.base import StoreParameters
-from sdk.stores.objects.local import LocalStore, LocalStoreConfig
-from sdk.stores.objects.remote import RemoteStore, RemoteStoreConfig
-from sdk.stores.objects.s3 import S3Store, S3StoreConfig
-from sdk.stores.objects.sql import SqlStore, SQLStoreConfig
+from sdk.artifact_stores.objects.base import StoreParameters
+from sdk.artifact_stores.objects.local import LocalStore, LocalStoreConfig
+from sdk.artifact_stores.objects.remote import RemoteStore, RemoteStoreConfig
+from sdk.artifact_stores.objects.s3 import S3Store, S3StoreConfig
+from sdk.artifact_stores.objects.sql import SqlStore, SQLStoreConfig
 from sdk.utils.exceptions import StoreError
 from sdk.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from sdk.stores.objects.base import Store
+    from sdk.artifact_stores.objects.base import Store
 
 
 REGISTRY_STORES = {

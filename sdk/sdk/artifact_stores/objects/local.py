@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from sdk.stores.objects.base import Store, StoreConfig
+from sdk.artifact_stores.objects.base import Store, StoreConfig
 from sdk.utils.file_utils import build_path, copy_file, get_dir
 from sdk.utils.uri_utils import get_name_from_uri, get_uri_path
 
