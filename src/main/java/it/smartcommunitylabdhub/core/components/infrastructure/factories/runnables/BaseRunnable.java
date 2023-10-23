@@ -8,5 +8,4 @@ import lombok.Setter;
 public abstract class BaseRunnable implements Runnable {
 	String project;
 	String id;
-
 }

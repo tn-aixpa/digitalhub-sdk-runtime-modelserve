@@ -4,6 +4,8 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.util.ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +41,23 @@ public class KubernetesConfig {
         } catch (Exception e) {
             return new KubernetesClientBuilder().build();
         }
-
-
     }
+
+    // @Bean
+    // ApiClient kubeApiClient() throws Exception {
+
+    // try {
+    // // ClientBuilder.fromCertificateSigningRequest()
+    // // KubeConfig
+    // // ApiClient client = io.kubernetes.client.util.Config.fromConfig(null);
+
+
+    // throw new Exception();
+
+    // } catch (Exception e) {
+
+    // return ClientBuilder.standard().build();
+
+    // }
+    // }
 }

@@ -4,28 +4,32 @@ TODO: 20/09/2011
 
 -[x] Rinominare il campo "task" in Task, TaskDTO come "function"
 
-- Aggiungere i DataItem a projects
+- [x] Aggiungere i DataItem a projects
+
+- [x] Creare modelli METADATI per tutti i tipi che abbiamo Project, artifact, function....
+
+- [x] In Run e RunDTO il campo task contiene una stringa di questo tipo "dbt+<perform>://<project>/<function>:<version>
+
+- [x] tutti task vengono eseguite quando invoco la sua run, la relazione e' 1 a 1
+
+- [x] il builder della run non utilizza piu la stringa del task -> dbt://<project>/<function>..ma utilizza il kind vero e proprio della funziona. Quindi avro' kind: "build" di conseguenza faro' un build di DBT.
+
+- [x] runBuilderFactory.getBuilder(taskAccessor.getKind()) prendera' poi il kind vero e proprio del task e il tipo di funzione non solo il tipo di funzione. runBuilderFactory.getBuilder(task.getKind(), taskAccessor.getKind()). taskAccessor.getKind() -> descrive il tipo della funzione.
 
 - Function, Artifact, Dataitem, Workflow ed implementare Model che vanno pero' nelle spec
 
-- [x] Creare modelli METADATI per tutti i tipi che abbiamo Project, artifact, function....
+- Integrare nuova library for kubernetes.
+
 - Definire un Poller che controlla il risultato del job.
 
-- In Run e RunDTO il campo task contiene una stringa di questo tipo "dbt+<perform>://<project>/<function>:<version>
-
-- tutti task vengono eseguite quando invoco la sua run, la relazione e' 1 a 1
 - State machine usata solo per il singolo Task -> Run
 - Qubeflow ....verra' utilizzato per una di Task -> Run che vengono eseguiti in sequenza.
-
-- il builder della run non utilizza piu la stringa del task -> dbt://<project>/<function>..ma utilizza il kind vero e proprio della funziona. Quindi avro' kind: "build" di conseguenza faro' un build di DBT.
-
-- runBuilderFactory.getBuilder(taskAccessor.getKind()) prendera' poi il kind vero e proprio del task e il tipo di funzione non solo il tipo di funzione. runBuilderFactory.getBuilder(task.getKind(), taskAccessor.getKind()). taskAccessor.getKind() -> descrive il tipo della funzione.
-
-- Variabili d'ambiente definite tutte con DHUB\_ come prefisso che fa eliminato quando le inietto nel container.
+- Variabili d'ambiente definite tutte con DHUB\_ come prefisso che va eliminato quando le inietto nel container.
 
 - IL runtime dobbiamo avere due funzioni
-  - build()
-  - run() -> non in termini di eseguo ma traduco nel framework specifico della run
+  - [x] build()
+  - [x] run() -> non in termini di eseguo ma traduco nel framework specifico della run
+  - TODO: parse()
 
 ========================= PROCEDURA =====================
 
