@@ -183,13 +183,11 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 				if (cause != null) {
 					// Handle any KubernetesClientException that occurred during
 					// watch
-					System.err.println(
-							"An error occurred during the Kubernetes events watch: "
-									+ cause.getMessage());
+					log.error("An error occurred during the Kubernetes events watch: "
+							+ cause.getMessage());
 				} else {
 					// Handle watch closure
-					System.out.println(
-							"The Kubernetes events watch has been closed.");
+					log.error("The Kubernetes events watch has been closed.");
 				}
 			}
 		});

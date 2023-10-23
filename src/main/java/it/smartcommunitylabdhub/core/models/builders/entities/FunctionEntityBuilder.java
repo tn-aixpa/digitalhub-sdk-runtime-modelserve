@@ -45,6 +45,7 @@ public class FunctionEntityBuilder {
                                 function, functionDTO, builder -> builder
                                                 .with(f -> f.setKind(functionDTO.getKind()))
                                                 .with(f -> f.setProject(functionDTO.getProject()))
+                                                .with(f -> f.setName(functionDTO.getName()))
                                                 .with(f -> f.setState(functionDTO.getState() == null
                                                                 ? State.CREATED
                                                                 : State.valueOf(functionDTO

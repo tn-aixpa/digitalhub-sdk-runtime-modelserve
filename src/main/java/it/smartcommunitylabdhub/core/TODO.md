@@ -4,7 +4,11 @@ TODO: 20/09/2011
 
 -[x] Rinominare il campo "task" in Task, TaskDTO come "function"
 
-- Creare modelli METADATI per tutti i tipi che abbiamo Project, artifact, function....
+- Aggiungere i DataItem
+
+- Function, Artifact, Dataitem, Workflow ed implementare Model che vanno pero' nelle spec
+
+- [x] Creare modelli METADATI per tutti i tipi che abbiamo Project, artifact, function....
 - Definire un Poller che controlla il risultato del job.
 
 - In Run e RunDTO il campo task contiene una stringa di questo tipo "dbt+<perform>://<project>/<function>:<version>

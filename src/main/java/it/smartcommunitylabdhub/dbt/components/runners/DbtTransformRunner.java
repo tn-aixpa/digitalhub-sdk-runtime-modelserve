@@ -19,7 +19,7 @@ public class DbtTransformRunner implements Runner {
 	public Runnable produce(RunDTO runDTO) {
 
 		return Optional.ofNullable(runDTO)
-				.map(dto -> validateRunDTO(dto))
+				.map(this::validateRunDTO)
 				.orElseThrow(() -> new IllegalArgumentException("Invalid runDTO"));
 
 	}

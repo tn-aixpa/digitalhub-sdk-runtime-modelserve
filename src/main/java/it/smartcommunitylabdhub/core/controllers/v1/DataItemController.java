@@ -65,5 +65,4 @@ public class DataItemController {
     public ResponseEntity<Boolean> deleteDataItem(@ValidateField @PathVariable String uuid) {
         return ResponseEntity.ok(this.dataItemService.deleteDataItem(uuid));
     }
-
 }
