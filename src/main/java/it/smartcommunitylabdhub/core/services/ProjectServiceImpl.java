@@ -19,6 +19,7 @@ import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.ProjectEntityBuilder;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
@@ -34,6 +35,7 @@ import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
+import it.smartcommunitylabdhub.core.utils.ErrorList;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -86,12 +88,14 @@ public class ProjectServiceImpl implements ProjectService {
                     List<Function> functions = functionRepository.findByProject(project.getName());
                     List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
                     List<Workflow> workflows = workflowRepository.findByProject(project.getName());
+                    List<DataItem> dataItems = dataItemRepository.findByProject(project.getName());
 
-                    return projectDTOBuilder.build(project, artifacts, functions, workflows, true);
+                    return projectDTOBuilder.build(project, artifacts, functions, workflows,
+                            dataItems, true);
                 })
                 .orElseThrow(() -> new CoreException(
-                        "ProjectNotFound",
-                        "The project you are searching for does not exist.",
+                        ErrorList.PROJECT_NOT_FOUND.getValue(),
+                        ErrorList.PROJECT_NOT_FOUND.getReason(),
                         HttpStatus.NOT_FOUND));
     }
 
@@ -103,12 +107,14 @@ public class ProjectServiceImpl implements ProjectService {
                 List<Function> functions = functionRepository.findByProject(project.getName());
                 List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
                 List<Workflow> workflows = workflowRepository.findByProject(project.getName());
+                List<DataItem> dataItems = dataItemRepository.findByProject(project.getName());
 
-                return projectDTOBuilder.build(project, artifacts, functions, workflows, true);
+                return projectDTOBuilder.build(project, artifacts, functions, workflows,
+                        dataItems, true);
             }).collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -119,17 +125,18 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectDTO createProject(ProjectDTO projectDTO) {
         if ((projectDTO.getId() != null && projectRepository.existsById(projectDTO.getId())) ||
                 projectRepository.existsByName(projectDTO.getName())) {
-            throw new CoreException("DuplicateProjectIdOrName",
-                    "Cannot create the project, duplicated Id or Name",
+            throw new CoreException(ErrorList.DUPLICATE_PROJECT.getValue(),
+                    ErrorList.DUPLICATE_PROJECT.getReason(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return Optional.of(projectEntityBuilder.build(projectDTO))
                 .map(project -> {
                     projectRepository.save(project);
-                    return projectDTOBuilder.build(project, List.of(), List.of(), List.of(), true);
+                    return projectDTOBuilder.build(project, List.of(), List.of(), List.of(),
+                            List.of(), true);
                 })
                 .orElseThrow(() -> new CoreException(
-                        "InternalServerError",
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                         "Failed to generate the project.",
                         HttpStatus.INTERNAL_SERVER_ERROR));
 
@@ -145,8 +152,8 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(id -> projectRepository.findById(uuidOrName)
                         .or(() -> projectRepository.findByName(uuidOrName))
                         .orElseThrow(() -> new CoreException(
-                                "ProjectNotFound",
-                                "The project you are searching for does not exist.",
+                                ErrorList.PROJECT_NOT_FOUND.getValue(),
+                                ErrorList.PROJECT_NOT_FOUND.getReason(),
                                 HttpStatus.NOT_FOUND)))
                 .map(project -> {
                     final Project projectUpdated = projectEntityBuilder.update(project, projectDTO);
@@ -158,13 +165,16 @@ public class ProjectServiceImpl implements ProjectService {
                             artifactRepository.findByProject(projectUpdated.getName());
                     List<Workflow> workflows =
                             workflowRepository.findByProject(projectUpdated.getName());
+                    List<DataItem> dataItems =
+                            dataItemRepository.findByProject(projectUpdated.getName());
 
                     return projectDTOBuilder.build(projectUpdated, artifacts, functions, workflows,
+                            dataItems,
                             true);
                 })
                 .orElseThrow(() -> new CoreException(
-                        "ProjectNotMatch",
-                        "Trying to update a project with a UUID different from the one passed in the request.",
+                        ErrorList.PROJECT_NOT_MATCH.getValue(),
+                        ErrorList.PROJECT_NOT_MATCH.getReason(),
                         HttpStatus.NOT_FOUND));
 
     }
@@ -182,6 +192,7 @@ public class ProjectServiceImpl implements ProjectService {
                             this.dataItemRepository.deleteByProjectName(project.getName());
                             this.workflowRepository.deleteByProjectName(project.getName());
                             this.functionRepository.deleteByProjectName(project.getName());
+                            this.dataItemRepository.deleteByProjectName(project.getName());
                             this.logRepository.deleteByProjectName(project.getName());
                             this.runRepository.deleteByProjectName(project.getName());
                             this.taskRepository.deleteByProjectName(project.getName());
@@ -195,6 +206,7 @@ public class ProjectServiceImpl implements ProjectService {
                             this.dataItemRepository.deleteByProjectName(project.getName());
                             this.workflowRepository.deleteByProjectName(project.getName());
                             this.functionRepository.deleteByProjectName(project.getName());
+                            this.dataItemRepository.deleteByProjectName(project.getName());
                             this.logRepository.deleteByProjectName(project.getName());
                             this.runRepository.deleteByProjectName(project.getName());
                             this.taskRepository.deleteByProjectName(project.getName());
@@ -204,14 +216,14 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     if (!deleted) {
                         throw new CoreException(
-                                "ProjectNotFound",
-                                "The project you are trying to delete does not exist.",
+                                ErrorList.PROJECT_NOT_FOUND.getValue(),
+                                ErrorList.PROJECT_NOT_FOUND.getReason(),
                                 HttpStatus.NOT_FOUND);
                     }
                     return deleted;
                 })
                 .orElseThrow(() -> new CoreException(
-                        "InternalServerError",
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                         "Cannot delete project",
                         HttpStatus.INTERNAL_SERVER_ERROR));
     }
@@ -222,8 +234,8 @@ public class ProjectServiceImpl implements ProjectService {
         return Optional.ofNullable(projectRepository.findById(uuidOrName)
                 .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
-                        "ProjectNotFound",
-                        "The project you are searching for does not exist.",
+                        ErrorList.PROJECT_NOT_FOUND.getValue(),
+                        ErrorList.PROJECT_NOT_FOUND.getReason(),
                         HttpStatus.NOT_FOUND))
                 .map(Project::getName)
                 .flatMap(projectName -> {
@@ -235,13 +247,13 @@ public class ProjectServiceImpl implements ProjectService {
                                         .collect(Collectors.toList()));
                     } catch (CustomException e) {
                         throw new CoreException(
-                                "InternalServerError",
+                                ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                                 e.getMessage(),
                                 HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                 })
                 .orElseThrow(() -> new CoreException(
-                        "InternalServerError",
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                         "Error occurred while retrieving functions.",
                         HttpStatus.INTERNAL_SERVER_ERROR));
 
@@ -252,8 +264,8 @@ public class ProjectServiceImpl implements ProjectService {
         return Optional.ofNullable(projectRepository.findById(uuidOrName)
                 .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
-                        "ProjectNotFound",
-                        "The project you are searching for does not exist.",
+                        ErrorList.PROJECT_NOT_FOUND.getValue(),
+                        ErrorList.PROJECT_NOT_FOUND.getReason(),
                         HttpStatus.NOT_FOUND))
                 .map(Project::getName)
                 .flatMap(projectName -> {
@@ -265,13 +277,13 @@ public class ProjectServiceImpl implements ProjectService {
                                         .collect(Collectors.toList()));
                     } catch (CustomException e) {
                         throw new CoreException(
-                                "InternalServerError",
+                                ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                                 e.getMessage(),
                                 HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                 })
                 .orElseThrow(() -> new CoreException(
-                        "InternalServerError",
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                         "Error occurred while retrieving artifacts.",
                         HttpStatus.INTERNAL_SERVER_ERROR));
 
@@ -282,8 +294,8 @@ public class ProjectServiceImpl implements ProjectService {
         return Optional.ofNullable(projectRepository.findById(uuidOrName)
                 .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
-                        "ProjectNotFound",
-                        "The project you are searching for does not exist.",
+                        ErrorList.PROJECT_NOT_FOUND.getValue(),
+                        ErrorList.PROJECT_NOT_FOUND.getReason(),
                         HttpStatus.NOT_FOUND))
                 .map(Project::getName)
                 .flatMap(projectName -> {
@@ -295,13 +307,13 @@ public class ProjectServiceImpl implements ProjectService {
                                         .collect(Collectors.toList()));
                     } catch (CustomException e) {
                         throw new CoreException(
-                                "InternalServerError",
+                                ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                                 e.getMessage(),
                                 HttpStatus.INTERNAL_SERVER_ERROR);
                     }
                 })
                 .orElseThrow(() -> new CoreException(
-                        "InternalServerError",
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                         "Error occurred while retrieving workflows.",
                         HttpStatus.INTERNAL_SERVER_ERROR));
     }
@@ -316,7 +328,7 @@ public class ProjectServiceImpl implements ProjectService {
             return false;
         } catch (Exception e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     "cannot delete project",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }

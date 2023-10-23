@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
@@ -46,6 +47,8 @@ public class ProjectDTO implements BaseEntity {
     private List<ArtifactDTO> artifacts;
 
     private List<WorkflowDTO> workflows;
+
+    private List<DataItemDTO> dataitems;
 
     private Date created;
 

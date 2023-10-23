@@ -4,7 +4,7 @@ TODO: 20/09/2011
 
 -[x] Rinominare il campo "task" in Task, TaskDTO come "function"
 
-- Aggiungere i DataItem
+- Aggiungere i DataItem a projects
 
 - Function, Artifact, Dataitem, Workflow ed implementare Model che vanno pero' nelle spec
 

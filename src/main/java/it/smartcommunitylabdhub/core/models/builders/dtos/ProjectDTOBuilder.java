@@ -11,6 +11,7 @@ import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
@@ -31,6 +32,9 @@ public class ProjectDTOBuilder {
         WorkflowDTOBuilder workflowDTOBuilder;
 
         @Autowired
+        DataItemDTOBuilder dataItemDTOBuilder;
+
+        @Autowired
         MetadataConverter<ProjectMetadata> metadataConverter;
 
         public ProjectDTO build(
@@ -38,6 +42,7 @@ public class ProjectDTOBuilder {
                         List<Artifact> artifacts,
                         List<Function> functions,
                         List<Workflow> workflows,
+                        List<DataItem> dataItems,
                         boolean embeddable) {
 
                 return EntityFactory.create(ProjectDTO::new, project, builder -> builder
@@ -74,6 +79,11 @@ public class ProjectDTOBuilder {
                                                 workflows.stream()
                                                                 .map(w -> workflowDTOBuilder.build(
                                                                                 w, embeddable))
+                                                                .collect(Collectors.toList())))
+                                .with(dto -> dto.setDataitems(
+                                                dataItems.stream()
+                                                                .map(d -> dataItemDTOBuilder.build(
+                                                                                d, embeddable))
                                                                 .collect(Collectors.toList())))
                                 .with(dto -> dto.setCreated(project.getCreated()))
                                 .with(dto -> dto.setUpdated(project.getUpdated()))
