@@ -125,7 +125,6 @@ class ClientLocal(Client):
             elif len(parsed) == 4:
                 project, dto, name, uuid = parsed
                 self._db[dto][project][name][uuid] = obj
-                self._db[dto][project][name]["latest"] = obj
                 msg = f"Object '{dto}' named '{name}:{uuid}' for project '{project}' not found"
 
         except KeyError:
