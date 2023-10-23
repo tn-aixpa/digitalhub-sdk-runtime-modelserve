@@ -26,6 +26,7 @@ import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
+import it.smartcommunitylabdhub.core.utils.ErrorList;
 
 @Service
 public class FunctionServiceImpl implements FunctionService {
@@ -52,12 +53,12 @@ public class FunctionServiceImpl implements FunctionService {
     public List<FunctionDTO> getFunctions(Pageable pageable) {
         try {
             Page<Function> functionPage = this.functionRepository.findAll(pageable);
-            return functionPage.getContent().stream().map((function) -> {
-                return functionDTOBuilder.build(function, false);
-            }).collect(Collectors.toList());
+            return functionPage.getContent().stream()
+                    .map(function -> functionDTOBuilder.build(function, false))
+                    .collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -68,12 +69,11 @@ public class FunctionServiceImpl implements FunctionService {
     public List<FunctionDTO> getFunctions() {
         try {
             List<Function> functions = this.functionRepository.findAll();
-            return functions.stream().map((function) -> {
-                return functionDTOBuilder.build(function, false);
-            }).collect(Collectors.toList());
+            return functions.stream().map(function -> functionDTOBuilder.build(function, false))
+                    .collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -82,8 +82,10 @@ public class FunctionServiceImpl implements FunctionService {
     @Override
     public FunctionDTO createFunction(FunctionDTO functionDTO) {
         if (functionDTO.getId() != null && functionRepository.existsById(functionDTO.getId())) {
-            throw new CoreException("DuplicateFunctionId",
-                    "Cannot create the function", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CoreException(
+                    ErrorList.DUPLICATE_FUNCTION.getValue(),
+                    ErrorList.DUPLICATE_FUNCTION.getReason(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         Optional<Function> savedFunction = Optional.ofNullable(functionDTO)
                 .map(functionEntityBuilder::build)
@@ -91,7 +93,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         return savedFunction.map(function -> functionDTOBuilder.build(function, false))
                 .orElseThrow(() -> new CoreException(
-                        "InternalServerError",
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                         "Error saving function",
                         HttpStatus.INTERNAL_SERVER_ERROR));
     }
@@ -102,8 +104,8 @@ public class FunctionServiceImpl implements FunctionService {
         final Function function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(
-                    "FunctionNotFound",
-                    "The function you are searching for does not exist.",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
+                    ErrorList.FUNCTION_NOT_FOUND.getReason(),
                     HttpStatus.NOT_FOUND);
         }
 
@@ -112,7 +114,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -123,16 +125,16 @@ public class FunctionServiceImpl implements FunctionService {
 
         if (!functionDTO.getId().equals(uuid)) {
             throw new CoreException(
-                    "FunctionNotMatch",
-                    "Trying to update a function with an uuid different from the one passed in the request.",
+                    ErrorList.FUNCTION_NOT_MATCH.getValue(),
+                    ErrorList.FUNCTION_NOT_MATCH.getReason(),
                     HttpStatus.NOT_FOUND);
         }
 
         final Function function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(
-                    "FunctionNotFound",
-                    "The function you are searching for does not exist.",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
+                    ErrorList.FUNCTION_NOT_FOUND.getReason(),
                     HttpStatus.NOT_FOUND);
         }
 
@@ -145,7 +147,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -159,13 +161,13 @@ public class FunctionServiceImpl implements FunctionService {
                 return true;
             }
             throw new CoreException(
-                    "FunctionNotFound",
-                    "The function you are trying to delete does not exist.",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
+                    ErrorList.FUNCTION_NOT_FOUND.getReason(),
                     HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
-                    "InternalServerError",
-                    "cannot delete function",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                    "Cannot delete function",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -199,7 +201,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -212,12 +214,11 @@ public class FunctionServiceImpl implements FunctionService {
             List<Function> functionList = this.functionRepository.findAllLatestFunctions();
             return functionList
                     .stream()
-                    .map((function) -> {
-                        return functionDTOBuilder.build(function, false);
-                    }).collect(Collectors.toList());
+                    .map(function -> functionDTOBuilder.build(function, false))
+                    .collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }

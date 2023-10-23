@@ -18,6 +18,7 @@ import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.services.context.interfaces.FunctionContextService;
+import it.smartcommunitylabdhub.core.utils.ErrorList;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -65,7 +66,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -81,12 +82,11 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             pageable);
             return functionPage.getContent()
                     .stream()
-                    .map((function) -> {
-                        return functionDTOBuilder.build(function, false);
-                    }).collect(Collectors.toList());
+                    .map(function -> functionDTOBuilder.build(function, false))
+                    .collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -104,12 +104,11 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             pageable);
             return functionPage.getContent()
                     .stream()
-                    .map((function) -> {
-                        return functionDTOBuilder.build(function, false);
-                    }).collect(Collectors.toList());
+                    .map(function -> functionDTOBuilder.build(function, false))
+                    .collect(Collectors.toList());
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -127,11 +126,12 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                     .findByProjectAndNameAndId(projectName, functionName, uuid).map(
                             function -> functionDTOBuilder.build(function, false))
                     .orElseThrow(
-                            () -> new CustomException("The function does not exist.", null));
+                            () -> new CustomException(ErrorList.FUNCTION_NOT_FOUND.getReason(),
+                                    null));
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -148,11 +148,12 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                     .findLatestFunctionByProjectAndName(projectName, functionName).map(
                             function -> functionDTOBuilder.build(function, false))
                     .orElseThrow(
-                            () -> new CustomException("The function does not exist.", null));
+                            () -> new CustomException(ErrorList.FUNCTION_NOT_FOUND.getReason(),
+                                    null));
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -208,7 +209,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -234,10 +235,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             checkContext(functionDTO.getProject());
 
             Function function = this.functionRepository.findById(functionDTO.getId()).map(
-                    a -> {
-                        // Update the existing function version
-                        return functionEntityBuilder.update(a, functionDTO);
-                    })
+                    a -> // Update the existing function version
+                    functionEntityBuilder.update(a, functionDTO))
                     .orElseThrow(
                             () -> new CustomException("The function does not exist.", null));
 
@@ -246,7 +245,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
 
         } catch (CustomException e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -264,12 +263,12 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                 return true;
             }
             throw new CoreException(
-                    "FunctionNotFound",
-                    "The function you are trying to delete does not exist.",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
+                    ErrorList.FUNCTION_NOT_FOUND.getReason(),
                     HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     "cannot delete function",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -284,12 +283,12 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                 return true;
             }
             throw new CoreException(
-                    "FunctionNotFound",
-                    "The functions you are trying to delete does not exist.",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
+                    ErrorList.FUNCTION_NOT_FOUND.getReason(),
                     HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             throw new CoreException(
-                    "InternalServerError",
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
                     "cannot delete function",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
