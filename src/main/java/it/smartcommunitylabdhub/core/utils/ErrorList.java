@@ -18,7 +18,14 @@ public enum ErrorList {
 			"Trying to update a project with a UUID different from the one passed in the request."),
 	/** */
 	DUPLICATE_PROJECT("DuplicateProjectIdOrName",
-			"Cannot create the project, duplicated Id or Name");
+			"Cannot create the project, duplicated Id or Name"),
+
+	/** */
+	RUN_NOT_FOUND("RunNotFound",
+			"The run you are searching for does not exist."),
+	/** */
+	RUN_NOT_MATCH("RunNotMatch",
+			"Trying to update a run with an uuid different from the one passed in the request.");
 
 
 	private final String value;

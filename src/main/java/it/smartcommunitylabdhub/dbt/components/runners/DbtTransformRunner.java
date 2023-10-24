@@ -24,7 +24,6 @@ public class DbtTransformRunner implements Runner {
 
 	}
 
-
 	@SuppressWarnings("unchecked")
 	private K8sJobRunnable validateRunDTO(RunDTO runDTO) {
 
