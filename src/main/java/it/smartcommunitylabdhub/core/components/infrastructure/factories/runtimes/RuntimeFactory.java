@@ -57,8 +57,7 @@ public class RuntimeFactory {
          */
         public Runtime getRuntime(String runtime) {
 
-                Runtime concreteRuntime =
-                                (Runtime) runtimeMap.get(runtime);
+                Runtime concreteRuntime = runtimeMap.get(runtime);
                 if (concreteRuntime == null) {
                         throw new IllegalArgumentException(
                                         "No runtime found for name: " + runtime);

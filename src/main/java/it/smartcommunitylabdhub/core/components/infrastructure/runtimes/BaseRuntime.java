@@ -8,7 +8,9 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.RunnerFactory;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Getter
 public abstract class BaseRuntime implements Runtime {
 
@@ -17,10 +19,10 @@ public abstract class BaseRuntime implements Runtime {
 	protected final BuilderFactory builderFactory;
 	protected final RunnerFactory runnerFactory;
 
-	public Map<String, Runner> runners;
-	public Map<String, Builder> builders;
+	protected Map<String, Runner> runners;
+	protected Map<String, Builder> builders;
 
-	public BaseRuntime(BuilderFactory builderFactory, RunnerFactory runnerFactory) {
+	protected BaseRuntime(BuilderFactory builderFactory, RunnerFactory runnerFactory) {
 		this.builderFactory = builderFactory;
 		this.runnerFactory = runnerFactory;
 
@@ -36,7 +38,7 @@ public abstract class BaseRuntime implements Runtime {
 			runners = runnerFactory.getRunners(runtime);
 
 		} else {
-			System.out.println("No @RuntimeComponent annotation found on the subclass.");
+			log.warn("No @RuntimeComponent annotation found on the subclass.");
 		}
 	}
 

@@ -57,8 +57,7 @@ public class RunnerFactory {
          */
         public Runner getRunner(String runtime, String task) {
 
-                Runner concreteRunner =
-                                (Runner) runnerMap.get(runtime + "+" + task);
+                Runner concreteRunner = runnerMap.get(runtime + "+" + task);
                 if (concreteRunner == null) {
                         throw new IllegalArgumentException(
                                         "No runner found for name: " + runtime + "+" + task);

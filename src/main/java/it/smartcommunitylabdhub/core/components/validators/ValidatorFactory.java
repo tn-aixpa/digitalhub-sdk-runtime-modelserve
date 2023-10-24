@@ -51,15 +51,15 @@ public class ValidatorFactory {
 	 * @return The Validator for the specified Validator.
 	 * @throws IllegalArgumentException If no Validator is found for the given Validator.
 	 */
-	public <R extends BaseValidator> R getValidator(String validator) {
-
+	public <R extends BaseValidator> R getValidator(String runtime, String task) {
 
 		@SuppressWarnings("unchecked")
-		R builder = (R) validatorMap.get(validator);
+		R builder = (R) validatorMap.get(runtime + "+" + task);
 		if (builder == null) {
 			throw new IllegalArgumentException(
-					"No builder found for name: " + validator);
+					"No builder found for name: " + runtime + "+" + task);
 		}
 		return builder;
+
 	}
 }
