@@ -7,10 +7,14 @@ import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.JobFunctio
 import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.NuclioFunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.ServingFunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public enum FunctionKind {
     JOB("job", JobFunctionFieldAccessor::new, JobFunctionFieldAccessor.class),
+    /** */
     NUCLIO("nuclio", NuclioFunctionFieldAccessor::new, NuclioFunctionFieldAccessor.class),
+    /** */
     SERVING("serving", ServingFunctionFieldAccessor::new, ServingFunctionFieldAccessor.class);
 
     private final String value;
@@ -40,7 +44,7 @@ public enum FunctionKind {
                 return (T) method.invoke(accessor);
             } catch (Exception e) {
                 // Handle any exceptions that occur during method invocation
-                System.out.println(e.getMessage());
+                log.error(e.getMessage());
             }
         }
         return null;

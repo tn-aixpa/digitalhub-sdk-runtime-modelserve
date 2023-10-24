@@ -56,31 +56,32 @@ public class ProjectDTOBuilder {
                                 .with(dto -> dto.setExtra(ConversionUtils.reverse(
                                                 project.getExtra(),
                                                 "cbor")))
+                                .with(dto -> dto.setSpec(ConversionUtils.reverse(
+                                                project.getSpec(),
+                                                "cbor")))
                                 .with(dto -> dto.setMetadata(Optional
                                                 .ofNullable(
                                                                 metadataConverter.reverseByClass(
                                                                                 project.getMetadata(),
                                                                                 ProjectMetadata.class))
-                                                .orElseGet(ProjectMetadata::new)
-
-                                ))
-                                .with(dto -> dto.setFunctions(
+                                                .orElseGet(ProjectMetadata::new)))
+                                .with(dto -> dto.getSpec().put("functions",
                                                 functions.stream()
                                                                 .map(f -> functionDTOBuilder.build(
                                                                                 f, embeddable))
                                                                 .collect(Collectors.toList())))
-                                .with(dto -> dto.setArtifacts(
+                                .with(dto -> dto.getSpec().put("artifacts",
                                                 artifacts.stream()
                                                                 .map(a -> artifactDTOBuilder.build(
                                                                                 a,
                                                                                 embeddable))
                                                                 .collect(Collectors.toList())))
-                                .with(dto -> dto.setWorkflows(
+                                .with(dto -> dto.getSpec().put("workflows",
                                                 workflows.stream()
                                                                 .map(w -> workflowDTOBuilder.build(
                                                                                 w, embeddable))
                                                                 .collect(Collectors.toList())))
-                                .with(dto -> dto.setDataitems(
+                                .with(dto -> dto.getSpec().put("dataitems",
                                                 dataItems.stream()
                                                                 .map(d -> dataItemDTOBuilder.build(
                                                                                 d, embeddable))

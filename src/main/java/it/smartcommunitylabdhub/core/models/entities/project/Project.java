@@ -45,6 +45,9 @@ public class Project implements BaseEntity {
     private byte[] metadata;
 
     @Lob
+    private byte[] spec;
+
+    @Lob
     private byte[] extra;
 
     @CreationTimestamp

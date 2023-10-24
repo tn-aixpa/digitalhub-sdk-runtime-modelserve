@@ -24,6 +24,15 @@ public class ProjectEntityBuilder {
                                                                 ConversionUtils.convert(projectDTO
                                                                                 .getExtra(),
                                                                                 "cbor")))
+                                                .with(p -> {
+                                                        projectDTO.getSpec().remove("functions");
+                                                        projectDTO.getSpec().remove("workflows");
+                                                        projectDTO.getSpec().remove("artifacts");
+                                                        projectDTO.getSpec().remove("dataitems");
+                                                        p.setSpec(ConversionUtils.convert(
+                                                                        projectDTO.getSpec(),
+                                                                        "cbor"));
+                                                })
                                                 .with(p -> p.setMetadata(
                                                                 ConversionUtils.convert(projectDTO
                                                                                 .getMetadata(),
@@ -52,6 +61,15 @@ public class ProjectEntityBuilder {
                                                                 ConversionUtils.convert(projectDTO
                                                                                 .getExtra(),
                                                                                 "cbor")))
+                                                .with(p -> {
+                                                        projectDTO.getSpec().remove("functions");
+                                                        projectDTO.getSpec().remove("workflows");
+                                                        projectDTO.getSpec().remove("artifacts");
+                                                        projectDTO.getSpec().remove("dataitems");
+                                                        p.setSpec(ConversionUtils.convert(
+                                                                        projectDTO.getSpec(),
+                                                                        "cbor"));
+                                                })
                                                 .with(p -> p.setMetadata(
                                                                 ConversionUtils.convert(projectDTO
                                                                                 .getMetadata(),

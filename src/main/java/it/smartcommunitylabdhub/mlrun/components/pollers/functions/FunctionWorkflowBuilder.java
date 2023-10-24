@@ -64,27 +64,26 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
 
                                                 try {
                                                         ResponseEntity<Map<String, Object>> response =
-                                                                        restTemplate
-                                                                                        .exchange(requestUrl,
-                                                                                                        HttpMethod.GET,
-                                                                                                        entity,
-                                                                                                        responseType);
+                                                                        restTemplate.exchange(
+                                                                                        requestUrl,
+                                                                                        HttpMethod.GET,
+                                                                                        entity,
+                                                                                        responseType);
 
                                                         return Optional.ofNullable(
                                                                         response.getBody())
                                                                         .map(body -> {
                                                                                 FunctionFieldAccessor mlrunFunctionAccessor =
-                                                                                                FunctionKind
-                                                                                                                .valueOf(function
-                                                                                                                                .getKind()
+                                                                                                FunctionKind.valueOf(
+                                                                                                                function.getKind()
                                                                                                                                 .toUpperCase())
                                                                                                                 .createAccessor((Map<String, Object>) body
                                                                                                                                 .get("func"));
 
                                                                                 if (!mlrunFunctionAccessor
                                                                                                 .getHash()
-                                                                                                .equals(Optional
-                                                                                                                .ofNullable(function
+                                                                                                .equals(Optional.ofNullable(
+                                                                                                                function
                                                                                                                                 .getExtra()
                                                                                                                                 .get("mlrun_hash"))
                                                                                                                 .orElse(""))) {

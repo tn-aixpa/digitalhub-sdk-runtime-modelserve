@@ -38,17 +38,11 @@ public class ProjectDTO implements BaseEntity {
     private String description;
     private String source;
 
+    private Map<String, Object> spec;
+
     @Builder.Default
     @JsonIgnore
     private Map<String, Object> extra = new HashMap<>();
-
-    private List<FunctionDTO> functions;
-
-    private List<ArtifactDTO> artifacts;
-
-    private List<WorkflowDTO> workflows;
-
-    private List<DataItemDTO> dataitems;
 
     private Date created;
 

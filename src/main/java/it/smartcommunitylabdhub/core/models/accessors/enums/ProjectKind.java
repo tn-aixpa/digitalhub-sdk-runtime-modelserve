@@ -5,7 +5,9 @@ import java.util.Map;
 
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.ProjectFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.projects.MlrunProjectFieldAccessor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public enum ProjectKind {
     MLRUN("mlrun", MlrunProjectFieldAccessor::new, MlrunProjectFieldAccessor.class);
 
@@ -36,7 +38,7 @@ public enum ProjectKind {
                 return (T) method.invoke(accessor);
             } catch (Exception e) {
                 // Handle any exceptions that occur during method invocation
-                System.out.println(e.getMessage());
+                log.error(e.getMessage());
             }
         }
         return null;
