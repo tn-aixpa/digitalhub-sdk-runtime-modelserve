@@ -3,7 +3,7 @@ package it.smartcommunitylabdhub.dbt.components.runners;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import it.smartcommunitylabdhub.core.annotations.RunnerComponent;
+import it.smartcommunitylabdhub.core.annotations.infrastructure.RunnerComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
 import it.smartcommunitylabdhub.core.components.infrastructure.runnables.K8sJobRunnable;

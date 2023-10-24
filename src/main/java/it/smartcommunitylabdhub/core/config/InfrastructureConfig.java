@@ -19,7 +19,7 @@ import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWork
 import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflowFactory;
 
 @Configuration
-public class RunConfig {
+public class InfrastructureConfig {
 
     @Bean
     protected KindBuilderFactory runBuilderFactory(List<KindBuilder<?, ?>> builders) {

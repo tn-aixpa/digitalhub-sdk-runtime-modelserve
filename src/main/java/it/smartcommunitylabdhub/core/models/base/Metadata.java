@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import it.smartcommunitylabdhub.core.annotations.ValidateField;
+import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import it.smartcommunitylabdhub.core.annotations.RuntimeComponent;
+import it.smartcommunitylabdhub.core.annotations.infrastructure.RuntimeComponent;
 
 public class RuntimeFactory {
         private final Map<String, Runtime> runtimeMap;

@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.annotations;
+package it.smartcommunitylabdhub.core.annotations.infrastructure;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,9 +12,10 @@ import org.springframework.stereotype.Component;
 @Target(ElementType.TYPE)
 @Documented
 @Component
-public @interface BuilderComponent {
+public @interface RunnerComponent {
     String runtime(); // runtime can be dbt, nefertem, dss, kfp...
 
     String task(); // define the task type that have to be executed by the framework for
                    // a specific runtime
+
 }

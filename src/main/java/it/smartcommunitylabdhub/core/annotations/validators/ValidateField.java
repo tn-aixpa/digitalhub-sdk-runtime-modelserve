@@ -1,10 +1,9 @@
-package it.smartcommunitylabdhub.core.annotations;
+package it.smartcommunitylabdhub.core.annotations.validators;
 
 import java.lang.annotation.*;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import it.smartcommunitylabdhub.core.annotations.validators.ValidFieldValidator;
 
 @Documented
 @Constraint(validatedBy = ValidFieldValidator.class)

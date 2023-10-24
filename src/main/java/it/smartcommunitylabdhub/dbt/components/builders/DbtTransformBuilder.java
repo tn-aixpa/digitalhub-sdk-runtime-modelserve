@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.dbt.components.builders;
 
 import java.util.Map;
-import it.smartcommunitylabdhub.core.annotations.BuilderComponent;
+import it.smartcommunitylabdhub.core.annotations.infrastructure.BuilderComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.BaseBuilder;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;

@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.runnables;
 
 import java.util.Map;
-import it.smartcommunitylabdhub.core.annotations.RunnableComponent;
+import it.smartcommunitylabdhub.core.annotations.infrastructure.RunnableComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.BaseRunnable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

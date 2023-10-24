@@ -2,17 +2,12 @@ package it.smartcommunitylabdhub.core.models.entities.project;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import it.smartcommunitylabdhub.core.annotations.ValidateField;
-import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
 import jakarta.validation.constraints.NotNull;

@@ -17,9 +17,8 @@ public interface FieldAccessor<T> {
     Map<String, T> getFields();
 
     /**
-     * Returns the claim value as a {@code T} type. The claim value is expected to
-     * be of
-     * type {@code T}.
+     * Returns the claim value as a {@code T} type. The claim value is expected to be of type
+     * {@code T}.
      * 
      * @param field the name of the field
      * @return

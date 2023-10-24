@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import it.smartcommunitylabdhub.core.annotations.FrameworkComponent;
+import it.smartcommunitylabdhub.core.annotations.infrastructure.FrameworkComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 
 public class FrameworkFactory {

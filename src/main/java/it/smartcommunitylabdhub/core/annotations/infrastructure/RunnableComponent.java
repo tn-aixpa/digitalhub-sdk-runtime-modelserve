@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.annotations;
+package it.smartcommunitylabdhub.core.annotations.infrastructure;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 @Target(ElementType.TYPE)
 @Documented
 @Component
-public @interface FrameworkComponent {
-    String framework(); // framework take care to create the component for the context
-    // execution local, serve, deploy
-
+public @interface RunnableComponent {
+    String framework();
 }

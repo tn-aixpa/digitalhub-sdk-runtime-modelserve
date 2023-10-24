@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import it.smartcommunitylabdhub.core.annotations.BuilderComponent;
+import it.smartcommunitylabdhub.core.annotations.infrastructure.BuilderComponent;
 
 public class BuilderFactory {
         private final Map<String, Builder> builderMap;

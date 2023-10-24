@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.runtimes;
 
 import java.util.Map;
-import it.smartcommunitylabdhub.core.annotations.RuntimeComponent;
+import it.smartcommunitylabdhub.core.annotations.infrastructure.RuntimeComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.BuilderFactory;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;

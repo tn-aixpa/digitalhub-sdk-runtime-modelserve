@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.core.annotations.validators;
 
 import java.util.UUID;
-import it.smartcommunitylabdhub.core.annotations.ValidateField;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
