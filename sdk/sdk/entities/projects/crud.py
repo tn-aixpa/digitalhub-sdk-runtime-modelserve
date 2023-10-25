@@ -151,25 +151,6 @@ def get_project(name: str, local: bool = False) -> Project:
     api = api_base_read(PROJ, name)
     client = get_client(local)
     obj = client.read_object(api)
-
-    # Handle backend data structure
-    if not client.is_local():
-        # Extract spec
-        spec = {}
-        spec["source"] = obj.get("source", None)
-        spec["context"] = obj.get("context", name)
-        spec["functions"] = obj.get("functions", [])
-        spec["artifacts"] = obj.get("artifacts", [])
-        spec["workflows"] = obj.get("workflows", [])
-        spec["dataitems"] = obj.get("dataitems", [])
-
-        # Filter out spec from object
-        fields = ["functions", "artifacts", "workflows", "source", "context", "spec"]
-        obj = {k: v for k, v in obj.items() if k not in fields}
-
-        # Set spec for new object and create Project instance
-        obj["spec"] = spec
-
     return project_from_dict(obj)
 
 
