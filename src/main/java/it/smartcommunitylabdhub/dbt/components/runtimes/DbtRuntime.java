@@ -22,6 +22,9 @@ public class DbtRuntime extends BaseRuntime {
 	}
 
 
+	// TODO: qua gli passiamo le spec invece di FunctionDTO function, TaskDTO task, RunDTO
+	// inputRunDTO
+	// come risultato ricevo una RunSpec invece di RunDTO
 	@Override
 	public RunDTO build(FunctionDTO function, TaskDTO task, RunDTO inputRunDTO) {
 		Builder builder = getBuilder(task.getKind());

@@ -1,8 +1,11 @@
 package it.smartcommunitylabdhub.core.models.validators.interfaces;
 
-import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
+import it.smartcommunitylabdhub.core.models.base.Metadata;
+import it.smartcommunitylabdhub.core.models.base.Spec;
 
-@FunctionalInterface
+
 public interface BaseValidator {
-	<T extends BaseEntity> boolean validate(T dto);
+	<T extends Spec> boolean validateSpec(T spec);
+
+	<T extends Metadata> boolean validateMetadata(T metadata);
 }

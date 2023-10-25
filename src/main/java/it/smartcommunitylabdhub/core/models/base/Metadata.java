@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @Setter
 public class Metadata implements Serializable {
 
-	@NotNull
+	@NotEmpty
 	@ValidateField
 	String project;
 

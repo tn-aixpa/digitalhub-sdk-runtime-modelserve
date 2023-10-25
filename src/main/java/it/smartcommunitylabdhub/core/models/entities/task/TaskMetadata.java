@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.core.models.entities.task;
 
 import it.smartcommunitylabdhub.core.models.base.Metadata;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class TaskMetadata extends Metadata {
 
-	@NotNull
+	@NotEmpty
 	String name;
 
 }

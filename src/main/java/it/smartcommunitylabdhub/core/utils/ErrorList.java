@@ -25,7 +25,9 @@ public enum ErrorList {
 			"The run you are searching for does not exist."),
 	/** */
 	RUN_NOT_MATCH("RunNotMatch",
-			"Trying to update a run with an uuid different from the one passed in the request.");
+			"Trying to update a run with an uuid different from the one passed in the request."),
+	/**  */
+	DUPLICATE_RUN("DuplicateRun", "Run already exist, use different uuid.");
 
 
 	private final String value;

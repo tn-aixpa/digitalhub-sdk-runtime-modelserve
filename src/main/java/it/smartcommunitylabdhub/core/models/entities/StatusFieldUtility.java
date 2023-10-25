@@ -11,6 +11,8 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class StatusFieldUtility {
 
+    StatusFieldUtility() {}
+
     @SuppressWarnings("unchecked")
     public static Map<String, Object> addStatusField(Map<String, Object> extra, String state) {
         Map<String, Object> updatedExtra = new HashMap<>(extra);

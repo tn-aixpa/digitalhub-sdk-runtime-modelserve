@@ -1,8 +1,7 @@
 package it.smartcommunitylabdhub.core.models.entities.project;
 
-import io.micrometer.common.lang.NonNull;
 import it.smartcommunitylabdhub.core.models.base.Metadata;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,9 +13,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProjectMetadata extends Metadata {
-	@NonNull
+	@NotEmpty
 	String name;
-	@NotNull
+	@NotEmpty
 	String description;
 
 }
