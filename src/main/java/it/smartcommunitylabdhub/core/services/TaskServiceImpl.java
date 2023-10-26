@@ -1,25 +1,26 @@
 package it.smartcommunitylabdhub.core.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
+import it.smartcommunitylabdhub.core.components.infrastructure.registries.SpecRegistry;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
 import it.smartcommunitylabdhub.core.models.entities.task.Task;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -32,6 +33,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     TaskEntityBuilder taskEntityBuilder;
+
+    @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
 
     @Override
     public List<TaskDTO> getTasks(Pageable pageable) {
@@ -102,6 +106,9 @@ public class TaskServiceImpl implements TaskService {
         }
 
         try {
+
+            // TaskTransformSpec taskTransformSpec = (TaskTransformSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
+
             final Task taskUpdated = taskEntityBuilder.update(task, taskDTO);
             this.taskRepository.save(taskUpdated);
 

@@ -1,15 +1,5 @@
 package it.smartcommunitylabdhub.core.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
@@ -27,6 +17,15 @@ import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FunctionServiceImpl implements FunctionService {
@@ -177,8 +176,8 @@ public class FunctionServiceImpl implements FunctionService {
         final Function function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(
-                    "FunctionNotFound",
-                    "The function you are searching for does not exist.",
+                    ErrorList.FUNCTION_NOT_FOUND.getValue(),
+                    ErrorList.FUNCTION_NOT_FOUND.getReason(),
                     HttpStatus.NOT_FOUND);
         }
 
