@@ -4,7 +4,6 @@ import it.smartcommunitylabdhub.core.CoreApplication;
 import it.smartcommunitylabdhub.core.annotations.SpecType;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Log4j2
 @Component
 public class SpecTypeFactory {
     private final SpecRegistry<?> specRegistry;
@@ -28,10 +26,12 @@ public class SpecTypeFactory {
     public void scanForSpecTypes() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(SpecType.class));
 
-        List<String> basePackages = getBasePackages();  // Detect base package based on ComponentScan in CoreApplication
+        List<String> basePackages = getBasePackages(); // Detect base package based on ComponentScan
+                                                       // in CoreApplication
 
         Map<String, Class<? extends Spec>> specTypes = new HashMap<>();
 
@@ -41,7 +41,8 @@ public class SpecTypeFactory {
             for (BeanDefinition beanDefinition : candidateComponents) {
                 String className = beanDefinition.getBeanClassName();
                 try {
-                    Class<? extends Spec> specClass = (Class<? extends Spec>) Class.forName(className);
+                    Class<? extends Spec> specClass =
+                            (Class<? extends Spec>) Class.forName(className);
                     SpecType specTypeAnnotation = specClass.getAnnotation(SpecType.class);
                     specTypes.put(specTypeAnnotation.value(), specClass);
                 } catch (ClassNotFoundException e) {
