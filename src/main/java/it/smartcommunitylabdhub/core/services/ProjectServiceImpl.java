@@ -1,22 +1,12 @@
 package it.smartcommunitylabdhub.core.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.builders.dtos.ArtifactDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.dtos.FunctionDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.dtos.ProjectDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.ProjectEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.artifact.ArtifactDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.function.FunctionDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.project.ProjectDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.project.ProjectEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.workflow.WorkflowDTOBuilder;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
@@ -26,17 +16,19 @@ import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
-import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
-import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
-import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
-import it.smartcommunitylabdhub.core.repositories.LogRepository;
-import it.smartcommunitylabdhub.core.repositories.ProjectRepository;
-import it.smartcommunitylabdhub.core.repositories.RunRepository;
-import it.smartcommunitylabdhub.core.repositories.TaskRepository;
-import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
+import it.smartcommunitylabdhub.core.repositories.*;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -232,7 +224,7 @@ public class ProjectServiceImpl implements ProjectService {
     public List<FunctionDTO> getProjectFunctions(String uuidOrName) {
 
         return Optional.ofNullable(projectRepository.findById(uuidOrName)
-                .or(() -> projectRepository.findByName(uuidOrName)))
+                        .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
                         ErrorList.PROJECT_NOT_FOUND.getValue(),
                         ErrorList.PROJECT_NOT_FOUND.getReason(),
@@ -262,7 +254,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<ArtifactDTO> getProjectArtifacts(String uuidOrName) {
         return Optional.ofNullable(projectRepository.findById(uuidOrName)
-                .or(() -> projectRepository.findByName(uuidOrName)))
+                        .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
                         ErrorList.PROJECT_NOT_FOUND.getValue(),
                         ErrorList.PROJECT_NOT_FOUND.getReason(),
@@ -273,7 +265,7 @@ public class ProjectServiceImpl implements ProjectService {
                         List<Artifact> artifacts = artifactRepository.findByProject(projectName);
                         return Optional.of(
                                 artifacts.stream().map(
-                                        artifact -> artifactDTOBuilder.build(artifact, false))
+                                                artifact -> artifactDTOBuilder.build(artifact, false))
                                         .collect(Collectors.toList()));
                     } catch (CustomException e) {
                         throw new CoreException(
@@ -292,7 +284,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<WorkflowDTO> getProjectWorkflows(String uuidOrName) {
         return Optional.ofNullable(projectRepository.findById(uuidOrName)
-                .or(() -> projectRepository.findByName(uuidOrName)))
+                        .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
                         ErrorList.PROJECT_NOT_FOUND.getValue(),
                         ErrorList.PROJECT_NOT_FOUND.getReason(),

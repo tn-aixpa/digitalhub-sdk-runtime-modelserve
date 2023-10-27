@@ -1,24 +1,23 @@
 package it.smartcommunitylabdhub.core.services.context;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.artifact.ArtifactDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.artifact.ArtifactEntityBuilder;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
+import it.smartcommunitylabdhub.core.services.context.interfaces.ArtifactContextService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.builders.dtos.ArtifactDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.ArtifactEntityBuilder;
-import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
-import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
-import it.smartcommunitylabdhub.core.repositories.ArtifactRepository;
-import it.smartcommunitylabdhub.core.services.context.interfaces.ArtifactContextService;
-import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ArtifactContextServiceImpl extends ContextService implements ArtifactContextService {
@@ -94,8 +93,8 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
 
     @Override
     public List<ArtifactDTO> getByProjectNameAndArtifactName(String projectName,
-            String artifactName,
-            Pageable pageable) {
+                                                             String artifactName,
+                                                             Pageable pageable) {
         try {
             checkContext(projectName);
 
@@ -118,7 +117,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
 
     @Override
     public ArtifactDTO getByProjectAndArtifactAndUuid(String projectName, String artifactName,
-            String uuid) {
+                                                      String uuid) {
         try {
             // Check project context
             checkContext(projectName);
@@ -139,7 +138,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
 
     @Override
     public ArtifactDTO getLatestByProjectNameAndArtifactName(String projectName,
-            String artifactName) {
+                                                             String artifactName) {
         try {
             // Check project context
             checkContext(projectName);
@@ -160,7 +159,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
 
     @Override
     public ArtifactDTO createOrUpdateArtifact(String projectName, String artifactName,
-            ArtifactDTO artifactDTO) {
+                                              ArtifactDTO artifactDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // artifactDTO
@@ -216,7 +215,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
 
     @Override
     public ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid,
-            ArtifactDTO artifactDTO) {
+                                      ArtifactDTO artifactDTO) {
 
         try {
             // Check that project context is the same as the project passed to the
@@ -234,10 +233,10 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             checkContext(artifactDTO.getProject());
 
             Artifact artifact = this.artifactRepository.findById(artifactDTO.getId()).map(
-                    a -> {
-                        // Update the existing artifact version
-                        return artifactEntityBuilder.update(a, artifactDTO);
-                    })
+                            a -> {
+                                // Update the existing artifact version
+                                return artifactEntityBuilder.update(a, artifactDTO);
+                            })
                     .orElseThrow(
                             () -> new CustomException("The artifact does not exist.", null));
 
@@ -255,7 +254,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
     @Override
     @Transactional
     public Boolean deleteSpecificArtifactVersion(String projectName, String artifactName,
-            String uuid) {
+                                                 String uuid) {
         try {
             if (this.artifactRepository.existsByProjectAndNameAndId(projectName, artifactName,
                     uuid)) {

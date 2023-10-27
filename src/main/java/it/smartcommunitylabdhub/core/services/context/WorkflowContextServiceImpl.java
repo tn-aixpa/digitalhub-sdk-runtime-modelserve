@@ -1,24 +1,23 @@
 package it.smartcommunitylabdhub.core.services.context;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.workflow.WorkflowDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.workflow.WorkflowEntityBuilder;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
+import it.smartcommunitylabdhub.core.services.context.interfaces.WorkflowContextService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
-import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
-import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
-import it.smartcommunitylabdhub.core.services.context.interfaces.WorkflowContextService;
-import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkflowContextServiceImpl extends ContextService implements WorkflowContextService {
@@ -94,8 +93,8 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
 
     @Override
     public List<WorkflowDTO> getByProjectNameAndWorkflowName(String projectName,
-            String workflowName,
-            Pageable pageable) {
+                                                             String workflowName,
+                                                             Pageable pageable) {
         try {
             checkContext(projectName);
 
@@ -118,7 +117,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
 
     @Override
     public WorkflowDTO getByProjectAndWorkflowAndUuid(String projectName, String workflowName,
-            String uuid) {
+                                                      String uuid) {
         try {
             // Check project context
             checkContext(projectName);
@@ -139,7 +138,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
 
     @Override
     public WorkflowDTO getLatestByProjectNameAndWorkflowName(String projectName,
-            String workflowName) {
+                                                             String workflowName) {
         try {
             // Check project context
             checkContext(projectName);
@@ -160,7 +159,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
 
     @Override
     public WorkflowDTO createOrUpdateWorkflow(String projectName, String workflowName,
-            WorkflowDTO workflowDTO) {
+                                              WorkflowDTO workflowDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // workflowDTO
@@ -216,7 +215,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
 
     @Override
     public WorkflowDTO updateWorkflow(String projectName, String workflowName, String uuid,
-            WorkflowDTO workflowDTO) {
+                                      WorkflowDTO workflowDTO) {
 
         try {
             // Check that project context is the same as the project passed to the
@@ -234,10 +233,10 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             checkContext(workflowDTO.getProject());
 
             Workflow workflow = this.workflowRepository.findById(workflowDTO.getId()).map(
-                    a -> {
-                        // Update the existing workflow version
-                        return workflowEntityBuilder.update(a, workflowDTO);
-                    })
+                            a -> {
+                                // Update the existing workflow version
+                                return workflowEntityBuilder.update(a, workflowDTO);
+                            })
                     .orElseThrow(
                             () -> new CustomException("The workflow does not exist.", null));
 
@@ -255,7 +254,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     @Override
     @Transactional
     public Boolean deleteSpecificWorkflowVersion(String projectName, String workflowName,
-            String uuid) {
+                                                 String uuid) {
         try {
             if (this.workflowRepository.existsByProjectAndNameAndId(projectName, workflowName,
                     uuid)) {

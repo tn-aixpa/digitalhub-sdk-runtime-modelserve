@@ -6,10 +6,11 @@ import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
-import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.TaskEntityBuilder;
+import it.smartcommunitylabdhub.core.models.builders.task.TaskDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.task.TaskEntityBuilder;
 import it.smartcommunitylabdhub.core.models.entities.task.Task;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskSpec;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,9 @@ public class TaskServiceImpl implements TaskService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        TaskAccessor taskAccessor = TaskUtils.parseTask(taskDTO.getFunction());
+        TaskSpec taskSpec = (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
+
+        TaskAccessor taskAccessor = TaskUtils.parseTask(taskSpec.getFunction());
         if (!taskDTO.getProject().equals(taskAccessor.getProject())) {
             throw new CoreException("Task string Project and associated Project does not match",
                     "Cannot create the task", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -107,6 +110,7 @@ public class TaskServiceImpl implements TaskService {
 
         try {
 
+            // COMMENT: use this
             // TaskTransformSpec taskTransformSpec = (TaskTransformSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
 
             final Task taskUpdated = taskEntityBuilder.update(task, taskDTO);

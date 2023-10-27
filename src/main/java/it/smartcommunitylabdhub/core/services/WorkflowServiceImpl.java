@@ -1,31 +1,30 @@
 package it.smartcommunitylabdhub.core.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
+import it.smartcommunitylabdhub.core.models.builders.task.TaskDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.workflow.WorkflowDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.workflow.WorkflowEntityBuilder;
+import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
+import it.smartcommunitylabdhub.core.models.entities.run.Run;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.repositories.RunRepository;
+import it.smartcommunitylabdhub.core.repositories.TaskRepository;
+import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
+import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
-import it.smartcommunitylabdhub.core.models.builders.dtos.TaskDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.dtos.WorkflowDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.WorkflowEntityBuilder;
-import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.run.Run;
-import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
-import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
-import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
-import it.smartcommunitylabdhub.core.repositories.RunRepository;
-import it.smartcommunitylabdhub.core.repositories.TaskRepository;
-import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkflowServiceImpl implements WorkflowService {

@@ -1,24 +1,23 @@
 package it.smartcommunitylabdhub.core.services.context;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.dataitem.DataItemDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.dataitem.DataItemEntityBuilder;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
+import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
+import it.smartcommunitylabdhub.core.services.context.interfaces.DataItemContextService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
-import it.smartcommunitylabdhub.core.repositories.DataItemRepository;
-import it.smartcommunitylabdhub.core.models.builders.dtos.DataItemDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.DataItemEntityBuilder;
-import it.smartcommunitylabdhub.core.services.context.interfaces.DataItemContextService;
-import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DataItemContextServiceImpl extends ContextService implements DataItemContextService {
@@ -94,8 +93,8 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
 
     @Override
     public List<DataItemDTO> getByProjectNameAndDataItemName(String projectName,
-            String dataItemName,
-            Pageable pageable) {
+                                                             String dataItemName,
+                                                             Pageable pageable) {
         try {
             checkContext(projectName);
 
@@ -118,7 +117,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
 
     @Override
     public DataItemDTO getByProjectAndDataItemAndUuid(String projectName, String dataItemName,
-            String uuid) {
+                                                      String uuid) {
         try {
             // Check project context
             checkContext(projectName);
@@ -139,7 +138,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
 
     @Override
     public DataItemDTO getLatestByProjectNameAndDataItemName(String projectName,
-            String dataItemName) {
+                                                             String dataItemName) {
         try {
             // Check project context
             checkContext(projectName);
@@ -160,7 +159,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
 
     @Override
     public DataItemDTO createOrUpdateDataItem(String projectName, String dataItemName,
-            DataItemDTO dataItemDTO) {
+                                              DataItemDTO dataItemDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // dataItemDTO
@@ -216,7 +215,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
 
     @Override
     public DataItemDTO updateDataItem(String projectName, String dataItemName, String uuid,
-            DataItemDTO dataItemDTO) {
+                                      DataItemDTO dataItemDTO) {
 
         try {
             // Check that project context is the same as the project passed to the
@@ -234,10 +233,10 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             checkContext(dataItemDTO.getProject());
 
             DataItem dataItem = this.dataItemRepository.findById(dataItemDTO.getId()).map(
-                    a -> {
-                        // Update the existing dataItem version
-                        return dataItemEntityBuilder.update(a, dataItemDTO);
-                    })
+                            a -> {
+                                // Update the existing dataItem version
+                                return dataItemEntityBuilder.update(a, dataItemDTO);
+                            })
                     .orElseThrow(
                             () -> new CustomException("The dataItem does not exist.", null));
 
@@ -255,7 +254,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     @Override
     @Transactional
     public Boolean deleteSpecificDataItemVersion(String projectName, String dataItemName,
-            String uuid) {
+                                                 String uuid) {
         try {
             if (this.dataItemRepository.existsByProjectAndNameAndId(projectName, dataItemName,
                     uuid)) {

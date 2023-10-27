@@ -3,16 +3,19 @@ package it.smartcommunitylabdhub.core.services;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.RuntimeFactory;
+import it.smartcommunitylabdhub.core.components.infrastructure.registries.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilderFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPublisherFactory;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
-import it.smartcommunitylabdhub.core.models.builders.dtos.RunDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.RunEntityBuilder;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.models.builders.project.RunDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.run.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskSpec;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
@@ -60,6 +63,9 @@ public class RunSerivceImpl implements RunService {
     @Autowired
     ApplicationEventPublisher eventPublisher;
 
+    @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
+
     @Override
     public List<RunDTO> getRuns(Pageable pageable) {
         try {
@@ -98,7 +104,7 @@ public class RunSerivceImpl implements RunService {
     @Override
     public RunDTO save(RunDTO runDTO) {
 
-        return Optional.ofNullable(this.runRepository.save(runEntityBuilder.build(runDTO)))
+        return Optional.of(this.runRepository.save(runEntityBuilder.build(runDTO)))
                 .map(run -> runDTOBuilder.build(run))
                 .orElseThrow(() -> new CoreException(
                         "RunSaveError",
@@ -149,9 +155,10 @@ public class RunSerivceImpl implements RunService {
 
         return Optional.ofNullable(this.taskService.getTask(inputRunDTO.getTaskId()))
                 .map(taskDTO -> {
+                    TaskSpec taskSpec = (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
                     // Parse task to get accessor
                     TaskAccessor taskAccessor =
-                            TaskUtils.parseTask(taskDTO.getFunction());
+                            TaskUtils.parseTask(taskSpec.getFunction());
 
                     return Optional
                             .ofNullable(functionService.getFunction(

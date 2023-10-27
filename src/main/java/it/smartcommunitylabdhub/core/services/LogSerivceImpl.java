@@ -1,23 +1,22 @@
 package it.smartcommunitylabdhub.core.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.exceptions.CustomException;
+import it.smartcommunitylabdhub.core.models.builders.log.LogDTOBuilder;
+import it.smartcommunitylabdhub.core.models.builders.log.LogEntityBuilder;
+import it.smartcommunitylabdhub.core.models.entities.log.Log;
+import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
+import it.smartcommunitylabdhub.core.repositories.LogRepository;
+import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.exceptions.CustomException;
-import it.smartcommunitylabdhub.core.models.builders.dtos.LogDTOBuilder;
-import it.smartcommunitylabdhub.core.models.builders.entities.LogEntityBuilder;
-import it.smartcommunitylabdhub.core.models.entities.log.Log;
-import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
-import it.smartcommunitylabdhub.core.repositories.LogRepository;
-import it.smartcommunitylabdhub.core.services.interfaces.LogService;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LogSerivceImpl implements LogService {
