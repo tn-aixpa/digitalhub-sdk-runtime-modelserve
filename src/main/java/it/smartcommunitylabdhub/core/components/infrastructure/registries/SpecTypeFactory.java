@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.registries;
 
 import it.smartcommunitylabdhub.core.CoreApplication;
-import it.smartcommunitylabdhub.core.annotations.SpecType;
+import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.config.BeanDefinition;

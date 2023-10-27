@@ -1,10 +1,10 @@
-package it.smartcommunitylabdhub.core.annotations;
+package it.smartcommunitylabdhub.core.annotations.common;
 
 import org.springframework.web.bind.annotation.Mapping;
 
 import java.lang.annotation.*;
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Mapping

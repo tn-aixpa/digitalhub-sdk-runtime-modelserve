@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.annotations;
+package it.smartcommunitylabdhub.core.annotations.common;
 
 import org.springframework.stereotype.Indexed;
 

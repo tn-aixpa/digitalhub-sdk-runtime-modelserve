@@ -1,11 +1,11 @@
 package it.smartcommunitylabdhub.core.models.entities.task.specs;
 
-import it.smartcommunitylabdhub.core.annotations.SpecType;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
+import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 
 @Getter
 @Setter

@@ -6,7 +6,7 @@
 
 package it.smartcommunitylabdhub.core.components.kinds;
 
-import it.smartcommunitylabdhub.core.annotations.RunBuilderComponent;
+import it.smartcommunitylabdhub.core.annotations.olders.RunBuilderComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.registries.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
@@ -36,15 +36,16 @@ public class BuildTaskBuilder extends TaskSpecBuilder implements KindBuilder<Tas
      *
      * @param taskDTO The input TaskDTO to be processed for building the TaskDTO.
      * @return The built TaskDTO of the "build" kind.
-     * @throws CoreException If the accessor for the TaskDTO is not found, leading to a failure
-     *                       in building the TaskDTO.
+     * @throws CoreException If the accessor for the TaskDTO is not found, leading to a failure in
+     *         building the TaskDTO.
      */
     @Override
     public TaskDTO build(TaskDTO taskDTO) {
         // Use TaskUtils to parse the task and create the TaskAccessor
 
-        TaskSpec taskSpec = (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
-        
+        TaskSpec taskSpec =
+                (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
+
         return Optional.of(TaskUtils.parseTask(taskSpec.getFunction()))
                 .map(accessor -> {
                     // Build the TaskDTO with the parsed task data

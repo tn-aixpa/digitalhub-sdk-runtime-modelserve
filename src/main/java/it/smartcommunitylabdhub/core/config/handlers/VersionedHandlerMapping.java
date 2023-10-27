@@ -11,8 +11,7 @@ import org.springframework.web.servlet.mvc.condition.ProducesRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
-
-import it.smartcommunitylabdhub.core.annotations.ApiVersion;
+import it.smartcommunitylabdhub.core.annotations.common.ApiVersion;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.lang.reflect.Method;
@@ -24,7 +23,8 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
     private static final String VERSION_ATTRIBUTE = "version";
 
     @Override
-    protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
+    protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request)
+            throws Exception {
         String version = extractVersionFromRequest(request);
         request.setAttribute(VERSION_ATTRIBUTE, version);
         return super.lookupHandlerMethod(lookupPath, request);
@@ -43,7 +43,8 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
         if (mappingInfo != null) {
             String version = getVersionFromHandler(handlerType);
             if (version != null) {
-                RequestMappingInfo versionedMapping = createVersionedMappingInfo(mappingInfo, version);
+                RequestMappingInfo versionedMapping =
+                        createVersionedMappingInfo(mappingInfo, version);
                 return versionedMapping;
             }
         }
@@ -57,14 +58,16 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
      * @return
      */
     private String getVersionFromHandler(Class<?> handlerType) {
-        ApiVersion apiVersion = AnnotatedElementUtils.findMergedAnnotation(handlerType, ApiVersion.class);
+        ApiVersion apiVersion =
+                AnnotatedElementUtils.findMergedAnnotation(handlerType, ApiVersion.class);
         if (apiVersion != null) {
             return apiVersion.value();
         }
         return null;
     }
 
-    private RequestMappingInfo createVersionedMappingInfo(RequestMappingInfo mappingInfo, String version) {
+    private RequestMappingInfo createVersionedMappingInfo(RequestMappingInfo mappingInfo,
+            String version) {
         // String originalPattern =
         // mappingInfo.getPathPatternsCondition().getPatterns().iterator().next()
         // .getPatternString();
@@ -85,9 +88,12 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
         if (mappingInfo != null) {
             RequestMappingInfo.Builder builder = mappingInfo.mutate()
                     .paths(versionedPattern)
-                    .methods(mappingInfo.getMethodsCondition().getMethods().toArray(RequestMethod[]::new))
-                    .params(mappingInfo.getParamsCondition().getExpressions().toArray(String[]::new))
-                    .headers(mappingInfo.getHeadersCondition().getExpressions().toArray(String[]::new))
+                    .methods(mappingInfo.getMethodsCondition().getMethods()
+                            .toArray(RequestMethod[]::new))
+                    .params(mappingInfo.getParamsCondition().getExpressions()
+                            .toArray(String[]::new))
+                    .headers(mappingInfo.getHeadersCondition().getExpressions()
+                            .toArray(String[]::new))
                     .consumes(getMediaTypeStrings(mappingInfo.getConsumesCondition()))
                     .produces(getMediaTypeStrings(mappingInfo.getProducesCondition()));
 
@@ -118,7 +124,8 @@ public class VersionedHandlerMapping extends RequestMappingHandlerMapping {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void handleMatch(RequestMappingInfo info, String lookupPath, HttpServletRequest request) {
+    protected void handleMatch(RequestMappingInfo info, String lookupPath,
+            HttpServletRequest request) {
         String version = (String) request.getAttribute(VERSION_ATTRIBUTE);
         if (version != null) {
             Map<String, String> uriTemplateVariables = (Map<String, String>) request

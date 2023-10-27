@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import it.smartcommunitylabdhub.core.annotations.RunWorkflowComponent;
+import it.smartcommunitylabdhub.core.annotations.olders.RunWorkflowComponent;
 
 public class KindWorkflowFactory {
     private final Map<String, KindWorkflow<?, ?>> workflowMap;
