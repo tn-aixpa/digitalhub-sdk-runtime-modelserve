@@ -5,7 +5,6 @@ import it.smartcommunitylabdhub.core.annotations.SpecType;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -23,8 +22,8 @@ public class SpecTypeFactory {
     }
 
     @PostConstruct
+    @SuppressWarnings("unchecked")
     public void scanForSpecTypes() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
         ClassPathScanningCandidateComponentProvider scanner =
                 new ClassPathScanningCandidateComponentProvider(false);
