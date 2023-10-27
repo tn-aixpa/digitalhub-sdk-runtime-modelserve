@@ -3,7 +3,7 @@ package it.smartcommunitylabdhub.core.services;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.RuntimeFactory;
-import it.smartcommunitylabdhub.core.components.infrastructure.registries.SpecRegistry;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilderFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPublisherFactory;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
@@ -36,207 +36,220 @@ import java.util.stream.Collectors;
 @Service
 public class RunSerivceImpl implements RunService {
 
-    @Autowired
-    RunDTOBuilder runDTOBuilder;
+        @Autowired
+        RunDTOBuilder runDTOBuilder;
 
-    @Autowired
-    RunRepository runRepository;
+        @Autowired
+        RunRepository runRepository;
 
-    @Autowired
-    TaskService taskService;
+        @Autowired
+        TaskService taskService;
 
-    @Autowired
-    FunctionService functionService;
+        @Autowired
+        FunctionService functionService;
 
-    @Autowired
-    RuntimeFactory runtimeFactory;
+        @Autowired
+        RuntimeFactory runtimeFactory;
 
-    @Autowired
-    KindBuilderFactory runBuilderFactory;
+        @Autowired
+        KindBuilderFactory runBuilderFactory;
 
-    @Autowired
-    KindPublisherFactory runPublisherFactory;
+        @Autowired
+        KindPublisherFactory runPublisherFactory;
 
-    @Autowired
-    RunEntityBuilder runEntityBuilder;
+        @Autowired
+        RunEntityBuilder runEntityBuilder;
 
-    @Autowired
-    ApplicationEventPublisher eventPublisher;
+        @Autowired
+        ApplicationEventPublisher eventPublisher;
 
-    @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+        @Autowired
+        SpecRegistry<? extends Spec> specRegistry;
 
-    @Override
-    public List<RunDTO> getRuns(Pageable pageable) {
-        try {
-            Page<Run> runPage = this.runRepository.findAll(pageable);
-            return runPage.getContent().stream().map(run -> runDTOBuilder.build(run))
-                    .collect(Collectors.toList());
+        @Override
+        public List<RunDTO> getRuns(Pageable pageable) {
+                try {
+                        Page<Run> runPage = this.runRepository.findAll(pageable);
+                        return runPage.getContent().stream().map(run -> runDTOBuilder.build(run))
+                                        .collect(Collectors.toList());
 
-        } catch (CustomException e) {
-            throw new CoreException(ErrorList.INTERNAL_SERVER_ERROR.getValue(),
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public RunDTO getRun(String uuid) {
-        return runRepository.findById(uuid).map(run -> runDTOBuilder.build(run))
-                .orElseThrow(() -> new CoreException(
-                        ErrorList.RUN_NOT_FOUND.getValue(),
-                        ErrorList.RUN_NOT_FOUND.getReason(),
-                        HttpStatus.NOT_FOUND));
-    }
-
-    @Override
-    public boolean deleteRun(String uuid) {
-        try {
-            this.runRepository.deleteById(uuid);
-            return true;
-        } catch (Exception e) {
-            throw new CoreException(ErrorList.INTERNAL_SERVER_ERROR.getValue(),
-                    "cannot delete artifact",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public RunDTO save(RunDTO runDTO) {
-
-        return Optional.of(this.runRepository.save(runEntityBuilder.build(runDTO)))
-                .map(run -> runDTOBuilder.build(run))
-                .orElseThrow(() -> new CoreException(
-                        "RunSaveError",
-                        "Problem while saving the run.",
-                        HttpStatus.NOT_FOUND));
-    }
-
-    @Override
-    public RunDTO updateRun(RunDTO runDTO, String uuid) {
-
-        if (!runDTO.getId().equals(uuid)) {
-            throw new CoreException(
-                    ErrorList.RUN_NOT_MATCH.getValue(),
-                    ErrorList.RUN_NOT_MATCH.getReason(),
-                    HttpStatus.NOT_FOUND);
+                } catch (CustomException e) {
+                        throw new CoreException(ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                                        e.getMessage(),
+                                        HttpStatus.INTERNAL_SERVER_ERROR);
+                }
         }
 
-        final Run run = runRepository.findById(uuid).orElse(null);
-        if (run == null) {
-            throw new CoreException(
-                    ErrorList.RUN_NOT_FOUND.getValue(),
-                    ErrorList.RUN_NOT_FOUND.getReason(),
-                    HttpStatus.NOT_FOUND);
+        @Override
+        public RunDTO getRun(String uuid) {
+                return runRepository.findById(uuid).map(run -> runDTOBuilder.build(run))
+                                .orElseThrow(() -> new CoreException(
+                                                ErrorList.RUN_NOT_FOUND.getValue(),
+                                                ErrorList.RUN_NOT_FOUND.getReason(),
+                                                HttpStatus.NOT_FOUND));
         }
 
-        try {
-            final Run runUpdated = runEntityBuilder.update(run, runDTO);
-            this.runRepository.save(runUpdated);
-
-            return runDTOBuilder.build(runUpdated);
-
-        } catch (CustomException e) {
-            throw new CoreException(
-                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
-                    e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public RunDTO createRun(RunDTO inputRunDTO) {
-
-        if (runRepository.existsById(Optional.ofNullable(inputRunDTO.getId()).orElse(""))) {
-            throw new CoreException(ErrorList.DUPLICATE_RUN.getValue(),
-                    ErrorList.DUPLICATE_RUN.getReason(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+        @Override
+        public boolean deleteRun(String uuid) {
+                try {
+                        this.runRepository.deleteById(uuid);
+                        return true;
+                } catch (Exception e) {
+                        throw new CoreException(ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                                        "cannot delete artifact",
+                                        HttpStatus.INTERNAL_SERVER_ERROR);
+                }
         }
 
-        return Optional.ofNullable(this.taskService.getTask(inputRunDTO.getTaskId()))
-                .map(taskDTO -> {
-                    TaskSpec taskSpec = (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
-                    // Parse task to get accessor
-                    TaskAccessor taskAccessor =
-                            TaskUtils.parseTask(taskSpec.getFunction());
+        @Override
+        public RunDTO save(RunDTO runDTO) {
 
-                    return Optional
-                            .ofNullable(functionService.getFunction(
-                                    taskAccessor.getVersion()))
-                            .map(functionDTO -> {
+                return Optional.of(this.runRepository.save(runEntityBuilder.build(runDTO)))
+                                .map(run -> runDTOBuilder.build(run))
+                                .orElseThrow(() -> new CoreException(
+                                                "RunSaveError",
+                                                "Problem while saving the run.",
+                                                HttpStatus.NOT_FOUND));
+        }
 
-                                // 1. retrieve Runtime and build run
-                                Runtime runtime = runtimeFactory
-                                        .getRuntime(taskAccessor
-                                                .getRuntime());
+        @Override
+        public RunDTO updateRun(RunDTO runDTO, String uuid) {
 
+                if (!runDTO.getId().equals(uuid)) {
+                        throw new CoreException(
+                                        ErrorList.RUN_NOT_MATCH.getValue(),
+                                        ErrorList.RUN_NOT_MATCH.getReason(),
+                                        HttpStatus.NOT_FOUND);
+                }
 
-                                // 2. create Builder
-                                // 3. build Run
-                                RunDTO buildRunDTO = runtime.build(
-                                        functionDTO,
-                                        taskDTO,
-                                        inputRunDTO);
+                final Run run = runRepository.findById(uuid).orElse(null);
+                if (run == null) {
+                        throw new CoreException(
+                                        ErrorList.RUN_NOT_FOUND.getValue(),
+                                        ErrorList.RUN_NOT_FOUND.getReason(),
+                                        HttpStatus.NOT_FOUND);
+                }
 
-                                // 4. Save run
-                                Run run = runRepository.save(
-                                        runEntityBuilder.build(
-                                                buildRunDTO));
+                try {
+                        final Run runUpdated = runEntityBuilder.update(run, runDTO);
+                        this.runRepository.save(runUpdated);
 
-                                // Check weather the run has local set to True in that case return
-                                // immediately the run without invoke the execution.
-                                Supplier<RunDTO> result =
-                                        () -> Optional
-                                                .ofNullable(buildRunDTO
-                                                        .getSpec()
-                                                        .get("local_execution")) // return
-                                                // if true
-                                                .filter(value -> value
-                                                        .equals(true))
+                        return runDTOBuilder.build(runUpdated);
 
-                                                .map(value -> runDTOBuilder
-                                                        .build(run))
+                } catch (CustomException e) {
+                        throw new CoreException(
+                                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                                        e.getMessage(),
+                                        HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+        }
 
-                                                // exec run and return run dto
-                                                .orElseGet(() -> Optional
-                                                        .ofNullable(runDTOBuilder
-                                                                .build(run))
-                                                        .map(savedRun -> {
+        @Override
+        public RunDTO createRun(RunDTO inputRunDTO) {
 
-                                                            // Create Runnable
-                                                            Runnable runnable =
-                                                                    runtime.run(savedRun);
+                if (runRepository.existsById(Optional.ofNullable(inputRunDTO.getId()).orElse(""))) {
+                        throw new CoreException(ErrorList.DUPLICATE_RUN.getValue(),
+                                        ErrorList.DUPLICATE_RUN.getReason(),
+                                        HttpStatus.INTERNAL_SERVER_ERROR);
+                }
 
-                                                            // Dispatch  Runnable
-                                                            eventPublisher.publishEvent(
-                                                                    runnable);
+                return Optional.ofNullable(this.taskService.getTask(inputRunDTO.getTaskId()))
+                                .map(taskDTO -> {
+                                        TaskSpec taskSpec = (TaskSpec) specRegistry.createSpec(
+                                                        taskDTO.getKind(), taskDTO.getSpec());
+                                        // Parse task to get accessor
+                                        TaskAccessor taskAccessor =
+                                                        TaskUtils.parseTask(taskSpec.getFunction());
 
-                                                            // Return saved run
-                                                            return savedRun;
-                                                        })
-                                                        .orElseThrow(() -> new CoreException(
-                                                                ErrorList.INTERNAL_SERVER_ERROR
-                                                                        .getValue(),
-                                                                ErrorList.INTERNAL_SERVER_ERROR
-                                                                        .getReason(),
-                                                                HttpStatus.INTERNAL_SERVER_ERROR)));
+                                        return Optional
+                                                        .ofNullable(functionService.getFunction(
+                                                                        taskAccessor.getVersion()))
+                                                        .map(functionDTO -> {
 
-                                return result.get();
-                            }).orElseThrow(
-                                    () -> new CoreException(
-                                            ErrorList.FUNCTION_NOT_FOUND
-                                                    .getValue(),
-                                            ErrorList.FUNCTION_NOT_FOUND
-                                                    .getReason(),
-                                            HttpStatus.NOT_FOUND));
+                                                                // 1. retrieve Runtime and build run
+                                                                Runtime runtime = runtimeFactory
+                                                                                .getRuntime(taskAccessor
+                                                                                                .getRuntime());
 
 
-                })
-                .orElseThrow(() -> new CoreException(
-                        ErrorList.RUN_NOT_FOUND.getValue(),
-                        ErrorList.RUN_NOT_FOUND.getReason(),
-                        HttpStatus.NOT_FOUND));
+                                                                // 2. create Builder
+                                                                // 3. build Run
+                                                                RunDTO buildRunDTO = runtime.build(
+                                                                                functionDTO,
+                                                                                taskDTO,
+                                                                                inputRunDTO);
 
-    }
+                                                                // 4. Save run
+                                                                Run run = runRepository.save(
+                                                                                runEntityBuilder.build(
+                                                                                                buildRunDTO));
+
+                                                                // Check weather the run has local
+                                                                // set to True in that case return
+                                                                // immediately the run without
+                                                                // invoke the execution.
+                                                                Supplier<RunDTO> result =
+                                                                                () -> Optional
+                                                                                                .ofNullable(buildRunDTO
+                                                                                                                .getSpec()
+                                                                                                                .get("local_execution")) // return
+                                                                                                // if
+                                                                                                // true
+                                                                                                .filter(value -> value
+                                                                                                                .equals(true))
+
+                                                                                                .map(value -> runDTOBuilder
+                                                                                                                .build(run))
+
+                                                                                                // exec
+                                                                                                // run
+                                                                                                // and
+                                                                                                // return
+                                                                                                // run
+                                                                                                // dto
+                                                                                                .orElseGet(() -> Optional
+                                                                                                                .ofNullable(runDTOBuilder
+                                                                                                                                .build(run))
+                                                                                                                .map(savedRun -> {
+
+                                                                                                                        // Create
+                                                                                                                        // Runnable
+                                                                                                                        Runnable runnable =
+                                                                                                                                        runtime.run(savedRun);
+
+                                                                                                                        // Dispatch
+                                                                                                                        // Runnable
+                                                                                                                        eventPublisher.publishEvent(
+                                                                                                                                        runnable);
+
+                                                                                                                        // Return
+                                                                                                                        // saved
+                                                                                                                        // run
+                                                                                                                        return savedRun;
+                                                                                                                })
+                                                                                                                .orElseThrow(() -> new CoreException(
+                                                                                                                                ErrorList.INTERNAL_SERVER_ERROR
+                                                                                                                                                .getValue(),
+                                                                                                                                ErrorList.INTERNAL_SERVER_ERROR
+                                                                                                                                                .getReason(),
+                                                                                                                                HttpStatus.INTERNAL_SERVER_ERROR)));
+
+                                                                return result.get();
+                                                        }).orElseThrow(
+                                                                        () -> new CoreException(
+                                                                                        ErrorList.FUNCTION_NOT_FOUND
+                                                                                                        .getValue(),
+                                                                                        ErrorList.FUNCTION_NOT_FOUND
+                                                                                                        .getReason(),
+                                                                                        HttpStatus.NOT_FOUND));
+
+
+                                })
+                                .orElseThrow(() -> new CoreException(
+                                                ErrorList.RUN_NOT_FOUND.getValue(),
+                                                ErrorList.RUN_NOT_FOUND.getReason(),
+                                                HttpStatus.NOT_FOUND));
+
+        }
 
 }

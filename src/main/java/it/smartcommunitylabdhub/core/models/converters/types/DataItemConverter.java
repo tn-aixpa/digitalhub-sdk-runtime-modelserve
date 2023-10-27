@@ -1,14 +1,13 @@
 package it.smartcommunitylabdhub.core.models.converters.types;
 
-import org.springframework.stereotype.Component;
-
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
-@Component
+@ConverterType(type = "dataitem")
 public class DataItemConverter implements Converter<DataItemDTO, DataItem> {
 
         @Override

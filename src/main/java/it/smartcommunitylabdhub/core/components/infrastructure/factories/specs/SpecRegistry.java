@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.infrastructure.registries;
+package it.smartcommunitylabdhub.core.components.infrastructure.factories.specs;
 
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import lombok.extern.log4j.Log4j2;

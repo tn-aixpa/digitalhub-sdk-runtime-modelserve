@@ -1,6 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.task;
 
-import it.smartcommunitylabdhub.core.components.infrastructure.registries.SpecRegistry;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;

@@ -7,13 +7,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.stereotype.Component;
-
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 
-@Component
+@ConverterType(type = "mlrunFunction")
 public class FunctionToMlrunConverter implements Converter<FunctionDTO, Map<String, Object>> {
 
         @Override

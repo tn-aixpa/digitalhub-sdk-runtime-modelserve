@@ -1,6 +1,6 @@
 package it.smartcommunitylabdhub.core.services;
 
-import it.smartcommunitylabdhub.core.components.infrastructure.registries.SpecRegistry;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
@@ -77,7 +77,8 @@ public class TaskServiceImpl implements TaskService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        TaskSpec taskSpec = (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
+        TaskSpec taskSpec =
+                (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
 
         TaskAccessor taskAccessor = TaskUtils.parseTask(taskSpec.getFunction());
         if (!taskDTO.getProject().equals(taskAccessor.getProject())) {
@@ -111,7 +112,8 @@ public class TaskServiceImpl implements TaskService {
         try {
 
             // COMMENT: use this
-            // TaskTransformSpec taskTransformSpec = (TaskTransformSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
+            // TaskTransformSpec taskTransformSpec = (TaskTransformSpec)
+            // specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
 
             final Task taskUpdated = taskEntityBuilder.update(task, taskDTO);
             this.taskRepository.save(taskUpdated);

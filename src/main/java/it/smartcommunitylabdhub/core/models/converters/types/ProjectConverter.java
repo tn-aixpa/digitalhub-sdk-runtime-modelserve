@@ -1,14 +1,13 @@
 package it.smartcommunitylabdhub.core.models.converters.types;
 
-import org.springframework.stereotype.Component;
-
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
 
-@Component
+@ConverterType(type = "project")
 public class ProjectConverter implements Converter<ProjectDTO, Project> {
 
         @Override

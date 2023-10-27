@@ -3,16 +3,14 @@ package it.smartcommunitylabdhub.core.models.converters.types;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
-
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.base.Metadata;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 
 import java.io.IOException;
 
-import org.springframework.stereotype.Component;
-
-@Component
+@ConverterType(type = "metadata")
 public class MetadataConverter<M extends Metadata>
         extends AbstractConverter implements Converter<M, byte[]> {
 

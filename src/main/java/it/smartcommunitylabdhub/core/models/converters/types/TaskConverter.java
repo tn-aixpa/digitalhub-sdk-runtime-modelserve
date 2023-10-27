@@ -1,13 +1,13 @@
 package it.smartcommunitylabdhub.core.models.converters.types;
 
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.entities.task.Task;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.models.enums.State;
-import org.springframework.stereotype.Component;
 
-@Component
+@ConverterType(type = "task")
 public class TaskConverter implements Converter<TaskDTO, Task> {
 
     @Override

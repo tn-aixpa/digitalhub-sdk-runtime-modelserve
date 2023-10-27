@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.components.infrastructure.registries;
+package it.smartcommunitylabdhub.core.components.infrastructure.factories.specs;
 
 import it.smartcommunitylabdhub.core.CoreApplication;
 import it.smartcommunitylabdhub.core.annotations.common.SpecType;

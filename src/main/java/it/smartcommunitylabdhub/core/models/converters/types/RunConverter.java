@@ -1,14 +1,13 @@
 package it.smartcommunitylabdhub.core.models.converters.types;
 
-import org.springframework.stereotype.Component;
-
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 
-@Component
+@ConverterType(type = "run")
 public class RunConverter implements Converter<RunDTO, Run> {
 
     @Override

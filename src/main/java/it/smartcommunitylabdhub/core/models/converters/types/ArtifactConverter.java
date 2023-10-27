@@ -1,14 +1,13 @@
 package it.smartcommunitylabdhub.core.models.converters.types;
 
-import org.springframework.stereotype.Component;
-
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 
-@Component
+@ConverterType(type = "artifact")
 public class ArtifactConverter implements Converter<ArtifactDTO, Artifact> {
 
         @Override

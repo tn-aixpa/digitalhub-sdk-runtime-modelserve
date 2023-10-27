@@ -6,12 +6,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import org.springframework.stereotype.Component;
-
+import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
 
-@Component
+@ConverterType(type = "datetime")
 public class DateTimeConverter implements Converter<String, Date> {
 
     // Define the pattern
