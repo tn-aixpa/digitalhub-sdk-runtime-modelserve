@@ -16,23 +16,23 @@ import java.util.Map;
 @Getter
 @Setter
 public class BaseSpec implements Spec {
-    private Map<String, Object> extra = new HashMap<>();
+    private Map<String, Object> extraSpecs = new HashMap<>();
 
     @JsonAnyGetter
-    public Map<String, Object> getExtra() {
-        return extra;
+    public Map<String, Object> getExtraSpecs() {
+        return extraSpecs;
     }
 
     @JsonAnySetter
-    public void setExtra(String key, Object value) {
-        this.extra.put(key, value);
+    public void setExtraSpecs(String key, Object value) {
+        this.extraSpecs.put(key, value);
     }
 
 
     @Override
     public void configure(Map<String, Object> data) {
         for (Map.Entry<String, Object> entry : data.entrySet()) {
-            String fieldName = entry.getKey();
+            String fieldName = transformKeysToCamelCase(entry.getKey());
             Object value = entry.getValue();
 
             Field field;
@@ -43,7 +43,7 @@ public class BaseSpec implements Spec {
                     field.set(this, value);
                 } else {
                     // Field not found in the hierarchy, store in extraSpec map
-                    extra.put(fieldName, value);
+                    extraSpecs.put(fieldName, value);
                 }
             } catch (IllegalAccessException e) {
                 // Handle IllegalAccessException
@@ -66,7 +66,7 @@ public class BaseSpec implements Spec {
 
             // Include extra properties in the result map
             result.putAll(serializedMap);
-            result.putAll(extra);
+            result.putAll(extraSpecs);
 
             return result;
         } catch (JsonProcessingException e) {
@@ -86,4 +86,15 @@ public class BaseSpec implements Spec {
         return null; // Field not found in the hierarchy
     }
 
+    private String transformKeysToCamelCase(String key) {
+        String[] parts = key.split("_");
+        StringBuilder camelCase = new StringBuilder(parts[0].toLowerCase());
+
+        for (int i = 1; i < parts.length; i++) {
+            camelCase.append(parts[i].substring(0, 1)
+                    .toUpperCase()).append(parts[i].substring(1));
+        }
+
+        return camelCase.toString();
+    }
 }

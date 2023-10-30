@@ -13,9 +13,11 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.run.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.run.RunEntityBuilder;
+import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
+import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
@@ -146,15 +148,15 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public RunDTO createRun(RunDTO inputRunDTO) {
+    public RunDTO createRun(RunDTO runDTO) {
 
         // Retrieve Run base spec
         RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
-                inputRunDTO.getKind(), inputRunDTO.getSpec()
+                runDTO.getKind(), runDTO.getSpec()
         );
 
         // Check if run already exist with the passed uuid
-        if (runRepository.existsById(Optional.ofNullable(inputRunDTO.getId()).orElse(""))) {
+        if (runRepository.existsById(Optional.ofNullable(runDTO.getId()).orElse(""))) {
             throw new CoreException(
                     ErrorList.DUPLICATE_RUN.getValue(),
                     ErrorList.DUPLICATE_RUN.getReason(),
@@ -175,21 +177,30 @@ public class RunSerivceImpl implements RunService {
                                     taskAccessor.getVersion()))
                             .map(functionDTO -> {
 
+                                FunctionBaseSpec funcSpec = (FunctionBaseSpec) specRegistry.createSpec(
+                                        functionDTO.getKind(), functionDTO.getSpec()
+                                );
+
                                 // 1. retrieve Runtime and build run
                                 Runtime runtime = runtimeFactory
                                         .getRuntime(taskAccessor.getRuntime());
 
+
                                 // 2. create Builder
                                 // 3. build Run
-                                RunDTO buildRunDTO = runtime.build(
-                                        functionDTO,
-                                        taskDTO,
-                                        inputRunDTO);
+                                RunRunSpec runSpec = (RunRunSpec) runtime.build(
+                                        funcSpec,
+                                        taskSpec,
+                                        runBaseSpec,
+                                        taskDTO.getKind());
+
+                                // Update spec object for run
+                                runDTO.setProject(taskAccessor.getProject());
+                                runDTO.setSpec(runSpec.toMap());
 
                                 // 4. Save run
                                 Run run = runRepository.save(
-                                        runEntityBuilder.build(
-                                                buildRunDTO));
+                                        runEntityBuilder.build(runDTO));
 
                                 // Check weather the run has local
                                 // set to True in that case return
@@ -197,9 +208,7 @@ public class RunSerivceImpl implements RunService {
                                 // invoke the execution.
                                 Supplier<RunDTO> result =
                                         () -> Optional
-                                                .ofNullable(buildRunDTO
-                                                        .getSpec()
-                                                        .get("local_execution")) // return
+                                                .of(runSpec.isLocalExecution()) // return
                                                 // if true
                                                 .filter(value -> value
                                                         .equals(true))

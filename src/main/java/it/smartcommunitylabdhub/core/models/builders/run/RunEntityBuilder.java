@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RunEntityBuilder {
-    
+
     @Autowired
     SpecRegistry<? extends Spec> specRegistry;
 
@@ -35,7 +35,7 @@ public class RunEntityBuilder {
         run.setTaskId(runBaseSpec.getTaskId());
 
         return EntityFactory.combine(
-                ConversionUtils.convert(runDTO, "run"), runDTO,
+                run, runDTO,
                 builder -> builder
                         .with(r -> r.setMetadata(
                                 ConversionUtils.convert(

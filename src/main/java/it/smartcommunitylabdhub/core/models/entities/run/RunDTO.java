@@ -3,12 +3,10 @@ package it.smartcommunitylabdhub.core.models.entities.run;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunMetadata;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.lang.reflect.Field;
@@ -25,13 +23,6 @@ public class RunDTO implements BaseEntity {
 
     @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
-
-    //TODO: delete this
-    private String task;
-
-    @NotEmpty
-    @JsonProperty("task_id")
-    private String taskId;
 
     private String project;
 

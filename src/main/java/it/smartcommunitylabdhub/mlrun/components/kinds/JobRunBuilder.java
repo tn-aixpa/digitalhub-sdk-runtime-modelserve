@@ -4,7 +4,6 @@ import it.smartcommunitylabdhub.core.annotations.olders.RunBuilderComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
@@ -65,15 +64,15 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
                                 functionDTO.getSpec(),
                                 taskDTO.getSpec(),
                                 (oldValue, newValue) -> newValue);
-                        
+
                         // 5. produce a run object and store it
                         return RunDTO.builder()
                                 .kind("run")
-                                .taskId(task.getId())
+//                                .taskId(task.getId())
                                 .project(task.getProject())
-                                .task(RunUtils.buildRunString(
-                                        functionDTO,
-                                        taskDTO))
+//                                .task(RunUtils.buildRunString(
+//                                        functionDTO,
+//                                        taskDTO))
                                 .spec(mergedSpec).build();
 
                     })
