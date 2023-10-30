@@ -10,7 +10,7 @@ import java.util.Map;
 @Component
 @Log4j2
 public class SpecRegistry<T extends Spec> {
-    private Map<String, Class<? extends Spec>> specTypes = new HashMap<>();
+    private final Map<String, Class<? extends Spec>> specTypes = new HashMap<>();
 
     public void registerSpecTypes(Map<String, Class<? extends Spec>> specTypeMap) {
         specTypes.putAll(specTypeMap);

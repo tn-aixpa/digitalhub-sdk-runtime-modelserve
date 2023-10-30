@@ -1,9 +1,5 @@
 package it.smartcommunitylabdhub.core.models.entities.run;
 
-import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,13 +7,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import java.util.HashMap;
+import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunMetadata;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,17 +26,18 @@ public class RunDTO implements BaseEntity {
     @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
 
+    //TODO: delete this
     private String task;
+
+    @NotEmpty
+    @JsonProperty("task_id")
+    private String taskId;
 
     private String project;
 
     private String kind;
 
     private RunMetadata metadata;
-
-    @NotEmpty
-    @JsonProperty("task_id")
-    private String taskId;
 
     @Builder.Default
     private Map<String, Object> spec = new HashMap<>();

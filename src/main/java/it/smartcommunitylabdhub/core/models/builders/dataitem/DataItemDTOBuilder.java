@@ -5,7 +5,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemMetadata;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.metadata.DataItemMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

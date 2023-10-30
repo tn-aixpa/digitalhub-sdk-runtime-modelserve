@@ -12,12 +12,12 @@ import it.smartcommunitylabdhub.core.models.converters.interfaces.ConverterFacto
 public class ConverterConfig {
 
     @Bean
-    ConverterFactory converterFactory(List<Converter<?, ?>> converters) {
+    protected ConverterFactory converterFactory(List<Converter<?, ?>> converters) {
         return new ConverterTypeFactory(converters);
     }
 
     @Bean
-    CommandFactory commandFactory(ConverterFactory converterFactory) {
+    protected CommandFactory commandFactory(ConverterFactory converterFactory) {
         return new CommandFactory(converterFactory);
     }
 

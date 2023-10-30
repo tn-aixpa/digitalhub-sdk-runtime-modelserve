@@ -1,5 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities.function;
-
+package it.smartcommunitylabdhub.core.models.entities.workflow.metadata;
 
 import it.smartcommunitylabdhub.core.models.base.Metadata;
 import jakarta.validation.constraints.NotEmpty;
@@ -12,16 +11,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class FunctionMetadata extends Metadata {
-	@NotEmpty
-	String name;
+public class WorkflowMetadata extends Metadata {
+    @NotEmpty
+    String name;
 
-	@NotEmpty
-	String version;
+    @NotEmpty
+    String version;
 
-	@NotEmpty
-	String description;
+    @NotEmpty
+    String description;
 
-	@NotEmpty
-	boolean embedded;
+    @NotEmpty
+    boolean embedded;
 }

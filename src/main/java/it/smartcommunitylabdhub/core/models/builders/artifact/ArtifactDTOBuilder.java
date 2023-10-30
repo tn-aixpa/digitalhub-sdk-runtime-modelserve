@@ -6,7 +6,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactMetadata;
+import it.smartcommunitylabdhub.core.models.entities.artifact.metadata.ArtifactMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

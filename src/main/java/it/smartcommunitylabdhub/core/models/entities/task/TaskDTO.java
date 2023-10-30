@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
+import it.smartcommunitylabdhub.core.models.entities.task.metadata.TaskMetadata;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 

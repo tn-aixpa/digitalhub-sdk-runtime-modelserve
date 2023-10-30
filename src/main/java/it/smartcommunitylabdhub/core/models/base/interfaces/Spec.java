@@ -7,4 +7,6 @@ import java.util.Map;
  */
 public interface Spec {
     void configure(Map<String, Object> data);
+
+    Map<String, Object> toMap();
 }

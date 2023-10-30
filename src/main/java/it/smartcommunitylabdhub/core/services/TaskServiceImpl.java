@@ -10,7 +10,7 @@ import it.smartcommunitylabdhub.core.models.builders.task.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.task.TaskEntityBuilder;
 import it.smartcommunitylabdhub.core.models.entities.task.Task;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
-import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskSpec;
+import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +77,8 @@ public class TaskServiceImpl implements TaskService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        TaskSpec taskSpec =
-                (TaskSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
+        TaskBaseSpec taskSpec =
+                (TaskBaseSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
 
         TaskAccessor taskAccessor = TaskUtils.parseTask(taskSpec.getFunction());
         if (!taskDTO.getProject().equals(taskAccessor.getProject())) {

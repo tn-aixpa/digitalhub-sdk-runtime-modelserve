@@ -1,21 +1,18 @@
 package it.smartcommunitylabdhub.core.models.entities.artifact;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
+import it.smartcommunitylabdhub.core.models.entities.artifact.metadata.ArtifactMetadata;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,44 +20,44 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ArtifactDTO implements BaseEntity {
-	@ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
-	private String id;
+    @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
+    private String id;
 
-	@NotNull
-	@ValidateField
-	private String name;
-	private String kind;
+    @NotNull
+    @ValidateField
+    private String name;
+    private String kind;
 
 
-	private ArtifactMetadata metadata;
+    private ArtifactMetadata metadata;
 
-	@ValidateField
-	private String project;
-	private Map<String, Object> spec;
+    @ValidateField
+    private String project;
+    private Map<String, Object> spec;
 
-	@Builder.Default
-	@JsonIgnore
-	private Map<String, Object> extra = new HashMap<>();
+    @Builder.Default
+    @JsonIgnore
+    private Map<String, Object> extra = new HashMap<>();
 
-	private Date created;
-	private Date updated;
+    private Date created;
+    private Date updated;
 
-	@Builder.Default
-	private Boolean embedded = false;
+    @Builder.Default
+    private Boolean embedded = false;
 
-	@JsonIgnore
-	private String state;
+    @JsonIgnore
+    private String state;
 
-	@JsonAnyGetter
-	public Map<String, Object> getExtra() {
-		return StatusFieldUtility.addStatusField(extra, state);
-	}
+    @JsonAnyGetter
+    public Map<String, Object> getExtra() {
+        return StatusFieldUtility.addStatusField(extra, state);
+    }
 
-	@JsonAnySetter
-	public void setExtra(String key, Object value) {
-		if (value != null) {
-			extra.put(key, value);
-			StatusFieldUtility.updateStateField(this);
-		}
-	}
+    @JsonAnySetter
+    public void setExtra(String key, Object value) {
+        if (value != null) {
+            extra.put(key, value);
+            StatusFieldUtility.updateStateField(this);
+        }
+    }
 }

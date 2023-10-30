@@ -1,28 +1,31 @@
 package it.smartcommunitylabdhub.core.components.events.listeners;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-
 import it.smartcommunitylabdhub.core.components.events.messages.RunMessage;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflowFactory;
 import it.smartcommunitylabdhub.core.components.pollers.PollingService;
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class RunEventListener {
 
     @Autowired
-    private PollingService pollingService;
-
-    @Autowired
     KindWorkflowFactory kindWorkflowFactory;
+    @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
+    @Autowired
+    private PollingService pollingService;
 
     @EventListener
     @Async
@@ -30,7 +33,11 @@ public class RunEventListener {
 
         List<Workflow> workflows = new ArrayList<>();
 
-        RunAccessor runAccessor = RunUtils.parseRun(message.getRunDTO().getTask());
+        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+                message.getRunDTO().getKind(), message.getRunDTO().getSpec()
+        );
+
+        RunAccessor runAccessor = RunUtils.parseRun(runBaseSpec.getTask());
 
         // This kindWorkflowFactory allow specific workflow generation based on task
         // field type

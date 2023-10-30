@@ -5,7 +5,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowMetadata;
+import it.smartcommunitylabdhub.core.models.entities.workflow.metadata.WorkflowMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

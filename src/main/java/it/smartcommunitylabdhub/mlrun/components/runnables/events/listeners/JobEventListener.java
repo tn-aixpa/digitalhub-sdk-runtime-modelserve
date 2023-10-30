@@ -1,23 +1,25 @@
-
 package it.smartcommunitylabdhub.mlrun.components.runnables.events.listeners;
 
 import it.smartcommunitylabdhub.core.components.events.messages.RunMessage;
 import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 import it.smartcommunitylabdhub.mlrun.components.runnables.events.messages.JobMessage;
-import java.util.Map;
-import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Log4j2
@@ -31,15 +33,22 @@ public class JobEventListener {
     ApplicationEventPublisher eventPublisher;
 
     @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
+
+    @Autowired
     RunService runService;
 
     @EventListener
     @Async
     public void handle(JobMessage message) {
 
+        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+                message.getRunDTO().getKind(), message.getRunDTO().getSpec()
+        );
+
         String threadName = Thread.currentThread().getName();
         log.info("Job Service receive [" + threadName + "] task@"
-                + message.getRunDTO().getTaskId()
+                + runBaseSpec.getTaskId()
                 + ":Job@"
                 + message.getRunDTO().getId());
 

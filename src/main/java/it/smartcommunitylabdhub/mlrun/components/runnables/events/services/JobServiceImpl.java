@@ -1,5 +1,15 @@
 package it.smartcommunitylabdhub.mlrun.components.runnables.events.services;
 
+import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -7,24 +17,20 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
-import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
-import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
-import lombok.extern.log4j.Log4j2;
-
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Qualifier("JobService")
 @Log4j2
 public class JobServiceImpl implements KindService<Map<String, Object>> {
 
+    private final RestTemplate restTemplate;
+    @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
+    
     @Value("${mlrun.api.submit-job}")
     private String MLRUN_API_SUBMIT_JOB;
-
-    private final RestTemplate restTemplate;
 
     public JobServiceImpl() {
         this.restTemplate = new RestTemplate();
@@ -33,12 +39,16 @@ public class JobServiceImpl implements KindService<Map<String, Object>> {
     @Override
     public Map<String, Object> run(RunDTO runDTO) {
         ParameterizedTypeReference<Map<String, Object>> responseType =
-                new ParameterizedTypeReference<>() {};
+                new ParameterizedTypeReference<>() {
+                };
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        TaskAccessor taskAccessor = TaskUtils.parseTask(runDTO.getTask());
+        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+                runDTO.getKind(), runDTO.getSpec()
+        );
+        TaskAccessor taskAccessor = TaskUtils.parseTask(runBaseSpec.getTask());
         Map<String, Object> requestBody =
                 Map.of("task", Map.of("spec", runDTO.getSpec(),
                         "metadata", Map.of("name",

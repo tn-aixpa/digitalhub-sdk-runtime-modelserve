@@ -12,7 +12,7 @@ import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
-import it.smartcommunitylabdhub.core.models.entities.project.ProjectMetadata;
+import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectMetadata;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;

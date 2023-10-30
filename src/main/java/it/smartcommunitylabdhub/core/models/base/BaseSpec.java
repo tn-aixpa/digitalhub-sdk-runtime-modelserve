@@ -1,5 +1,10 @@
 package it.smartcommunitylabdhub.core.models.base;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,16 +16,18 @@ import java.util.Map;
 @Getter
 @Setter
 public class BaseSpec implements Spec {
-    private Map<String, Object> extraSpecs = new HashMap<>();
+    private Map<String, Object> extra = new HashMap<>();
 
-    public void setExtraSpec(String key, Object value) {
-        this.getExtraSpecs().put(key, value);
+    @JsonAnyGetter
+    public Map<String, Object> getExtra() {
+        return extra;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getExtraSpec(String key) {
-        return (T) extraSpecs.get(key);
+    @JsonAnySetter
+    public void setExtra(String key, Object value) {
+        this.extra.put(key, value);
     }
+
 
     @Override
     public void configure(Map<String, Object> data) {
@@ -36,11 +43,34 @@ public class BaseSpec implements Spec {
                     field.set(this, value);
                 } else {
                     // Field not found in the hierarchy, store in extraSpec map
-                    extraSpecs.put(fieldName, value);
+                    extra.put(fieldName, value);
                 }
             } catch (IllegalAccessException e) {
                 // Handle IllegalAccessException
             }
+        }
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+
+        // Serialize all fields (including extraSpecs) to a JSON map
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String json = objectMapper.writeValueAsString(this);
+
+            // Convert the JSON string to a map
+            Map<String, Object> serializedMap = objectMapper.readValue(json, new TypeReference<>() {
+            });
+
+            // Include extra properties in the result map
+            result.putAll(serializedMap);
+            result.putAll(extra);
+
+            return result;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error converting to Map", e);
         }
     }
 

@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities.artifact;
+package it.smartcommunitylabdhub.core.models.entities.dataitem.metadata;
 
 import it.smartcommunitylabdhub.core.models.base.Metadata;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,17 +11,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ArtifactMetadata extends Metadata {
+public class DataItemMetadata extends Metadata {
+    @NotEmpty
+    String name;
 
-	@NotEmpty
-	String name;
+    @NotEmpty
+    String version;
 
-	@NotEmpty
-	String version;
+    @NotEmpty
+    String description;
 
-	@NotEmpty
-	String description;
-
-	@NotEmpty
-	boolean embedded;
+    @NotEmpty
+    boolean embedded;
 }
