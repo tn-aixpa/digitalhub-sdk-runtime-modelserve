@@ -1,7 +1,10 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.factories.specs;
 
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.utils.ErrorList;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -29,22 +32,26 @@ public class SpecRegistry<T extends Spec> {
     @SuppressWarnings("unchecked")
     public <S extends T> S createSpec(String specType, SpecEntity specEntity, Map<String, Object> data) {
         // Retrieve the class associated with the specified spec type.
-        Class<? extends T> specClass = (Class<? extends T>) specTypes.get(specType + "_" + specEntity.name().toLowerCase());
+        final String specKey = specType + "_" + specEntity.name().toLowerCase();
+        Class<? extends T> specClass = (Class<? extends T>) specTypes.get(specKey);
 
-        if (specClass != null) {
-            try {
-                // Create a new instance of the spec class.
-                S spec = (S) specClass.getDeclaredConstructor().newInstance();
-                // Configure the spec instance with the provided data.
-                spec.configure(data);
-                return spec;
-            } catch (Exception e) {
-                // Handle any exceptions that may occur during instance creation.
-                log.error(e.getMessage());
-            }
+        if (specClass == null) {
+            // Fallback spec None if no class specific is found, avoid crash.
+            specClass = (Class<? extends T>) specTypes.get("none_none");
         }
 
-        // If no spec class is found or if an exception occurs, return null.
-        return null;
+        try {
+            // Create a new instance of the spec class.
+            S spec = (S) specClass.getDeclaredConstructor().newInstance();
+            // Configure the spec instance with the provided data.
+            spec.configure(data);
+            return spec;
+        } catch (Exception e) {
+            // Handle any exceptions that may occur during instance creation.
+            log.error("Cannot configure spec for type @SpecType('" + specKey + "') no way to recover error.");
+            throw new CoreException(ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                    "Cannot configure spec for type @SpecType('" + specKey + "')", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
     }
 }

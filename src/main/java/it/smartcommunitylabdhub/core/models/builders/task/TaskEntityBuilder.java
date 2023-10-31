@@ -33,6 +33,7 @@ public class TaskEntityBuilder {
                 taskDTO.getSpec());
         // Merge function
         task.setFunction(taskBaseSpec.getFunction());
+        
         return EntityFactory.combine(
                 task, taskDTO,
                 builder -> builder

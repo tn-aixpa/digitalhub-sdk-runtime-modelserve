@@ -1,5 +1,8 @@
 package it.smartcommunitylabdhub.core.models.builders.project;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.builders.artifact.ArtifactDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.dataitem.DataItemDTOBuilder;
@@ -13,12 +16,14 @@ import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectMetadata;
+import it.smartcommunitylabdhub.core.models.entities.project.specs.ProjectBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,6 +43,9 @@ public class ProjectDTOBuilder {
     DataItemDTOBuilder dataItemDTOBuilder;
 
     @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
+
+    @Autowired
     MetadataConverter<ProjectMetadata> metadataConverter;
 
     public ProjectDTO build(
@@ -47,6 +55,18 @@ public class ProjectDTOBuilder {
             List<Workflow> workflows,
             List<DataItem> dataItems,
             boolean embeddable) {
+
+        // Retrieve spec
+        Map<String, Object> spec = ConversionUtils.reverse(project.getSpec(), "cbor");
+
+        // Find base run spec
+        ProjectBaseSpec projectSpec = (ProjectBaseSpec) specRegistry.createSpec(
+                "project",
+                SpecEntity.PROJECT,
+                spec);
+
+        // Add base spec to the one stored in db
+        spec.putAll(projectSpec.toMap());
 
         return EntityFactory.create(ProjectDTO::new, project, builder -> builder
                 .with(dto -> dto.setId(project.getId()))
@@ -59,9 +79,7 @@ public class ProjectDTOBuilder {
                 .with(dto -> dto.setExtra(ConversionUtils.reverse(
                         project.getExtra(),
                         "cbor")))
-                .with(dto -> dto.setSpec(ConversionUtils.reverse(
-                        project.getSpec(),
-                        "cbor")))
+                .with(dto -> dto.setSpec(spec))
                 .with(dto -> dto.setMetadata(Optional
                         .ofNullable(
                                 metadataConverter.reverseByClass(

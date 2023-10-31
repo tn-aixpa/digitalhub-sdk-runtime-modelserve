@@ -31,13 +31,13 @@ public class ArtifactDTOBuilder {
         Map<String, Object> spec = ConversionUtils.reverse(artifact.getSpec(), "cbor");
 
         // Find function spec
-        Spec functionSpec = specRegistry.createSpec(
+        Spec artifactSpec = specRegistry.createSpec(
                 artifact.getKind(),
                 SpecEntity.ARTIFACT,
                 spec);
 
         // Add base spec to the one stored in db
-        spec.putAll(functionSpec.toMap());
+        spec.putAll(artifactSpec.toMap());
 
         return EntityFactory.create(ArtifactDTO::new, artifact, builder -> builder
                 .with(dto -> dto.setId(artifact.getId()))

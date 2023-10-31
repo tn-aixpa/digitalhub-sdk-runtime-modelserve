@@ -31,13 +31,13 @@ public class DataItemDTOBuilder {
         Map<String, Object> spec = ConversionUtils.reverse(dataItem.getSpec(), "cbor");
 
         // Find function spec
-        Spec functionSpec = specRegistry.createSpec(
+        Spec dataItemSpec = specRegistry.createSpec(
                 dataItem.getKind(),
                 SpecEntity.DATAITEM,
                 spec);
 
         // Add base spec to the one stored in db
-        spec.putAll(functionSpec.toMap());
+        spec.putAll(dataItemSpec.toMap());
 
         return EntityFactory.create(DataItemDTO::new, dataItem, builder -> builder
                 .with(dto -> dto.setId(dataItem.getId()))

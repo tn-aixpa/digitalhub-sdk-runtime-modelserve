@@ -40,7 +40,7 @@ public class DataItemEntityBuilder {
                                 ConversionUtils.convert(dataItemDTO
                                                 .getExtra(),
                                         "cbor")))
-                        .with(d -> d.setSpec(ConversionUtils.convert(spec, "cbor"))));
+                        .with(d -> d.setSpec(ConversionUtils.convert(spec.toMap(), "cbor"))));
 
     }
 
@@ -76,7 +76,7 @@ public class DataItemEntityBuilder {
                                                 .getExtra(),
 
                                         "cbor")))
-                        .with(d -> d.setSpec(ConversionUtils.convert(spec, "cbor")))
+                        .with(d -> d.setSpec(ConversionUtils.convert(spec.toMap(), "cbor")))
                         .with(d -> d.setEmbedded(
                                 dataItemDTO.getEmbedded())));
     }

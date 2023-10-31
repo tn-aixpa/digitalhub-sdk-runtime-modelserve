@@ -42,7 +42,7 @@ public class ArtifactEntityBuilder {
                                                 .getExtra(),
 
                                         "cbor")))
-                        .with(a -> a.setSpec(ConversionUtils.convert(spec, "cbor"))));
+                        .with(a -> a.setSpec(ConversionUtils.convert(spec.toMap(), "cbor"))));
 
     }
 
@@ -78,7 +78,7 @@ public class ArtifactEntityBuilder {
 
                                         "cbor")))
                         .with(a -> a.setSpec(
-                                ConversionUtils.convert(spec, "cbor")))
+                                ConversionUtils.convert(spec.toMap(), "cbor")))
                         .with(a -> a.setEmbedded(
                                 artifactDTO.getEmbedded())));
     }

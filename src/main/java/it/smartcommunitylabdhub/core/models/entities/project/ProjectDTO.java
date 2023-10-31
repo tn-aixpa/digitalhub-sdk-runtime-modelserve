@@ -3,6 +3,7 @@ package it.smartcommunitylabdhub.core.models.entities.project;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
@@ -30,7 +31,9 @@ public class ProjectDTO implements BaseEntity {
     private String description;
     private String source;
 
-    private Map<String, Object> spec;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Builder.Default
+    private Map<String, Object> spec = new HashMap<>();
 
     @Builder.Default
     @JsonIgnore

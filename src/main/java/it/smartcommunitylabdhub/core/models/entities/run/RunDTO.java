@@ -3,6 +3,7 @@ package it.smartcommunitylabdhub.core.models.entities.run;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
@@ -31,6 +32,7 @@ public class RunDTO implements BaseEntity {
     private RunMetadata metadata;
 
     @Builder.Default
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, Object> spec = new HashMap<>();
 
     @Builder.Default
