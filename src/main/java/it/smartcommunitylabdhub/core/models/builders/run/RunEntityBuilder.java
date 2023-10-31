@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.models.builders.run;
 
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
@@ -28,6 +29,7 @@ public class RunEntityBuilder {
         // Retrieve base spec
         RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
                 run.getKind(),
+                SpecEntity.RUN,
                 runDTO.getSpec());
 
         // Merge Task and TaskId
@@ -63,6 +65,7 @@ public class RunEntityBuilder {
         // Retrieve base spec
         RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
                 run.getKind(),
+                SpecEntity.RUN,
                 runDTO.getSpec());
 
         return EntityFactory.combine(

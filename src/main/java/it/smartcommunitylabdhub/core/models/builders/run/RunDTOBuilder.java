@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.run;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
@@ -30,7 +31,10 @@ public class RunDTOBuilder {
         Map<String, Object> spec = ConversionUtils.reverse(run.getSpec(), "cbor");
 
         // Find base run spec
-        Spec runSpec = specRegistry.createSpec(run.getKind(), spec);
+        Spec runSpec = specRegistry.createSpec(
+                run.getKind(),
+                SpecEntity.RUN,
+                spec);
 
         // Add base spec to the one stored in db
         spec.putAll(runSpec.toMap());

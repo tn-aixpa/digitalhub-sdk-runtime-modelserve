@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.task;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
@@ -28,6 +29,7 @@ public class TaskEntityBuilder {
         // Retrieve base spec
         TaskBaseSpec taskBaseSpec = (TaskBaseSpec) specRegistry.createSpec(
                 task.getKind(),
+                SpecEntity.TASK,
                 taskDTO.getSpec());
         // Merge function
         task.setFunction(taskBaseSpec.getFunction());
@@ -57,7 +59,9 @@ public class TaskEntityBuilder {
      * @return
      */
     public Task update(Task task, TaskDTO taskDTO) {
-        TaskBaseSpec taskBaseSpec = (TaskBaseSpec) specRegistry.createSpec(task.getKind(),
+        TaskBaseSpec taskBaseSpec = (TaskBaseSpec) specRegistry.createSpec(
+                task.getKind(),
+                SpecEntity.TASK,
                 taskDTO.getSpec());
         return EntityFactory.combine(
                 task, taskDTO, builder -> builder

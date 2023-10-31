@@ -58,7 +58,7 @@ public class SpecTypeFactory {
                     // Load the class and check for SpecType annotation.
                     Class<? extends Spec> specClass = (Class<? extends Spec>) Class.forName(className);
                     SpecType specTypeAnnotation = specClass.getAnnotation(SpecType.class);
-                    specTypes.put(specTypeAnnotation.value(), specClass);
+                    specTypes.put(specTypeAnnotation.kind() + "_" + specTypeAnnotation.entity().name().toLowerCase(), specClass);
                 } catch (ClassNotFoundException e) {
                     // Handle exceptions when a class is not found.
                 }

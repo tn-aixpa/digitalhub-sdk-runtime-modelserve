@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities.run.specs;
+package it.smartcommunitylabdhub.core.models.entities.artifact.specs;
 
 import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
@@ -7,7 +7,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@SpecType(kind = "run", entity = SpecEntity.RUN)
-public class RunRunSpec extends RunBaseSpec {
+@SpecType(kind = "artifact", entity = SpecEntity.ARTIFACT)
+public class ArtifactArtifactSpec extends ArtifactBaseSpec {
 }
-

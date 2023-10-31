@@ -1,6 +1,9 @@
 package it.smartcommunitylabdhub.core.models.builders.artifact;
 
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
@@ -10,15 +13,32 @@ import it.smartcommunitylabdhub.core.models.entities.artifact.metadata.ArtifactM
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Component
 public class ArtifactDTOBuilder {
 
     @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
+
+    @Autowired
     MetadataConverter<ArtifactMetadata> metadataConverter;
 
     public ArtifactDTO build(Artifact artifact, Boolean embeddable) {
+
+        // Retrieve spec
+        Map<String, Object> spec = ConversionUtils.reverse(artifact.getSpec(), "cbor");
+
+        // Find function spec
+        Spec functionSpec = specRegistry.createSpec(
+                artifact.getKind(),
+                SpecEntity.ARTIFACT,
+                spec);
+
+        // Add base spec to the one stored in db
+        spec.putAll(functionSpec.toMap());
+
         return EntityFactory.create(ArtifactDTO::new, artifact, builder -> builder
                 .with(dto -> dto.setId(artifact.getId()))
                 .with(dto -> dto.setKind(artifact.getKind()))
@@ -39,9 +59,7 @@ public class ArtifactDTOBuilder {
                         .filter(embedded -> !condition
                                 || (condition && embedded))
                         .ifPresent(embedded -> dto
-                                .setSpec(ConversionUtils.reverse(
-                                        artifact.getSpec(),
-                                        "cbor"))))
+                                .setSpec(spec)))
                 .withIfElse(embeddable, (dto, condition) -> Optional
                         .ofNullable(artifact.getEmbedded())
                         .filter(embedded -> !condition

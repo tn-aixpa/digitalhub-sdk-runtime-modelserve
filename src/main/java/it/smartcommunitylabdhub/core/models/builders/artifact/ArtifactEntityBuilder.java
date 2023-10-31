@@ -1,21 +1,35 @@
 package it.smartcommunitylabdhub.core.models.builders.artifact;
 
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ArtifactEntityBuilder {
 
+    @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
+
     /**
      * Build a artifact from a artifactDTO and store extra values as a cbor
      *
-     * @return
+     * @param artifactDTO the artifact DTO
+     * @return Artifact
      */
     public Artifact build(ArtifactDTO artifactDTO) {
+
+        // Retrieve Spec
+        Spec spec = specRegistry.createSpec(artifactDTO.getKind(),
+                SpecEntity.ARTIFACT,
+                artifactDTO.getSpec());
+
         return EntityFactory.combine(
                 ConversionUtils.convert(artifactDTO, "artifact"), artifactDTO,
                 builder -> builder
@@ -28,21 +42,23 @@ public class ArtifactEntityBuilder {
                                                 .getExtra(),
 
                                         "cbor")))
-                        .with(a -> a.setSpec(
-                                ConversionUtils.convert(artifactDTO
-                                                .getSpec(),
-
-                                        "cbor"))));
+                        .with(a -> a.setSpec(ConversionUtils.convert(spec, "cbor"))));
 
     }
 
     /**
      * Update a artifact if element is not passed it override causing empty field
      *
-     * @param artifact
-     * @return
+     * @param artifact    the Artifact entity
+     * @param artifactDTO the ArtifactDTO to combine with the entity
+     * @return Artifact
      */
     public Artifact update(Artifact artifact, ArtifactDTO artifactDTO) {
+        // Retrieve Spec
+        Spec spec = specRegistry.createSpec(artifactDTO.getKind(),
+                SpecEntity.ARTIFACT,
+                artifactDTO.getSpec());
+
         return EntityFactory.combine(
                 artifact, artifactDTO, builder -> builder
                         .with(a -> a.setKind(artifactDTO.getKind()))
@@ -62,10 +78,7 @@ public class ArtifactEntityBuilder {
 
                                         "cbor")))
                         .with(a -> a.setSpec(
-                                ConversionUtils.convert(artifactDTO
-                                                .getSpec(),
-
-                                        "cbor")))
+                                ConversionUtils.convert(spec, "cbor")))
                         .with(a -> a.setEmbedded(
                                 artifactDTO.getEmbedded())));
     }

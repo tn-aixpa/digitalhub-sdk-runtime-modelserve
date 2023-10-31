@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.function;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
@@ -33,7 +34,10 @@ public class FunctionDTOBuilder {
         Map<String, Object> spec = ConversionUtils.reverse(function.getSpec(), "cbor");
 
         // Find function spec
-        Spec functionSpec = specRegistry.createSpec(function.getKind(), spec);
+        Spec functionSpec = specRegistry.createSpec(
+                function.getKind(),
+                SpecEntity.FUNCTION,
+                spec);
 
         // Add base spec to the one stored in db
         spec.putAll(functionSpec.toMap());

@@ -6,6 +6,7 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.builder
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.RunnerFactory;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.infrastructure.runtimes.BaseRuntime;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
@@ -49,7 +50,9 @@ public class DbtRuntime extends BaseRuntime {
 
         // Retrieve base run spec to use task
         RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
-                runDTO.getKind(), runDTO.getSpec()
+                runDTO.getKind(),
+                SpecEntity.RUN,
+                runDTO.getSpec()
         );
         RunAccessor runAccessor = RunUtils.parseRun(runBaseSpec.getTask());
         Runner runner = getRunner(runAccessor.getTask());

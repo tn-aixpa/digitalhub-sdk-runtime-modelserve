@@ -3,6 +3,7 @@ package it.smartcommunitylabdhub.dbt.components.runners;
 import it.smartcommunitylabdhub.core.annotations.infrastructure.RunnerComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.infrastructure.runnables.K8sJobRunnable;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
@@ -36,14 +37,18 @@ public class DbtTransformRunner implements Runner {
 
         // Retrieve run spec from registry
         RunRunSpec runRunSpec = (RunRunSpec) specRegistry.createSpec(
-                runDTO.getKind(), runDTO.getSpec()
+                runDTO.getKind(),
+                SpecEntity.RUN,
+                runDTO.getSpec()
         );
         // Create accessor for run
         RunAccessor runAccessor = RunUtils.parseRun(runRunSpec.getTask());
 
         // Retrieve function spec from registry
         FunctionDbtSpec functionDbtSpec = (FunctionDbtSpec) specRegistry.createSpec(
-                runAccessor.getRuntime(), runDTO.getSpec()
+                runAccessor.getRuntime(),
+                SpecEntity.FUNCTION,
+                runDTO.getSpec()
         );
 
         // Check for valid parameters image, command and args

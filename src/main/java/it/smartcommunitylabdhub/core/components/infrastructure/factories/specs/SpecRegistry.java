@@ -27,9 +27,9 @@ public class SpecRegistry<T extends Spec> {
      * @return An instance of the specified spec type, or null if not found or in case of errors.
      */
     @SuppressWarnings("unchecked")
-    public <S extends T> S createSpec(String specType, Map<String, Object> data) {
+    public <S extends T> S createSpec(String specType, SpecEntity specEntity, Map<String, Object> data) {
         // Retrieve the class associated with the specified spec type.
-        Class<? extends T> specClass = (Class<? extends T>) specTypes.get(specType);
+        Class<? extends T> specClass = (Class<? extends T>) specTypes.get(specType + "_" + specEntity.name().toLowerCase());
 
         if (specClass != null) {
             try {

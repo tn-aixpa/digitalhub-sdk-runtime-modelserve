@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.task;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
@@ -37,7 +38,10 @@ public class TaskDTOBuilder {
         Map<String, Object> spec = ConversionUtils.reverse(task.getSpec(), "cbor");
 
         // Find base task spec
-        Spec taskSpec = specRegistry.createSpec(task.getKind(), spec);
+        Spec taskSpec = specRegistry.createSpec(
+                task.getKind(),
+                SpecEntity.TASK,
+                spec);
 
         // Add base spec to the one stored in db
         spec.putAll(taskSpec.toMap());

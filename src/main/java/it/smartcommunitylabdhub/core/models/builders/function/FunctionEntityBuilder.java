@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.function;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
@@ -25,7 +26,9 @@ public class FunctionEntityBuilder {
     public Function build(FunctionDTO functionDTO) {
 
         // Retrieve Spec
-        Spec spec = specRegistry.createSpec(functionDTO.getKind(), functionDTO.getSpec());
+        Spec spec = specRegistry.createSpec(functionDTO.getKind(),
+                SpecEntity.FUNCTION,
+                functionDTO.getSpec());
 
         return EntityFactory.combine(
                 ConversionUtils.convert(functionDTO, "function"), functionDTO,
@@ -52,7 +55,9 @@ public class FunctionEntityBuilder {
     public Function update(Function function, FunctionDTO functionDTO) {
 
         // Retrieve object spec
-        Spec spec = specRegistry.createSpec(functionDTO.getKind(), functionDTO.getSpec());
+        Spec spec = specRegistry.createSpec(functionDTO.getKind(),
+                SpecEntity.FUNCTION,
+                functionDTO.getSpec());
 
         return EntityFactory.combine(
                 function, functionDTO, builder -> builder

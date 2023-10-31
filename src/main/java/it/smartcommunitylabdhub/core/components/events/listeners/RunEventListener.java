@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.core.components.events.listeners;
 
 import it.smartcommunitylabdhub.core.components.events.messages.RunMessage;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflowFactory;
 import it.smartcommunitylabdhub.core.components.pollers.PollingService;
@@ -34,7 +35,9 @@ public class RunEventListener {
         List<Workflow> workflows = new ArrayList<>();
 
         RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
-                message.getRunDTO().getKind(), message.getRunDTO().getSpec()
+                message.getRunDTO().getKind(),
+                SpecEntity.RUN,
+                message.getRunDTO().getSpec()
         );
 
         RunAccessor runAccessor = RunUtils.parseRun(runBaseSpec.getTask());

@@ -1,6 +1,7 @@
 package it.smartcommunitylabdhub.mlrun.components.runnables.events.services;
 
 import it.smartcommunitylabdhub.core.components.events.services.interfaces.KindService;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
@@ -28,7 +29,7 @@ public class JobServiceImpl implements KindService<Map<String, Object>> {
     private final RestTemplate restTemplate;
     @Autowired
     SpecRegistry<? extends Spec> specRegistry;
-    
+
     @Value("${mlrun.api.submit-job}")
     private String MLRUN_API_SUBMIT_JOB;
 
@@ -46,7 +47,9 @@ public class JobServiceImpl implements KindService<Map<String, Object>> {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
-                runDTO.getKind(), runDTO.getSpec()
+                runDTO.getKind(),
+                SpecEntity.RUN,
+                runDTO.getSpec()
         );
         TaskAccessor taskAccessor = TaskUtils.parseTask(runBaseSpec.getTask());
         Map<String, Object> requestBody =

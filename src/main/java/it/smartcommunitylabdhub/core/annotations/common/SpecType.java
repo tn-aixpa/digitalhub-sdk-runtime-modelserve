@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.annotations.common;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import org.springframework.stereotype.Indexed;
 
 import java.lang.annotation.ElementType;
@@ -11,5 +12,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Indexed
 public @interface SpecType {
-    String value();
+    String kind();
+
+    SpecEntity entity();
 }

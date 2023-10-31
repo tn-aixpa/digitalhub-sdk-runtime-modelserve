@@ -7,6 +7,7 @@
 package it.smartcommunitylabdhub.core.components.kinds;
 
 import it.smartcommunitylabdhub.core.annotations.olders.RunBuilderComponent;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.kinds.factory.builders.KindBuilder;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
@@ -43,7 +44,9 @@ public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
         // Use TaskUtils to parse the task and create the TaskAccessor
 
         TaskBaseSpec taskSpec =
-                (TaskBaseSpec) specRegistry.createSpec(taskDTO.getKind(),
+                (TaskBaseSpec) specRegistry.createSpec(
+                        taskDTO.getKind(),
+                        SpecEntity.TASK,
                         taskDTO.getSpec());
 
         return Optional.of(TaskUtils.parseTask(taskSpec.getFunction()))

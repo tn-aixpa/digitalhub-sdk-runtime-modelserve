@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.services;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
@@ -78,7 +79,10 @@ public class TaskServiceImpl implements TaskService {
         }
 
         TaskBaseSpec taskSpec =
-                (TaskBaseSpec) specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
+                (TaskBaseSpec) specRegistry.createSpec(
+                        taskDTO.getKind(),
+                        SpecEntity.TASK,
+                        taskDTO.getSpec());
 
         TaskAccessor taskAccessor = TaskUtils.parseTask(taskSpec.getFunction());
         if (!taskDTO.getProject().equals(taskAccessor.getProject())) {
@@ -110,11 +114,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         try {
-
-            // COMMENT: use this
-            // TaskTransformSpec taskTransformSpec = (TaskTransformSpec)
-            // specRegistry.createSpec(taskDTO.getKind(), taskDTO.getSpec());
-
+            
             final Task taskUpdated = taskEntityBuilder.update(task, taskDTO);
             this.taskRepository.save(taskUpdated);
 
