@@ -74,9 +74,7 @@ class Run(Entity):
         self.status = status
 
         self.project = self.metadata.project
-        self.task = self.spec.task
-        self.task_id = self.spec.task_id
-        self._obj_attr.extend(["project", "task", "task_id"])
+        self._obj_attr.extend(["project"])
 
     #############################
     #  Save / Export
