@@ -75,7 +75,7 @@ class Function(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str | None = None) -> dict:
+    def save(self, update: bool = False) -> dict:
         """
         Save function into backend.
 
@@ -91,14 +91,12 @@ class Function(Entity):
         """
         obj = self.to_dict(include_all_non_private=True)
 
-        if uuid is None:
+        if not update:
             api = api_ctx_create(self.metadata.project, FUNC)
             return self._context().create_object(obj, api)
 
-        self.id = uuid
-        self.metadata.updated = get_timestamp()
-        obj["metadata"]["updated"] = self.metadata.updated
-        api = api_ctx_update(self.metadata.project, FUNC, self.metadata.name, uuid)
+        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
+        api = api_ctx_update(self.metadata.project, FUNC, self.metadata.name, self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -263,7 +261,7 @@ class Function(Entity):
 
         # Update task
         task = create_task(**kwargs)
-        task.save(kwargs["uuid"])
+        task.save(update=True)
         self._tasks[kind] = task
 
     def get_task(self, kind: str) -> Task:

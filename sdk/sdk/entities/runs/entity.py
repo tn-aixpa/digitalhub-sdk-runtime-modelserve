@@ -80,7 +80,7 @@ class Run(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str | None = None) -> dict:
+    def save(self, update: bool = False) -> dict:
         """
         Save run into backend.
 
@@ -96,14 +96,12 @@ class Run(Entity):
         """
         obj = self.to_dict(include_all_non_private=True)
 
-        if uuid is None:
+        if not update:
             api = api_base_create(RUNS)
             return self._context().create_object(obj, api)
 
-        self.id = uuid
-        self.metadata.updated = get_timestamp()
-        obj["metadata"]["updated"] = self.metadata.updated
-        api = api_base_update(RUNS, uuid)
+        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
+        api = api_base_update(RUNS, self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -158,8 +156,8 @@ class Run(Entity):
         new_spec = runtime.build(function, task, self.to_dict())
         # Insert task string validation
         self.spec = build_spec(RUNS, self.kind, ignore_validation=True, **new_spec)
-        self._set_status({"state": State.PENDING.value})
-        self.save(self.id)
+        self._set_status({"state": State.BUILT.value})
+        self.save(update=True)
 
     def run(self) -> Run:
         """
@@ -170,13 +168,19 @@ class Run(Entity):
         Run
             Run object.
         """
+        if self.spec.local_execution:
+            if not self.status.state == State.BUILT.value:
+                raise EntityError("Run is not in built state. Build it again.")
+            self._set_status({"state": State.RUNNING.value})
+            self.save(update=True)
+
         runtime = self._get_runtime()
         try:
             status = runtime.run(self.to_dict(include_all_non_private=True))
         except Exception as err:
             status = {"state": State.ERROR.value, "message": str(err)}
         self._set_status(status)
-        self.save(self.id)
+        self.save(update=True)
         return self
 
     def refresh(self) -> Run:

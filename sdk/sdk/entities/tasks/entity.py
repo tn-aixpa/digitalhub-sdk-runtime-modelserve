@@ -61,21 +61,20 @@ class Task(Entity):
         self.status = status
 
         self.project = self.metadata.project
-        self.function = self.spec.function
-        self._obj_attr.extend(["project", "function"])
+        self._obj_attr.extend(["project"])
 
     #############################
     #  Save / Export
     #############################
 
-    def save(self, uuid: str | None = None) -> dict:
+    def save(self, update: bool = False) -> dict:
         """
         Save task into backend.
 
         Parameters
         ----------
-        uuid : str
-            UUID.
+        update : bool
+            Flag to indicate update.
 
         Returns
         -------
@@ -84,13 +83,11 @@ class Task(Entity):
         """
         obj = self.to_dict()
 
-        if uuid is None:
+        if not update:
             api = api_base_create(TASK)
             return self._context().create_object(obj, api)
 
-        self.id = uuid
-        self.metadata.updated = get_timestamp()
-        obj["metadata"]["updated"] = self.metadata.updated
+        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_base_update(TASK, self.id)
         return self._context().update_object(obj, api)
 
@@ -204,8 +201,8 @@ class Task(Entity):
 
         Parameters
         ----------
-        uuid : str
-            UUID.
+        update : bool
+            Flag to indicate update.
 
         Returns
         -------
@@ -220,8 +217,8 @@ class Task(Entity):
 
         Parameters
         ----------
-        uuid : str
-            UUID.
+        update : bool
+            Flag to indicate update.
 
         Returns
         -------

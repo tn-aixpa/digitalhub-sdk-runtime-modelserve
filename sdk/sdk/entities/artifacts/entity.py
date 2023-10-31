@@ -71,14 +71,14 @@ class Artifact(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str | None = None) -> dict:
+    def save(self, update: bool = False) -> dict:
         """
         Save artifact into backend.
 
         Parameters
         ----------
-        uuid : str
-            UUID.
+        update : bool
+            Flag to indicate update.
 
         Returns
         -------
@@ -87,14 +87,12 @@ class Artifact(Entity):
         """
         obj = self.to_dict()
 
-        if uuid is None:
+        if not update:
             api = api_ctx_create(self.metadata.project, ARTF)
             return self._context().create_object(obj, api)
 
-        self.id = uuid
-        self.metadata.updated = get_timestamp()
-        obj["metadata"]["updated"] = self.metadata.updated
-        api = api_ctx_update(self.metadata.project, ARTF, self.metadata.name, uuid)
+        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
+        api = api_ctx_update(self.metadata.project, ARTF, self.metadata.name, self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:

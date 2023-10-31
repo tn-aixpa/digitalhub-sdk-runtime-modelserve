@@ -32,7 +32,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         self._essential_attr = ["kind", "metadata"]
 
     @abstractmethod
-    def save(self, uuid: str | None = None) -> dict:
+    def save(self, update: bool = False) -> dict:
         """
         Abstract save method.
         """

@@ -59,7 +59,7 @@ def new_project(
     uuid : str
         UUID.
     local : bool
-        Flag to determine if backend is present.
+        Flag to determine if backend is local.
 
     Returns
     -------
@@ -90,7 +90,7 @@ def load_project(name: str | None = None, filename: str | None = None, local: bo
     filename : str
         Path to file where to load project from.
     local : bool
-        Flag to determine if backend is present.
+        Flag to determine if backend is local.
 
     Returns
     -------
@@ -117,7 +117,7 @@ def get_or_create_project(
     name : str
         Name of the project.
     local : bool
-        Flag to determine if backend is present.
+        Flag to determine if backend is local.
     **kwargs
         Keyword arguments.
 
@@ -141,7 +141,7 @@ def get_project(name: str, local: bool = False) -> Project:
     name : str
         The name or UUID.
     local : bool
-        Flag to determine if backend is present.
+        Flag to determine if backend is local.
 
     Returns
     -------
@@ -163,7 +163,7 @@ def import_project(file: str, local: bool = False) -> Project:
     file : str
         Path to the file.
     local : bool
-        Flag to determine if backend is present.
+        Flag to determine if backend is local.
 
     Returns
     -------
@@ -184,7 +184,7 @@ def delete_project(name: str, local: bool = False) -> list[dict]:
     name : str
         Name of the project.
     local : bool
-        Flag to determine if backend is present.
+        Flag to determine if backend is local.
 
     Returns
     -------
@@ -198,7 +198,7 @@ def delete_project(name: str, local: bool = False) -> list[dict]:
     return response
 
 
-def update_project(project: Project) -> dict:
+def update_project(project: Project, local: bool = False) -> dict:
     """
     Update a project.
 
@@ -206,6 +206,8 @@ def update_project(project: Project) -> dict:
     ----------
     project : Project
         The project to update.
+    local : bool
+        Flag to determine if backend is local.
 
     Returns
     -------
@@ -213,5 +215,5 @@ def update_project(project: Project) -> dict:
         Response from backend.
     """
     api = api_base_update(PROJ, project.metadata.name)
-    client = get_client(project.local)
+    client = get_client(local)
     return client.update_object(project.to_dict(), api)
