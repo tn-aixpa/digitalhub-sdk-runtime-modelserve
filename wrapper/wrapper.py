@@ -19,7 +19,6 @@ def main():
     run.spec.local_execution = True
 
     # Build and run.
-    run.build()
     run.run()
 
     # Reverse flag to remote mode and save.
