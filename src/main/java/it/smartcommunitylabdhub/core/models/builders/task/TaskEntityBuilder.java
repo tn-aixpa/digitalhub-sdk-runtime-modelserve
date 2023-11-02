@@ -1,16 +1,16 @@
 package it.smartcommunitylabdhub.core.models.builders.task;
 
-import it.smartcommunitylabdhub.core.models.base.JacksonMapper;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.task.Task;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskEntityBuilder extends JacksonMapper {
+public class TaskEntityBuilder {
 
     /**
      * Build a Task from a TaskDTO and store extra values as a cbor
@@ -23,7 +23,8 @@ public class TaskEntityBuilder extends JacksonMapper {
         Task task = ConversionUtils.convert(taskDTO, "task");
 
         // Retrieve base spec
-        TaskBaseSpec spec = mapper.convertValue(taskDTO.getSpec(), TaskBaseSpec.class);
+        TaskBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(taskDTO.getSpec(), TaskBaseSpec.class);
 
         // Merge function
         task.setFunction(spec.getFunction());
@@ -55,7 +56,8 @@ public class TaskEntityBuilder extends JacksonMapper {
      */
     public Task update(Task task, TaskDTO taskDTO) {
         // Retrieve base spec
-        TaskBaseSpec spec = mapper.convertValue(taskDTO.getSpec(), TaskBaseSpec.class);
+        TaskBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(taskDTO.getSpec(), TaskBaseSpec.class);
 
         return EntityFactory.combine(
                 task, taskDTO, builder -> builder

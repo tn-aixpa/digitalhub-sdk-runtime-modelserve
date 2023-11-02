@@ -1,16 +1,16 @@
 package it.smartcommunitylabdhub.core.models.builders.function;
 
-import it.smartcommunitylabdhub.core.models.base.JacksonMapper;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FunctionEntityBuilder extends JacksonMapper {
+public class FunctionEntityBuilder {
 
     /**
      * Build a function from a functionDTO and store extra values as a cbor
@@ -21,7 +21,8 @@ public class FunctionEntityBuilder extends JacksonMapper {
     public Function build(FunctionDTO functionDTO) {
 
         // Retrieve Spec
-        FunctionBaseSpec spec = mapper.convertValue(functionDTO.getSpec(), FunctionBaseSpec.class);
+        FunctionBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(functionDTO.getSpec(), FunctionBaseSpec.class);
 
         return EntityFactory.combine(
                 ConversionUtils.convert(functionDTO, "function"), functionDTO,
@@ -48,7 +49,8 @@ public class FunctionEntityBuilder extends JacksonMapper {
     public Function update(Function function, FunctionDTO functionDTO) {
 
         // Retrieve object spec
-        FunctionBaseSpec spec = mapper.convertValue(functionDTO.getSpec(), FunctionBaseSpec.class);
+        FunctionBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(functionDTO.getSpec(), FunctionBaseSpec.class);
 
         return EntityFactory.combine(
                 function, functionDTO, builder -> builder

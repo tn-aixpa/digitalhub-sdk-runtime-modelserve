@@ -1,18 +1,20 @@
 package it.smartcommunitylabdhub.core.models.entities.run.specs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.smartcommunitylabdhub.core.models.base.BaseSpec;
+import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class RunBaseSpec extends BaseSpec {
 
     @NotEmpty
@@ -22,16 +24,16 @@ public class RunBaseSpec extends BaseSpec {
     @JsonProperty("task_id")
     private String taskId;
 
-    @Builder.Default
     private Map<String, Object> inputs = new HashMap<>();
 
-    @Builder.Default
     private Map<String, Object> outputs = new HashMap<>();
 
-    @Builder.Default
     private Map<String, Object> parameters = new HashMap<>();
 
-    @Builder.Default
     @JsonProperty("local_execution")
     private boolean localExecution = false;
+
+    @Override
+    protected <S extends T, T extends BaseSpec> void configure(S concreteSpec) {
+    }
 }

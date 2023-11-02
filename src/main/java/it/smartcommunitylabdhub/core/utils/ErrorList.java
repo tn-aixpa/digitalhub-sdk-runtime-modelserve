@@ -60,7 +60,12 @@ public enum ErrorList {
      */
     DUPLICATE_TASK("DuplicateTaskId", "Cannot create the task."),
 
-    RUN_JOB_ERROR("K8sJobError", "Cannot execute job in Kubernetes");
+    RUN_JOB_ERROR("K8sJobError", "Cannot execute job in Kubernetes"),
+
+    /**
+     *
+     */
+    METHOD_NOT_IMPLEMENTED("MethodNotImplemented", "Method not implemented!!!");
 
     private final String value;
     private final String reason;

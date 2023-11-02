@@ -1,18 +1,18 @@
 package it.smartcommunitylabdhub.core.models.builders.project;
 
-import it.smartcommunitylabdhub.core.models.base.JacksonMapper;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.specs.ProjectBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-public class ProjectEntityBuilder extends JacksonMapper {
+public class ProjectEntityBuilder {
 
     /**
      * Build a project from a projectDTO and store extra values as a cbor
@@ -24,10 +24,11 @@ public class ProjectEntityBuilder extends JacksonMapper {
 
 
         // Retrieve object spec
-        ProjectBaseSpec projectSpec = mapper.convertValue(
-                projectDTO.getSpec(),
-                ProjectBaseSpec.class
-        );
+        ProjectBaseSpec projectSpec = JacksonMapper.objectMapper
+                .convertValue(
+                        projectDTO.getSpec(),
+                        ProjectBaseSpec.class
+                );
         Map<String, Object> spec = projectSpec.toMap();
 
         return EntityFactory.combine(
@@ -62,10 +63,11 @@ public class ProjectEntityBuilder extends JacksonMapper {
     public Project update(Project project, ProjectDTO projectDTO) {
 
         // Retrieve object spec
-        ProjectBaseSpec projectSpec = mapper.convertValue(
-                projectDTO.getSpec(),
-                ProjectBaseSpec.class
-        );
+        ProjectBaseSpec projectSpec = JacksonMapper.objectMapper
+                .convertValue(
+                        projectDTO.getSpec(),
+                        ProjectBaseSpec.class
+                );
         Map<String, Object> spec = projectSpec.toMap();
 
         return EntityFactory.combine(

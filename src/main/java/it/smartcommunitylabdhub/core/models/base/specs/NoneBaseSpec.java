@@ -1,8 +1,9 @@
-package it.smartcommunitylabdhub.core.models.base;
+package it.smartcommunitylabdhub.core.models.base.specs;
 
 
 import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
+import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,4 +11,8 @@ import lombok.Setter;
 @Setter
 @SpecType(kind = "none", entity = SpecEntity.NONE)
 public class NoneBaseSpec extends BaseSpec {
+    @Override
+    protected <S extends T, T extends BaseSpec> void configure(S concreteSpec) {
+
+    }
 }

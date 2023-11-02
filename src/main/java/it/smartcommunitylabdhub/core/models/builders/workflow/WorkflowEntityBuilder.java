@@ -1,16 +1,16 @@
 package it.smartcommunitylabdhub.core.models.builders.workflow;
 
-import it.smartcommunitylabdhub.core.models.base.JacksonMapper;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.specs.WorkflowBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WorkflowEntityBuilder extends JacksonMapper {
+public class WorkflowEntityBuilder {
 
     /**
      * Build a workflow from a workflowDTO and store extra values as a cbor
@@ -20,7 +20,8 @@ public class WorkflowEntityBuilder extends JacksonMapper {
     public Workflow build(WorkflowDTO workflowDTO) {
 
         // Retrieve Spec
-        WorkflowBaseSpec spec = mapper.convertValue(workflowDTO.getSpec(), WorkflowBaseSpec.class);
+        WorkflowBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(workflowDTO.getSpec(), WorkflowBaseSpec.class);
 
         return EntityFactory.combine(
                 ConversionUtils.convert(workflowDTO, "workflow"), workflowDTO,
@@ -49,7 +50,8 @@ public class WorkflowEntityBuilder extends JacksonMapper {
      */
     public Workflow update(Workflow workflow, WorkflowDTO workflowDTO) {
 
-        WorkflowBaseSpec spec = mapper.convertValue(workflowDTO.getSpec(), WorkflowBaseSpec.class);
+        WorkflowBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(workflowDTO.getSpec(), WorkflowBaseSpec.class);
 
 
         return EntityFactory.combine(

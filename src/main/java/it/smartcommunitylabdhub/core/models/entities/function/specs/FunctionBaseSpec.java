@@ -1,13 +1,11 @@
 package it.smartcommunitylabdhub.core.models.entities.function.specs;
 
-import it.smartcommunitylabdhub.core.models.base.BaseSpec;
-import lombok.*;
+import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
+import lombok.Getter;
+import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@Builder
-public class FunctionBaseSpec extends BaseSpec {
+public abstract class FunctionBaseSpec extends BaseSpec {
     private String source;
 }

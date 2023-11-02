@@ -1,16 +1,16 @@
 package it.smartcommunitylabdhub.core.models.builders.dataitem;
 
-import it.smartcommunitylabdhub.core.models.base.JacksonMapper;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.specs.DataItemBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataItemEntityBuilder extends JacksonMapper {
+public class DataItemEntityBuilder {
 
 
     /**
@@ -21,7 +21,8 @@ public class DataItemEntityBuilder extends JacksonMapper {
     public DataItem build(DataItemDTO dataItemDTO) {
 
         // Retrieve Spec
-        DataItemBaseSpec spec = mapper.convertValue(dataItemDTO.getSpec(), DataItemBaseSpec.class);
+        DataItemBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(dataItemDTO.getSpec(), DataItemBaseSpec.class);
 
 
         return EntityFactory.combine(
@@ -50,7 +51,8 @@ public class DataItemEntityBuilder extends JacksonMapper {
 
         // Retrieve object spec
         // Retrieve Spec
-        DataItemBaseSpec spec = mapper.convertValue(dataItemDTO.getSpec(), DataItemBaseSpec.class);
+        DataItemBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(dataItemDTO.getSpec(), DataItemBaseSpec.class);
 
 
         return EntityFactory.combine(

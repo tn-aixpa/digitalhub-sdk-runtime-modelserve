@@ -9,9 +9,9 @@ import it.smartcommunitylabdhub.core.components.infrastructure.runnables.K8sJobR
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
-import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionDbtSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
+import it.smartcommunitylabdhub.dbt.models.specs.FunctionDbtSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
