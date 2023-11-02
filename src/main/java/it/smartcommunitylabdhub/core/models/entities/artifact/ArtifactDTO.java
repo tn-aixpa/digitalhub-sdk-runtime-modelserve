@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.entities.artifact.metadata.ArtifactMetadata;
+import it.smartcommunitylabdhub.core.models.entities.artifact.metadata.ArtifactBaseMetadata;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -29,7 +29,7 @@ public class ArtifactDTO implements BaseEntity {
     private String name;
     private String kind;
 
-    private ArtifactMetadata metadata;
+    private ArtifactBaseMetadata metadata;
 
     @ValidateField
     private String project;

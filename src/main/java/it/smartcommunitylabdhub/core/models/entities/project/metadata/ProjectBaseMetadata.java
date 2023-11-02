@@ -1,6 +1,6 @@
 package it.smartcommunitylabdhub.core.models.entities.project.metadata;
 
-import it.smartcommunitylabdhub.core.models.base.Metadata;
+import it.smartcommunitylabdhub.core.models.base.metadata.BaseMetadata;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ProjectMetadata extends Metadata {
+public class ProjectBaseMetadata extends BaseMetadata {
     @NotEmpty
     String name;
     @NotEmpty

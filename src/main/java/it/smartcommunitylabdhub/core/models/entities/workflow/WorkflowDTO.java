@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.entities.workflow.metadata.WorkflowMetadata;
+import it.smartcommunitylabdhub.core.models.entities.workflow.metadata.WorkflowBaseMetadata;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -30,11 +30,11 @@ public class WorkflowDTO implements BaseEntity {
     private String name;
     private String kind;
 
-    private WorkflowMetadata metadata;
+    private WorkflowBaseMetadata metadata;
 
     @ValidateField
     private String project;
-    
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder.Default
     private Map<String, Object> spec = new HashMap<>();

@@ -2,7 +2,7 @@ package it.smartcommunitylabdhub.dbt.components.validators;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidatorComponent;
-import it.smartcommunitylabdhub.core.models.base.Metadata;
+import it.smartcommunitylabdhub.core.models.base.metadata.BaseMetadata;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.validators.interfaces.BaseValidator;
 import it.smartcommunitylabdhub.core.models.validators.utils.JSONSchemaValidator;
@@ -29,7 +29,7 @@ public class DbtTransformValidator implements BaseValidator {
     }
 
     @Override
-    public <T extends Metadata> boolean validateMetadata(T metadata) {
+    public <T extends BaseMetadata> boolean validateMetadata(T metadata) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'validateMetadata'");
     }

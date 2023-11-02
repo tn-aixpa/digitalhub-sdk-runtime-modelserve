@@ -1,6 +1,6 @@
-package it.smartcommunitylabdhub.core.models.entities.dataitem.metadata;
+package it.smartcommunitylabdhub.core.models.entities.workflow.metadata;
 
-import it.smartcommunitylabdhub.core.models.base.Metadata;
+import it.smartcommunitylabdhub.core.models.base.metadata.BaseMetadata;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class DataItemMetadata extends Metadata {
+public class WorkflowBaseMetadata extends BaseMetadata {
     @NotEmpty
     String name;
 
