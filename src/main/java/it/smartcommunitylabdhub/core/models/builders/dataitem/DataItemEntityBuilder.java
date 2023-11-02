@@ -1,21 +1,17 @@
 package it.smartcommunitylabdhub.core.models.builders.dataitem;
 
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
-import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.models.base.JacksonMapper;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.specs.DataItemBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataItemEntityBuilder {
+public class DataItemEntityBuilder extends JacksonMapper {
 
-    @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
 
     /**
      * Build d dataItem from d dataItemDTO and store extra values as d cbor
@@ -25,9 +21,8 @@ public class DataItemEntityBuilder {
     public DataItem build(DataItemDTO dataItemDTO) {
 
         // Retrieve Spec
-        Spec spec = specRegistry.createSpec(dataItemDTO.getKind(),
-                SpecEntity.FUNCTION,
-                dataItemDTO.getSpec());
+        DataItemBaseSpec spec = mapper.convertValue(dataItemDTO.getSpec(), DataItemBaseSpec.class);
+
 
         return EntityFactory.combine(
                 ConversionUtils.convert(dataItemDTO, "dataitem"), dataItemDTO,
@@ -54,9 +49,9 @@ public class DataItemEntityBuilder {
     public DataItem update(DataItem dataItem, DataItemDTO dataItemDTO) {
 
         // Retrieve object spec
-        Spec spec = specRegistry.createSpec(dataItemDTO.getKind(),
-                SpecEntity.FUNCTION,
-                dataItemDTO.getSpec());
+        // Retrieve Spec
+        DataItemBaseSpec spec = mapper.convertValue(dataItemDTO.getSpec(), DataItemBaseSpec.class);
+
 
         return EntityFactory.combine(
                 dataItem, dataItemDTO, builder -> builder

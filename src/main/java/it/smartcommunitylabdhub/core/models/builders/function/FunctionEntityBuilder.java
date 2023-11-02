@@ -1,21 +1,16 @@
 package it.smartcommunitylabdhub.core.models.builders.function;
 
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
-import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.models.base.JacksonMapper;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FunctionEntityBuilder {
-
-    @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+public class FunctionEntityBuilder extends JacksonMapper {
 
     /**
      * Build a function from a functionDTO and store extra values as a cbor
@@ -26,9 +21,7 @@ public class FunctionEntityBuilder {
     public Function build(FunctionDTO functionDTO) {
 
         // Retrieve Spec
-        Spec spec = specRegistry.createSpec(functionDTO.getKind(),
-                SpecEntity.FUNCTION,
-                functionDTO.getSpec());
+        FunctionBaseSpec spec = mapper.convertValue(functionDTO.getSpec(), FunctionBaseSpec.class);
 
         return EntityFactory.combine(
                 ConversionUtils.convert(functionDTO, "function"), functionDTO,
@@ -55,9 +48,7 @@ public class FunctionEntityBuilder {
     public Function update(Function function, FunctionDTO functionDTO) {
 
         // Retrieve object spec
-        Spec spec = specRegistry.createSpec(functionDTO.getKind(),
-                SpecEntity.FUNCTION,
-                functionDTO.getSpec());
+        FunctionBaseSpec spec = mapper.convertValue(functionDTO.getSpec(), FunctionBaseSpec.class);
 
         return EntityFactory.combine(
                 function, functionDTO, builder -> builder

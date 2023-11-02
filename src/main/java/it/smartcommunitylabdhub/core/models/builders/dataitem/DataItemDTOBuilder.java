@@ -1,8 +1,5 @@
 package it.smartcommunitylabdhub.core.models.builders.dataitem;
 
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
-import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
@@ -13,31 +10,16 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Component
 public class DataItemDTOBuilder {
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
-
-    @Autowired
     MetadataConverter<DataItemMetadata> metadataConverter;
 
     public DataItemDTO build(DataItem dataItem, boolean embeddable) {
 
-        // Retrieve spec
-        Map<String, Object> spec = ConversionUtils.reverse(dataItem.getSpec(), "cbor");
-
-        // Find function spec
-        Spec dataItemSpec = specRegistry.createSpec(
-                dataItem.getKind(),
-                SpecEntity.DATAITEM,
-                spec);
-
-        // Add base spec to the one stored in db
-        spec.putAll(dataItemSpec.toMap());
 
         return EntityFactory.create(DataItemDTO::new, dataItem, builder -> builder
                 .with(dto -> dto.setId(dataItem.getId()))
@@ -61,7 +43,8 @@ public class DataItemDTOBuilder {
                         .filter(embedded -> !condition
                                 || (condition && embedded))
                         .ifPresent(embedded -> dto
-                                .setSpec(spec)))
+                                .setSpec(ConversionUtils.reverse(
+                                        dataItem.getSpec(), "cbor"))))
                 .withIfElse(embeddable, (dto, condition) -> Optional
                         .ofNullable(dataItem.getEmbedded())
                         .filter(embedded -> !condition

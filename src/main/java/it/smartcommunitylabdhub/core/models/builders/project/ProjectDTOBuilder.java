@@ -1,8 +1,5 @@
 package it.smartcommunitylabdhub.core.models.builders.project;
 
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
-import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.builders.artifact.ArtifactDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.dataitem.DataItemDTOBuilder;
@@ -16,7 +13,6 @@ import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectMetadata;
-import it.smartcommunitylabdhub.core.models.entities.project.specs.ProjectBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +39,6 @@ public class ProjectDTOBuilder {
     DataItemDTOBuilder dataItemDTOBuilder;
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
-
-    @Autowired
     MetadataConverter<ProjectMetadata> metadataConverter;
 
     public ProjectDTO build(
@@ -57,17 +50,31 @@ public class ProjectDTOBuilder {
             boolean embeddable) {
 
         // Retrieve spec
-        Map<String, Object> spec = ConversionUtils.reverse(project.getSpec(), "cbor");
+        Map<String, Object> spec = ConversionUtils.reverse(
+                project.getSpec(), "cbor");
+        spec.put("functions",
+                functions.stream()
+                        .map(f -> functionDTOBuilder.build(
+                                f, embeddable))
+                        .collect(Collectors.toList()));
+        spec.put("artifacts",
+                artifacts.stream()
+                        .map(a -> artifactDTOBuilder.build(
+                                a,
+                                embeddable))
+                        .collect(Collectors.toList()));
+        spec.put("workflows",
+                workflows.stream()
+                        .map(w -> workflowDTOBuilder.build(
+                                w, embeddable))
+                        .collect(Collectors.toList()));
+        spec.put("dataitems",
+                dataItems.stream()
+                        .map(d -> dataItemDTOBuilder.build(
+                                d, embeddable))
+                        .collect(Collectors.toList()));
 
         // Find base run spec
-        ProjectBaseSpec projectSpec = (ProjectBaseSpec) specRegistry.createSpec(
-                "project",
-                SpecEntity.PROJECT,
-                spec);
-
-        // Add base spec to the one stored in db
-        spec.putAll(projectSpec.toMap());
-
         return EntityFactory.create(ProjectDTO::new, project, builder -> builder
                 .with(dto -> dto.setId(project.getId()))
                 .with(dto -> dto.setName(project.getName()))
@@ -86,27 +93,6 @@ public class ProjectDTOBuilder {
                                         project.getMetadata(),
                                         ProjectMetadata.class))
                         .orElseGet(ProjectMetadata::new)))
-                .with(dto -> dto.getSpec().put("functions",
-                        functions.stream()
-                                .map(f -> functionDTOBuilder.build(
-                                        f, embeddable))
-                                .collect(Collectors.toList())))
-                .with(dto -> dto.getSpec().put("artifacts",
-                        artifacts.stream()
-                                .map(a -> artifactDTOBuilder.build(
-                                        a,
-                                        embeddable))
-                                .collect(Collectors.toList())))
-                .with(dto -> dto.getSpec().put("workflows",
-                        workflows.stream()
-                                .map(w -> workflowDTOBuilder.build(
-                                        w, embeddable))
-                                .collect(Collectors.toList())))
-                .with(dto -> dto.getSpec().put("dataitems",
-                        dataItems.stream()
-                                .map(d -> dataItemDTOBuilder.build(
-                                        d, embeddable))
-                                .collect(Collectors.toList())))
                 .with(dto -> dto.setCreated(project.getCreated()))
                 .with(dto -> dto.setUpdated(project.getUpdated()))
 

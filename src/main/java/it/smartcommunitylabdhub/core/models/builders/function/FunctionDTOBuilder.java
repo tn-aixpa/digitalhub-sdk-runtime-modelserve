@@ -1,8 +1,5 @@
 package it.smartcommunitylabdhub.core.models.builders.function;
 
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
-import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
@@ -13,34 +10,17 @@ import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Component
 public class FunctionDTOBuilder {
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
-
-    @Autowired
     MetadataConverter<FunctionMetadata> metadataConverter;
-
 
     public FunctionDTO build(
             Function function,
             boolean embeddable) {
-
-        // Retrieve spec
-        Map<String, Object> spec = ConversionUtils.reverse(function.getSpec(), "cbor");
-
-        // Find function spec
-        Spec functionSpec = specRegistry.createSpec(
-                function.getKind(),
-                SpecEntity.FUNCTION,
-                spec);
-
-        // Add base spec to the one stored in db
-        spec.putAll(functionSpec.toMap());
 
         return EntityFactory.create(FunctionDTO::new, function, builder -> builder
                 .with(dto -> dto.setId(function.getId()))
@@ -65,7 +45,8 @@ public class FunctionDTOBuilder {
                         .filter(embedded -> !condition
                                 || (condition && embedded))
                         .ifPresent(embedded -> dto
-                                .setSpec(spec)))
+                                .setSpec(ConversionUtils.reverse(
+                                        function.getSpec(), "cbor"))))
                 .withIfElse(embeddable, (dto, condition) -> Optional
                         .ofNullable(function.getEmbedded())
                         .filter(embedded -> !condition

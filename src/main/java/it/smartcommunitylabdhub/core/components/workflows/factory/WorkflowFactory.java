@@ -1,14 +1,16 @@
 /**
  * WorkflowFactory.java
- *
+ * <p>
  * This class is a factory to build workflows by adding individual steps.
  * The steps are represented as Functions that are executed sequentially.
- * 
- * The idea is that each kind function, artifact, dataitem, workflow has 
+ * <p>
+ * The idea is that each kind function, artifact, dataitem, workflow has
  * their workflow to speak with Some external services.
  */
 
 package it.smartcommunitylabdhub.core.components.workflows.factory;
+
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +66,11 @@ public class WorkflowFactory {
     @SuppressWarnings("unchecked")
     public <I, O> WorkflowFactory step(Function<I[], O> step, I... argument) {
         steps.add(input -> step.apply(argument));
+        return this;
+    }
+
+    public <A, B, C, O> WorkflowFactory step(TriFunction<A, B, C, O> step, A a, B b, C c) {
+        steps.add(input -> step.apply(a, b, c));
         return this;
     }
 

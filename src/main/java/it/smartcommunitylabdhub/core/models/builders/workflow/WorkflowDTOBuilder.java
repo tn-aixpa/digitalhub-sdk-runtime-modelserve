@@ -18,7 +18,6 @@ public class WorkflowDTOBuilder {
     @Autowired
     MetadataConverter<WorkflowMetadata> metadataConverter;
 
-
     public WorkflowDTO build(
             Workflow workflow,
             boolean embeddable) {
@@ -46,7 +45,6 @@ public class WorkflowDTOBuilder {
                         .ifPresent(embedded -> dto
                                 .setSpec(ConversionUtils.reverse(
                                         workflow.getSpec(),
-
                                         "cbor"))))
                 .withIfElse(embeddable, (dto, condition) -> Optional
                         .ofNullable(workflow.getEmbedded())
@@ -55,7 +53,6 @@ public class WorkflowDTOBuilder {
                         .ifPresent(embedded -> dto
                                 .setExtra(ConversionUtils.reverse(
                                         workflow.getExtra(),
-
                                         "cbor"))))
                 .withIfElse(embeddable, (dto, condition) -> Optional
                         .ofNullable(workflow.getEmbedded())
