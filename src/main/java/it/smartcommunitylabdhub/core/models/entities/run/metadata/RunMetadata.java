@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class RunBaseMetadata extends BaseMetadata {
+public class RunMetadata extends BaseMetadata {
 
     @NotNull
     String name;

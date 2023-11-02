@@ -12,7 +12,7 @@ import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
-import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectMetadata;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class ProjectDTOBuilder {
     DataItemDTOBuilder dataItemDTOBuilder;
 
     @Autowired
-    MetadataConverter<ProjectBaseMetadata> metadataConverter;
+    MetadataConverter<ProjectMetadata> metadataConverter;
 
     public ProjectDTO build(
             Project project,
@@ -91,8 +91,8 @@ public class ProjectDTOBuilder {
                         .ofNullable(
                                 metadataConverter.reverseByClass(
                                         project.getMetadata(),
-                                        ProjectBaseMetadata.class))
-                        .orElseGet(ProjectBaseMetadata::new)))
+                                        ProjectMetadata.class))
+                        .orElseGet(ProjectMetadata::new)))
                 .with(dto -> dto.setCreated(project.getCreated()))
                 .with(dto -> dto.setUpdated(project.getUpdated()))
 

@@ -5,7 +5,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.task.Task;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
-import it.smartcommunitylabdhub.core.models.entities.task.metadata.TaskBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.task.metadata.TaskMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class TaskDTOBuilder {
 
     @Autowired
-    MetadataConverter<TaskBaseMetadata> metadataConverter;
+    MetadataConverter<TaskMetadata> metadataConverter;
 
     /**
      * Build a taskDTO given a task
@@ -34,8 +34,8 @@ public class TaskDTOBuilder {
                 .with(dto -> dto.setMetadata(Optional
                         .ofNullable(metadataConverter.reverseByClass(
                                 task.getMetadata(),
-                                TaskBaseMetadata.class))
-                        .orElseGet(TaskBaseMetadata::new)
+                                TaskMetadata.class))
+                        .orElseGet(TaskMetadata::new)
 
                 ))
                 .with(dto -> dto.setSpec(ConversionUtils.reverse(

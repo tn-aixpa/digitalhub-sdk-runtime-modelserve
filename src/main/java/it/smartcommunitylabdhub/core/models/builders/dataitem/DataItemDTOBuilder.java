@@ -5,7 +5,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.metadata.DataItemBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.metadata.DataItemMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class DataItemDTOBuilder {
 
     @Autowired
-    MetadataConverter<DataItemBaseMetadata> metadataConverter;
+    MetadataConverter<DataItemMetadata> metadataConverter;
 
     public DataItemDTO build(DataItem dataItem, boolean embeddable) {
 
@@ -35,8 +35,8 @@ public class DataItemDTOBuilder {
                                 .ofNullable(metadataConverter
                                         .reverseByClass(dataItem
                                                         .getMetadata(),
-                                                DataItemBaseMetadata.class))
-                                .orElseGet(DataItemBaseMetadata::new))))
+                                                DataItemMetadata.class))
+                                .orElseGet(DataItemMetadata::new))))
 
                 .withIfElse(embeddable, (dto, condition) -> Optional
                         .ofNullable(dataItem.getEmbedded())

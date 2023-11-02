@@ -5,7 +5,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.function.metadata.FunctionBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.function.metadata.FunctionMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class FunctionDTOBuilder {
 
     @Autowired
-    MetadataConverter<FunctionBaseMetadata> metadataConverter;
+    MetadataConverter<FunctionMetadata> metadataConverter;
 
     public FunctionDTO build(
             Function function,
@@ -36,8 +36,8 @@ public class FunctionDTOBuilder {
                                 .ofNullable(metadataConverter
                                         .reverseByClass(function
                                                         .getMetadata(),
-                                                FunctionBaseMetadata.class))
-                                .orElseGet(FunctionBaseMetadata::new))))
+                                                FunctionMetadata.class))
+                                .orElseGet(FunctionMetadata::new))))
 
 
                 .withIfElse(embeddable, (dto, condition) -> Optional

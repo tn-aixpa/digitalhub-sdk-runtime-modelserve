@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectMetadata;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -46,7 +46,7 @@ public class ProjectDTO implements BaseEntity {
     @JsonIgnore
     private String state;
 
-    private ProjectBaseMetadata metadata;
+    private ProjectMetadata metadata;
 
     @JsonAnyGetter
     public Map<String, Object> getExtra() {

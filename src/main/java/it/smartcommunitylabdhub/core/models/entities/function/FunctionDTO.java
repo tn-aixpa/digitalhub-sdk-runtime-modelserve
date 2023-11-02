@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.entities.function.metadata.FunctionBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.function.metadata.FunctionMetadata;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -30,7 +30,7 @@ public class FunctionDTO implements BaseEntity {
     private String name;
     private String kind;
 
-    private FunctionBaseMetadata metadata;
+    private FunctionMetadata metadata;
 
     @ValidateField
     private String project;

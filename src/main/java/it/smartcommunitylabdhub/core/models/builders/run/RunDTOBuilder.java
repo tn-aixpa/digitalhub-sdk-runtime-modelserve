@@ -5,7 +5,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
-import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class RunDTOBuilder {
 
     @Autowired
-    MetadataConverter<RunBaseMetadata> metadataConverter;
+    MetadataConverter<RunMetadata> metadataConverter;
 
     public RunDTO build(Run run) {
 
@@ -27,8 +27,8 @@ public class RunDTOBuilder {
                 .with(dto -> dto.setMetadata(Optional
                         .ofNullable(metadataConverter.reverseByClass(
                                 run.getMetadata(),
-                                RunBaseMetadata.class))
-                        .orElseGet(RunBaseMetadata::new)
+                                RunMetadata.class))
+                        .orElseGet(RunMetadata::new)
 
                 ))
                 .with(dto -> dto.setSpec(ConversionUtils.reverse(

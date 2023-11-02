@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.metadata.DataItemBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.metadata.DataItemMetadata;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -33,7 +33,7 @@ public class DataItemDTO implements BaseEntity {
     @ValidateField
     private String project;
 
-    private DataItemBaseMetadata metadata;
+    private DataItemMetadata metadata;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder.Default

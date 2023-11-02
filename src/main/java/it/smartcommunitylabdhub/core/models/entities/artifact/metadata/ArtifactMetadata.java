@@ -1,5 +1,4 @@
-package it.smartcommunitylabdhub.core.models.entities.function.metadata;
-
+package it.smartcommunitylabdhub.core.models.entities.artifact.metadata;
 
 import it.smartcommunitylabdhub.core.models.base.metadata.BaseMetadata;
 import jakarta.validation.constraints.NotEmpty;
@@ -12,7 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class FunctionBaseMetadata extends BaseMetadata {
+public class ArtifactMetadata extends BaseMetadata {
+
     @NotEmpty
     String name;
 

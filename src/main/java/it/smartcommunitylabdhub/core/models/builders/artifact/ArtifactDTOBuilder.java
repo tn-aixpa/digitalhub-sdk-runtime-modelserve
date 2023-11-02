@@ -6,7 +6,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.artifact.metadata.ArtifactBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.artifact.metadata.ArtifactMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class ArtifactDTOBuilder {
 
     @Autowired
-    MetadataConverter<ArtifactBaseMetadata> metadataConverter;
+    MetadataConverter<ArtifactMetadata> metadataConverter;
 
     public ArtifactDTO build(Artifact artifact, Boolean embeddable) {
 
@@ -34,8 +34,8 @@ public class ArtifactDTOBuilder {
                                 .ofNullable(metadataConverter
                                         .reverseByClass(artifact
                                                         .getMetadata(),
-                                                ArtifactBaseMetadata.class))
-                                .orElseGet(ArtifactBaseMetadata::new))))
+                                                ArtifactMetadata.class))
+                                .orElseGet(ArtifactMetadata::new))))
                 .withIfElse(embeddable, (dto, condition) -> Optional
                         .ofNullable(artifact.getEmbedded())
                         .filter(embedded -> !condition

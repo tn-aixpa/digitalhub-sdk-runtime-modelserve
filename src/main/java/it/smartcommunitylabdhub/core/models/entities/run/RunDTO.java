@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunBaseMetadata;
+import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunMetadata;
 import lombok.*;
 
 import java.lang.reflect.Field;
@@ -29,7 +29,7 @@ public class RunDTO implements BaseEntity {
 
     private String kind;
 
-    private RunBaseMetadata metadata;
+    private RunMetadata metadata;
 
     @Builder.Default
     @JsonInclude(JsonInclude.Include.NON_NULL)
