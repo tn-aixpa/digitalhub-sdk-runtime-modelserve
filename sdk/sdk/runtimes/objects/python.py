@@ -69,10 +69,6 @@ class RuntimePython(Runtime):
         dict
             Status of the executed run.
         """
-        # Verify if run is in pending state and task is allowed
-        if not run.get("status").get("state") == State.PENDING.value:
-            raise EntityError("Run is not in pending state. Build it again.")
-
         # Get action
         action = run.get("spec").get("task").split(":")[0].split("+")[1]
 

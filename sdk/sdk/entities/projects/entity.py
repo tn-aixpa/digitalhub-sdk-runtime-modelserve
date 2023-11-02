@@ -122,7 +122,7 @@ class Project(Entity):
     #  Save / Export
     #############################
 
-    def save(self, uuid: str | None = None) -> dict:
+    def save(self, update: bool = False) -> dict:
         """
         Save project and context into backend.
 
@@ -138,36 +138,15 @@ class Project(Entity):
         """
         # Try to refresh project if local client
         if self._client.is_local():
-            try:
-                obj = self._refresh().to_dict()
-            except BackendError:
-                obj = self.to_dict()
+            obj = self._refresh().to_dict()
         else:
             obj = self.to_dict()
 
-        if uuid is None:
-            # Try to create project
-            # (try to avoid error response if project already exists)
-            try:
-                api = api_base_create(PROJ)
-                response = self._client.create_object(obj, api)
-            except BackendError:
-                response = obj
+        if not update:
+            api = api_base_create(PROJ)
+            response = self._client.create_object(obj, api)
 
-            # Try to save objects related to project
-            # (try to avoid error response if object does not exists)
-            for i in LIST:
-                for j in self._get_objects(i):
-                    try:
-                        _obj = constructor_from_dict(i)(j)
-                        _obj.save(uuid=_obj.id)
-                    except BackendError:
-                        ...
-            return response
-
-        self.id = uuid
-        self.metadata.updated = get_timestamp()
-        obj["metadata"]["updated"] = self.metadata.updated
+        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_base_update(PROJ, self.id)
         response = self._client.update_object(obj, api)
         return response
@@ -188,10 +167,7 @@ class Project(Entity):
         """
         # Try to refresh project if local client
         if self._client.is_local():
-            try:
-                obj = self._refresh().to_dict()
-            except BackendError:
-                obj = self.to_dict()
+            obj = self._refresh().to_dict()
         else:
             obj = self.to_dict()
 
@@ -241,11 +217,15 @@ class Project(Entity):
 
         Returns
         -------
-        None
+        Project
+            Project object.
         """
-        api = api_base_update(PROJ, self.metadata.name)
-        obj = self._client.read_object(api)
-        return self.from_dict(PROJ, obj)
+        try:
+            api = api_base_update(PROJ, self.metadata.name)
+            obj = self._client.read_object(api)
+            return self.from_dict(PROJ, obj)
+        except BackendError:
+            return self
 
     #############################
     #  Generic operations for objects (artifacts, functions, workflows, dataitems)
