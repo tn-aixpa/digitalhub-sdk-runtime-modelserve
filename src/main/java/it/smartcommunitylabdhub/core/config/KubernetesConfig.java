@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 @Configuration
 public class KubernetesConfig {
@@ -26,19 +27,22 @@ public class KubernetesConfig {
 
     @Bean
     KubernetesClient kubernetesClient() {
-        try {
-            Config config = new ConfigBuilder()
-                    .withMasterUrl(masterUrl) // Add your MasterUrl (ex: minikube ip)
-                    .withCaCertFile(caCertFile) // Replace with your ca.crt path
-                    .withClientCertFile(clientCertFile) // Replace with your client.crt path
-                    .withClientKeyFile(clientKeyFile) // Replace with your client.key path
-                    .build();
-
-            return new KubernetesClientBuilder()
-                    .withConfig(config).build();
-        } catch (Exception e) {
-            return new KubernetesClientBuilder().build();
+        if (StringUtils.hasText(masterUrl)){
+            try {
+                Config config = new ConfigBuilder()
+                        .withMasterUrl(masterUrl) // Add your MasterUrl (ex: minikube ip)
+                        .withCaCertFile(caCertFile) // Replace with your ca.crt path
+                        .withClientCertFile(clientCertFile) // Replace with your client.crt path
+                        .withClientKeyFile(clientKeyFile) // Replace with your client.key path
+                        .build();
+    
+                return new KubernetesClientBuilder()
+                        .withConfig(config).build();
+            } catch (Exception e) {
+                return new KubernetesClientBuilder().build();
+            }
         }
+        return new KubernetesClientBuilder().build();
     }
 
     // @Bean

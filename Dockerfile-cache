@@ -1,0 +1,9 @@
+FROM maven:3.8.2-eclipse-temurin-17 AS cache
+COPY ./src /tmp/src
+COPY ./pom.xml /tmp/pom.xml
+WORKDIR /tmp
+RUN mvn package -DskipTests
+
+FROM scratch
+LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
+COPY --from=cache /root/.m2 /root/.m2
