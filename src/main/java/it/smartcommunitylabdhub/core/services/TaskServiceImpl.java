@@ -37,7 +37,7 @@ public class TaskServiceImpl implements TaskService {
     TaskEntityBuilder taskEntityBuilder;
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
     @Override
     public List<TaskDTO> getTasks(Pageable pageable) {
@@ -114,7 +114,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         try {
-            
+
             final Task taskUpdated = taskEntityBuilder.update(task, taskDTO);
             this.taskRepository.save(taskUpdated);
 

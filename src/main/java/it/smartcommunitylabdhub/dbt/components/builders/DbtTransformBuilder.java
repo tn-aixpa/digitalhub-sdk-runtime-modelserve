@@ -14,9 +14,9 @@ import java.util.Map;
 public class DbtTransformBuilder extends BaseBuilder implements Builder {
 
     @Override
-    public <F extends FunctionBaseSpec,
-            T extends TaskBaseSpec,
-            R extends RunBaseSpec> R build(F funSpec, T taskSpec, R runSpec) {
+    public <F extends FunctionBaseSpec<?>,
+            T extends TaskBaseSpec<?>,
+            R extends RunBaseSpec<?>> R build(F funSpec, T taskSpec, R runSpec) {
 
         // Merge spec
         Map<String, Object> extraSpecs =

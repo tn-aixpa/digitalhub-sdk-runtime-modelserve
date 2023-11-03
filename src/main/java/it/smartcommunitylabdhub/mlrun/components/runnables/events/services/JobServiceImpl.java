@@ -28,7 +28,7 @@ public class JobServiceImpl implements KindService<Map<String, Object>> {
 
     private final RestTemplate restTemplate;
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
     @Value("${mlrun.api.submit-job}")
     private String MLRUN_API_SUBMIT_JOB;

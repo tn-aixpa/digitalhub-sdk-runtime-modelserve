@@ -68,7 +68,7 @@ public class RunSerivceImpl implements RunService {
     ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
     @Override
     public List<RunDTO> getRuns(Pageable pageable) {

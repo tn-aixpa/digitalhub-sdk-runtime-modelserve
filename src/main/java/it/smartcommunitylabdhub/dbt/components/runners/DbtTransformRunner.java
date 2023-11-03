@@ -22,7 +22,7 @@ import java.util.Optional;
 public class DbtTransformRunner implements Runner {
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
     @Override
     public Runnable produce(RunDTO runDTO) {

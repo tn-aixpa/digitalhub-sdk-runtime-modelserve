@@ -26,7 +26,7 @@ public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
     // Implementation of the builder
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
     @Autowired
     TaskRepository taskRepository;

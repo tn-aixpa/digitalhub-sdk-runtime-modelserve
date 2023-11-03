@@ -24,7 +24,7 @@ public class RunEventListener {
     @Autowired
     KindWorkflowFactory kindWorkflowFactory;
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
     @Autowired
     private PollingService pollingService;
 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class ArtifactEntityBuilder {
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
     /**
      * Build a artifact from a artifactDTO and store extra values as a cbor

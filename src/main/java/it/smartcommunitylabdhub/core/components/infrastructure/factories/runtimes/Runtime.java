@@ -11,7 +11,7 @@ import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
  * Runtime expose builder, run and parse method
  */
 public interface Runtime {
-    <F extends FunctionBaseSpec, T extends TaskBaseSpec, R extends RunBaseSpec> R build(
+    <F extends FunctionBaseSpec<?>, T extends TaskBaseSpec<?>, R extends RunBaseSpec<?>> R build(
             F funSpec,
             T taskSpec,
             R runSpec,

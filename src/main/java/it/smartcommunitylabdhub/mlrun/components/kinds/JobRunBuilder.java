@@ -32,7 +32,7 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
     FunctionEntityBuilder functionEntityBuilder;
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
 
     @Override

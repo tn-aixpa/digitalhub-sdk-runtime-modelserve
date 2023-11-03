@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DbtRuntime extends BaseRuntime {
 
     @Autowired
-    SpecRegistry<? extends Spec> specRegistry;
+    SpecRegistry<? extends Spec<?>> specRegistry;
 
     public DbtRuntime(BuilderFactory builderFactory, RunnerFactory runnerFactory) {
         super(builderFactory, runnerFactory);
@@ -31,9 +31,9 @@ public class DbtRuntime extends BaseRuntime {
 
 
     @Override
-    public <F extends FunctionBaseSpec,
-            T extends TaskBaseSpec,
-            R extends RunBaseSpec> R build(F funSpec, T taskSpec, R runSpec, String kind) {
+    public <F extends FunctionBaseSpec<?>,
+            T extends TaskBaseSpec<?>,
+            R extends RunBaseSpec<?>> R build(F funSpec, T taskSpec, R runSpec, String kind) {
 
         // Retrieve builder using task kind
         Builder builder = getBuilder(kind);

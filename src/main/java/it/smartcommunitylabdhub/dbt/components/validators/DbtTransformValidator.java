@@ -2,8 +2,8 @@ package it.smartcommunitylabdhub.dbt.components.validators;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidatorComponent;
-import it.smartcommunitylabdhub.core.models.base.metadata.BaseMetadata;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.models.base.metadata.BaseMetadata;
 import it.smartcommunitylabdhub.core.models.validators.interfaces.BaseValidator;
 import it.smartcommunitylabdhub.core.models.validators.utils.JSONSchemaValidator;
 import lombok.extern.log4j.Log4j2;
@@ -15,7 +15,7 @@ import java.io.IOException;
 public class DbtTransformValidator implements BaseValidator {
 
     @Override
-    public <T extends Spec> boolean validateSpec(T spec) {
+    public <T extends Spec<?>> boolean validateSpec(T spec) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             // FIXME:this should be a real schema.
