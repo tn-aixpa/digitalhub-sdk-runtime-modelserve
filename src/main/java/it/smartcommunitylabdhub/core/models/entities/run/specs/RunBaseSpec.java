@@ -15,7 +15,7 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RunBaseSpec extends BaseSpec {
+public class RunBaseSpec<S extends RunBaseSpec<S>> extends BaseSpec<S> {
 
     @NotEmpty
     private String task;
@@ -34,6 +34,7 @@ public class RunBaseSpec extends BaseSpec {
     private boolean localExecution = false;
 
     @Override
-    protected <S extends T, T extends BaseSpec> void configure(S concreteSpec) {
+    protected void configureSpec(S concreteSpec) {
+        
     }
 }

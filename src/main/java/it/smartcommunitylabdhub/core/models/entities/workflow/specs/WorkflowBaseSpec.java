@@ -6,5 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class WorkflowBaseSpec extends BaseSpec {
+public class WorkflowBaseSpec<S extends WorkflowBaseSpec<S>> extends BaseSpec<S> {
+    @Override
+    protected void configureSpec(S concreteSpec) {
+
+    }
 }

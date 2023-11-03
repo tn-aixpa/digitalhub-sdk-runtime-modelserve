@@ -6,6 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class FunctionBaseSpec extends BaseSpec {
+public class FunctionBaseSpec<S extends FunctionBaseSpec<S>> extends BaseSpec<S> {
     private String source;
+
+    @Override
+    protected void configureSpec(S concreteSpec) {
+
+    }
 }

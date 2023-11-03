@@ -2,13 +2,13 @@ package it.smartcommunitylabdhub.core.models.entities.project.specs;
 
 import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
 
 @SpecType(kind = "project", entity = SpecEntity.PROJECT)
-public class ProjectProjectSpec extends ProjectBaseSpec {
+public class ProjectProjectSpec extends ProjectBaseSpec<ProjectProjectSpec> {
     @Override
-    protected <S extends T, T extends BaseSpec> void configure(S concreteSpec) {
-        ProjectProjectSpec projectProjectSpec = (ProjectProjectSpec) concreteSpec;
+    protected void configureSpec(ProjectProjectSpec projectProjectSpec) {
+        super.configureSpec(projectProjectSpec);
+        
         this.setSource(projectProjectSpec.getSource());
         this.setContext(projectProjectSpec.getContext());
         this.setFunctions(projectProjectSpec.getFunctions());

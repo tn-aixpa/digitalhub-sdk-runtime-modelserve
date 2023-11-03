@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public abstract class ProjectBaseSpec extends BaseSpec {
+public class ProjectBaseSpec<S extends ProjectBaseSpec<S>> extends BaseSpec<S> {
 
     String context;
 
@@ -25,4 +25,8 @@ public abstract class ProjectBaseSpec extends BaseSpec {
     List<Object> dataitems = new ArrayList<>();
 
 
+    @Override
+    protected void configureSpec(S concreteSpec) {
+
+    }
 }

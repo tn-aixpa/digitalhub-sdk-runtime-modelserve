@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class ArtifactBaseSpec extends BaseSpec {
+public class ArtifactBaseSpec<S extends ArtifactBaseSpec<S>> extends BaseSpec<S> {
     private String key;
 
     @JsonProperty("src_path")
@@ -16,4 +16,8 @@ public abstract class ArtifactBaseSpec extends BaseSpec {
     @JsonProperty("target_path")
     private String targetPath;
 
+    @Override
+    protected void configureSpec(S concreteSpec) {
+        // do something..
+    }
 }

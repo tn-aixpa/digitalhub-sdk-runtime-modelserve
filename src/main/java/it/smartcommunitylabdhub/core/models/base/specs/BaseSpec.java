@@ -14,22 +14,18 @@ import java.util.Map;
 
 @Getter
 @Setter
-public abstract class BaseSpec implements Spec {
+public abstract class BaseSpec<S extends BaseSpec<S>> implements Spec<S> {
     private Map<String, Object> extraSpecs = new HashMap<>();
 
     @Override
-    public <S extends T,
-            T extends BaseSpec> void configure(Map<String, Object> data) {
-
+    public void configure(Map<String, Object> data) {
         // Retrieve concreteSpec
         S concreteSpec = JacksonMapper.objectMapper.convertValue(
                 data, JacksonMapper._extractJavaType(this.getClass()));
-
-        configure(concreteSpec);
+        configureSpec(concreteSpec);
     }
-
-    protected abstract <S extends T,
-            T extends BaseSpec> void configure(S concreteSpec);
+    
+    protected abstract void configureSpec(S concreteSpec);
 
     @Override
     public Map<String, Object> toMap() {

@@ -2,21 +2,18 @@ package it.smartcommunitylabdhub.core.models.entities.run.specs;
 
 import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @SpecType(kind = "run", entity = SpecEntity.RUN)
-public class RunRunSpec extends RunBaseSpec {
-
+public class RunRunSpec extends RunBaseSpec<RunRunSpec> {
+    
     @Override
-    protected <S extends T,
-            T extends BaseSpec> void configure(S concreteSpec) {
-        super.configure(concreteSpec);
+    protected void configureSpec(RunRunSpec runRunSpec) {
+        super.configureSpec(runRunSpec);
 
-        RunRunSpec runRunSpec = (RunRunSpec) concreteSpec;
         this.setTask(runRunSpec.getTask());
         this.setTaskId(runRunSpec.getTaskId());
         this.setInputs(runRunSpec.getInputs());
@@ -25,7 +22,6 @@ public class RunRunSpec extends RunBaseSpec {
         this.setParameters(runRunSpec.getParameters());
         this.setExtraSpecs(runRunSpec.getExtraSpecs());
         this.setInputs(runRunSpec.getInputs());
-
     }
 }
 

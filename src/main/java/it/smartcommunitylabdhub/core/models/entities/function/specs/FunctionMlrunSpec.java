@@ -3,7 +3,6 @@ package it.smartcommunitylabdhub.core.models.entities.function.specs;
 import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
-import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @SpecType(kind = "mlrun", entity = SpecEntity.FUNCTION)
-public class FunctionMlrunSpec extends FunctionBaseSpec {
+public class FunctionMlrunSpec extends FunctionBaseSpec<FunctionMlrunSpec> {
     private String source;
     private String image;
     private String tag;
@@ -27,7 +26,8 @@ public class FunctionMlrunSpec extends FunctionBaseSpec {
     private List<Object> requirements;
 
     @Override
-    protected <S extends T, T extends BaseSpec> void configure(S concreteSpec) {
+    protected void configureSpec(FunctionMlrunSpec functionMlrunSpec) {
+        super.configureSpec(functionMlrunSpec);
         throw new CoreException(
                 ErrorList.METHOD_NOT_IMPLEMENTED.getValue(),
                 ErrorList.METHOD_NOT_IMPLEMENTED.getReason(),

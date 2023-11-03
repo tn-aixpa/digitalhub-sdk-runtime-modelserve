@@ -7,7 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class DataItemBaseSpec extends BaseSpec {
+public class DataItemBaseSpec<S extends DataItemBaseSpec<S>> extends BaseSpec<S> {
     private String key;
     private String path;
+
+    @Override
+    protected void configureSpec(S concreteSpec) {
+    }
 }
