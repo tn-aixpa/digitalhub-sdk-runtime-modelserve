@@ -19,10 +19,9 @@ public class DataItemDbtSpec extends DataItemBaseSpec<DataItemDbtSpec> {
 
     @Override
     protected void configureSpec(DataItemDbtSpec dataItemDbtSpec) {
-        this.setKey(dataItemDbtSpec.getKey());
-        this.setPath(dataItemDbtSpec.getPath());
+        super.configureSpec(dataItemDbtSpec);
+
         this.setRawCode(dataItemDbtSpec.getRawCode());
         this.setCompiledCode(dataItemDbtSpec.getCompiledCode());
-        this.setExtraSpecs(dataItemDbtSpec.getExtraSpecs());
     }
 }

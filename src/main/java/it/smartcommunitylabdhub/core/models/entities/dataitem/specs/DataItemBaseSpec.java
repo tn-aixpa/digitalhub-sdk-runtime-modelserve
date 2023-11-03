@@ -13,5 +13,8 @@ public class DataItemBaseSpec<S extends DataItemBaseSpec<S>> extends BaseSpec<S>
 
     @Override
     protected void configureSpec(S concreteSpec) {
+        this.setKey(concreteSpec.getKey());
+        this.setPath(concreteSpec.getPath());
+        this.setExtraSpecs(concreteSpec.getExtraSpecs());
     }
 }

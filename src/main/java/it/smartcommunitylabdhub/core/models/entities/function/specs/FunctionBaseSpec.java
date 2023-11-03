@@ -11,6 +11,7 @@ public class FunctionBaseSpec<S extends FunctionBaseSpec<S>> extends BaseSpec<S>
 
     @Override
     protected void configureSpec(S concreteSpec) {
-
+        this.setSource(concreteSpec.getSource());
+        this.setExtraSpecs(concreteSpec.getExtraSpecs());
     }
 }

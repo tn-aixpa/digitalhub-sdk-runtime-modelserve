@@ -27,6 +27,12 @@ public class ProjectBaseSpec<S extends ProjectBaseSpec<S>> extends BaseSpec<S> {
 
     @Override
     protected void configureSpec(S concreteSpec) {
-
+        this.setSource(concreteSpec.getSource());
+        this.setContext(concreteSpec.getContext());
+        this.setFunctions(concreteSpec.getFunctions());
+        this.setArtifacts(concreteSpec.getArtifacts());
+        this.setDataitems(concreteSpec.getDataitems());
+        this.setWorkflows(concreteSpec.getWorkflows());
+        this.setExtraSpecs(concreteSpec.getExtraSpecs());
     }
 }

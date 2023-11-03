@@ -11,11 +11,8 @@ import lombok.Setter;
 @SpecType(kind = "transform", entity = SpecEntity.TASK)
 public class TaskTransformSpec extends TaskBaseSpec<TaskTransformSpec> {
 
-
     @Override
     protected void configureSpec(TaskTransformSpec taskTransformSpec) {
         super.configureSpec(taskTransformSpec);
-        this.setFunction(taskTransformSpec.getFunction());
-        this.setExtraSpecs(taskTransformSpec.getExtraSpecs());
     }
 }

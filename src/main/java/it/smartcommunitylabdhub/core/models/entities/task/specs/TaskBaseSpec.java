@@ -11,5 +11,7 @@ public class TaskBaseSpec<S extends TaskBaseSpec<S>> extends BaseSpec<S> {
 
     @Override
     protected void configureSpec(S concreteSpec) {
+        this.setFunction(concreteSpec.getFunction());
+        this.setExtraSpecs(concreteSpec.getExtraSpecs());
     }
 }

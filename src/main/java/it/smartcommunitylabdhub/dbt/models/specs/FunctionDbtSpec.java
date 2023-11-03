@@ -20,11 +20,10 @@ public class FunctionDbtSpec extends FunctionBaseSpec<FunctionDbtSpec> {
     @Override
     protected void configureSpec(FunctionDbtSpec functionDbtSpec) {
         super.configureSpec(functionDbtSpec);
-        this.setSource(functionDbtSpec.getSource());
+       
         this.setImage(functionDbtSpec.getImage());
         this.setArgs(functionDbtSpec.getArgs());
         this.setSql(functionDbtSpec.getSql());
         this.setCommand(functionDbtSpec.getCommand());
-        this.setExtraSpecs(functionDbtSpec.getExtraSpecs());
     }
 }

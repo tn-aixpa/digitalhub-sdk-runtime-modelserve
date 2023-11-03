@@ -8,13 +8,5 @@ public class ProjectProjectSpec extends ProjectBaseSpec<ProjectProjectSpec> {
     @Override
     protected void configureSpec(ProjectProjectSpec projectProjectSpec) {
         super.configureSpec(projectProjectSpec);
-        
-        this.setSource(projectProjectSpec.getSource());
-        this.setContext(projectProjectSpec.getContext());
-        this.setFunctions(projectProjectSpec.getFunctions());
-        this.setArtifacts(projectProjectSpec.getArtifacts());
-        this.setDataitems(projectProjectSpec.getDataitems());
-        this.setWorkflows(projectProjectSpec.getWorkflows());
-        this.setExtraSpecs(projectProjectSpec.getExtraSpecs());
     }
 }

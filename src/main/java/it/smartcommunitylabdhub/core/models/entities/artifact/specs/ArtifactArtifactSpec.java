@@ -13,9 +13,5 @@ public class ArtifactArtifactSpec extends ArtifactBaseSpec<ArtifactArtifactSpec>
     protected void configureSpec(ArtifactArtifactSpec artifactArtifactSpec) {
         super.configureSpec(artifactArtifactSpec);
         
-        this.setKey(artifactArtifactSpec.getKey());
-        this.setTargetPath(artifactArtifactSpec.getTargetPath());
-        this.setSrcPath(artifactArtifactSpec.getSrcPath());
-        this.setExtraSpecs(artifactArtifactSpec.getExtraSpecs());
     }
 }

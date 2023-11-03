@@ -18,6 +18,9 @@ public class ArtifactBaseSpec<S extends ArtifactBaseSpec<S>> extends BaseSpec<S>
 
     @Override
     protected void configureSpec(S concreteSpec) {
-        // do something..
+        this.setKey(concreteSpec.getKey());
+        this.setSrcPath(concreteSpec.getSrcPath());
+        this.setTargetPath(concreteSpec.getTargetPath());
+        this.setExtraSpecs(concreteSpec.getExtraSpecs());
     }
 }

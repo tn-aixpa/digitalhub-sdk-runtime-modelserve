@@ -9,19 +9,11 @@ import lombok.Setter;
 @Setter
 @SpecType(kind = "run", entity = SpecEntity.RUN)
 public class RunRunSpec extends RunBaseSpec<RunRunSpec> {
-    
+
     @Override
     protected void configureSpec(RunRunSpec runRunSpec) {
         super.configureSpec(runRunSpec);
-
-        this.setTask(runRunSpec.getTask());
-        this.setTaskId(runRunSpec.getTaskId());
-        this.setInputs(runRunSpec.getInputs());
-        this.setOutputs(runRunSpec.getOutputs());
-        this.setLocalExecution(runRunSpec.isLocalExecution());
-        this.setParameters(runRunSpec.getParameters());
-        this.setExtraSpecs(runRunSpec.getExtraSpecs());
-        this.setInputs(runRunSpec.getInputs());
+        
     }
 }
 

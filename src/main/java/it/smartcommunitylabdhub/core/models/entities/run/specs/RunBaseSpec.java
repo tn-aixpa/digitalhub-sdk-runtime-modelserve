@@ -35,6 +35,14 @@ public class RunBaseSpec<S extends RunBaseSpec<S>> extends BaseSpec<S> {
 
     @Override
     protected void configureSpec(S concreteSpec) {
-        
+
+        this.setTask(concreteSpec.getTask());
+        this.setTaskId(concreteSpec.getTaskId());
+        this.setInputs(concreteSpec.getInputs());
+        this.setOutputs(concreteSpec.getOutputs());
+        this.setParameters(concreteSpec.getParameters());
+        this.setLocalExecution(concreteSpec.isLocalExecution());
+        this.setExtraSpecs(concreteSpec.getExtraSpecs());
+
     }
 }
