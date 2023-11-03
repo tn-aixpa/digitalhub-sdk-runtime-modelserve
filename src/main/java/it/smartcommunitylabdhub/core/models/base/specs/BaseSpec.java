@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import lombok.Getter;
@@ -37,13 +36,14 @@ public abstract class BaseSpec implements Spec {
         Map<String, Object> result = new HashMap<>();
 
         // Serialize all fields (including extraSpecs) to a JSON map
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            String json = objectMapper.writeValueAsString(this);
+            String json = JacksonMapper.objectMapper.writeValueAsString(this);
 
             // Convert the JSON string to a map
-            Map<String, Object> serializedMap = objectMapper.readValue(json, new TypeReference<>() {
-            });
+            Map<String, Object> serializedMap =
+                    JacksonMapper.objectMapper.readValue(json,
+                            new TypeReference<>() {
+                            });
 
             // Include extra properties in the result map
             result.putAll(serializedMap);
