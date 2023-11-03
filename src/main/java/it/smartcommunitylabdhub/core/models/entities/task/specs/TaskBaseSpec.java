@@ -1,13 +1,11 @@
 package it.smartcommunitylabdhub.core.models.entities.task.specs;
 
-import it.smartcommunitylabdhub.core.models.base.BaseSpec;
-import lombok.*;
+import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
+import lombok.Getter;
+import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@Builder
-public class TaskBaseSpec extends BaseSpec {
+public abstract class TaskBaseSpec extends BaseSpec {
     String function;
 }

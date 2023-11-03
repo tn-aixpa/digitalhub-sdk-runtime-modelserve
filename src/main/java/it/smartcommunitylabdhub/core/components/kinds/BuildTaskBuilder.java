@@ -52,7 +52,8 @@ public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
         return Optional.of(TaskUtils.parseTask(taskSpec.getFunction()))
                 .map(accessor -> {
                     // Build the TaskDTO with the parsed task data
-                    TaskDTO dto = TaskDTO.builder().kind(taskDTO.getKind())
+                    TaskDTO dto = TaskDTO.builder()
+                            .kind(taskDTO.getKind())
                             .project(taskDTO.getProject())
                             .spec(taskDTO.getSpec()).build();
                     dto.getSpec().putAll(taskSpec.toMap());

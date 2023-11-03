@@ -1,7 +1,8 @@
-package it.smartcommunitylabdhub.core.models.base;
+package it.smartcommunitylabdhub.core.models.base.metadata;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
@@ -16,17 +17,17 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Metadata implements Serializable {
+public class BaseMetadata implements Serializable {
 
-	@NotEmpty
-	@ValidateField
-	String project;
+    @NotEmpty
+    @ValidateField
+    String project;
 
-	@CreationTimestamp
-	@Column(updatable = false)
-	private Date created;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Date created;
 
-	@UpdateTimestamp
-	private Date updated;
+    @UpdateTimestamp
+    private Date updated;
 
 }

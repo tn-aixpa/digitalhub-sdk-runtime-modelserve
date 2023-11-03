@@ -4,7 +4,9 @@ import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.specs.WorkflowBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,9 +15,14 @@ public class WorkflowEntityBuilder {
     /**
      * Build a workflow from a workflowDTO and store extra values as a cbor
      *
-     * @return
+     * @return Workflow
      */
     public Workflow build(WorkflowDTO workflowDTO) {
+
+        // Retrieve Spec
+        WorkflowBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(workflowDTO.getSpec(), WorkflowBaseSpec.class);
+
         return EntityFactory.combine(
                 ConversionUtils.convert(workflowDTO, "workflow"), workflowDTO,
                 builder -> builder
@@ -30,9 +37,7 @@ public class WorkflowEntityBuilder {
 
                                         "cbor")))
                         .with(w -> w.setSpec(
-                                ConversionUtils.convert(workflowDTO
-                                                .getSpec(),
-
+                                ConversionUtils.convert(spec.toMap(),
                                         "cbor"))));
 
     }
@@ -44,6 +49,11 @@ public class WorkflowEntityBuilder {
      * @return
      */
     public Workflow update(Workflow workflow, WorkflowDTO workflowDTO) {
+
+        WorkflowBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(workflowDTO.getSpec(), WorkflowBaseSpec.class);
+
+
         return EntityFactory.combine(
                 workflow, workflowDTO, builder -> builder
                         .with(w -> w.setKind(workflowDTO.getKind()))
@@ -59,12 +69,9 @@ public class WorkflowEntityBuilder {
                         .with(w -> w.setExtra(
                                 ConversionUtils.convert(workflowDTO
                                                 .getExtra(),
-
                                         "cbor")))
                         .with(w -> w.setSpec(
-                                ConversionUtils.convert(workflowDTO
-                                                .getSpec(),
-
+                                ConversionUtils.convert(spec.toMap(),
                                         "cbor")))
                         .with(w -> w.setEmbedded(
                                 workflowDTO.getEmbedded())));

@@ -1,7 +1,8 @@
 package it.smartcommunitylabdhub.core.models.entities.project.specs;
 
-import it.smartcommunitylabdhub.core.models.base.BaseSpec;
-import lombok.*;
+import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,25 +10,18 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class ProjectBaseSpec extends BaseSpec {
+public abstract class ProjectBaseSpec extends BaseSpec {
 
     String context;
 
     String source;
 
-    @Builder.Default
     List<Object> functions = new ArrayList<>();
 
-    @Builder.Default
     List<Object> artifacts = new ArrayList<>();
 
-    @Builder.Default
     List<Object> workflows = new ArrayList<>();
-    
-    @Builder.Default
+
     List<Object> dataitems = new ArrayList<>();
 
 

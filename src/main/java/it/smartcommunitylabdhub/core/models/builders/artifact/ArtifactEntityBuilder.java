@@ -1,13 +1,14 @@
 package it.smartcommunitylabdhub.core.models.builders.artifact;
 
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import it.smartcommunitylabdhub.core.models.entities.artifact.specs.ArtifactBaseSpec;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +27,8 @@ public class ArtifactEntityBuilder {
     public Artifact build(ArtifactDTO artifactDTO) {
 
         // Retrieve Spec
-        Spec spec = specRegistry.createSpec(artifactDTO.getKind(),
-                SpecEntity.ARTIFACT,
-                artifactDTO.getSpec());
+        ArtifactBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(artifactDTO.getSpec(), ArtifactBaseSpec.class);
 
         return EntityFactory.combine(
                 ConversionUtils.convert(artifactDTO, "artifact"), artifactDTO,
@@ -42,7 +42,8 @@ public class ArtifactEntityBuilder {
                                                 .getExtra(),
 
                                         "cbor")))
-                        .with(a -> a.setSpec(ConversionUtils.convert(spec.toMap(), "cbor"))));
+                        .with(a -> a.setSpec(ConversionUtils.convert(spec.toMap(),
+                                "cbor"))));
 
     }
 
@@ -55,9 +56,8 @@ public class ArtifactEntityBuilder {
      */
     public Artifact update(Artifact artifact, ArtifactDTO artifactDTO) {
         // Retrieve Spec
-        Spec spec = specRegistry.createSpec(artifactDTO.getKind(),
-                SpecEntity.ARTIFACT,
-                artifactDTO.getSpec());
+        ArtifactBaseSpec spec = JacksonMapper.objectMapper
+                .convertValue(artifactDTO.getSpec(), ArtifactBaseSpec.class);
 
         return EntityFactory.combine(
                 artifact, artifactDTO, builder -> builder

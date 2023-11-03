@@ -34,7 +34,7 @@ public class WorkflowDTO implements BaseEntity {
 
     @ValidateField
     private String project;
-    
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Builder.Default
     private Map<String, Object> spec = new HashMap<>();

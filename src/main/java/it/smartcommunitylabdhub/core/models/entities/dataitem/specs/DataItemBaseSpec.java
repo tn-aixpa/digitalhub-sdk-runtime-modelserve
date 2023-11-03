@@ -1,14 +1,13 @@
 package it.smartcommunitylabdhub.core.models.entities.dataitem.specs;
 
-import it.smartcommunitylabdhub.core.models.base.BaseSpec;
-import lombok.*;
+import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
+import lombok.Getter;
+import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Getter
 @Setter
-@Builder
-public class DataItemBaseSpec extends BaseSpec {
+public abstract class DataItemBaseSpec extends BaseSpec {
     private String key;
     private String path;
 }
