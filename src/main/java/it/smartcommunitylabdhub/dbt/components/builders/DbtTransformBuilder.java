@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.dbt.components.builders;
 
 import it.smartcommunitylabdhub.core.annotations.infrastructure.BuilderComponent;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.BaseBuilder;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
 import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
@@ -11,7 +10,7 @@ import it.smartcommunitylabdhub.core.utils.MapUtils;
 import java.util.Map;
 
 @BuilderComponent(runtime = "dbt", task = "transform")
-public class DbtTransformBuilder extends BaseBuilder implements Builder {
+public class DbtTransformBuilder implements Builder {
 
     @Override
     public <F extends FunctionBaseSpec<?>,
