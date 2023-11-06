@@ -12,12 +12,12 @@ import java.util.Map;
 
 @Component
 @Log4j2
-public class SpecRegistry<T extends Spec> {
+public class SpecRegistry<T extends Spec<?>> {
     // A map to store spec types and their corresponding classes.
-    private final Map<String, Class<? extends Spec>> specTypes = new HashMap<>();
+    private final Map<String, Class<? extends Spec<?>>> specTypes = new HashMap<>();
 
     // Register spec types along with their corresponding classes.
-    public void registerSpecTypes(Map<String, Class<? extends Spec>> specTypeMap) {
+    public void registerSpecTypes(Map<String, Class<? extends Spec<?>>> specTypeMap) {
         specTypes.putAll(specTypeMap);
     }
 
@@ -29,10 +29,21 @@ public class SpecRegistry<T extends Spec> {
      * @param <S>      The generic type for the spec.
      * @return An instance of the specified spec type, or null if not found or in case of errors.
      */
-    @SuppressWarnings("unchecked")
     public <S extends T> S createSpec(String specType, SpecEntity specEntity, Map<String, Object> data) {
         // Retrieve the class associated with the specified spec type.
         final String specKey = specType + "_" + specEntity.name().toLowerCase();
+        return getSpec(data, specKey);
+    }
+
+    public <S extends T> S createSpec(String specRuntime, String specType, SpecEntity specEntity, Map<String, Object> data) {
+        // Retrieve the class associated with the specified spec type.
+        final String specKey = specRuntime + "_" + specType + "_" + specEntity.name().toLowerCase();
+        return getSpec(data, specKey);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public <S extends T> S getSpec(Map<String, Object> data, String specKey) {
         Class<? extends T> specClass = (Class<? extends T>) specTypes.get(specKey);
 
         if (specClass == null) {

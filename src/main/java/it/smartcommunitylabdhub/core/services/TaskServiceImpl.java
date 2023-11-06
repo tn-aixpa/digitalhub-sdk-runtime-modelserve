@@ -78,8 +78,8 @@ public class TaskServiceImpl implements TaskService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        TaskBaseSpec taskSpec =
-                (TaskBaseSpec) specRegistry.createSpec(
+        TaskBaseSpec<?> taskSpec =
+                (TaskBaseSpec<?>) specRegistry.createSpec(
                         taskDTO.getKind(),
                         SpecEntity.TASK,
                         taskDTO.getSpec());

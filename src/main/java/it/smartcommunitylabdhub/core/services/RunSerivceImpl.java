@@ -150,7 +150,7 @@ public class RunSerivceImpl implements RunService {
     public RunDTO createRun(RunDTO runDTO) {
 
         // Retrieve Run base spec
-        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+        RunBaseSpec<?> runBaseSpec = (RunBaseSpec<?>) specRegistry.createSpec(
                 runDTO.getKind(),
                 SpecEntity.RUN,
                 runDTO.getSpec()
@@ -167,7 +167,7 @@ public class RunSerivceImpl implements RunService {
         // Retrieve task
         return Optional.ofNullable(this.taskService.getTask(runBaseSpec.getTaskId()))
                 .map(taskDTO -> {
-                    TaskBaseSpec taskSpec = (TaskBaseSpec) specRegistry.createSpec(
+                    TaskBaseSpec<?> taskSpec = (TaskBaseSpec<?>) specRegistry.createSpec(
                             taskDTO.getKind(),
                             SpecEntity.TASK,
                             taskDTO.getSpec());
@@ -179,7 +179,7 @@ public class RunSerivceImpl implements RunService {
                                     taskAccessor.getVersion()))
                             .map(functionDTO -> {
 
-                                FunctionBaseSpec funcSpec = (FunctionBaseSpec) specRegistry.createSpec(
+                                FunctionBaseSpec<?> funcSpec = (FunctionBaseSpec<?>) specRegistry.createSpec(
                                         functionDTO.getKind(),
                                         SpecEntity.FUNCTION,
                                         functionDTO.getSpec()

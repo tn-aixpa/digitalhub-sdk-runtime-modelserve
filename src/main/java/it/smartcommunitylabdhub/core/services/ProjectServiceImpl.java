@@ -223,7 +223,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<FunctionDTO> getProjectFunctions(String uuidOrName) {
 
-        return Optional.ofNullable(projectRepository.findById(uuidOrName)
+        return Optional.of(projectRepository.findById(uuidOrName)
                         .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
                         ErrorList.PROJECT_NOT_FOUND.getValue(),
@@ -253,7 +253,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ArtifactDTO> getProjectArtifacts(String uuidOrName) {
-        return Optional.ofNullable(projectRepository.findById(uuidOrName)
+        return Optional.of(projectRepository.findById(uuidOrName)
                         .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
                         ErrorList.PROJECT_NOT_FOUND.getValue(),
@@ -283,7 +283,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<WorkflowDTO> getProjectWorkflows(String uuidOrName) {
-        return Optional.ofNullable(projectRepository.findById(uuidOrName)
+        return Optional.of(projectRepository.findById(uuidOrName)
                         .or(() -> projectRepository.findByName(uuidOrName)))
                 .orElseThrow(() -> new CoreException(
                         ErrorList.PROJECT_NOT_FOUND.getValue(),

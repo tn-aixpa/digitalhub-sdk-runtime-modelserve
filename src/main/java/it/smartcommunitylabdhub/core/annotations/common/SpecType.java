@@ -12,6 +12,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Indexed
 public @interface SpecType {
+
+    String runtime() default "";
+
     String kind();
 
     SpecEntity entity();

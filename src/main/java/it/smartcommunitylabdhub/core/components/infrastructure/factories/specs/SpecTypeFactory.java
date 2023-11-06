@@ -47,7 +47,7 @@ public class SpecTypeFactory {
         List<String> basePackages = getBasePackages();
 
         // Map to store discovered spec types and their corresponding classes.
-        Map<String, Class<? extends Spec>> specTypes = new HashMap<>();
+        Map<String, Class<? extends Spec<?>>> specTypes = new HashMap<>();
 
         for (String basePackage : basePackages) {
             Set<BeanDefinition> candidateComponents = scanner.findCandidateComponents(basePackage);
@@ -56,9 +56,13 @@ public class SpecTypeFactory {
                 String className = beanDefinition.getBeanClassName();
                 try {
                     // Load the class and check for SpecType annotation.
-                    Class<? extends Spec> specClass = (Class<? extends Spec>) Class.forName(className);
+                    Class<? extends Spec<?>> specClass = (Class<? extends Spec<?>>) Class.forName(className);
                     SpecType specTypeAnnotation = specClass.getAnnotation(SpecType.class);
-                    specTypes.put(specTypeAnnotation.kind() + "_" + specTypeAnnotation.entity().name().toLowerCase(), specClass);
+                    String specKey = specTypeAnnotation.kind() + "_" + specTypeAnnotation.entity().name().toLowerCase();
+                    if (!specTypeAnnotation.runtime().isEmpty()) {
+                        specKey = specTypeAnnotation.runtime() + "_" + specKey;
+                    }
+                    specTypes.put(specKey, specClass);
                 } catch (ClassNotFoundException e) {
                     // Handle exceptions when a class is not found.
                 }

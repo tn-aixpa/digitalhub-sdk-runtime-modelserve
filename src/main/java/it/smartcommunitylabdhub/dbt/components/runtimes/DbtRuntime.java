@@ -49,7 +49,7 @@ public class DbtRuntime extends BaseRuntime {
     public Runnable run(RunDTO runDTO) {
 
         // Retrieve base run spec to use task
-        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+        RunBaseSpec<?> runBaseSpec = (RunBaseSpec<?>) specRegistry.createSpec(
                 runDTO.getKind(),
                 SpecEntity.RUN,
                 runDTO.getSpec()
