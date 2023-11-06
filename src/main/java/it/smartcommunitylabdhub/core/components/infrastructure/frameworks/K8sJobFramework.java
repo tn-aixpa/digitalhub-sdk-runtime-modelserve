@@ -174,7 +174,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
                 V1JobStatus v1JobStatus = v1Job.getStatus();
 
                 // Check the Job status
-                if (v1JobStatus != null && v1JobStatus.getSucceeded() != null) {
+                if (Objects.requireNonNull(v1JobStatus).getSucceeded() != null) {
 
                     // Job has completed successfully
                     log.info("Job completed successfully.");
