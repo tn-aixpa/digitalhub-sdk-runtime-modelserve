@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.frameworks;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
@@ -16,10 +17,14 @@ import it.smartcommunitylabdhub.core.components.kubernetes.K8sJobBuilderHelper;
 import it.smartcommunitylabdhub.core.components.pollers.PollingService;
 import it.smartcommunitylabdhub.core.components.workflows.factory.WorkflowFactory;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.exceptions.StopPoller;
 import it.smartcommunitylabdhub.core.models.builders.log.LogEntityBuilder;
+import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
+import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.function.TriFunction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,103 +167,114 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 
 
         // Define a function with parameters
-        TriFunction<String, String, StateMachine<?, ?, ?>, Void> checkJobStatus = (jName, cName, fMachine) -> {
+        TriFunction<String, String, StateMachine<RunState, RunEvent, Map<String, Object>>, Void> checkJobStatus = (jName, cName, fMachine) -> {
+
+            try {
+                V1Job v1Job = batchV1Api.readNamespacedJob(jName, namespace, null);
+                V1JobStatus v1JobStatus = v1Job.getStatus();
+
+                // Check the Job status
+                if (v1JobStatus != null && v1JobStatus.getSucceeded() != null) {
+
+                    // Job has completed successfully
+                    log.info("Job completed successfully.");
+
+                    // Update state machine and update runDTO
+                    fMachine.goToState(RunState.COMPLETED);
+                    RunDTO runDTO = runService.getRun(runnable.getId());
+                    runDTO.setState(fsm.getCurrentState().name());
+                    runService.updateRun(runDTO, runDTO.getId());
+
+
+                    // Retrieve and print the logs of the associated Pod
+                    V1PodList v1PodList = coreV1Api.listNamespacedPod(
+                            namespace, null,
+                            null, null,
+                            null, null,
+                            null, null,
+                            null, null,
+                            null, null);
+
+                    for (V1Pod pod : v1PodList.getItems()) {
+                        if (pod.getMetadata() != null && pod.getMetadata().getName() != null) {
+                            if (pod.getMetadata().getName().startsWith(jobName)) {
+                                String podName = pod.getMetadata().getName();
+                                String logs = coreV1Api.readNamespacedPodLog(podName, namespace, cName,
+                                        false, null,
+                                        null, null,
+                                        null, null,
+                                        null, null);
+
+
+                                log.info("Logs for Pod: " + podName);
+                                log.info(logs);
+                                writeLog(runnable, logs);
+                            }
+                        }
+                    }
+
+                    // Delete the Job
+                    V1Status deleteStatus = batchV1Api.deleteNamespacedJob(
+                            jobName, namespace, null,
+                            null, null, null,
+                            null, null);
+
+                    writeLog(runnable, JacksonMapper.objectMapper.writeValueAsString(deleteStatus));
+                    log.info("Job deleted.");
+
+                } else if (Objects.requireNonNull(v1JobStatus).getFailed() != null) {
+                    // Job has failed
+                    log.info("Job failed.");
+
+                    // Delete the Job
+                    V1Status deleteStatus = batchV1Api.deleteNamespacedJob(
+                            jobName, namespace, null,
+                            null, null, null,
+                            null, null);
+
+                    writeLog(runnable, JacksonMapper.objectMapper.writeValueAsString(deleteStatus));
+
+                } else if (v1JobStatus.getActive() != null) {
+                    if (!fMachine.getCurrentState().equals(RunState.RUNNING)) {
+                        fMachine.goToState(RunState.READY);
+                        fMachine.goToState(RunState.RUNNING);
+                    }
+                    log.warn("Job is running...");
+
+                } else {
+                    log.warn("Job is in an unknown state.");
+                }
+
+                String v1JobStatusString = JacksonMapper.objectMapper.writeValueAsString(v1JobStatus);
+                writeLog(runnable, v1JobStatusString);
+
+
+            } catch (ApiException | JsonProcessingException e) {
+                throw new StopPoller(e.getMessage());
+            }
+
             // Your function implementation here
             return null;
         };
 
+
         // Using the step method with explicit arguments
-
-
         pollingService.createPoller(jobName, List.of(
                 WorkflowFactory.builder().step(checkJobStatus, jobName, containerName, fsm).build()
         ), 1, true);
+
+        // Start job poller
         pollingService.startOne(jobName);
-
-/*
-        // Watch for current job events
-        Watch watch = kubernetesClient.v1().events().inAnyNamespace().watch(new Watcher<Event>() {
-            @Override
-            public void eventReceived(Action action, Event event) {
-                try {
-                    // Extract involved object information from the event
-                    String involvedObjectUid = event.getInvolvedObject().getUid();
-
-                    // if event involved object is equal to the job uuid I created before then
-                    // log event
-                    if (jobResult.getMetadata().getUid().equals(involvedObjectUid)) {
-                        EventPrinter.printEvent(event);
-
-                        String eventJson = objectMapper.writeValueAsString(event);
-
-                        logService.createLog(LogDTO.builder()
-                                .run(runnable.getId())
-                                .project(runnable.getProject())
-                                .body(Map.of("content", eventJson))
-                                .build());
+    }
 
 
-                        if (event.getReason().equals("SuccessfulCreate")) {
-                            fsm.goToState(RunState.READY);
-                            fsm.goToState(RunState.RUNNING);
-                        }
+    public void writeLog(K8sJobRunnable runnable, String log) {
 
-                        // when message is completed update run
-                        if (event.getReason().equals("Completed")) {
-                            fsm.goToState(RunState.COMPLETED);
-                            RunDTO runDTO = runService.getRun(runnable.getId());
-                            runDTO.setState(fsm.getCurrentState().name());
-                            runService.updateRun(runDTO, runDTO.getId());
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error(e.getMessage());
-                }
-            }
-
-
-            @Override
-            public void onClose(WatcherException cause) {
-                if (cause != null) {
-                    // Handle any KubernetesClientException that occurred during
-                    // watch
-                    log.error("An error occurred during the Kubernetes events watch: "
-                            + cause.getMessage());
-                } else {
-                    // Handle watch closure
-                    log.error("The Kubernetes events watch has been closed.");
-                }
-            }
-        });
-
-        // Wait until job is succeded..this is thread blocking functionality for this reason
-        // every watcher is on @Async method.
-        kubernetesClient.batch().v1().jobs().inNamespace(namespace)
-                .withName(jobName)
-                .waitUntilCondition(j -> j.getStatus().getSucceeded() != null
-                        && j.getStatus().getSucceeded() > 0, 8L, TimeUnit.HOURS);
-
-        // Get job execution logs
-        String jobLogs =
-                kubernetesClient.batch().v1().jobs().inNamespace(namespace)
-                        .withName(jobName)
-                        .getLog();
-
-        // Write job execution logs to the log service
         logService.createLog(LogDTO.builder()
                 .run(runnable.getId())
                 .project(runnable.getProject())
-                .body(Map.of("content", jobLogs))
+                .body(Map.of("content", log))
                 .build());
-
-
-        // Close the job execution watch
-        watch.close();
-
-        // Clean up the job
-        kubernetesClient.batch().v1().jobs().inNamespace(namespace)
-                .withName(jobName)
-                .delete();*/
     }
 
     // Concat command with arguments

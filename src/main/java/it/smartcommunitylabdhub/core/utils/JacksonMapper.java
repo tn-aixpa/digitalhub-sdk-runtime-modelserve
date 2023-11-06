@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.smartcommunitylabdhub.core.models.base.specs.BaseSpec;
 import it.smartcommunitylabdhub.core.models.base.specs.ConcreteSpecMixin;
 
@@ -20,6 +21,7 @@ public class JacksonMapper {
         // Configure the ObjectMapper to not fail on unknown properties
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.registerModule(new JavaTimeModule());
         objectMapper.addMixIn(BaseSpec.class, ConcreteSpecMixin.class); // Replace TaskTransformSpec with your concrete class
     }
 
