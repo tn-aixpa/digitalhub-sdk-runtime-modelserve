@@ -84,6 +84,4 @@ public class DbtTransformRunner implements Runner {
 
         return k8sJobRunnable;
     }
-
-
 }
