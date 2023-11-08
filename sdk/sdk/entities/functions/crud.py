@@ -52,8 +52,8 @@ def create_function_from_dict(obj: dict) -> Function:
 def new_function(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     source: str | None = None,
     image: str | None = None,
     tag: str | None = None,
@@ -77,7 +77,7 @@ def new_function(
         Identifier of the Function.
     description : str
         Description of the Function.
-    kind : str, default "job"
+    kind : str
         The type of the Function.
     source : str
         Path to the Function's source code on the local file system.

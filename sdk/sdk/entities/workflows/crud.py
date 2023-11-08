@@ -52,8 +52,8 @@ def create_workflow_from_dict(obj: dict) -> Workflow:
 def new_workflow(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,

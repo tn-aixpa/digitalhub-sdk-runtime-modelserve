@@ -6,11 +6,10 @@ from __future__ import annotations
 import typing
 
 from sdk.context.builder import get_context
-from sdk.entities.base.entity import Entity
-from sdk.entities.builders.kinds import build_kind
-from sdk.entities.builders.metadata import build_metadata
-from sdk.entities.builders.spec import build_spec
-from sdk.entities.builders.status import build_status
+from sdk.entities._base.entity import Entity
+from sdk.entities._builders.metadata import build_metadata
+from sdk.entities._builders.spec import build_spec
+from sdk.entities._builders.status import build_status
 from sdk.entities.runs.crud import delete_run, get_run, new_run
 from sdk.utils.api import api_base_create, api_base_update
 from sdk.utils.commons import TASK
@@ -20,7 +19,7 @@ if typing.TYPE_CHECKING:
     from sdk.context.context import Context
     from sdk.entities.runs.entity import Run
     from sdk.entities.tasks.metadata import TaskMetadata
-    from sdk.entities.tasks.spec.objects.base import TaskSpec
+    from sdk.entities.tasks.spec import TaskSpec
     from sdk.entities.tasks.status import TaskStatus
 
 
@@ -157,6 +156,7 @@ class Task(Entity):
             project=self.metadata.project,
             task=self._get_task_string(),
             task_id=self.id,
+            kind="run",
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
@@ -226,6 +226,40 @@ class Task(Entity):
         """
         delete_run(self.metadata.project, uuid)
 
+    #############################
+    #  Overridden Methods
+    #############################
+
+    @staticmethod
+    def _parse_dict(entity: str, obj: dict) -> dict:
+        """
+        Get dictionary and parse it to a valid entity dictionary.
+
+        Parameters
+        ----------
+        entity : str
+            Entity type.
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+        """
+        uuid = build_uuid(obj.get("id"))
+        kind = obj.get("kind", "")
+        metadata = build_metadata(entity, **obj.get("metadata"))
+        spec = build_spec(entity, kind, ignore_validation=True, module_kind=kind, **obj.get("spec"))
+        status = build_status(entity, **obj.get("status"))
+        return {
+            "uuid": uuid,
+            "kind": kind,
+            "metadata": metadata,
+            "spec": spec,
+            "status": status,
+        }
+
 
 def task_from_parameters(
     project: str,
@@ -258,15 +292,11 @@ def task_from_parameters(
         Task object.
     """
     uuid = build_uuid(uuid)
-    kind = build_kind(TASK, kind)
-    metadata = build_metadata(
-        TASK,
-        project=project,
-        name=uuid,
-    )
+    metadata = build_metadata(TASK, project=project, name=uuid)
     spec = build_spec(
         TASK,
         kind,
+        module_kind=function.split("://")[0],
         function=function,
         resources=resources,
         image=image,

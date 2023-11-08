@@ -1,7 +1,7 @@
 """
 Project metadata module.
 """
-from sdk.entities.base.metadata import Metadata
+from sdk.entities._base.metadata import Metadata
 
 
 class ProjectMetadata(Metadata):

@@ -7,11 +7,10 @@ import typing
 from concurrent.futures import ThreadPoolExecutor
 
 from sdk.context.builder import get_context
-from sdk.entities.base.entity import Entity
-from sdk.entities.builders.kinds import build_kind
-from sdk.entities.builders.metadata import build_metadata
-from sdk.entities.builders.spec import build_spec
-from sdk.entities.builders.status import build_status
+from sdk.entities._base.entity import Entity
+from sdk.entities._builders.metadata import build_metadata
+from sdk.entities._builders.spec import build_spec
+from sdk.entities._builders.status import build_status
 from sdk.entities.tasks.crud import create_task, delete_task, new_task
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import FUNC
@@ -21,7 +20,7 @@ from sdk.utils.generic_utils import build_uuid, get_timestamp
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
     from sdk.entities.functions.metadata import FunctionMetadata
-    from sdk.entities.functions.spec.objects.base import FunctionSpec
+    from sdk.entities.functions.spec import FunctionSpec
     from sdk.entities.functions.status import FunctionStatus
     from sdk.entities.runs.entity import Run
     from sdk.entities.tasks.entity import Task
@@ -329,12 +328,46 @@ class Function(Entity):
         if self._tasks.get(kind) is None:
             raise EntityError("Task does not exist.")
 
+    #############################
+    #  Overridden Methods
+    #############################
+
+    @staticmethod
+    def _parse_dict(entity: str, obj: dict) -> dict:
+        """
+        Get dictionary and parse it to a valid entity dictionary.
+
+        Parameters
+        ----------
+        entity : str
+            Entity type.
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+        """
+        uuid = build_uuid(obj.get("id"))
+        kind = obj.get("kind", "")
+        metadata = build_metadata(entity, **obj.get("metadata"))
+        spec = build_spec(entity, kind, ignore_validation=True, module_kind=kind, **obj.get("spec"))
+        status = build_status(entity, **obj.get("status"))
+        return {
+            "uuid": uuid,
+            "kind": kind,
+            "metadata": metadata,
+            "spec": spec,
+            "status": status,
+        }
+
 
 def function_from_parameters(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     source: str | None = None,
     image: str | None = None,
     tag: str | None = None,
@@ -389,10 +422,10 @@ def function_from_parameters(
         Function object.
     """
     uuid = build_uuid(uuid)
-    kind = build_kind(FUNC, kind)
     spec = build_spec(
         FUNC,
         kind,
+        module_kind=kind,
         source=source,
         image=image,
         tag=tag,

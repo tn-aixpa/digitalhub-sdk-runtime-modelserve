@@ -6,11 +6,10 @@ from __future__ import annotations
 import typing
 
 from sdk.context.builder import get_context
-from sdk.entities.base.entity import Entity
-from sdk.entities.builders.kinds import build_kind
-from sdk.entities.builders.metadata import build_metadata
-from sdk.entities.builders.spec import build_spec
-from sdk.entities.builders.status import build_status
+from sdk.entities._base.entity import Entity
+from sdk.entities._builders.metadata import build_metadata
+from sdk.entities._builders.spec import build_spec
+from sdk.entities._builders.status import build_status
 from sdk.stores.builder import get_default_store, get_store
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import DTIT
@@ -24,7 +23,7 @@ if typing.TYPE_CHECKING:
 
     from sdk.context.context import Context
     from sdk.entities.dataitems.metadata import DataitemMetadata
-    from sdk.entities.dataitems.spec.objects.base import DataitemSpec
+    from sdk.entities.dataitems.spec import DataitemSpec
     from sdk.entities.dataitems.status import DataitemStatus
 
 
@@ -262,8 +261,8 @@ class Dataitem(Entity):
 def dataitem_from_parameters(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     key: str | None = None,
     path: str | None = None,
     embedded: bool = True,
@@ -299,7 +298,6 @@ def dataitem_from_parameters(
         Dataitem object.
     """
     uuid = build_uuid(uuid)
-    kind = build_kind(DTIT, kind)
     key = key if key is not None else f"store://{project}/dataitems/{kind}/{name}:{uuid}"
     metadata = build_metadata(
         DTIT,

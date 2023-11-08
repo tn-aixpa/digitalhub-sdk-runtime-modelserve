@@ -1,7 +1,7 @@
 """
 RunStatus class module.
 """
-from sdk.entities.base.status import Status
+from sdk.entities._base.status import Status
 
 
 class RunStatus(Status):

@@ -34,7 +34,7 @@ def create_task(**kwargs) -> Task:
 
 def new_task(
     project: str,
-    kind: str | None = None,
+    kind: str,
     function: str = "",
     resources: dict | None = None,
     uuid: str | None = None,
