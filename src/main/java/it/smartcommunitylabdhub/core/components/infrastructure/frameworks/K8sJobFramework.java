@@ -208,8 +208,8 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
                     log.warn("Job is running...");
                     logPod(jName, cName, namespace, runnable);
                 } else {
-                    log.warn("Job is in an unknown state.");
                     String v1JobStatusString = JacksonMapper.objectMapper.writeValueAsString(v1JobStatus);
+                    log.warn("Job is in an unknown state : " + v1JobStatusString);
 //                    writeLog(runnable, v1JobStatusString);
                 }
 
