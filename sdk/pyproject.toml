@@ -17,11 +17,11 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.10"
 dependencies = [
-"boto3==1.28.55",
-"pydantic==2.4.1",
-"pandas==2.1.1",
-"pyarrow==13.0.0",
-"sqlalchemy==2.0.21",
+"boto3~=1.28",
+"pydantic>=2",
+"pandas~=2.0",
+"pyarrow>=14.0",
+"sqlalchemy~=2.0",
 "psycopg2-binary==2.9.7",
 ]
 
@@ -34,13 +34,13 @@ dev = [
     "pytest",
     "bumpver",
     "ruff",
-    "moto==4.1.14"
+    "moto"
 ]
 docs = [
-    "Sphinx==7.1.0",
-    "pydata-sphinx-theme==0.13.3",
-    "autodoc-pydantic==2.0.1",
-    "numpydoc==1.5.0"
+    "Sphinx>=7",
+    "pydata-sphinx-theme~=0.13",
+    "autodoc-pydantic>=2",
+    "numpydoc>=1.5"
 ]
 
 [project.urls]

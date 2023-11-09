@@ -202,7 +202,7 @@ class RuntimeDBT(Runtime):
 
     def parse_inputs(self, inputs: list, project: str) -> list:
         """
-        Parse inputs from run spec.
+        Parse inputs from run spec and materialize them in postgres.
 
         Parameters
         ----------
@@ -216,26 +216,6 @@ class RuntimeDBT(Runtime):
         list
             The list of inputs dataitems names.
         """
-        if not isinstance(inputs, list):
-            raise RuntimeError("Inputs must be a list of dataitems")
-        self.materialize_inputs(inputs, project)
-        return inputs
-
-    def materialize_inputs(self, inputs: list, project: str) -> None:
-        """
-        Materialize inputs in postgres.
-
-        Parameters
-        ----------
-        inputs : list
-            The list of inputs dataitems names.
-        project : str
-            The project name.
-
-        Returns
-        -------
-        None
-        """
         for name in inputs:
             try:
                 di = get_dataitem(project, name)
@@ -243,6 +223,7 @@ class RuntimeDBT(Runtime):
                 raise RuntimeError(f"Dataitem {name} not found in project {project}")
             target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
             di.write_df(target_path, if_exists="replace")
+        return inputs
 
     def parse_outputs(self, outputs: list) -> str:
         """

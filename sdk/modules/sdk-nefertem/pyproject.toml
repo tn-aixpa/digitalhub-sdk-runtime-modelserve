@@ -17,7 +17,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.10"
 dependencies = [
-"nefertem==2.0.0",
+#"nefertem==2.0.0",
 ]
 
 [project.urls]
