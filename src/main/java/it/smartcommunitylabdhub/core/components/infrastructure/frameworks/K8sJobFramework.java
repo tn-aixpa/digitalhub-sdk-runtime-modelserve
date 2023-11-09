@@ -167,72 +167,38 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 
 
         // Define a function with parameters
-        TriFunction<String, String, StateMachine<RunState, RunEvent, Map<String, Object>>, Void> checkJobStatus = (jName, cName, fMachine) -> {
-
+        TriFunction<String, String,
+                StateMachine<
+                        RunState,
+                        RunEvent,
+                        Map<String, Object>>,
+                Void> checkJobStatus = (jName, cName, fMachine) -> {
             try {
                 V1Job v1Job = batchV1Api.readNamespacedJob(jName, namespace, null);
                 V1JobStatus v1JobStatus = v1Job.getStatus();
 
                 // Check the Job status
-                if (Objects.requireNonNull(v1JobStatus).getSucceeded() != null) {
+                if (Objects.requireNonNull(v1JobStatus).getSucceeded() != null
+                        && !fMachine.getCurrentState().equals(RunState.COMPLETED)) {
+
 
                     // Job has completed successfully
                     log.info("Job completed successfully.");
-
                     // Update state machine and update runDTO
                     fMachine.goToState(RunState.COMPLETED);
                     RunDTO runDTO = runService.getRun(runnable.getId());
                     runDTO.setState(fsm.getCurrentState().name());
                     runService.updateRun(runDTO, runDTO.getId());
 
-
-                    // Retrieve and print the logs of the associated Pod
-                    V1PodList v1PodList = coreV1Api.listNamespacedPod(
-                            namespace, null,
-                            null, null,
-                            null, null,
-                            null, null,
-                            null, null,
-                            null, null);
-
-                    for (V1Pod pod : v1PodList.getItems()) {
-                        if (pod.getMetadata() != null && pod.getMetadata().getName() != null) {
-                            if (pod.getMetadata().getName().startsWith(jobName)) {
-                                String podName = pod.getMetadata().getName();
-                                String logs = coreV1Api.readNamespacedPodLog(podName, namespace, cName,
-                                        false, null,
-                                        null, null,
-                                        null, null,
-                                        null, null);
-
-
-                                log.info("Logs for Pod: " + podName);
-                                log.info(logs);
-                                writeLog(runnable, logs);
-                            }
-                        }
-                    }
-
-                    // Delete the Job
-                    V1Status deleteStatus = batchV1Api.deleteNamespacedJob(
-                            jobName, namespace, null,
-                            null, null, null,
-                            null, null);
-
-                    writeLog(runnable, JacksonMapper.objectMapper.writeValueAsString(deleteStatus));
-                    log.info("Job deleted.");
+                    // Log pod status
+                    logPod(jName, cName, namespace, runnable);
+                    // Delete job and pod
+                    deleteAssociatedPodAndJob(jName, namespace, runnable);
+                    throw new StopPoller("JOB complete successfully");
 
                 } else if (Objects.requireNonNull(v1JobStatus).getFailed() != null) {
-                    // Job has failed
-                    log.info("Job failed.");
-
-                    // Delete the Job
-                    V1Status deleteStatus = batchV1Api.deleteNamespacedJob(
-                            jobName, namespace, null,
-                            null, null, null,
-                            null, null);
-
-                    writeLog(runnable, JacksonMapper.objectMapper.writeValueAsString(deleteStatus));
+                    // Job has failed delete job and pod
+                    deleteAssociatedPodAndJob(jName, namespace, runnable);
 
                 } else if (v1JobStatus.getActive() != null) {
                     if (!fMachine.getCurrentState().equals(RunState.RUNNING)) {
@@ -240,16 +206,15 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
                         fMachine.goToState(RunState.RUNNING);
                     }
                     log.warn("Job is running...");
-
+                    logPod(jName, cName, namespace, runnable);
                 } else {
                     log.warn("Job is in an unknown state.");
+                    String v1JobStatusString = JacksonMapper.objectMapper.writeValueAsString(v1JobStatus);
+                    writeLog(runnable, v1JobStatusString);
                 }
 
-                String v1JobStatusString = JacksonMapper.objectMapper.writeValueAsString(v1JobStatus);
-                writeLog(runnable, v1JobStatusString);
-
-
-            } catch (ApiException | JsonProcessingException e) {
+            } catch (ApiException | JsonProcessingException | CoreException e) {
+                deleteAssociatedPodAndJob(jName, namespace, runnable);
                 throw new StopPoller(e.getMessage());
             }
 
@@ -290,6 +255,95 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
     // Generate and return container name
     private String getContainerName(String runtime, String task, String id) {
         return "c" + "-" + runtime + "-" + task + "-" + id;
+    }
+
+    /**
+     * Logging pod
+     *
+     * @param jobName  the name of the Job
+     * @param runnable the runnable Type in this case K8SJobRunnable
+     */
+    private void logPod(String jobName, String cName, String namespace, K8sJobRunnable runnable) {
+        try {
+
+            // Retrieve and print the logs of the associated Pod
+            V1PodList v1PodList = coreV1Api.listNamespacedPod(
+                    namespace, null,
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null);
+
+            for (V1Pod pod : v1PodList.getItems()) {
+                if (pod.getMetadata() != null && pod.getMetadata().getName() != null) {
+                    if (pod.getMetadata().getName().startsWith(jobName)) {
+                        String podName = pod.getMetadata().getName();
+                        String logs = coreV1Api.readNamespacedPodLog(podName, namespace, cName,
+                                false, null,
+                                null, null,
+                                null, null,
+                                null, null);
+
+
+                        log.info("Logs for Pod: " + podName);
+                        log.info("Log is: " + logs);
+                        if (logs != null)
+                            writeLog(runnable, logs);
+                    }
+                }
+            }
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Delete job
+     *
+     * @param jobName  the name of the Job
+     * @param runnable the runnable Type in this case K8SJobRunnable
+     */
+    private void deleteAssociatedPodAndJob(String jobName, String namespace, K8sJobRunnable runnable) {
+        // Delete the Pod associated with the Job
+        try {
+            V1PodList v1PodList = coreV1Api.listNamespacedPod(
+                    namespace, null,
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null,
+                    null, null);
+
+
+            for (V1Pod pod : v1PodList.getItems()) {
+                if (pod.getMetadata() != null && pod.getMetadata().getName() != null) {
+                    if (pod.getMetadata().getName().startsWith(jobName)) {
+                        String podName = pod.getMetadata().getName();
+
+                        // Delete the Pod
+                        V1Pod v1Pod = coreV1Api.deleteNamespacedPod(podName, namespace, null,
+                                null, null,
+                                null, null,
+                                null);
+                        log.info("Pod deleted: " + podName);
+                        writeLog(runnable, JacksonMapper.objectMapper.writeValueAsString(v1Pod.getStatus()));
+
+                        // Delete the Job
+                        V1Status deleteStatus = batchV1Api.deleteNamespacedJob(
+                                jobName, "default", null,
+                                null, null, null,
+                                null, null);
+
+                        writeLog(runnable, JacksonMapper.objectMapper.writeValueAsString(deleteStatus));
+                        log.info("Job deleted: " + jobName);
+                    }
+                }
+            }
+            throw new StopPoller("POLLER STOP SUCCESSFULLY");
+        } catch (ApiException | JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
