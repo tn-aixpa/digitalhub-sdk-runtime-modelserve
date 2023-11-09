@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotNull;
 public interface Runtime<F extends FunctionBaseSpec<?>> {
 
     RunBaseSpec<?> build(
-            F funSpec,
+            FunctionBaseSpec<?> funcSpec,
             TaskBaseSpec<?> taskSpec,
             RunBaseSpec<?> runSpec,
             @NotNull String kind

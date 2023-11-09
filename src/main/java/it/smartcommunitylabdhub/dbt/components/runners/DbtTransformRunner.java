@@ -13,6 +13,7 @@ import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
 import it.smartcommunitylabdhub.core.utils.BeanProvider;
 import it.smartcommunitylabdhub.dbt.models.specs.FunctionDbtSpec;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,6 +27,12 @@ import java.util.Optional;
  * @RunnerComponent(runtime = "dbt", task = "transform")
  */
 public class DbtTransformRunner implements Runner {
+
+    private String image;
+
+    public DbtTransformRunner(String image) {
+        this.image = image;
+    }
 
     @Override
     public Runnable produce(RunDTO runDTO) {
@@ -78,9 +85,9 @@ public class DbtTransformRunner implements Runner {
         K8sJobRunnable k8sJobRunnable = K8sJobRunnable.builder()
                 .runtime(runAccessor.getRuntime())
                 .task(runAccessor.getTask())
-                .image(functionDbtSpec.getImage())
-                .command(functionDbtSpec.getCommand())
-                .args(functionDbtSpec.getArgs().toArray(String[]::new))
+                .image(image)
+                .command("python")
+                .args(List.of("wrapper.py").toArray(String[]::new))
                 .envs(Map.of(
                         "PROJECT_NAME", runDTO.getProject(),
                         "RUN_ID", runDTO.getId()))

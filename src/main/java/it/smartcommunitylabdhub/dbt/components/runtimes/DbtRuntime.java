@@ -10,6 +10,7 @@ import it.smartcommunitylabdhub.core.components.infrastructure.runtimes.BaseRunt
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.RunStatus;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
+import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
@@ -20,6 +21,7 @@ import it.smartcommunitylabdhub.dbt.components.runners.DbtTransformRunner;
 import it.smartcommunitylabdhub.dbt.models.specs.FunctionDbtSpec;
 import it.smartcommunitylabdhub.dbt.models.specs.TaskTransformSpec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
 @RuntimeComponent(runtime = "dbt")
@@ -28,6 +30,10 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
     @Autowired
     SpecRegistry<? extends Spec> specRegistry;
 
+
+    @Value("${runtime.dbt.image}")
+    private String image;
+
     public DbtRuntime(BuilderFactory builderFactory,
                       RunnerFactory runnerFactory) {
         super(builderFactory, runnerFactory);
@@ -35,13 +41,20 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
 
     @Override
     public RunBaseSpec<?> build(
-            FunctionDbtSpec funSpec,
+            FunctionBaseSpec<?> funSpec,
             TaskBaseSpec<?> taskSpec,
             RunBaseSpec<?> runSpec,
             String kind) {
 
         // Retrieve builder using task kind
         if (kind.equals("transform")) {
+
+
+            FunctionDbtSpec functionDbtSpec = (FunctionDbtSpec) specRegistry.createSpec(
+                    "dbt",
+                    SpecEntity.FUNCTION,
+                    funSpec.toMap()
+            );
 
             TaskTransformSpec taskTransformSpec = (TaskTransformSpec) specRegistry.createSpec(
                     "transform",
@@ -70,7 +83,7 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
             DbtTransformBuilder builder = new DbtTransformBuilder();
 
             return builder.build(
-                    funSpec,
+                    functionDbtSpec,
                     taskTransformSpec,
                     runRunSpec);
 
@@ -103,7 +116,7 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
          *      RunAccessor runAccessor = RunUtils.parseRun(runBaseSpec.getTask());
          *      Runner runner = getRunner(runAccessor.getTask());
          */
-        DbtTransformRunner runner = new DbtTransformRunner();
+        DbtTransformRunner runner = new DbtTransformRunner(image);
 
         return runner.produce(runDTO);
     }

@@ -169,19 +169,19 @@ public class RunSerivceImpl implements RunService {
         // Retrieve task
         return Optional.ofNullable(this.taskService.getTask(runBaseSpec.getTaskId()))
                 .map(taskDTO -> {
-                    TaskBaseSpec<?> taskSpec = (TaskBaseSpec<?>) specRegistry.createSpec(
+                    TaskBaseSpec<?> taskBaseSpec = (TaskBaseSpec<?>) specRegistry.createSpec(
                             taskDTO.getKind(),
                             SpecEntity.TASK,
                             taskDTO.getSpec());
                     // Parse task to get accessor
-                    TaskAccessor taskAccessor = TaskUtils.parseTask(taskSpec.getFunction());
+                    TaskAccessor taskAccessor = TaskUtils.parseTask(taskBaseSpec.getFunction());
 
                     return Optional
                             .ofNullable(functionService.getFunction(
                                     taskAccessor.getVersion()))
                             .map(functionDTO -> {
 
-                                FunctionBaseSpec<?> funcSpec = (FunctionBaseSpec<?>) specRegistry.createSpec(
+                                FunctionBaseSpec<?> funcBaseSpec = (FunctionBaseSpec<?>) specRegistry.createSpec(
                                         functionDTO.getKind(),
                                         SpecEntity.FUNCTION,
                                         functionDTO.getSpec()
@@ -212,8 +212,8 @@ public class RunSerivceImpl implements RunService {
 
                                             // Build RunSpec using Runtime
                                             RunBaseSpec<?> runSpecBuilt = RuntimeHelper.castRuntime(runtime).build(
-                                                    funcSpec,
-                                                    taskSpec,
+                                                    funcBaseSpec,
+                                                    taskBaseSpec,
                                                     runBaseSpec,
                                                     taskDTO.getKind());
 
