@@ -285,8 +285,8 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
                                 null, null);
 
 
-//                        log.info("Logs for Pod: " + podName);
-//                        log.info("Log is: " + logs);
+                        log.info("Logs for Pod: " + podName);
+                        log.info("Log is: " + logs);
 //                        if (logs != null)
 //                            writeLog(runnable, logs);
                     }
