@@ -68,6 +68,7 @@ def new_project(
     """
     obj = create_project(
         name=name,
+        kind="project",
         description=description,
         context=context,
         source=source,

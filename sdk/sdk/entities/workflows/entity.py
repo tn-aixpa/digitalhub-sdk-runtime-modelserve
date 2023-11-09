@@ -6,11 +6,10 @@ from __future__ import annotations
 import typing
 
 from sdk.context.builder import get_context
-from sdk.entities.base.entity import Entity
-from sdk.entities.builders.kinds import build_kind
-from sdk.entities.builders.metadata import build_metadata
-from sdk.entities.builders.spec import build_spec
-from sdk.entities.builders.status import build_status
+from sdk.entities._base.entity import Entity
+from sdk.entities._builders.metadata import build_metadata
+from sdk.entities._builders.spec import build_spec
+from sdk.entities._builders.status import build_status
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import WKFL
 from sdk.utils.generic_utils import build_uuid, get_timestamp
@@ -18,7 +17,7 @@ from sdk.utils.generic_utils import build_uuid, get_timestamp
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
     from sdk.entities.workflows.metadata import WorkflowMetadata
-    from sdk.entities.workflows.spec.objects.base import WorkflowSpec
+    from sdk.entities.workflows.spec import WorkflowSpec
     from sdk.entities.workflows.status import WorkflowStatus
 
 
@@ -127,8 +126,8 @@ class Workflow(Entity):
 def workflow_from_parameters(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     embedded: bool = True,
     uuid: str | None = None,
     **kwargs,
@@ -159,7 +158,6 @@ def workflow_from_parameters(
         An instance of the created workflow.
     """
     uuid = build_uuid(uuid)
-    kind = build_kind(WKFL, kind)
     metadata = build_metadata(
         WKFL,
         project=project,

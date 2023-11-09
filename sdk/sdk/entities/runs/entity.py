@@ -7,13 +7,12 @@ import typing
 from collections import namedtuple
 
 from sdk.context.builder import get_context
+from sdk.entities._base.entity import Entity
+from sdk.entities._base.status import State
+from sdk.entities._builders.metadata import build_metadata
+from sdk.entities._builders.spec import build_spec
+from sdk.entities._builders.status import build_status
 from sdk.entities.artifacts.crud import get_artifact_from_key
-from sdk.entities.base.entity import Entity
-from sdk.entities.base.status import State
-from sdk.entities.builders.kinds import build_kind
-from sdk.entities.builders.metadata import build_metadata
-from sdk.entities.builders.spec import build_spec
-from sdk.entities.builders.status import build_status
 from sdk.entities.dataitems.crud import get_dataitem_from_key
 from sdk.runtimes.builder import build_runtime
 from sdk.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
@@ -26,9 +25,9 @@ if typing.TYPE_CHECKING:
     from sdk.entities.artifacts.entity import Artifact
     from sdk.entities.dataitems.entity import Dataitem
     from sdk.entities.runs.metadata import RunMetadata
-    from sdk.entities.runs.spec.objects.base import RunSpec
+    from sdk.entities.runs.spec import RunSpec
     from sdk.entities.runs.status import RunStatus
-    from sdk.runtimes.objects.base import Runtime
+    from sdk.runtimes.base import Runtime
 
 
 TaskString = namedtuple(
@@ -378,12 +377,12 @@ def run_from_parameters(
     project: str,
     task: str,
     task_id: str,
-    uuid: str | None = None,
-    kind: str | None = None,
+    kind: str,
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
     local_execution: bool = False,
+    uuid: str | None = None,
     **kwargs,
 ) -> Run:
     """
@@ -419,8 +418,7 @@ def run_from_parameters(
     Run
         Run object.
     """
-    uuid: str = build_uuid(uuid)
-    kind: str = build_kind(RUNS, kind)
+    uuid = build_uuid(uuid)
     metadata = build_metadata(
         RUNS,
         project=project,

@@ -8,12 +8,11 @@ from typing import Callable, TypeVar
 
 from sdk.client.builder import get_client
 from sdk.context.builder import set_context
+from sdk.entities._base.entity import Entity
+from sdk.entities._builders.metadata import build_metadata
+from sdk.entities._builders.spec import build_spec
+from sdk.entities._builders.status import build_status
 from sdk.entities.artifacts.crud import create_artifact_from_dict, delete_artifact, get_artifact, new_artifact
-from sdk.entities.base.entity import Entity
-from sdk.entities.builders.kinds import build_kind
-from sdk.entities.builders.metadata import build_metadata
-from sdk.entities.builders.spec import build_spec
-from sdk.entities.builders.status import build_status
 from sdk.entities.dataitems.crud import create_dataitem_from_dict, delete_dataitem, get_dataitem, new_dataitem
 from sdk.entities.functions.crud import create_function_from_dict, delete_function, get_function, new_function
 from sdk.entities.workflows.crud import create_workflow_from_dict, delete_workflow, get_workflow, new_workflow
@@ -27,15 +26,13 @@ if typing.TYPE_CHECKING:
     from sdk.entities.dataitems.entity import Dataitem
     from sdk.entities.functions.entity import Function
     from sdk.entities.projects.metadata import ProjectMetadata
-    from sdk.entities.projects.spec.objects.base import ProjectSpec
+    from sdk.entities.projects.spec import ProjectSpec
     from sdk.entities.projects.status import ProjectStatus
     from sdk.entities.workflows.entity import Workflow
 
     Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)
 
-
 LIST = [ARTF, FUNC, WKFL, DTIT]
-SPEC_LIST = LIST + ["source", "context"]
 
 
 def constructor_from_dict(
@@ -644,8 +641,8 @@ class Project(Entity):
 
 def project_from_parameters(
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     context: str = "",
     source: str = "",
     uuid: str | None = None,
@@ -680,7 +677,6 @@ def project_from_parameters(
         Project object.
     """
     uuid = build_uuid(uuid)
-    kind = build_kind(PROJ, kind)
     spec = build_spec(
         PROJ,
         kind,

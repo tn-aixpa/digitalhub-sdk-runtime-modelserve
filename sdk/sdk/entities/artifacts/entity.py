@@ -6,11 +6,10 @@ from __future__ import annotations
 import typing
 
 from sdk.context.builder import get_context
-from sdk.entities.base.entity import Entity
-from sdk.entities.builders.kinds import build_kind
-from sdk.entities.builders.metadata import build_metadata
-from sdk.entities.builders.spec import build_spec
-from sdk.entities.builders.status import build_status
+from sdk.entities._base.entity import Entity
+from sdk.entities._builders.metadata import build_metadata
+from sdk.entities._builders.spec import build_spec
+from sdk.entities._builders.status import build_status
 from sdk.stores.builder import get_store
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import ARTF
@@ -22,7 +21,7 @@ from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
     from sdk.entities.artifacts.metadata import ArtifactMetadata
-    from sdk.entities.artifacts.spec.objects.base import ArtifactSpec
+    from sdk.entities.artifacts.spec import ArtifactSpec
     from sdk.entities.artifacts.status import ArtifactStatus
 
 
@@ -332,8 +331,8 @@ class Artifact(Entity):
 def artifact_from_parameters(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
@@ -373,7 +372,6 @@ def artifact_from_parameters(
         Artifact object.
     """
     uuid = build_uuid(uuid)
-    kind = build_kind(ARTF, kind)
     metadata = build_metadata(
         ARTF,
         project=project,

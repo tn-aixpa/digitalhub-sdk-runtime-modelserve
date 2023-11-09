@@ -4,7 +4,6 @@ Import modules from submodules.
 from sdk.entities.artifacts.crud import delete_artifact, get_artifact, import_artifact, new_artifact, update_artifact
 from sdk.entities.dataitems.crud import delete_dataitem, get_dataitem, import_dataitem, new_dataitem, update_dataitem
 from sdk.entities.functions.crud import delete_function, get_function, import_function, new_function, update_function
-from sdk.entities.models.crud import delete_model, get_model, import_model, new_model, update_model
 from sdk.entities.projects.crud import (
     delete_project,
     get_or_create_project,

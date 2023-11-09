@@ -53,8 +53,8 @@ def create_dataitem_from_dict(obj: dict) -> Dataitem:
 def new_dataitem(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     key: str | None = None,
     path: str | None = None,
     embedded: bool = True,

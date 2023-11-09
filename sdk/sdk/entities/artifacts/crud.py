@@ -53,8 +53,8 @@ def create_artifact_from_dict(obj: dict) -> Artifact:
 def new_artifact(
     project: str,
     name: str,
+    kind: str,
     description: str | None = None,
-    kind: str | None = None,
     key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
@@ -97,7 +97,7 @@ def new_artifact(
         project=project,
         name=name,
         description=description,
-        kind=kind,
+        kind="artifact",
         key=key,
         src_path=src_path,
         target_path=target_path,
