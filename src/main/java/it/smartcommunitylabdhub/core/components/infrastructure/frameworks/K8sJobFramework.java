@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.core.components.infrastructure.frameworks;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.BatchV1Api;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
@@ -68,8 +67,6 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
     public void execute(K8sJobRunnable runnable) throws CoreException {
         // FIXME: DELETE THIS IS ONLY FOR DEBUG
         String threadName = Thread.currentThread().getName();
-
-        ObjectMapper objectMapper = new ObjectMapper();
 
         // Log service execution initiation
         log.info("----------------- PREPARE KUBERNETES JOB ----------------");
@@ -142,7 +139,10 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
         try {
             V1Job createdJob = batchV1Api.createNamespacedJob(namespace, job, null, null, null, null);
             System.out.println("Job created: " + Objects.requireNonNull(createdJob.getMetadata()).getName());
-        } catch (ApiException e) {
+        } catch (Exception e) {
+            System.out.println("====== K8s FATAL ERROR =====");
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause().getMessage());
             // Handle exceptions here
             throw new CoreException(
                     ErrorList.RUN_JOB_ERROR.getValue(),
@@ -257,7 +257,6 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
             return null;
         };
 
-
         // Using the step method with explicit arguments
         pollingService.createPoller(jobName, List.of(
                 WorkflowFactory.builder().step(checkJobStatus, jobName, containerName, fsm).build()
@@ -268,8 +267,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
     }
 
 
-    public void writeLog(K8sJobRunnable runnable, String log) {
-
+    private void writeLog(K8sJobRunnable runnable, String log) {
         logService.createLog(LogDTO.builder()
                 .run(runnable.getId())
                 .project(runnable.getProject())

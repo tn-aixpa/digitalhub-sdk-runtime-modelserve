@@ -25,6 +25,7 @@ import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
+import it.smartcommunitylabdhub.core.utils.RuntimeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -68,7 +69,7 @@ public class RunSerivceImpl implements RunService {
     ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    SpecRegistry<? extends Spec<?>> specRegistry;
+    SpecRegistry<? extends Spec> specRegistry;
 
     @Override
     public List<RunDTO> getRuns(Pageable pageable) {
@@ -147,7 +148,7 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public RunDTO createRun(RunDTO runDTO) {
+    public <F extends FunctionBaseSpec<F>> RunDTO createRun(RunDTO runDTO) {
 
         // Retrieve Run base spec
         RunBaseSpec<?> runBaseSpec = (RunBaseSpec<?>) specRegistry.createSpec(
@@ -155,6 +156,7 @@ public class RunSerivceImpl implements RunService {
                 SpecEntity.RUN,
                 runDTO.getSpec()
         );
+
 
         // Check if run already exist with the passed uuid
         if (runRepository.existsById(Optional.ofNullable(runDTO.getId()).orElse(""))) {
@@ -204,11 +206,12 @@ public class RunSerivceImpl implements RunService {
                                         .orElseGet(() -> {
 
                                             // Retrieve Runtime and build run
-                                            Runtime runtime = runtimeFactory
-                                                    .getRuntime(taskAccessor.getRuntime());
+                                            Runtime<? extends FunctionBaseSpec<?>> runtime =
+                                                    runtimeFactory.getRuntime(taskAccessor.getRuntime());
+
 
                                             // Build RunSpec using Runtime
-                                            RunBaseSpec runSpecBuilt = runtime.build(
+                                            RunBaseSpec<?> runSpecBuilt = RuntimeHelper.castRuntime(runtime).build(
                                                     funcSpec,
                                                     taskSpec,
                                                     runBaseSpec,

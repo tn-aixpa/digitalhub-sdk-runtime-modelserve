@@ -14,6 +14,9 @@ import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPub
 import it.smartcommunitylabdhub.core.components.kinds.factory.publishers.KindPublisherFactory;
 import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflow;
 import it.smartcommunitylabdhub.core.components.kinds.factory.workflows.KindWorkflowFactory;
+import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
+import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
+import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -45,13 +48,16 @@ public class InfrastructureConfig {
 
     @Bean
     protected RuntimeFactory runtimeFactory(
-            List<Runtime> runtimes) {
+            List<Runtime<? extends FunctionBaseSpec<?>>> runtimes) {
         return new RuntimeFactory(runtimes);
     }
 
     @Bean
     protected BuilderFactory builderFactory(
-            List<Builder> builders) {
+            List<Builder<
+                    ? extends FunctionBaseSpec<?>,
+                    ? extends TaskBaseSpec<?>,
+                    ? extends RunBaseSpec<?>>> builders) {
         return new BuilderFactory(builders);
     }
 

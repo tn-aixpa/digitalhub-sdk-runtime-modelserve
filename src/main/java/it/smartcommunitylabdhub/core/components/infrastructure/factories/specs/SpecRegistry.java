@@ -12,12 +12,12 @@ import java.util.Map;
 
 @Component
 @Log4j2
-public class SpecRegistry<T extends Spec<?>> {
+public class SpecRegistry<T extends Spec> {
     // A map to store spec types and their corresponding classes.
-    private final Map<String, Class<? extends Spec<?>>> specTypes = new HashMap<>();
+    private final Map<String, Class<? extends Spec>> specTypes = new HashMap<>();
 
     // Register spec types along with their corresponding classes.
-    public void registerSpecTypes(Map<String, Class<? extends Spec<?>>> specTypeMap) {
+    public void registerSpecTypes(Map<String, Class<? extends Spec>> specTypeMap) {
         specTypes.putAll(specTypeMap);
     }
 

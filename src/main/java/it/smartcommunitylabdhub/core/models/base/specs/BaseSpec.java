@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public abstract class BaseSpec<S extends BaseSpec<S>> implements Spec<S> {
+public abstract class BaseSpec<S extends Spec> implements Spec {
 
     private Map<String, Object> extraSpecs = new HashMap<>();
 

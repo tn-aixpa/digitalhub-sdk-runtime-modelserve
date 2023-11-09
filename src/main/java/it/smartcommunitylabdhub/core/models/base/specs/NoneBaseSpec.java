@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @SpecType(kind = "none", entity = SpecEntity.NONE)
-public class NoneBaseSpec<S extends NoneBaseSpec<S>> extends BaseSpec<S> {
+public class NoneBaseSpec<S extends NoneBaseSpec> extends BaseSpec<S> {
     @Override
     protected void configureSpec(S concreteSpec) {
     }

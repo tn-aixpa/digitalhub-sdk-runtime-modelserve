@@ -37,7 +37,7 @@ public class TaskServiceImpl implements TaskService {
     TaskEntityBuilder taskEntityBuilder;
 
     @Autowired
-    SpecRegistry<? extends Spec<?>> specRegistry;
+    SpecRegistry<? extends Spec> specRegistry;
 
     @Override
     public List<TaskDTO> getTasks(Pageable pageable) {

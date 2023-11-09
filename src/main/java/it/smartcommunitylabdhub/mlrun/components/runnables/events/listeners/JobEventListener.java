@@ -34,7 +34,7 @@ public class JobEventListener {
     ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    SpecRegistry<? extends Spec<?>> specRegistry;
+    SpecRegistry<? extends Spec> specRegistry;
 
     @Autowired
     RunService runService;

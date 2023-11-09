@@ -1,28 +1,42 @@
 package it.smartcommunitylabdhub.dbt.components.builders;
 
-import it.smartcommunitylabdhub.core.annotations.infrastructure.BuilderComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
-import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
-import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
-import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
+import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
+import it.smartcommunitylabdhub.dbt.models.specs.FunctionDbtSpec;
+import it.smartcommunitylabdhub.dbt.models.specs.TaskTransformSpec;
 
 import java.util.Map;
 
-@BuilderComponent(runtime = "dbt", task = "transform")
-public class DbtTransformBuilder implements Builder {
+/**
+ * DbtTransformBuilder
+ * <p>
+ * You can use this as a simple class or as a registered bean. If you want to retrieve this as bean from BuilderFactory
+ * you have to register it using the following annotation:
+ *
+ * @BuilderComponent(runtime = "dbt", task = "transform")
+ */
+
+public class DbtTransformBuilder implements Builder<
+        FunctionDbtSpec,
+        TaskTransformSpec,
+        RunRunSpec> {
 
     @Override
-    public <F extends FunctionBaseSpec<?>,
-            T extends TaskBaseSpec<?>,
-            R extends RunBaseSpec<?>> R build(F funSpec, T taskSpec, R runSpec) {
+    public RunRunSpec build(
+            FunctionDbtSpec funSpec,
+            TaskTransformSpec taskSpec,
+            RunRunSpec runSpec) {
 
         // Merge spec
-        Map<String, Object> extraSpecs =
-                MapUtils.mergeMultipleMaps(funSpec.toMap(), taskSpec.toMap());
+        Map<String, Object> extraSpecs = MapUtils.mergeMultipleMaps(
+                funSpec.toMap(),
+                taskSpec.toMap()
+        );
 
         // Update run specific spec
-        runSpec.getExtraSpecs().putAll(extraSpecs);
+        runSpec.getExtraSpecs()
+                .putAll(extraSpecs);
 
         // Return a run spec
         return runSpec;

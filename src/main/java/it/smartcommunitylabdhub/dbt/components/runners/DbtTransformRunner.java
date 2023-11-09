@@ -1,6 +1,5 @@
 package it.smartcommunitylabdhub.dbt.components.runners;
 
-import it.smartcommunitylabdhub.core.annotations.infrastructure.RunnerComponent;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runnables.Runnable;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
@@ -11,18 +10,22 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
+import it.smartcommunitylabdhub.core.utils.BeanProvider;
 import it.smartcommunitylabdhub.dbt.models.specs.FunctionDbtSpec;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import java.util.Optional;
 
 
-@RunnerComponent(runtime = "dbt", task = "transform")
+/**
+ * DbtTransformRunner
+ * <p>
+ * You can use this as a simple class or as a registered bean. If you want to retrieve this as bean from RunnerFactory
+ * you have to register it using the following annotation:
+ *
+ * @RunnerComponent(runtime = "dbt", task = "transform")
+ */
 public class DbtTransformRunner implements Runner {
-
-    @Autowired
-    SpecRegistry<? extends Spec<?>> specRegistry;
 
     @Override
     public Runnable produce(RunDTO runDTO) {
@@ -34,6 +37,11 @@ public class DbtTransformRunner implements Runner {
     }
 
     private K8sJobRunnable validateRunDTO(RunDTO runDTO) {
+
+        SpecRegistry<? extends Spec> specRegistry =
+                BeanProvider.getSpecRegistryBean(SpecRegistry.class)
+                        .orElseThrow(() -> new RuntimeException("SpecRegistry not found"));
+
 
         // Retrieve run spec from registry
         RunRunSpec runRunSpec = (RunRunSpec) specRegistry.createSpec(
@@ -83,5 +91,6 @@ public class DbtTransformRunner implements Runner {
         k8sJobRunnable.setProject(runDTO.getProject());
 
         return k8sJobRunnable;
+
     }
 }

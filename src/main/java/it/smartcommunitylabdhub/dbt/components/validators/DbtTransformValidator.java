@@ -15,7 +15,7 @@ import java.io.IOException;
 public class DbtTransformValidator implements BaseValidator {
 
     @Override
-    public <T extends Spec<?>> boolean validateSpec(T spec) {
+    public <T extends Spec> boolean validateSpec(T spec) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             // FIXME:this should be a real schema.

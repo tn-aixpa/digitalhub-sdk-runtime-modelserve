@@ -24,7 +24,7 @@ public class RunEventListener {
     @Autowired
     KindWorkflowFactory kindWorkflowFactory;
     @Autowired
-    SpecRegistry<? extends Spec<?>> specRegistry;
+    SpecRegistry<? extends Spec> specRegistry;
     @Autowired
     private PollingService pollingService;
 
@@ -34,7 +34,7 @@ public class RunEventListener {
 
         List<Workflow> workflows = new ArrayList<>();
 
-        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+        RunBaseSpec<?> runBaseSpec = (RunBaseSpec<?>) specRegistry.createSpec(
                 message.getRunDTO().getKind(),
                 SpecEntity.RUN,
                 message.getRunDTO().getSpec()

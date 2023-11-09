@@ -6,16 +6,18 @@ import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBase
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Runtime expose builder, run and parse method
  */
-public interface Runtime {
-    <F extends FunctionBaseSpec<?>, T extends TaskBaseSpec<?>, R extends RunBaseSpec<?>> R build(
+public interface Runtime<F extends FunctionBaseSpec<?>> {
+
+    RunBaseSpec<?> build(
             F funSpec,
-            T taskSpec,
-            R runSpec,
-            String kind
+            TaskBaseSpec<?> taskSpec,
+            RunBaseSpec<?> runSpec,
+            @NotNull String kind
     );
 
     Runnable run(RunDTO runDTO);

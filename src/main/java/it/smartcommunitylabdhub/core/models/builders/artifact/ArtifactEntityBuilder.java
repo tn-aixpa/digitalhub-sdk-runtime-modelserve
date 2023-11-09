@@ -1,22 +1,17 @@
 package it.smartcommunitylabdhub.core.models.builders.artifact;
 
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
-import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
-import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.artifact.specs.ArtifactBaseSpec;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ArtifactEntityBuilder {
 
-    @Autowired
-    SpecRegistry<? extends Spec<?>> specRegistry;
 
     /**
      * Build a artifact from a artifactDTO and store extra values as a cbor
