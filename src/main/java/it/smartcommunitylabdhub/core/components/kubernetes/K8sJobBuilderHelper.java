@@ -1,10 +1,12 @@
 package it.smartcommunitylabdhub.core.components.kubernetes;
 
 import io.kubernetes.client.openapi.models.V1EnvVar;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class for building Kubernetes job environment variables.
@@ -13,6 +15,9 @@ import java.util.List;
  */
 @Component
 public class K8sJobBuilderHelper {
+
+    @Value("${application.endpoint}")
+    private String DHCORE_ENDPOINT;
 
     /**
      * A helper method to get an environment variable with a default value if not present.
@@ -24,6 +29,8 @@ public class K8sJobBuilderHelper {
     private String getEnvVariable(String variableName, String defaultValue) {
         // Access the environment variable using System.getenv()
         String value = System.getenv(variableName);
+
+        System.getenv();
         // Use the value from the system environment if available, otherwise use the defaultValue
         return (value != null && !value.isEmpty()) ? value : defaultValue;
     }
@@ -33,23 +40,44 @@ public class K8sJobBuilderHelper {
      *
      * @return A list of V1EnvVar objects representing environment variables for a Kubernetes job.
      */
+
     public List<V1EnvVar> getEnvV1() {
-        // Create a list to hold V1EnvVar objects
-        return new ArrayList<>(List.of(
-                // Add environment variables with their names and values
-                new V1EnvVar().name("DHUB_CORE_ENDPOINT").value(getEnvVariable("DHUB_CORE_ENDPOINT", "http://192.168.49.1:8080")),
-                new V1EnvVar().name("AWS_ACCESS_KEY_ID").value(getEnvVariable("AWS_ACCESS_KEY_ID", "minio")),
-                new V1EnvVar().name("AWS_SECRET_ACCESS_KEY").value(getEnvVariable("AWS_SECRET_ACCESS_KEY", "minio123")),
-                new V1EnvVar().name("S3_ENDPOINT_URL").value(getEnvVariable("S3_ENDPOINT_URL", "http://192.168.49.2:30080")),
-                new V1EnvVar().name("S3_ACCESS_KEY_ID").value(getEnvVariable("S3_ACCESS_KEY_ID", "minio")),
-                new V1EnvVar().name("S3_SECRET_ACCESS_KEY").value(getEnvVariable("S3_SECRET_ACCESS_KEY", "minio123")),
-                new V1EnvVar().name("S3_BUCKET_NAME").value(getEnvVariable("S3_BUCKET_NAME", "mlrun")),
-                new V1EnvVar().name("POSTGRES_HOST").value(getEnvVariable("POSTGRES_HOST", "192.168.49.1")),
-                new V1EnvVar().name("POSTGRES_PORT").value(getEnvVariable("POSTGRES_PORT", "5433")),
-                new V1EnvVar().name("POSTGRES_DATABASE").value(getEnvVariable("POSTGRES_DATABASE", "dbt")),
-                new V1EnvVar().name("POSTGRES_USER").value(getEnvVariable("POSTGRES_USER", "testuser")),
-                new V1EnvVar().name("POSTGRES_PASSWORD").value(getEnvVariable("POSTGRES_PASSWORD", "testpassword")),
-                new V1EnvVar().name("POSTGRES_SCHEMA").value(getEnvVariable("POSTGRES_SCHEMA", "public"))
-        ));
+
+        List<V1EnvVar> envVarList = new ArrayList<>();
+
+        // Iterate over all environment variables
+        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            String variableName = entry.getKey();
+            String variableValue = entry.getValue();
+
+            // Check if the variable has the "DHCORE_" prefix
+            if (variableName.startsWith("DHCORE_")) {
+
+                // Remove the "DHCORE_" prefix and add to the list
+                String strippedName = variableName.substring("DHCORE_".length());
+                envVarList.add(new V1EnvVar().name(strippedName).value(variableValue));
+            }
+        }
+
+        // Add extra envs
+        envVarList.add(new V1EnvVar().name("DHUB_CORE_ENDPOINT")
+                .value(DHCORE_ENDPOINT));
+
+        return envVarList;
+
+
+//                DHCORE_AWS_ACCESS_KEY_ID"="minio"
+//                DHCORE_AWS_SECRET_ACCESS_KEY="minio123"
+//                DHCORE_S3_ENDPOINT_URL="http://192.168.49.2:30080"
+//                DHCORE_S3_ACCESS_KEY_ID="minio"
+//                DHCORE_S3_SECRET_ACCESS_KEY="minio123"
+//                DHCORE_S3_BUCKET_NAME="mlrun"
+//                DHCORE_POSTGRES_HOST="192.168.49.1"
+//                DHCORE_POSTGRES_PORT="5433"
+//                DHCORE_POSTGRES_DATABASE="dbt"
+//                DHCORE_POSTGRES_USER="testuser"
+//                DHCORE_POSTGRES_PASSWORD="testpassword"
+//                DHCORE_POSTGRES_SCHEMA="public"
+
     }
 }
