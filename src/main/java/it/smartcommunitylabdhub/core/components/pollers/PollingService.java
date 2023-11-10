@@ -1,36 +1,39 @@
 /**
  * PollingService.java
- *
+ * <p>
  * This class provides a convenient interface to manage multiple Pollers.
  * It allows creating, starting, stopping, and removing Pollers easily.
  */
 
 package it.smartcommunitylabdhub.core.components.pollers;
 
+import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
+import org.springframework.core.task.TaskExecutor;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
-
 public class PollingService {
     private final Map<String, Poller> pollerMap;
+    private final TaskExecutor executor;
 
-    public PollingService() {
+    public PollingService(TaskExecutor executor) {
         this.pollerMap = new HashMap<>();
+        this.executor = executor;
     }
 
     public void createPoller(String name, List<Workflow> workflowList, long delay, boolean reschedule) {
-        Poller poller = new Poller(name, workflowList, delay, reschedule);
+        Poller poller = new Poller(name, workflowList, delay, reschedule, executor);
         pollerMap.put(name, poller);
     }
 
     public void startPolling() {
-        pollerMap.entrySet().stream().forEach(e -> e.getValue().startPolling());
+        pollerMap.forEach((key, value) -> value.startPolling());
     }
 
     public void stopPolling() {
-        pollerMap.entrySet().stream().forEach(e -> e.getValue().stopPolling());
+        pollerMap.forEach((key, value) -> value.stopPolling());
         pollerMap.clear();
     }
 

@@ -46,7 +46,7 @@ public class JobServiceImpl implements KindService<Map<String, Object>> {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+        RunBaseSpec<?> runBaseSpec = specRegistry.createSpec(
                 runDTO.getKind(),
                 SpecEntity.RUN,
                 runDTO.getSpec()

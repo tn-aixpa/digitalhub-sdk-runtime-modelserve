@@ -1,22 +1,22 @@
 package it.smartcommunitylabdhub.core.config;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
-
+import it.smartcommunitylabdhub.core.components.pollers.PollingService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import it.smartcommunitylabdhub.core.components.pollers.PollingService;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
 
     @Bean
-    Executor taskExecutor() {
+    TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(50);
         executor.setMaxPoolSize(100);
@@ -28,10 +28,10 @@ public class AsyncConfig implements AsyncConfigurer {
     }
 
     @Bean
-    PollingService pollingService() {
+    PollingService pollingService(@Qualifier("taskExecutor") TaskExecutor executor) {
 
         // Create new Polling service instance
-        PollingService pollingService = new PollingService();
+        PollingService pollingService = new PollingService(executor);
 
         // CREATE POLLERS EXAMPLE
         //

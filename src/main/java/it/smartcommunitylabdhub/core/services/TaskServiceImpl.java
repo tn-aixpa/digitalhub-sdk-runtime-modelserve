@@ -78,11 +78,10 @@ public class TaskServiceImpl implements TaskService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        TaskBaseSpec<?> taskSpec =
-                (TaskBaseSpec<?>) specRegistry.createSpec(
-                        taskDTO.getKind(),
-                        SpecEntity.TASK,
-                        taskDTO.getSpec());
+        TaskBaseSpec<?> taskSpec = specRegistry.createSpec(
+                taskDTO.getKind(),
+                SpecEntity.TASK,
+                taskDTO.getSpec());
 
         TaskAccessor taskAccessor = TaskUtils.parseTask(taskSpec.getFunction());
         if (!taskDTO.getProject().equals(taskAccessor.getProject())) {

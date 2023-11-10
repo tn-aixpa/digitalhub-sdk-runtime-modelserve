@@ -43,11 +43,10 @@ public class BuildTaskBuilder implements KindBuilder<TaskDTO, TaskDTO> {
     public TaskDTO build(TaskDTO taskDTO) {
         // Use TaskUtils to parse the task and create the TaskAccessor
 
-        TaskBaseSpec taskSpec =
-                (TaskBaseSpec) specRegistry.createSpec(
-                        taskDTO.getKind(),
-                        SpecEntity.TASK,
-                        taskDTO.getSpec());
+        TaskBaseSpec<?> taskSpec = specRegistry.createSpec(
+                taskDTO.getKind(),
+                SpecEntity.TASK,
+                taskDTO.getSpec());
 
         return Optional.of(TaskUtils.parseTask(taskSpec.getFunction()))
                 .map(accessor -> {

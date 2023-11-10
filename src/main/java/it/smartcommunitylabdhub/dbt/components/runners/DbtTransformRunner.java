@@ -51,7 +51,7 @@ public class DbtTransformRunner implements Runner {
 
 
         // Retrieve run spec from registry
-        RunRunSpec runRunSpec = (RunRunSpec) specRegistry.createSpec(
+        RunRunSpec runRunSpec = specRegistry.createSpec(
                 runDTO.getKind(),
                 SpecEntity.RUN,
                 runDTO.getSpec()
@@ -60,7 +60,7 @@ public class DbtTransformRunner implements Runner {
         RunAccessor runAccessor = RunUtils.parseRun(runRunSpec.getTask());
 
         // Retrieve function spec from registry
-        FunctionDbtSpec functionDbtSpec = (FunctionDbtSpec) specRegistry.createSpec(
+        FunctionDbtSpec functionDbtSpec = specRegistry.createSpec(
                 runAccessor.getRuntime(),
                 SpecEntity.FUNCTION,
                 runDTO.getSpec()

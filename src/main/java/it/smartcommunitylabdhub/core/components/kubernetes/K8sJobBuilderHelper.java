@@ -53,7 +53,7 @@ public class K8sJobBuilderHelper {
             // Check if the variable has the "DH_" prefix
             if (variableName.startsWith("DH_")) {
 
-                // Remove the "DHCORE_" prefix and add to the list
+                // Remove the "DH_" prefix and add to the list
                 String strippedName = variableName.substring("DH_".length());
                 envVarList.add(new V1EnvVar().name(strippedName).value(variableValue));
             }

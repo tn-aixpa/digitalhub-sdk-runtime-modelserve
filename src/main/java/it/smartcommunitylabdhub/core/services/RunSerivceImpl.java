@@ -25,7 +25,6 @@ import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.services.interfaces.TaskService;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
-import it.smartcommunitylabdhub.core.utils.RuntimeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -151,7 +150,7 @@ public class RunSerivceImpl implements RunService {
     public <F extends FunctionBaseSpec<F>> RunDTO createRun(RunDTO runDTO) {
 
         // Retrieve Run base spec
-        RunBaseSpec<?> runBaseSpec = (RunBaseSpec<?>) specRegistry.createSpec(
+        RunBaseSpec<?> runBaseSpec = specRegistry.createSpec(
                 runDTO.getKind(),
                 SpecEntity.RUN,
                 runDTO.getSpec()
@@ -169,10 +168,11 @@ public class RunSerivceImpl implements RunService {
         // Retrieve task
         return Optional.ofNullable(this.taskService.getTask(runBaseSpec.getTaskId()))
                 .map(taskDTO -> {
-                    TaskBaseSpec<?> taskBaseSpec = (TaskBaseSpec<?>) specRegistry.createSpec(
+                    TaskBaseSpec<?> taskBaseSpec = specRegistry.createSpec(
                             taskDTO.getKind(),
                             SpecEntity.TASK,
                             taskDTO.getSpec());
+
                     // Parse task to get accessor
                     TaskAccessor taskAccessor = TaskUtils.parseTask(taskBaseSpec.getFunction());
 
@@ -180,12 +180,6 @@ public class RunSerivceImpl implements RunService {
                             .ofNullable(functionService.getFunction(
                                     taskAccessor.getVersion()))
                             .map(functionDTO -> {
-
-                                FunctionBaseSpec<?> funcBaseSpec = (FunctionBaseSpec<?>) specRegistry.createSpec(
-                                        functionDTO.getKind(),
-                                        SpecEntity.FUNCTION,
-                                        functionDTO.getSpec()
-                                );
 
                                 // Update spec object for run
                                 runDTO.setProject(taskAccessor.getProject());
@@ -210,12 +204,17 @@ public class RunSerivceImpl implements RunService {
                                                     runtimeFactory.getRuntime(taskAccessor.getRuntime());
 
 
-                                            // Build RunSpec using Runtime
-                                            RunBaseSpec<?> runSpecBuilt = RuntimeHelper.castRuntime(runtime).build(
-                                                    funcBaseSpec,
+                                            // Build RunSpec using Runtime now if wrong type is passed to a specific runtime
+                                            // an exception occur! for.
+                                            RunBaseSpec<?> runSpecBuilt = runtime.build(
+                                                    specRegistry.createSpec(
+                                                            functionDTO.getKind(),
+                                                            SpecEntity.FUNCTION,
+                                                            functionDTO.getSpec()),
                                                     taskBaseSpec,
                                                     runBaseSpec,
-                                                    taskDTO.getKind());
+                                                    taskDTO.getKind()
+                                            );
 
                                             // Update run spec
                                             runDTO.setSpec(runSpecBuilt.toMap());

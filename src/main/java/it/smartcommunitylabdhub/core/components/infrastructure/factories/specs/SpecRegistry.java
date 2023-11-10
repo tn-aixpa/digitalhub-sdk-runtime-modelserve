@@ -29,13 +29,13 @@ public class SpecRegistry<T extends Spec> {
      * @param <S>      The generic type for the spec.
      * @return An instance of the specified spec type, or null if not found or in case of errors.
      */
-    public <S extends T> S createSpec(String specType, SpecEntity specEntity, Map<String, Object> data) {
+    public <S extends Spec> S createSpec(String specType, SpecEntity specEntity, Map<String, Object> data) {
         // Retrieve the class associated with the specified spec type.
         final String specKey = specType + "_" + specEntity.name().toLowerCase();
         return getSpec(data, specKey);
     }
 
-    public <S extends T> S createSpec(String specRuntime, String specType, SpecEntity specEntity, Map<String, Object> data) {
+    public <S extends Spec> S createSpec(String specRuntime, String specType, SpecEntity specEntity, Map<String, Object> data) {
         // Retrieve the class associated with the specified spec type.
         final String specKey = specRuntime + "_" + specType + "_" + specEntity.name().toLowerCase();
         return getSpec(data, specKey);
@@ -43,7 +43,8 @@ public class SpecRegistry<T extends Spec> {
 
 
     @SuppressWarnings("unchecked")
-    public <S extends T> S getSpec(Map<String, Object> data, String specKey) {
+    public <S extends Spec> S getSpec(Map<String, Object> data, String specKey) {
+
         Class<? extends T> specClass = (Class<? extends T>) specTypes.get(specKey);
 
         if (specClass == null) {
@@ -60,8 +61,10 @@ public class SpecRegistry<T extends Spec> {
         } catch (Exception e) {
             // Handle any exceptions that may occur during instance creation.
             log.error("Cannot configure spec for type @SpecType('" + specKey + "') no way to recover error.");
-            throw new CoreException(ErrorList.INTERNAL_SERVER_ERROR.getValue(),
-                    "Cannot configure spec for type @SpecType('" + specKey + "')", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CoreException(
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                    "Cannot configure spec for type @SpecType('" + specKey + "')",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
     }

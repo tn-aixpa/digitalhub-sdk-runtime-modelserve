@@ -10,7 +10,6 @@ import it.smartcommunitylabdhub.core.components.infrastructure.runtimes.BaseRunt
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.RunStatus;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
-import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
@@ -41,7 +40,7 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
 
     @Override
     public RunBaseSpec<?> build(
-            FunctionBaseSpec<?> funSpec,
+            FunctionDbtSpec funSpec,
             TaskBaseSpec<?> taskSpec,
             RunBaseSpec<?> runSpec,
             String kind) {
@@ -49,20 +48,13 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
         // Retrieve builder using task kind
         if (kind.equals("transform")) {
 
-
-            FunctionDbtSpec functionDbtSpec = (FunctionDbtSpec) specRegistry.createSpec(
-                    "dbt",
-                    SpecEntity.FUNCTION,
-                    funSpec.toMap()
-            );
-
-            TaskTransformSpec taskTransformSpec = (TaskTransformSpec) specRegistry.createSpec(
+            TaskTransformSpec taskTransformSpec = specRegistry.createSpec(
                     "transform",
                     SpecEntity.TASK,
                     taskSpec.toMap()
             );
 
-            RunRunSpec runRunSpec = (RunRunSpec) specRegistry.createSpec(
+            RunRunSpec runRunSpec = specRegistry.createSpec(
                     "run",
                     SpecEntity.RUN,
                     runSpec.toMap()
@@ -83,7 +75,7 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
             DbtTransformBuilder builder = new DbtTransformBuilder();
 
             return builder.build(
-                    functionDbtSpec,
+                    funSpec,
                     taskTransformSpec,
                     runRunSpec);
 
@@ -95,6 +87,7 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
+
 
     @Override
     public Runnable run(RunDTO runDTO) {
@@ -108,7 +101,7 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
          *  Only by doing this you can get the bean related
          *
          *      // Retrieve base run spec to use task
-         *      RunRunSpec runBaseSpec = (RunRunSpec) specRegistry.createSpec(
+         *      RunRunSpec runBaseSpec = specRegistry.createSpec(
          *              runDTO.getKind(),
          *              SpecEntity.RUN,
          *              runDTO.getSpec()

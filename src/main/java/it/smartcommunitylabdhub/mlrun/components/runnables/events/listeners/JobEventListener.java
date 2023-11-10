@@ -43,7 +43,7 @@ public class JobEventListener {
     @Async
     public void handle(JobMessage message) {
 
-        RunBaseSpec runBaseSpec = (RunBaseSpec) specRegistry.createSpec(
+        RunBaseSpec<?> runBaseSpec = specRegistry.createSpec(
                 message.getRunDTO().getKind(),
                 SpecEntity.RUN,
                 message.getRunDTO().getSpec()
