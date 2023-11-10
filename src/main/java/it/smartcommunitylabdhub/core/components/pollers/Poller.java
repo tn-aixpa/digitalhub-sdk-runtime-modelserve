@@ -8,17 +8,44 @@ import org.springframework.core.task.TaskExecutor;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * The Poller class is responsible for executing a list of workflows at scheduled intervals.
+ * It provides support for both synchronous and asynchronous execution of workflows.
+ */
 @Log4j2
 public class Poller implements Runnable {
+
+    // List of workflows to be executed by the poller
     private final List<Workflow> workflowList;
+
+    // Scheduler for scheduling and executing tasks
     private final ScheduledExecutorService scheduledExecutorService;
+
+    // Delay between consecutive polling runs
     private final long delay;
+
+    // Flag to determine whether to reschedule after each run
     private final boolean reschedule;
+
+    // Name of the poller
     private final String name;
 
+    // Flag to indicate whether workflows should be executed asynchronously
     private final Boolean workflowsAsync;
+
+    // Flag indicating the poller's active state
     private boolean active;
 
+    /**
+     * Constructs a Poller with the specified parameters.
+     *
+     * @param name           The name of the poller.
+     * @param workflowList   List of workflows to be executed.
+     * @param delay          Delay between consecutive polling runs in seconds.
+     * @param reschedule     Flag indicating whether to reschedule after each run.
+     * @param workflowsAsync Flag indicating whether workflows should be executed asynchronously.
+     * @param executor       Task executor for handling asynchronous workflow execution.
+     */
     public Poller(String name, List<Workflow> workflowList, long delay, boolean reschedule, boolean workflowsAsync, TaskExecutor executor) {
         this.name = name;
         this.workflowList = workflowList;
@@ -31,16 +58,23 @@ public class Poller implements Runnable {
                 : Executors.newSingleThreadScheduledExecutor();
     }
 
+    // Getter for the scheduled executor service
     ScheduledExecutorService getScheduledExecutor() {
         return this.scheduledExecutorService;
     }
 
-
+    /**
+     * Initiates the polling process by scheduling the first execution of the Poller.
+     */
     public void startPolling() {
         log.info("Poller [" + name + "] start: " + Thread.currentThread().getName() + " (ID: " + Thread.currentThread().getId() + ")");
         getScheduledExecutor().schedule(this, delay, TimeUnit.SECONDS);
     }
 
+    /**
+     * Executes the polling logic. Depending on the configuration, workflows are executed either
+     * synchronously or asynchronously.
+     */
     @Override
     public void run() {
         log.info("Poller [" + name + "] run: " + Thread.currentThread().getName() + " (ID: " + Thread.currentThread().getId() + ")");
@@ -53,6 +87,9 @@ public class Poller implements Runnable {
         }
     }
 
+    /**
+     * Executes workflows synchronously one after the other.
+     */
     private void executeSync() {
         for (Workflow workflow : workflowList) {
             if (!active) {
@@ -75,6 +112,9 @@ public class Poller implements Runnable {
         }
     }
 
+    /**
+     * Executes workflows asynchronously, with support for rescheduling after completion.
+     */
     private void executeAsync() {
         CompletableFuture<Object> allWorkflowsFuture = CompletableFuture.completedFuture(null);
 
@@ -114,9 +154,9 @@ public class Poller implements Runnable {
     }
 
     /**
-     * Sequential workflow execution
+     * Executes a single workflow synchronously.
      *
-     * @param workflow Workflow
+     * @param workflow The workflow to be executed.
      */
     private void executeWorkflow(Workflow workflow) {
         try {
@@ -134,10 +174,10 @@ public class Poller implements Runnable {
     }
 
     /**
-     * Async single workflow Execution
+     * Executes a single workflow asynchronously.
      *
-     * @param workflow Workflow to execute
-     * @return CompletableFuture<Object>
+     * @param workflow The workflow to be executed.
+     * @return CompletableFuture representing the asynchronous execution.
      */
     private CompletableFuture<Object> executeWorkflowAsync(Workflow workflow) {
         CompletableFuture<Object> workflowExecution = new CompletableFuture<>();
@@ -160,6 +200,10 @@ public class Poller implements Runnable {
         return workflowExecution;
     }
 
+    /**
+     * Stops the polling process. It shuts down the executor service and waits for its termination.
+     * If termination does not occur within a specified timeout, a forced shutdown is attempted.
+     */
     public void stopPolling() {
         if (active) {
             active = false;
