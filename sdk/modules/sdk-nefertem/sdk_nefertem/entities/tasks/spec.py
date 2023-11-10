@@ -3,6 +3,10 @@ Task DBT specification module.
 """
 from sdk.entities.tasks.spec import TaskParams, TaskSpec
 
+###########################
+# Inference
+###########################
+
 
 class TaskSpecInfer(TaskSpec):
     """Task Infer specification."""
@@ -22,6 +26,11 @@ class TaskParamsInfer(TaskParams):
     """
     TaskParamsInfer model.
     """
+
+
+###########################
+# Profiling
+###########################
 
 
 class TaskSpecProfile(TaskSpec):
@@ -44,6 +53,11 @@ class TaskParamsProfile(TaskParams):
     """
 
 
+###########################
+# Validation
+###########################
+
+
 class TaskSpecValidate(TaskSpec):
     """Task Validate specification."""
 
@@ -61,4 +75,29 @@ class TaskSpecValidate(TaskSpec):
 class TaskParamsValidate(TaskParams):
     """
     TaskParamsValidate model.
+    """
+
+
+###########################
+# Metric
+###########################
+
+
+class TaskSpecMetric(TaskSpec):
+    """Task Metric specification."""
+
+    def __init__(
+        self,
+        function: str,
+        **kwargs,
+    ) -> None:
+        """
+        Constructor.
+        """
+        super().__init__(function, **kwargs)
+
+
+class TaskParamsMetric(TaskParams):
+    """
+    TaskParamsMetric model.
     """

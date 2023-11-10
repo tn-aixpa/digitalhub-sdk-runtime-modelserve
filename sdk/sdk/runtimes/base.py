@@ -20,3 +20,10 @@ class Runtime:
         """
         Execute run task.
         """
+
+    @staticmethod
+    def _get_action(run: dict) -> str:
+        """
+        Get action from run.
+        """
+        return run.get("spec").get("task").split(":")[0].split("+")[1]
