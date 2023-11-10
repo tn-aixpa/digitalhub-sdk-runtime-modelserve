@@ -6,12 +6,17 @@ LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalh
 # Set working dir
 WORKDIR /digitalhub-core/
 
-# Install dbt-postgres
-RUN python -m pip install dbt-postgres==1.6.3
+# Copy and install nefertem and inference plugins
+COPY ./nefertem ./lib-nefertem
+RUN chmod -R 775 /digitalhub-core/lib-nefertem
+RUN pip3 install -e ./lib-nefertem
+RUN pip3 install -e ./lib-nefertem/operations/nefertem_inference
+RUN pip3 install -e ./lib-nefertem/plugins/nefertem_inference_frictionless
 
-# Copy and install sdk
+# Copy and install sdk-dbt and sdk
 COPY ./sdk ./lib
 RUN chmod -R 775 /digitalhub-core/lib
+RUN pip3 install -e ./lib/modules/sdk-nefertem
 RUN pip3 install -e ./lib
 
 # Copy wrapper and set entry point

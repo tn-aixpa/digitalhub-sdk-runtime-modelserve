@@ -41,6 +41,8 @@ build/
 ### Sonar ###
 .scannerwork/
 
-/wrapper/sdk
+/wrapper/*/sdk
+/wrapper/*/wrapper.py
+/wrapper/nefertem/nefertem
 
 /data/*
