@@ -23,8 +23,8 @@ public class PollingService {
         this.executor = executor;
     }
 
-    public void createPoller(String name, List<Workflow> workflowList, long delay, boolean reschedule) {
-        Poller poller = new Poller(name, workflowList, delay, reschedule, executor);
+    public void createPoller(String name, List<Workflow> workflowList, long delay, boolean reschedule, boolean asyncWorkflow) {
+        Poller poller = new Poller(name, workflowList, delay, reschedule, asyncWorkflow, executor);
         pollerMap.put(name, poller);
     }
 

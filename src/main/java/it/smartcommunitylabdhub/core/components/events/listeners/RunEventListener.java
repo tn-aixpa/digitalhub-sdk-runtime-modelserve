@@ -25,6 +25,7 @@ public class RunEventListener {
     KindWorkflowFactory kindWorkflowFactory;
     @Autowired
     SpecRegistry<? extends Spec> specRegistry;
+
     @Autowired
     private PollingService pollingService;
 
@@ -50,7 +51,7 @@ public class RunEventListener {
 
         // Create new run poller
         pollingService.createPoller("run:" + message.getRunDTO().getId(),
-                workflows, 2, true);
+                workflows, 2, true, false);
 
         // Start poller
         pollingService.startOne("run:" + message.getRunDTO().getId());

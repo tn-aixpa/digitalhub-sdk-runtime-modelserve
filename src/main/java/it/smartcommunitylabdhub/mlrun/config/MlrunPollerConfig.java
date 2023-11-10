@@ -1,24 +1,22 @@
 package it.smartcommunitylabdhub.mlrun.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-
 import it.smartcommunitylabdhub.core.components.pollers.PollingService;
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.mlrun.components.pollers.functions.FunctionWorkflowBuilder;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class MlrunPollerConfig {
 
     @Autowired
-    private PollingService pollingService;
-
-    @Autowired
     FunctionWorkflowBuilder functionWorkflowBuilder;
+    @Autowired
+    private PollingService pollingService;
 
     @PostConstruct
     public void initialize() {
@@ -28,7 +26,7 @@ public class MlrunPollerConfig {
         coreMlrunSyncWorkflow.add(functionWorkflowBuilder.build());
 
         // Create a new poller and start it.
-        pollingService.createPoller("DHCore-Mlrun-Sync", coreMlrunSyncWorkflow, 5, true);
+        pollingService.createPoller("DHCore-Mlrun-Sync", coreMlrunSyncWorkflow, 5, true, true);
         pollingService.startOne("DHCore-Mlrun-Sync");
     }
 

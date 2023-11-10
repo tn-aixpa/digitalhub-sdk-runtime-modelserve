@@ -224,7 +224,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
         // Using the step method with explicit arguments
         pollingService.createPoller(jobName, List.of(
                 WorkflowFactory.builder().step(checkJobStatus, jobName, containerName, fsm).build()
-        ), 1, true);
+        ), 1, true, false);
 
         // Start job poller
         pollingService.startOne(jobName);
