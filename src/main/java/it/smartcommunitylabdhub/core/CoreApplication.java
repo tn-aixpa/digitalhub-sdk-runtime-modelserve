@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"it.smartcommunitylabdhub.core", "it.smartcommunitylabdhub.mlrun", "it.smartcommunitylabdhub.dbt"})
+@ComponentScan(basePackages = {"it.smartcommunitylabdhub.core", "it.smartcommunitylabdhub.modules"})
 public class CoreApplication {
 
     public static void main(String[] args) {
