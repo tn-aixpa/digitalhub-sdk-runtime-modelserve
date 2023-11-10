@@ -132,9 +132,9 @@ class RuntimeDBT(Runtime):
             The run spec.
         """
         return {
-            **function.get("spec"),
-            **task.get("spec"),
-            **run.get("spec"),
+            **function.get("spec", {}),
+            **task.get("spec", {}),
+            **run.get("spec", {}),
         }
 
     def run(self, run: dict) -> dict:
@@ -148,12 +148,13 @@ class RuntimeDBT(Runtime):
         """
 
         # Get action
-        action = run.get("spec").get("task").split(":")[0].split("+")[1]
+        action = self._get_action(run)
 
         # Execute action
         if action == "transform":
             return self.transform(run)
 
+        # Handle unknown task kind
         raise EntityError(f"Task {action} not allowed for DBT runtime")
 
     ####################

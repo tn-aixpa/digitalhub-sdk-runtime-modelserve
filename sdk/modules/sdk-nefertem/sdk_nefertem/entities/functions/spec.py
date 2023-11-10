@@ -10,7 +10,6 @@ class FunctionSpecNefertem(FunctionSpec):
     """
     def __init__(self, source: str | None = None, **kwargs):
         super().__init__(source, **kwargs)
-        self.platform = "nefertem"
 
 
 class FunctionParamsNefertem(FunctionParams):

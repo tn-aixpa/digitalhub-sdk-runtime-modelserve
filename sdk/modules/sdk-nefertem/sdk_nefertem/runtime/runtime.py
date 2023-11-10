@@ -40,9 +40,9 @@ class RuntimeNefertem(Runtime):
         Merge specs.
         """
         return {
-            **function.get("spec"),
-            **task.get("spec"),
-            **run.get("spec"),
+            **function.get("spec", {}),
+            **task.get("spec", {}),
+            **run.get("spec", {}),
         }
 
     def run(self, run: dict) -> dict:
@@ -55,7 +55,7 @@ class RuntimeNefertem(Runtime):
             Status of the executed run.
         """
         # Get action
-        action = run.get("spec").get("task").split(":")[0].split("+")[1]
+        action = self._get_action(run)
 
         # Execute action
         if action == "validate":
@@ -67,6 +67,7 @@ class RuntimeNefertem(Runtime):
         if action == "metric":
             return self.metric(run)
 
+        # Handle unknown task kind
         raise EntityError(f"Task {action} not allowed for runtime")
 
     ####################
@@ -126,9 +127,33 @@ class RuntimeNefertem(Runtime):
             Status of the executed run.
         """
 
+        # Get run specs
+        spec = run.get("spec")
+        project = run.get("metadata").get("project")
+
+        # Get inputs and parameters
+        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+
+        resources = self._get_resources(inputs)
+        run_config = spec.get("parameters").get("run_config")
+
+        # Execute run
+        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
+        with client.create_run(resources, run_config) as nt_run:
+            nt_run.profile()
+            nt_run.log_profile()
+            nt_run.persist_profile()
+
+        # Upload outputs
+        artifacts = self._upload_outputs(nt_run.run_info, project)
+
+        # Remove tmp folder
+        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
+
         # Return run status
         return {
             "state": State.COMPLETED.value,
+            **artifacts,
         }
 
     ####################
@@ -145,9 +170,35 @@ class RuntimeNefertem(Runtime):
             Status of the executed run.
         """
 
+        # Get run specs
+        spec = run.get("spec")
+        project = run.get("metadata").get("project")
+
+        # Get inputs and parameters
+        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+
+        resources = self._get_resources(inputs)
+        run_config = spec.get("parameters").get("run_config")
+        constraints = spec.get("parameters").get("constraints")
+        error_report = spec.get("parameters").get("error_report")
+
+        # Execute run
+        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
+        with client.create_run(resources, run_config) as nt_run:
+            nt_run.validate(constraints=constraints, error_report=error_report)
+            nt_run.log_report()
+            nt_run.persist_report()
+
+        # Upload outputs
+        artifacts = self._upload_outputs(nt_run.run_info, project)
+
+        # Remove tmp folder
+        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
+
         # Return run status
         return {
             "state": State.COMPLETED.value,
+            **artifacts,
         }
 
     ####################
@@ -164,9 +215,34 @@ class RuntimeNefertem(Runtime):
             Status of the executed run.
         """
 
+        # Get run specs
+        spec = run.get("spec")
+        project = run.get("metadata").get("project")
+
+        # Get inputs and parameters
+        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+
+        resources = self._get_resources(inputs)
+        run_config = spec.get("parameters").get("run_config")
+        metrics = spec.get("parameters").get("metrics")
+
+        # Execute run
+        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
+        with client.create_run(resources, run_config) as nt_run:
+            nt_run.metric(metrics=metrics)
+            nt_run.log_metric()
+            nt_run.persist_metric()
+
+        # Upload outputs
+        artifacts = self._upload_outputs(nt_run.run_info, project)
+
+        # Remove tmp folder
+        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
+
         # Return run status
         return {
             "state": State.COMPLETED.value,
+            **artifacts,
         }
 
     ####################
