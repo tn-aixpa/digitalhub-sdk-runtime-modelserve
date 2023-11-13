@@ -53,9 +53,9 @@ def new_workflow(
     project: str,
     name: str,
     kind: str,
+    uuid: str | None = None,
     description: str | None = None,
     embedded: bool = True,
-    uuid: str | None = None,
     **kwargs,
 ) -> Workflow:
     """
@@ -67,14 +67,14 @@ def new_workflow(
         A string representing the project associated with this workflow.
     name : str
         The name of the workflow.
-    description : str
-        A description of the workflow.
     kind : str
         Kind of the object.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    description : str
+        A description of the workflow.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
     **kwargs
         Keyword arguments.
 

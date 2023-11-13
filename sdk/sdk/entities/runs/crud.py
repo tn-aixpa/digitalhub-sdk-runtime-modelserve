@@ -37,6 +37,7 @@ def new_run(
     task: str,
     task_id: str,
     kind: str,
+    uuid: str | None = None,
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
@@ -44,39 +45,44 @@ def new_run(
     **kwargs,
 ) -> Run:
     """
-    Create a new object instance.
+    Create run.
 
     Parameters
     ----------
     project : str
         Name of the project.
-    task : str
-        The task string of the run.
     task_id : str
-        The task id of the run.
-    kind : str, default "run"
-        The type of the Run.
+        Identifier of the task associated with the run.
+    task : str
+        Name of the task associated with the run.
+    kind : str
+        The type of the run.
+    uuid : str
+        UUID.
     inputs : dict
-        The inputs of the run.
+        Inputs of the run.
     outputs : list
-        The outputs of the run.
+        Outputs of the run.
     parameters : dict
-        The parameters of the run.
+        Parameters of the run.
     local_execution : bool
         Flag to determine if object has local execution.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
     **kwargs
         Keyword arguments.
 
     Returns
     -------
     Run
-       Object instance.
+        Run object.
     """
     obj = create_run(
         project=project,
         task=task,
         task_id=task_id,
         kind=kind,
+        uuid=uuid,
         inputs=inputs,
         outputs=outputs,
         parameters=parameters,

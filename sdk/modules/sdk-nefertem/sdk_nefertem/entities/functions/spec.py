@@ -8,6 +8,7 @@ class FunctionSpecNefertem(FunctionSpec):
     """
     Specification for a Function Nefertem.
     """
+
     def __init__(self, source: str | None = None, **kwargs):
         super().__init__(source, **kwargs)
 

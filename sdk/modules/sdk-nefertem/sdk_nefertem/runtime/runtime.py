@@ -9,9 +9,9 @@ from pathlib import Path
 
 import nefertem
 
-from sdk.entities.dataitems.crud import get_dataitem
-from sdk.entities.artifacts.crud import new_artifact
 from sdk.entities._base.status import State
+from sdk.entities.artifacts.crud import new_artifact
+from sdk.entities.dataitems.crud import get_dataitem
 from sdk.runtimes.base import Runtime
 from sdk.utils.exceptions import EntityError
 
@@ -325,9 +325,11 @@ class RuntimeNefertem(Runtime):
             name = Path(file).stem
             artifact = new_artifact(project, name, "artifact", src_path=file, target_path=dst)
             artifact.upload()
-            artifacts["artifacts"].append({
+            artifacts["artifacts"].append(
+                {
                     "key": name,
                     "kind": "artifact",
                     "id": f"store://{project}/artifacts/artifact/{name}:{artifact.metadata.version}",
-            })
+                }
+            )
         return artifacts

@@ -18,17 +18,14 @@ class ModelObj:
             A dictionary containing the attributes of the entity instance.
         """
         obj = {}
-        for k in self.__dict__:
-            if k.startswith("_"):
-                continue
-            val = getattr(self, k, None)
-            if val is not None:
-                if hasattr(val, "to_dict"):
-                    val = val.to_dict()
-                    if val:
-                        obj[k] = val
+        for key, value in self.__dict__.items():
+            if not key.startswith("_") and value is not None:
+                if hasattr(value, "to_dict"):
+                    sub_dict = value.to_dict()
+                    if sub_dict:
+                        obj[key] = sub_dict
                 else:
-                    obj[k] = val
+                    obj[key] = value
         return obj
 
     def _any_setter(self, **kwargs) -> None:

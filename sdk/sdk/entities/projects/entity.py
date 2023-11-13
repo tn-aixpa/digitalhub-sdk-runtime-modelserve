@@ -20,6 +20,7 @@ from sdk.utils.api import api_base_create, api_base_update
 from sdk.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from sdk.utils.exceptions import BackendError, EntityError
 from sdk.utils.generic_utils import build_uuid, get_timestamp
+from sdk.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from sdk.entities.artifacts.entity import Artifact
@@ -171,7 +172,7 @@ class Project(Entity):
         obj = self._parse_spec(obj)
 
         filename = filename if filename is not None else "project.yaml"
-        self._export_object(filename, obj)
+        write_yaml(filename, obj)
 
         # Export objects related to project if not embedded
         for i in LIST:
@@ -337,6 +338,7 @@ class Project(Entity):
            Object instance.
         """
         kwargs["project"] = self.metadata.name
+        kwargs["kind"] = "artifact"
         obj = new_artifact(**kwargs)
         self._add_object(obj, ARTF)
         return obj
@@ -577,6 +579,7 @@ class Project(Entity):
            Object instance.
         """
         kwargs["project"] = self.metadata.name
+        kwargs["kind"] = "dataitem"
         obj = new_dataitem(**kwargs)
         self._add_object(obj, DTIT)
         return obj
@@ -642,11 +645,11 @@ class Project(Entity):
 def project_from_parameters(
     name: str,
     kind: str,
+    uuid: str | None = None,
     description: str | None = None,
+    local: bool = False,
     context: str = "",
     source: str = "",
-    uuid: str | None = None,
-    local: bool = False,
     **kwargs,
 ) -> Project:
     """
@@ -656,18 +659,18 @@ def project_from_parameters(
     ----------
     name : str
         Identifier of the project.
-    description : str
-        Description of the project.
     kind : str
         The type of the project.
+    uuid : str
+        UUID.
+    description : str
+        Description of the project.
+    local : bool
+        Flag to determine if object will be exported to backend.
     context : str
         The context of the project.
     source : str
         The source of the project.
-    uuid : str
-        UUID.
-    local : bool
-        Flag to determine if object will be exported to backend.
     **kwargs
         Keyword arguments.
 

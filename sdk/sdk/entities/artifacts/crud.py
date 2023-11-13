@@ -54,12 +54,12 @@ def new_artifact(
     project: str,
     name: str,
     kind: str,
+    uuid: str | None = None,
     description: str | None = None,
+    embedded: bool = True,
     key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
-    embedded: bool = True,
-    uuid: str | None = None,
     **kwargs,
 ) -> Artifact:
     """
@@ -71,20 +71,20 @@ def new_artifact(
         Name of the project.
     name : str
         Identifier of the artifact.
-    description : str
-        Description of the artifact.
     kind : str
         The type of the artifact.
+    uuid : str
+        UUID.
+    description : str
+        Description of the artifact.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
     key : str
         Representation of artfact like store://etc..
     src_path : str
         Path to the artifact on local file system.
     targeth_path : str
         Destination path of the artifact.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
-    uuid : str
-        UUID.
     **kwargs
         Keyword arguments.
 
@@ -96,13 +96,13 @@ def new_artifact(
     obj = create_artifact(
         project=project,
         name=name,
+        kind=kind,
+        uuid=uuid,
         description=description,
-        kind="artifact",
+        embedded=embedded,
         key=key,
         src_path=src_path,
         target_path=target_path,
-        embedded=embedded,
-        uuid=uuid,
         **kwargs,
     )
     obj.save()

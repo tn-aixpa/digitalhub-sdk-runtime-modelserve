@@ -36,44 +36,48 @@ def create_project(**kwargs) -> Project:
 
 def new_project(
     name: str,
-    description: str | None = None,
-    context: str | None = None,
-    source: str | None = None,
     uuid: str | None = None,
+    description: str | None = None,
     local: bool = False,
+    context: str = "",
+    source: str = "",
     **kwargs,
 ) -> Project:
     """
-    Create a new project and an execution context.
+    Create project.
 
     Parameters
     ----------
     name : str
-        Name of the project.
-    description : str
-        The description of the project.
-    context : str
-        The path to the project's execution context.
-    source : str
-        The path to the project's source code.
+        Identifier of the project.
+    kind : str
+        The type of the project.
     uuid : str
         UUID.
+    description : str
+        Description of the project.
     local : bool
-        Flag to determine if backend is local.
+        Flag to determine if object will be exported to backend.
+    context : str
+        The context of the project.
+    source : str
+        The source of the project.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Project
-        A Project instance.
+        Project object.
     """
     obj = create_project(
         name=name,
         kind="project",
+        uuid=uuid,
         description=description,
+        local=local,
         context=context,
         source=source,
-        uuid=uuid,
-        local=local,
         **kwargs,
     )
     obj.save()

@@ -16,6 +16,7 @@ from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import FUNC
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid, get_timestamp
+from sdk.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
@@ -113,7 +114,7 @@ class Function(Entity):
         """
         obj = self.to_dict()
         filename = filename if filename is not None else f"function_{self.metadata.project}_{self.metadata.name}.yaml"
-        self._export_object(filename, obj)
+        write_yaml(filename, obj)
 
     #############################
     #  Context
@@ -367,59 +368,38 @@ def function_from_parameters(
     project: str,
     name: str,
     kind: str,
-    description: str | None = None,
-    source: str | None = None,
-    image: str | None = None,
-    tag: str | None = None,
-    handler: str | None = None,
-    command: str | None = None,
-    arguments: list | None = None,
-    requirements: list | None = None,
-    sql: str | None = None,
-    embedded: bool = True,
     uuid: str | None = None,
+    description: str | None = None,
+    embedded: bool = True,
+    source: str | None = None,
     **kwargs,
 ) -> Function:
     """
-    Create function.
+    Create a new Function instance and persist it to the backend.
 
     Parameters
     ----------
     project : str
         Name of the project.
     name : str
-        Identifier of the Function.
-    description : str
-        Description of the Function.
+        Identifier of the function.
     kind : str
-        The type of the Function.
-    source : str
-        Path to the Function's source code on the local file system.
-    image : str
-        Name of the Function's container image.
-    tag : str
-        Tag of the Function's container image.
-    handler : str
-        Function handler name.
-    command : str
-        Command to run inside the container.
-    arguments : list
-        List of arguments for the command.
-    requirements : list
-        List of requirements for the Function.
-    sql : str
-        SQL query.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
+        The type of the function.
     uuid : str
         UUID.
+    description : str
+        Description of the function.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
+    source : str
+        Path to the function's source code on the local file system.
     **kwargs
         Keyword arguments.
 
     Returns
     -------
     Function
-        Function object.
+       Object instance.
     """
     uuid = build_uuid(uuid)
     spec = build_spec(
@@ -427,13 +407,6 @@ def function_from_parameters(
         kind,
         module_kind=kind,
         source=source,
-        image=image,
-        tag=tag,
-        handler=handler,
-        command=command,
-        args=arguments,
-        requirements=requirements,
-        sql=sql,
         **kwargs,
     )
     metadata = build_metadata(
