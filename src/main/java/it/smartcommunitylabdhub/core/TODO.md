@@ -1,6 +1,6 @@
 TODO: 09/11/2023
 
-- Fix poller scheduler at the moment it recreate a thread every time
+- [x] Fix poller scheduler at the moment it recreate a thread every time
 
 TODO: 20/09/2011
 
