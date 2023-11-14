@@ -138,13 +138,11 @@ class Function(Entity):
     def run(
         self,
         action: str,
-        resources: dict | None = None,
-        image: str | None = None,
-        base_image: str | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
         local_execution: bool = False,
+        **kwargs,
     ) -> Run:
         """
         Run function.
@@ -153,12 +151,6 @@ class Function(Entity):
         ----------
         action : str
             Action to execute. Task parameter.
-        resources : dict
-            K8s resource. Task parameter.
-        image : str
-            Output image name. Task parameter.
-        base_image : str
-            Base image name. Task parameter.
         inputs : dict
             Function inputs. Run parameter.
         outputs : dict
@@ -167,21 +159,18 @@ class Function(Entity):
             Function parameters. Run parameter.
         local_execution : bool
             Flag to determine if object has local execution. Run parameter.
+        **kwargs
+            Keyword arguments passed to Task builder.
         Returns
         -------
         Run
             Run instance.
         """
 
-        # Create task if not exists
+        # Create task if does not exists
         task = self._tasks.get(action)
         if task is None:
-            task = self.new_task(
-                kind=action,
-                resources=resources,
-                image=image,
-                base_image=base_image,
-            )
+            task = self.new_task(kind=action, **kwargs)
 
         # Run function from task
         run = task.run(inputs, outputs, parameters, local_execution)
