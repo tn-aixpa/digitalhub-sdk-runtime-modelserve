@@ -35,7 +35,7 @@ public class RunEntityBuilder {
         // Create run Object
         Run run = ConversionUtils.convert(runDTO, "run");
         // Retrieve base spec
-        RunBaseSpec spec = JacksonMapper.objectMapper
+        RunBaseSpec<?> spec = JacksonMapper.objectMapper
                 .convertValue(runDTO.getSpec(), RunBaseSpec.class);
 
         // Merge Task and TaskId

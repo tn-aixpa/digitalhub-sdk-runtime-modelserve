@@ -33,7 +33,7 @@ public class FunctionEntityBuilder {
         specRegistry.createSpec(functionDTO.getKind(), SpecEntity.FUNCTION, Map.of());
 
         // Retrieve Spec
-        FunctionBaseSpec spec = JacksonMapper.objectMapper
+        FunctionBaseSpec<?> spec = JacksonMapper.objectMapper
                 .convertValue(functionDTO.getSpec(), FunctionBaseSpec.class);
 
         return EntityFactory.combine(

@@ -30,9 +30,9 @@ public class WorkflowEntityBuilder {
     public Workflow build(WorkflowDTO workflowDTO) {
 
         specRegistry.createSpec(workflowDTO.getKind(), SpecEntity.WORKFLOW, Map.of());
-        
+
         // Retrieve Spec
-        WorkflowBaseSpec spec = JacksonMapper.objectMapper
+        WorkflowBaseSpec<?> spec = JacksonMapper.objectMapper
                 .convertValue(workflowDTO.getSpec(), WorkflowBaseSpec.class);
 
         return EntityFactory.combine(

@@ -36,7 +36,7 @@ public class TaskEntityBuilder {
         Task task = ConversionUtils.convert(taskDTO, "task");
 
         // Retrieve base spec
-        TaskBaseSpec spec = JacksonMapper.objectMapper
+        TaskBaseSpec<?> spec = JacksonMapper.objectMapper
                 .convertValue(taskDTO.getSpec(), TaskBaseSpec.class);
 
         // Merge function

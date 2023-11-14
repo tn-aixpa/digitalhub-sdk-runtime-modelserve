@@ -24,14 +24,14 @@ public class DataItemEntityBuilder {
     /**
      * Build d dataItem from d dataItemDTO and store extra values as d cbor
      *
-     * @return
+     * @return DataItemDTO
      */
     public DataItem build(DataItemDTO dataItemDTO) {
 
         specRegistry.createSpec(dataItemDTO.getKind(), SpecEntity.DATAITEM, Map.of());
 
         // Retrieve Spec
-        DataItemBaseSpec spec = JacksonMapper.objectMapper
+        DataItemBaseSpec<?> spec = JacksonMapper.objectMapper
                 .convertValue(dataItemDTO.getSpec(), DataItemBaseSpec.class);
         return EntityFactory.combine(
                 ConversionUtils.convert(dataItemDTO, "dataitem"), dataItemDTO,
