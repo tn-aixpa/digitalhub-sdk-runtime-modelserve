@@ -1,5 +1,7 @@
 package it.smartcommunitylabdhub.core.models.builders.project;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
@@ -7,12 +9,17 @@ import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.specs.ProjectBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
 public class ProjectEntityBuilder {
+
+
+    @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
 
     /**
      * Build a project from a projectDTO and store extra values as a cbor
@@ -21,8 +28,7 @@ public class ProjectEntityBuilder {
      * @return Project
      */
     public Project build(ProjectDTO projectDTO) {
-
-
+        
         // Retrieve object spec
         ProjectBaseSpec projectSpec = JacksonMapper.objectMapper
                 .convertValue(

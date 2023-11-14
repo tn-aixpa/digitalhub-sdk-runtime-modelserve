@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class WorkflowContextServiceImpl extends ContextService implements WorkflowContextService {
 
     @Autowired

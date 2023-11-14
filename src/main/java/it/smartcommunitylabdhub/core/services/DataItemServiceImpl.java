@@ -54,7 +54,7 @@ public class DataItemServiceImpl implements DataItemService {
             throw new CoreException("DuplicateDataItemId",
                     "Cannot create the dataItem", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        Optional<DataItem> savedDataItem = Optional.ofNullable(dataItemDTO)
+        Optional<DataItem> savedDataItem = Optional.of(dataItemDTO)
                 .map(dataItemEntityBuilder::build)
                 .map(this.dataItemRepository::save);
 

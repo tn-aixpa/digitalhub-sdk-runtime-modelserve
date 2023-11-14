@@ -1,5 +1,8 @@
 package it.smartcommunitylabdhub.core.models.builders.function;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
+import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
@@ -7,10 +10,17 @@ import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 public class FunctionEntityBuilder {
+
+
+    @Autowired
+    SpecRegistry<? extends Spec> specRegistry;
 
     /**
      * Build a function from a functionDTO and store extra values as a cbor
@@ -19,6 +29,8 @@ public class FunctionEntityBuilder {
      * @return Function
      */
     public Function build(FunctionDTO functionDTO) {
+
+        specRegistry.createSpec(functionDTO.getKind(), SpecEntity.FUNCTION, Map.of());
 
         // Retrieve Spec
         FunctionBaseSpec spec = JacksonMapper.objectMapper

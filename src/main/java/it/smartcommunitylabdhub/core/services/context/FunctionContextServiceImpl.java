@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class FunctionContextServiceImpl extends ContextService implements FunctionContextService {
 
     @Autowired

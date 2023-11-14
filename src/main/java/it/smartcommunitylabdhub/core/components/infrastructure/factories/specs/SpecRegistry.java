@@ -3,6 +3,7 @@ package it.smartcommunitylabdhub.core.components.infrastructure.factories.specs;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -24,39 +25,46 @@ public class SpecRegistry<T extends Spec> {
     /**
      * Create an instance of a spec based on its type and configure it with data.
      *
-     * @param specType The type of the spec to create.
-     * @param data     The data used to configure the spec.
-     * @param <S>      The generic type for the spec.
+     * @param kind The type of the spec to create.
+     * @param data The data used to configure the spec.
+     * @param <S>  The generic type for the spec.
      * @return An instance of the specified spec type, or null if not found or in case of errors.
      */
-    public <S extends Spec> S createSpec(String specType, SpecEntity specEntity, Map<String, Object> data) {
+    public <S extends Spec> S createSpec(@NotNull String kind, @NotNull SpecEntity entity, Map<String, Object> data) {
         // Retrieve the class associated with the specified spec type.
-        final String specKey = specType + "_" + specEntity.name().toLowerCase();
+        final String specKey = kind + "_" + entity.name().toLowerCase();
         return getSpec(data, specKey);
     }
 
-    public <S extends Spec> S createSpec(String specRuntime, String specType, SpecEntity specEntity, Map<String, Object> data) {
+    public <S extends Spec> S createSpec(@NotNull String runtime, @NotNull String kind, @NotNull SpecEntity entity, Map<String, Object> data) {
         // Retrieve the class associated with the specified spec type.
-        final String specKey = specRuntime + "_" + specType + "_" + specEntity.name().toLowerCase();
+        final String specKey = runtime + "_" + kind + "_" + entity.name().toLowerCase();
         return getSpec(data, specKey);
     }
 
 
     @SuppressWarnings("unchecked")
-    public <S extends Spec> S getSpec(Map<String, Object> data, String specKey) {
+    private <S extends Spec> S getSpec(Map<String, Object> data, String specKey) {
 
         Class<? extends T> specClass = (Class<? extends T>) specTypes.get(specKey);
 
         if (specClass == null) {
             // Fallback spec None if no class specific is found, avoid crash.
-            specClass = (Class<? extends T>) specTypes.get("none_none");
+            //specClass = (Class<? extends T>) specTypes.get("none_none");
+            throw new CoreException(
+                    ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                    "Spec not found: tried to extract spec for <" + specKey + "> key",
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
 
         try {
             // Create a new instance of the spec class.
             S spec = (S) specClass.getDeclaredConstructor().newInstance();
             // Configure the spec instance with the provided data.
-            spec.configure(data);
+            if (data != null) {
+                spec.configure(data);
+            }
             return spec;
         } catch (Exception e) {
             // Handle any exceptions that may occur during instance creation.
