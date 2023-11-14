@@ -17,7 +17,7 @@ import java.util.Map;
 public class K8sJobBuilderHelper {
 
     @Value("${application.endpoint}")
-    private String DHCORE_ENDPOINT;
+    private String DH_ENDPOINT;
 
     /**
      * A helper method to get an environment variable with a default value if not present.
@@ -61,7 +61,7 @@ public class K8sJobBuilderHelper {
 
         // Add extra envs
         envVarList.add(new V1EnvVar().name("DHUB_CORE_ENDPOINT")
-                .value(DHCORE_ENDPOINT));
+                .value(DH_ENDPOINT));
 
         return envVarList;
 
