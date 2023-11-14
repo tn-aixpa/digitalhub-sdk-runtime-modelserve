@@ -16,6 +16,7 @@ from sdk.utils.commons import ARTF
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import check_file
 from sdk.utils.generic_utils import build_uuid, get_timestamp
+from sdk.utils.io_utils import write_yaml
 from sdk.utils.uri_utils import get_name_from_uri, map_uri_scheme
 
 if typing.TYPE_CHECKING:
@@ -109,7 +110,7 @@ class Artifact(Entity):
         """
         obj = self.to_dict()
         filename = filename if filename is not None else f"artifact_{self.metadata.project}_{self.metadata.name}.yaml"
-        self._export_object(filename, obj)
+        write_yaml(filename, obj)
 
     #############################
     #  Context
@@ -332,16 +333,16 @@ def artifact_from_parameters(
     project: str,
     name: str,
     kind: str,
+    uuid: str | None = None,
     description: str | None = None,
+    embedded: bool = True,
     key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
-    embedded: bool = True,
-    uuid: str | None = None,
     **kwargs,
 ) -> Artifact:
     """
-    Create artifact.
+    Create an instance of the Artifact class with the provided parameters.
 
     Parameters
     ----------
@@ -349,20 +350,20 @@ def artifact_from_parameters(
         Name of the project.
     name : str
         Identifier of the artifact.
-    description : str
-        Description of the artifact.
     kind : str
         The type of the artifact.
+    uuid : str
+        UUID.
+    description : str
+        Description of the artifact.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
     key : str
         Representation of artfact like store://etc..
     src_path : str
         Path to the artifact on local file system.
-    target_path : str
+    targeth_path : str
         Destination path of the artifact.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
-    uuid : str
-        UUID.
     **kwargs
         Keyword arguments.
 

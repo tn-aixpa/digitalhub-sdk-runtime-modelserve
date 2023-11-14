@@ -9,9 +9,9 @@ from pathlib import Path
 
 import nefertem
 
-from sdk.entities.dataitems.crud import get_dataitem
-from sdk.entities.artifacts.crud import new_artifact
 from sdk.entities._base.status import State
+from sdk.entities.artifacts.crud import new_artifact
+from sdk.entities.dataitems.crud import get_dataitem
 from sdk.runtimes.base import Runtime
 from sdk.utils.exceptions import EntityError
 
@@ -92,7 +92,7 @@ class RuntimeNefertem(Runtime):
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
 
         resources = self._get_resources(inputs)
-        run_config = spec.get("parameters").get("run_config")
+        run_config = spec.get("run_config")
 
         # Execute run
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
@@ -135,7 +135,7 @@ class RuntimeNefertem(Runtime):
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
 
         resources = self._get_resources(inputs)
-        run_config = spec.get("parameters").get("run_config")
+        run_config = spec.get("run_config")
 
         # Execute run
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
@@ -178,9 +178,9 @@ class RuntimeNefertem(Runtime):
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
 
         resources = self._get_resources(inputs)
-        run_config = spec.get("parameters").get("run_config")
-        constraints = spec.get("parameters").get("constraints")
-        error_report = spec.get("parameters").get("error_report")
+        run_config = spec.get("run_config")
+        constraints = spec.get("constraints")
+        error_report = spec.get("error_report")
 
         # Execute run
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
@@ -223,8 +223,8 @@ class RuntimeNefertem(Runtime):
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
 
         resources = self._get_resources(inputs)
-        run_config = spec.get("parameters").get("run_config")
-        metrics = spec.get("parameters").get("metrics")
+        run_config = spec.get("run_config")
+        metrics = spec.get("metrics")
 
         # Execute run
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
@@ -325,9 +325,11 @@ class RuntimeNefertem(Runtime):
             name = Path(file).stem
             artifact = new_artifact(project, name, "artifact", src_path=file, target_path=dst)
             artifact.upload()
-            artifacts["artifacts"].append({
+            artifacts["artifacts"].append(
+                {
                     "key": name,
                     "kind": "artifact",
                     "id": f"store://{project}/artifacts/artifact/{name}:{artifact.metadata.version}",
-            })
+                }
+            )
         return artifacts

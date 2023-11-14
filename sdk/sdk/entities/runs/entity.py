@@ -19,6 +19,7 @@ from sdk.utils.api import api_base_create, api_base_read, api_base_update, api_c
 from sdk.utils.commons import ARTF, DTIT, FUNC, LOGS, RUNS, TASK
 from sdk.utils.exceptions import EntityError
 from sdk.utils.generic_utils import build_uuid, get_timestamp
+from sdk.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
@@ -120,7 +121,7 @@ class Run(Entity):
         filename = (
             filename if filename is not None else f"run_{self.metadata.project}_{self.spec.task_id}_{self.id}.yaml"
         )
-        self._export_object(filename, obj)
+        write_yaml(filename, obj)
 
     #############################
     #  Context
@@ -378,11 +379,11 @@ def run_from_parameters(
     task: str,
     task_id: str,
     kind: str,
+    uuid: str | None = None,
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
     local_execution: bool = False,
-    uuid: str | None = None,
     **kwargs,
 ) -> Run:
     """
@@ -396,10 +397,10 @@ def run_from_parameters(
         Identifier of the task associated with the run.
     task : str
         Name of the task associated with the run.
-    uuid : str
-        UUID.
     kind : str
         The type of the run.
+    uuid : str
+        UUID.
     inputs : dict
         Inputs of the run.
     outputs : list

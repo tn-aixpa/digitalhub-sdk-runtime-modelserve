@@ -53,17 +53,10 @@ def new_function(
     project: str,
     name: str,
     kind: str,
-    description: str | None = None,
-    source: str | None = None,
-    image: str | None = None,
-    tag: str | None = None,
-    handler: str | None = None,
-    command: str | None = None,
-    arguments: list | None = None,
-    requirements: list | None = None,
-    sql: str | None = None,
-    embedded: bool = True,
     uuid: str | None = None,
+    description: str | None = None,
+    embedded: bool = True,
+    source: str | None = None,
     **kwargs,
 ) -> Function:
     """
@@ -74,31 +67,17 @@ def new_function(
     project : str
         Name of the project.
     name : str
-        Identifier of the Function.
-    description : str
-        Description of the Function.
+        Identifier of the function.
     kind : str
-        The type of the Function.
-    source : str
-        Path to the Function's source code on the local file system.
-    image : str
-        Name of the Function's container image.
-    tag : str
-        Tag of the Function's container image.
-    handler : str
-        Function handler name.
-    command : str
-        Command to run inside the container.
-    arguments : list
-        List of arguments for the command.
-    requirements : list
-        List of requirements for the Function.
-    sql : str
-        SQL query.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
+        The type of the function.
     uuid : str
         UUID.
+    description : str
+        Description of the function.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
+    source : str
+        Path to the function's source code on the local file system.
     **kwargs
         Keyword arguments.
 
@@ -106,27 +85,15 @@ def new_function(
     -------
     Function
        Object instance.
-
-    Raises
-    ------
-    EntityError
-        If the context local flag does not match the local flag of the function.
     """
     obj = create_function(
         project=project,
         name=name,
-        description=description,
         kind=kind,
-        source=source,
-        image=image,
-        tag=tag,
-        handler=handler,
-        command=command,
-        arguments=arguments,
-        requirements=requirements,
-        sql=sql,
-        embedded=embedded,
         uuid=uuid,
+        description=description,
+        source=source,
+        embedded=embedded,
         **kwargs,
     )
     obj.save()

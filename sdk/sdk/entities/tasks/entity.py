@@ -14,6 +14,7 @@ from sdk.entities.runs.crud import delete_run, get_run, new_run
 from sdk.utils.api import api_base_create, api_base_update
 from sdk.utils.commons import TASK
 from sdk.utils.generic_utils import build_uuid, get_timestamp
+from sdk.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
@@ -105,7 +106,7 @@ class Task(Entity):
         """
         obj = self.to_dict()
         filename = filename if filename is not None else f"task_{self.id}.yaml"
-        self._export_object(filename, obj)
+        write_yaml(filename, obj)
 
     #############################
     #  Context
@@ -264,32 +265,30 @@ class Task(Entity):
 def task_from_parameters(
     project: str,
     kind: str,
-    function: str,
-    resources: dict | None = None,
-    image: str | None = None,
-    base_image: str | None = None,
     uuid: str | None = None,
+    function: str | None = "",
+    **kwargs,
 ) -> Task:
     """
-    Create Task object from parameters.
+    Create a new object instance.
 
     Parameters
     ----------
     project : str
         Name of the project.
     kind : str
-        Kind of the object.
-    function : str
-        The function string.
-    resources : dict
-        The k8s resources.
+        The type of the task.
     uuid : str
         UUID.
+    function : str
+        The function string identifying the function.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Task
-        Task object.
+       Object instance.
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(TASK, project=project, name=uuid)
@@ -298,9 +297,7 @@ def task_from_parameters(
         kind,
         module_kind=function.split("://")[0],
         function=function,
-        resources=resources,
-        image=image,
-        base_image=base_image,
+        **kwargs,
     )
     status = build_status(TASK)
     return Task(

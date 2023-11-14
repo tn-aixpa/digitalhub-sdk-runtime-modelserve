@@ -16,6 +16,7 @@ from sdk.utils.commons import DTIT
 from sdk.utils.exceptions import EntityError
 from sdk.utils.file_utils import clean_all, get_dir
 from sdk.utils.generic_utils import build_uuid, get_timestamp
+from sdk.utils.io_utils import write_yaml
 from sdk.utils.uri_utils import get_extension, map_uri_scheme
 
 if typing.TYPE_CHECKING:
@@ -111,7 +112,7 @@ class Dataitem(Entity):
         """
         obj = self.to_dict()
         filename = filename if filename is not None else f"dataitem_{self.metadata.project}_{self.metadata.name}.yaml"
-        self._export_object(filename, obj)
+        write_yaml(filename, obj)
 
     #############################
     #  Dataitem Methods
@@ -262,11 +263,11 @@ def dataitem_from_parameters(
     project: str,
     name: str,
     kind: str,
+    uuid: str | None = None,
     description: str | None = None,
+    embedded: bool = True,
     key: str | None = None,
     path: str | None = None,
-    embedded: bool = True,
-    uuid: str | None = None,
     **kwargs,
 ) -> Dataitem:
     """
@@ -278,24 +279,25 @@ def dataitem_from_parameters(
         Name of the project.
     name : str
         Identifier of the dataitem.
-    description : str
-        Description of the dataitem.
     kind : str
         The type of the dataitem.
+    uuid : str
+        UUID.
+    description : str
+        Description of the dataitem.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
     key : str
         Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
-    uuid : str
-        UUID.
     **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Dataitem
-        Dataitem object.
+       Object instance.
     """
     uuid = build_uuid(uuid)
     key = key if key is not None else f"store://{project}/dataitems/{kind}/{name}:{uuid}"

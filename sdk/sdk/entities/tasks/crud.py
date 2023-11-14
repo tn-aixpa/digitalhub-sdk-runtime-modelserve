@@ -35,9 +35,8 @@ def create_task(**kwargs) -> Task:
 def new_task(
     project: str,
     kind: str,
-    function: str = "",
-    resources: dict | None = None,
     uuid: str | None = None,
+    function: str | None = "",
     **kwargs,
 ) -> Task:
     """
@@ -47,14 +46,12 @@ def new_task(
     ----------
     project : str
         Name of the project.
-    kind : str, default "task"
-        The type of the Task.
-    function : str
-        The function string identifying the function.
-    resources : dict
-        The Kubernetes resources for the Task.
+    kind : str
+        The type of the task.
     uuid : str
         UUID.
+    function : str
+        The function string identifying the function.
     **kwargs
         Keyword arguments.
 
@@ -66,9 +63,8 @@ def new_task(
     obj = create_task(
         project=project,
         kind=kind,
-        function=function,
-        resources=resources,
         uuid=uuid,
+        function=function,
         **kwargs,
     )
     obj.save()

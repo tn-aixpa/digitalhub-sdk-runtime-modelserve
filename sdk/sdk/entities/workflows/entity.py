@@ -13,6 +13,7 @@ from sdk.entities._builders.status import build_status
 from sdk.utils.api import api_ctx_create, api_ctx_update
 from sdk.utils.commons import WKFL
 from sdk.utils.generic_utils import build_uuid, get_timestamp
+from sdk.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from sdk.context.context import Context
@@ -105,7 +106,7 @@ class Workflow(Entity):
         """
         obj = self.to_dict()
         filename = filename if filename is not None else f"workflow_{self.metadata.project}_{self.metadata.name}.yaml"
-        self._export_object(filename, obj)
+        write_yaml(filename, obj)
 
     #############################
     #  Context
@@ -127,9 +128,9 @@ def workflow_from_parameters(
     project: str,
     name: str,
     kind: str,
+    uuid: str | None = None,
     description: str | None = None,
     embedded: bool = True,
-    uuid: str | None = None,
     **kwargs,
 ) -> Workflow:
     """
@@ -141,14 +142,14 @@ def workflow_from_parameters(
         A string representing the project associated with this workflow.
     name : str
         The name of the workflow.
-    description : str
-        A description of the workflow.
     kind : str
         Kind of the object.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
     uuid : str
         UUID.
+    description : str
+        A description of the workflow.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
     **kwargs
         Keyword arguments.
 

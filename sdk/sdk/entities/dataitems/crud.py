@@ -54,11 +54,11 @@ def new_dataitem(
     project: str,
     name: str,
     kind: str,
+    uuid: str | None = None,
     description: str | None = None,
+    embedded: bool = True,
     key: str | None = None,
     path: str | None = None,
-    embedded: bool = True,
-    uuid: str | None = None,
     **kwargs,
 ) -> Dataitem:
     """
@@ -70,18 +70,18 @@ def new_dataitem(
         Name of the project.
     name : str
         Identifier of the dataitem.
-    description : str
-        Description of the dataitem.
     kind : str
         The type of the dataitem.
+    uuid : str
+        UUID.
+    description : str
+        Description of the dataitem.
+    embedded : bool
+        Flag to determine if object must be embedded in project.
     key : str
         Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
-    uuid : str
-        UUID.
     **kwargs
         Keyword arguments.
 
@@ -93,12 +93,12 @@ def new_dataitem(
     obj = create_dataitem(
         project=project,
         name=name,
-        description=description,
         kind=kind,
+        uuid=uuid,
+        description=description,
+        embedded=embedded,
         key=key,
         path=path,
-        embedded=embedded,
-        uuid=uuid,
         **kwargs,
     )
     obj.save()

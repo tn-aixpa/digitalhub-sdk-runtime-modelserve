@@ -8,7 +8,6 @@ from sdk.entities._builders.metadata import build_metadata
 from sdk.entities._builders.spec import build_spec
 from sdk.entities._builders.status import build_status
 from sdk.utils.generic_utils import build_uuid
-from sdk.utils.io_utils import write_yaml
 
 
 class Entity(ModelObj, metaclass=ABCMeta):
@@ -41,23 +40,6 @@ class Entity(ModelObj, metaclass=ABCMeta):
         """
         Abstract save method.
         """
-
-    @staticmethod
-    def _export_object(filename: str, obj: dict) -> None:
-        """
-        Export object to a file in the specified filename location.
-
-        Parameters
-        ----------
-        filename : str
-            The absolute or relative path to the file in which the object
-            will be exported.
-
-        Returns
-        -------
-        None
-        """
-        return write_yaml(obj, filename)
 
     def to_dict(self, include_all_non_private: bool = False) -> dict:
         """
