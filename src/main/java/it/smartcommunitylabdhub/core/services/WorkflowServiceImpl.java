@@ -16,6 +16,7 @@ import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.repositories.WorkflowRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.WorkflowService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class WorkflowServiceImpl implements WorkflowService {
 
     @Autowired
@@ -69,7 +71,7 @@ public class WorkflowServiceImpl implements WorkflowService {
             throw new CoreException("DuplicateWorkflowId",
                     "Cannot create the workflow", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        Optional<Workflow> savedWorkflow = Optional.ofNullable(workflowDTO)
+        Optional<Workflow> savedWorkflow = Optional.of(workflowDTO)
                 .map(workflowEntityBuilder::build)
                 .map(this.workflowRepository::save);
 

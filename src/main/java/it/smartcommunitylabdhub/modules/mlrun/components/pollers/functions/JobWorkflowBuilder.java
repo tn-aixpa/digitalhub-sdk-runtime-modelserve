@@ -38,8 +38,10 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
     private final ArtifactService artifactService;
     private final RunStateMachine runStateMachine;
     ObjectMapper objectMapper = new ObjectMapper();
+
     @Value("${mlrun.api.run-url}")
     private String runUrl;
+    
     @Value("${mlrun.api.log-url}")
     private String logUrl;
 
