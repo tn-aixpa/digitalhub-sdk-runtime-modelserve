@@ -23,7 +23,8 @@ RUN pip3 install -e ./lib-nefertem/plugins/nefertem_validation_duckdb
 # Copy and install sdk-dbt and sdk
 COPY ./sdk ./lib
 RUN chmod -R 775 /digitalhub-core/lib
-RUN pip3 install -e ./lib/modules/sdk-nefertem
+RUN pip3 install -e ./lib/modules/nefertem
+RUN pip3 install -e ./lib/modules/dbt
 RUN pip3 install -e ./lib
 
 # Copy wrapper and set entry point
