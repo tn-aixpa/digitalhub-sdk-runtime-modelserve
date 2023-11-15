@@ -12,6 +12,13 @@ RUN chmod -R 775 /digitalhub-core/lib-nefertem
 RUN pip3 install -e ./lib-nefertem
 RUN pip3 install -e ./lib-nefertem/operations/nefertem_inference
 RUN pip3 install -e ./lib-nefertem/plugins/nefertem_inference_frictionless
+RUN pip3 install -e ./lib-nefertem/operations/nefertem_profiling
+RUN pip3 install -e ./lib-nefertem/plugins/nefertem_profiling_frictionless
+RUN pip3 install -e ./lib-nefertem/plugins/nefertem_profiling_ydata_profiling
+RUN pip3 install -e ./lib-nefertem/operations/nefertem_validation
+RUN pip3 install -e ./lib-nefertem/plugins/nefertem_validation_frictionless
+RUN pip3 install -e ./lib-nefertem/plugins/nefertem_validation_sqlalchemy
+RUN pip3 install -e ./lib-nefertem/plugins/nefertem_validation_duckdb
 
 # Copy and install sdk-dbt and sdk
 COPY ./sdk ./lib
