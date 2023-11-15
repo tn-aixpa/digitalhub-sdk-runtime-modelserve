@@ -6,24 +6,16 @@ import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBase
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @SpecType(kind = "dbt", entity = SpecEntity.FUNCTION)
 public class FunctionDbtSpec extends FunctionBaseSpec<FunctionDbtSpec> {
-    private String image;
-    private String command;
-    private List<String> args;
     private String sql;
 
     @Override
     protected void configureSpec(FunctionDbtSpec functionDbtSpec) {
         super.configureSpec(functionDbtSpec);
 
-        this.setImage(functionDbtSpec.getImage());
-        this.setArgs(functionDbtSpec.getArgs());
         this.setSql(functionDbtSpec.getSql());
-        this.setCommand(functionDbtSpec.getCommand());
     }
 }

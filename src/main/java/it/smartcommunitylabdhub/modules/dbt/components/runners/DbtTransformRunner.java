@@ -65,17 +65,7 @@ public class DbtTransformRunner implements Runner {
                 SpecEntity.FUNCTION,
                 runDTO.getSpec()
         );
-
-        // Check for valid parameters image, command and args
-        if (functionDbtSpec.getImage() == null) {
-            throw new IllegalArgumentException(
-                    "Invalid argument: image not found in runDTO spec");
-        }
-
-        if (functionDbtSpec.getCommand() == null) {
-            throw new IllegalArgumentException(
-                    "Invalid argument: command not found in runDTO spec");
-        }
+        
 
         if (functionDbtSpec.getExtraSpecs() == null) {
             throw new IllegalArgumentException(
