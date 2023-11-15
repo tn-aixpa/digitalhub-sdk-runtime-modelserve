@@ -1,6 +1,8 @@
 """
 Abstract entity module.
 """
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 
 from digitalhub_core.entities._base.base import ModelObj

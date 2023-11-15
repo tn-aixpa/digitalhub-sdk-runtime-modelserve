@@ -1,6 +1,8 @@
 """
 Common IO utils.
 """
+from __future__ import annotations
+
 import json
 import shutil
 from collections import OrderedDict

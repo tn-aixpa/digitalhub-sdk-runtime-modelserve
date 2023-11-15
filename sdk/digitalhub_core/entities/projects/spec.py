@@ -1,6 +1,8 @@
 """
 Project base specification module.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 from digitalhub_core.entities._base.spec import Spec
@@ -60,20 +62,20 @@ class ProjectParams(BaseModel):
     Parameters model for project.
     """
 
-    context: str | None = None
+    context: str = None
     """The project's context."""
 
-    source: str | None = None
+    source: str = None
     """The project's source."""
 
-    functions: list | None = None
+    functions: list = None
     """List of project's functions."""
 
-    artifacts: list | None = None
+    artifacts: list = None
     """List of project's artifacts."""
 
-    workflows: list | None = None
+    workflows: list = None
     """List of project's workflows."""
 
-    dataitems: list | None = None
+    dataitems: list = None
     """List of project's dataitems."""

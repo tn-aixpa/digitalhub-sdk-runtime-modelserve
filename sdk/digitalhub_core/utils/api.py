@@ -1,6 +1,7 @@
 """
 APIs module.
 """
+from __future__ import annotations
 
 API_BASE = "/api/v1"
 API_CONTEXT = f"{API_BASE}/-"

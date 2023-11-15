@@ -1,6 +1,8 @@
 """
 Base Function specification module.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 from digitalhub_core.entities._base.spec import Spec
@@ -36,5 +38,5 @@ class FunctionParams(BaseModel):
     Function parameters model.
     """
 
-    source: str | None = None
+    source: str = None
     """Path to the Function's source code on the local file system."""

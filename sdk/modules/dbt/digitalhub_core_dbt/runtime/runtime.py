@@ -13,7 +13,7 @@ from dbt.cli.main import dbtRunner, dbtRunnerResult
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.dataitems.crud import get_dataitem, new_dataitem
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.exceptions import EntityError, BackendError
+from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string, encode_string
 from digitalhub_core.utils.logger import LOGGER
 

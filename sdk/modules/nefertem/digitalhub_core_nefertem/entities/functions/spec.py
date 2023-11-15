@@ -1,6 +1,8 @@
 """
 Nefertem Function specification module.
 """
+from __future__ import annotations
+
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
 
 
@@ -28,11 +30,11 @@ class FunctionParamsNefertem(FunctionParams):
     Function Nefertem parameters model.
     """
 
-    constraints: list[dict] | None = None
+    constraints: list[dict] = None
     """List of constraints for the function."""
 
-    error_report: str | None = None
+    error_report: str = None
     """Error report kind for the function."""
 
-    metrics: list[dict] | None = None
+    metrics: list[dict] = None
     """List of metrics for the function."""
