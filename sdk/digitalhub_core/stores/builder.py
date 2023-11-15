@@ -192,7 +192,7 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             type="s3",
             config=S3StoreConfig(
                 endpoint_url=os.getenv("S3_ENDPOINT_URL"),  # type: ignore
-                aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID"),  # type: ignore
+                aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),  # type: ignore
                 aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY"),  # type: ignore
                 bucket_name=os.getenv("S3_BUCKET_NAME"),  # type: ignore
             ),

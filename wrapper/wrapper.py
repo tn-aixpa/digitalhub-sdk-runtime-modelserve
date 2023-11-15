@@ -3,7 +3,8 @@ Wrapper to execute an arbitrary function.
 """
 import os
 
-import sdk
+import digitalhub_core as dhcore
+from digitalhub_core.utils.logger import LOGGER
 
 
 def main():
@@ -11,13 +12,17 @@ def main():
     Main function. Get run from backend and execute function.
     """
 
-    # Get run from backend.
-    project = sdk.get_project(os.getenv("PROJECT_NAME"))
-    run = sdk.get_run(project.metadata.name, os.getenv("RUN_ID"))
+    LOGGER.info("Getting run from backend.")
+    project = dhcore.get_project(os.getenv("PROJECT_NAME"))
+    run = dhcore.get_run(project.metadata.name, os.getenv("RUN_ID"))
 
-    # Run and save.
+    LOGGER.info("Executing function.")
     run.run()
+
+    LOGGER.info("Saving run.")
     run.save(update=True)
+
+    LOGGER.info("Done.")
 
 
 if __name__ == "__main__":
