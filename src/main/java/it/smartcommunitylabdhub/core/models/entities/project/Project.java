@@ -26,6 +26,9 @@ public class Project implements BaseEntity {
     @Column(unique = true)
     private String name;
 
+    @Column(nullable = false)
+    private String kind;
+
     private String description;
 
     private String source;

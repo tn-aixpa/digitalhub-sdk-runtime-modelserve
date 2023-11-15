@@ -78,6 +78,7 @@ public class ProjectDTOBuilder {
         return EntityFactory.create(ProjectDTO::new, project, builder -> builder
                 .with(dto -> dto.setId(project.getId()))
                 .with(dto -> dto.setName(project.getName()))
+                .with(dto -> dto.setKind(project.getKind()))
                 .with(dto -> dto.setDescription(project.getDescription()))
                 .with(dto -> dto.setSource(project.getSource()))
                 .with(dto -> dto.setState(

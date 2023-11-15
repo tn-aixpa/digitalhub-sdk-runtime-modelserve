@@ -28,6 +28,11 @@ public class ProjectDTO implements BaseEntity {
     @NotNull
     @ValidateField
     private String name;
+
+    @NotNull
+    @ValidateField
+    private String kind;
+
     private String description;
     private String source;
 
