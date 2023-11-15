@@ -77,8 +77,8 @@ def build_spec(
 
         return class_spec(**kwargs)
     except (ModuleNotFoundError, ImportError):
-        raise ValueError(f"Runtime {kind} not found")
+        raise ValueError(f"Runtime '{kind}' not found")
     except KeyError:
-        raise EntityError(f"Unsupported parameters kind {kind} for entity {entity}")
+        raise EntityError(f"Unsupported parameters kind '{kind}' for entity {entity}")
     except ValidationError as err:
-        raise EntityError(f"Invalid parameters for kind {kind} for entity {entity}") from err
+        raise EntityError(f"Invalid parameters for kind '{kind}' for entity {entity}") from err
