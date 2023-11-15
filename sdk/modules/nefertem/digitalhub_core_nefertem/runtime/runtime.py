@@ -108,7 +108,7 @@ class RuntimeNefertem(Runtime):
 
         # Upload outputs
         LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info, project)
+        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
 
         # Remove tmp folder
         LOGGER.info("Removing tmp folder")
@@ -156,7 +156,7 @@ class RuntimeNefertem(Runtime):
 
         # Upload outputs
         LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info, project)
+        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
 
         # Remove tmp folder
         LOGGER.info("Removing tmp folder")
@@ -206,7 +206,7 @@ class RuntimeNefertem(Runtime):
 
         # Upload outputs
         LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info, project)
+        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
 
         # Remove tmp folder
         LOGGER.info("Removing tmp folder")
@@ -255,7 +255,7 @@ class RuntimeNefertem(Runtime):
 
         # Upload outputs
         LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info, project)
+        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
 
         # Remove tmp folder
         LOGGER.info("Removing tmp folder")
@@ -338,7 +338,7 @@ class RuntimeNefertem(Runtime):
             resources.append(res)
         return resources
 
-    def _upload_outputs(self, run_info: RunInfo, project: str) -> dict:
+    def _upload_outputs(self, run_info: dict, project: str) -> dict:
         """
         Upload outputs as artifacts to minio.
 
@@ -355,20 +355,24 @@ class RuntimeNefertem(Runtime):
             List of artifacts.
         """
         artifacts = []
-        for file in run_info.output_files:
+        for file in run_info.get("output_files", []):
+
+            filename = Path(file).name
+            name = Path(file).stem
 
             # Create new artifact in backend
             try:
-                dst = f"s3://{project}/artifacts/nefertem/{run_info.run_id}/{Path(file).name}"
-                name = Path(file).stem
+                LOGGER.info(f"Creating artifact new artifact '{name}'")
+                dst = f"s3://{project}/artifacts/nefertem/{run_info.get('run_id')}/{filename}"
                 artifact = new_artifact(project, name, "artifact", src_path=file, target_path=dst)
-            except BackendError as err:
+            except Exception as err:
                 msg = f"Error creating artifact '{name}': {err.args[0]}"
                 LOGGER.error(msg)
                 raise EntityError(msg)
 
             # Upload artifact to minio
             try:
+                LOGGER.info(f"Uploading artifact '{name}' to minio")
                 artifact.upload()
             except Exception as err:
                 msg = f"Error uploading artifact '{name}': {err.args[0]}"
