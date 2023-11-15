@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BuilderFactory {
-    private final Map<String, Builder<
+    private final Map<String, ? extends Builder<
             ? extends FunctionBaseSpec<?>,
             ? extends TaskBaseSpec<?>,
             ? extends RunBaseSpec<?>>> builderMap;
@@ -28,7 +28,7 @@ public class BuilderFactory {
      *
      * @param builders The list of Builders to be managed by the factory.
      */
-    public BuilderFactory(List<Builder<
+    public BuilderFactory(List<? extends Builder<
             ? extends FunctionBaseSpec<?>,
             ? extends TaskBaseSpec<?>,
             ? extends RunBaseSpec<?>>> builders) {
@@ -45,10 +45,10 @@ public class BuilderFactory {
      * @throws IllegalArgumentException If no @BuilderComponent annotation is found for the
      *                                  builder.
      */
-    private String getBuilderFromAnnotation(Builder<
+    private <B extends Builder<
             ? extends FunctionBaseSpec<?>,
             ? extends TaskBaseSpec<?>,
-            ? extends RunBaseSpec<?>> builder) {
+            ? extends RunBaseSpec<?>>> String getBuilderFromAnnotation(B builder) {
         Class<?> builderClass = builder.getClass();
         if (builderClass.isAnnotationPresent(BuilderComponent.class)) {
             BuilderComponent annotation =
@@ -68,16 +68,14 @@ public class BuilderFactory {
      * @return The Builder for the specified platform.
      * @throws IllegalArgumentException If no Builder is found for the given platform.
      */
-    public Builder<
+    @SuppressWarnings("unchecked")
+    public <B extends Builder<
             ? extends FunctionBaseSpec<?>,
             ? extends TaskBaseSpec<?>,
-            ? extends RunBaseSpec<?>> getBuilder(String runtime, String task) {
+            ? extends RunBaseSpec<?>>> B getBuilder(String runtime, String task) {
 
-        Builder<
-                ? extends FunctionBaseSpec<?>,
-                ? extends TaskBaseSpec<?>,
-                ? extends RunBaseSpec<?>> concreteBuilder =
-                builderMap.get(runtime + "+" + task);
+        B concreteBuilder =
+                (B) builderMap.get(runtime + "+" + task);
         if (concreteBuilder == null) {
             throw new IllegalArgumentException(
                     "No builder found for name: " + runtime + "+" + task);
@@ -86,7 +84,7 @@ public class BuilderFactory {
     }
 
 
-    public Map<String, Builder<
+    public Map<String, ? extends Builder<
             ? extends FunctionBaseSpec<?>,
             ? extends TaskBaseSpec<?>,
             ? extends RunBaseSpec<?>>> getBuilders(String runtime) {

@@ -6,13 +6,17 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.builder
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.Runner;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runners.RunnerFactory;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.runtimes.Runtime;
+import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
+import it.smartcommunitylabdhub.core.utils.ErrorList;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Log4j2
 @Getter
@@ -20,8 +24,8 @@ public abstract class BaseRuntime<F extends FunctionBaseSpec<?>> implements Runt
 
     protected final BuilderFactory builderFactory;
     protected final RunnerFactory runnerFactory;
-    protected Map<String, Runner> runners;
-    protected Map<String, Builder<
+    protected Map<String, ? extends Runner> runners;
+    protected Map<String, ? extends Builder<
             ? extends FunctionBaseSpec<?>,
             ? extends TaskBaseSpec<?>,
             ? extends RunBaseSpec<?>>> builders;
@@ -48,12 +52,29 @@ public abstract class BaseRuntime<F extends FunctionBaseSpec<?>> implements Runt
     }
 
 
-    public Runner getRunner(String task) {
-        return runners.get(runtime + "+" + task);
+    @SuppressWarnings("unchecked")
+    public <R extends Runner> R getRunner(String task) {
+
+        return Optional.ofNullable((R) runners.get(runtime + "+" + task))
+                .orElseThrow(() -> new CoreException(
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                        "Cannot find registered Runner for <" + runtime + "+" + task + ">",
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                ));
+
     }
 
-    public Builder<? extends FunctionBaseSpec<?>, ? extends TaskBaseSpec<?>, ? extends RunBaseSpec<?>> getBuilder(String task) {
-        return builders.get(runtime + "+" + task);
-    }
+    @SuppressWarnings("unchecked")
+    public <B extends Builder<
+            ? extends FunctionBaseSpec<?>,
+            ? extends TaskBaseSpec<?>,
+            ? extends RunBaseSpec<?>>> B getBuilder(String task) {
 
+        return Optional.ofNullable((B) builders.get(runtime + "+" + task))
+                .orElseThrow(() -> new CoreException(
+                        ErrorList.INTERNAL_SERVER_ERROR.getValue(),
+                        "Cannot find registered Builder for <" + runtime + "+" + task + ">",
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                ));
+    }
 }

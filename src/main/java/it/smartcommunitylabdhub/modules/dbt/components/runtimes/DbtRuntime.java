@@ -72,6 +72,8 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
              *      DbtTransformBuilder builder = (DbtTransformBuilder) getBuilder(kind);
              */
 
+            DbtTransformBuilder b = getBuilder("infer");
+
             DbtTransformBuilder builder = new DbtTransformBuilder();
 
             return builder.build(
