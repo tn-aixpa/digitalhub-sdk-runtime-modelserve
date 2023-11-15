@@ -13,8 +13,9 @@ from dbt.cli.main import dbtRunner, dbtRunnerResult
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.dataitems.crud import get_dataitem, new_dataitem
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.exceptions import EntityError, BackendError
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string, encode_string
+from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
@@ -155,7 +156,9 @@ class RuntimeDBT(Runtime):
             return self.transform(run)
 
         # Handle unknown task kind
-        raise EntityError(f"Task {action} not allowed for DBT runtime")
+        msg = f"Task {action} not allowed for DBT runtime"
+        LOGGER.error(msg)
+        raise EntityError(msg)
 
     ####################
     # TRANSFORM TASK
@@ -170,27 +173,36 @@ class RuntimeDBT(Runtime):
         dict
             Status of the executed run.
         """
+
+        # Get run specs
+        LOGGER.info("Starting transform task.")
         spec = run.get("spec")
         project = run.get("metadata").get("project")
 
         # Parse inputs/outputs
+        LOGGER.info("Parsing inputs/outputs.")
         inputs = self.parse_inputs(spec.get("inputs", {}).get("dataitems", []), project)
         output = self.parse_outputs(spec.get("outputs", {}).get("dataitems", []))
 
         # Setup environment
+        LOGGER.info("Setting up environment for dbt execution.")
         uuid = build_uuid()
         self.setup(inputs, output, uuid, project, spec.get("sql"))
 
         # Execute function
+        LOGGER.info("Executing dbt project.")
         execution_results = self.execute(output)
 
         # Parse results
+        LOGGER.info("Parsing results.")
         parsed_result = self.parse_results(execution_results, output, project)
 
         # Create dataitem
+        LOGGER.info("Creating output dataitem.")
         dataitem = self.create_dataitem(parsed_result, project, uuid)
 
         # Return run status
+        LOGGER.info("Task completed, returning run status.")
         return {
             **self._get_dataitem_info(output, dataitem),
             **parsed_result.timings,
@@ -220,10 +232,18 @@ class RuntimeDBT(Runtime):
         for name in inputs:
             try:
                 di = get_dataitem(project, name)
-            except Exception:
-                raise RuntimeError(f"Dataitem {name} not found in project {project}")
-            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
-            di.write_df(target_path, if_exists="replace")
+            except BackendError as err:
+                msg = f"Dataitem {name} not found. Error: {err.args[0]}."
+                LOGGER.error(msg)
+                raise EntityError(msg)
+            try:
+                target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
+                LOGGER.info(f"Materializing dataitem {name} in postgres as {target_path}.")
+                di.write_df(target_path, if_exists="replace")
+            except Exception as err:
+                msg = f"Something got wrong during dataitem {name} materialization. Error: {err.args[0]}."
+                LOGGER.error(msg)
+                raise EntityError(msg)
         return inputs
 
     def parse_outputs(self, outputs: list) -> str:
@@ -239,10 +259,18 @@ class RuntimeDBT(Runtime):
         -------
         str
             The output dataitem/table name.
+
+        Raises
+        ------
+        RuntimeError
+            If outputs are not a list of dataitems.
         """
-        if not isinstance(outputs, list):
-            raise RuntimeError("Outputs must be a list of dataitems")
-        return str(outputs[0])
+        try:
+            return str(outputs[0])
+        except IndexError:
+            msg = "Outputs must be a list of dataitems."
+            LOGGER.error(msg)
+            raise IndexError(msg)
 
     ####################
     # Setup environment
@@ -421,8 +449,10 @@ class RuntimeDBT(Runtime):
             compiled_code = self.get_compiled_code(result)
             timings = self.get_timings(result)
             name = result.node.name
-        except Exception:
-            raise RuntimeError("Something got wrong during results parsing.")
+        except Exception as err:
+            msg = f"Something got wrong during results parsing. Error: {err.args[0]}."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
         return ParsedResults(name, path, raw_code, compiled_code, timings)
 
     def validate_results(self, run_result: dbtRunnerResult, output: str, project: str) -> RunResult:
@@ -452,16 +482,24 @@ class RuntimeDBT(Runtime):
             # Take last result, final result of the query
             result: RunResult = run_result.result[-1]
         except IndexError:
-            raise RuntimeError("No results found.")
+            msg = "No results found."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
 
         if not result.status.value == "success":
-            raise RuntimeError("Something got wrong during function execution.")
+            msg = f"Function execution failed: {result.status.value}."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
 
         if not result.node.package_name == project.replace("-", "_"):
-            raise RuntimeError("Wrong project name.")
+            msg = f"Wrong project name. Got {result.node.package_name}, expected {project.replace('-', '_')}."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
 
         if not result.node.name == output:
-            raise RuntimeError("Wrong output name.")
+            msg = f"Wrong output name. Got {result.node.name}, expected {output}."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
 
         return result
 
@@ -541,7 +579,9 @@ class RuntimeDBT(Runtime):
             or (execute_timing.started_at is None or execute_timing.completed_at is None)
             or (compile_timing.started_at is None or compile_timing.completed_at is None)
         ):
-            raise RuntimeError("Something got wrong during timings parsing.")
+            msg = "Something got wrong during timings parsing."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
         return {
             "timing": {
                 "compile": {
@@ -587,8 +627,10 @@ class RuntimeDBT(Runtime):
                 raw_code=result.raw_code,
                 compiled_code=result.compiled_code,
             )
-        except Exception:
-            raise RuntimeError("Something got wrong during dataitem creation.")
+        except BackendError as err:
+            msg = f"Something got wrong during dataitem creation. Error: {err.args[0]}."
+            LOGGER.error(msg)
+            raise BackendError(msg)
 
     @staticmethod
     def _get_dataitem_info(output: str, dataitem: Dataitem) -> dict:

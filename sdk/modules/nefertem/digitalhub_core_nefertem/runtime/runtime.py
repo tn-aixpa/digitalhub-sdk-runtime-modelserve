@@ -13,7 +13,8 @@ from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.exceptions import EntityError, BackendError
+from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from nefertem.run.run_info import RunInfo
@@ -32,7 +33,7 @@ class RuntimeNefertem(Runtime):
         """
         Constructor.
         """
-        self.output_path = "./ntruns"
+        self.output_path = "./nefertem_run"
         self.store = {"name": "local", "store_type": "local"}
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
@@ -68,7 +69,9 @@ class RuntimeNefertem(Runtime):
             return self.metric(run)
 
         # Handle unknown task kind
-        raise EntityError(f"Task {action} not allowed for runtime")
+        msg = f"Task {action} not allowed for Nefertem runtime"
+        LOGGER.error(msg)
+        raise EntityError(msg)
 
     ####################
     # INFER TASK
@@ -85,16 +88,18 @@ class RuntimeNefertem(Runtime):
         """
 
         # Get run specs
+        LOGGER.info("Starting infer task")
         spec = run.get("spec")
         project = run.get("metadata").get("project")
 
         # Get inputs and parameters
+        LOGGER.info("Getting inputs and parameters")
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-
         resources = self._get_resources(inputs)
         run_config = spec.get("run_config")
 
         # Execute run
+        LOGGER.info("Executing run")
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.infer()
@@ -102,15 +107,18 @@ class RuntimeNefertem(Runtime):
             nt_run.persist_schema()
 
         # Upload outputs
+        LOGGER.info("Uploading outputs")
         artifacts = self._upload_outputs(nt_run.run_info, project)
 
         # Remove tmp folder
-        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
+        LOGGER.info("Removing tmp folder")
+        self.cleanup()
 
         # Return run status
+        LOGGER.info("Task completed, returning run status.")
         return {
             "state": State.COMPLETED.value,
-            **artifacts,
+            "artifacts": artifacts,
         }
 
     ####################
@@ -128,16 +136,18 @@ class RuntimeNefertem(Runtime):
         """
 
         # Get run specs
+        LOGGER.info("Starting profile task")
         spec = run.get("spec")
         project = run.get("metadata").get("project")
 
         # Get inputs and parameters
+        LOGGER.info("Getting inputs and parameters")
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-
         resources = self._get_resources(inputs)
         run_config = spec.get("run_config")
 
         # Execute run
+        LOGGER.info("Executing run")
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.profile()
@@ -145,15 +155,18 @@ class RuntimeNefertem(Runtime):
             nt_run.persist_profile()
 
         # Upload outputs
+        LOGGER.info("Uploading outputs")
         artifacts = self._upload_outputs(nt_run.run_info, project)
 
         # Remove tmp folder
-        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
+        LOGGER.info("Removing tmp folder")
+        self.cleanup()
 
         # Return run status
+        LOGGER.info("Task completed, returning run status.")
         return {
             "state": State.COMPLETED.value,
-            **artifacts,
+            "artifacts": artifacts,
         }
 
     ####################
@@ -171,18 +184,20 @@ class RuntimeNefertem(Runtime):
         """
 
         # Get run specs
+        LOGGER.info("Starting validate task")
         spec = run.get("spec")
         project = run.get("metadata").get("project")
 
         # Get inputs and parameters
+        LOGGER.info("Getting inputs and parameters")
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-
         resources = self._get_resources(inputs)
         run_config = spec.get("run_config")
         constraints = spec.get("constraints")
         error_report = spec.get("error_report")
 
         # Execute run
+        LOGGER.info("Executing run")
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.validate(constraints=constraints, error_report=error_report)
@@ -190,15 +205,18 @@ class RuntimeNefertem(Runtime):
             nt_run.persist_report()
 
         # Upload outputs
+        LOGGER.info("Uploading outputs")
         artifacts = self._upload_outputs(nt_run.run_info, project)
 
         # Remove tmp folder
-        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
+        LOGGER.info("Removing tmp folder")
+        self.cleanup()
 
         # Return run status
+        LOGGER.info("Task completed, returning run status.")
         return {
             "state": State.COMPLETED.value,
-            **artifacts,
+            "artifacts": artifacts,
         }
 
     ####################
@@ -216,17 +234,19 @@ class RuntimeNefertem(Runtime):
         """
 
         # Get run specs
+        LOGGER.info("Starting metric task")
         spec = run.get("spec")
         project = run.get("metadata").get("project")
 
         # Get inputs and parameters
+        LOGGER.info("Getting inputs and parameters")
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-
         resources = self._get_resources(inputs)
         run_config = spec.get("run_config")
         metrics = spec.get("metrics")
 
         # Execute run
+        LOGGER.info("Executing run")
         client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.metric(metrics=metrics)
@@ -234,15 +254,18 @@ class RuntimeNefertem(Runtime):
             nt_run.persist_metric()
 
         # Upload outputs
+        LOGGER.info("Uploading outputs")
         artifacts = self._upload_outputs(nt_run.run_info, project)
 
         # Remove tmp folder
-        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
+        LOGGER.info("Removing tmp folder")
+        self.cleanup()
 
         # Return run status
+        LOGGER.info("Task completed, returning run status.")
         return {
             "state": State.COMPLETED.value,
-            **artifacts,
+            "artifacts": artifacts,
         }
 
     ####################
@@ -269,13 +292,27 @@ class RuntimeNefertem(Runtime):
 
         mapper = []
         for name in inputs:
+
+            # Get dataitem from backend
             try:
+                LOGGER.info(f"Getting dataitem '{name}'")
                 di = get_dataitem(project, name)
+            except BackendError:
+                msg = f"Dataitem '{name}' not found in project '{project}'"
+                LOGGER.error(msg)
+                raise EntityError(msg)
+
+            # Persist dataitem locally
+            try:
+                LOGGER.info(f"Persisting dataitem '{name}' locally")
+                tmp_path = f"{self.output_path}/tmp/{name}.csv"
+                di.as_df().to_csv(tmp_path, sep=",", index=False)
+                mapper.append({"name": name, "path": tmp_path})
             except Exception:
-                raise RuntimeError(f"Dataitem {name} not found in project {project}")
-            tmp_path = f"{self.output_path}/tmp/{name}.csv"
-            di.as_df().to_csv(tmp_path, sep=",", index=False)
-            mapper.append({"name": name, "path": tmp_path})
+                msg = f"Error persisting dataitem '{name}' locally"
+                LOGGER.error(msg)
+                raise EntityError(msg)
+
         return mapper
 
     def _get_resources(self, inputs: list[dict]) -> list[dict]:
@@ -317,19 +354,44 @@ class RuntimeNefertem(Runtime):
         dict
             List of artifacts.
         """
-        artifacts = {
-            "artifacts": [],
-        }
+        artifacts = []
         for file in run_info.output_files:
-            dst = f"s3://{project}/artifacts/nefertem/{run_info.run_id}/{Path(file).name}"
-            name = Path(file).stem
-            artifact = new_artifact(project, name, "artifact", src_path=file, target_path=dst)
-            artifact.upload()
-            artifacts["artifacts"].append(
+
+            # Create new artifact in backend
+            try:
+                dst = f"s3://{project}/artifacts/nefertem/{run_info.run_id}/{Path(file).name}"
+                name = Path(file).stem
+                artifact = new_artifact(project, name, "artifact", src_path=file, target_path=dst)
+            except BackendError as err:
+                msg = f"Error creating artifact '{name}': {err.args[0]}"
+                LOGGER.error(msg)
+                raise EntityError(msg)
+
+            # Upload artifact to minio
+            try:
+                artifact.upload()
+            except Exception as err:
+                msg = f"Error uploading artifact '{name}': {err.args[0]}"
+                LOGGER.error(msg)
+                raise EntityError(msg)
+
+            artifacts.append(
                 {
                     "key": name,
                     "kind": "artifact",
                     "id": f"store://{project}/artifacts/artifact/{name}:{artifact.metadata.version}",
                 }
             )
+
         return artifacts
+
+
+    def cleanup(self) -> None:
+        """
+        Cleanup after run.
+
+        Returns
+        -------
+        None
+        """
+        shutil.rmtree(f"{self.output_path}/tmp", ignore_errors=True)
