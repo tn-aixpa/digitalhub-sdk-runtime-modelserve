@@ -3,8 +3,8 @@ package it.smartcommunitylabdhub.modules.dbt.components.builders;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.builders.Builder;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
-import it.smartcommunitylabdhub.modules.dbt.models.specs.FunctionDbtSpec;
-import it.smartcommunitylabdhub.modules.dbt.models.specs.TaskTransformSpec;
+import it.smartcommunitylabdhub.modules.dbt.models.specs.function.FunctionDbtSpec;
+import it.smartcommunitylabdhub.modules.dbt.models.specs.task.TaskTransformSpec;
 
 import java.util.Map;
 

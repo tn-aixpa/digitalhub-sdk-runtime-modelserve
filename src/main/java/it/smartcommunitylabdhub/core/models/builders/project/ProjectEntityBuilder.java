@@ -1,5 +1,6 @@
 package it.smartcommunitylabdhub.core.models.builders.project;
 
+import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
@@ -17,7 +18,6 @@ import java.util.Map;
 @Component
 public class ProjectEntityBuilder {
 
-
     @Autowired
     SpecRegistry<? extends Spec> specRegistry;
 
@@ -28,7 +28,9 @@ public class ProjectEntityBuilder {
      * @return Project
      */
     public Project build(ProjectDTO projectDTO) {
-        
+
+        specRegistry.createSpec(projectDTO.getKind(), SpecEntity.PROJECT, Map.of());
+
         // Retrieve object spec
         ProjectBaseSpec projectSpec = JacksonMapper.objectMapper
                 .convertValue(

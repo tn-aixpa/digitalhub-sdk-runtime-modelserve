@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.modules.dbt.models.specs;
+package it.smartcommunitylabdhub.modules.dbt.models.specs.function;
 
 import it.smartcommunitylabdhub.core.annotations.common.SpecType;
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;

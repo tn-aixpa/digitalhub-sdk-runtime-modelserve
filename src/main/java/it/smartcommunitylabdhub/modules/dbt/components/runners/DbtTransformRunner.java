@@ -11,7 +11,7 @@ import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
 import it.smartcommunitylabdhub.core.utils.BeanProvider;
-import it.smartcommunitylabdhub.modules.dbt.models.specs.FunctionDbtSpec;
+import it.smartcommunitylabdhub.modules.dbt.models.specs.function.FunctionDbtSpec;
 
 import java.util.List;
 import java.util.Map;
@@ -65,7 +65,7 @@ public class DbtTransformRunner implements Runner {
                 SpecEntity.FUNCTION,
                 runDTO.getSpec()
         );
-        
+
 
         if (functionDbtSpec.getExtraSpecs() == null) {
             throw new IllegalArgumentException(
