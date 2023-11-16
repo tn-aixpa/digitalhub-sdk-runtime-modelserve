@@ -3,14 +3,16 @@ FROM python:3.10-slim
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set working dir
 WORKDIR /digitalhub-core/
 
 # Copy and install sdk-dbt and sdk
-COPY ./sdk ./lib
-RUN chmod -R 775 /digitalhub-core/lib
-RUN pip3 install -e ./lib/modules/sdk-dbt
-RUN pip3 install -e ./lib
+RUN python -m pip install "git+https://github.com/scc-digitalhub/digitalhub-core.git#egg=digitalhub_core&subdirectory=sdk"
+RUN python -m pip install "git+https://github.com/scc-digitalhub/digitalhub-core.git#egg=digitalhub_core_dbt&subdirectory=sdk/modules/dbt"
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/
