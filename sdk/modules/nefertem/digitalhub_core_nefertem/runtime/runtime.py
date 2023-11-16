@@ -3,6 +3,7 @@ Runtime Nefertem module.
 """
 from __future__ import annotations
 
+import os
 import shutil
 from pathlib import Path
 
@@ -357,7 +358,7 @@ class RuntimeNefertem(Runtime):
             # Create new artifact in backend
             try:
                 LOGGER.info(f"Creating artifact new artifact '{name}'")
-                dst = f"s3://{project}/artifacts/nefertem/{run_info.get('run_id')}/{filename}"
+                dst = f"s3://{os.getenv('S3_BUCKET_NAME')}/{project}/artifacts/{run_info.get('run_id')}/{filename}"
                 artifact = new_artifact(project, name, "artifact", src_path=file, target_path=dst)
             except Exception as err:
                 msg = f"Error creating artifact '{name}': {err.args[0]}"
