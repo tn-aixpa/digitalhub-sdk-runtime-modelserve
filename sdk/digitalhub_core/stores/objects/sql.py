@@ -1,6 +1,8 @@
 """
 S3Store module.
 """
+from __future__ import annotations
+
 import re
 
 import pandas as pd
@@ -177,7 +179,7 @@ class SqlStore(Store):
         if not isinstance(connection_string, str):
             raise StoreError("Connection string must be a string.")
         try:
-            return create_engine(connection_string, future=True)
+            return create_engine(connection_string)
         except Exception as ex:
             raise StoreError(f"Something wrong with connection string. Arguments: {str(ex.args)}")
 

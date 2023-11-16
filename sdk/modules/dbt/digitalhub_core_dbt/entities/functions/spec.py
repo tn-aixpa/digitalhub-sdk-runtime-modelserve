@@ -1,6 +1,8 @@
 """
 DBT Function specification module.
 """
+from __future__ import annotations
+
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import decode_string, encode_string
@@ -43,5 +45,5 @@ class FunctionParamsDBT(FunctionParams):
     Function DBT parameters model.
     """
 
-    sql: str | None = None
+    sql: str = None
     """SQL query to run inside the container."""

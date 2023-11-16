@@ -1,6 +1,8 @@
 """
 Store module.
 """
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from tempfile import mkdtemp
 from typing import Literal
@@ -176,7 +178,7 @@ class StoreParameters(BaseModel):
     type: Literal["local", "s3", "remote", "sql"]
     """Store type to instantiate."""
 
-    config: StoreConfig | None = None
+    config: StoreConfig = None
     """Configuration for the store."""
 
     is_default: bool = False

@@ -1,6 +1,8 @@
 """
 Status class module.
 """
+from __future__ import annotations
+
 from enum import Enum
 
 from digitalhub_core.entities._base.base import ModelObj

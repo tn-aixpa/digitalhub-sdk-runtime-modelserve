@@ -13,7 +13,6 @@ from digitalhub_core.entities.dataitems.spec import DataitemParams, DataitemSpec
 from digitalhub_core.entities.projects.spec import ProjectParams, ProjectSpec
 from digitalhub_core.entities.runs.spec import RunParams, RunSpec
 from digitalhub_core.entities.workflows.spec import WorkflowParams, WorkflowSpec
-from digitalhub_core.utils.commons import ARTF, DTIT, PROJ, RUNS, WKFL
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.modules_utils import import_registry
 

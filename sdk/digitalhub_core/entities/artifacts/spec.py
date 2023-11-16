@@ -1,6 +1,8 @@
 """
 Artifact base specification module.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 from digitalhub_core.entities._base.spec import Spec
@@ -44,11 +46,11 @@ class ArtifactParams(BaseModel):
     Artifact base parameters.
     """
 
-    key: str | None = None
+    key: str = None
     """Key of the artifact"""
 
-    src_path: str | None = None
+    src_path: str = None
     """Source path of the artifact."""
 
-    target_path: str | None = None
+    target_path: str = None
     """Target path of the artifact."""

@@ -1,6 +1,8 @@
 """
 Dataitem specification module.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 from digitalhub_core.entities._base.spec import Spec
@@ -35,7 +37,7 @@ class DataitemParams(BaseModel):
     Dataitem parameters.
     """
 
-    key: str | None = None
+    key: str = None
     """The key of the dataitem."""
-    path: str | None = None
+    path: str = None
     "The path of the dataitem."

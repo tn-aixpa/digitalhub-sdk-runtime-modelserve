@@ -1,6 +1,8 @@
 """
 Task specification module.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 from digitalhub_core.entities._base.spec import Spec
@@ -30,5 +32,5 @@ class TaskParams(BaseModel):
     Base task model.
     """
 
-    function: str | None = None
+    function: str = None
     """Task function."""

@@ -4,7 +4,6 @@ Runtime Nefertem module.
 from __future__ import annotations
 
 import shutil
-import typing
 from pathlib import Path
 
 import nefertem
@@ -13,11 +12,8 @@ from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.exceptions import EntityError, BackendError
+from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.logger import LOGGER
-
-if typing.TYPE_CHECKING:
-    from nefertem.run.run_info import RunInfo
 
 ####################
 # Runtime
@@ -292,7 +288,6 @@ class RuntimeNefertem(Runtime):
 
         mapper = []
         for name in inputs:
-
             # Get dataitem from backend
             try:
                 LOGGER.info(f"Getting dataitem '{name}'")
@@ -356,7 +351,6 @@ class RuntimeNefertem(Runtime):
         """
         artifacts = []
         for file in run_info.get("output_files", []):
-
             filename = Path(file).name
             name = Path(file).stem
 
@@ -388,7 +382,6 @@ class RuntimeNefertem(Runtime):
             )
 
         return artifacts
-
 
     def cleanup(self) -> None:
         """

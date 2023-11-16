@@ -1,6 +1,8 @@
 """
 Run base specification module.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 from digitalhub_core.entities._base.spec import Spec
@@ -54,10 +56,10 @@ class Objects(BaseModel):
     Run inputs specification.
     """
 
-    dataitems: list[str] | None = None
+    dataitems: list[str] = None
     """List of dataitems names."""
 
-    artifacts: list[str] | None = None
+    artifacts: list[str] = None
     """List of artifacts names."""
 
 
@@ -66,19 +68,19 @@ class RunParams(BaseModel):
     Run parameters.
     """
 
-    task: str | None = None
+    task: str = None
     """The task string associated with the run."""
 
-    task_id: str | None = None
+    task_id: str = None
     """The task id associated with the run."""
 
-    inputs: Objects | None = None
+    inputs: Objects = None
     """List of input dataitems and artifacts names."""
 
-    outputs: Objects | None = None
+    outputs: Objects = None
     """List of output dataitems and artifacts names."""
 
-    parameters: dict | None = None
+    parameters: dict = None
     """Parameters to be used in the run."""
 
     local_execution: bool = False

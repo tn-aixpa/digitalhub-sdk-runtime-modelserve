@@ -1,6 +1,8 @@
 """
 Entity specification module.
 """
+from __future__ import annotations
+
 from pydantic import BaseModel
 
 from digitalhub_core.entities._base.base import ModelObj
