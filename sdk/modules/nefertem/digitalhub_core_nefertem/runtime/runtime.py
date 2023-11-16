@@ -353,7 +353,7 @@ class RuntimeNefertem(Runtime):
         artifacts = []
         for file in run_info.get("output_files", []):
             filename = Path(file).name
-            name = Path(file).stem
+            name = Path(file).stem.replace("_", "-")
 
             # Create new artifact in backend
             try:
