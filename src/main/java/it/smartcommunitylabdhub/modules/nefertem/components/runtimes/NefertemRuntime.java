@@ -12,7 +12,6 @@ import it.smartcommunitylabdhub.core.models.base.RunStatus;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
-import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
 import it.smartcommunitylabdhub.modules.nefertem.components.builders.NefertemInferBuilder;
@@ -24,10 +23,6 @@ import it.smartcommunitylabdhub.modules.nefertem.components.runners.NefertemMetr
 import it.smartcommunitylabdhub.modules.nefertem.components.runners.NefertemProfileRunner;
 import it.smartcommunitylabdhub.modules.nefertem.components.runners.NefertemValidateRunner;
 import it.smartcommunitylabdhub.modules.nefertem.models.specs.function.FunctionNefertemSpec;
-import it.smartcommunitylabdhub.modules.nefertem.models.specs.task.TaskInferSpec;
-import it.smartcommunitylabdhub.modules.nefertem.models.specs.task.TaskMetricSpec;
-import it.smartcommunitylabdhub.modules.nefertem.models.specs.task.TaskProfileSpec;
-import it.smartcommunitylabdhub.modules.nefertem.models.specs.task.TaskValidateSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -54,7 +49,6 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
             RunBaseSpec<?> runSpec,
             String kind) {
 
-
         /**
          *  As an alternative, you can use the code below to retrieve the correct builder.
          *  Remember that if you follow this path, you still need to retrieve the SpecRegistry
@@ -72,91 +66,74 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
         switch (kind) {
             case "infer" -> {
 
-                TaskInferSpec taskInferSpec = specRegistry.createSpec(
-                        "infer",
-                        SpecEntity.TASK,
-                        taskSpec.toMap()
-                );
-
-                RunRunSpec runRunSpec = specRegistry.createSpec(
-                        "run",
-                        SpecEntity.RUN,
-                        runSpec.toMap()
-                );
-
-
                 NefertemInferBuilder builder = new NefertemInferBuilder();
 
                 return builder.build(
                         funSpec,
-                        taskInferSpec,
-                        runRunSpec);
+                        specRegistry.createSpec(
+                                "infer",
+                                SpecEntity.TASK,
+                                taskSpec.toMap()
+                        ),
+                        specRegistry.createSpec(
+                                "run",
+                                SpecEntity.RUN,
+                                runSpec.toMap()
+                        ));
 
             }
             case "validate" -> {
-
-                TaskValidateSpec taskValidateSpec = specRegistry.createSpec(
-                        "validate",
-                        SpecEntity.TASK,
-                        taskSpec.toMap()
-                );
-
-                RunRunSpec runRunSpec = specRegistry.createSpec(
-                        "run",
-                        SpecEntity.RUN,
-                        runSpec.toMap()
-                );
 
                 NefertemValidateBuilder builder = new NefertemValidateBuilder();
 
                 return builder.build(
                         funSpec,
-                        taskValidateSpec,
-                        runRunSpec);
+                        specRegistry.createSpec(
+                                "validate",
+                                SpecEntity.TASK,
+                                taskSpec.toMap()
+                        ),
+                        specRegistry.createSpec(
+                                "run",
+                                SpecEntity.RUN,
+                                runSpec.toMap()
+                        ));
 
             }
             case "metric" -> {
-
-                TaskMetricSpec taskMetricSpec = specRegistry.createSpec(
-                        "metric",
-                        SpecEntity.TASK,
-                        taskSpec.toMap()
-                );
-
-                RunRunSpec runRunSpec = specRegistry.createSpec(
-                        "run",
-                        SpecEntity.RUN,
-                        runSpec.toMap()
-                );
 
                 NefertemMetricBuilder builder = new NefertemMetricBuilder();
 
                 return builder.build(
                         funSpec,
-                        taskMetricSpec,
-                        runRunSpec);
+                        specRegistry.createSpec(
+                                "metric",
+                                SpecEntity.TASK,
+                                taskSpec.toMap()
+                        ),
+                        specRegistry.createSpec(
+                                "run",
+                                SpecEntity.RUN,
+                                runSpec.toMap()
+                        ));
 
             }
             case "profile" -> {
-
-                TaskProfileSpec taskProfileSpec = specRegistry.createSpec(
-                        "profile",
-                        SpecEntity.TASK,
-                        taskSpec.toMap()
-                );
-
-                RunRunSpec runRunSpec = specRegistry.createSpec(
-                        "run",
-                        SpecEntity.RUN,
-                        runSpec.toMap()
-                );
 
                 NefertemProfileBuilder builder = new NefertemProfileBuilder();
 
                 return builder.build(
                         funSpec,
-                        taskProfileSpec,
-                        runRunSpec);
+                        specRegistry.createSpec(
+                                "profile",
+                                SpecEntity.TASK,
+                                taskSpec.toMap()
+                        ),
+                        specRegistry.createSpec(
+                                "run",
+                                SpecEntity.RUN,
+                                runSpec.toMap()
+                        ));
 
             }
             default -> throw new CoreException(
@@ -178,7 +155,7 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
          *  the Runner using specRegistry remember that you have to register also each Runner
          *  component in this way : `@RunnerComponent(runtime = "dbt", task = "transform")`
          *  Only by doing this you can get the bean related
-         *
+         * <p>
          *      // Retrieve base run spec to use task
          *      RunRunSpec runBaseSpec = specRegistry.createSpec(
          *              runDTO.getKind(),
