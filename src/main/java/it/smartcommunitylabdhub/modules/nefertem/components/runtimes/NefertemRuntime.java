@@ -8,10 +8,13 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecRegistry;
 import it.smartcommunitylabdhub.core.components.infrastructure.runtimes.BaseRuntime;
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.utils.RunUtils;
 import it.smartcommunitylabdhub.core.models.base.RunStatus;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
+import it.smartcommunitylabdhub.core.models.entities.run.specs.RunRunSpec;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
 import it.smartcommunitylabdhub.modules.nefertem.components.builders.NefertemInferBuilder;
@@ -60,7 +63,7 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
          *      NefertemInferBuilder builder = (NefertemInferBuilder) getBuilder(kind);
          */
 
-        NefertemInferBuilder b = getBuilder(kind);
+        // NefertemInferBuilder b = getBuilder(kind);
 
         // Retrieve builder using task kind
         switch (kind) {
@@ -166,7 +169,14 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
          *      Runner runner = getRunner(runAccessor.getTask());
          */
 
-        return switch (runDTO.getKind()) {
+        RunRunSpec runBaseSpec = specRegistry.createSpec(
+                runDTO.getKind(),
+                SpecEntity.RUN,
+                runDTO.getSpec()
+        );
+        RunAccessor runAccessor = RunUtils.parseRun(runBaseSpec.getTask());
+
+        return switch (runAccessor.getTask()) {
             case "infer" -> new NefertemInferRunner(image).produce(runDTO);
             case "validate" -> new NefertemValidateRunner(image).produce(runDTO);
             case "profile" -> new NefertemProfileRunner(image).produce(runDTO);
