@@ -7,8 +7,7 @@ LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalh
 WORKDIR /digitalhub-core/
 
 # Copy and install sdk-dbt and sdk
-RUN pip3 install digitalhub-core
-RUN pip3 install digitalhub-core-dbt
+RUN pip3 install digitalhub-core digitalhub-core-dbt
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/

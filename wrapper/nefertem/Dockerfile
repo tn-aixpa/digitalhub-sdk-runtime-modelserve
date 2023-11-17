@@ -14,8 +14,7 @@ WORKDIR /digitalhub-core/
 # Install digitalhub-core
 RUN pip3 install digitalhub-core digitalhub-core-nefertem
 
-# Install Nefertem
-RUN pip3 install nefertem nefertem-inference nefertem-profiling nefertem-validation
+# Install Nefertem plugins
 RUN git clone https://github.com/scc-digitalhub/nefertem.git
 RUN pip3 install -e ./nefertem/plugins/frictionless*
 RUN pip3 install -e ./nefertem/plugins/duckdb*
