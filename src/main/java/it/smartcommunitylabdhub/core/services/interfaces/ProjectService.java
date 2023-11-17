@@ -1,16 +1,17 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
-import java.util.List;
-
-import org.springframework.data.domain.Pageable;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface ProjectService {
 
-    List<ProjectDTO> getProjects(Pageable pageable);
+    Page<ProjectDTO> getProjects(Pageable pageable);
 
     ProjectDTO createProject(ProjectDTO projectDTO);
 

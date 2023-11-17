@@ -1,33 +1,32 @@
 package it.smartcommunitylabdhub.core.services.context.interfaces;
 
-import java.util.List;
-
-import org.springframework.data.domain.Pageable;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ArtifactContextService {
 
-        ArtifactDTO createArtifact(String projectName, ArtifactDTO artifactDTO);
+    ArtifactDTO createArtifact(String projectName, ArtifactDTO artifactDTO);
 
-        List<ArtifactDTO> getByProjectNameAndArtifactName(
-                        String projectName, String artifactName, Pageable pageable);
+    Page<ArtifactDTO> getByProjectNameAndArtifactName(
+            String projectName, String artifactName, Pageable pageable);
 
-        List<ArtifactDTO> getLatestByProjectName(
-                        String projectName, Pageable pageable);
+    Page<ArtifactDTO> getLatestByProjectName(
+            String projectName, Pageable pageable);
 
-        ArtifactDTO getByProjectAndArtifactAndUuid(
-                        String projectName, String artifactName, String uuid);
+    ArtifactDTO getByProjectAndArtifactAndUuid(
+            String projectName, String artifactName, String uuid);
 
-        ArtifactDTO getLatestByProjectNameAndArtifactName(
-                        String projectName, String artifactName);
+    ArtifactDTO getLatestByProjectNameAndArtifactName(
+            String projectName, String artifactName);
 
-        ArtifactDTO createOrUpdateArtifact(String projectName, String artifactName,
-                        ArtifactDTO artifactDTO);
+    ArtifactDTO createOrUpdateArtifact(String projectName, String artifactName,
+                                       ArtifactDTO artifactDTO);
 
-        ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid,
-                        ArtifactDTO artifactDTO);
+    ArtifactDTO updateArtifact(String projectName, String artifactName, String uuid,
+                               ArtifactDTO artifactDTO);
 
-        Boolean deleteSpecificArtifactVersion(String projectName, String artifactName, String uuid);
+    Boolean deleteSpecificArtifactVersion(String projectName, String artifactName, String uuid);
 
-        Boolean deleteAllArtifactVersions(String projectName, String artifactName);
+    Boolean deleteAllArtifactVersions(String projectName, String artifactName);
 }

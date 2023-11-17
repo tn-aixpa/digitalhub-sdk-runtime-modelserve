@@ -17,6 +17,8 @@ public class TaskInferSpec extends TaskBaseSpec<TaskInferSpec> {
     @JsonProperty("run_config")
     private Map<String, Object> runConfig;
 
+    private String pippo;
+
     @Override
     protected void configureSpec(TaskInferSpec taskInferSpec) {
         super.configureSpec(taskInferSpec);

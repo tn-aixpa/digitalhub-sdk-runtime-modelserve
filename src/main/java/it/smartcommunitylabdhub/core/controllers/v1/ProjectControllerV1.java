@@ -1,20 +1,5 @@
 package it.smartcommunitylabdhub.core.controllers.v1;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.common.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
@@ -24,6 +9,15 @@ import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/projects")
@@ -36,7 +30,7 @@ public class ProjectControllerV1 {
 
     @Operation(summary = "List project", description = "Return a list of all projects")
     @GetMapping(path = "", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<ProjectDTO>> getProjects(Pageable pageable) {
+    public ResponseEntity<Page<ProjectDTO>> getProjects(Pageable pageable) {
         return ResponseEntity.ok(this.projectService.getProjects(pageable));
     }
 

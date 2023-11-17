@@ -11,11 +11,11 @@ import it.smartcommunitylabdhub.core.services.context.interfaces.DataItemContext
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -72,18 +72,21 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     }
 
     @Override
-    public List<DataItemDTO> getLatestByProjectName(String projectName, Pageable pageable) {
+    public Page<DataItemDTO> getLatestByProjectName(String projectName, Pageable pageable) {
         try {
             checkContext(projectName);
 
             Page<DataItem> dataItemPage = this.dataItemRepository
                     .findAllLatestDataItemsByProject(projectName,
                             pageable);
-            return dataItemPage.getContent()
-                    .stream()
-                    .map((dataItem) -> {
-                        return dataItemDTOBuilder.build(dataItem, false);
-                    }).collect(Collectors.toList());
+            return new PageImpl<>(
+                    dataItemPage.getContent()
+                            .stream()
+                            .map((dataItem) -> {
+                                return dataItemDTOBuilder.build(dataItem, false);
+                            }).collect(Collectors.toList()),
+                    pageable, dataItemPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",
@@ -93,7 +96,7 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
     }
 
     @Override
-    public List<DataItemDTO> getByProjectNameAndDataItemName(String projectName,
+    public Page<DataItemDTO> getByProjectNameAndDataItemName(String projectName,
                                                              String dataItemName,
                                                              Pageable pageable) {
         try {
@@ -102,11 +105,15 @@ public class DataItemContextServiceImpl extends ContextService implements DataIt
             Page<DataItem> dataItemPage = this.dataItemRepository
                     .findAllByProjectAndNameOrderByCreatedDesc(projectName, dataItemName,
                             pageable);
-            return dataItemPage.getContent()
-                    .stream()
-                    .map((dataItem) -> {
-                        return dataItemDTOBuilder.build(dataItem, false);
-                    }).collect(Collectors.toList());
+            return new PageImpl<>(
+                    dataItemPage.getContent()
+                            .stream()
+                            .map((dataItem) -> {
+                                return dataItemDTOBuilder.build(dataItem, false);
+                            }).collect(Collectors.toList()),
+                    pageable,
+                    dataItemPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",

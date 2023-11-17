@@ -40,7 +40,6 @@ public class NefertemInferRunner implements Runner {
         return Optional.ofNullable(runDTO)
                 .map(this::validateRunDTO)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid runDTO"));
-
     }
 
     private K8sJobRunnable validateRunDTO(RunDTO runDTO) {

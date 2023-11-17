@@ -59,11 +59,12 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
          *  the builder in this way remember also that you have to register the builder as
          *  a component using the follow annotation: `@BuilderComponent(runtime = "dbt", task = "transform")`
          *  Only by doing this you can get the bean related
-         *
+         * <p>
          *      NefertemInferBuilder builder = (NefertemInferBuilder) getBuilder(kind);
          */
 
         // NefertemInferBuilder b = getBuilder(kind);
+
 
         // Retrieve builder using task kind
         switch (kind) {
@@ -168,6 +169,7 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
          *      RunAccessor runAccessor = RunUtils.parseRun(runBaseSpec.getTask());
          *      Runner runner = getRunner(runAccessor.getTask());
          */
+
 
         RunRunSpec runBaseSpec = specRegistry.createSpec(
                 runDTO.getKind(),

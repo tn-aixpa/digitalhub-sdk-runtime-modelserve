@@ -11,11 +11,11 @@ import it.smartcommunitylabdhub.core.services.context.interfaces.WorkflowContext
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -72,18 +72,21 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     }
 
     @Override
-    public List<WorkflowDTO> getLatestByProjectName(String projectName, Pageable pageable) {
+    public Page<WorkflowDTO> getLatestByProjectName(String projectName, Pageable pageable) {
         try {
             checkContext(projectName);
 
             Page<Workflow> workflowPage = this.workflowRepository
                     .findAllLatestWorkflowsByProject(projectName,
                             pageable);
-            return workflowPage.getContent()
-                    .stream()
-                    .map((workflow) -> {
-                        return workflowDTOBuilder.build(workflow, false);
-                    }).collect(Collectors.toList());
+            return new PageImpl<>(
+                    workflowPage.getContent()
+                            .stream()
+                            .map((workflow) -> {
+                                return workflowDTOBuilder.build(workflow, false);
+                            }).collect(Collectors.toList()),
+                    pageable, workflowPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",
@@ -93,7 +96,7 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
     }
 
     @Override
-    public List<WorkflowDTO> getByProjectNameAndWorkflowName(String projectName,
+    public Page<WorkflowDTO> getByProjectNameAndWorkflowName(String projectName,
                                                              String workflowName,
                                                              Pageable pageable) {
         try {
@@ -102,11 +105,14 @@ public class WorkflowContextServiceImpl extends ContextService implements Workfl
             Page<Workflow> workflowPage = this.workflowRepository
                     .findAllByProjectAndNameOrderByCreatedDesc(projectName, workflowName,
                             pageable);
-            return workflowPage.getContent()
-                    .stream()
-                    .map((workflow) -> {
-                        return workflowDTOBuilder.build(workflow, false);
-                    }).collect(Collectors.toList());
+            return new PageImpl<>(
+                    workflowPage.getContent()
+                            .stream()
+                            .map((workflow) -> {
+                                return workflowDTOBuilder.build(workflow, false);
+                            }).collect(Collectors.toList()),
+                    pageable, workflowPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",

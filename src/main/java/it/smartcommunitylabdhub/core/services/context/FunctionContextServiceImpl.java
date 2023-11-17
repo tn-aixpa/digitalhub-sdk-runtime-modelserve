@@ -12,11 +12,11 @@ import it.smartcommunitylabdhub.core.utils.ErrorList;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -73,17 +73,20 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public List<FunctionDTO> getLatestByProjectName(String projectName, Pageable pageable) {
+    public Page<FunctionDTO> getLatestByProjectName(String projectName, Pageable pageable) {
         try {
             checkContext(projectName);
 
             Page<Function> functionPage = this.functionRepository
                     .findAllLatestFunctionsByProject(projectName,
                             pageable);
-            return functionPage.getContent()
-                    .stream()
-                    .map(function -> functionDTOBuilder.build(function, false))
-                    .collect(Collectors.toList());
+            return new PageImpl<>(
+                    functionPage.getContent()
+                            .stream()
+                            .map(function -> functionDTOBuilder.build(function, false))
+                            .collect(Collectors.toList()),
+                    pageable, functionPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     ErrorList.INTERNAL_SERVER_ERROR.getValue(),
@@ -93,7 +96,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public List<FunctionDTO> getByProjectNameAndFunctionName(String projectName,
+    public Page<FunctionDTO> getByProjectNameAndFunctionName(String projectName,
                                                              String functionName,
                                                              Pageable pageable) {
         try {
@@ -102,10 +105,13 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             Page<Function> functionPage = this.functionRepository
                     .findAllByProjectAndNameOrderByCreatedDesc(projectName, functionName,
                             pageable);
-            return functionPage.getContent()
-                    .stream()
-                    .map(function -> functionDTOBuilder.build(function, false))
-                    .collect(Collectors.toList());
+            return new PageImpl<>(
+                    functionPage.getContent()
+                            .stream()
+                            .map(function -> functionDTOBuilder.build(function, false))
+                            .collect(Collectors.toList()),
+                    pageable, functionPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     ErrorList.INTERNAL_SERVER_ERROR.getValue(),

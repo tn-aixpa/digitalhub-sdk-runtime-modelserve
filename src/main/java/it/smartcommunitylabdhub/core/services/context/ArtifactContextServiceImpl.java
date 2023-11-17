@@ -11,11 +11,11 @@ import it.smartcommunitylabdhub.core.services.context.interfaces.ArtifactContext
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -72,18 +72,21 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
     }
 
     @Override
-    public List<ArtifactDTO> getLatestByProjectName(String projectName, Pageable pageable) {
+    public Page<ArtifactDTO> getLatestByProjectName(String projectName, Pageable pageable) {
         try {
             checkContext(projectName);
 
             Page<Artifact> artifactPage = this.artifactRepository
                     .findAllLatestArtifactsByProject(projectName,
                             pageable);
-            return artifactPage.getContent()
-                    .stream()
-                    .map((artifact) -> {
-                        return artifactDTOBuilder.build(artifact, false);
-                    }).collect(Collectors.toList());
+            return new PageImpl<>(
+                    artifactPage.getContent()
+                            .stream()
+                            .map((artifact) -> {
+                                return artifactDTOBuilder.build(artifact, false);
+                            }).collect(Collectors.toList()),
+                    pageable, artifactPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",
@@ -93,7 +96,7 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
     }
 
     @Override
-    public List<ArtifactDTO> getByProjectNameAndArtifactName(String projectName,
+    public Page<ArtifactDTO> getByProjectNameAndArtifactName(String projectName,
                                                              String artifactName,
                                                              Pageable pageable) {
         try {
@@ -102,11 +105,14 @@ public class ArtifactContextServiceImpl extends ContextService implements Artifa
             Page<Artifact> artifactPage = this.artifactRepository
                     .findAllByProjectAndNameOrderByCreatedDesc(projectName, artifactName,
                             pageable);
-            return artifactPage.getContent()
-                    .stream()
-                    .map((artifact) -> {
-                        return artifactDTOBuilder.build(artifact, false);
-                    }).collect(Collectors.toList());
+            return new PageImpl<>(
+                    artifactPage.getContent()
+                            .stream()
+                            .map((artifact) -> {
+                                return artifactDTOBuilder.build(artifact, false);
+                            }).collect(Collectors.toList()),
+                    pageable, artifactPage.getContent().size()
+            );
         } catch (CustomException e) {
             throw new CoreException(
                     "InternalServerError",

@@ -22,6 +22,7 @@ import it.smartcommunitylabdhub.core.utils.ErrorList;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -93,18 +94,19 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectDTO> getProjects(Pageable pageable) {
+    public Page<ProjectDTO> getProjects(Pageable pageable) {
         try {
             Page<Project> projectPage = this.projectRepository.findAll(pageable);
-            return projectPage.getContent().stream().map((project) -> {
-                List<Function> functions = functionRepository.findByProject(project.getName());
-                List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
-                List<Workflow> workflows = workflowRepository.findByProject(project.getName());
-                List<DataItem> dataItems = dataItemRepository.findByProject(project.getName());
+            return new PageImpl<>(
+                    projectPage.getContent().stream().map((project) -> {
+                        List<Function> functions = functionRepository.findByProject(project.getName());
+                        List<Artifact> artifacts = artifactRepository.findByProject(project.getName());
+                        List<Workflow> workflows = workflowRepository.findByProject(project.getName());
+                        List<DataItem> dataItems = dataItemRepository.findByProject(project.getName());
 
-                return projectDTOBuilder.build(project, artifacts, functions, workflows,
-                        dataItems, true);
-            }).collect(Collectors.toList());
+                        return projectDTOBuilder.build(project, artifacts, functions, workflows,
+                                dataItems, true);
+                    }).collect(Collectors.toList()), pageable, projectPage.getContent().size());
         } catch (CustomException e) {
             throw new CoreException(
                     ErrorList.INTERNAL_SERVER_ERROR.getValue(),
