@@ -21,6 +21,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
+"digitalhub-core>=0.0.5",
 "mlrun==1.4.0",
 ]
 
@@ -41,7 +42,7 @@ convention = "numpy"
 
 [tool.bumpver]
 current_version = "0.0.4"
-version_pattern = "MAJOR.MINOR.PATCH"
+version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = true
 tag             = true
