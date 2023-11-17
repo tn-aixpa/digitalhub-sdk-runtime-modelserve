@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import typing
 from pathlib import Path
 
 import nefertem
@@ -15,6 +16,12 @@ from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.logger import LOGGER
+
+if typing.TYPE_CHECKING:
+    from digitalhub_core.entities.artifacts.entity import Artifact
+    from digitalhub_core.entities.dataitems.entity import Dataitem
+    from nefertem.client.client import Client
+
 
 ####################
 # Runtime
@@ -55,218 +62,218 @@ class RuntimeNefertem(Runtime):
         # Get action
         action = self._get_action(run)
 
-        # Execute action
-        if action == "validate":
-            return self.validate(run)
-        if action == "profile":
-            return self.profile(run)
-        if action == "infer":
-            return self.infer(run)
-        if action == "metric":
-            return self.metric(run)
-
         # Handle unknown task kind
-        msg = f"Task {action} not allowed for Nefertem runtime"
-        LOGGER.error(msg)
-        raise EntityError(msg)
+        if action not in ["validate", "profile", "infer", "metric"]:
+            msg = f"Task {action} not allowed for Nefertem runtime"
+            LOGGER.error(msg)
+            raise EntityError(msg)
+
+        # Execute action
+        return self.execute(action, run)
+
+    ####################
+    # Execute
+    ####################
+
+    def execute(self, action: str, run: dict) -> dict:
+        """
+        Execute function.
+
+        Returns
+        -------
+        dict
+            Status of the executed run.
+        """
+        # Get run specs
+        LOGGER.info("Starting task.")
+        spec = run.get("spec")
+        project = run.get("metadata").get("project")
+
+        # Get inputs and parameters
+        LOGGER.info("Getting inputs and parameters.")
+        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+        resources = self._get_resources(inputs)
+        run_config = spec.get("run_config")
+
+        # Create client
+        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
+
+        # Operation to execute
+        LOGGER.info("Executing nefertem run.")
+
+        if action == "infer":
+            nt_run = self.infer(client, resources, run_config)
+
+        elif action == "profile":
+            nt_run = self.profile(client, resources, run_config)
+
+        elif action == "validate":
+            constraints = spec.get("constraints")
+            error_report = spec.get("error_report")
+            nt_run = self.validate(client, resources, run_config, constraints, error_report)
+
+        elif action == "metric":
+            metrics = spec.get("metrics")
+            nt_run = self.metric(client, resources, run_config, metrics)
+
+        # Upload outputs
+        LOGGER.info("Uploading outputs.")
+        artifacts = self._upload_outputs(nt_run, project)
+
+        # Remove tmp folder
+        LOGGER.info("Removing tmp folder.")
+        self.cleanup()
+
+        # Return run status
+        LOGGER.info("Task completed, returning run status.")
+        return {
+            "state": State.COMPLETED.value,
+            "artifacts": artifacts,
+        }
+
 
     ####################
     # INFER TASK
     ####################
 
-    def infer(self, run: dict) -> dict:
+    def infer(self, client: Client, resources: list[dict], run_config: dict) -> dict:
         """
         Execute infer task.
+
+        Parameters
+        ----------
+        client : Client
+            Nefertem client.
+        resources : list[dict]
+            The list of nefertem resources.
+        run_config : dict
+            The nefertem run configuration.
 
         Returns
         -------
         dict
-            Status of the executed run.
+            Nefertem run info.
         """
-
-        # Get run specs
-        LOGGER.info("Starting infer task")
-        spec = run.get("spec")
-        project = run.get("metadata").get("project")
-
-        # Get inputs and parameters
-        LOGGER.info("Getting inputs and parameters")
-        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-        resources = self._get_resources(inputs)
-        run_config = spec.get("run_config")
-
-        # Execute run
-        LOGGER.info("Executing run")
-        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.infer()
             nt_run.log_schema()
             nt_run.persist_schema()
-
-        # Upload outputs
-        LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
-
-        # Remove tmp folder
-        LOGGER.info("Removing tmp folder")
-        self.cleanup()
-
-        # Return run status
-        LOGGER.info("Task completed, returning run status.")
-        return {
-            "state": State.COMPLETED.value,
-            "artifacts": artifacts,
-        }
+        return nt_run.run_info.to_dict()
 
     ####################
     # PROFILE TASK
     ####################
 
-    def profile(self, run: dict) -> dict:
+    def profile(self, client: Client, resources: list[dict], run_config: dict) -> dict:
         """
         Execute profile task.
+
+        Parameters
+        ----------
+        client : Client
+            Nefertem client.
+        resources : list[dict]
+            The list of nefertem resources.
+        run_config : dict
+            The nefertem run configuration.
 
         Returns
         -------
         dict
-            Status of the executed run.
+            Nefertem run info.
         """
-
-        # Get run specs
-        LOGGER.info("Starting profile task")
-        spec = run.get("spec")
-        project = run.get("metadata").get("project")
-
-        # Get inputs and parameters
-        LOGGER.info("Getting inputs and parameters")
-        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-        resources = self._get_resources(inputs)
-        run_config = spec.get("run_config")
-
-        # Execute run
-        LOGGER.info("Executing run")
-        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.profile()
             nt_run.log_profile()
             nt_run.persist_profile()
-
-        # Upload outputs
-        LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
-
-        # Remove tmp folder
-        LOGGER.info("Removing tmp folder")
-        self.cleanup()
-
-        # Return run status
-        LOGGER.info("Task completed, returning run status.")
-        return {
-            "state": State.COMPLETED.value,
-            "artifacts": artifacts,
-        }
+        return nt_run.run_info.to_dict()
 
     ####################
     # VALIDATE TASK
     ####################
 
-    def validate(self, run: dict) -> dict:
+    def validate(self, client: Client, resources: list[dict], run_config: dict, constraints: list[dict], error_report: str) -> dict:
         """
         Execute validate task.
+
+        Parameters
+        ----------
+        client : Client
+            Nefertem client.
+        resources : list[dict]
+            The list of nefertem resources.
+        run_config : dict
+            The nefertem run configuration.
+        constraints : list[dict]
+            The list of nefertem constraints.
+        error_report : str
+            The error report modality.
 
         Returns
         -------
         dict
-            Status of the executed run.
+            Nefertem run info.
+
+        Raises
+        ------
+        RuntimeError
+            If no constraints are given.
         """
+        if constraints is None:
+            msg = "Error. No constraints given."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
+        if error_report is None:
+            error_report = "partial"
 
-        # Get run specs
-        LOGGER.info("Starting validate task")
-        spec = run.get("spec")
-        project = run.get("metadata").get("project")
-
-        # Get inputs and parameters
-        LOGGER.info("Getting inputs and parameters")
-        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-        resources = self._get_resources(inputs)
-        run_config = spec.get("run_config")
-        constraints = spec.get("constraints")
-        error_report = spec.get("error_report")
-
-        # Execute run
-        LOGGER.info("Executing run")
-        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.validate(constraints=constraints, error_report=error_report)
             nt_run.log_report()
             nt_run.persist_report()
-
-        # Upload outputs
-        LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
-
-        # Remove tmp folder
-        LOGGER.info("Removing tmp folder")
-        self.cleanup()
-
-        # Return run status
-        LOGGER.info("Task completed, returning run status.")
-        return {
-            "state": State.COMPLETED.value,
-            "artifacts": artifacts,
-        }
+        return nt_run.run_info.to_dict()
 
     ####################
     # METRIC TASK
     ####################
 
-    def metric(self, run: dict) -> dict:
+    def metric(self, client: Client, resources: list[dict], run_config: dict, metrics: list[dict]) -> dict:
         """
         Execute metric task.
+
+        Parameters
+        ----------
+        client : Client
+            Nefertem client.
+        resources : list[dict]
+            The list of nefertem resources.
+        run_config : dict
+            The nefertem run configuration.
+        metrics : list[dict]
+            The list of nefertem metrics.
 
         Returns
         -------
         dict
-            Status of the executed run.
+            Nefertem run info.
+
+        Raises
+        ------
+        RuntimeError
+            If no metrics are given.
         """
+        if metrics is None:
+            msg = "Error. No metrics given."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
 
-        # Get run specs
-        LOGGER.info("Starting metric task")
-        spec = run.get("spec")
-        project = run.get("metadata").get("project")
-
-        # Get inputs and parameters
-        LOGGER.info("Getting inputs and parameters")
-        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-        resources = self._get_resources(inputs)
-        run_config = spec.get("run_config")
-        metrics = spec.get("metrics")
-
-        # Execute run
-        LOGGER.info("Executing run")
-        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
         with client.create_run(resources, run_config) as nt_run:
             nt_run.metric(metrics=metrics)
             nt_run.log_metric()
             nt_run.persist_metric()
-
-        # Upload outputs
-        LOGGER.info("Uploading outputs")
-        artifacts = self._upload_outputs(nt_run.run_info.to_dict(), project)
-
-        # Remove tmp folder
-        LOGGER.info("Removing tmp folder")
-        self.cleanup()
-
-        # Return run status
-        LOGGER.info("Task completed, returning run status.")
-        return {
-            "state": State.COMPLETED.value,
-            "artifacts": artifacts,
-        }
+        return nt_run.run_info.to_dict()
 
     ####################
-    # Helpers
+    # Inputs
     ####################
 
     def _get_inputs(self, inputs: list, project: str) -> list[dict]:
@@ -289,27 +296,69 @@ class RuntimeNefertem(Runtime):
 
         mapper = []
         for name in inputs:
-            # Get dataitem from backend
-            try:
-                LOGGER.info(f"Getting dataitem '{name}'")
-                di = get_dataitem(project, name)
-            except BackendError:
-                msg = f"Dataitem '{name}' not found in project '{project}'"
-                LOGGER.error(msg)
-                raise EntityError(msg)
-
-            # Persist dataitem locally
-            try:
-                LOGGER.info(f"Persisting dataitem '{name}' locally")
-                tmp_path = f"{self.output_path}/tmp/{name}.csv"
-                di.as_df().to_csv(tmp_path, sep=",", index=False)
-                mapper.append({"name": name, "path": tmp_path})
-            except Exception:
-                msg = f"Error persisting dataitem '{name}' locally"
-                LOGGER.error(msg)
-                raise EntityError(msg)
-
+            dataitem = self._get_dataitem(name, project)
+            mapper.append(self._persist_dataitem(dataitem))
         return mapper
+
+    def _get_dataitem(self, name: str, project: str) -> Dataitem:
+        """
+        Get dataitem from backend.
+
+        Parameters
+        ----------
+        name : str
+            The dataitem name.
+        project : str
+            The project name.
+
+        Returns
+        -------
+        dict
+            The dataitem.
+
+        Raises
+        ------
+        BackendError
+            If the dataitem cannot be retrieved.
+        """
+        try:
+            LOGGER.info(f"Getting dataitem '{name}'")
+            return get_dataitem(project, name)
+        except BackendError as err:
+            msg = f"Error getting dataitem '{name}'. {err.args[0]}"
+            LOGGER.error(msg)
+            raise BackendError(msg)
+
+    def _persist_dataitem(self, dataitem: Dataitem, name: str) -> dict:
+        """
+        Persist dataitem locally.
+
+        Parameters
+        ----------
+        dataitem : Dataitem
+            The dataitem to persist.
+        name : str
+            The dataitem name.
+
+        Returns
+        -------
+        dict
+            The dataitem path.
+
+        Raises
+        ------
+        EntityError
+            If the dataitem cannot be persisted.
+        """
+        try:
+            LOGGER.info(f"Persisting dataitem '{name}' locally")
+            tmp_path = f"{self.output_path}/tmp/{name}.csv"
+            dataitem.as_df().to_csv(tmp_path, sep=",", index=False)
+            return {"name": name, "path": tmp_path}
+        except Exception as err:
+            msg = f"Error during dataitem '{name}' collection. {err.args[0]}"
+            LOGGER.error(msg)
+            raise EntityError(msg)
 
     def _get_resources(self, inputs: list[dict]) -> list[dict]:
         """
@@ -325,14 +374,23 @@ class RuntimeNefertem(Runtime):
         list[dict]
             The list of nefertem resources.
         """
-        resources = []
-        for i in inputs:
-            res = {}
-            res["name"] = i["name"]
-            res["path"] = i["path"]
-            res["store"] = self.store["name"]
-            resources.append(res)
-        return resources
+        try:
+            resources = []
+            for i in inputs:
+                res = {}
+                res["name"] = i["name"]
+                res["path"] = i["path"]
+                res["store"] = self.store["name"]
+                resources.append(res)
+            return resources
+        except KeyError as err:
+            msg = f"Error. Dataitem path is not given. {err.args[0]}"
+            LOGGER.error(msg)
+            raise EntityError(msg)
+
+    ####################
+    # Outputs
+    ####################
 
     def _upload_outputs(self, run_info: dict, project: str) -> dict:
         """
@@ -351,38 +409,77 @@ class RuntimeNefertem(Runtime):
             List of artifacts.
         """
         artifacts = []
-        for file in run_info.get("output_files", []):
-            filename = Path(file).name
-            name = Path(file).stem.replace("_", "-")
-
-            # Create new artifact in backend
-            try:
-                LOGGER.info(f"Creating artifact new artifact '{name}'")
-                dst = f"s3://{os.getenv('S3_BUCKET_NAME')}/{project}/artifacts/{run_info.get('run_id')}/{filename}"
-                artifact = new_artifact(project, name, "artifact", src_path=file, target_path=dst)
-            except Exception as err:
-                msg = f"Error creating artifact '{name}': {err.args[0]}"
-                LOGGER.error(msg)
-                raise EntityError(msg)
-
-            # Upload artifact to minio
-            try:
-                LOGGER.info(f"Uploading artifact '{name}' to minio")
-                artifact.upload()
-            except Exception as err:
-                msg = f"Error uploading artifact '{name}': {err.args[0]}"
-                LOGGER.error(msg)
-                raise EntityError(msg)
-
-            artifacts.append(
-                {
+        for src_path in run_info.get("output_files", []):
+            # Replace _ by - in artifact name for backend compatibility
+            name = Path(src_path).stem.replace("_", "-")
+            artifact = self._create_artifact(name, project, run_info["id"], src_path)
+            self._upload_artifact_to_minio(name, artifact)
+            artifacts.append({
                     "key": name,
                     "kind": "artifact",
                     "id": f"store://{project}/artifacts/artifact/{name}:{artifact.metadata.version}",
-                }
-            )
-
+            })
         return artifacts
+
+    @staticmethod
+    def _create_artifact(name: str, project: str, run_id: str, src_path: str) -> Artifact:
+        """
+        Create new artifact in backend.
+
+        Parameters
+        ----------
+        name : str
+            The artifact name.
+        project : str
+            The project name.
+        run_id : str
+            Neferetem run id.
+        src_path : str
+            The artifact source local path.
+
+        Returns
+        -------
+        Artifact
+            The new artifact.
+
+        Raises
+        ------
+        EntityError
+            If the artifact cannot be created.
+        """
+        try:
+            # Get bucket name from env and filename from path
+            LOGGER.info(f"Creating artifact new artifact '{name}'")
+            dst = f"s3://{os.getenv('S3_BUCKET_NAME')}/{project}/artifacts/{run_id}/{Path(src_path).name}"
+            return new_artifact(project, name, "artifact", src_path=src_path, target_path=dst)
+        except Exception as err:
+            msg = f"Error creating artifact '{name}': {err.args[0]}"
+            LOGGER.error(msg)
+            raise EntityError(msg)
+
+    @staticmethod
+    def _upload_artifact_to_minio(name: str, artifact: Artifact) -> None:
+        """
+        Upload artifact to minio.
+
+        Parameters
+        ----------
+        name : str
+            The artifact name.
+        artifact : Artifact
+            The artifact to upload.
+        """
+        try:
+            LOGGER.info(f"Uploading artifact '{name}' to minio")
+            artifact.upload()
+        except Exception as err:
+            msg = f"Error uploading artifact '{name}': {err.args[0]}"
+            LOGGER.error(msg)
+            raise EntityError(msg)
+
+    ####################
+    # Cleanup
+    ####################
 
     def cleanup(self) -> None:
         """

@@ -151,22 +151,22 @@ class RuntimeDBT(Runtime):
         # Get action
         action = self._get_action(run)
 
-        # Execute action
-        if action == "transform":
-            return self.transform(run)
-
         # Handle unknown task kind
-        msg = f"Task {action} not allowed for DBT runtime"
-        LOGGER.error(msg)
-        raise EntityError(msg)
+        if action not in ["transform"]:
+            msg = f"Task {action} not allowed for DBT runtime"
+            LOGGER.error(msg)
+            raise EntityError(msg)
+
+        # Execute action
+        return self.execute(run)
 
     ####################
     # TRANSFORM TASK
     ####################
 
-    def transform(self, run: dict) -> dict:
+    def execute(self, run: dict) -> dict:
         """
-        Execute transform task.
+        Execute task.
 
         Returns
         -------
@@ -175,12 +175,12 @@ class RuntimeDBT(Runtime):
         """
 
         # Get run specs
-        LOGGER.info("Starting transform task.")
+        LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("metadata").get("project")
 
         # Parse inputs/outputs
-        LOGGER.info("Parsing inputs/outputs.")
+        LOGGER.info("Parsing inputs and output.")
         inputs = self.parse_inputs(spec.get("inputs", {}).get("dataitems", []), project)
         output = self.parse_outputs(spec.get("outputs", {}).get("dataitems", []))
 
@@ -191,7 +191,7 @@ class RuntimeDBT(Runtime):
 
         # Execute function
         LOGGER.info("Executing dbt project.")
-        execution_results = self.execute(output)
+        execution_results = self.transform(output)
 
         # Parse results
         LOGGER.info("Parsing results.")
@@ -215,7 +215,7 @@ class RuntimeDBT(Runtime):
 
     def parse_inputs(self, inputs: list, project: str) -> list:
         """
-        Parse inputs from run spec and materialize them in postgres.
+        Parse inputs from run spec and materialize dataitems in postgres.
 
         Parameters
         ----------
@@ -230,21 +230,68 @@ class RuntimeDBT(Runtime):
             The list of inputs dataitems names.
         """
         for name in inputs:
-            try:
-                di = get_dataitem(project, name)
-            except BackendError as err:
-                msg = f"Dataitem {name} not found. Error: {err.args[0]}."
-                LOGGER.error(msg)
-                raise EntityError(msg)
-            try:
-                target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{di.id}"
-                LOGGER.info(f"Materializing dataitem {name} in postgres as {target_path}.")
-                di.write_df(target_path, if_exists="replace")
-            except Exception as err:
-                msg = f"Something got wrong during dataitem {name} materialization. Error: {err.args[0]}."
-                LOGGER.error(msg)
-                raise EntityError(msg)
+            dataitem = self._get_dataitem(name, project)
+            self._materialize_dataitem(dataitem, name)
         return inputs
+
+    @staticmethod
+    def _get_dataitem(name: str, project: str) -> Dataitem:
+        """
+        Get dataitem from core.
+
+        Parameters
+        ----------
+        name : str
+            The dataitem name.
+        project : str
+            The project name.
+
+        Returns
+        -------
+        Dataitem
+            The dataitem.
+
+        Raises
+        ------
+        BackendError
+            If dataitem is not found.
+        """
+        try:
+            return get_dataitem(project, name)
+        except BackendError as err:
+            msg = f"Dataitem {name} not found. Error: {err.args[0]}."
+            LOGGER.error(msg)
+            raise BackendError(msg)
+
+    @staticmethod
+    def _materialize_dataitem(dataitem: Dataitem, name: str) -> None:
+        """
+        Materialize dataitem in postgres.
+
+        Parameters
+        ----------
+        dataitem : Dataitem
+            The dataitem.
+        name : str
+            The dataitem name.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If something got wrong during dataitem materialization.
+        """
+        try:
+            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{dataitem.id}"
+            LOGGER.info(f"Materializing dataitem {name} in postgres as {target_path}.")
+            dataitem.write_df(target_path, if_exists="replace")
+        except Exception as err:
+            msg = f"Something got wrong during dataitem {name} materialization. Error: {err.args[0]}."
+            LOGGER.error(msg)
+            raise EntityError(msg)
 
     def parse_outputs(self, outputs: list) -> str:
         """
@@ -263,14 +310,13 @@ class RuntimeDBT(Runtime):
         Raises
         ------
         RuntimeError
-            If outputs are not a list of dataitems.
+            If outputs are not a list of one dataitem.
         """
-        try:
-            return str(outputs[0])
-        except IndexError:
-            msg = "Outputs must be a list of dataitems."
+        if not isinstance(outputs, list) or len(outputs) > 1:
+            msg = "Outputs must be a list of one dataitem."
             LOGGER.error(msg)
-            raise IndexError(msg)
+            raise RuntimeError(msg)
+        return str(outputs[0])
 
     ####################
     # Setup environment
@@ -397,7 +443,7 @@ class RuntimeDBT(Runtime):
     # Execute function
     ####################
 
-    def execute(self, output: str) -> dbtRunnerResult:
+    def transform(self, output: str) -> dbtRunnerResult:
         """
         Execute a dbt project with the specified outputs.
         It initializes a dbt runner, cleans the project and runs it.
@@ -616,6 +662,11 @@ class RuntimeDBT(Runtime):
         -------
         Dataitem
             The dataitem.
+
+        Raises
+        ------
+        RuntimeError
+            If something got wrong during dataitem creation.
         """
         try:
             return new_dataitem(
@@ -627,10 +678,10 @@ class RuntimeDBT(Runtime):
                 raw_code=result.raw_code,
                 compiled_code=result.compiled_code,
             )
-        except BackendError as err:
+        except Exception as err:
             msg = f"Something got wrong during dataitem creation. Error: {err.args[0]}."
             LOGGER.error(msg)
-            raise BackendError(msg)
+            raise RuntimeError(msg)
 
     @staticmethod
     def _get_dataitem_info(output: str, dataitem: Dataitem) -> dict:
