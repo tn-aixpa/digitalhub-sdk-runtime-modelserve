@@ -3,22 +3,24 @@ FROM python:3.10-slim
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 
+# Install git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set working dir
 WORKDIR /digitalhub-core/
 
-# Copy and install nefertem and inference plugins
-COPY ./nefertem ./lib-nefertem
-RUN chmod -R 775 /digitalhub-core/lib-nefertem
-RUN pip3 install -e ./lib-nefertem
-RUN pip3 install -e ./lib-nefertem/operations/*
-RUN pip3 install -e ./lib-nefertem/plugins/*
+# Install digitalhub-core
+RUN pip3 install digitalhub-core digitalhub-core-nefertem
 
-# Copy and install sdk-dbt and sdk
-COPY ./sdk ./lib
-RUN chmod -R 775 /digitalhub-core/lib
-RUN pip3 install -e ./lib/modules/nefertem
-RUN pip3 install -e ./lib/modules/dbt
-RUN pip3 install -e ./lib
+# Install Nefertem
+RUN pip3 install nefertem nefertem-inference nefertem-profiling nefertem-validation
+RUN git clone https://github.com/scc-digitalhub/nefertem.git
+RUN pip3 install -e ./nefertem/plugins/frictionless*
+RUN pip3 install -e ./nefertem/plugins/duckdb*
+RUN pip3 install -e ./nefertem/plugins/sqlalchemy*
+RUN pip3 install -e ./nefertem/plugins/ydata*
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/
