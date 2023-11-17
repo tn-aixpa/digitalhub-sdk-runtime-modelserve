@@ -9,12 +9,11 @@ import typing
 from pathlib import Path
 
 import nefertem
-
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.exceptions import BackendError, EntityError
+from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
@@ -131,7 +130,6 @@ class RuntimeNefertem(Runtime):
             "artifacts": artifacts,
         }
 
-
     ####################
     # INFER TASK
     ####################
@@ -192,7 +190,9 @@ class RuntimeNefertem(Runtime):
     # VALIDATE TASK
     ####################
 
-    def validate(self, client: Client, resources: list[dict], run_config: dict, constraints: list[dict], error_report: str) -> dict:
+    def validate(
+        self, client: Client, resources: list[dict], run_config: dict, constraints: list[dict], error_report: str
+    ) -> dict:
         """
         Execute validate task.
 
@@ -414,11 +414,13 @@ class RuntimeNefertem(Runtime):
             name = Path(src_path).stem.replace("_", "-")
             artifact = self._create_artifact(name, project, run_info["run_id"], src_path)
             self._upload_artifact_to_minio(name, artifact)
-            artifacts.append({
+            artifacts.append(
+                {
                     "key": name,
                     "kind": "artifact",
                     "id": f"store://{project}/artifacts/artifact/{name}:{artifact.metadata.version}",
-            })
+                }
+            )
         return artifacts
 
     @staticmethod

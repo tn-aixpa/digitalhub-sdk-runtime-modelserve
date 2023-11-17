@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from dbt.cli.main import dbtRunner, dbtRunnerResult
-
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.dataitems.crud import get_dataitem, new_dataitem
 from digitalhub_core.runtimes.base import Runtime
@@ -19,7 +18,6 @@ from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-
     from digitalhub_core.entities.dataitems.entity import Dataitem
 
 ####################
