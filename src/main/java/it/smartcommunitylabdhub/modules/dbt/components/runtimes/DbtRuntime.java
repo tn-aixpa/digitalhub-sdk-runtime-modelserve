@@ -68,11 +68,9 @@ public class DbtRuntime extends BaseRuntime<FunctionDbtSpec> {
              *  the builder in this way remember also that you have to register the builder as
              *  a component using the follow annotation: `@BuilderComponent(runtime = "dbt", task = "transform")`
              *  Only by doing this you can get the bean related
-             *
-             *      DbtTransformBuilder builder = (DbtTransformBuilder) getBuilder(kind);
+             * <p>
+             *      DbtTransformBuilder b = getBuilder("transform");
              */
-
-            DbtTransformBuilder b = getBuilder("infer");
 
             DbtTransformBuilder builder = new DbtTransformBuilder();
 
