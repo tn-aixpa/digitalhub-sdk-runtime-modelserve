@@ -8,6 +8,7 @@ import typing
 from dataclasses import dataclass
 from pathlib import Path
 
+import psycopg2
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.dataitems.crud import get_dataitem, new_dataitem
@@ -15,6 +16,7 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string, encode_string
 from digitalhub_core.utils.logger import LOGGER
+from psycopg2 import sql as psql
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
@@ -111,6 +113,7 @@ class RuntimeDBT(Runtime):
         """
         self.root_dir = Path("dbt_run")
         self.model_dir = self.root_dir / "models"
+        self._table_to_drop = []
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -199,6 +202,9 @@ class RuntimeDBT(Runtime):
         LOGGER.info("Creating output dataitem.")
         dataitem = self.create_dataitem(parsed_result, project, uuid)
 
+        # Clean environment
+        self.cleanup()
+
         # Return run status
         LOGGER.info("Task completed, returning run status.")
         return {
@@ -229,7 +235,8 @@ class RuntimeDBT(Runtime):
         """
         for name in inputs:
             dataitem = self._get_dataitem(name, project)
-            self._materialize_dataitem(dataitem, name)
+            table = self._materialize_dataitem(dataitem, name)
+            self._table_to_drop.append(table)
         return inputs
 
     @staticmethod
@@ -262,7 +269,7 @@ class RuntimeDBT(Runtime):
             raise BackendError(msg)
 
     @staticmethod
-    def _materialize_dataitem(dataitem: Dataitem, name: str) -> None:
+    def _materialize_dataitem(dataitem: Dataitem, name: str) -> str:
         """
         Materialize dataitem in postgres.
 
@@ -275,7 +282,8 @@ class RuntimeDBT(Runtime):
 
         Returns
         -------
-        None
+        str
+            The materialized table name.
 
         Raises
         ------
@@ -283,9 +291,11 @@ class RuntimeDBT(Runtime):
             If something got wrong during dataitem materialization.
         """
         try:
-            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{name}_v{dataitem.id}"
+            table_name = f"{name}_v{dataitem.id}"
+            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
             LOGGER.info(f"Materializing dataitem {name} in postgres as {target_path}.")
             dataitem.write_df(target_path, if_exists="replace")
+            return table_name
         except Exception as err:
             msg = f"Something got wrong during dataitem {name} materialization. Error: {err.args[0]}."
             LOGGER.error(msg)
@@ -706,3 +716,30 @@ class RuntimeDBT(Runtime):
                 }
             ]
         }
+
+    ####################
+    # Cleanup
+    ####################
+
+    def cleanup(self) -> None:
+        """
+        Cleanup environment.
+
+        Returns
+        -------
+        None
+        """
+        connection = psycopg2.connect(
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT,
+            database=POSTGRES_DATABASE,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+        )
+        connection.set_session(autocommit=True)
+        for table in self._table_to_drop:
+            with connection.cursor() as cursor:
+                query = psql.SQL("DROP TABLE {table}").format(table=psql.Identifier(table))
+                cursor.execute(query)
+        connection.close()
+
