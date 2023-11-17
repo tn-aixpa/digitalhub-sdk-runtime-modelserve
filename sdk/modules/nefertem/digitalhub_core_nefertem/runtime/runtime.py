@@ -297,7 +297,7 @@ class RuntimeNefertem(Runtime):
         mapper = []
         for name in inputs:
             dataitem = self._get_dataitem(name, project)
-            mapper.append(self._persist_dataitem(dataitem))
+            mapper.append(self._persist_dataitem(dataitem, name))
         return mapper
 
     def _get_dataitem(self, name: str, project: str) -> Dataitem:
@@ -324,10 +324,10 @@ class RuntimeNefertem(Runtime):
         try:
             LOGGER.info(f"Getting dataitem '{name}'")
             return get_dataitem(project, name)
-        except BackendError as err:
+        except Exception as err:
             msg = f"Error getting dataitem '{name}'. {err.args[0]}"
             LOGGER.error(msg)
-            raise BackendError(msg)
+            raise RuntimeError(msg)
 
     def _persist_dataitem(self, dataitem: Dataitem, name: str) -> dict:
         """
@@ -412,7 +412,7 @@ class RuntimeNefertem(Runtime):
         for src_path in run_info.get("output_files", []):
             # Replace _ by - in artifact name for backend compatibility
             name = Path(src_path).stem.replace("_", "-")
-            artifact = self._create_artifact(name, project, run_info["id"], src_path)
+            artifact = self._create_artifact(name, project, run_info["run_id"], src_path)
             self._upload_artifact_to_minio(name, artifact)
             artifacts.append({
                     "key": name,
