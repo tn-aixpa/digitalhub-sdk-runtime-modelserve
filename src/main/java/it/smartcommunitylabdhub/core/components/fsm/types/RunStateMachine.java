@@ -14,7 +14,7 @@ import it.smartcommunitylabdhub.core.components.fsm.enums.RunEvent;
 import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Log4j2
+@Slf4j
 public class RunStateMachine {
 
     @Autowired

@@ -2,7 +2,7 @@ package it.smartcommunitylabdhub.core.components.pollers;
 
 import it.smartcommunitylabdhub.core.components.workflows.factory.Workflow;
 import it.smartcommunitylabdhub.core.exceptions.StopPoller;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskExecutor;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.concurrent.*;
  * The Poller class is responsible for executing a list of workflows at scheduled intervals.
  * It provides support for both synchronous and asynchronous execution of workflows.
  */
-@Log4j2
+@Slf4j
 public class Poller implements Runnable {
 
     // List of workflows to be executed by the poller

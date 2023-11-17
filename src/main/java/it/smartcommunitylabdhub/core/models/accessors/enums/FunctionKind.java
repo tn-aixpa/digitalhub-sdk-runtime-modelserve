@@ -1,20 +1,24 @@
 package it.smartcommunitylabdhub.core.models.accessors.enums;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-
 import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.JobFunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.NuclioFunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.functions.ServingFunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+import java.lang.reflect.Method;
+import java.util.Map;
+
+@Slf4j
 public enum FunctionKind {
     JOB("job", JobFunctionFieldAccessor::new, JobFunctionFieldAccessor.class),
-    /** */
+    /**
+     *
+     */
     NUCLIO("nuclio", NuclioFunctionFieldAccessor::new, NuclioFunctionFieldAccessor.class),
-    /** */
+    /**
+     *
+     */
     SERVING("serving", ServingFunctionFieldAccessor::new, ServingFunctionFieldAccessor.class);
 
     private final String value;
@@ -22,7 +26,7 @@ public enum FunctionKind {
     private final Class<? extends FunctionFieldAccessor> accessorClass;
 
     FunctionKind(String value, AccessorFactoryKind<FunctionFieldAccessor> accessorFactory,
-            Class<? extends FunctionFieldAccessor> accessorClass) {
+                 Class<? extends FunctionFieldAccessor> accessorClass) {
         this.value = value;
         this.accessorFactory = accessorFactory;
         this.accessorClass = accessorClass;

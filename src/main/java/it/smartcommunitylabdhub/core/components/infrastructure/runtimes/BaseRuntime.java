@@ -12,13 +12,13 @@ import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 import java.util.Optional;
 
-@Log4j2
+@Slf4j
 @Getter
 public abstract class BaseRuntime<F extends FunctionBaseSpec<?>> implements Runtime<F> {
 

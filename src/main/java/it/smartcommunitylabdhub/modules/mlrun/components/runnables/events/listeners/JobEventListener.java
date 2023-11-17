@@ -11,7 +11,7 @@ import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
 import it.smartcommunitylabdhub.modules.mlrun.components.runnables.events.messages.JobMessage;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Log4j2
+@Slf4j
 public class JobEventListener {
 
     @Autowired

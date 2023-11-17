@@ -24,7 +24,7 @@ import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.function.TriFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,8 +33,8 @@ import org.springframework.http.HttpStatus;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Slf4j
 @FrameworkComponent(framework = "k8sjob")
-@Log4j2
 public class K8sJobFramework implements Framework<K8sJobRunnable> {
 
     @Autowired
@@ -140,7 +140,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
 
         try {
             V1Job createdJob = batchV1Api.createNamespacedJob(namespace, job, null, null, null, null);
-            System.out.println("Job created: " + Objects.requireNonNull(createdJob.getMetadata()).getName());
+            log.info("Job created: " + Objects.requireNonNull(createdJob.getMetadata()).getName());
         } catch (Exception e) {
             log.error("====== K8s FATAL ERROR =====");
             log.error(String.valueOf(e));
@@ -293,7 +293,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
                 }
             }
         } catch (ApiException e) {
-            System.out.println(e.getResponseBody());
+            log.error(e.getResponseBody());
             //throw new RuntimeException(e);
         }
     }

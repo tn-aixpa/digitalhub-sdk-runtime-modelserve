@@ -1,13 +1,13 @@
 package it.smartcommunitylabdhub.core.models.accessors.enums;
 
+import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.ProjectFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.projects.MlrunProjectFieldAccessor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.ProjectFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.kinds.projects.MlrunProjectFieldAccessor;
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
+@Slf4j
 public enum ProjectKind {
     MLRUN("mlrun", MlrunProjectFieldAccessor::new, MlrunProjectFieldAccessor.class);
 
@@ -16,7 +16,7 @@ public enum ProjectKind {
     private final Class<? extends ProjectFieldAccessor> accessorClass;
 
     ProjectKind(String value, AccessorFactoryKind<ProjectFieldAccessor> accessorFactory,
-            Class<? extends ProjectFieldAccessor> accessorClass) {
+                Class<? extends ProjectFieldAccessor> accessorClass) {
         this.value = value;
         this.accessorFactory = accessorFactory;
         this.accessorClass = accessorClass;

@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>6.2.2.Final</version>
+            <version>6.2.7.Final</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -136,6 +136,21 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>8.0.33</version>
         </dependency>
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-core</artifactId>
+            <version>5.0.0</version> <!-- Replace with the version you need -->
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version> <!-- or the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>2.0.7</version> <!-- or the latest version -->
+        </dependency>
     </dependencies>
 
     <build>
@@ -150,6 +165,28 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <mainClass>it.smartcommunitylabdhub.core.CoreApplication</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-native</id>
+                        <goals>
+                            <goal>compile-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <buildArgs>
+                        <arg>--no-server</arg>
+                        <arg>--enable-all-security-services</arg>
+                        <!-- Add other build arguments as needed -->
+                        <arg>-H:ReflectionConfigurationFiles=reflect-config.json</arg>
+                    </buildArgs>
                 </configuration>
             </plugin>
         </plugins>

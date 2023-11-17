@@ -1,8 +1,5 @@
 package it.smartcommunitylabdhub.core.components.kubernetes;
 
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
@@ -10,10 +7,13 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
-@Log4j2
+@Slf4j
 public class k8sEventListener {
 
     private final Optional<KubernetesClient> kubernetesClient;
@@ -35,16 +35,16 @@ public class k8sEventListener {
                 /*
                  * // Watch events on kubernetes watchEvents = kubeClient.v1().events()
                  * .inAnyNamespace() .watch(new Watcher<Event>() {
-                 * 
+                 *
                  * @Override public void eventReceived(Action action, Event resource) {
                  * eventProcessor.processEvent(action, resource); }
-                 * 
+                 *
                  * @Override public void onClose(WatcherException cause) { if (cause != null) { //
                  * Handle any KubernetesClientException that occurred during // watch
                  * System.err.println( "An error occurred during the Kubernetes events watch: " +
                  * cause.getMessage()); } else { // Handle watch closure System.out.println(
                  * "The Kubernetes events watch has been closed."); } }
-                 * 
+                 *
                  * });
                  */
 

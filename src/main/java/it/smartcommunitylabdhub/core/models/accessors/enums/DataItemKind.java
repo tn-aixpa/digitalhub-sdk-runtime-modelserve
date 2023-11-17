@@ -1,13 +1,13 @@
 package it.smartcommunitylabdhub.core.models.accessors.enums;
 
+import it.smartcommunitylabdhub.core.models.accessors.kinds.dataitems.DatasetDataItemFieldAccessor;
+import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.DataItemFieldAccessor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import it.smartcommunitylabdhub.core.models.accessors.kinds.dataitems.DatasetDataItemFieldAccessor;
-import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.DataItemFieldAccessor;
-import lombok.extern.log4j.Log4j2;
-
-@Log4j2
+@Slf4j
 public enum DataItemKind {
 
     DATASET("dataset", DatasetDataItemFieldAccessor::new, DatasetDataItemFieldAccessor.class);
@@ -17,7 +17,7 @@ public enum DataItemKind {
     private final Class<? extends DataItemFieldAccessor> accessorClass;
 
     DataItemKind(String value, AccessorFactoryKind<DataItemFieldAccessor> accessorFactory,
-            Class<? extends DataItemFieldAccessor> accessorClass) {
+                 Class<? extends DataItemFieldAccessor> accessorClass) {
         this.value = value;
         this.accessorFactory = accessorFactory;
         this.accessorClass = accessorClass;

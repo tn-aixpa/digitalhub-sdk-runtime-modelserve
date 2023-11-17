@@ -1,6 +1,6 @@
 /**
  * StateMachine.java
- *
+ * <p>
  * This class represents a State Machine that handles the flow of states and transitions based on
  * events and guards. It allows the definition of states and transitions along with their associated
  * actions and guards.
@@ -12,26 +12,22 @@
 
 package it.smartcommunitylabdhub.core.components.fsm;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
 
 @Getter
 @Setter
-@Log4j2
+@Slf4j
 public class StateMachine<S, E, C> {
+    private final ReentrantLock stateLock = new ReentrantLock();
     private String uuid;
     private S currentState;
     private S errorState;
@@ -41,17 +37,17 @@ public class StateMachine<S, E, C> {
     private ConcurrentHashMap<S, Consumer<Optional<C>>> entryActions;
     private ConcurrentHashMap<S, Consumer<Optional<C>>> exitActions;
     private Context<C> context;
-    private final ReentrantLock stateLock = new ReentrantLock();
 
     /**
      * Default constructor to create an empty StateMachine.
      */
-    public StateMachine() {}
+    public StateMachine() {
+    }
 
     /**
      * Constructor to create a StateMachine with the initial state and context.
      *
-     * @param initialState The initial state of the StateMachine.
+     * @param initialState   The initial state of the StateMachine.
      * @param initialContext The initial context for the StateMachine.
      */
     public StateMachine(S initialState, Context<C> initialContext) {
@@ -68,7 +64,7 @@ public class StateMachine<S, E, C> {
     /**
      * Static builder method to create a new StateMachine.
      *
-     * @param initialState The initial state of the StateMachine.
+     * @param initialState   The initial state of the StateMachine.
      * @param initialContext The initial context for the StateMachine.
      * @return A new Builder instance to configure and build the StateMachine.
      */
@@ -76,116 +72,9 @@ public class StateMachine<S, E, C> {
         return new Builder<>(initialState, initialContext);
     }
 
-    // Builder
-    public static class Builder<S, E, C> {
-        private S currentState;
-        private S errorState;
-        private ConcurrentHashMap<S, State<S, E, C>> states;
-        private ConcurrentHashMap<E, Consumer<C>> eventListeners;
-        private BiConsumer<S, C> stateChangeListener;
-        private ConcurrentHashMap<S, Consumer<Optional<C>>> entryActions;
-        private ConcurrentHashMap<S, Consumer<Optional<C>>> exitActions;
-        private Context<C> initialContext;
-
-        public Builder(S initialState, Optional<C> initialContext) {
-            this.currentState = initialState;
-            this.initialContext = new Context<C>(initialContext);
-            this.states = new ConcurrentHashMap<>();
-            this.eventListeners = new ConcurrentHashMap<>();
-            this.entryActions = new ConcurrentHashMap<>();
-            this.exitActions = new ConcurrentHashMap<>();
-        }
-
-        /**
-         * Adds a state and its definition to the builder's configuration.
-         *
-         * @param state The state to add.
-         * @param stateDefinition The definition of the state.
-         * @return This builder instance, allowing for method chaining.
-         */
-        public Builder<S, E, C> withState(S state, State<S, E, C> stateDefinition) {
-            states.put(state, stateDefinition);
-            return this;
-        }
-
-        /**
-         * Sets the error state and its definition in the builder's configuration. If the error
-         * state doesn't exist in the states map, it will be added.
-         *
-         * @param errorState The error state to set.
-         * @param stateDefinition The definition of the error state.
-         * @return This builder instance, allowing for method chaining.
-         */
-        public Builder<S, E, C> withErrorState(S errorState, State<S, E, C> stateDefinition) {
-            this.errorState = errorState;
-
-            // Add the error state to the states map if it doesn't exist
-            states.putIfAbsent(errorState, stateDefinition);
-            return this;
-        }
-
-        /**
-         * Adds an event listener to the builder's configuration.
-         *
-         * @param eventName The name of the event to listen for.
-         * @param listener The listener to handle the event.
-         * @return This builder instance, allowing for method chaining.
-         */
-        public <T> Builder<S, E, C> withEventListener(E eventName, Consumer<C> listener) {
-            eventListeners.put(eventName, listener);
-            return this;
-        }
-
-        /**
-         * Sets the state change listener for the builder's configuration.
-         *
-         * @param listener The listener to be notified when the state changes.
-         * @return This builder instance, allowing for method chaining.
-         */
-        public Builder<S, E, C> withStateChangeListener(BiConsumer<S, C> listener) {
-            stateChangeListener = listener;
-            return this;
-        }
-
-
-        /**
-         * Set the entry action for a specific state.
-         *
-         * @param state The state for which to set the entry action.
-         * @param entryAction The entry action as a Consumer instance.
-         */
-        public Builder<S, E, C> withEntryAction(S state, Consumer<Optional<C>> entryAction) {
-            entryActions.put(state, entryAction);
-            return this;
-        }
-
-        /**
-         * Set the exit action for a specific state.
-         *
-         * @param state The state for which to set the exit action.
-         * @param exitAction The exit action as a Consumer instance.
-         */
-        public Builder<S, E, C> withExitAction(S state, Consumer<Optional<C>> exitAction) {
-            exitActions.put(state, exitAction);
-            return this;
-        }
-
-        public StateMachine<S, E, C> build() {
-            StateMachine<S, E, C> stateMachine = new StateMachine<>(currentState, initialContext);
-            stateMachine.states = states;
-            stateMachine.errorState = errorState;
-            stateMachine.eventListeners = eventListeners;
-            stateMachine.stateChangeListener = stateChangeListener;
-            stateMachine.entryActions = entryActions;
-            stateMachine.exitActions = exitActions;
-            return stateMachine;
-        }
-
-    }
-
     /**
      * Transition the state machine to the specified target state following a valid path.
-     *
+     * <p>
      * This method attempts to transition the state machine to the target state by following a valid
      * path of states. It performs the following steps: 1. Checks if a valid path exists from the
      * current state to the target state. 2. Follows the path and for each state: a. Applies the
@@ -193,9 +82,9 @@ public class StateMachine<S, E, C> {
      * Executes the entry action of the next state.
      *
      * @param targetState The state to transition to.
-     * @param <T> The type of the result from applying the logic.
+     * @param <T>         The type of the result from applying the logic.
      * @return An optional result from applying the logic of the target state, or empty if the path
-     *         is invalid.
+     * is invalid.
      * @throws InterruptedException
      */
     public <T> void goToState(S targetState) {
@@ -272,8 +161,6 @@ public class StateMachine<S, E, C> {
         });
     }
 
-
-
     /**
      * Transition the state machine to the error state. This method is invoked when there's an error
      * or an invalid state transition, and it handles the transition to the specified error state.
@@ -305,13 +192,11 @@ public class StateMachine<S, E, C> {
         }
     }
 
-
-
     /**
      * Retrieve the context of the current state.
      *
      * @return An optional containing the context of the current state, or empty if no context is
-     *         set.
+     * set.
      */
     public Optional<C> getStateMachineContext() {
         // Lock access to currentState to ensure thread safety
@@ -330,14 +215,14 @@ public class StateMachine<S, E, C> {
 
     /**
      * Find a path from the source state to the target state in the state machine.
-     *
+     * <p>
      * This method initiates a depth-first search (DFS) to explore the state machine's transitions
      * and find a valid path from the source state to the target state.
      *
      * @param sourceState The starting state of the path.
      * @param targetState The state to reach.
      * @return A list of states representing a valid path from the source state to the target state,
-     *         or an empty list if no valid path is found.
+     * or an empty list if no valid path is found.
      */
     private List<S> findPath(S sourceState, S targetState) {
         Set<S> visited = new HashSet<>();
@@ -355,16 +240,16 @@ public class StateMachine<S, E, C> {
 
     /**
      * Depth-First Search (DFS) function to find a path between two states in the state machine.
-     *
+     * <p>
      * This function explores the state machine's transitions in a depth-first manner to find a path
      * from the current state to the target state.
      *
      * @param currentState The current state being explored.
-     * @param targetState The target state to reach.
-     * @param visited A set to keep track of visited states during the search.
-     * @param path A linked list to record the current path being explored.
+     * @param targetState  The target state to reach.
+     * @param visited      A set to keep track of visited states during the search.
+     * @param path         A linked list to record the current path being explored.
      * @return True if a valid path is found from the current state to the target state, otherwise
-     *         false.
+     * false.
      */
     private boolean dfs(S currentState, S targetState, Set<S> visited, LinkedList<S> path) {
         // Mark the current state as visited and add it to the path
@@ -398,22 +283,19 @@ public class StateMachine<S, E, C> {
         return false;
     }
 
-
-
     /**
      * Applies the internal logic associated with a state, allowing for customized handling of state
      * transitions and updates to the state machine's context.
      *
      * @param stateLogic The state logic implementation to apply.
-     * @param state The current state for which the internal logic is executed.
-     * @param <T> The type of result returned by the state logic.
+     * @param state      The current state for which the internal logic is executed.
+     * @param <T>        The type of result returned by the state logic.
      * @return An optional result obtained from applying the internal logic, or empty if not
-     *         applicable.
+     * applicable.
      */
     private <T> Optional<T> applyInternalFunc(StateLogic<S, E, C, T> stateLogic) {
         return stateLogic.applyLogic(context.getValue().orElse(null), this);
     }
-
 
     /**
      * Notifies the state change listener, if registered, about a state transition.
@@ -429,7 +311,7 @@ public class StateMachine<S, E, C> {
     /**
      * Notifies event listeners, if registered, about an event associated with a state.
      *
-     * @param state The current state from which the event is triggered.
+     * @param state     The current state from which the event is triggered.
      * @param eventName The event name that occurred.
      */
     private <T> void notifyEventListeners(S state, E eventName) {
@@ -440,13 +322,12 @@ public class StateMachine<S, E, C> {
         }
     }
 
-
     /**
      * Attempt to acquire a lock with a timeout.
      *
      * @return An {@code Optional<Boolean>} representing the lock acquisition result. If the lock is
-     *         acquired successfully, it contains {@code true}; otherwise, it contains
-     *         {@code false}.
+     * acquired successfully, it contains {@code true}; otherwise, it contains
+     * {@code false}.
      */
     private Optional<Boolean> acquireLock() {
         try {
@@ -455,8 +336,115 @@ public class StateMachine<S, E, C> {
         } catch (InterruptedException e) {
             log.error(e.getMessage());
             return Optional.empty(); // Return Optional.empty() in case of an interruption or
-                                     // exception.
+            // exception.
         }
+    }
+
+    // Builder
+    public static class Builder<S, E, C> {
+        private S currentState;
+        private S errorState;
+        private ConcurrentHashMap<S, State<S, E, C>> states;
+        private ConcurrentHashMap<E, Consumer<C>> eventListeners;
+        private BiConsumer<S, C> stateChangeListener;
+        private ConcurrentHashMap<S, Consumer<Optional<C>>> entryActions;
+        private ConcurrentHashMap<S, Consumer<Optional<C>>> exitActions;
+        private Context<C> initialContext;
+
+        public Builder(S initialState, Optional<C> initialContext) {
+            this.currentState = initialState;
+            this.initialContext = new Context<C>(initialContext);
+            this.states = new ConcurrentHashMap<>();
+            this.eventListeners = new ConcurrentHashMap<>();
+            this.entryActions = new ConcurrentHashMap<>();
+            this.exitActions = new ConcurrentHashMap<>();
+        }
+
+        /**
+         * Adds a state and its definition to the builder's configuration.
+         *
+         * @param state           The state to add.
+         * @param stateDefinition The definition of the state.
+         * @return This builder instance, allowing for method chaining.
+         */
+        public Builder<S, E, C> withState(S state, State<S, E, C> stateDefinition) {
+            states.put(state, stateDefinition);
+            return this;
+        }
+
+        /**
+         * Sets the error state and its definition in the builder's configuration. If the error
+         * state doesn't exist in the states map, it will be added.
+         *
+         * @param errorState      The error state to set.
+         * @param stateDefinition The definition of the error state.
+         * @return This builder instance, allowing for method chaining.
+         */
+        public Builder<S, E, C> withErrorState(S errorState, State<S, E, C> stateDefinition) {
+            this.errorState = errorState;
+
+            // Add the error state to the states map if it doesn't exist
+            states.putIfAbsent(errorState, stateDefinition);
+            return this;
+        }
+
+        /**
+         * Adds an event listener to the builder's configuration.
+         *
+         * @param eventName The name of the event to listen for.
+         * @param listener  The listener to handle the event.
+         * @return This builder instance, allowing for method chaining.
+         */
+        public <T> Builder<S, E, C> withEventListener(E eventName, Consumer<C> listener) {
+            eventListeners.put(eventName, listener);
+            return this;
+        }
+
+        /**
+         * Sets the state change listener for the builder's configuration.
+         *
+         * @param listener The listener to be notified when the state changes.
+         * @return This builder instance, allowing for method chaining.
+         */
+        public Builder<S, E, C> withStateChangeListener(BiConsumer<S, C> listener) {
+            stateChangeListener = listener;
+            return this;
+        }
+
+
+        /**
+         * Set the entry action for a specific state.
+         *
+         * @param state       The state for which to set the entry action.
+         * @param entryAction The entry action as a Consumer instance.
+         */
+        public Builder<S, E, C> withEntryAction(S state, Consumer<Optional<C>> entryAction) {
+            entryActions.put(state, entryAction);
+            return this;
+        }
+
+        /**
+         * Set the exit action for a specific state.
+         *
+         * @param state      The state for which to set the exit action.
+         * @param exitAction The exit action as a Consumer instance.
+         */
+        public Builder<S, E, C> withExitAction(S state, Consumer<Optional<C>> exitAction) {
+            exitActions.put(state, exitAction);
+            return this;
+        }
+
+        public StateMachine<S, E, C> build() {
+            StateMachine<S, E, C> stateMachine = new StateMachine<>(currentState, initialContext);
+            stateMachine.states = states;
+            stateMachine.errorState = errorState;
+            stateMachine.eventListeners = eventListeners;
+            stateMachine.stateChangeListener = stateChangeListener;
+            stateMachine.entryActions = entryActions;
+            stateMachine.exitActions = exitActions;
+            return stateMachine;
+        }
+
     }
 
 }

@@ -1,17 +1,18 @@
 package it.smartcommunitylabdhub.core.models.entities;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import lombok.extern.log4j.Log4j2;
 
 
-
-@Log4j2
+@Slf4j
 public class StatusFieldUtility {
 
-    StatusFieldUtility() {}
+    StatusFieldUtility() {
+    }
 
     @SuppressWarnings("unchecked")
     public static Map<String, Object> addStatusField(Map<String, Object> extra, String state) {

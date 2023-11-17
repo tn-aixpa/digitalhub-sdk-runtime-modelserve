@@ -4,7 +4,7 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-@Log4j2
+@Slf4j
 public class SpecRegistry<T extends Spec> {
     // A map to store spec types and their corresponding classes.
     private final Map<String, Class<? extends Spec>> specTypes = new HashMap<>();

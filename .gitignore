@@ -46,3 +46,5 @@ build/
 /wrapper/nefertem/nefertem
 
 /data/*
+
+run.sh

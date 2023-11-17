@@ -21,14 +21,14 @@ import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 
 import java.util.*;
 import java.util.function.Function;
 
-@Log4j2
+@Slf4j
 @RunWorkflowComponent(platform = "job", perform = "perform")
 public class JobWorkflowBuilder extends BaseWorkflowBuilder
         implements KindWorkflow<RunDTO, Workflow> {
@@ -41,7 +41,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
 
     @Value("${mlrun.api.run-url}")
     private String runUrl;
-    
+
     @Value("${mlrun.api.log-url}")
     private String logUrl;
 

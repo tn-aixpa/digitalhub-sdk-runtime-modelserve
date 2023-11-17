@@ -8,7 +8,7 @@ import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionF
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Log4j2
+@Slf4j
 @Component
 public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
 
