@@ -292,7 +292,7 @@ class RuntimeDBT(Runtime):
         """
         try:
             table_name = f"{name}_v{dataitem.id}"
-            target_path = f"sql://postgres/{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
+            target_path = f"sql://{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
             LOGGER.info(f"Materializing dataitem {name} in postgres as {target_path}.")
             dataitem.write_df(target_path, if_exists="replace")
             return table_name
@@ -559,7 +559,7 @@ class RuntimeDBT(Runtime):
 
     def get_path(self, result: RunResult) -> str:
         """
-        Get path from dbt result (sql://postgres/database/schema/table).
+        Get path from dbt result (sql://database/schema/table).
 
         Parameters
         ----------
@@ -573,7 +573,7 @@ class RuntimeDBT(Runtime):
         """
         components = result.node.relation_name.replace('"', "")
         components = "/".join(components.split("."))
-        return f"sql://postgres/{components}"
+        return f"sql://{components}"
 
     def get_raw_code(self, result: RunResult) -> str:
         """
@@ -742,4 +742,3 @@ class RuntimeDBT(Runtime):
                 query = psql.SQL("DROP TABLE {table}").format(table=psql.Identifier(table))
                 cursor.execute(query)
         connection.close()
-

@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing
 from io import BytesIO
 from typing import Type
+from urllib.parse import urlparse
 
 import boto3
 import botocore.client  # pylint: disable=unused-import
@@ -84,7 +85,7 @@ class S3Store(Store):
         Parameters
         ----------
         src : str
-            The source location of the artifact.
+            The source location of the artifact on S3.
         dst : str
             The destination of the artifact on local filesystem.
 
@@ -94,8 +95,9 @@ class S3Store(Store):
             Returns the path of the downloaded artifact.
         """
         dst = dst if dst is not None else self._build_temp(src)
+        bucket = urlparse(src).netloc
         key = self._get_key(src)
-        return self._download_file(key, dst)
+        return self._download_file(bucket, key, dst)
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -243,7 +245,7 @@ class S3Store(Store):
         except ClientError as exc:
             raise StoreError("No access to s3 bucket!") from exc
 
-    def _download_file(self, key: str, dst: str) -> str:
+    def _download_file(self, bucket: str, key: str, dst: str) -> str:
         """
         Download a file from S3 based storage. The function checks if the bucket is accessible
         and if the destination directory exists. If the destination directory does not exist,
@@ -251,6 +253,8 @@ class S3Store(Store):
 
         Parameters
         ----------
+        bucket : str
+            The name of the S3 bucket.
         key : str
             The key of the file on S3 based storage.
         dst : str
@@ -261,7 +265,8 @@ class S3Store(Store):
         str
             The path of the downloaded file.
         """
-        client, bucket = self._check_factory()
+        client = self._get_client()
+        self._check_access_to_storage(client, bucket)
         self._check_local_dst(dst)
         client.download_file(bucket, key, dst)
         return dst

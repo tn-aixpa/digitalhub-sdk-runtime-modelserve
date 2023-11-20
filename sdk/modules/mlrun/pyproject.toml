@@ -22,6 +22,9 @@ keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
 "digitalhub-core>=0.0.5",
+]
+[project.optional-dependencies]
+local = [
 "mlrun==1.4.0",
 ]
 

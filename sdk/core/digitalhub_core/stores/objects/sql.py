@@ -3,8 +3,6 @@ S3Store module.
 """
 from __future__ import annotations
 
-import re
-
 import pandas as pd
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
@@ -33,9 +31,6 @@ class SQLStoreConfig(StoreConfig):
 
     database: str
     """SQL database name."""
-
-    pg_schema: str
-    """SQL schema name."""
 
 
 class SqlStore(Store):
@@ -210,11 +205,17 @@ class SqlStore(Store):
         dict
             A dictionary containing the components of the path.
         """
-        pattern = r"^sql:\/\/(postgres\/)?(?P<database>.+)?\/(?P<schema>.+)\/(?P<table>.+)$"
-        match = re.match(pattern, path)
-        if match is None:
-            raise ValueError("Invalid SQL path. Must be sql://postgres/<database>/<schema>/<table>")
-        return match.groupdict()
+        try:
+            protocol, path = path.split("://")
+            components = path.split("/")
+            if protocol != "sql" or not (2 <= len(components) <= 3):
+                raise ValueError()
+            database = components[0]
+            table = components[-1]
+            schema = components[1] if len(components) == 3 else "public"
+            return {"database": database, "schema": schema, "table": table}
+        except ValueError:
+            raise ValueError("Invalid SQL path. Must be sql://<database>/<schema>/<table> or sql://<database>/<table>")
 
     def _get_schema(self, uri: str) -> str:
         """
@@ -320,7 +321,7 @@ class SqlStore(Store):
         engine = self._check_factory()
         df.to_sql(table, engine, schema=schema, index=False, **kwargs)
         engine.dispose()
-        return f"sql://postgres/{engine.url.database}/{schema}/{table}"
+        return f"sql://{engine.url.database}/{schema}/{table}"
 
     ############################
     # Store interface methods

@@ -22,7 +22,10 @@ keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
 "digitalhub-core>=0.0.5",
-"dbt-postgres==1.7.1",
+]
+[project.optional-dependencies]
+local = [
+    "dbt-postgres==1.7.1",
 ]
 
 [project.urls]
