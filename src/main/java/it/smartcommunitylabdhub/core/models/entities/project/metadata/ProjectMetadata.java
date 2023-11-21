@@ -17,5 +17,7 @@ public class ProjectMetadata extends BaseMetadata {
     String name;
     @NotEmpty
     String description;
+    @NotEmpty
+    String version;
 
 }

@@ -66,9 +66,4 @@ public class InfrastructureConfig {
             List<Runner> runners) {
         return new RunnerFactory(runners);
     }
-
-//    @Bean
-//    protected SpecTypeFactory specTypeFactory(SpecRegistry<?> specRegistry) {
-//        return new SpecTypeFactory(specRegistry);
-//    }
 }
