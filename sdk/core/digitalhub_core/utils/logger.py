@@ -18,4 +18,3 @@ console_handler.setFormatter(formatter)
 
 # Set console handler to the logger
 LOGGER.addHandler(console_handler)
-

@@ -384,7 +384,7 @@ class RuntimeNefertem(Runtime):
                 resources.append(res)
             return resources
         except KeyError:
-            msg = f"Error. Dataitem path is not given."
+            msg = "Error. Dataitem path is not given."
             LOGGER.exception(msg)
             raise EntityError(msg)
 
