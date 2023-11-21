@@ -14,9 +14,9 @@ class TaskMetadata(Metadata):
     def __init__(
         self,
         project: str,
+        name: str,
         created: str | None = None,
         updated: str | None = None,
-        name: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -24,7 +24,7 @@ class TaskMetadata(Metadata):
         Parameters
         ----------
         name : str
-            Name of the object.
+            Name (UUID) of the object.
 
         See Also
         --------
