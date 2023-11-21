@@ -322,11 +322,11 @@ class RuntimeNefertem(Runtime):
             If the dataitem cannot be retrieved.
         """
         try:
-            LOGGER.info(f"Getting dataitem '{name}'")
+            LOGGER.info(f"Getting dataitem '{name}'.")
             return get_dataitem(project, name)
-        except Exception as err:
-            msg = f"Error getting dataitem '{name}'. {err.args[0]}"
-            LOGGER.error(msg)
+        except Exception:
+            msg = f"Error getting dataitem '{name}'."
+            LOGGER.exception(msg)
             raise RuntimeError(msg)
 
     def _persist_dataitem(self, dataitem: Dataitem, name: str) -> dict:
@@ -351,13 +351,13 @@ class RuntimeNefertem(Runtime):
             If the dataitem cannot be persisted.
         """
         try:
-            LOGGER.info(f"Persisting dataitem '{name}' locally")
+            LOGGER.info(f"Persisting dataitem '{name}' locally.")
             tmp_path = f"{self.output_path}/tmp/{name}.csv"
             dataitem.as_df().to_csv(tmp_path, sep=",", index=False)
             return {"name": name, "path": tmp_path}
-        except Exception as err:
-            msg = f"Error during dataitem '{name}' collection. {err.args[0]}"
-            LOGGER.error(msg)
+        except Exception:
+            msg = f"Error during dataitem '{name}' collection."
+            LOGGER.exception(msg)
             raise EntityError(msg)
 
     def _get_resources(self, inputs: list[dict]) -> list[dict]:
@@ -383,9 +383,9 @@ class RuntimeNefertem(Runtime):
                 res["store"] = self.store["name"]
                 resources.append(res)
             return resources
-        except KeyError as err:
-            msg = f"Error. Dataitem path is not given. {err.args[0]}"
-            LOGGER.error(msg)
+        except KeyError:
+            msg = f"Error. Dataitem path is not given."
+            LOGGER.exception(msg)
             raise EntityError(msg)
 
     ####################
@@ -418,7 +418,7 @@ class RuntimeNefertem(Runtime):
                 {
                     "key": name,
                     "kind": "artifact",
-                    "id": f"store://{project}/artifacts/artifact/{name}:{artifact.metadata.version}",
+                    "id": f"store://{os.getenv('S3_BUCKET_NAME')}/{project}/artifacts/artifact/{run_info['run_id']}/{name}",
                 }
             )
         return artifacts
@@ -451,12 +451,12 @@ class RuntimeNefertem(Runtime):
         """
         try:
             # Get bucket name from env and filename from path
-            LOGGER.info(f"Creating artifact new artifact '{name}'")
+            LOGGER.info(f"Creating artifact new artifact '{name}'.")
             dst = f"s3://{os.getenv('S3_BUCKET_NAME')}/{project}/artifacts/{run_id}/{Path(src_path).name}"
             return new_artifact(project, name, "artifact", src_path=src_path, target_path=dst)
-        except Exception as err:
-            msg = f"Error creating artifact '{name}': {err.args[0]}"
-            LOGGER.error(msg)
+        except Exception:
+            msg = f"Error creating artifact '{name}'."
+            LOGGER.exception(msg)
             raise EntityError(msg)
 
     @staticmethod
@@ -472,11 +472,11 @@ class RuntimeNefertem(Runtime):
             The artifact to upload.
         """
         try:
-            LOGGER.info(f"Uploading artifact '{name}' to minio")
+            LOGGER.info(f"Uploading artifact '{name}' to minio.")
             artifact.upload()
-        except Exception as err:
-            msg = f"Error uploading artifact '{name}': {err.args[0]}"
-            LOGGER.error(msg)
+        except Exception:
+            msg = f"Error uploading artifact '{name}'."
+            LOGGER.exception(msg)
             raise EntityError(msg)
 
     ####################

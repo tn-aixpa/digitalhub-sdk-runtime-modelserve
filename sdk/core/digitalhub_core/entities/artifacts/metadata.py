@@ -14,10 +14,10 @@ class ArtifactMetadata(Metadata):
     def __init__(
         self,
         project: str,
+        name: str,
+        version: str,
         created: str | None = None,
         updated: str | None = None,
-        name: str | None = None,
-        version: str | None = None,
         description: str | None = None,
         embedded: bool = False,
     ) -> None:

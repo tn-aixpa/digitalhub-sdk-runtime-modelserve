@@ -5,31 +5,17 @@ from __future__ import annotations
 
 import logging
 
-# LOGGER
+# Create logger
 LOGGER = logging.getLogger("digitalhub-core")
 LOGGER.setLevel(logging.INFO)
 
-
-# Create console handler set level to INFO and add filter
-class LogFilter(logging.Filter):
-    """
-    Logs filter.
-    """
-
-    def filter(self, record):
-        """
-        Filter for nefertem logs.
-        """
-        return record.name == "digitalhub-core"
-
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-ch.addFilter(LogFilter())
-
-# Create formatter and add to console handler
+# Create formatter
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-ch.setFormatter(formatter)
 
-# Add console handler to logger
-LOGGER.addHandler(ch)
+# Create console handler and set formatter
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+
+# Set console handler to the logger
+LOGGER.addHandler(console_handler)
+

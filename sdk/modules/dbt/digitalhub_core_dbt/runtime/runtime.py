@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import os
 import typing
-from dataclasses import dataclass
 from pathlib import Path
 
 import psycopg2
@@ -14,92 +13,19 @@ from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.dataitems.crud import get_dataitem, new_dataitem
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import BackendError, EntityError
-from digitalhub_core.utils.generic_utils import build_uuid, decode_string, encode_string
+from digitalhub_core.utils.generic_utils import build_uuid, decode_string
 from digitalhub_core.utils.logger import LOGGER
-from psycopg2 import sql as psql
+from digitalhub_core_dbt.runtime.dbt_utils import (
+    generate_dbt_profile_yml,
+    generate_dbt_project_yml,
+    generate_inputs_conf,
+    generate_outputs_conf,
+)
+from digitalhub_core_dbt.runtime.parse_utils import ParsedResults, parse_results
+from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
-    from dbt.contracts.results import RunResult
     from digitalhub_core.entities.dataitems.entity import Dataitem
-
-####################
-# ENV
-####################
-POSTGRES_HOST = os.getenv("POSTGRES_HOST")
-POSTGRES_USER = os.getenv("POSTGRES_USER")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-POSTGRES_PORT = os.getenv("POSTGRES_PORT")
-POSTGRES_DATABASE = os.getenv("POSTGRES_DATABASE")
-POSTGRES_SCHEMA = os.getenv("POSTGRES_SCHEMA", "public")
-
-####################
-# Templates
-####################
-
-PROJECT_TEMPLATE = """
-name: "{}"
-version: "1.0.0"
-config-version: 2
-profile: "postgres"
-model-paths: ["{}"]
-models:
-"""
-
-MODEL_TEMPLATE_UUID = """
-models:
-  - name: {}
-    latest_uuid: {}
-    uuids:
-        - v: {}
-          config:
-            materialized: table
-"""
-
-MODEL_TEMPLATE_VERSION = """
-models:
-  - name: {}
-    latest_version: {}
-    versions:
-        - v: {}
-          config:
-            materialized: table
-"""
-
-PROFILE_TEMPLATE = f"""
-postgres:
-    outputs:
-        dev:
-            type: postgres
-            host: {POSTGRES_HOST}
-            user: {POSTGRES_USER}
-            pass: {POSTGRES_PASSWORD}
-            port: {POSTGRES_PORT}
-            dbname: {POSTGRES_DATABASE}
-            schema: {POSTGRES_SCHEMA}
-    target: dev
-"""
-
-####################
-# Results parsing
-####################
-
-
-@dataclass
-class ParsedResults:
-    """
-    Parsed results class.
-    """
-
-    name: str
-    path: str
-    raw_code: str
-    compiled_code: str
-    timings: dict
-
-
-####################
-# Runtime
-####################
 
 
 class RuntimeDBT(Runtime):
@@ -113,7 +39,8 @@ class RuntimeDBT(Runtime):
         """
         self.root_dir = Path("dbt_run")
         self.model_dir = self.root_dir / "models"
-        self._table_to_drop = []
+        self._input_dataitems: list[dict[str, str]] = []
+        self._table_to_drop: list[str] = []
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -180,15 +107,16 @@ class RuntimeDBT(Runtime):
         spec = run.get("spec")
         project = run.get("metadata").get("project")
 
-        # Parse inputs/outputs
+        # Parse inputs/outputs and decode sql code
         LOGGER.info("Parsing inputs and output.")
-        inputs = self.parse_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-        output = self.parse_outputs(spec.get("outputs", {}).get("dataitems", []))
+        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+        output = self._get_output_table_name(spec.get("outputs", {}).get("dataitems", []))
+        query = self._get_sql(spec)
 
         # Setup environment
         LOGGER.info("Setting up environment for dbt execution.")
         uuid = build_uuid()
-        self.setup(inputs, output, uuid, project, spec.get("sql"))
+        self.setup(inputs, output, uuid, project, query)
 
         # Execute function
         LOGGER.info("Executing dbt project.")
@@ -196,11 +124,11 @@ class RuntimeDBT(Runtime):
 
         # Parse results
         LOGGER.info("Parsing results.")
-        parsed_result = self.parse_results(execution_results, output, project)
+        parsed_result = parse_results(execution_results, output, project)
 
         # Create dataitem
         LOGGER.info("Creating output dataitem.")
-        dataitem = self.create_dataitem(parsed_result, project, uuid)
+        dataitem = self._create_dataitem(parsed_result, project, uuid, output)
 
         # Clean environment
         self.cleanup()
@@ -208,8 +136,8 @@ class RuntimeDBT(Runtime):
         # Return run status
         LOGGER.info("Task completed, returning run status.")
         return {
-            **self._get_dataitem_info(output, dataitem),
-            **parsed_result.timings,
+            "dataitems": dataitem,
+            "timing": parsed_result.timings,
             "state": State.COMPLETED.value,
         }
 
@@ -217,7 +145,7 @@ class RuntimeDBT(Runtime):
     # Parse inputs/outputs
     ####################
 
-    def parse_inputs(self, inputs: list, project: str) -> list:
+    def _get_inputs(self, inputs: list, project: str) -> list:
         """
         Parse inputs from run spec and materialize dataitems in postgres.
 
@@ -234,8 +162,9 @@ class RuntimeDBT(Runtime):
             The list of inputs dataitems names.
         """
         for name in inputs:
-            dataitem = self._get_dataitem(name, project)
-            table = self._materialize_dataitem(dataitem, name)
+            di = self._get_dataitem(name, project)
+            self._input_dataitems.append({"name": di.metadata.name, "id": di.metadata.version})
+            table = self._materialize_dataitem(di, name)
             self._table_to_drop.append(table)
         return inputs
 
@@ -262,10 +191,11 @@ class RuntimeDBT(Runtime):
             If dataitem is not found.
         """
         try:
+            LOGGER.info(f"Getting dataitem '{name}'")
             return get_dataitem(project, name)
-        except BackendError as err:
-            msg = f"Dataitem {name} not found. Error: {err.args[0]}."
-            LOGGER.error(msg)
+        except BackendError:
+            msg = f"Dataitem {name} not found."
+            LOGGER.exception(msg)
             raise BackendError(msg)
 
     @staticmethod
@@ -292,18 +222,19 @@ class RuntimeDBT(Runtime):
         """
         try:
             table_name = f"{name}_v{dataitem.id}"
-            target_path = f"sql://{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
-            LOGGER.info(f"Materializing dataitem {name} in postgres as {target_path}.")
+            LOGGER.info(f"Materializing dataitem '{name}' as '{table_name}'.")
+            target_path = f"sql://{os.getenv('POSTGRES_DATABASE')}/{os.getenv('POSTGRES_SCHEMA')}/{table_name}"
             dataitem.write_df(target_path, if_exists="replace")
             return table_name
-        except Exception as err:
-            msg = f"Something got wrong during dataitem {name} materialization. Error: {err.args[0]}."
-            LOGGER.error(msg)
+        except Exception:
+            msg = f"Something got wrong during dataitem {name} materialization."
+            LOGGER.exception(msg)
             raise EntityError(msg)
 
-    def parse_outputs(self, outputs: list) -> str:
+    @staticmethod
+    def _get_output_table_name(outputs: list) -> str:
         """
-        Parse outputs from run spec.
+        Get output table name from run spec.
 
         Parameters
         ----------
@@ -326,11 +257,37 @@ class RuntimeDBT(Runtime):
             raise RuntimeError(msg)
         return str(outputs[0])
 
+    def _get_sql(self, spec: dict) -> str:
+        """
+        Get sql code from run spec.
+
+        Parameters
+        ----------
+        spec : dict
+            The run spec.
+
+        Returns
+        -------
+        str
+            The sql code.
+
+        Raises
+        ------
+        RuntimeError
+            If sql code is not a valid string.
+        """
+        try:
+            return decode_string(spec.get("sql"))
+        except Exception:
+            msg = "Sql code must be a valid string."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
     ####################
     # Setup environment
     ####################
 
-    def setup(self, inputs: list, output: str, uuid: str, project: str, sql: str) -> None:
+    def setup(self, inputs: list, output: str, uuid: str, project: str, query: str) -> None:
         """
         Initialize a dbt project with a model and a schema definition.
 
@@ -355,97 +312,17 @@ class RuntimeDBT(Runtime):
         self.model_dir.mkdir(exist_ok=True, parents=True)
 
         # Generate profile yaml file
-        self.generate_dbt_profile_yml()
+        generate_dbt_profile_yml(self.root_dir)
 
         # Generate project yaml file
-        self.generate_dbt_project_yml(project)
+        generate_dbt_project_yml(self.root_dir, self.model_dir, project.replace("-", "_"))
 
         # Generate outputs confs
-        self.generate_outputs_conf(sql, output, uuid)
+        generate_outputs_conf(self.model_dir, query, output, uuid)
 
-        # Generate inputs confs
-        self.generate_inputs_conf(inputs, project)
-
-    def generate_dbt_profile_yml(self) -> None:
-        """
-        Create dbt profiles.yml
-
-        Returns
-        -------
-        None
-        """
-        profiles_path = self.root_dir / "profiles.yml"
-        profiles_path.write_text(PROFILE_TEMPLATE)
-
-    def generate_dbt_project_yml(self, project: str) -> None:
-        """
-        Create dbt_project.yml from 'dbt'
-
-        Parameters
-        ----------
-        project : str
-            The project name.
-
-        Returns
-        -------
-        None
-        """
-        project_path = self.root_dir / "dbt_project.yml"
-        project_path.write_text(PROJECT_TEMPLATE.format(project.replace("-", "_"), self.model_dir.name))
-
-    def generate_outputs_conf(self, sql: str, output: str, uuid: str) -> None:
-        """
-        Write sql code for the model and write schema
-        and version detail for outputs versioning
-
-        Parameters
-        ----------
-        sql : str
-            The sql code.
-        output : str
-            The output table name.
-        uuid : str
-            The uuid of the model for outputs versioning.
-
-        Returns
-        -------
-        None
-        """
-        sql = decode_string(sql)
-
-        sql_path = self.model_dir / f"{output}.sql"
-        sql_path.write_text(sql)
-
-        output_path = self.model_dir / f"{output}.yml"
-        output_path.write_text(MODEL_TEMPLATE_VERSION.format(output, uuid, uuid))
-
-    def generate_inputs_conf(self, inputs: list, project: str) -> None:
-        """
-        Generate inputs confs dependencies for dbt project.
-
-        Parameters
-        ----------
-        project : str
-            The project name.
-        inputs : list
-            The list of inputs dataitems names.
-
-        Returns
-        -------
-        None
-        """
-        for name in inputs:
-            # Get dataitem from core
-            response = get_dataitem(project, name)
-            uuid = response.id
-
-            # write schema and version detail for inputs versioning
-            input_path = self.model_dir / f"{name}.sql"
-            input_path.write_text(MODEL_TEMPLATE_UUID.format(name, uuid, uuid))
-
-            # write also sql select for the schema
-            sql_path = self.model_dir / f"{name}_v{uuid}.sql"
-            sql_path.write_text(f'SELECT * FROM "{name}_v{uuid}"')
+        # Generate inputs confs for every dataitem
+        for di in self._input_dataitems:
+            generate_inputs_conf(self.model_dir, di["name"], di["id"])
 
     ####################
     # Execute function
@@ -475,185 +352,11 @@ class RuntimeDBT(Runtime):
         return res
 
     ####################
-    # Results parsing
+    # Produce outputs
     ####################
 
-    def parse_results(self, run_result: dbtRunnerResult, output: str, project: str) -> ParsedResults:
-        """
-        Parse dbt results.
-
-        Parameters
-        ----------
-        run_result : dbtRunnerResult
-            The dbt result.
-        output : str
-            The output table name.
-        project : str
-            The project name.
-
-        Returns
-        -------
-        ParsedResults
-            Parsed results.
-        """
-        result: RunResult = self.validate_results(run_result, output, project)
-        try:
-            path = self.get_path(result)
-            raw_code = self.get_raw_code(result)
-            compiled_code = self.get_compiled_code(result)
-            timings = self.get_timings(result)
-            name = result.node.name
-        except Exception as err:
-            msg = f"Something got wrong during results parsing. Error: {err.args[0]}."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-        return ParsedResults(name, path, raw_code, compiled_code, timings)
-
-    def validate_results(self, run_result: dbtRunnerResult, output: str, project: str) -> RunResult:
-        """
-        Parse dbt results.
-
-        Parameters
-        ----------
-        run_result : dbtRunnerResult
-            The dbt result.
-        output : str
-            The output table name.
-        project : str
-            The project name.
-
-        Returns
-        -------
-        RunResult
-            Run result.
-
-        Raises
-        ------
-        RuntimeError
-            If something got wrong during function execution.
-        """
-        try:
-            # Take last result, final result of the query
-            result: RunResult = run_result.result[-1]
-        except IndexError:
-            msg = "No results found."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
-        if not result.status.value == "success":
-            msg = f"Function execution failed: {result.status.value}."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
-        if not result.node.package_name == project.replace("-", "_"):
-            msg = f"Wrong project name. Got {result.node.package_name}, expected {project.replace('-', '_')}."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
-        if not result.node.name == output:
-            msg = f"Wrong output name. Got {result.node.name}, expected {output}."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
-        return result
-
-    def get_path(self, result: RunResult) -> str:
-        """
-        Get path from dbt result (sql://database/schema/table).
-
-        Parameters
-        ----------
-        result : RunResult
-            The dbt result.
-
-        Returns
-        -------
-        str
-            SQL path.
-        """
-        components = result.node.relation_name.replace('"', "")
-        components = "/".join(components.split("."))
-        return f"sql://{components}"
-
-    def get_raw_code(self, result: RunResult) -> str:
-        """
-        Get raw code from dbt result.
-
-        Parameters
-        ----------
-        result : RunResult
-            The dbt result.
-
-        Returns
-        -------
-        str
-            The raw code.
-        """
-        return encode_string(str(result.node.raw_code))
-
-    def get_compiled_code(self, result: RunResult) -> str:
-        """
-        Get compiled code from dbt result.
-
-        Parameters
-        ----------
-        result : RunResult
-            The dbt result.
-
-        Returns
-        -------
-        str
-            The compiled code.
-        """
-        return encode_string(str(result.node.compiled_code))
-
-    def get_timings(self, result: RunResult) -> dict:
-        """
-        Get timings from dbt result.
-
-        Parameters
-        ----------
-        result : RunResult
-            The dbt result.
-
-        Returns
-        -------
-        dict
-            A dictionary containing timings.
-        """
-        compile_timing = None
-        execute_timing = None
-        for entry in result.timing:
-            if entry.name == "compile":
-                compile_timing = entry
-            elif entry.name == "execute":
-                execute_timing = entry
-        if (
-            (compile_timing is None or execute_timing is None)
-            or (execute_timing.started_at is None or execute_timing.completed_at is None)
-            or (compile_timing.started_at is None or compile_timing.completed_at is None)
-        ):
-            msg = "Something got wrong during timings parsing."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-        return {
-            "timing": {
-                "compile": {
-                    "started_at": compile_timing.started_at.isoformat(),
-                    "completed_at": compile_timing.completed_at.isoformat(),
-                },
-                "execute": {
-                    "started_at": execute_timing.started_at.isoformat(),
-                    "completed_at": execute_timing.completed_at.isoformat(),
-                },
-            }
-        }
-
-    ####################
-    # CRUD
-    ####################
-
-    def create_dataitem(self, result: ParsedResults, project: str, uuid: str) -> Dataitem | None:
+    @staticmethod
+    def _create_dataitem(result: ParsedResults, project: str, uuid: str, output: str) -> list[dict]:
         """
         Create new dataitem.
 
@@ -665,11 +368,13 @@ class RuntimeDBT(Runtime):
             The project name.
         uuid : str
             The uuid of the model for outputs versioning.
+        output : str
+            The output table name.
 
         Returns
         -------
-        Dataitem
-            The dataitem.
+        list[dict]
+            The output dataitem infos.
 
         Raises
         ------
@@ -677,7 +382,7 @@ class RuntimeDBT(Runtime):
             If something got wrong during dataitem creation.
         """
         try:
-            return new_dataitem(
+            di = new_dataitem(
                 project=project,
                 name=result.name,
                 kind="dataitem",
@@ -686,36 +391,17 @@ class RuntimeDBT(Runtime):
                 raw_code=result.raw_code,
                 compiled_code=result.compiled_code,
             )
-        except Exception as err:
-            msg = f"Something got wrong during dataitem creation. Error: {err.args[0]}."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
-    @staticmethod
-    def _get_dataitem_info(output: str, dataitem: Dataitem) -> dict:
-        """
-        Create dataitem info.
-
-        Parameters
-        ----------
-        output : str
-            The output table name.
-        dataitem : Dataitem
-            The dataitem.
-        """
-        kind = dataitem.kind
-        project = dataitem.metadata.project
-        name = dataitem.metadata.name
-        version = dataitem.id
-        return {
-            "dataitems": [
+            return [
                 {
                     "key": output,
-                    "kind": kind,
-                    "id": f"store://{project}/dataitems/{kind}/{name}:{version}",
+                    "kind": "dataitem",
+                    "id": f"store://{project}/dataitems/dataitem/{di.metadata.name}:{di.metadata.version}",
                 }
             ]
-        }
+        except Exception:
+            msg = "Something got wrong during dataitem creation."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
 
     ####################
     # Cleanup
@@ -729,16 +415,49 @@ class RuntimeDBT(Runtime):
         -------
         None
         """
-        connection = psycopg2.connect(
-            host=POSTGRES_HOST,
-            port=POSTGRES_PORT,
-            database=POSTGRES_DATABASE,
-            user=POSTGRES_USER,
-            password=POSTGRES_PASSWORD,
-        )
-        connection.set_session(autocommit=True)
-        for table in self._table_to_drop:
-            with connection.cursor() as cursor:
-                query = psql.SQL("DROP TABLE {table}").format(table=psql.Identifier(table))
-                cursor.execute(query)
-        connection.close()
+        LOGGER.info("Cleaning up environment.")
+        connection = self._get_connection()
+        try:
+            for table in self._table_to_drop:
+                with connection.cursor() as cursor:
+                    LOGGER.info(f"Dropping table '{table}'.")
+                    query = sql.SQL("DROP TABLE {table}").format(table=sql.Identifier(table))
+                    cursor.execute(query)
+        except Exception:
+            msg = "Something got wrong during environment cleanup."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+        finally:
+            LOGGER.info("Closing connection to postgres.")
+            connection.close()
+
+    @staticmethod
+    def _get_connection() -> psycopg2.extensions.connection:
+        """
+        Create a connection to postgres and return a session with autocommit enabled.
+
+        Returns
+        -------
+        psycopg2.extensions.connection
+            The connection to postgres.
+
+        Raises
+        ------
+        RuntimeError
+            If something got wrong during connection to postgres.
+        """
+        try:
+            LOGGER.info("Connecting to postgres.")
+            connection = psycopg2.connect(
+                host=os.getenv("POSTGRES_HOST"),
+                port=os.getenv("POSTGRES_PORT"),
+                database=os.getenv("POSTGRES_DATABASE"),
+                user=os.getenv("POSTGRES_USER"),
+                password=os.getenv("POSTGRES_PASSWORD"),
+            )
+            connection.set_session(autocommit=True)
+            return connection
+        except Exception:
+            msg = "Something got wrong during connection to postgres."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
