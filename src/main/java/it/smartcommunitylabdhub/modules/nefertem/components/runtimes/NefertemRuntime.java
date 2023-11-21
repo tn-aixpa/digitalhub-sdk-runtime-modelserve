@@ -37,7 +37,7 @@ public class NefertemRuntime extends BaseRuntime<FunctionNefertemSpec> {
     SpecRegistry<? extends Spec> specRegistry;
 
 
-    @Value("${runtime.dbt.image}")
+    @Value("${runtime.nefertem.image}")
     private String image;
 
     public NefertemRuntime(BuilderFactory builderFactory,

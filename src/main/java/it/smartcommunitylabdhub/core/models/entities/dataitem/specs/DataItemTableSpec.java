@@ -16,7 +16,7 @@ public class DataItemTableSpec extends DataItemBaseSpec<DataItemTableSpec> {
     @Override
     protected void configureSpec(DataItemTableSpec dataItemTableSpec) {
         super.configureSpec(dataItemTableSpec);
-        
+
         throw new CoreException(
                 ErrorList.METHOD_NOT_IMPLEMENTED.getValue(),
                 ErrorList.METHOD_NOT_IMPLEMENTED.getReason(),

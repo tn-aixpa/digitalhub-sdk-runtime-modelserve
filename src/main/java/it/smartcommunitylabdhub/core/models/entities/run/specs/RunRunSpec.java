@@ -13,7 +13,7 @@ public class RunRunSpec extends RunBaseSpec<RunRunSpec> {
     @Override
     protected void configureSpec(RunRunSpec runRunSpec) {
         super.configureSpec(runRunSpec);
-        
+
     }
 }
 

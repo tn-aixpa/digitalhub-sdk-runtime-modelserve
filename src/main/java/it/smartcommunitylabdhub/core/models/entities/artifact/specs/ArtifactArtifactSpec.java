@@ -12,6 +12,6 @@ public class ArtifactArtifactSpec extends ArtifactBaseSpec<ArtifactArtifactSpec>
     @Override
     protected void configureSpec(ArtifactArtifactSpec artifactArtifactSpec) {
         super.configureSpec(artifactArtifactSpec);
-        
+
     }
 }

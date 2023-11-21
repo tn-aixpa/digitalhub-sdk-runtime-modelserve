@@ -37,6 +37,10 @@
     "allDeclaredMethods": true
   },
   {
+    "name": "java.lang.Class",
+    "allDeclaredMethods": true
+  },
+  {
     "name": "java.util.HashMap",
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true
@@ -83,6 +87,31 @@
   },
   {
     "name": "it.smartcommunitylabdhub.core.CoreApplication",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.springframework.security.web.SecurityFilterChain",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.springframework.web.cors.CorsConfiguration",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "org.springframework.web.cors.UrlBasedCorsConfigurationSource",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "java.util.List",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "java.util.Arrays",
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true
   }

@@ -1,16 +1,14 @@
 package it.smartcommunitylabdhub.core.annotations.common;
 
 import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.SpecEntity;
-import org.springframework.stereotype.Indexed;
+import org.springframework.stereotype.Component;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Indexed
+@Documented
+@Component
 public @interface SpecType {
 
     String runtime() default "";
