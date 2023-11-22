@@ -72,6 +72,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
     public void execute(K8sJobRunnable runnable) throws CoreException {
         // FIXME: DELETE THIS IS ONLY FOR DEBUG
         String threadName = Thread.currentThread().getName();
+        //String placeholder = "-" + RandomStringGenerator.generateRandomString(3);
 
         // Log service execution initiation
         log.info("----------------- PREPARE KUBERNETES JOB ----------------");
@@ -82,6 +83,7 @@ public class K8sJobFramework implements Framework<K8sJobRunnable> {
                 runnable.getTask(),
                 runnable.getId()
         );
+
         String containerName = getContainerName(
                 runnable.getRuntime(),
                 runnable.getTask(),
