@@ -12,17 +12,7 @@ config-version: 2
 profile: "postgres"
 model-paths: ["{}"]
 models:
-"""
-
-MODEL_TEMPLATE_UUID = """
-models:
-  - name: {}
-    latest_uuid: {}
-    uuids:
-        - v: {}
-          config:
-            materialized: table
-"""
+""".lstrip("\n")
 
 MODEL_TEMPLATE_VERSION = """
 models:
@@ -32,7 +22,7 @@ models:
         - v: {}
           config:
             materialized: table
-"""
+""".lstrip("\n")
 
 PROFILE_TEMPLATE = f"""
 postgres:
@@ -46,7 +36,7 @@ postgres:
             dbname: {os.getenv("POSTGRES_DATABASE")}
             schema: {os.getenv("POSTGRES_SCHEMA", "public")}
     target: dev
-"""
+""".lstrip("\n")
 
 ####################
 # Functions
@@ -123,8 +113,8 @@ def generate_inputs_conf(model_dir: Path, name: str, uuid: str) -> None:
     None
     """
     # write schema and version detail for inputs versioning
-    input_path = model_dir / f"{name}.sql"
-    input_path.write_text(MODEL_TEMPLATE_UUID.format(name, uuid, uuid))
+    input_path = model_dir / f"{name}.yml"
+    input_path.write_text(MODEL_TEMPLATE_VERSION.format(name, uuid, uuid))
 
     # write also sql select for the schema
     sql_path = model_dir / f"{name}_v{uuid}.sql"

@@ -40,7 +40,7 @@ class RuntimeDBT(Runtime):
         self.root_dir = Path("dbt_run")
         self.model_dir = self.root_dir / "models"
         self._input_dataitems: list[dict[str, str]] = []
-        self._table_to_drop: list[str] = []
+        self._versioned_tables: list[str] = []
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -165,8 +165,8 @@ class RuntimeDBT(Runtime):
             di = self._get_dataitem(name, project)
             self._input_dataitems.append({"name": di.metadata.name, "id": di.metadata.version})
             table = self._materialize_dataitem(di, name)
-            self._table_to_drop.append(table)
-        return inputs
+            self._versioned_tables.append(table)
+        return self._versioned_tables
 
     @staticmethod
     def _get_dataitem(name: str, project: str) -> Dataitem:
@@ -418,7 +418,7 @@ class RuntimeDBT(Runtime):
         LOGGER.info("Cleaning up environment.")
         connection = self._get_connection()
         try:
-            for table in self._table_to_drop:
+            for table in self._versioned_tables:
                 with connection.cursor() as cursor:
                     LOGGER.info(f"Dropping table '{table}'.")
                     query = sql.SQL("DROP TABLE {table}").format(table=sql.Identifier(table))

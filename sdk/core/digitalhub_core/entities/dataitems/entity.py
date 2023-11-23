@@ -4,6 +4,7 @@ Dataitem module.
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -17,7 +18,7 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.file_utils import clean_all, get_dir
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
-from digitalhub_core.utils.uri_utils import get_extension, map_uri_scheme
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     import pandas as pd
@@ -145,9 +146,6 @@ class Dataitem(Entity):
         store = get_store(self.spec.path)
         tmp_path = False
 
-        # Check file format
-        extension = self._get_extension(self.spec.path, file_format)
-
         # Download dataitem if not local
         if not self._check_local(self.spec.path):
             path = store.download(self.spec.path)
@@ -155,7 +153,11 @@ class Dataitem(Entity):
         else:
             path = self.spec.path
 
+        # Check file format and get dataitem as DataFrame
+        extension = self._get_extension(self.spec.path, file_format)
         df = store.read_df(path, extension, **kwargs)
+
+        # Delete tmp folder
         if tmp_path:
             clean_all(get_dir(path))
 
@@ -249,10 +251,12 @@ class Dataitem(Entity):
         """
         if file_format is not None:
             return file_format
+
         scheme = map_uri_scheme(path)
         if scheme == "sql":
             return "parquet"
-        ext = get_extension(path)
+
+        ext = Path(path).suffix[1:]
         if ext is not None:
             return ext
         raise EntityError("Unknown file format. Only csv and parquet are supported.")
