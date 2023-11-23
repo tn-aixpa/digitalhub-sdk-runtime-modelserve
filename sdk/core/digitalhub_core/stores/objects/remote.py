@@ -4,10 +4,10 @@ Remote store module.
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 
 import requests
 from digitalhub_core.stores.objects.base import Store, StoreConfig
-from digitalhub_core.utils.file_utils import build_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
@@ -81,9 +81,9 @@ class RemoteStore(Store):
         str
             Returns the path of the artifact.
         """
-        dst = dst if dst is not None else self._build_temp(src)
+        dst = dst if dst is not None else self._build_temp("remote")
         if not dst.endswith(".csv") or not dst.endswith(".parquet"):
-            dst = build_path(dst, "temp.file")
+            dst = str(Path(dst) / "temp.file")
         return self._download_file(src, dst)
 
     def upload(self, src: str, dst: str | None = None) -> str:
