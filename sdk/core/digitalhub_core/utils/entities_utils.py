@@ -20,11 +20,14 @@ def parse_entity_key(key: str) -> tuple[str, str, str]:
     tuple[str, str, str]
         The project, the name and the uuid of the entity.
     """
-    pattern: str = r"store://(?P<project>\w+)/(.*)/(?P<name>\w+):(?P<uuid>[A-Za-z0-9\-\_]+)"
-    match = re.match(pattern, key)
-    if match is None:
-        raise ValueError("Invalid key format.")
-    project = match.group("project")
-    name = match.group("name")
-    uuid = match.group("uuid")
-    return project, name, uuid
+    try:
+        # Remove "store://" from the key
+        key = key.replace("store://", "")
+        # Split the key into parts
+        parts = key.split("/")
+        project = parts[0]
+        # The name and uuid are separated by a colon in the last part
+        name, uuid = parts[-1].split(":")
+        return project, name, uuid
+    except Exception as e:
+        raise ValueError("Invalid key format.") from e
