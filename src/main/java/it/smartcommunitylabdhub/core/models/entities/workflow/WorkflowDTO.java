@@ -28,11 +28,15 @@ public class WorkflowDTO implements BaseEntity {
     @NotNull
     @ValidateField
     private String name;
+
+    @NotNull
+    @ValidateField
     private String kind;
 
     private WorkflowMetadata metadata;
 
-    @ValidateField
+    @NotNull
+    @ValidateField  
     private String project;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

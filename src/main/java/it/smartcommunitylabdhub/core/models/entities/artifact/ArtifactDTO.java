@@ -27,10 +27,14 @@ public class ArtifactDTO implements BaseEntity {
     @NotNull
     @ValidateField
     private String name;
+
+    @NotNull
+    @ValidateField
     private String kind;
 
     private ArtifactMetadata metadata;
 
+    @NotNull
     @ValidateField
     private String project;
 

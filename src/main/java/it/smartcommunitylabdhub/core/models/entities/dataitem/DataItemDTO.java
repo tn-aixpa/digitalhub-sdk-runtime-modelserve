@@ -28,8 +28,12 @@ public class DataItemDTO implements BaseEntity {
     @NotNull
     @ValidateField
     private String name;
+
+    @NotNull
+    @ValidateField
     private String kind;
 
+    @NotNull
     @ValidateField
     private String project;
 

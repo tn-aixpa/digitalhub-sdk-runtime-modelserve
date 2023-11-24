@@ -22,6 +22,7 @@ import java.util.Map;
 @Builder
 public class ProjectDTO implements BaseEntity {
 
+    @JsonIgnore
     @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
 
@@ -52,6 +53,7 @@ public class ProjectDTO implements BaseEntity {
     private String state;
 
     private ProjectMetadata metadata;
+
 
     @JsonAnyGetter
     public Map<String, Object> getExtra() {

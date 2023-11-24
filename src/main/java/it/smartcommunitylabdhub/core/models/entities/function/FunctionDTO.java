@@ -28,10 +28,14 @@ public class FunctionDTO implements BaseEntity {
     @NotNull
     @ValidateField
     private String name;
+
+    @NotNull
+    @ValidateField
     private String kind;
 
     private FunctionMetadata metadata;
 
+    @NotNull
     @ValidateField
     private String project;
 

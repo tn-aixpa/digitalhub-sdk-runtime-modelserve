@@ -1,4 +1,4 @@
-package it.smartcommunitylabdhub.core.controllers.v1;
+package it.smartcommunitylabdhub.core.controllers.v1.base;
 
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.common.ApiVersion;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/projects")
 @ApiVersion("v1")
 @Validated
-public class ProjectControllerV1 {
+public class ProjectController {
 
     @Autowired
     ProjectService projectService;

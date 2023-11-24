@@ -8,6 +8,7 @@ import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
 import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
 import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunMetadata;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.lang.reflect.Field;
@@ -25,8 +26,12 @@ public class RunDTO implements BaseEntity {
     @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
 
+    @NotNull
+    @ValidateField
     private String project;
 
+    @NotNull
+    @ValidateField
     private String kind;
 
     private RunMetadata metadata;

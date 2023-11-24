@@ -1,7 +1,6 @@
 package it.smartcommunitylabdhub.core.models.entities.run.metadata;
 
 import it.smartcommunitylabdhub.core.models.base.metadata.BaseMetadata;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +12,11 @@ import lombok.Setter;
 @Setter
 public class RunMetadata extends BaseMetadata {
 
-    @NotNull
     String name;
+
+    String version;
+
+    String description;
+
+    boolean embedded;
 }

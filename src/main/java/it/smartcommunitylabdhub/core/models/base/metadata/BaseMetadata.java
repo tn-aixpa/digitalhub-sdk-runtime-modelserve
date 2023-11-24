@@ -1,17 +1,16 @@
 package it.smartcommunitylabdhub.core.models.base.metadata;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,9 +18,9 @@ import lombok.Setter;
 @Setter
 public class BaseMetadata implements Serializable {
 
-    @NotEmpty
-    @ValidateField
     String project;
+
+    Set<String> labels;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -29,5 +28,6 @@ public class BaseMetadata implements Serializable {
 
     @UpdateTimestamp
     private Date updated;
+
 
 }
