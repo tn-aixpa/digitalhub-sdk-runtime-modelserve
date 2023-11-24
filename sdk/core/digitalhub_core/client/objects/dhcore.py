@@ -107,6 +107,7 @@ class ClientDHCore(Client):
             The response object.
         """
         url = self._get_endpoint() + api
+        kwargs["auth"] = self._get_auth()
         response = None
         try:
             response = requests.request(call_type, url, timeout=60, **kwargs)
@@ -140,6 +141,22 @@ class ClientDHCore(Client):
         if endpoint.endswith("/"):
             endpoint = endpoint[:-1]
         return endpoint
+
+    @staticmethod
+    def _get_auth() -> tuple[str, str]:
+        """
+        Get authentication parameters from the config.
+
+        Returns
+        -------
+        tuple[str, str]
+            The authentication parameters.
+        """
+        user = os.getenv("DHUB_CORE_USER")
+        password = os.getenv("DHUB_CORE_PASSWORD")
+        if user is None or password is None:
+            raise BackendError("User or password not set as environment variables.")
+        return user, password
 
     @staticmethod
     def is_local() -> bool:
