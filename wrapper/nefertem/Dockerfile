@@ -12,7 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /digitalhub-core/
 
 # Install digitalhub-core
-RUN pip3 install digitalhub-core digitalhub-core-nefertem[local]
+RUN git clone https://github.com/scc-digitalhub/digitalhub-core.git
+RUN pip3 install -e ./digitalhub-core/sdk/core
+RUN pip3 install -e ./digitalhub-core/sdk/modules/nefertem
 
 # Install Nefertem plugins
 RUN git clone https://github.com/scc-digitalhub/nefertem.git
