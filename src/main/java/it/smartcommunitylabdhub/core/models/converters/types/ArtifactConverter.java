@@ -4,15 +4,15 @@ import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.components.fsm.enums.ArtifactState;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactEntity;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
-import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 
 @ConverterType(type = "artifact")
-public class ArtifactConverter implements Converter<ArtifactDTO, Artifact> {
+public class ArtifactConverter implements Converter<Artifact, ArtifactEntity> {
 
         @Override
-        public Artifact convert(ArtifactDTO artifactDTO) throws CustomException {
-                return Artifact.builder()
+        public ArtifactEntity convert(Artifact artifactDTO) throws CustomException {
+                return ArtifactEntity.builder()
                                 .id(artifactDTO.getId())
                                 .name(artifactDTO.getName())
                                 .kind(artifactDTO.getKind())
@@ -24,8 +24,8 @@ public class ArtifactConverter implements Converter<ArtifactDTO, Artifact> {
         }
 
         @Override
-        public ArtifactDTO reverseConvert(Artifact artifact) throws CustomException {
-                return ArtifactDTO.builder()
+        public Artifact reverseConvert(ArtifactEntity artifact) throws CustomException {
+                return Artifact.builder()
                                 .id(artifact.getId())
                                 .name(artifact.getName())
                                 .kind(artifact.getKind())

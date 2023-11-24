@@ -3,17 +3,17 @@ package it.smartcommunitylabdhub.core.services.interfaces;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.task.Task;
 
 public interface TaskService {
 
-    List<TaskDTO> getTasks(Pageable pageable);
+    List<Task> getTasks(Pageable pageable);
 
-    TaskDTO getTask(String uuid);
+    Task getTask(String uuid);
 
     boolean deleteTask(String uuid);
 
-    TaskDTO createTask(TaskDTO TaskDTO);
+    Task createTask(Task TaskDTO);
 
-    TaskDTO updateTask(TaskDTO TaskDTO, String uuid);
+    Task updateTask(Task TaskDTO, String uuid);
 }

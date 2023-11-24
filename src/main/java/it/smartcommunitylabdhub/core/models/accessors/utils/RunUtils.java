@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.task.Task;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 
 public class RunUtils {
 
@@ -35,15 +35,15 @@ public class RunUtils {
 				HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
-	public static <T extends BaseEntity> String buildRunString(T type, TaskDTO task) {
-		if (type instanceof FunctionDTO) {
+	public static <T extends BaseEntity> String buildRunString(T type, Task task) {
+		if (type instanceof Function) {
 
-			FunctionDTO f = (FunctionDTO) type;
+			Function f = (Function) type;
 			return f.getKind() + "+" + task.getKind() + "://" + f.getProject() + "/"
 					+ f.getName() + ":" + f.getId();
-		} else if (type instanceof WorkflowDTO) {
+		} else if (type instanceof Workflow) {
 
-			WorkflowDTO w = (WorkflowDTO) type;
+			Workflow w = (Workflow) type;
 			return w.getKind() + "+" + task.getKind() + "://" + w.getProject() + "/"
 					+ w.getName() + ":" + w.getId();
 		} else {

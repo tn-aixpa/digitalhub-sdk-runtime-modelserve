@@ -1,9 +1,9 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
-import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.project.Project;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,22 +11,22 @@ import java.util.List;
 
 public interface ProjectService {
 
-    Page<ProjectDTO> getProjects(Pageable pageable);
+    Page<Project> getProjects(Pageable pageable);
 
-    ProjectDTO createProject(ProjectDTO projectDTO);
+    Project createProject(Project projectDTO);
 
-    ProjectDTO getProject(String uuidOrName);
+    Project getProject(String uuidOrName);
 
-    ProjectDTO updateProject(ProjectDTO projectDTO, String uuidOrName);
+    Project updateProject(Project projectDTO, String uuidOrName);
 
     boolean deleteProject(String uuidOrName);
 
     boolean deleteProjectByName(String name);
 
-    List<FunctionDTO> getProjectFunctions(String uuidOrName);
+    List<Function> getProjectFunctions(String uuidOrName);
 
-    List<ArtifactDTO> getProjectArtifacts(String uuidOrName);
+    List<Artifact> getProjectArtifacts(String uuidOrName);
 
-    List<WorkflowDTO> getProjectWorkflows(String uuidOrName);
+    List<Workflow> getProjectWorkflows(String uuidOrName);
 
 }

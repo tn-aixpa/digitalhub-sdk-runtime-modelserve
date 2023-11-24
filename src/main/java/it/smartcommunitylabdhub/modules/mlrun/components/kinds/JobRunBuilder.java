@@ -8,9 +8,9 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.function.FunctionEntityBuilder;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
-import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.run.Run;
+import it.smartcommunitylabdhub.core.models.entities.task.Task;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import it.smartcommunitylabdhub.core.utils.MapUtils;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RunBuilderComponent(platform = "job", perform = "perform")
-public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
+public class JobRunBuilder implements KindBuilder<Task, Run> {
     @Autowired
     TaskRepository taskRepository;
 
@@ -36,13 +36,13 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
 
 
     @Override
-    public RunDTO build(TaskDTO taskDTO) {
+    public Run build(Task taskDTO) {
         // 1. get function get if exist otherwise throw exeception.
         return taskRepository.findById(taskDTO.getId()).map(task -> {
             // 1. produce function object for mlrun and put it on spec.
             TaskAccessor taskAccessor = TaskUtils.parseTask(task.getFunction());
 
-            FunctionDTO functionDTO =
+            Function functionDTO =
                     functionService.getFunction(taskAccessor.getVersion());
 
 
@@ -66,7 +66,7 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
                                 (oldValue, newValue) -> newValue);
 
                         // 5. produce a run object and store it
-                        return RunDTO.builder()
+                        return Run.builder()
                                 .kind("run")
 //                                .taskId(task.getId())
                                 .project(task.getProject())

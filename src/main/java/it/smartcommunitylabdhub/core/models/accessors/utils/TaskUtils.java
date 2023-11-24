@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
 
 public class TaskUtils {
 
@@ -32,13 +32,13 @@ public class TaskUtils {
 	}
 
 	public static <T extends BaseEntity> String buildTaskString(T type) {
-		if (type instanceof FunctionDTO) {
+		if (type instanceof Function) {
 
-			FunctionDTO f = (FunctionDTO) type;
+			Function f = (Function) type;
 			return f.getKind() + "://" + f.getProject() + "/" + f.getName() + ":" + f.getId();
-		} else if (type instanceof WorkflowDTO) {
+		} else if (type instanceof Workflow) {
 
-			WorkflowDTO w = (WorkflowDTO) type;
+			Workflow w = (Workflow) type;
 			return w.getKind() + "://" + w.getProject() + "/" + w.getName() + ":" + w.getId();
 		} else {
 			throw new CoreException("CannotComposeTaskField",

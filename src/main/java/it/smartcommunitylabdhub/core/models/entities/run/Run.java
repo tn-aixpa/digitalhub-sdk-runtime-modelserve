@@ -1,65 +1,84 @@
 package it.smartcommunitylabdhub.core.models.entities.run;
 
-import it.smartcommunitylabdhub.core.components.fsm.enums.RunState;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
-import jakarta.persistence.*;
+import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
+import it.smartcommunitylabdhub.core.models.entities.run.metadata.RunMetadata;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
+import java.lang.reflect.Field;
 import java.util.Date;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-@Entity
-@Table(name = "runs")
 public class Run implements BaseEntity {
 
-    @Id
-    @Column(unique = true)
+    @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
     private String id;
 
-    @Column(nullable = false)
-    // COMMENT: {kind}+{action}://{project_name}/{function_name}:{version(uuid)} action can be
-    // 'build', 'other...'
-    private String task;
-
-    @Column(nullable = false)
-    private String kind;
-
-    @Column(nullable = false)
+    @NotNull
+    @ValidateField
     private String project;
 
-    @Column(nullable = false, name = "task_id")
-    private String taskId;
+    @NotNull
+    @ValidateField
+    private String kind;
 
-    @Lob
-    private byte[] metadata;
+    private RunMetadata metadata;
 
-    @Lob
-    private byte[] spec;
+    @Builder.Default
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Map<String, Object> spec = new HashMap<>();
 
-    @Lob
-    private byte[] extra;
+    @Builder.Default
+    @JsonIgnore
+    private Map<String, Object> extra = new HashMap<>();
 
-    @CreationTimestamp
-    @Column(updatable = false)
     private Date created;
 
-    @UpdateTimestamp
     private Date updated;
 
-    @Enumerated(EnumType.STRING)
-    private RunState state;
+    @JsonIgnore
+    private String state;
 
-    @PrePersist
-    public void prePersist() {
-        if (id == null) {
-            this.id = UUID.randomUUID().toString();
+    @JsonAnyGetter
+    public Map<String, Object> getExtra() {
+        return StatusFieldUtility.addStatusField(extra, state);
+    }
+
+    @JsonAnySetter
+    public void setExtra(String key, Object value) {
+        if (value != null) {
+            extra.put(key, value);
+            StatusFieldUtility.updateStateField(this);
+        }
+    }
+
+    public void overrideFields(Run runDTO) {
+        Class<?> runClass = runDTO.getClass();
+
+        for (Map.Entry<String, Object> entry : extra.entrySet()) {
+            String fieldName = entry.getKey();
+            Object value = entry.getValue();
+
+            try {
+                Field field = runClass.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(runDTO, value);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                // put field in extra
+                runDTO.getExtra().put(fieldName, value);
+            }
         }
     }
 }

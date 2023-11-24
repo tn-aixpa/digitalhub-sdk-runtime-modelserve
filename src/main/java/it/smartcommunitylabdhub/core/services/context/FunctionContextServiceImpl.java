@@ -4,8 +4,8 @@ import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.builders.function.FunctionDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.function.FunctionEntityBuilder;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionEntity;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.services.context.interfaces.FunctionContextService;
 import it.smartcommunitylabdhub.core.utils.ErrorList;
@@ -34,7 +34,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     FunctionEntityBuilder functionEntityBuilder;
 
     @Override
-    public FunctionDTO createFunction(String projectName, FunctionDTO functionDTO) {
+    public Function createFunction(String projectName, Function functionDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // functionDTO
@@ -48,7 +48,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
 
             // Check if function already exist if exist throw exception otherwise create a
             // new one
-            Function function = (Function) Optional.ofNullable(functionDTO.getId())
+            FunctionEntity function = (FunctionEntity) Optional.ofNullable(functionDTO.getId())
                     .flatMap(id -> functionRepository.findById(id)
                             .map(a -> {
                                 throw new CustomException(
@@ -57,7 +57,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
                             }))
                     .orElseGet(() -> {
                         // Build an function and store it in the database
-                        Function newFunction = functionEntityBuilder.build(functionDTO);
+                        FunctionEntity newFunction = functionEntityBuilder.build(functionDTO);
                         return functionRepository.save(newFunction);
                     });
 
@@ -73,11 +73,11 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public Page<FunctionDTO> getLatestByProjectName(String projectName, Pageable pageable) {
+    public Page<Function> getLatestByProjectName(String projectName, Pageable pageable) {
         try {
             checkContext(projectName);
 
-            Page<Function> functionPage = this.functionRepository
+            Page<FunctionEntity> functionPage = this.functionRepository
                     .findAllLatestFunctionsByProject(projectName,
                             pageable);
             return new PageImpl<>(
@@ -96,13 +96,13 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public Page<FunctionDTO> getByProjectNameAndFunctionName(String projectName,
-                                                             String functionName,
-                                                             Pageable pageable) {
+    public Page<Function> getByProjectNameAndFunctionName(String projectName,
+                                                          String functionName,
+                                                          Pageable pageable) {
         try {
             checkContext(projectName);
 
-            Page<Function> functionPage = this.functionRepository
+            Page<FunctionEntity> functionPage = this.functionRepository
                     .findAllByProjectAndNameOrderByCreatedDesc(projectName, functionName,
                             pageable);
             return new PageImpl<>(
@@ -122,8 +122,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public FunctionDTO getByProjectAndFunctionAndUuid(String projectName, String functionName,
-                                                      String uuid) {
+    public Function getByProjectAndFunctionAndUuid(String projectName, String functionName,
+                                                   String uuid) {
         try {
             // Check project context
             checkContext(projectName);
@@ -144,8 +144,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public FunctionDTO getLatestByProjectNameAndFunctionName(String projectName,
-                                                             String functionName) {
+    public Function getLatestByProjectNameAndFunctionName(String projectName,
+                                                          String functionName) {
         try {
             // Check project context
             checkContext(projectName);
@@ -166,8 +166,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public FunctionDTO createOrUpdateFunction(String projectName, String functionName,
-                                              FunctionDTO functionDTO) {
+    public Function createOrUpdateFunction(String projectName, String functionName,
+                                           Function functionDTO) {
         try {
             // Check that project context is the same as the project passed to the
             // functionDTO
@@ -186,27 +186,27 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
 
             // Check if function already exist if exist throw exception otherwise create a
             // new one
-            Function function = Optional.ofNullable(functionDTO.getId())
+            FunctionEntity function = Optional.ofNullable(functionDTO.getId())
                     .flatMap(id -> {
-                        Optional<Function> optionalFunction = functionRepository.findById(id);
+                        Optional<FunctionEntity> optionalFunction = functionRepository.findById(id);
                         if (optionalFunction.isPresent()) {
-                            Function existingFunction = optionalFunction.get();
+                            FunctionEntity existingFunction = optionalFunction.get();
 
                             // Update the existing function version
-                            final Function functionUpdated =
+                            final FunctionEntity functionUpdated =
                                     functionEntityBuilder.update(existingFunction,
                                             functionDTO);
                             return Optional.of(this.functionRepository.save(functionUpdated));
 
                         } else {
                             // Build a new function and store it in the database
-                            Function newFunction = functionEntityBuilder.build(functionDTO);
+                            FunctionEntity newFunction = functionEntityBuilder.build(functionDTO);
                             return Optional.of(functionRepository.save(newFunction));
                         }
                     })
                     .orElseGet(() -> {
                         // Build a new function and store it in the database
-                        Function newFunction = functionEntityBuilder.build(functionDTO);
+                        FunctionEntity newFunction = functionEntityBuilder.build(functionDTO);
                         return functionRepository.save(newFunction);
                     });
 
@@ -222,8 +222,8 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
     }
 
     @Override
-    public FunctionDTO updateFunction(String projectName, String functionName, String uuid,
-                                      FunctionDTO functionDTO) {
+    public Function updateFunction(String projectName, String functionName, String uuid,
+                                   Function functionDTO) {
 
         try {
             // Check that project context is the same as the project passed to the
@@ -240,7 +240,7 @@ public class FunctionContextServiceImpl extends ContextService implements Functi
             // Check project context
             checkContext(functionDTO.getProject());
 
-            Function function = this.functionRepository.findById(functionDTO.getId()).map(
+            FunctionEntity function = this.functionRepository.findById(functionDTO.getId()).map(
                             a -> // Update the existing function version
                                     functionEntityBuilder.update(a, functionDTO))
                     .orElseThrow(

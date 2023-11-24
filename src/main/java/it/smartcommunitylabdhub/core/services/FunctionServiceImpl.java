@@ -8,10 +8,10 @@ import it.smartcommunitylabdhub.core.models.builders.function.FunctionDTOBuilder
 import it.smartcommunitylabdhub.core.models.builders.function.FunctionEntityBuilder;
 import it.smartcommunitylabdhub.core.models.builders.task.TaskDTOBuilder;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionEntity;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.run.RunEntity;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
-import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.repositories.FunctionRepository;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
@@ -51,9 +51,9 @@ public class FunctionServiceImpl implements FunctionService {
     TaskDTOBuilder taskDTOBuilder;
 
     @Override
-    public List<FunctionDTO> getFunctions(Pageable pageable) {
+    public List<Function> getFunctions(Pageable pageable) {
         try {
-            Page<Function> functionPage = this.functionRepository.findAll(pageable);
+            Page<FunctionEntity> functionPage = this.functionRepository.findAll(pageable);
             return functionPage.getContent().stream()
                     .map(function -> functionDTOBuilder.build(function, false))
                     .collect(Collectors.toList());
@@ -67,9 +67,9 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public List<FunctionDTO> getFunctions() {
+    public List<Function> getFunctions() {
         try {
-            List<Function> functions = this.functionRepository.findAll();
+            List<FunctionEntity> functions = this.functionRepository.findAll();
             return functions.stream().map(function -> functionDTOBuilder.build(function, false))
                     .collect(Collectors.toList());
         } catch (CustomException e) {
@@ -81,14 +81,14 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public FunctionDTO createFunction(FunctionDTO functionDTO) {
+    public Function createFunction(Function functionDTO) {
         if (functionDTO.getId() != null && functionRepository.existsById(functionDTO.getId())) {
             throw new CoreException(
                     ErrorList.DUPLICATE_FUNCTION.getValue(),
                     ErrorList.DUPLICATE_FUNCTION.getReason(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        Optional<Function> savedFunction = Optional.ofNullable(functionDTO)
+        Optional<FunctionEntity> savedFunction = Optional.ofNullable(functionDTO)
                 .map(functionEntityBuilder::build)
                 .map(this.functionRepository::save);
 
@@ -100,9 +100,9 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public FunctionDTO getFunction(String uuid) {
+    public Function getFunction(String uuid) {
 
-        final Function function = functionRepository.findById(uuid).orElse(null);
+        final FunctionEntity function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(
                     ErrorList.FUNCTION_NOT_FOUND.getValue(),
@@ -122,7 +122,7 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public FunctionDTO updateFunction(FunctionDTO functionDTO, String uuid) {
+    public Function updateFunction(Function functionDTO, String uuid) {
 
         if (!functionDTO.getId().equals(uuid)) {
             throw new CoreException(
@@ -131,7 +131,7 @@ public class FunctionServiceImpl implements FunctionService {
                     HttpStatus.NOT_FOUND);
         }
 
-        final Function function = functionRepository.findById(uuid).orElse(null);
+        final FunctionEntity function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(
                     ErrorList.FUNCTION_NOT_FOUND.getValue(),
@@ -141,7 +141,7 @@ public class FunctionServiceImpl implements FunctionService {
 
         try {
 
-            final Function functionUpdated = functionEntityBuilder.update(function, functionDTO);
+            final FunctionEntity functionUpdated = functionEntityBuilder.update(function, functionDTO);
             this.functionRepository.save(functionUpdated);
 
             return functionDTOBuilder.build(functionUpdated, false);
@@ -174,8 +174,8 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public List<RunDTO> getFunctionRuns(String uuid) {
-        final Function function = functionRepository.findById(uuid).orElse(null);
+    public List<Run> getFunctionRuns(String uuid) {
+        final FunctionEntity function = functionRepository.findById(uuid).orElse(null);
         if (function == null) {
             throw new CoreException(
                     ErrorList.FUNCTION_NOT_FOUND.getValue(),
@@ -183,10 +183,10 @@ public class FunctionServiceImpl implements FunctionService {
                     HttpStatus.NOT_FOUND);
         }
 
-        FunctionDTO functionDTO = functionDTOBuilder.build(function, false);
+        Function functionDTO = functionDTOBuilder.build(function, false);
         try {
             // Find and collect runs for a function
-            List<Run> runs =
+            List<RunEntity> runs =
                     this.taskRepository.findByFunction(TaskUtils.buildTaskString(functionDTO))
                             .stream()
                             .flatMap(task -> this.runRepository
@@ -198,7 +198,7 @@ public class FunctionServiceImpl implements FunctionService {
                             .collect(Collectors.toList());
 
 
-            return (List<RunDTO>) ConversionUtils.reverseIterable(runs, "run", RunDTO.class);
+            return (List<Run>) ConversionUtils.reverseIterable(runs, "run", Run.class);
 
         } catch (CustomException e) {
             throw new CoreException(
@@ -209,10 +209,10 @@ public class FunctionServiceImpl implements FunctionService {
     }
 
     @Override
-    public List<FunctionDTO> getAllLatestFunctions() {
+    public List<Function> getAllLatestFunctions() {
         try {
 
-            List<Function> functionList = this.functionRepository.findAllLatestFunctions();
+            List<FunctionEntity> functionList = this.functionRepository.findAllLatestFunctions();
             return functionList
                     .stream()
                     .map(function -> functionDTOBuilder.build(function, false))
