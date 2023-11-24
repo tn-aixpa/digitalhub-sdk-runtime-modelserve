@@ -258,7 +258,7 @@ class Run(Entity):
         """
         return self._get_objects(ARTF, get_artifact_from_key, output_key)
 
-    def get_dataitem(self, output_key: str | None = None) -> Dataitem | list[Dataitem]:
+    def get_dataitems(self, output_key: str | None = None) -> Dataitem | list[Dataitem]:
         """
         Get dataitem(s) from backend produced by the run through its key.
 

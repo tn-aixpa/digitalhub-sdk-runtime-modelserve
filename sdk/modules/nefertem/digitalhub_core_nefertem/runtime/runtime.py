@@ -416,9 +416,9 @@ class RuntimeNefertem(Runtime):
             self._upload_artifact_to_minio(name, artifact)
             artifacts.append(
                 {
-                    "key": name,
+                    "key": artifact.metadata.name,
                     "kind": "artifact",
-                    "id": f"store://{os.getenv('S3_BUCKET_NAME')}/{project}/artifacts/artifact/{run_info['run_id']}/{name}",
+                    "id": f"store://{project}/artifacts/artifact/{artifact.metadata.name}:{artifact.metadata.version}"
                 }
             )
         return artifacts
