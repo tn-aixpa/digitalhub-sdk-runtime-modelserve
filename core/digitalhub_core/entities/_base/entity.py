@@ -13,13 +13,8 @@ class Entity(ModelObj, metaclass=ABCMeta):
     Abstract class for entities.
     """
 
-    def __init__(self) -> None:
-        """
-        Constructor.
-        """
-        # Attributes to render as dict
-        self._obj_attr = ["id", "kind", "metadata", "spec", "status"]
-        self._essential_attr = ["id", "kind", "name"]
+    # Attributes to render as dict. Need to be expanded in subclasses.
+    _obj_attr = ["kind", "metadata", "spec", "status"]
 
     @abstractmethod
     def save(self, update: bool = False) -> dict:
@@ -33,7 +28,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         Abstract save method.
         """
 
-    def to_dict(self, include_all_non_private: bool = False) -> dict:
+    def to_dict(self, include_all_non_private: bool = False,) -> dict:
         """
         Return object as dict with all keys.
 
@@ -53,25 +48,13 @@ class Entity(ModelObj, metaclass=ABCMeta):
             return dict_
         return {k: v for k, v in dict_.items() if k in self._obj_attr}
 
-    def to_dict_essential(self) -> dict:
-        """
-        Return object as dict with some attributes.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-        """
-        dict_ = super().to_dict()
-        return {k: v for k, v in dict_.items() if k in self._essential_attr}
-
     @classmethod
     def from_dict(
         cls,
         entity: str,
         obj: dict,
-        ignore_validation: bool = False,
-        module_kind: str | None = None,
+        validate: bool = True,
+        module_to_import: str | None = None,
     ) -> "Entity":
         """
         Create object instance from a dictionary.
@@ -82,10 +65,10 @@ class Entity(ModelObj, metaclass=ABCMeta):
             Entity type.
         obj : dict
             Dictionary to create object from.
-        ignore_validation : bool
+        validate : bool
             Flag to indicate if arguments validation must be ignored.
-        module_kind : str
-            The module to import (for some objects).
+        module_to_import : str
+            The module to import.
 
         Returns
         -------
@@ -95,8 +78,8 @@ class Entity(ModelObj, metaclass=ABCMeta):
         parsed_dict = cls._parse_dict(
             entity,
             obj,
-            ignore_validation=ignore_validation,
-            module_kind=module_kind,
+            validate=validate,
+            module_to_import=module_to_import,
         )
         return cls(**parsed_dict)
 
@@ -105,8 +88,8 @@ class Entity(ModelObj, metaclass=ABCMeta):
     def _parse_dict(
         entity: str,
         obj: dict,
-        ignore_validation: bool = False,
-        module_kind: str | None = None,
+        validate: bool = True,
+        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.

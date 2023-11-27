@@ -52,7 +52,7 @@ class Function(Entity):
         name : str
             Name of the object.
         uuid : str
-            UUID.
+            Version of the object.
         kind : str
             Kind of the object.
         metadata : FunctionMetadata
@@ -71,9 +71,11 @@ class Function(Entity):
         self.spec = spec
         self.status = status
 
-        # Private attributes
+        # Add attributes to be used in the to_dict method
+        self._obj_attr.extend(["project", "name", "id"])
+
+        # Task mapping
         self._tasks: dict[str, Task] = {}
-        self._obj_attr.extend(["project", "name"])
 
     #############################
     #  Save / Export
@@ -179,15 +181,12 @@ class Function(Entity):
         # Run function from task
         run = task.run(inputs, outputs, parameters, local_execution)
 
-        # If execution is done by backend,
-        # save run and return the object
+        # If execution is done by backend, return the object
         if not local_execution:
-            run.save()
             return run
 
-        # If local execution, build, save and launch run
+        # If local execution, build and launch run
         run.build()
-        run.save()
         with ThreadPoolExecutor(max_workers=1) as executor:
             result = executor.submit(run.run)
         return result.result()
@@ -333,8 +332,8 @@ class Function(Entity):
     def _parse_dict(
         entity: str,
         obj: dict,
-        ignore_validation: bool = False,
-        module_kind: str | None = None,
+        validate: bool = True,
+        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -356,7 +355,7 @@ class Function(Entity):
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(entity, **obj.get("metadata"))
-        spec = build_spec(entity, kind, ignore_validation=True, module_kind=kind, **obj.get("spec"))
+        spec = build_spec(entity, kind, validate=True, module_to_import=kind, **obj.get("spec"))
         status = build_status(entity, **obj.get("status"))
         return {
             "project": project,
@@ -410,7 +409,7 @@ def function_from_parameters(
     spec = build_spec(
         FUNC,
         kind,
-        module_kind=kind,
+        module_to_import=kind,
         source=source,
         **kwargs,
     )

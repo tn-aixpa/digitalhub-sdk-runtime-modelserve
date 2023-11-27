@@ -10,7 +10,7 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.runs.crud import delete_run, get_run, run_from_parameters
+from digitalhub_core.entities.runs.crud import delete_run, get_run, new_run, run_from_parameters
 from digitalhub_core.utils.api import api_base_create, api_base_update
 from digitalhub_core.utils.commons import TASK
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
@@ -64,7 +64,8 @@ class Task(Entity):
         self.spec = spec
         self.status = status
 
-        self._obj_attr.extend(["project"])
+        # Add attributes to be used in the to_dict method
+        self._obj_attr.extend(["project", "id"])
 
     #############################
     #  Save / Export
@@ -197,7 +198,9 @@ class Task(Entity):
         Run
             Run object.
         """
-        return run_from_parameters(**kwargs)
+        if kwargs["local_execution"]:
+            return run_from_parameters(**kwargs)
+        return new_run(**kwargs)
 
     def get_run(self, uuid: str) -> Run:
         """
@@ -238,8 +241,8 @@ class Task(Entity):
     def _parse_dict(
         entity: str,
         obj: dict,
-        ignore_validation: bool = False,
-        module_kind: str | None = None,
+        validate: bool = True,
+        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -263,8 +266,8 @@ class Task(Entity):
         spec = build_spec(
             entity,
             kind,
-            ignore_validation=ignore_validation,
-            module_kind=module_kind,
+            validate=validate,
+            module_to_import=module_to_import,
             **obj.get("spec"),
         )
         status = build_status(entity, **obj.get("status"))
@@ -311,7 +314,7 @@ def task_from_parameters(
     spec = build_spec(
         TASK,
         kind,
-        module_kind=function.split("://")[0],
+        module_to_import=function.split("://")[0],
         function=function,
         **kwargs,
     )

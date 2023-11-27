@@ -107,12 +107,8 @@ class Project(Entity):
 
         Parameters
         ----------
-        project : str
-            Name of the project.
         name : str
             Name of the object.
-        uuid : str
-            UUID.
         kind : str
             Kind of the object.
         metadata : ProjectMetadata
@@ -131,9 +127,11 @@ class Project(Entity):
         self.spec = spec
         self.status = status
 
-        # Private attributes
-        self._client = get_client(local)
+        # Add attributes to be used in the to_dict method
         self._obj_attr.append("name")
+
+        # Set client
+        self._client = get_client(local)
 
         # Set context
         set_context(self)
@@ -202,7 +200,8 @@ class Project(Entity):
                 if not _obj.embedded:
                     _obj.export()
 
-    def _parse_spec(self, obj: dict) -> dict:
+    @staticmethod
+    def _parse_spec(obj: dict) -> dict:
         """
         Parse spec dictionary.
 
@@ -222,7 +221,7 @@ class Project(Entity):
             new_spec[i] = []
             for j in spec[i]:
                 if not j.get("embedded", True):
-                    _dict = {k: v for k, v in j.items() if k in self._essential_attr}
+                    _dict = {k: v for k, v in j.items() if k in ["name", "id", "kind"]}
                     new_spec[i].append(_dict)
                 else:
                     new_spec[i].append(j)
@@ -664,8 +663,8 @@ class Project(Entity):
     def _parse_dict(
         entity: str,
         obj: dict,
-        ignore_validation: bool = False,
-        module_kind: str | None = None,
+        validate: bool = True,
+        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -688,8 +687,8 @@ class Project(Entity):
         spec = build_spec(
             entity,
             kind,
-            ignore_validation=ignore_validation,
-            module_kind=module_kind,
+            validate=validate,
+            module_to_import=module_to_import,
             **obj.get("spec"),
         )
         status = build_status(entity, **obj.get("status"))

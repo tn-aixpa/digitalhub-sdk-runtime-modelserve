@@ -29,7 +29,7 @@ REGISTRY = {
 
 
 def build_spec(
-    entity: str, kind: str, ignore_validation: bool = False, module_kind: str | None = None, **kwargs
+    entity: str, kind: str, validate: bool = True, module_to_import: str | None = None, **kwargs
 ) -> Spec:
     """
     Build runtimes.
@@ -40,10 +40,10 @@ def build_spec(
         Type of entity.
     kind : str
         The type of Spec to build.
-    ignore_validation : bool
-        Whether to ignore the validation of the parameters.
-    module_kind : str, optional
-        The module to import (for function and tasks).
+    validate : bool
+        Validate parameters.
+    module_to_import : str, optional
+        The module to import.
     **kwargs
         Keyword arguments.
 
@@ -54,9 +54,9 @@ def build_spec(
         A Spec object with the given parameters.
     """
     try:
-        if module_kind is not None:
+        if module_to_import is not None:
             # Import registry
-            registry = import_registry(module_kind)
+            registry = import_registry(module_to_import)
 
             # Get name of module and class
             obj = registry.get_spec(entity, kind)
@@ -70,7 +70,7 @@ def build_spec(
             class_spec, class_params = REGISTRY[kind]
 
         # Validate arguments
-        if not ignore_validation:
+        if not validate:
             kwargs = class_params(**kwargs).dict()
 
         return class_spec(**kwargs)

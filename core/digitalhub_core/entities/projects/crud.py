@@ -36,7 +36,6 @@ def create_project(**kwargs) -> Project:
 
 def new_project(
     name: str,
-    uuid: str | None = None,
     description: str | None = None,
     local: bool = False,
     context: str = "",
@@ -73,7 +72,6 @@ def new_project(
     obj = create_project(
         name=name,
         kind="project",
-        uuid=uuid,
         description=description,
         local=local,
         context=context,

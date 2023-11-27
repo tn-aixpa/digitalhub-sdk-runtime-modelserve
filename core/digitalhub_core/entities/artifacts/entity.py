@@ -51,7 +51,7 @@ class Artifact(Entity):
         name : str
             Name of the object.
         uuid : str
-            UUID.
+            Version of the object.
         kind : str
             Kind of the object.
         metadata : ArtifactMetadata
@@ -70,7 +70,8 @@ class Artifact(Entity):
         self.spec = spec
         self.status = status
 
-        self._obj_attr.extend(["project", "name"])
+        # Add attributes to be used in the to_dict method
+        self._obj_attr.extend(["project", "name", "id"])
 
     #############################
     #  Save / Export
@@ -341,8 +342,8 @@ class Artifact(Entity):
     def _parse_dict(
         entity: str,
         obj: dict,
-        ignore_validation: bool = False,
-        module_kind: str | None = None,
+        validate: bool = True,
+        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -367,8 +368,8 @@ class Artifact(Entity):
         spec = build_spec(
             entity,
             kind,
-            ignore_validation=ignore_validation,
-            module_kind=module_kind,
+            validate=validate,
+            module_to_import=module_to_import,
             **obj.get("spec"),
         )
         status = build_status(entity, **obj.get("status"))

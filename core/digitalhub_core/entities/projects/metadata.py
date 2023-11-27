@@ -17,6 +17,7 @@ class ProjectMetadata(Metadata):
         created: str | None = None,
         updated: str | None = None,
         description: str | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.

@@ -17,6 +17,7 @@ class RunMetadata(Metadata):
         name: str | None = None,
         created: str | None = None,
         updated: str | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.

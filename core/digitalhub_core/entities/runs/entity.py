@@ -77,7 +77,8 @@ class Run(Entity):
         self.spec = spec
         self.status = status
 
-        self._obj_attr.extend(["project"])
+        # Add attributes to be used in the to_dict method
+        self._obj_attr.extend(["project", "id"])
 
     #############################
     #  Save / Export
@@ -155,10 +156,9 @@ class Run(Entity):
         task = self._get_task()
         runtime = self._get_runtime()
         new_spec = runtime.build(function, task, self.to_dict())
-        # Insert task string validation
-        self.spec = build_spec(RUNS, self.kind, ignore_validation=True, **new_spec)
+        self.spec = build_spec(RUNS, self.kind, validate=True, **new_spec)
         self._set_status({"state": State.BUILT.value})
-        self.save(update=True)
+        self.save()
 
     def run(self) -> Run:
         """
@@ -195,7 +195,7 @@ class Run(Entity):
         """
         api = api_base_read(RUNS, self.id)
         obj = self._context().read_object(api)
-        refreshed_run = self.from_dict(RUNS, obj, ignore_validation=True)
+        refreshed_run = self.from_dict(RUNS, obj, validate=True)
         self.kind = refreshed_run.kind
         self.metadata = refreshed_run.metadata
         self.spec = refreshed_run.spec
@@ -382,8 +382,8 @@ class Run(Entity):
     def _parse_dict(
         entity: str,
         obj: dict,
-        ignore_validation: bool = False,
-        module_kind: str | None = None,
+        validate: bool = True,
+        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -407,8 +407,8 @@ class Run(Entity):
         spec = build_spec(
             entity,
             kind,
-            ignore_validation=ignore_validation,
-            module_kind=module_kind,
+            validate=validate,
+            module_to_import=module_to_import,
             **obj.get("spec"),
         )
         status = build_status(entity, **obj.get("status"))

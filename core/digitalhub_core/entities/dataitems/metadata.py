@@ -20,6 +20,7 @@ class DataitemMetadata(Metadata):
         updated: str | None = None,
         description: str | None = None,
         embedded: bool = False,
+        **kwargs,
     ) -> None:
         """
         Constructor.
