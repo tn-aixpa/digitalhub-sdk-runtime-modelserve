@@ -1,19 +1,19 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
-import org.springframework.data.domain.Pageable;
-import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
-
 public interface ArtifactService {
-        List<Artifact> getArtifacts(Pageable pageable);
+    List<ArtifactDTO> getArtifacts(Pageable pageable);
 
-        Artifact createArtifact(Artifact artifactDTO);
+    ArtifactDTO createArtifact(ArtifactDTO artifactDTO);
 
-        Artifact getArtifact(String uuid);
+    ArtifactDTO getArtifact(String uuid);
 
-        Artifact updateArtifact(Artifact artifactDTO, String uuid);
+    ArtifactDTO updateArtifact(ArtifactDTO artifactDTO, String uuid);
 
-        boolean deleteArtifact(String uuid);
+    boolean deleteArtifact(String uuid);
 
 }

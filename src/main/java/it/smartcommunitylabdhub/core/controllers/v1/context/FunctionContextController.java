@@ -3,7 +3,7 @@ package it.smartcommunitylabdhub.core.controllers.v1.context;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.common.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
-import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.FunctionContextService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,9 @@ public class FunctionContextController implements ContextController {
             description = "First check if project exist and then create the function for the project (context)")
     @PostMapping(value = "/functions", consumes = {MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml"}, produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Function> createFunction(
+    public ResponseEntity<FunctionDTO> createFunction(
             @ValidateField @PathVariable String project,
-            @Valid @RequestBody Function functionDTO) {
+            @Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(
                 this.functionContextService.createFunction(project, functionDTO));
     }
@@ -36,7 +36,7 @@ public class FunctionContextController implements ContextController {
     @Operation(summary = "Retrive only the latest version of all function",
             description = "First check if project exist and then return a list of the latest version of each function related to a project)")
     @GetMapping(path = "/functions", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Page<Function>> getLatestFunctions(
+    public ResponseEntity<Page<FunctionDTO>> getLatestFunctions(
             @ValidateField @PathVariable String project,
             Pageable pageable) {
 
@@ -47,7 +47,7 @@ public class FunctionContextController implements ContextController {
     @Operation(summary = "Retrieve all versions of the function sort by creation",
             description = "First check if project exist and then return a list of all version of the function sort by creation)")
     @GetMapping(path = "/functions/{name}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Page<Function>> getAllFunctions(
+    public ResponseEntity<Page<FunctionDTO>> getAllFunctions(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             Pageable pageable) {
@@ -60,7 +60,7 @@ public class FunctionContextController implements ContextController {
     @Operation(summary = "Retrive a specific function version given the function uuid",
             description = "First check if project exist and then return a specific version of the function identified by the uuid)")
     @GetMapping(path = "/functions/{name}/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Function> getFunctionByUuid(
+    public ResponseEntity<FunctionDTO> getFunctionByUuid(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid) {
@@ -73,7 +73,7 @@ public class FunctionContextController implements ContextController {
     @Operation(summary = "Retrive the latest version of an function",
             description = "First check if project exist and then return the latest version of an function)")
     @GetMapping(path = "/functions/{name}/latest", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Function> getLatestFunctionByName(
+    public ResponseEntity<FunctionDTO> getLatestFunctionByName(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name) {
 
@@ -85,10 +85,10 @@ public class FunctionContextController implements ContextController {
             description = "First check if project exist, if function exist update one otherwise create a new version of the function")
     @PostMapping(value = "/functions/{name}", consumes = {MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml"}, produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Function> createOrUpdateFunction(
+    public ResponseEntity<FunctionDTO> createOrUpdateFunction(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
-            @Valid @RequestBody Function functionDTO) {
+            @Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity
                 .ok(this.functionContextService.createOrUpdateFunction(project,
                         name, functionDTO));
@@ -100,11 +100,11 @@ public class FunctionContextController implements ContextController {
             consumes = {MediaType.APPLICATION_JSON_VALUE,
                     "application/x-yaml"},
             produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Function> updateUpdateFunction(
+    public ResponseEntity<FunctionDTO> updateUpdateFunction(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid,
-            @Valid @RequestBody Function functionDTO) {
+            @Valid @RequestBody FunctionDTO functionDTO) {
         return ResponseEntity.ok(this.functionContextService.updateFunction(project, name,
                 uuid, functionDTO));
     }

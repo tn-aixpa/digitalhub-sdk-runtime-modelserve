@@ -14,9 +14,9 @@ import it.smartcommunitylabdhub.core.exceptions.StopPoller;
 import it.smartcommunitylabdhub.core.models.accessors.enums.DataItemKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.DataItemFieldAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.ArtifactUtils;
-import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
 import it.smartcommunitylabdhub.core.models.entities.log.LogDTO;
-import it.smartcommunitylabdhub.core.models.entities.run.Run;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.ArtifactService;
 import it.smartcommunitylabdhub.core.services.interfaces.LogService;
 import it.smartcommunitylabdhub.core.services.interfaces.RunService;
@@ -31,7 +31,7 @@ import java.util.function.Function;
 @Slf4j
 @RunWorkflowComponent(platform = "job", perform = "perform")
 public class JobWorkflowBuilder extends BaseWorkflowBuilder
-        implements KindWorkflow<Run, Workflow> {
+        implements KindWorkflow<RunDTO, Workflow> {
 
     private final RunService runService;
     private final LogService logService;
@@ -55,7 +55,7 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
     }
 
     @SuppressWarnings("unchecked")
-    public Workflow build(Run runDTO) {
+    public Workflow build(RunDTO runDTO) {
         Function<Object[], Object> getRunUpdate = params -> {
 
             try {
@@ -66,8 +66,8 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
                 HttpEntity<String> entity = new HttpEntity<>(headers);
 
                 String requestUrl = params[0].toString()
-                        .replace("{project}", ((Run) params[1]).getProject())
-                        .replace("{uid}", ((Run) params[1]).getExtra().get("mlrun_run_uid")
+                        .replace("{project}", ((RunDTO) params[1]).getProject())
+                        .replace("{uid}", ((RunDTO) params[1]).getExtra().get("mlrun_run_uid")
                                 .toString());
 
                 /*
@@ -157,8 +157,8 @@ public class JobWorkflowBuilder extends BaseWorkflowBuilder
                                                                                             artifact);
 
                                                                     // Create artifact
-                                                                    Artifact artifactDTO =
-                                                                            Artifact
+                                                                    ArtifactDTO artifactDTO =
+                                                                            ArtifactDTO
                                                                                     .builder()
                                                                                     .name(mlrunDataItemAccessor
                                                                                             .getTree())

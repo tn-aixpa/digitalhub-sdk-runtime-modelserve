@@ -1,18 +1,18 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
-import org.springframework.data.domain.Pageable;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
-
 public interface DataItemService {
-    List<DataItem> getDataItems(Pageable pageable);
+    List<DataItemDTO> getDataItems(Pageable pageable);
 
-    DataItem createDataItem(DataItem dataItemDTO);
+    DataItemDTO createDataItem(DataItemDTO dataItemDTO);
 
-    DataItem getDataItem(String uuid);
+    DataItemDTO getDataItem(String uuid);
 
-    DataItem updateDataItem(DataItem dataItemDTO, String uuid);
+    DataItemDTO updateDataItem(DataItemDTO dataItemDTO, String uuid);
 
     boolean deleteDataItem(String uuid);
 

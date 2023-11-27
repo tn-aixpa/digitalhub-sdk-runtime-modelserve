@@ -16,8 +16,8 @@ import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.run.RunDTOBuilder;
 import it.smartcommunitylabdhub.core.models.builders.run.RunEntityBuilder;
 import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
-import it.smartcommunitylabdhub.core.models.entities.run.RunEntity;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.repositories.RunRepository;
@@ -73,9 +73,9 @@ public class RunSerivceImpl implements RunService {
     SpecRegistry<? extends Spec> specRegistry;
 
     @Override
-    public List<Run> getRuns(Pageable pageable) {
+    public List<RunDTO> getRuns(Pageable pageable) {
         try {
-            Page<RunEntity> runPage = this.runRepository.findAll(pageable);
+            Page<Run> runPage = this.runRepository.findAll(pageable);
             return runPage.getContent().stream().map(run -> runDTOBuilder.build(run))
                     .collect(Collectors.toList());
 
@@ -87,7 +87,7 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public Run getRun(String uuid) {
+    public RunDTO getRun(String uuid) {
         return runRepository.findById(uuid).map(run -> runDTOBuilder.build(run))
                 .orElseThrow(() -> new CoreException(
                         ErrorList.RUN_NOT_FOUND.getValue(),
@@ -108,7 +108,7 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public Run save(Run runDTO) {
+    public RunDTO save(RunDTO runDTO) {
 
         return Optional.of(this.runRepository.save(runEntityBuilder.build(runDTO)))
                 .map(run -> runDTOBuilder.build(run))
@@ -119,7 +119,7 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public Run updateRun(Run runDTO, String uuid) {
+    public RunDTO updateRun(RunDTO runDTO, String uuid) {
 
         if (!runDTO.getId().equals(uuid)) {
             throw new CoreException(
@@ -128,7 +128,7 @@ public class RunSerivceImpl implements RunService {
                     HttpStatus.NOT_FOUND);
         }
 
-        final RunEntity run = runRepository.findById(uuid).orElse(null);
+        final Run run = runRepository.findById(uuid).orElse(null);
         if (run == null) {
             throw new CoreException(
                     ErrorList.RUN_NOT_FOUND.getValue(),
@@ -137,7 +137,7 @@ public class RunSerivceImpl implements RunService {
         }
 
         try {
-            final RunEntity runUpdated = runEntityBuilder.update(run, runDTO);
+            final Run runUpdated = runEntityBuilder.update(run, runDTO);
             this.runRepository.save(runUpdated);
             return runDTOBuilder.build(runUpdated);
         } catch (CustomException e) {
@@ -149,7 +149,7 @@ public class RunSerivceImpl implements RunService {
     }
 
     @Override
-    public <F extends FunctionBaseSpec<F>> Run createRun(Run runDTO) {
+    public <F extends FunctionBaseSpec<F>> RunDTO createRun(RunDTO runDTO) {
 
         // Retrieve Run base spec
         RunBaseSpec<?> runBaseSpec = specRegistry.createSpec(
@@ -188,13 +188,13 @@ public class RunSerivceImpl implements RunService {
 
                                 // Check weather the run has local set to True in that case return
                                 // immediately the run without invoke the execution.
-                                Supplier<Run> result = () -> Optional
+                                Supplier<RunDTO> result = () -> Optional
                                         .of(runBaseSpec.isLocalExecution()) // if true save and return
                                         .filter(value -> value.equals(true))
 
                                         .map(value -> {
                                             // Save the run and return immediately
-                                            RunEntity run = runRepository.save(
+                                            Run run = runRepository.save(
                                                     runEntityBuilder.build(runDTO));
                                             return runDTOBuilder.build(run);
                                         })
@@ -225,7 +225,7 @@ public class RunSerivceImpl implements RunService {
                                             runDTO.setState(RunState.BUILT.toString());
 
                                             // Save Run
-                                            RunEntity run = runRepository.save(
+                                            Run run = runRepository.save(
                                                     runEntityBuilder.build(runDTO)
                                             );
 

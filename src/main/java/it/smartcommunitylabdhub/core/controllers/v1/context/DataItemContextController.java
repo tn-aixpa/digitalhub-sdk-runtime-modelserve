@@ -3,7 +3,7 @@ package it.smartcommunitylabdhub.core.controllers.v1.context;
 import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.common.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemDTO;
 import it.smartcommunitylabdhub.core.services.context.interfaces.DataItemContextService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,9 @@ public class DataItemContextController implements ContextController {
             description = "First check if project exist and then create the dataItem for the project (context)")
     @PostMapping(value = "/dataitems", consumes = {MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml"}, produces = "application/json; charset=UTF-8")
-    public ResponseEntity<DataItem> createDataItem(
+    public ResponseEntity<DataItemDTO> createDataItem(
             @ValidateField @PathVariable String project,
-            @Valid @RequestBody DataItem dataItemDTO) {
+            @Valid @RequestBody DataItemDTO dataItemDTO) {
         return ResponseEntity.ok(
                 this.dataItemContextService.createDataItem(project, dataItemDTO));
     }
@@ -36,7 +36,7 @@ public class DataItemContextController implements ContextController {
     @Operation(summary = "Retrive only the latest version of all dataItem",
             description = "First check if project exist and then return a list of the latest version of each dataItem related to a project)")
     @GetMapping(path = "/dataitems", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Page<DataItem>> getLatestDataItems(
+    public ResponseEntity<Page<DataItemDTO>> getLatestDataItems(
             @ValidateField @PathVariable String project,
             Pageable pageable) {
 
@@ -47,7 +47,7 @@ public class DataItemContextController implements ContextController {
     @Operation(summary = "Retrieve all versions of the dataItem sort by creation",
             description = "First check if project exist and then return a list of all version of the dataItem sort by creation)")
     @GetMapping(path = "/dataitems/{name}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<Page<DataItem>> getAllDataItems(
+    public ResponseEntity<Page<DataItemDTO>> getAllDataItems(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             Pageable pageable) {
@@ -60,7 +60,7 @@ public class DataItemContextController implements ContextController {
     @Operation(summary = "Retrive a specific dataItem version given the dataItem uuid",
             description = "First check if project exist and then return a specific version of the dataItem identified by the uuid)")
     @GetMapping(path = "/dataitems/{name}/{uuid}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<DataItem> getDataItemByUuid(
+    public ResponseEntity<DataItemDTO> getDataItemByUuid(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid) {
@@ -73,7 +73,7 @@ public class DataItemContextController implements ContextController {
     @Operation(summary = "Retrive the latest version of an dataItem",
             description = "First check if project exist and then return the latest version of an dataItem)")
     @GetMapping(path = "/dataitems/{name}/latest", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<DataItem> getLatestDataItemByName(
+    public ResponseEntity<DataItemDTO> getLatestDataItemByName(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name) {
 
@@ -85,10 +85,10 @@ public class DataItemContextController implements ContextController {
             description = "First check if project exist, if dataItem exist update one otherwise create a new version of the dataItem")
     @PostMapping(value = "/dataitems/{name}", consumes = {MediaType.APPLICATION_JSON_VALUE,
             "application/x-yaml"}, produces = "application/json; charset=UTF-8")
-    public ResponseEntity<DataItem> createOrUpdateDataItem(
+    public ResponseEntity<DataItemDTO> createOrUpdateDataItem(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
-            @Valid @RequestBody DataItem dataItemDTO) {
+            @Valid @RequestBody DataItemDTO dataItemDTO) {
         return ResponseEntity
                 .ok(this.dataItemContextService.createOrUpdateDataItem(project,
                         name, dataItemDTO));
@@ -100,11 +100,11 @@ public class DataItemContextController implements ContextController {
             consumes = {MediaType.APPLICATION_JSON_VALUE,
                     "application/x-yaml"},
             produces = "application/json; charset=UTF-8")
-    public ResponseEntity<DataItem> updateUpdateDataItem(
+    public ResponseEntity<DataItemDTO> updateUpdateDataItem(
             @ValidateField @PathVariable String project,
             @ValidateField @PathVariable String name,
             @ValidateField @PathVariable String uuid,
-            @Valid @RequestBody DataItem dataItemDTO) {
+            @Valid @RequestBody DataItemDTO dataItemDTO) {
         return ResponseEntity.ok(this.dataItemContextService.updateDataItem(project, name,
                 uuid, dataItemDTO));
     }

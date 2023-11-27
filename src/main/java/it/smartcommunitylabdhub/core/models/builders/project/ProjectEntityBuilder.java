@@ -5,8 +5,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.project.ProjectEntity;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
+import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.specs.ProjectBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
@@ -27,7 +27,7 @@ public class ProjectEntityBuilder {
      * @param projectDTO the Project DTO To convert
      * @return Project
      */
-    public ProjectEntity build(Project projectDTO) {
+    public Project build(ProjectDTO projectDTO) {
 
         specRegistry.createSpec(projectDTO.getKind(), SpecEntity.PROJECT, Map.of());
 
@@ -68,7 +68,7 @@ public class ProjectEntityBuilder {
      * @param projectDTO the DTO to combine with the project entity
      * @return Project
      */
-    public ProjectEntity update(ProjectEntity project, Project projectDTO) {
+    public Project update(Project project, ProjectDTO projectDTO) {
 
         // Retrieve object spec
         ProjectBaseSpec projectSpec = JacksonMapper.objectMapper

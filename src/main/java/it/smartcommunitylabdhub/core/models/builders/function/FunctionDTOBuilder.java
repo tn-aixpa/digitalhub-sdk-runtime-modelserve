@@ -3,8 +3,8 @@ package it.smartcommunitylabdhub.core.models.builders.function;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionEntity;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
 import it.smartcommunitylabdhub.core.models.entities.function.metadata.FunctionMetadata;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +18,11 @@ public class FunctionDTOBuilder {
     @Autowired
     MetadataConverter<FunctionMetadata> metadataConverter;
 
-    public Function build(
-            FunctionEntity function,
+    public FunctionDTO build(
+            Function function,
             boolean embeddable) {
 
-        return EntityFactory.create(Function::new, function, builder -> builder
+        return EntityFactory.create(FunctionDTO::new, function, builder -> builder
                 .with(dto -> dto.setId(function.getId()))
                 .with(dto -> dto.setKind(function.getKind()))
                 .with(dto -> dto.setProject(function.getProject()))

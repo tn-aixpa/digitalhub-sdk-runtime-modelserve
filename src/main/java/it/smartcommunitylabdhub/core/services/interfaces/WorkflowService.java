@@ -1,21 +1,21 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
-import it.smartcommunitylabdhub.core.models.entities.run.Run;
-import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
-import java.util.List;
-
+import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface WorkflowService {
-    List<Workflow> getWorkflows(Pageable pageable);
+    List<WorkflowDTO> getWorkflows(Pageable pageable);
 
-    Workflow createWorkflow(Workflow workflowDTO);
+    WorkflowDTO createWorkflow(WorkflowDTO workflowDTO);
 
-    Workflow getWorkflow(String uuid);
+    WorkflowDTO getWorkflow(String uuid);
 
-    Workflow updateWorkflow(Workflow workflowDTO, String uuid);
+    WorkflowDTO updateWorkflow(WorkflowDTO workflowDTO, String uuid);
 
     boolean deleteWorkflow(String uuid);
 
-    List<Run> getWorkflowRuns(String uuid);
+    List<RunDTO> getWorkflowRuns(String uuid);
 }

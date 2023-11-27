@@ -1,71 +1,63 @@
 package it.smartcommunitylabdhub.core.models.entities.workflow;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
-import it.smartcommunitylabdhub.core.models.entities.StatusFieldUtility;
-import it.smartcommunitylabdhub.core.models.entities.workflow.metadata.WorkflowMetadata;
-import jakarta.validation.constraints.NotNull;
+import it.smartcommunitylabdhub.core.models.enums.State;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
+@Entity
+@Table(name = "workflows")
 public class Workflow implements BaseEntity {
 
-    @ValidateField(allowNull = true, fieldType = "uuid", message = "Invalid UUID4 string")
+    @Id
+    @Column(unique = true)
     private String id;
 
-    @NotNull
-    @ValidateField
-    private String name;
-
-    @NotNull
-    @ValidateField
+    @Column(nullable = false)
     private String kind;
 
-    private WorkflowMetadata metadata;
-
-    @NotNull
-    @ValidateField  
+    @Column(nullable = false)
     private String project;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Builder.Default
-    private Map<String, Object> spec = new HashMap<>();
+    @Column(nullable = false)
+    private String name;
 
-    @Builder.Default
-    @JsonIgnore
-    private Map<String, Object> extra = new HashMap<>();
+    @Lob
+    private byte[] metadata;
 
+    @Lob
+    private byte[] spec;
+
+    @Lob
+    private byte[] extra;
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private Date created;
+
+    @UpdateTimestamp
     private Date updated;
-    @Builder.Default
-    private Boolean embedded = false;
 
-    @JsonIgnore
-    private String state;
+    private Boolean embedded;
 
-    @JsonAnyGetter
-    public Map<String, Object> getExtra() {
-        return StatusFieldUtility.addStatusField(extra, state);
+    @Enumerated(EnumType.STRING)
+    private State state;
 
-    }
-
-    @JsonAnySetter
-    public void setExtra(String key, Object value) {
-        if (value != null) {
-            extra.put(key, value);
-            StatusFieldUtility.updateStateField(this);
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            this.id = UUID.randomUUID().toString();
         }
     }
+
 }
