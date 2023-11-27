@@ -1,30 +1,30 @@
 package it.smartcommunitylabdhub.core.services.context.interfaces;
 
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface FunctionContextService {
 
-    FunctionDTO createFunction(String projectName, FunctionDTO functionDTO);
+    Function createFunction(String projectName, Function functionDTO);
 
-    Page<FunctionDTO> getByProjectNameAndFunctionName(
+    Page<Function> getByProjectNameAndFunctionName(
             String projectName, String functionName, Pageable pageable);
 
-    Page<FunctionDTO> getLatestByProjectName(
+    Page<Function> getLatestByProjectName(
             String projectName, Pageable pageable);
 
-    FunctionDTO getByProjectAndFunctionAndUuid(
+    Function getByProjectAndFunctionAndUuid(
             String projectName, String functionName, String uuid);
 
-    FunctionDTO getLatestByProjectNameAndFunctionName(
+    Function getLatestByProjectNameAndFunctionName(
             String projectName, String functionName);
 
-    FunctionDTO createOrUpdateFunction(String projectName, String functionName,
-                                       FunctionDTO functionDTO);
+    Function createOrUpdateFunction(String projectName, String functionName,
+                                    Function functionDTO);
 
-    FunctionDTO updateFunction(String projectName, String functionName, String uuid,
-                               FunctionDTO functionDTO);
+    Function updateFunction(String projectName, String functionName, String uuid,
+                            Function functionDTO);
 
     Boolean deleteSpecificFunctionVersion(String projectName, String functionName, String uuid);
 

@@ -1,25 +1,25 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface FunctionService {
-    List<FunctionDTO> getFunctions(Pageable pageable);
+    List<Function> getFunctions(Pageable pageable);
 
-    List<FunctionDTO> getFunctions();
+    List<Function> getFunctions();
 
-    FunctionDTO createFunction(FunctionDTO functionDTO);
+    Function createFunction(Function functionDTO);
 
-    FunctionDTO getFunction(String uuid);
+    Function getFunction(String uuid);
 
-    FunctionDTO updateFunction(FunctionDTO functionDTO, String uuid);
+    Function updateFunction(Function functionDTO, String uuid);
 
     boolean deleteFunction(String uuid);
 
     List<RunDTO> getFunctionRuns(String uuid);
 
-    List<FunctionDTO> getAllLatestFunctions();
+    List<Function> getAllLatestFunctions();
 }

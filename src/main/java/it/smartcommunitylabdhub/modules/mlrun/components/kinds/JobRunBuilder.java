@@ -8,7 +8,7 @@ import it.smartcommunitylabdhub.core.models.accessors.utils.TaskAccessor;
 import it.smartcommunitylabdhub.core.models.accessors.utils.TaskUtils;
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.function.FunctionEntityBuilder;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.run.RunDTO;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.repositories.TaskRepository;
@@ -42,7 +42,7 @@ public class JobRunBuilder implements KindBuilder<TaskDTO, RunDTO> {
             // 1. produce function object for mlrun and put it on spec.
             TaskAccessor taskAccessor = TaskUtils.parseTask(task.getFunction());
 
-            FunctionDTO functionDTO =
+            Function functionDTO =
                     functionService.getFunction(taskAccessor.getVersion());
 
 

@@ -1,7 +1,7 @@
 package it.smartcommunitylabdhub.core.services.interfaces;
 
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ public interface ProjectService {
 
     boolean deleteProjectByName(String name);
 
-    List<FunctionDTO> getProjectFunctions(String uuidOrName);
+    List<Function> getProjectFunctions(String uuidOrName);
 
     List<ArtifactDTO> getProjectArtifacts(String uuidOrName);
 

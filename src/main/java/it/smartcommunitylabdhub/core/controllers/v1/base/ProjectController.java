@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import it.smartcommunitylabdhub.core.annotations.common.ApiVersion;
 import it.smartcommunitylabdhub.core.annotations.validators.ValidateField;
 import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactDTO;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import it.smartcommunitylabdhub.core.services.interfaces.ProjectService;
@@ -66,7 +66,7 @@ public class ProjectController {
 
     @Operation(summary = "List project functions", description = "Get all project function list")
     @GetMapping(path = "/{uuidOrName}/functions", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<FunctionDTO>> projectFunctions(
+    public ResponseEntity<List<Function>> projectFunctions(
             @ValidateField @PathVariable String uuidOrName) {
         return ResponseEntity.ok(this.projectService.getProjectFunctions(uuidOrName));
     }

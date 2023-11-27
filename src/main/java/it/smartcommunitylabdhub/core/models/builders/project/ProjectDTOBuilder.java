@@ -9,7 +9,7 @@ import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.converters.types.MetadataConverter;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
-import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionEntity;
 import it.smartcommunitylabdhub.core.models.entities.project.Project;
 import it.smartcommunitylabdhub.core.models.entities.project.ProjectDTO;
 import it.smartcommunitylabdhub.core.models.entities.project.metadata.ProjectMetadata;
@@ -44,7 +44,7 @@ public class ProjectDTOBuilder {
     public ProjectDTO build(
             Project project,
             List<Artifact> artifacts,
-            List<Function> functions,
+            List<FunctionEntity> functions,
             List<Workflow> workflows,
             List<DataItem> dataItems,
             boolean embeddable) {

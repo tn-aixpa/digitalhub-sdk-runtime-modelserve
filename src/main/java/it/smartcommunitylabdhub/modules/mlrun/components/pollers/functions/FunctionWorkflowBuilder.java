@@ -6,7 +6,7 @@ import it.smartcommunitylabdhub.core.components.workflows.functions.BaseWorkflow
 import it.smartcommunitylabdhub.core.models.accessors.enums.FunctionKind;
 import it.smartcommunitylabdhub.core.models.accessors.kinds.interfaces.FunctionFieldAccessor;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.services.interfaces.FunctionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,7 +40,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
 
         // COMMENT: call /{project}/{function} api and iterate over them..try to check
         @SuppressWarnings("unchecked")
-        Function<String, List<FunctionDTO>> compareMlrunCoreFunctions = url -> {
+        java.util.function.Function<String, List<Function>> compareMlrunCoreFunctions = url -> {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -108,7 +107,7 @@ public class FunctionWorkflowBuilder extends BaseWorkflowBuilder {
 
         // COMMENT: For each function on list update or create a new function in mlrun.
         @SuppressWarnings("unchecked")
-        Function<List<FunctionDTO>, List<FunctionDTO>> storeFunctions = functions -> {
+        java.util.function.Function<List<Function>, List<Function>> storeFunctions = functions -> {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

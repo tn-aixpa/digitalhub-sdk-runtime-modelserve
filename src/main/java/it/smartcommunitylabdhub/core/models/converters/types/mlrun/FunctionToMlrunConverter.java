@@ -3,7 +3,7 @@ package it.smartcommunitylabdhub.core.models.converters.types.mlrun;
 import it.smartcommunitylabdhub.core.annotations.common.ConverterType;
 import it.smartcommunitylabdhub.core.exceptions.CustomException;
 import it.smartcommunitylabdhub.core.models.converters.interfaces.Converter;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @ConverterType(type = "mlrunFunction")
-public class FunctionToMlrunConverter implements Converter<FunctionDTO, Map<String, Object>> {
+public class FunctionToMlrunConverter implements Converter<Function, Map<String, Object>> {
 
     @Override
-    public Map<String, Object> convert(FunctionDTO functionDTO) throws CustomException {
+    public Map<String, Object> convert(Function functionDTO) throws CustomException {
 
         return Stream.of(
                         new AbstractMap.SimpleEntry<>("metadata",
@@ -55,7 +55,7 @@ public class FunctionToMlrunConverter implements Converter<FunctionDTO, Map<Stri
     }
 
     @Override
-    public FunctionDTO reverseConvert(Map<String, Object> input) throws CustomException {
+    public Function reverseConvert(Map<String, Object> input) throws CustomException {
         throw new UnsupportedOperationException("Unimplemented method 'reverseConvert'");
     }
 

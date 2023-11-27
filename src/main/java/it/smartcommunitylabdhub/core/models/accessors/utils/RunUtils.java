@@ -2,7 +2,7 @@ package it.smartcommunitylabdhub.core.models.accessors.utils;
 
 import it.smartcommunitylabdhub.core.exceptions.CoreException;
 import it.smartcommunitylabdhub.core.models.base.interfaces.BaseEntity;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.Function;
 import it.smartcommunitylabdhub.core.models.entities.task.TaskDTO;
 import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowDTO;
 import org.springframework.http.HttpStatus;
@@ -36,9 +36,9 @@ public class RunUtils {
     }
 
     public static <T extends BaseEntity> String buildRunString(T type, TaskDTO task) {
-        if (type instanceof FunctionDTO) {
+        if (type instanceof Function) {
 
-            FunctionDTO f = (FunctionDTO) type;
+            Function f = (Function) type;
             return f.getKind() + "+" + task.getKind() + "://" + f.getProject() + "/"
                     + f.getName() + ":" + f.getId();
         } else if (type instanceof WorkflowDTO) {

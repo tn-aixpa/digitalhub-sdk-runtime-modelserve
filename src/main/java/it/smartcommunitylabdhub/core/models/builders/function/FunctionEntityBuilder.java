@@ -6,7 +6,7 @@ import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionDTO;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionEntity;
 import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
@@ -28,7 +28,7 @@ public class FunctionEntityBuilder {
      * @param functionDTO the functionDTO that need to be stored
      * @return Function
      */
-    public Function build(FunctionDTO functionDTO) {
+    public FunctionEntity build(Function functionDTO) {
 
         specRegistry.createSpec(functionDTO.getKind(), SpecEntity.FUNCTION, Map.of());
 
@@ -58,7 +58,7 @@ public class FunctionEntityBuilder {
      * @param function the function to update
      * @return Function
      */
-    public Function update(Function function, FunctionDTO functionDTO) {
+    public FunctionEntity update(FunctionEntity function, Function functionDTO) {
 
         // Retrieve object spec
         FunctionBaseSpec spec = JacksonMapper.objectMapper
