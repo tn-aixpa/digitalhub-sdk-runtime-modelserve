@@ -418,7 +418,7 @@ class RuntimeNefertem(Runtime):
                 {
                     "key": artifact.metadata.name,
                     "kind": "artifact",
-                    "id": f"store://{project}/artifacts/artifact/{artifact.metadata.name}:{artifact.metadata.version}"
+                    "id": f"store://{project}/artifacts/artifact/{artifact.metadata.name}:{artifact.metadata.version}",
                 }
             )
         return artifacts
