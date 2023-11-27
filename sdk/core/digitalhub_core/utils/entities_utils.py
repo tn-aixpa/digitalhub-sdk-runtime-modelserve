@@ -3,8 +3,6 @@ General utilities module.
 """
 from __future__ import annotations
 
-import re
-
 
 def parse_entity_key(key: str) -> tuple[str, str, str]:
     """

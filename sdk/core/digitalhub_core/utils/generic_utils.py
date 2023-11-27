@@ -117,7 +117,11 @@ def set_dhub_env(
     -------
     None
     """
-    os.environ["DHUB_CORE_ENDPOINT"] = endpoint
-    os.environ["DHUB_CORE_USER"] = user
-    os.environ["DHUB_CORE_PASSWORD"] = password
-    os.environ["DHUB_CORE_TOKEN"] = token
+    if endpoint is not None:
+        os.environ["DHUB_CORE_ENDPOINT"] = endpoint
+    if user is not None:
+        os.environ["DHUB_CORE_USER"] = user
+    if password is not None:
+        os.environ["DHUB_CORE_PASSWORD"] = password
+    if token is not None:
+        os.environ["DHUB_CORE_TOKEN"] = token

@@ -12,7 +12,9 @@ config-version: 2
 profile: "postgres"
 model-paths: ["{}"]
 models:
-""".lstrip("\n")
+""".lstrip(
+    "\n"
+)
 
 MODEL_TEMPLATE_VERSION = """
 models:
@@ -22,7 +24,9 @@ models:
         - v: {}
           config:
             materialized: table
-""".lstrip("\n")
+""".lstrip(
+    "\n"
+)
 
 PROFILE_TEMPLATE = f"""
 postgres:
@@ -36,7 +40,9 @@ postgres:
             dbname: {os.getenv("POSTGRES_DATABASE")}
             schema: {os.getenv("POSTGRES_SCHEMA", "public")}
     target: dev
-""".lstrip("\n")
+""".lstrip(
+    "\n"
+)
 
 ####################
 # Functions
