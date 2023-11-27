@@ -6,8 +6,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.run.RunEntity;
 import it.smartcommunitylabdhub.core.models.entities.run.Run;
+import it.smartcommunitylabdhub.core.models.entities.run.RunEntity;
 import it.smartcommunitylabdhub.core.models.entities.run.specs.RunBaseSpec;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,10 +74,8 @@ public class RunEntityBuilder {
 
         return EntityFactory.combine(
                 run, runDTO, builder -> builder
-                        .with(r -> r.setKind(runDTO.getKind()))
                         .with(r -> r.setTask(run.getTask()))
                         .with(r -> r.setTaskId(spec.getTaskId()))
-                        .with(r -> r.setProject(runDTO.getProject()))
                         .with(r -> r.setState(runDTO.getState() == null
                                 ? RunState.CREATED
                                 : RunState.valueOf(

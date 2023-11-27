@@ -5,8 +5,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.function.FunctionEntity;
 import it.smartcommunitylabdhub.core.models.entities.function.Function;
+import it.smartcommunitylabdhub.core.models.entities.function.FunctionEntity;
 import it.smartcommunitylabdhub.core.models.entities.function.specs.FunctionBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
@@ -66,9 +66,6 @@ public class FunctionEntityBuilder {
 
         return EntityFactory.combine(
                 function, functionDTO, builder -> builder
-                        .with(f -> f.setKind(functionDTO.getKind()))
-                        .with(f -> f.setProject(functionDTO.getProject()))
-                        .with(f -> f.setName(functionDTO.getName()))
                         .with(f -> f.setState(functionDTO.getState() == null
                                 ? State.CREATED
                                 : State.valueOf(functionDTO

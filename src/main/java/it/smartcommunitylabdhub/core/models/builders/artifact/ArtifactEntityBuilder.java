@@ -6,8 +6,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactEntity;
 import it.smartcommunitylabdhub.core.models.entities.artifact.Artifact;
+import it.smartcommunitylabdhub.core.models.entities.artifact.ArtifactEntity;
 import it.smartcommunitylabdhub.core.models.entities.artifact.specs.ArtifactBaseSpec;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Component
 public class ArtifactEntityBuilder {
-    
+
     @Autowired
     SpecRegistry<? extends Spec> specRegistry;
 
@@ -66,8 +66,6 @@ public class ArtifactEntityBuilder {
 
         return EntityFactory.combine(
                 artifact, artifactDTO, builder -> builder
-                        .with(a -> a.setKind(artifactDTO.getKind()))
-                        .with(a -> a.setProject(artifactDTO.getProject()))
                         .with(a -> a.setState(artifactDTO.getState() == null
                                 ? ArtifactState.CREATED
                                 : ArtifactState.valueOf(

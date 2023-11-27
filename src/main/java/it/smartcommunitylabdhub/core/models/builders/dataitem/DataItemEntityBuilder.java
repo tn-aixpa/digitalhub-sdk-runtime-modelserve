@@ -5,8 +5,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemEntity;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItem;
+import it.smartcommunitylabdhub.core.models.entities.dataitem.DataItemEntity;
 import it.smartcommunitylabdhub.core.models.entities.dataitem.specs.DataItemBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
@@ -65,8 +65,6 @@ public class DataItemEntityBuilder {
 
         return EntityFactory.combine(
                 dataItem, dataItemDTO, builder -> builder
-                        .with(d -> d.setKind(dataItemDTO.getKind()))
-                        .with(d -> d.setProject(dataItemDTO.getProject()))
                         .with(d -> d.setState(dataItemDTO.getState() == null
                                 ? State.CREATED
                                 : State.valueOf(dataItemDTO

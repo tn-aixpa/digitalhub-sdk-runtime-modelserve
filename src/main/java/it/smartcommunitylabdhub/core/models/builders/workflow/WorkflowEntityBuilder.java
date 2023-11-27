@@ -5,8 +5,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowEntity;
 import it.smartcommunitylabdhub.core.models.entities.workflow.Workflow;
+import it.smartcommunitylabdhub.core.models.entities.workflow.WorkflowEntity;
 import it.smartcommunitylabdhub.core.models.entities.workflow.specs.WorkflowBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
@@ -68,8 +68,6 @@ public class WorkflowEntityBuilder {
 
         return EntityFactory.combine(
                 workflow, workflowDTO, builder -> builder
-                        .with(w -> w.setKind(workflowDTO.getKind()))
-                        .with(w -> w.setProject(workflowDTO.getProject()))
                         .with(w -> w.setState(workflowDTO.getState() == null
                                 ? State.CREATED
                                 : State.valueOf(workflowDTO

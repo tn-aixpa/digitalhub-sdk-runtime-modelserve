@@ -5,8 +5,8 @@ import it.smartcommunitylabdhub.core.components.infrastructure.factories.specs.S
 import it.smartcommunitylabdhub.core.models.base.interfaces.Spec;
 import it.smartcommunitylabdhub.core.models.builders.EntityFactory;
 import it.smartcommunitylabdhub.core.models.converters.ConversionUtils;
-import it.smartcommunitylabdhub.core.models.entities.task.TaskEntity;
 import it.smartcommunitylabdhub.core.models.entities.task.Task;
+import it.smartcommunitylabdhub.core.models.entities.task.TaskEntity;
 import it.smartcommunitylabdhub.core.models.entities.task.specs.TaskBaseSpec;
 import it.smartcommunitylabdhub.core.models.enums.State;
 import it.smartcommunitylabdhub.core.utils.JacksonMapper;
@@ -75,8 +75,6 @@ public class TaskEntityBuilder {
         return EntityFactory.combine(
                 task, taskDTO, builder -> builder
                         .with(t -> t.setFunction(spec.getFunction()))
-                        .with(t -> t.setKind(taskDTO.getKind()))
-                        .with(t -> t.setProject(taskDTO.getProject()))
                         .with(t -> t.setState(taskDTO.getState() == null
                                 ? State.CREATED
                                 : State.valueOf(taskDTO
