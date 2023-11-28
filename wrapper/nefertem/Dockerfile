@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.9-slim
 
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
@@ -13,7 +13,7 @@ WORKDIR /digitalhub-core/
 
 # Install digitalhub-core
 RUN git clone https://github.com/scc-digitalhub/digitalhub-sdk.git
-RUN pip3 install -e ./digitalhub-sdk/core
+RUN pip3 install -e ./digitalhub-sdk/core[base_yaml]
 RUN pip3 install -e ./digitalhub-sdk/data/modules/nefertem[local]
 
 # Install Nefertem plugins

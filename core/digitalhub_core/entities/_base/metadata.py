@@ -13,6 +13,8 @@ class Metadata(ModelObj):
 
     def __init__(
         self,
+        source: str | None = None,
+        labels: list[str] | None = None,
         created: str | None = str,
         updated: str | None = str,
     ) -> None:
@@ -21,11 +23,17 @@ class Metadata(ModelObj):
 
         Parameters
         ----------
+        source : str
+            Source of the entity.
+        labels : list[str]
+            A list of labels.
         created : str
             Created date.
         updated : str
             Updated date.
         """
+        self.source = source
+        self.labels = labels
         self.created = created
         self.updated = updated
 
