@@ -143,7 +143,7 @@ class ClientDHCore(Client):
         return endpoint
 
     @staticmethod
-    def _get_auth() -> tuple[str, str]:
+    def _get_auth() -> tuple[str, str] | None:
         """
         Get authentication parameters from the config.
 
@@ -155,7 +155,7 @@ class ClientDHCore(Client):
         user = os.getenv("DHUB_CORE_USER")
         password = os.getenv("DHUB_CORE_PASSWORD")
         if user is None or password is None:
-            raise BackendError("User or password not set as environment variables.")
+            return None
         return user, password
 
     @staticmethod

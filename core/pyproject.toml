@@ -28,6 +28,7 @@ dependencies = [
     "psycopg2-binary==2.9.7",
     "pyarrow>=10.0, <13",
     "requests~=2.31",
+    "pyyaml~=5.1",
 ]
 
 [tool.setuptools.packages.find]
