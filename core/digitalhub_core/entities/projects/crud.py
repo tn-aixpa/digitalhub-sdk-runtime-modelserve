@@ -37,9 +37,10 @@ def create_project(**kwargs) -> Project:
 def new_project(
     name: str,
     description: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     local: bool = False,
-    context: str = "",
-    source: str = "",
+    context: str | None = None,
     **kwargs,
 ) -> Project:
     """
@@ -73,9 +74,10 @@ def new_project(
         name=name,
         kind="project",
         description=description,
+        source_remote=source_remote,
+        labels=labels,
         local=local,
         context=context,
-        source=source,
         **kwargs,
     )
     obj.save()

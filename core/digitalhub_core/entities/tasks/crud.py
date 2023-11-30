@@ -36,6 +36,8 @@ def new_task(
     project: str,
     kind: str,
     uuid: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     function: str | None = "",
     **kwargs,
 ) -> Task:
@@ -64,6 +66,8 @@ def new_task(
         project=project,
         kind=kind,
         uuid=uuid,
+        source_remote=source_remote,
+        labels=labels,
         function=function,
         **kwargs,
     )

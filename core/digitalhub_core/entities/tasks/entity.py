@@ -285,6 +285,8 @@ def task_from_parameters(
     project: str,
     kind: str,
     uuid: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     function: str | None = "",
     **kwargs,
 ) -> Task:
@@ -310,7 +312,12 @@ def task_from_parameters(
        Object instance.
     """
     uuid = build_uuid(uuid)
-    metadata = build_metadata(TASK, project=project, name=uuid)
+    metadata = build_metadata(
+        TASK,
+        project=project,
+        name=uuid,
+        source=source_remote,
+        labels=labels,)
     spec = build_spec(
         TASK,
         kind,

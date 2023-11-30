@@ -55,8 +55,10 @@ def new_function(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     embedded: bool = True,
-    source: str | None = None,
+    source_code: str | None = None,
     **kwargs,
 ) -> Function:
     """
@@ -76,7 +78,7 @@ def new_function(
         Description of the function.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    source : str
+    source_code : str
         Path to the function's source code on the local file system.
     **kwargs
         Keyword arguments.
@@ -92,7 +94,9 @@ def new_function(
         kind=kind,
         uuid=uuid,
         description=description,
-        source=source,
+        source_remote=source_remote,
+        labels=labels,
+        source_code=source_code,
         embedded=embedded,
         **kwargs,
     )

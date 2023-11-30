@@ -15,7 +15,6 @@ class ProjectSpec(Spec):
     def __init__(
         self,
         context: str | None = None,
-        source: str | None = None,
         functions: list | None = None,
         artifacts: list | None = None,
         workflows: list | None = None,
@@ -28,19 +27,12 @@ class ProjectSpec(Spec):
         ----------
         context : str
             The project's context.
-
-        source : str
-            The project's source.
-
         functions : list
             List of project's functions.
-
         artifacts : list
             List of project's artifacts.
-
         workflows : list
             List of project's workflows.
-
         dataitems : list
             List of project's dataitems.
 
@@ -49,7 +41,6 @@ class ProjectSpec(Spec):
         None
         """
         self.context = context
-        self.source = source
         self.functions = functions if functions is not None else []
         self.artifacts = artifacts if artifacts is not None else []
         self.workflows = workflows if workflows is not None else []
@@ -63,9 +54,6 @@ class ProjectParams(BaseModel):
 
     context: str = None
     """The project's context."""
-
-    source: str = None
-    """The project's source."""
 
     functions: list = None
     """List of project's functions."""

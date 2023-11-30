@@ -17,7 +17,7 @@ class FunctionMetadata(Metadata):
         name: str | None = None,
         version: str | None = None,
         source: str | None = None,
-        lables: list[str] | None = None,
+        labels: list[str] | None = None,
         created: str | None = None,
         updated: str | None = None,
         description: str | None = None,
@@ -42,7 +42,7 @@ class FunctionMetadata(Metadata):
         --------
         Metadata.__init__
         """
-        super().__init__(source, lables, created, updated)
+        super().__init__(source, labels, created, updated)
         self.project = project
         self.name = name
         self.version = version

@@ -16,7 +16,7 @@ class TaskMetadata(Metadata):
         project: str | None = None,
         name: str | None = None,
         source: str | None = None,
-        lables: list[str] | None = None,
+        labels: list[str] | None = None,
         created: str | None = None,
         updated: str | None = None,
         **kwargs,
@@ -35,6 +35,6 @@ class TaskMetadata(Metadata):
         --------
         Metadata.__init__
         """
-        super().__init__(source, lables, created, updated)
+        super().__init__(source, labels, created, updated)
         self.project = project
         self.name = name

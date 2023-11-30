@@ -55,6 +55,8 @@ def new_workflow(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     embedded: bool = True,
     **kwargs,
 ) -> Workflow:
@@ -87,6 +89,8 @@ def new_workflow(
         project=project,
         name=name,
         description=description,
+        source_remote=source_remote,
+        labels=labels,
         kind=kind,
         embedded=embedded,
         uuid=uuid,

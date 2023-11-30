@@ -705,9 +705,10 @@ def project_from_parameters(
     name: str,
     kind: str,
     description: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     local: bool = False,
-    context: str = "",
-    source: str = "",
+    context: str | None = None,
     **kwargs,
 ) -> Project:
     """
@@ -740,13 +741,14 @@ def project_from_parameters(
         PROJ,
         kind,
         context=context,
-        source=source,
         **kwargs,
     )
     metadata = build_metadata(
         PROJ,
         name=name,
         description=description,
+        labels=labels,
+        source=source_remote,
     )
     status = build_status(PROJ)
     return Project(

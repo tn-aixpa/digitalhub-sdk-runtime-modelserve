@@ -15,7 +15,7 @@ class ProjectMetadata(Metadata):
         self,
         name: str | None = None,
         source: str | None = None,
-        lables: list[str] | None = None,
+        labels: list[str] | None = None,
         created: str | None = None,
         updated: str | None = None,
         description: str | None = None,
@@ -37,6 +37,6 @@ class ProjectMetadata(Metadata):
         --------
         Metadata.__init__
         """
-        super().__init__(source, lables, created, updated)
+        super().__init__(source, labels, created, updated)
         self.name = name
         self.description = description

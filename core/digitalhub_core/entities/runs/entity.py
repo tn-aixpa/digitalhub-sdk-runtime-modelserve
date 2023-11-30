@@ -428,6 +428,8 @@ def run_from_parameters(
     task_id: str,
     kind: str,
     uuid: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
@@ -472,6 +474,8 @@ def run_from_parameters(
         RUNS,
         project=project,
         name=uuid,
+        source=source_remote,
+        labels=labels,
     )
     spec = build_spec(
         RUNS,

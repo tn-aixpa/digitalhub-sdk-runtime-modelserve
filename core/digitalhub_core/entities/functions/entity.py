@@ -374,8 +374,10 @@ def function_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     embedded: bool = True,
-    source: str | None = None,
+    source_code: str | None = None,
     **kwargs,
 ) -> Function:
     """
@@ -410,7 +412,7 @@ def function_from_parameters(
         FUNC,
         kind,
         module_to_import=kind,
-        source=source,
+        source=source_code,
         **kwargs,
     )
     metadata = build_metadata(
@@ -419,6 +421,8 @@ def function_from_parameters(
         name=name,
         version=uuid,
         description=description,
+        source=source_remote,
+        labels=labels,
         embedded=embedded,
     )
     status = build_status(FUNC)

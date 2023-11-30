@@ -185,6 +185,8 @@ def workflow_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
+    source_remote: str | None = None,
+    labels: list[str] | None = None,
     embedded: bool = True,
     **kwargs,
 ) -> Workflow:
@@ -220,6 +222,8 @@ def workflow_from_parameters(
         name=name,
         version=uuid,
         description=description,
+        source=source_remote,
+        labels=labels,
         embedded=embedded,
     )
     spec = build_spec(
