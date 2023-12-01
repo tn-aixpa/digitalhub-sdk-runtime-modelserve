@@ -36,8 +36,8 @@ class ContextBuilder:
         -------
         None
         """
-        if project_object.metadata.name not in self._instances:
-            self._instances[project_object.metadata.name] = Context(project_object)
+        if project_object.name not in self._instances:
+            self._instances[project_object.name] = Context(project_object)
 
     def get(self, project: str) -> Context:
         """

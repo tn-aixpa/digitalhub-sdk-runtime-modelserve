@@ -219,6 +219,6 @@ def update_project(project: Project, local: bool = False) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_update(PROJ, project.metadata.name)
+    api = api_base_update(PROJ, project.name)
     client = get_client(local)
     return client.update_object(project.to_dict(), api)

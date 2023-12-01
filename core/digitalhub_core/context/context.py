@@ -25,7 +25,7 @@ class Context:
         project : Project
             The project to create the context for.
         """
-        self.name = project.metadata.name
+        self.name = project.name
         self.client = project._client
         self.local = project._client.is_local()
 
