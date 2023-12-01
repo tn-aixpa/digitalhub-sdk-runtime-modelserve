@@ -149,4 +149,4 @@ def update_task(task: Task) -> dict:
         Response from backend.
     """
     api = api_base_update(TASK, task.id)
-    return get_context(task.metadata.project).update_object(task.to_dict(), api)
+    return get_context(task.project).update_object(task.to_dict(), api)

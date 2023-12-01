@@ -204,5 +204,5 @@ def update_artifact(artifact: Artifact) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(artifact.metadata.project, ARTF, artifact.name, uuid=artifact.id)
-    return get_context(artifact.metadata.project).update_object(artifact.to_dict(), api)
+    api = api_ctx_update(artifact.project, ARTF, artifact.name, uuid=artifact.id)
+    return get_context(artifact.project).update_object(artifact.to_dict(), api)
