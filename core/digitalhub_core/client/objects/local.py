@@ -48,7 +48,7 @@ class ClientLocal(Client):
         # Project, Task, Run
         if len(parsed) == 1:
             (dto,) = parsed
-            name = obj.get("name")
+            name = obj.get("id")
             self._db[dto][name] = obj
 
         # Artifact, Dataitem, Model, Function, Workflow
