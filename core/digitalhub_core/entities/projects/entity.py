@@ -164,8 +164,6 @@ class Project(Entity):
         else:
             obj = self.to_dict()
 
-        obj = self._parse_spec(obj)
-
         if filename is None:
             filename = f"{self.kind}_{self.name}.yml"
         pth = Path(self.name) / filename
@@ -179,34 +177,6 @@ class Project(Entity):
                 ctx_obj = FUNC_MAP[entity_type](self.name, name, uuid=version)
                 if not ctx_obj.metadata.embedded:
                     ctx_obj.export()
-
-    @staticmethod
-    def _parse_spec(obj: dict) -> dict:
-        """
-        Parse spec dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Project dictionary.
-
-        Returns
-        -------
-        dict
-            New project dictionary.
-        """
-        spec = obj.get("spec", {})
-        new_spec: dict[str, list] = {}
-        for i in spec:
-            new_spec[i] = []
-            for j in spec[i]:
-                if not j.get("embedded", True):
-                    _dict = {k: v for k, v in j.items() if k in ["name", "id", "kind"]}
-                    new_spec[i].append(_dict)
-                else:
-                    new_spec[i].append(j)
-        obj["spec"] = new_spec
-        return obj
 
     def _refresh(self) -> "Project":
         """
@@ -252,7 +222,21 @@ class Project(Entity):
             obj_representation = obj.to_dict()
             obj_representation.pop("spec")
 
-        attr = getattr(self.spec, entity_type, []) + [obj_representation]
+        # Get list of objects related to project by entity type
+        attr = getattr(self.spec, entity_type, [])
+
+        # If empty, append directly
+        if not attr:
+            attr.append(obj_representation)
+
+        # If not empty, check if object already exists and update if necessary.
+        # Only latest version is stored in project spec.
+        else:
+            for idx, _ in enumerate(attr):
+                if attr[idx]["name"] == obj.name:
+                    attr[idx] = obj_representation
+
+        # Set attribute
         setattr(self.spec, entity_type, attr)
 
     def _delete_object(self, name: str, entity_type: str, uuid: str | None = None) -> None:

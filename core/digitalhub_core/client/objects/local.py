@@ -219,11 +219,10 @@ class ClientLocal(Client):
             # Cycle through named objects
             for _, named_entities in objs.items():
 
-                # Cycle through versions
+                # Get latest version
                 for version, entity in named_entities.items():
 
-                    # Skip latest
-                    if version == "latest":
+                    if version != "latest":
                         continue
 
                     # Deepcopy to avoid modifying the original object
