@@ -1,11 +1,13 @@
 """
 Job Function specification module.
 """
+from __future__ import annotations
+
+from pathlib import Path
+
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.file_utils import is_python_module
 from digitalhub_core.utils.generic_utils import encode_source
-from digitalhub_core.utils.uri_utils import get_name_from_uri
 
 
 class FunctionSpecMLRun(FunctionSpec):
@@ -40,10 +42,12 @@ class FunctionSpecMLRun(FunctionSpec):
             List of requirements for the Function.
         """
         super().__init__(source, **kwargs)
+
+        # Sanity checks
         if source is None:
             raise EntityError("Source must be provided.")
 
-        if not is_python_module(source):
+        if not (Path(source).suffix == ".py" and Path(source).is_file()):
             raise EntityError("Source is not a valid python file.")
 
         self.image = image
@@ -51,10 +55,11 @@ class FunctionSpecMLRun(FunctionSpec):
         self.handler = handler
         self.command = command
         self.requirements = requirements if requirements is not None else []
+
         self.build = {
             "functionSourceCode": encode_source(source),
             "code_origin": source,
-            "origin_filename": get_name_from_uri(source),
+            "origin_filename": Path(source).name,
         }
 
 
@@ -63,17 +68,17 @@ class FunctionParamsMLRun(FunctionParams):
     Function mlrun parameters model.
     """
 
-    image: str | None = None
+    image: str = None
     """Name of the Function's container image."""
 
-    tag: str | None = None
+    tag: str = None
     """Tag of the Function's container image."""
 
-    handler: str | None = None
+    handler: str = None
     """Function handler name."""
 
-    command: str | None = None
+    command: str = None
     """Command to run inside the container."""
 
-    requirements: list | None = None
+    requirements: list = None
     """List of requirements for the Function."""

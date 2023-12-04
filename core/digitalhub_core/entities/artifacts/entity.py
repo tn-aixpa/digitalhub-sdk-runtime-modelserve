@@ -4,6 +4,8 @@ Artifact module.
 from __future__ import annotations
 
 import typing
+from pathlib import Path
+from urllib.parse import urlparse
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -14,10 +16,9 @@ from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.commons import ARTF
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.file_utils import check_file
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
-from digitalhub_core.utils.uri_utils import get_name_from_uri, map_uri_scheme
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
@@ -115,8 +116,11 @@ class Artifact(Entity):
         None
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"artifact_{self.project}_{self.name}.yaml"
-        write_yaml(filename, obj)
+        if filename is None:
+            filename = f"{self.kind}_{self.name}_{self.id}.yml"
+        pth = Path(self.project) / filename
+        pth.parent.mkdir(parents=True, exist_ok=True)
+        write_yaml(pth, obj)
 
     #############################
     #  Context
@@ -191,7 +195,9 @@ class Artifact(Entity):
         self._check_remote(trg)
 
         # Check if download destination path is specified and rebuild it if necessary
-        dst = dst if dst is not None else f"./{get_name_from_uri(trg)}"
+        if dst is None:
+            filename = urlparse(trg).path.split('/')[-1]
+            dst = f"{self.project}/artifacts/{self.kind}/{filename}"
 
         # Check if destination path exists for overwrite
         self._check_overwrite(dst, overwrite)
@@ -331,7 +337,7 @@ class Artifact(Entity):
         Exception
             If destination path exists and overwrite is False.
         """
-        if check_file(dst) and not overwrite:
+        if Path(dst).is_file() and not overwrite:
             raise EntityError(f"File {dst} already exists.")
 
     #############################

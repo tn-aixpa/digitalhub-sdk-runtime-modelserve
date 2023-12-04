@@ -19,6 +19,7 @@ class RunMetadata(Metadata):
         labels: list[str] | None = None,
         created: str | None = None,
         updated: str | None = None,
+        embedded: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -28,13 +29,10 @@ class RunMetadata(Metadata):
         ----------
         project : str
             Project name.
-        name : str
-            Name (UUID) of the object.
 
         See Also
         --------
         Metadata.__init__
         """
-        super().__init__(source, labels, created, updated)
+        super().__init__(name, source, labels, embedded, created, updated)
         self.project = project
-        self.name = name

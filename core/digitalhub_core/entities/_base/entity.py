@@ -28,7 +28,11 @@ class Entity(ModelObj, metaclass=ABCMeta):
         Abstract save method.
         """
 
-    def to_dict(self, include_all_non_private: bool = False,) -> dict:
+    def to_dict(
+        self,
+        include_all_non_private: bool = False,
+
+    ) -> dict:
         """
         Return object as dict with all keys.
 

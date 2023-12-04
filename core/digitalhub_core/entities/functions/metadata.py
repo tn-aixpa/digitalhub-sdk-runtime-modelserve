@@ -29,22 +29,18 @@ class FunctionMetadata(Metadata):
 
         Parameters
         ----------
-        name : str
-            Name of the object.
+        project : str
+            Project name.
         version : str
             Version of the object.
         description : str
             Description of the entity.
-        embedded : bool
-            If True, embed object in backend.
 
         See Also
         --------
         Metadata.__init__
         """
-        super().__init__(source, labels, created, updated)
+        super().__init__(name, source, labels, embedded, created, updated)
         self.project = project
-        self.name = name
         self.version = version
         self.description = description
-        self.embedded = embedded

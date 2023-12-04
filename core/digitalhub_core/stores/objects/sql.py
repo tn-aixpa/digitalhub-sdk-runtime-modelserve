@@ -1,12 +1,13 @@
 """
-S3Store module.
+SQLStore module.
 """
 from __future__ import annotations
+
+from pathlib import Path
 
 import pandas as pd
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
-from digitalhub_core.utils.file_utils import build_path
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -87,7 +88,7 @@ class SqlStore(Store):
             Returns a file path.
         """
         dst = dst if dst is not None else self._build_temp(src)
-        dst = build_path(dst, "data.parquet")
+        dst = str(Path(dst) / "data.parquet")
         schema = self._get_schema(src)
         table = self._get_table_name(src)
         return self._download_table(schema, table, dst)
@@ -205,17 +206,18 @@ class SqlStore(Store):
         dict
             A dictionary containing the components of the path.
         """
-        try:
-            protocol, path = path.split("://")
-            components = path.split("/")
-            if protocol != "sql" or not (2 <= len(components) <= 3):
-                raise ValueError()
-            database = components[0]
-            table = components[-1]
-            schema = components[1] if len(components) == 3 else "public"
-            return {"database": database, "schema": schema, "table": table}
-        except ValueError:
-            raise ValueError("Invalid SQL path. Must be sql://<database>/<schema>/<table> or sql://<database>/<table>")
+        # Parse path
+        err_msg = "Invalid SQL path. Must be sql://<database>/<schema>/<table> or sql://<database>/<table>"
+        protocol, pth = path.split("://")
+        components = pth.split("/")
+        if protocol != "sql" or not (2 <= len(components) <= 3):
+            raise ValueError(err_msg)
+
+        # Get components
+        database = components[0]
+        table = components[-1]
+        schema = components[1] if len(components) == 3 else "public"
+        return {"database": database, "schema": schema, "table": table}
 
     def _get_schema(self, uri: str) -> str:
         """

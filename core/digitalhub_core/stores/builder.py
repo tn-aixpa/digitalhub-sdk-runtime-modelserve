@@ -38,6 +38,7 @@ class StoreBuilder:
         """
         self._instances: dict[str, Store] = {}
         self._default: Store | None = None
+        self._def_scheme = "s3"
 
     def build(self, store_cfg: StoreParameters) -> None:
         """
@@ -91,23 +92,9 @@ class StoreBuilder:
             If no default store is set.
         """
         if self._default is None:
-            raise StoreError("No default store set.")
+            store_cfg = get_env_store_config(self._def_scheme)
+            self._default = self.build_store(store_cfg)
         return self._default
-
-    def set_default(self, scheme: str) -> None:
-        """
-        Set the default store instance.
-
-        Parameters
-        ----------
-        scheme : str
-            Store scheme.
-
-        Returns
-        -------
-        None
-        """
-        self._default = self.get(scheme)
 
     def build_store(self, cfg: StoreParameters) -> Store:
         """
@@ -270,22 +257,6 @@ def get_default_store() -> Store:
         Default store instance.
     """
     return store_builder.default()
-
-
-def set_default_store(scheme: str) -> None:
-    """
-    Set the default store instance.
-
-    Parameters
-    ----------
-    scheme : str
-        URI scheme.
-
-    Returns
-    -------
-    None
-    """
-    store_builder.set_default(scheme)
 
 
 store_builder = StoreBuilder()

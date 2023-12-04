@@ -29,7 +29,11 @@ REGISTRY = {
 
 
 def build_spec(
-    entity: str, kind: str, validate: bool = True, module_to_import: str | None = None, **kwargs
+    entity: str,
+    kind: str,
+    validate: bool = True,
+    module_to_import: str | None = None,
+    **kwargs,
 ) -> Spec:
     """
     Build runtimes.

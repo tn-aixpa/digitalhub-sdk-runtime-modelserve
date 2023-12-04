@@ -9,7 +9,7 @@ from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.commons import ARTF
-from digitalhub_core.utils.entities_utils import parse_entity_key
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:

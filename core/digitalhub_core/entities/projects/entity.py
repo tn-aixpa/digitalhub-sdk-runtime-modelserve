@@ -4,6 +4,7 @@ Project module.
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 from typing import Callable, TypeVar
 
 from digitalhub_core.client.builder import get_client
@@ -36,7 +37,7 @@ from digitalhub_core.entities.workflows.crud import (
     get_workflow,
     new_workflow,
 )
-from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update
+from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
 from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
@@ -53,39 +54,14 @@ if typing.TYPE_CHECKING:
 
     Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)
 
-LIST = [ARTF, FUNC, WKFL, DTIT]
+CTX_ENTITIES = [ARTF, FUNC, WKFL, DTIT]
+FUNC_MAP = {
+    ARTF: get_artifact,
+    FUNC: get_function,
+    WKFL: get_workflow,
+    DTIT: get_dataitem,
+}
 
-
-def constructor_from_dict(
-    dto: str,
-) -> Callable[[dict], Artifact | Function | Workflow | Dataitem]:
-    """
-    Get constructor for dto.
-
-    Parameters
-    ----------
-    dto : str
-        DTO.
-
-    Returns
-    -------
-    Callable[[dict], Artifact | Function | Workflow | Dataitem]
-        Constructor from dict.
-
-    Raises
-    ------
-    EntityError
-        If dto is not valid.
-    """
-    if dto == ARTF:
-        return create_artifact_from_dict
-    if dto == FUNC:
-        return create_function_from_dict
-    if dto == WKFL:
-        return create_workflow_from_dict
-    if dto == DTIT:
-        return create_dataitem_from_dict
-    raise EntityError(f"DTO {dto} is not valid.")
 
 
 class Project(Entity):
@@ -190,15 +166,19 @@ class Project(Entity):
 
         obj = self._parse_spec(obj)
 
-        filename = filename if filename is not None else "project.yaml"
-        write_yaml(filename, obj)
+        if filename is None:
+            filename = f"{self.kind}_{self.name}.yml"
+        pth = Path(self.name) / filename
+        pth.parent.mkdir(parents=True, exist_ok=True)
+        write_yaml(pth, obj)
 
         # Export objects related to project if not embedded
-        for i in LIST:
-            for j in self._get_objects(i):
-                _obj = constructor_from_dict(i)(j)
-                if not _obj.embedded:
-                    _obj.export()
+        for entity_type in CTX_ENTITIES:
+            for entity in self._get_objects(entity_type):
+                name, version = entity["name"], entity["id"]
+                ctx_obj = FUNC_MAP[entity_type](self.name, name, uuid=version)
+                if not ctx_obj.metadata.embedded:
+                    ctx_obj.export()
 
     @staticmethod
     def _parse_spec(obj: dict) -> dict:
@@ -264,7 +244,15 @@ class Project(Entity):
         None
         """
         self._check_entity_type(entity_type)
-        attr = getattr(self.spec, entity_type, []) + [obj.to_dict()]
+
+        # Pop spec if not embedded
+        if obj.metadata.embedded:
+            obj_representation = obj.to_dict()
+        else:
+            obj_representation = obj.to_dict()
+            obj_representation.pop("spec")
+
+        attr = getattr(self.spec, entity_type, []) + [obj_representation]
         setattr(self.spec, entity_type, attr)
 
     def _delete_object(self, name: str, entity_type: str, uuid: str | None = None) -> None:
@@ -296,7 +284,7 @@ class Project(Entity):
 
     def _get_objects(self, entity_type: str) -> list[dict]:
         """
-        Get dtos objects related to project.
+        Get entity type related to project.
 
         Parameters
         ----------
@@ -330,8 +318,8 @@ class Project(Entity):
         EntityError
             If type is not valid.
         """
-        if entity_type not in LIST:
-            raise EntityError(f"Kind {entity_type} is not valid.")
+        if entity_type not in CTX_ENTITIES:
+            raise EntityError(f"Entity type '{entity_type}' is not valid.")
 
     #############################
     #  Artifacts

@@ -13,7 +13,6 @@ import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
-from digitalhub_core.utils.uri_utils import get_uri_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
@@ -117,8 +116,7 @@ class S3Store(Store):
         Parameters
         ----------
         src : Any
-            The source object to be persisted. It can be a file path as a string or Path object.
-
+            The source object to be persisted.
         dst : str
             The destination partition for the artifact.
 
@@ -149,7 +147,7 @@ class S3Store(Store):
             The path S3 path where the dataframe was saved.
         """
         if dst is None or not dst.endswith(".parquet"):
-            dst = f"s3://{self._get_bucket()}/artifacts/data.parquet"
+            raise StoreError("Destination must be a parquet file!")
         fileobj = BytesIO()
         df.to_parquet(fileobj, index=False, **kwargs)
         key = self._get_key(dst)
@@ -201,7 +199,7 @@ class S3Store(Store):
         str
             The key.
         """
-        key = get_uri_path(path)
+        key = urlparse(path).path
         if key.startswith("/"):
             key = key[1:]
         return key

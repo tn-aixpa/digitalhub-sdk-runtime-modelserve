@@ -19,6 +19,7 @@ class ProjectMetadata(Metadata):
         created: str | None = None,
         updated: str | None = None,
         description: str | None = None,
+        embedded: bool = True,
         **kwargs,
     ) -> None:
         """
@@ -26,10 +27,6 @@ class ProjectMetadata(Metadata):
 
         Parameters
         ----------
-        name : str
-            Name of the object.
-        version : str
-            Version of the object.
         description : str
             Description of the entity.
 
@@ -37,6 +34,5 @@ class ProjectMetadata(Metadata):
         --------
         Metadata.__init__
         """
-        super().__init__(source, labels, created, updated)
-        self.name = name
+        super().__init__(name, source, labels, embedded, created, updated)
         self.description = description

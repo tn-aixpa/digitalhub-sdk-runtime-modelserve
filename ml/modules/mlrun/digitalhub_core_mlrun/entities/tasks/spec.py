@@ -1,6 +1,8 @@
 """
 Task MLRun specification module.
 """
+from __future__ import annotations
+
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 
 
@@ -42,14 +44,14 @@ class TaskParamsMLRun(TaskParams):
     TaskParamsMLRun model.
     """
 
-    volumes: list[dict] | None = None
+    volumes: list[dict] = None
     """Volumes."""
 
-    volume_mounts: list[dict] | None = None
+    volume_mounts: list[dict] = None
     """Volume mounts."""
 
-    env: list[dict] | None = None
+    env: list[dict] = None
     """Env variables."""
 
-    resources: dict | None = None
+    resources: dict = None
     """Resources restrictions."""

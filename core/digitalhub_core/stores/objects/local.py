@@ -3,11 +3,11 @@ Local store module.
 """
 from __future__ import annotations
 
+import shutil
 import typing
+from pathlib import Path
 
 from digitalhub_core.stores.objects.base import Store, StoreConfig
-from digitalhub_core.utils.file_utils import build_path, copy_file, get_dir
-from digitalhub_core.utils.uri_utils import get_name_from_uri, get_uri_path
 
 if typing.TYPE_CHECKING:
     import pandas as pd
@@ -81,7 +81,7 @@ class LocalStore(Store):
         if dst is None:
             return src
         self._check_local_dst(dst)
-        return copy_file(src, dst)
+        return shutil.copy(src, dst)
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -120,9 +120,9 @@ class LocalStore(Store):
             Returns the URI of the artifact.
         """
         if dst is None:
-            dst = build_path(get_dir(self.config.path), get_name_from_uri(src))
+            dst = str(Path(self.config.path) / Path(src).name)
         self._check_local_dst(dst)
-        return copy_file(src, dst)
+        return shutil.copy(src, dst)
 
     def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
         """
@@ -145,7 +145,7 @@ class LocalStore(Store):
             Path of written dataframe.
         """
         if dst is None or not dst.endswith(".parquet"):
-            dst = build_path(get_uri_path(self.config.path), "data.parquet")
+            dst = str(Path(self.config.path) / "data.parquet")
         self._check_local_dst(dst)
         df.to_parquet(dst, index=False, **kwargs)
         return dst

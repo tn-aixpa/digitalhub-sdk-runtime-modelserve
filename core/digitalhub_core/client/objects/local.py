@@ -1,6 +1,8 @@
 """
 Local Client module.
 """
+from copy import deepcopy
+
 from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, MDLS, PROJ, RUNS, TASK, WKFL
 from digitalhub_core.utils.exceptions import BackendError
@@ -46,14 +48,14 @@ class ClientLocal(Client):
         # Project, Task, Run
         if len(parsed) == 1:
             (dto,) = parsed
-            name = obj.get("metadata", {}).get("name")
+            name = obj.get("name")
             self._db[dto][name] = obj
 
         # Artifact, Dataitem, Model, Function, Workflow
         if len(parsed) == 2:
             project, dto = parsed
-            name = obj.get("metadata", {}).get("name")
-            uuid = obj.get("metadata", {}).get("version")
+            name = obj.get("name")
+            uuid = obj.get("id")
             self._db[dto].setdefault(project, {}).setdefault(name, {})
             self._db[dto][project][name][uuid] = obj
             self._db[dto][project][name]["latest"] = obj
@@ -206,13 +208,33 @@ class ClientLocal(Client):
         """
         if obj is None or not isinstance(obj, dict):
             raise BackendError(f"Project not found: {name}")
-        for i in [FUNC, WKFL, ARTF, DTIT]:
-            objs = self._db.get(i, {}).get(name, {})
-            obj["spec"][i] = []
-            for _, j in objs.items():
-                for k, v in j.items():
-                    if k != "latest":
-                        obj["spec"][i].append(v)
+
+        for entity_type in [FUNC, WKFL, ARTF, DTIT]:
+
+            # Get all objects of the entity type for the project
+            objs = self._db.get(entity_type, {}).get(name, {})
+
+            obj["spec"][entity_type] = []
+
+            # Cycle through named objects
+            for _, named_entities in objs.items():
+
+                # Cycle through versions
+                for version, entity in named_entities.items():
+
+                    # Skip latest
+                    if version == "latest":
+                        continue
+
+                    # Deepcopy to avoid modifying the original object
+                    copied = deepcopy(entity)
+
+                    # Remove spec if not embedded
+                    if not copied.get("metadata", {}).get("embedded", True):
+                        copied.pop("spec", None)
+
+                    # Add to project spec
+                    obj["spec"][entity_type].append(copied)
         return obj
 
     @staticmethod

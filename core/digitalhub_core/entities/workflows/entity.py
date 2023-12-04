@@ -4,6 +4,7 @@ Workflow module.
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -111,8 +112,11 @@ class Workflow(Entity):
         None
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"workflow_{self.project}_{self.name}.yaml"
-        write_yaml(filename, obj)
+        if filename is None:
+            filename = f"{self.kind}_{self.name}_{self.id}.yml"
+        pth = Path(self.project) / filename
+        pth.parent.mkdir(parents=True, exist_ok=True)
+        write_yaml(pth, obj)
 
     #############################
     #  Context

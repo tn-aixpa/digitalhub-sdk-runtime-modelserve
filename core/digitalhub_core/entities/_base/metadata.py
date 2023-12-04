@@ -13,8 +13,10 @@ class Metadata(ModelObj):
 
     def __init__(
         self,
+        name: str | None = None,
         source: str | None = None,
         labels: list[str] | None = None,
+        embedded: bool = True,
         created: str | None = str,
         updated: str | None = str,
     ) -> None:
@@ -23,17 +25,23 @@ class Metadata(ModelObj):
 
         Parameters
         ----------
+        name : str
+            Name or UUID of the object.
         source : str
             Source of the entity.
         labels : list[str]
             A list of labels.
+        embedded : bool
+            Whether the entity is embedded.
         created : str
             Created date.
         updated : str
             Updated date.
         """
+        self.name = name
         self.source = source
         self.labels = labels
+        self.embedded = embedded
         self.created = created
         self.updated = updated
 

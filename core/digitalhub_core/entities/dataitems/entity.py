@@ -3,6 +3,7 @@ Dataitem module.
 """
 from __future__ import annotations
 
+import shutil
 import typing
 from pathlib import Path
 
@@ -15,7 +16,6 @@ from digitalhub_core.stores.builder import get_default_store, get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.commons import DTIT
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.file_utils import clean_all, get_dir
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import map_uri_scheme
@@ -117,8 +117,11 @@ class Dataitem(Entity):
         None
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"dataitem_{self.project}_{self.name}.yaml"
-        write_yaml(filename, obj)
+        if filename is None:
+            filename = f"{self.kind}_{self.name}_{self.id}.yml"
+        pth = Path(self.project) / filename
+        pth.parent.mkdir(parents=True, exist_ok=True)
+        write_yaml(pth, obj)
 
     #############################
     #  Dataitem Methods
@@ -165,7 +168,10 @@ class Dataitem(Entity):
 
         # Delete tmp folder
         if tmp_path:
-            clean_all(get_dir(path))
+            pth = Path(path)
+            if pth.is_file():
+                pth = pth.parent
+            shutil.rmtree(pth)
 
         return df
 
@@ -190,6 +196,7 @@ class Dataitem(Entity):
             Path to the written dataframe.
         """
         if target_path is None:
+            target_path = f"{self.project}/dataitems/{self.kind}/{self.name}.parquet"
             store = get_default_store()
         else:
             store = get_store(target_path)

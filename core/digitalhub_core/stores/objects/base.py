@@ -4,13 +4,13 @@ Store module.
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
+from pathlib import Path
 from tempfile import mkdtemp
 from typing import Literal
 
 import pandas as pd
 from digitalhub_core.utils.exceptions import StoreError
-from digitalhub_core.utils.file_utils import build_path, make_dir
-from digitalhub_core.utils.uri_utils import get_name_from_uri, map_uri_scheme
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 from pydantic import BaseModel
 
 
@@ -110,8 +110,7 @@ class Store(metaclass=ABCMeta):
     # Helpers methods
     ############################
 
-    @staticmethod
-    def _check_local_dst(dst: str) -> None:
+    def _check_local_dst(self, dst: str) -> None:
         """
         Check if the local destination directory exists. Create in case it does not.
 
@@ -131,7 +130,26 @@ class Store(metaclass=ABCMeta):
         """
         if map_uri_scheme(dst) != "local":
             raise StoreError(f"Destination '{dst}' is not a local path.")
-        make_dir(dst)
+        self._build_path(dst)
+
+    @staticmethod
+    def _build_path(path: str) -> None:
+        """
+        Get path from store path and path.
+
+        Parameters
+        ----------
+        path : str
+            The path to build.
+
+        Returns
+        -------
+        None
+        """
+        pth = Path(path)
+        if pth.suffix != "":
+            pth = pth.parent
+        pth.mkdir(parents=True, exist_ok=True)
 
     def _build_temp(self, src: str) -> str:
         """
@@ -148,7 +166,7 @@ class Store(metaclass=ABCMeta):
             Temporary path.
         """
         tmpdir = mkdtemp()
-        dst = build_path(tmpdir, get_name_from_uri(src))
+        dst = str(Path(tmpdir) / Path(src).name)
         self._registry[src] = dst
         return dst
 

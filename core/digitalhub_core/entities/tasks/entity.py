@@ -4,6 +4,7 @@ Task module.
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -109,8 +110,11 @@ class Task(Entity):
         None
         """
         obj = self.to_dict()
-        filename = filename if filename is not None else f"task_{self.id}.yaml"
-        write_yaml(filename, obj)
+        if filename is None:
+            filename = f"{self.kind}_{self.name}_{self.id}.yml"
+        pth = Path(self.project) / filename
+        pth.parent.mkdir(parents=True, exist_ok=True)
+        write_yaml(pth, obj)
 
     #############################
     #  Context
@@ -317,7 +321,8 @@ def task_from_parameters(
         project=project,
         name=uuid,
         source=source_remote,
-        labels=labels,)
+        labels=labels,
+    )
     spec = build_spec(
         TASK,
         kind,
