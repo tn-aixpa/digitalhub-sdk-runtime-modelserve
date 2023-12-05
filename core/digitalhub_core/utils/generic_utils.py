@@ -118,13 +118,13 @@ def set_dhub_env(
     None
     """
     if endpoint is not None:
-        os.environ["DHUB_CORE_ENDPOINT"] = endpoint
+        os.environ["DIGITALHUB_CORE_ENDPOINT"] = endpoint
     if user is not None:
-        os.environ["DHUB_CORE_USER"] = user
+        os.environ["DIGITALHUB_CORE_USER"] = user
     if password is not None:
-        os.environ["DHUB_CORE_PASSWORD"] = password
+        os.environ["DIGITALHUB_CORE_PASSWORD"] = password
     if token is not None:
-        os.environ["DHUB_CORE_TOKEN"] = token
+        os.environ["DIGITALHUB_CORE_TOKEN"] = token
 
 
 def parse_entity_key(key: str) -> tuple[str, str, str]:

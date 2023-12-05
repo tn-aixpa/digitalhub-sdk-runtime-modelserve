@@ -135,7 +135,7 @@ class ClientDHCore(Client):
         Exception
             If the endpoint of DHCore is not set in the env variables.
         """
-        endpoint = os.getenv("DHUB_CORE_ENDPOINT")
+        endpoint = os.getenv("DIGITALHUB_CORE_ENDPOINT")
         if endpoint is None:
             raise BackendError("Endpoint not set as environment variables.")
         if endpoint.endswith("/"):
@@ -152,8 +152,8 @@ class ClientDHCore(Client):
         tuple[str, str]
             The authentication parameters.
         """
-        user = os.getenv("DHUB_CORE_USER")
-        password = os.getenv("DHUB_CORE_PASSWORD")
+        user = os.getenv("DIGITALHUB_CORE_USER")
+        password = os.getenv("DIGITALHUB_CORE_PASSWORD")
         if user is None or password is None:
             return None
         return user, password
