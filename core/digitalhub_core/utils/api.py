@@ -116,7 +116,7 @@ def api_ctx_delete(
         The API string formatted.
     """
     version = f"/{uuid}" if uuid is not None else ""
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}{version}"
+    return f"{API_CONTEXT}/{proj}/{dto}/{name}{version}?cascade=true"
 
 
 ####################
@@ -179,7 +179,7 @@ def api_base_update(dto: str, name: str) -> str:
     return f"{API_BASE}/{dto}/{name}"
 
 
-def api_base_delete(dto: str, name: str) -> str:
+def api_base_delete(dto: str, name: str, cascade: bool = False) -> str:
     """
     Delete base API.
 
@@ -189,10 +189,12 @@ def api_base_delete(dto: str, name: str) -> str:
         The type of the DTO.
     name : str
         The name or UUID of the DTO.
+    cascade : bool
+        Whether to cascade delete. By default, True.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{dto}/{name}"
+    return f"{API_BASE}/{dto}/{name}?cascade={str(cascade).lower()}"

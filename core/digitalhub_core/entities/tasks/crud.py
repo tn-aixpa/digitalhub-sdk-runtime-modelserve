@@ -114,7 +114,7 @@ def import_task(file: str) -> Task:
     return task_from_dict(obj)
 
 
-def delete_task(project: str, name: str) -> dict:
+def delete_task(project: str, name: str, cascade: bool = True) -> dict:
     """
     Delete task from the backend.
 
@@ -124,13 +124,15 @@ def delete_task(project: str, name: str) -> dict:
         Name of the project.
     name : str
         The name of the task.
+    cascade : bool
+        Whether to cascade delete.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_base_delete(TASK, name)
+    api = api_base_delete(TASK, name, cascade=cascade)
     return get_context(project).delete_object(api)
 
 

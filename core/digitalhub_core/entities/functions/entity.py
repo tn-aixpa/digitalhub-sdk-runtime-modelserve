@@ -285,7 +285,7 @@ class Function(Entity):
         self._raise_if_not_exists(kind)
         return self._tasks[kind]
 
-    def delete_task(self, kind: str) -> None:
+    def delete_task(self, kind: str, cascade: bool = True) -> None:
         """
         Delete task.
 
@@ -293,6 +293,8 @@ class Function(Entity):
         ----------
         kind : str
             Kind of the task.
+        cascade : bool
+            Flag to determine if cascade deletion must be performed.
 
         Returns
         -------
@@ -304,7 +306,7 @@ class Function(Entity):
             If task is not created.
         """
         self._raise_if_not_exists(kind)
-        delete_task(self.project, self._tasks[kind].name)
+        delete_task(self.project, self._tasks[kind].name, cascade=cascade)
         self._tasks[kind] = None
 
     def _raise_if_not_exists(self, kind: str) -> None:

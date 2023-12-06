@@ -180,7 +180,7 @@ def import_project(file: str, local: bool = False) -> Project:
     return project_from_dict(obj)
 
 
-def delete_project(name: str, local: bool = False) -> list[dict]:
+def delete_project(name: str, cascade: bool = True, clean_context: bool = True, local: bool = False) -> list[dict]:
     """
     Delete a project.
 
@@ -188,6 +188,11 @@ def delete_project(name: str, local: bool = False) -> list[dict]:
     ----------
     name : str
         Name of the project.
+    cascade : bool
+        Flag to determine if delete is cascading.
+    clean_context : bool
+        Flag to determine if context will be deleted. If a context is deleted,
+        all its objects are unreacheable.
     local : bool
         Flag to determine if backend is local.
 
@@ -197,9 +202,10 @@ def delete_project(name: str, local: bool = False) -> list[dict]:
         Response from backend.
     """
     client = get_client(local)
-    api = api_base_delete(PROJ, name)
+    api = api_base_delete(PROJ, name, cascade=cascade)
     response = client.delete_object(api)
-    delete_context(name)
+    if clean_context:
+        delete_context(name)
     return response
 
 

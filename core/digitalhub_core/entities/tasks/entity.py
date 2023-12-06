@@ -265,13 +265,14 @@ class Task(Entity):
         """
         project = obj.get("project")
         kind = obj.get("kind")
+
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(entity, **obj.get("metadata"))
         spec = build_spec(
             entity,
             kind,
             validate=validate,
-            module_to_import=module_to_import,
+            module_to_import=obj.get("spec", {}).get("function").split("://")[0],
             **obj.get("spec"),
         )
         status = build_status(entity, **obj.get("status"))
