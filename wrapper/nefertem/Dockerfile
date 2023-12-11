@@ -11,7 +11,6 @@ ARG DHUB_VERSION=0.0.9
 RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/$DHUB_VERSION.zip
 RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
-COPY dhcore.py ./digitalhub-sdk/core/digitalhub_core/client/objects
 
 # Install digitalhub-core, neferetem
 RUN pip install digitalhub-sdk/core[base_yaml]
