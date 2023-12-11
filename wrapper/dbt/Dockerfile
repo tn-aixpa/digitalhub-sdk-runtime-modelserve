@@ -7,10 +7,11 @@ LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalh
 WORKDIR /digitalhub-core/
 
 # Get digitalhub-sdk
-ARG DHUB_VERSION=0.0.8
-RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/v$DHUB_VERSION.zip
-RUN unzip v$DHUB_VERSION.zip
+ARG DHUB_VERSION=0.0.9
+RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/$DHUB_VERSION.zip
+RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
+COPY dhcore.py ./digitalhub-sdk/core/digitalhub_core/client/objects
 
 # Install digitalhub-core, dbt
 RUN pip install ./digitalhub-sdk/core[dbt_yaml]
@@ -20,6 +21,6 @@ RUN pip install ./digitalhub-sdk/data/modules/dbt[local]
 COPY wrapper.py /digitalhub-core/
 
 # Cleanup
-RUN rm -rf digitalhub-sdk v$DHUB_VERSION.zip
+RUN rm -rf digitalhub-sdk $DHUB_VERSION.zip
 
 ENTRYPOINT ["python", "wrapper.py"]
