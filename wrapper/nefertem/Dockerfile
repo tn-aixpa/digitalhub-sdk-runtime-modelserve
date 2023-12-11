@@ -1,34 +1,34 @@
-FROM python:3.9-slim
+FROM python:3.9
 
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 
-# Install git
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
 # Set working dir
 WORKDIR /digitalhub-core/
 
-# Install digitalhub-core
-RUN git clone https://github.com/scc-digitalhub/digitalhub-sdk.git
-RUN pip3 install -e ./digitalhub-sdk/core[base_yaml]
-RUN pip3 install -e ./digitalhub-sdk/data/modules/nefertem[local]
+# Get digitalhub-sdk
+ARG DHUB_VERSION=0.0.8
+RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/v$DHUB_VERSION.zip
+RUN unzip v$DHUB_VERSION.zip
+RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
-# Install Nefertem plugins
-RUN git clone https://github.com/scc-digitalhub/nefertem.git
-RUN pip3 install -e ./nefertem/plugins/frictionless*
-RUN pip3 install -e ./nefertem/plugins/duckdb*
-RUN pip3 install -e ./nefertem/plugins/sqlalchemy*
-RUN pip3 install -e ./nefertem/plugins/ydata*
+# Install digitalhub-core, neferetem
+RUN pip3 install digitalhub-sdk/core[base_yaml]
+RUN pip3 install digitalhub-sdk/data/modules/nefertem[local]
+
+# Install nefertem plugins
+RUN wget https://github.com/scc-digitalhub/nefertem/archive/refs/tags/v2.0.2.zip
+RUN unzip v2.0.2.zip
+RUN mv nefertem-2.0.2 nefertem
+RUN pip3 install ./nefertem/plugins/frictionless*
+RUN pip3 install ./nefertem/plugins/duckdb*
+RUN pip3 install ./nefertem/plugins/sqlalchemy*
+RUN pip3 install ./nefertem/plugins/ydata*
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/
 
-# Create the new user and set it as the default user
-RUN adduser --disabled-password --gecos "" dhcore
-RUN chown -R dhcore: /digitalhub-core
-USER dhcore
+# Cleanup
+RUN rm -rf digitalhub-sdk nefertem
 
 ENTRYPOINT ["python", "wrapper.py"]
