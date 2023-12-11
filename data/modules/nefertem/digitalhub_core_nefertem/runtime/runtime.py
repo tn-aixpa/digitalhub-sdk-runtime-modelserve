@@ -95,7 +95,11 @@ class RuntimeNefertem(Runtime):
         run_config = spec.get("run_config")
 
         # Create client
-        client = nefertem.create_client(output_path=self.output_path, stores=[self.store])
+        client = nefertem.create_client(output_path=self.output_path)
+        try:
+            client.add_store(self.store)
+        except nefertem.utils.exceptions.StoreError:
+            pass
 
         # Operation to execute
         LOGGER.info("Executing nefertem run.")
