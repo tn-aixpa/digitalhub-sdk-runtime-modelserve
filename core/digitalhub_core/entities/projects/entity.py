@@ -63,7 +63,6 @@ FUNC_MAP = {
 }
 
 
-
 class Project(Entity):
     """
     A class representing a project.

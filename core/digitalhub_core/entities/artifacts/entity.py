@@ -196,7 +196,7 @@ class Artifact(Entity):
 
         # Check if download destination path is specified and rebuild it if necessary
         if dst is None:
-            filename = urlparse(trg).path.split('/')[-1]
+            filename = urlparse(trg).path.split("/")[-1]
             dst = f"{self.project}/artifacts/{self.kind}/{filename}"
 
         # Check if destination path exists for overwrite

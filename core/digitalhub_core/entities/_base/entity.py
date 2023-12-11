@@ -31,7 +31,6 @@ class Entity(ModelObj, metaclass=ABCMeta):
     def to_dict(
         self,
         include_all_non_private: bool = False,
-
     ) -> dict:
         """
         Return object as dict with all keys.

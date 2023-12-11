@@ -4,25 +4,19 @@ Exceptions module.
 from __future__ import annotations
 
 
-class GenericError(Exception):
+class StoreError(Exception):
     """
-    Base class for exception.
-    """
-
-
-class StoreError(GenericError):
-    """
-    Raised when incontered errors on Stores.
+    Raised when incontered errors on stores.
     """
 
 
-class BackendError(GenericError):
+class BackendError(Exception):
     """
     Raised when incontered errors from backend.
     """
 
 
-class EntityError(GenericError):
+class EntityError(Exception):
     """
-    Raised when incontered errors on Entities.
+    Raised when incontered errors on entities.
     """
