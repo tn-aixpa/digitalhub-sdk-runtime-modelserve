@@ -13,13 +13,13 @@ RUN unzip v$DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
 # Install digitalhub-core, dbt
-RUN pip3 install -e ./digitalhub-sdk/core[dbt_yaml]
-RUN pip3 install -e ./digitalhub-sdk/data/modules/dbt[local]
+RUN pip install ./digitalhub-sdk/core[dbt_yaml]
+RUN pip install ./digitalhub-sdk/data/modules/dbt[local]
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/
 
 # Cleanup
-RUN rm -rf digitalhub-sdk nefertem
+RUN rm -rf digitalhub-sdk v$DHUB_VERSION.zip
 
 ENTRYPOINT ["python", "wrapper.py"]

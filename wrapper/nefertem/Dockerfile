@@ -13,22 +13,22 @@ RUN unzip v$DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
 # Install digitalhub-core, neferetem
-RUN pip3 install digitalhub-sdk/core[base_yaml]
-RUN pip3 install digitalhub-sdk/data/modules/nefertem[local]
+RUN pip install digitalhub-sdk/core[base_yaml]
+RUN pip install digitalhub-sdk/data/modules/nefertem[local]
 
 # Install nefertem plugins
 RUN wget https://github.com/scc-digitalhub/nefertem/archive/refs/tags/v2.0.2.zip
 RUN unzip v2.0.2.zip
 RUN mv nefertem-2.0.2 nefertem
-RUN pip3 install ./nefertem/plugins/frictionless*
-RUN pip3 install ./nefertem/plugins/duckdb*
-RUN pip3 install ./nefertem/plugins/sqlalchemy*
-RUN pip3 install ./nefertem/plugins/ydata*
+RUN pip install ./nefertem/plugins/frictionless*
+RUN pip install ./nefertem/plugins/duckdb*
+RUN pip install ./nefertem/plugins/sqlalchemy*
+RUN pip install ./nefertem/plugins/ydata*
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/
 
 # Cleanup
-RUN rm -rf digitalhub-sdk nefertem
+RUN rm -rf digitalhub-sdk nefertem v$DHUB_VERSION.zip
 
 ENTRYPOINT ["python", "wrapper.py"]
