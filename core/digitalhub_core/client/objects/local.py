@@ -62,7 +62,7 @@ class ClientLocal(Client):
                 uuid = obj["id"]
                 self._db[dto].setdefault(name, {})
                 self._db[dto][name][uuid] = obj
-                self._db[dto][name]["latest"] = obj # For versioned objects set also latest version
+                self._db[dto][name]["latest"] = obj  # For versioned objects set also latest version
             return obj
         except (KeyError, TypeError):
             msg = self._format_msg(code)

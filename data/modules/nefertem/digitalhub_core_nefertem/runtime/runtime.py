@@ -22,9 +22,7 @@ if typing.TYPE_CHECKING:
     from nefertem.client.client import Client
 
 
-####################
-# Runtime
-####################
+BUCKET = os.getenv("DIGITALHUB_S3_BUCKET_NAME")
 
 
 class RuntimeNefertem(Runtime):
@@ -460,7 +458,7 @@ class RuntimeNefertem(Runtime):
         try:
             # Get bucket name from env and filename from path
             LOGGER.info(f"Creating artifact new artifact '{name}'.")
-            dst = f"s3://{os.getenv('S3_BUCKET_NAME')}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
+            dst = f"s3://{BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
             return new_artifact(project, name, "artifact", src_path=src_path, target_path=dst)
         except Exception:
             msg = f"Error creating artifact '{name}'."

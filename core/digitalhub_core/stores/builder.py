@@ -177,10 +177,10 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             name="s3",
             type="s3",
             config=S3StoreConfig(
-                endpoint_url=os.getenv("S3_ENDPOINT_URL"),  # type: ignore
+                endpoint_url=os.getenv("DIGITALHUB_S3_ENDPOINT_URL"),  # type: ignore
                 aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),  # type: ignore
                 aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),  # type: ignore
-                bucket_name=os.getenv("S3_BUCKET_NAME"),  # type: ignore
+                bucket_name=os.getenv("DIGITALHUB_S3_BUCKET_NAME"),  # type: ignore
             ),
         )
     if scheme == "sql":
@@ -188,12 +188,12 @@ def get_env_store_config(scheme: str) -> StoreParameters:
             name="sql",
             type="sql",
             config=SQLStoreConfig(
-                host=os.getenv("POSTGRES_HOST"),  # type: ignore
-                port=os.getenv("POSTGRES_PORT"),  # type: ignore
-                user=os.getenv("POSTGRES_USER"),  # type: ignore
-                password=os.getenv("POSTGRES_PASSWORD"),  # type: ignore
-                database=os.getenv("POSTGRES_DATABASE"),  # type: ignore
-                pg_schema=os.getenv("POSTGRES_SCHEMA"),  # type: ignore
+                host=os.getenv("DIGITALHUB_POSTGRES_HOST"),  # type: ignore
+                port=os.getenv("DIGITALHUB_POSTGRES_PORT"),  # type: ignore
+                user=os.getenv("DIGITALHUB_POSTGRES_USER"),  # type: ignore
+                password=os.getenv("DIGITALHUB_POSTGRES_PASSWORD"),  # type: ignore
+                database=os.getenv("DIGITALHUB_POSTGRES_DATABASE"),  # type: ignore
+                pg_schema=os.getenv("DIGITALHUB_POSTGRES_SCHEMA"),  # type: ignore
             ),
         )
     if scheme == "remote":

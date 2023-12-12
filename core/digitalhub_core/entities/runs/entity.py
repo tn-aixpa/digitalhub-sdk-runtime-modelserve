@@ -17,7 +17,7 @@ from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
 from digitalhub_core.entities.dataitems.crud import get_dataitem_from_key
 from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
-from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, LOGS, RUNS, TASK
+from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, RUNS, TASK
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -218,7 +218,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_base_read(LOGS, self.id)
+        api = api_base_read(RUNS, self.id) + f"/log"
         return self._context().read_object(api)
 
     def _set_status(self, status: dict) -> None:

@@ -28,6 +28,14 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.dataitems.entity import Dataitem
 
 
+HOST = os.getenv("DIGITALHUB_POSTGRES_HOST")
+PORT = os.getenv("DIGITALHUB_POSTGRES_PORT")
+USER = os.getenv("DIGITALHUB_POSTGRES_USER")
+PASSWORD = os.getenv("DIGITALHUB_POSTGRES_PASSWORD")
+DATABASE = os.getenv("DIGITALHUB_POSTGRES_DATABASE")
+SCHEMA = os.getenv("DIGITALHUB_POSTGRES_SCHEMA", "public")
+
+
 class RuntimeDBT(Runtime):
     """
     Runtime DBT class.
@@ -223,7 +231,7 @@ class RuntimeDBT(Runtime):
         try:
             table_name = f"{name}_v{dataitem.id}"
             LOGGER.info(f"Materializing dataitem '{name}' as '{table_name}'.")
-            target_path = f"sql://{os.getenv('POSTGRES_DATABASE')}/{os.getenv('POSTGRES_SCHEMA')}/{table_name}"
+            target_path = f"sql://{DATABASE}/{SCHEMA}/{table_name}"
             dataitem.write_df(target_path, if_exists="replace")
             return table_name
         except Exception:
@@ -449,11 +457,11 @@ class RuntimeDBT(Runtime):
         try:
             LOGGER.info("Connecting to postgres.")
             connection = psycopg2.connect(
-                host=os.getenv("POSTGRES_HOST"),
-                port=os.getenv("POSTGRES_PORT"),
-                database=os.getenv("POSTGRES_DATABASE"),
-                user=os.getenv("POSTGRES_USER"),
-                password=os.getenv("POSTGRES_PASSWORD"),
+                host=HOST,
+                port=PORT,
+                database=DATABASE,
+                user=USER,
+                password=PASSWORD,
             )
             connection.set_session(autocommit=True)
             return connection
