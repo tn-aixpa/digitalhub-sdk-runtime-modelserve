@@ -33,12 +33,12 @@ postgres:
     outputs:
         dev:
             type: postgres
-            host: {os.getenv("DIGITALHUB_POSTGRES_HOST")}
-            user: {os.getenv("DIGITALHUB_POSTGRES_USER")}
-            pass: {os.getenv("DIGITALHUB_POSTGRES_PASSWORD")}
-            port: {os.getenv("DIGITALHUB_POSTGRES_PORT")}
-            dbname: {os.getenv("DIGITALHUB_POSTGRES_DATABASE")}
-            schema: {os.getenv("DIGITALHUB_POSTGRES_SCHEMA", "public")}
+            host: {os.getenv("POSTGRES_HOST")}
+            user: {os.getenv("POSTGRES_USER")}
+            pass: {os.getenv("POSTGRES_PASSWORD")}
+            port: {os.getenv("POSTGRES_PORT")}
+            dbname: {os.getenv("POSTGRES_DATABASE")}
+            schema: {os.getenv("POSTGRES_SCHEMA", "public")}
     target: dev
 """.lstrip(
     "\n"

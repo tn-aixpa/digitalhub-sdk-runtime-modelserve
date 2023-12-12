@@ -22,7 +22,7 @@ if typing.TYPE_CHECKING:
     from nefertem.client.client import Client
 
 
-BUCKET = os.getenv("DIGITALHUB_S3_BUCKET_NAME")
+BUCKET = os.getenv("S3_BUCKET_NAME")
 
 
 class RuntimeNefertem(Runtime):

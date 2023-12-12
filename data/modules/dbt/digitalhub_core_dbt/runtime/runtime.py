@@ -28,12 +28,12 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.dataitems.entity import Dataitem
 
 
-HOST = os.getenv("DIGITALHUB_POSTGRES_HOST")
-PORT = os.getenv("DIGITALHUB_POSTGRES_PORT")
-USER = os.getenv("DIGITALHUB_POSTGRES_USER")
-PASSWORD = os.getenv("DIGITALHUB_POSTGRES_PASSWORD")
-DATABASE = os.getenv("DIGITALHUB_POSTGRES_DATABASE")
-SCHEMA = os.getenv("DIGITALHUB_POSTGRES_SCHEMA", "public")
+HOST = os.getenv("POSTGRES_HOST")
+PORT = os.getenv("POSTGRES_PORT")
+USER = os.getenv("POSTGRES_USER")
+PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DATABASE = os.getenv("POSTGRES_DATABASE")
+SCHEMA = os.getenv("POSTGRES_SCHEMA", "public")
 
 
 class RuntimeDBT(Runtime):
