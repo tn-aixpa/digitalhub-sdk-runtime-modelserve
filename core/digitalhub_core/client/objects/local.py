@@ -256,6 +256,9 @@ class ClientLocal(Client):
             # Get all objects of the entity type for the project
             objs = self._db[entity_type]
 
+            # Set empty list
+            spec[entity_type] = []
+
             # Cycle through named objects
             for _, named_entities in objs.items():
                 # Get latest version
@@ -271,7 +274,8 @@ class ClientLocal(Client):
                         copied.pop("spec", None)
 
                     # Add to project spec
-                    spec[entity_type] = [copied]
+                    if copied["project"] == name:
+                        spec[entity_type].append(copied)
 
         return project
 
