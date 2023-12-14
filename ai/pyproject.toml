@@ -3,8 +3,8 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "digitalhub-ai"
-version = "0.0.1"
+name = "digitalhub-core"
+version = "0.0.11"
 description = "Python SDK for DHCore"
 readme = "README.md"
 authors = [
@@ -21,6 +21,63 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-    "digitalhub-core>=0.0.1",
+    "boto3~=1.24.59",
+    "aiobotocore~=2.4.2",
+    "s3fs~=2023.1.0",
+    "pydantic~=1.10",
+    "pandas==1.3.5",
+    "sqlalchemy~=1.4",
+    "psycopg2-binary==2.9.7",
+    "pyarrow>=10.0, <13",
+    "requests~=2.31",
 ]
 
+[tool.setuptools.packages.find]
+exclude = ["docs*", "tests*", "modules*"]
+
+[project.optional-dependencies]
+base_yaml = [
+    "PyYAML~=5.1",
+]
+dbt_yaml = [
+    "PyYAML>=6",
+]
+dev = [
+    "PyYAML~=5.1",
+    "black",
+    "pytest",
+    "bumpver",
+    "ruff",
+    "moto"
+]
+docs = [
+    "Sphinx>=7",
+    "pydata-sphinx-theme~=0.13",
+    "numpydoc>=1.5"
+]
+
+[project.urls]
+Homepage = "https://github.com/scc-digitalhub/digitalhub-core/tree/main/sdk"
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.extend-per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
+
+[tool.bumpver]
+current_version = "0.0.11"
+version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
+commit_message  = "Bump version {old_version} -> {new_version}"
+commit          = true
+tag             = true
+push            = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
