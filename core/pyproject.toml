@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-core"
-version = "0.0.11"
+version = "0.2.0"
 description = "Python SDK for DHCore"
 readme = "README.md"
 authors = [
@@ -72,11 +72,11 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.0.11"
+current_version = "0.2.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
-commit          = true
-tag             = true
+commit          = false
+tag             = false
 push            = false
 
 [tool.bumpver.file_patterns]
