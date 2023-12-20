@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from digitalhub_core.client.builder import get_client
 from digitalhub_core.context.builder import set_context
@@ -13,31 +13,11 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.artifacts.crud import (
-    create_artifact_from_dict,
-    delete_artifact,
-    get_artifact,
-    new_artifact,
-)
-from digitalhub_core.entities.dataitems.crud import (
-    create_dataitem_from_dict,
-    delete_dataitem,
-    get_dataitem,
-    new_dataitem,
-)
-from digitalhub_core.entities.functions.crud import (
-    create_function_from_dict,
-    delete_function,
-    get_function,
-    new_function,
-)
-from digitalhub_core.entities.workflows.crud import (
-    create_workflow_from_dict,
-    delete_workflow,
-    get_workflow,
-    new_workflow,
-)
-from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
+from digitalhub_core.entities.artifacts.crud import delete_artifact, get_artifact, new_artifact
+from digitalhub_core.entities.dataitems.crud import delete_dataitem, get_dataitem, new_dataitem
+from digitalhub_core.entities.functions.crud import delete_function, get_function, new_function
+from digitalhub_core.entities.workflows.crud import delete_workflow, get_workflow, new_workflow
+from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update
 from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp

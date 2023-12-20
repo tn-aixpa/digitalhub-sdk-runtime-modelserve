@@ -11,6 +11,7 @@ from pathlib import Path
 import nefertem
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.artifacts.utils import calculate_blob_hash, get_file_mime_type, get_file_size
 from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import EntityError
@@ -34,7 +35,7 @@ class RuntimeNefertem(Runtime):
         """
         Constructor.
         """
-        self.output_path = "./nefertem_run"
+        self.output_path = "/tmp/nefertem_run"
         self.store = {"name": "local", "store_type": "local"}
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
@@ -90,7 +91,7 @@ class RuntimeNefertem(Runtime):
         LOGGER.info("Getting inputs and parameters.")
         inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
         resources = self._get_resources(inputs)
-        run_config = spec.get("run_config")
+        run_config = self._get_run_config(action, spec)
 
         # Create client
         client = nefertem.create_client(output_path=self.output_path)
@@ -394,6 +395,42 @@ class RuntimeNefertem(Runtime):
             LOGGER.exception(msg)
             raise EntityError(msg)
 
+    @staticmethod
+    def _get_run_config(action: str, spec: dict) -> dict:
+        """
+        Build nefertem run configuration.
+
+        Parameters
+        ----------
+        spec : dict
+            Run specification.
+
+        Returns
+        -------
+        dict
+            The nefertem run configuration.
+        """
+        if action == "infer":
+            operation = "inference"
+        elif action == "profile":
+            operation = "profiling"
+        elif action == "validate":
+            operation = "validation"
+        elif action == "metric":
+            operation = "metric"
+        run_config = {
+            "operation": operation,
+            "exec_config": [
+                {
+                    "framework": spec.get("framework"),
+                    "exec_args": spec.get("exec_args", {}),
+                }
+            ],
+            "parallel": spec.get("parallel", False),
+            "num_worker": spec.get("num_worker", 1),
+        }
+        return run_config
+
     ####################
     # Outputs
     ####################
@@ -419,6 +456,7 @@ class RuntimeNefertem(Runtime):
             # Replace _ by - in artifact name for backend compatibility
             name = Path(src_path).stem.replace("_", "-")
             art = self._create_artifact(name, project, run_info["run_id"], src_path)
+            self._enrich_artifact_metadata(art)
             self._upload_artifact_to_minio(name, art)
             artifacts.append(
                 {
@@ -457,13 +495,33 @@ class RuntimeNefertem(Runtime):
         """
         try:
             # Get bucket name from env and filename from path
-            LOGGER.info(f"Creating artifact new artifact '{name}'.")
+            LOGGER.info(f"Creating new artifact '{name}'.")
             dst = f"s3://{BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
             return new_artifact(project, name, "artifact", src_path=src_path, target_path=dst)
         except Exception:
             msg = f"Error creating artifact '{name}'."
             LOGGER.exception(msg)
             raise EntityError(msg)
+
+    @staticmethod
+    def _enrich_artifact_metadata(artifact: Artifact) -> None:
+        """
+        Enrich artifact metadata.
+
+        Parameters
+        ----------
+        artifact : Artifact
+            The artifact to enrich.
+
+        Returns
+        -------
+        None
+        """
+        LOGGER.info(f"Enriching artifact '{artifact.name}' metadata.")
+        artifact.metadata.file_hash = calculate_blob_hash(artifact.spec.src_path)
+        artifact.metadata.file_size = get_file_size(artifact.spec.src_path)
+        artifact.metadata.file_type = get_file_mime_type(artifact.spec.src_path)
+        artifact.save(artifact.id)
 
     @staticmethod
     def _upload_artifact_to_minio(name: str, artifact: Artifact) -> None:

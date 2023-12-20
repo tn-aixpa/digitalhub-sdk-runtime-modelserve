@@ -218,7 +218,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_base_read(RUNS, self.id) + f"/log"
+        api = api_base_read(RUNS, self.id) + "/log"
         return self._context().read_object(api)
 
     def _set_status(self, status: dict) -> None:

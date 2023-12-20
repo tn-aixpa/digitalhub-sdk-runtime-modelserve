@@ -4,7 +4,7 @@ Local Client module.
 from copy import deepcopy
 
 from digitalhub_core.client.objects.base import Client
-from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, MDLS, PROJ, RUNS, TASK, WKFL
+from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
 from digitalhub_core.utils.exceptions import BackendError
 
 
@@ -26,7 +26,6 @@ class ClientLocal(Client):
             DTIT: {},
             FUNC: {},
             WKFL: {},
-            MDLS: {},
         }
 
     ########################
@@ -252,7 +251,7 @@ class ClientLocal(Client):
         project = deepcopy(obj)
         spec = project.get("spec", {})
 
-        for entity_type in [ARTF, DTIT, MDLS, FUNC, WKFL]:
+        for entity_type in [ARTF, DTIT, FUNC, WKFL]:
             # Get all objects of the entity type for the project
             objs = self._db[entity_type]
 

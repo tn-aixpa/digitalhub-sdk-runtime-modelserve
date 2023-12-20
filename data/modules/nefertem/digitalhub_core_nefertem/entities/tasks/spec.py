@@ -1,36 +1,66 @@
 """
 Task DBT specification module.
 """
+from __future__ import annotations
+
+from typing import Optional
+
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 
-###########################
-# Inference
-###########################
 
-
-class TaskSpecInfer(TaskSpec):
-    """Task Infer specification."""
+class TaskSpecNefertem(TaskSpec):
+    """Task Nefertem specification."""
 
     def __init__(
         self,
         function: str,
-        run_config: dict,
+        framework: str,
+        exec_args: dict | None = None,
+        parallel: bool = False,
+        num_worker: int | None = 1,
         **kwargs,
     ) -> None:
         """
         Constructor.
         """
         super().__init__(function, **kwargs)
-        self.run_config = run_config
+        self.framework = framework
+        self.exec_args = exec_args if exec_args is not None else {}
+        self.parallel = parallel
+        self.num_worker = num_worker
 
 
-class TaskParamsInfer(TaskParams):
+class TaskParamsNefertem(TaskParams):
+    """
+    TaskParamsNefertem model.
+    """
+
+    framework: str
+    """Nefertem framework."""
+
+    exec_args: Optional[dict] = {}
+    """Nefertem execution arguments."""
+
+    parallel: bool = False
+    """Nefertem parallel execution."""
+
+    num_worker: Optional[int] = 1
+    """Nefertem number of workers."""
+
+
+###########################
+# Inference
+###########################
+
+
+class TaskSpecInfer(TaskSpecNefertem):
+    """Task Infer specification."""
+
+
+class TaskParamsInfer(TaskParamsNefertem):
     """
     TaskParamsInfer model.
     """
-
-    run_config: dict
-    """Nefertem run configuration."""
 
 
 ###########################
@@ -38,29 +68,14 @@ class TaskParamsInfer(TaskParams):
 ###########################
 
 
-class TaskSpecProfile(TaskSpec):
+class TaskSpecProfile(TaskSpecNefertem):
     """Task Profile specification."""
 
-    def __init__(
-        self,
-        function: str,
-        run_config: dict,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-        """
-        super().__init__(function, **kwargs)
-        self.run_config = run_config
 
-
-class TaskParamsProfile(TaskParams):
+class TaskParamsProfile(TaskParamsNefertem):
     """
     TaskParamsProfile model.
     """
-
-    run_config: dict
-    """Nefertem run configuration."""
 
 
 ###########################
@@ -68,29 +83,14 @@ class TaskParamsProfile(TaskParams):
 ###########################
 
 
-class TaskSpecValidate(TaskSpec):
+class TaskSpecValidate(TaskSpecNefertem):
     """Task Validate specification."""
 
-    def __init__(
-        self,
-        function: str,
-        run_config: dict,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-        """
-        super().__init__(function, **kwargs)
-        self.run_config = run_config
 
-
-class TaskParamsValidate(TaskParams):
+class TaskParamsValidate(TaskParamsNefertem):
     """
     TaskParamsValidate model.
     """
-
-    run_config: dict
-    """Nefertem run configuration."""
 
 
 ###########################
@@ -98,26 +98,11 @@ class TaskParamsValidate(TaskParams):
 ###########################
 
 
-class TaskSpecMetric(TaskSpec):
+class TaskSpecMetric(TaskSpecNefertem):
     """Task Metric specification."""
 
-    def __init__(
-        self,
-        function: str,
-        run_config: dict,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-        """
-        super().__init__(function, **kwargs)
-        self.run_config = run_config
 
-
-class TaskParamsMetric(TaskParams):
+class TaskParamsMetric(TaskParamsNefertem):
     """
     TaskParamsMetric model.
     """
-
-    run_config: dict
-    """Nefertem run configuration."""

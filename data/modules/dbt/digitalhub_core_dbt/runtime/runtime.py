@@ -45,7 +45,7 @@ class RuntimeDBT(Runtime):
         """
         Constructor.
         """
-        self.root_dir = Path("dbt_run")
+        self.root_dir = Path("/tmp/dbt_run")
         self.model_dir = self.root_dir / "models"
         self._input_dataitems: list[dict[str, str]] = []
         self._versioned_tables: list[str] = []

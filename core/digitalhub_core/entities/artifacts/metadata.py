@@ -44,3 +44,6 @@ class ArtifactMetadata(Metadata):
         self.project = project
         self.version = version
         self.description = description
+        self.file_hash = kwargs.get("file_hash", None)
+        self.file_size = kwargs.get("file_size", None)
+        self.file_type = kwargs.get("file_type", None)
