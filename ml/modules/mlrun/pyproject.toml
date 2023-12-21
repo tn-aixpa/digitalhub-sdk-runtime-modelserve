@@ -25,7 +25,7 @@ dependencies = [
 ]
 [project.optional-dependencies]
 local = [
-"mlrun==1.4.0",
+"mlrun>=1.6, <1.7",
 ]
 
 [project.urls]
