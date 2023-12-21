@@ -521,7 +521,7 @@ class RuntimeNefertem(Runtime):
         artifact.metadata.file_hash = calculate_blob_hash(artifact.spec.src_path)
         artifact.metadata.file_size = get_file_size(artifact.spec.src_path)
         artifact.metadata.file_type = get_file_mime_type(artifact.spec.src_path)
-        artifact.save(artifact.id)
+        artifact.save(update=True)
 
     @staticmethod
     def _upload_artifact_to_minio(name: str, artifact: Artifact) -> None:

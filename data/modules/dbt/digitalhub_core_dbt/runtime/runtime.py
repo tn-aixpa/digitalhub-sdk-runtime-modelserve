@@ -22,6 +22,7 @@ from digitalhub_core_dbt.runtime.dbt_utils import (
     generate_outputs_conf,
 )
 from digitalhub_core_dbt.runtime.parse_utils import ParsedResults, parse_results
+from digitalhub_core_dbt.runtime.type_mapper import TYPE_MAPPER
 from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
@@ -117,14 +118,14 @@ class RuntimeDBT(Runtime):
 
         # Parse inputs/outputs and decode sql code
         LOGGER.info("Parsing inputs and output.")
-        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+        self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
         output = self._get_output_table_name(spec.get("outputs", {}).get("dataitems", []))
         query = self._get_sql(spec)
 
         # Setup environment
         LOGGER.info("Setting up environment for dbt execution.")
         uuid = build_uuid()
-        self.setup(inputs, output, uuid, project, query)
+        self.setup(output, uuid, project, query)
 
         # Execute function
         LOGGER.info("Executing dbt project.")
@@ -153,7 +154,7 @@ class RuntimeDBT(Runtime):
     # Parse inputs/outputs
     ####################
 
-    def _get_inputs(self, inputs: list, project: str) -> list:
+    def _get_inputs(self, inputs: list, project: str) -> None:
         """
         Parse inputs from run spec and materialize dataitems in postgres.
 
@@ -166,15 +167,13 @@ class RuntimeDBT(Runtime):
 
         Returns
         -------
-        list
-            The list of inputs dataitems names.
+        None
         """
         for name in inputs:
             di = self._get_dataitem(name, project)
             self._input_dataitems.append({"name": di.name, "id": di.id})
             table = self._materialize_dataitem(di, name)
             self._versioned_tables.append(table)
-        return self._versioned_tables
 
     @staticmethod
     def _get_dataitem(name: str, project: str) -> Dataitem:
@@ -295,14 +294,12 @@ class RuntimeDBT(Runtime):
     # Setup environment
     ####################
 
-    def setup(self, inputs: list, output: str, uuid: str, project: str, query: str) -> None:
+    def setup(self, output: str, uuid: str, project: str, query: str) -> None:
         """
         Initialize a dbt project with a model and a schema definition.
 
         Parameters
         ----------
-        inputs : list
-            The list of inputs.
         output : str
             The output table name.
         uuid : str
@@ -351,20 +348,20 @@ class RuntimeDBT(Runtime):
         dbtRunnerResult
             An object representing the result of the dbt execution.
         """
+        current_dir = os.getcwd()
         os.chdir(self.root_dir)
         dbt = dbtRunner()
         dbt.invoke("clean")
         cli_args = ["run", "--select", f"{output}"]
         res = dbt.invoke(cli_args)
-        os.chdir("..")
+        os.chdir(current_dir)
         return res
 
     ####################
     # Produce outputs
     ####################
 
-    @staticmethod
-    def _create_dataitem(result: ParsedResults, project: str, uuid: str, output: str) -> list[dict]:
+    def _create_dataitem(self, result: ParsedResults, project: str, uuid: str, output: str) -> list[dict]:
         """
         Create new dataitem.
 
@@ -399,6 +396,7 @@ class RuntimeDBT(Runtime):
                 raw_code=result.raw_code,
                 compiled_code=result.compiled_code,
             )
+            self._enrich_metadata(di, result.name)
             return [
                 {
                     "key": output,
@@ -410,6 +408,62 @@ class RuntimeDBT(Runtime):
             msg = "Something got wrong during dataitem creation."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
+
+    def _enrich_metadata(self, dataitem: Dataitem, table_name: str) -> None:
+        """
+        Enrich dataitem metadata.
+
+        Parameters
+        ----------
+        dataitem : Dataitem
+            The dataitem.
+
+        Returns
+        -------
+        None
+        """
+        LOGGER.info("Enriching dataitem metadata.")
+        try:
+            # Get connection and execute query
+            connection = self._get_connection()
+            query = sql.SQL("SELECT * FROM {table} LIMIT 5;"
+                            ).format(table=sql.Identifier(f"{table_name}_v{dataitem.id}"))
+
+            with connection.cursor() as cursor:
+                cursor.execute(query)
+                data = cursor.fetchall()
+                columns = cursor.description
+
+            # Get schema
+            schema = []
+            for c in cursor.description:
+                schema.append({
+                    "name": c.name,
+                    "type": TYPE_MAPPER.get(c.type_code, "any")
+                })
+
+            # Get sample data
+            sample_data = []
+            for c, d in zip(columns, data):
+                sample_data.append({
+                    "name": c.name,
+                    "value": d
+                })
+
+            # Update dataitem
+            dataitem.metadata.schema = schema
+            dataitem.metadata.sample_data = sample_data
+            dataitem.save(update=True)
+
+        except Exception:
+            msg = "Something got wrong during environment cleanup."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+        finally:
+            LOGGER.info("Closing connection to postgres.")
+            connection.close()
+
+
 
     ####################
     # Cleanup

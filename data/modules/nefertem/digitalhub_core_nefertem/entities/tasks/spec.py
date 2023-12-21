@@ -25,7 +25,7 @@ class TaskSpecNefertem(TaskSpec):
         """
         super().__init__(function, **kwargs)
         self.framework = framework
-        self.exec_args = exec_args if exec_args is not None else {}
+        self.exec_args = exec_args
         self.parallel = parallel
         self.num_worker = num_worker
 

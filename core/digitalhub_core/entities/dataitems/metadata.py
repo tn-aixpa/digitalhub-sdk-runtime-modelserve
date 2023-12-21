@@ -44,3 +44,5 @@ class DataitemMetadata(Metadata):
         self.project = project
         self.version = version
         self.description = description
+        self.schema = kwargs.get("schema", None)
+        self.sample_data = kwargs.get("sample_data", None)
