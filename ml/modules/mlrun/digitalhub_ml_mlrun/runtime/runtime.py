@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
-from typing import Any
 
 import mlrun
 from digitalhub_core.entities.functions.crud import get_function
@@ -15,8 +14,9 @@ from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.functions.entity import Function
     from mlrun.projects import MlrunProject
+    from mlrun.runtimes import BaseRuntime
+    from digitalhub_core.entities.functions.entity import Function
 
 
 class RuntimeMLrun(Runtime):
@@ -89,7 +89,7 @@ class RuntimeMLrun(Runtime):
 
         # Get parameters
         LOGGER.info("Getting parameters.")
-        parameters = spec.get("parameters", {})
+        parameters = {}#spec.get("parameters", {})
 
         # Create MLRun project
         LOGGER.info("Creating MLRun project.")
@@ -202,7 +202,7 @@ class RuntimeMLrun(Runtime):
         function_source: str,
         function_specs: dict,
         parameters: dict,
-    ) -> Any:
+    ) -> BaseRuntime:
         """
         Get MLRun function.
 
@@ -221,7 +221,7 @@ class RuntimeMLrun(Runtime):
 
         Returns
         -------
-        Any
+        BaseRuntime
             MLRun function.
         """
         kwargs = {
@@ -241,13 +241,13 @@ class RuntimeMLrun(Runtime):
     ####################
 
     @staticmethod
-    def _run_job(function: Any) -> Any:
+    def _run_job(function: BaseRuntime) -> BaseRuntime:
         """
         Run MLRun job.
 
         Parameters
         ----------
-        function : Any
+        function : BaseRuntime
             MLRun function.
 
         Returns
@@ -262,13 +262,13 @@ class RuntimeMLrun(Runtime):
     ####################
 
     @staticmethod
-    def _parse_execution_results(execution_results: Any) -> dict:
+    def _parse_execution_results(execution_results: BaseRuntime) -> dict:
         """
         Parse execution results.
 
         Parameters
         ----------
-        execution_results : Any
+        execution_results : BaseRuntime
             Execution results.
 
         Returns

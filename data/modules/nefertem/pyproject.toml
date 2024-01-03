@@ -3,8 +3,8 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "digitalhub-core-nefertem"
-version = "0.0.11"
+name = "digitalhub-data-nefertem"
+version = "0.2.0"
 description = "Nefertem runtime for DHCore"
 readme = "README.md"
 authors = [
@@ -48,7 +48,7 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.0.11"
+current_version = "0.2.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false

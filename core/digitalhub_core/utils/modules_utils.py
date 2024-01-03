@@ -151,8 +151,34 @@ def import_registry(kind: str) -> ModuleRegistry:
     ModuleRegistry
         Registry.
     """
+
+    # Cycle over digitalhub layers (data, ml, ai, core) which are modules
+    module = None
+    for layer in ["data", "ml", "ai", "core"]:
+
+        # Try to import module
+        module_name = f"digitalhub_{layer}_{kind}"
+        try:
+            # Check if module is already imported in cache, otherwise import it
+            if module_name not in _modules_cache:
+                _modules_cache[module_name] = importlib.import_module(module_name)
+
+            module = _modules_cache[module_name]
+            # If module is imported succesfully, break, otherwise continue
+            break
+
+        except ModuleNotFoundError:
+            continue
+
+    # Raise error if module is not found
+    if module is None:
+        raise ModuleNotFoundError(f"Module not found for kind {kind}")
+
+    # Get registry with classes string pointers
     try:
-        module = importlib.import_module(f"digitalhub_core_{kind}")
         return getattr(module, "registry")
-    except (ModuleNotFoundError, ImportError):
-        raise ValueError(f"Module digitalhub_core_{kind} not found")
+    except AttributeError:
+        raise ValueError(f"Registry not found in module {module_name}")
+
+
+_modules_cache = {}
