@@ -426,8 +426,9 @@ class RuntimeDBT(Runtime):
         try:
             # Get connection and execute query
             connection = self._get_connection()
-            query = sql.SQL("SELECT * FROM {table} LIMIT 5;"
-                            ).format(table=sql.Identifier(f"{table_name}_v{dataitem.id}"))
+            query = sql.SQL("SELECT * FROM {table} LIMIT 5;").format(
+                table=sql.Identifier(f"{table_name}_v{dataitem.id}")
+            )
 
             with connection.cursor() as cursor:
                 cursor.execute(query)
@@ -437,18 +438,12 @@ class RuntimeDBT(Runtime):
             # Get schema
             schema = []
             for c in cursor.description:
-                schema.append({
-                    "name": c.name,
-                    "type": TYPE_MAPPER.get(c.type_code, "any")
-                })
+                schema.append({"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")})
 
             # Get sample data
             sample_data = []
             for c, d in zip(columns, data):
-                sample_data.append({
-                    "name": c.name,
-                    "value": d
-                })
+                sample_data.append({"name": c.name, "value": d})
 
             # Update dataitem
             dataitem.metadata.schema = schema
@@ -462,8 +457,6 @@ class RuntimeDBT(Runtime):
         finally:
             LOGGER.info("Closing connection to postgres.")
             connection.close()
-
-
 
     ####################
     # Cleanup

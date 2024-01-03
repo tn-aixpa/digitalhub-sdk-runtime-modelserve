@@ -141,14 +141,15 @@ class ClientLocal(Client):
         """
         # We do not handle cascade in local client
         project, dto, name, uuid, code = self._parse_api(api)
-        msg = self._format_msg(code, project, dto, name, uuid)
-        if project is None:
-            deleted = self._db[dto].pop(name, msg)
-        if uuid is None:
-            deleted = self._db[dto][project].pop(name, msg)
-        else:
-            deleted = self._db[dto][project][name].pop(uuid, msg)
-        return {"deleted": deleted}
+        try:
+            if uuid is None:
+                obj = self._db[dto].pop(name)
+            else:
+                obj = self._db[dto][name].pop(uuid)
+        except KeyError:
+            msg = self._format_msg(code, project, dto, name, uuid)
+            raise BackendError(msg)
+        return {"deleted": obj}
 
     ########################
     # Logic for CRUD
