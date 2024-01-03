@@ -152,10 +152,8 @@ def import_registry(kind: str) -> ModuleRegistry:
         Registry.
     """
 
-    # Cycle over digitalhub layers (data, ml, ai, core) which are modules
-    module = None
-    for layer in ["data", "ml", "ai", "core"]:
-
+    # Cycle over digitalhub layers modules (data, ml, ai).
+    for layer in ["data", "ml", "ai"]:
         # Try to import module
         module_name = f"digitalhub_{layer}_{kind}"
         try:
@@ -169,10 +167,9 @@ def import_registry(kind: str) -> ModuleRegistry:
 
         except ModuleNotFoundError:
             continue
-
-    # Raise error if module is not found
-    if module is None:
-        raise ModuleNotFoundError(f"Module not found for kind {kind}")
+    # If module is not imported, raise error
+    else:
+        raise ModuleNotFoundError(f"Module not found in digitalhub layers data, ml, ai for runtime {kind}")
 
     # Get registry with classes string pointers
     try:

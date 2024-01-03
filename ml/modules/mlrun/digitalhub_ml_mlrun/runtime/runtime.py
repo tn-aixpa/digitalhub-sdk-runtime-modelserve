@@ -14,9 +14,9 @@ from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
+    from digitalhub_core.entities.functions.entity import Function
     from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
-    from digitalhub_core.entities.functions.entity import Function
 
 
 class RuntimeMLrun(Runtime):
@@ -89,7 +89,7 @@ class RuntimeMLrun(Runtime):
 
         # Get parameters
         LOGGER.info("Getting parameters.")
-        parameters = {}#spec.get("parameters", {})
+        parameters = spec.get("parameters", {})
 
         # Create MLRun project
         LOGGER.info("Creating MLRun project.")
