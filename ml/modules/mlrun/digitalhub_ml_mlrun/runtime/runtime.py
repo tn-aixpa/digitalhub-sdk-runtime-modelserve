@@ -275,6 +275,5 @@ class RuntimeMLRun(Runtime):
             Parsed execution results.
         """
         return {
-            "status": execution_results.status,
-            "result": execution_results.to_dict(),
+            "artifacts": [execution_results.to_dict()],
         }
