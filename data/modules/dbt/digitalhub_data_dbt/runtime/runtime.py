@@ -15,14 +15,14 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_core_dbt.runtime.dbt_utils import (
+from digitalhub_data_dbt.runtime.dbt_utils import (
     generate_dbt_profile_yml,
     generate_dbt_project_yml,
     generate_inputs_conf,
     generate_outputs_conf,
 )
-from digitalhub_core_dbt.runtime.parse_utils import ParsedResults, parse_results
-from digitalhub_core_dbt.runtime.type_mapper import TYPE_MAPPER
+from digitalhub_data_dbt.runtime.parse_utils import ParsedResults, parse_results
+from digitalhub_data_dbt.runtime.type_mapper import TYPE_MAPPER
 from psycopg2 import sql
 
 if typing.TYPE_CHECKING:

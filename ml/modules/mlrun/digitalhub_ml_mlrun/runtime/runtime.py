@@ -19,9 +19,9 @@ if typing.TYPE_CHECKING:
     from mlrun.runtimes import BaseRuntime
 
 
-class RuntimeMLrun(Runtime):
+class RuntimeMLRun(Runtime):
     """
-    Runtime Nefertem class.
+    Runtime MLRun class.
     """
 
     def __init__(self) -> None:
