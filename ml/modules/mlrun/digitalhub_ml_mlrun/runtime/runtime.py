@@ -131,7 +131,7 @@ class RuntimeMLRun(Runtime):
         Function
             DHCore function.
         """
-        function_name = spec.get("task").split(":")[0].split("+")[0]
+        function_name = spec.get("function").split("://")[1].split("/")[1].split(":")[0]
         return get_function(project, function_name)
 
     def _save_function_source(self, function: Function) -> str:
