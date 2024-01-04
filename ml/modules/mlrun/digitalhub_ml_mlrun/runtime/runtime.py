@@ -89,19 +89,22 @@ class RuntimeMLRun(Runtime):
 
         # Get parameters
         LOGGER.info("Getting parameters.")
-        parameters = spec.get("parameters", {})
+        function_args = spec.get("parameters", {})
 
         # Create MLRun project
         LOGGER.info("Creating MLRun project.")
         mlrun_project = self._get_mlrun_project(project)
         mlrun_function = self._get_mlrun_function(
-            mlrun_project, dhcore_function.name, function_source, function_specs, parameters
+            mlrun_project,
+            dhcore_function.name,
+            function_source,
+            function_specs,
         )
 
         # Execute function
         LOGGER.info("Executing function.")
         if action == "mlrun":
-            execution_results = self._run_job(mlrun_function)
+            execution_results = self._run_job(mlrun_function, function_args)
         else:
             msg = f"Task {action} not allowed for MLRun runtime"
             LOGGER.error(msg)
@@ -148,7 +151,7 @@ class RuntimeMLRun(Runtime):
         path
             Path to the function source.
         """
-        path = self.root / function.spec.build.get("origin_filename")
+        path = self.root_path / function.spec.build.get("origin_filename")
         path.write_text(decode_string(function.spec.build.get("functionSourceCode")))
         return str(path)
 
@@ -170,7 +173,6 @@ class RuntimeMLRun(Runtime):
             "image": function.spec.image,
             "tag": function.spec.tag,
             "handler": function.spec.handler,
-            "command": function.spec.command,
             "requirements": function.spec.requirements,
         }
 
@@ -193,7 +195,7 @@ class RuntimeMLRun(Runtime):
         MlrunProject
             MLRun project.
         """
-        return mlrun.get_or_create_project(project_name, "./", user_project=True)
+        return mlrun.get_or_create_project(project_name, "./")
 
     @staticmethod
     def _get_mlrun_function(
@@ -201,7 +203,6 @@ class RuntimeMLRun(Runtime):
         function_name: str,
         function_source: str,
         function_specs: dict,
-        parameters: dict,
     ) -> BaseRuntime:
         """
         Get MLRun function.
@@ -216,22 +217,16 @@ class RuntimeMLRun(Runtime):
             Path to the function source.
         function_specs : dict
             Function specs.
-        parameters : dict
-            Function parameters.
 
         Returns
         -------
         BaseRuntime
             MLRun function.
         """
-        kwargs = {
-            **parameters,
-            **function_specs,
-        }
         project.set_function(
             function_source,
             name=function_name,
-            **kwargs,
+            **function_specs,
         )
         project.save()
         return project.get_function(function_name)
@@ -241,7 +236,7 @@ class RuntimeMLRun(Runtime):
     ####################
 
     @staticmethod
-    def _run_job(function: BaseRuntime) -> BaseRuntime:
+    def _run_job(function: BaseRuntime, function_args: dict) -> BaseRuntime:
         """
         Run MLRun job.
 
@@ -249,13 +244,16 @@ class RuntimeMLRun(Runtime):
         ----------
         function : BaseRuntime
             MLRun function.
+        function_args : dict
+            Function arguments.
 
         Returns
         -------
         dict
             Execution results.
         """
-        return function.run(local=True)
+        function_args["local"] = True
+        return function.run(**function_args)
 
     ####################
     # Results helpers
