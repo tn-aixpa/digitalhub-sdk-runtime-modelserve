@@ -7,7 +7,9 @@ import typing
 from pathlib import Path
 
 import mlrun
+from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.functions.crud import get_function
+from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import decode_string
@@ -17,6 +19,18 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.functions.entity import Function
     from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
+
+
+_map_state = {
+    "completed": State.COMPLETED.value,
+    "error": State.ERROR.value,
+    "running": State.RUNNING.value,
+    "created": State.CREATED.value,
+    "pending": State.PENDING.value,
+    "unknown": State.ERROR.value,
+    "aborted": State.STOP.value,
+    "aborting": State.STOP.value,
+}
 
 
 class RuntimeMLRun(Runtime):
@@ -259,8 +273,7 @@ class RuntimeMLRun(Runtime):
     # Results helpers
     ####################
 
-    @staticmethod
-    def _parse_execution_results(execution_results: BaseRuntime) -> dict:
+    def _parse_execution_results(self, execution_results: BaseRuntime) -> dict:
         """
         Parse execution results.
 
@@ -275,5 +288,42 @@ class RuntimeMLRun(Runtime):
             Parsed execution results.
         """
         return {
-            "artifacts": [execution_results.to_dict()],
+            "state": _map_state[execution_results.status.state],
+            "artifacts": self._get_artifacts(execution_results.status.artifacts),
+            "timing": {
+                "start": execution_results.status.start_time,
+                "updated": execution_results.status.last_update,
+            },
         }
+
+    def _get_artifacts(self, artifacts: list[dict]) -> dict:
+        """
+        Get artifacts.
+
+        Parameters
+        ----------
+        artifacts : dict
+            Artifacts.
+
+        Returns
+        -------
+        dict
+            Parsed artifacts.
+        """
+        infos = []
+        for art in artifacts:
+            kwargs = {}
+            kwargs["project"] = art.get("metadata", {}).get("project")
+            kwargs["name"] = art.get("metadata", {}).get("key")
+            kwargs["kind"] = "artifact"
+            kwargs["target_path"] = art.get("spec", {}).get("target_path")
+            dh_art = new_artifact(**kwargs)
+            dh_art.metadata.file_size = art.get("spec", {}).get("size")
+            dh_art.save(update=True)
+            info = {
+                "key": art.get("metadata", {}).get("key"),
+                "kind": "artifact",
+                "id": f"store://{dh_art.project}/dataitems/{dh_art.kind}/{dh_art.name}:{dh_art.id}",
+            }
+            infos.append(info)
+        return infos
