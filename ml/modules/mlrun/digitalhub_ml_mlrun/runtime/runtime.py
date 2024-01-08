@@ -17,20 +17,10 @@ from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.functions.entity import Function
+    from digitalhub_core.entities.artifacts.entity import Artifact
     from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
 
-
-_map_state = {
-    "completed": State.COMPLETED.value,
-    "error": State.ERROR.value,
-    "running": State.RUNNING.value,
-    "created": State.CREATED.value,
-    "pending": State.PENDING.value,
-    "unknown": State.ERROR.value,
-    "aborted": State.STOP.value,
-    "aborting": State.STOP.value,
-}
 
 
 class RuntimeMLRun(Runtime):
@@ -287,14 +277,46 @@ class RuntimeMLRun(Runtime):
         dict
             Parsed execution results.
         """
-        return {
-            "state": _map_state[execution_results.status.state],
-            "artifacts": self._get_artifacts(execution_results.status.artifacts),
-            "timing": {
-                "start": execution_results.status.start_time,
-                "updated": execution_results.status.last_update,
-            },
+        try:
+            return {
+                "state": self._map_state(execution_results.status.state),
+                "artifacts": self._get_artifacts(execution_results.status.artifacts),
+                "timing": {
+                    "start": execution_results.status.start_time,
+                    "updated": execution_results.status.last_update,
+                },
+            }
+        except Exception:
+            msg = "Something got wrong during execution results parsing."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+    @staticmethod
+    def _map_state(state: str) -> str:
+        """
+        Map state.
+
+        Parameters
+        ----------
+        state : str
+            State.
+
+        Returns
+        -------
+        str
+            Mapped state.
+        """
+        _map_state = {
+            "completed": State.COMPLETED.value,
+            "error": State.ERROR.value,
+            "running": State.RUNNING.value,
+            "created": State.CREATED.value,
+            "pending": State.PENDING.value,
+            "unknown": State.ERROR.value,
+            "aborted": State.STOP.value,
+            "aborting": State.STOP.value,
         }
+        return _map_state.get(state, State.ERROR.value)
 
     def _get_artifacts(self, artifacts: list[dict]) -> dict:
         """
@@ -312,18 +334,84 @@ class RuntimeMLRun(Runtime):
         """
         infos = []
         for art in artifacts:
-            kwargs = {}
-            kwargs["project"] = art.get("metadata", {}).get("project")
-            kwargs["name"] = art.get("metadata", {}).get("key")
-            kwargs["kind"] = "artifact"
-            kwargs["target_path"] = art.get("spec", {}).get("target_path")
-            dh_art = new_artifact(**kwargs)
-            dh_art.metadata.file_size = art.get("spec", {}).get("size")
-            dh_art.save(update=True)
-            info = {
-                "key": art.get("metadata", {}).get("key"),
-                "kind": "artifact",
-                "id": f"store://{dh_art.project}/dataitems/{dh_art.kind}/{dh_art.name}:{dh_art.id}",
-            }
-            infos.append(info)
+            dh_art = self._create_artifact(art)
+            self._enrich_metadata(dh_art, art)
+            infos.append(self._get_artifact_info(dh_art))
         return infos
+
+    @staticmethod
+    def _create_artifact(artifact: dict) -> Artifact:
+        """
+        New artifact.
+
+        Parameters
+        ----------
+        artifact : dict
+            Artifact.
+
+        Returns
+        -------
+        dict
+            Parsed artifact.
+        """
+        try:
+            kwargs = {}
+            kwargs["project"] = artifact.get("metadata", {}).get("project")
+            kwargs["name"] = artifact.get("metadata", {}).get("key")
+            kwargs["kind"] = "artifact"
+            kwargs["target_path"] = artifact.get("spec", {}).get("target_path")
+            return new_artifact(**kwargs)
+        except Exception:
+            msg = "Something got wrong during artifact creation."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+    @staticmethod
+    def _enrich_metadata(artifact: Artifact, artifact_info: dict) -> None:
+        """
+        Update artifact.
+
+        Parameters
+        ----------
+        artifact : Artifact
+            Artifact.
+        artifact_info : dict
+            Artifact info.
+
+        Returns
+        -------
+        None
+        """
+        try:
+            artifact.metadata.file_size = artifact_info.get("size")
+            artifact.save(update=True)
+        except Exception:
+            msg = "Something got wrong during metadata update."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+    @staticmethod
+    def _get_artifact_info(artifact: Artifact) -> dict:
+        """
+        Get artifact info.
+
+        Parameters
+        ----------
+        artifact : Artifact
+            Artifact.
+
+        Returns
+        -------
+        dict
+            Artifact info.
+        """
+        try:
+            return {
+                "key": artifact.name,
+                "kind": "artifact",
+                "id": f"store://{artifact.project}/artifacts/{artifact.kind}/{artifact.name}:{artifact.id}",
+            }
+        except Exception:
+            msg = "Something got wrong during artifact info retrieval."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
