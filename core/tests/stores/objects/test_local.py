@@ -23,6 +23,7 @@ def test_upload_raises_not_implemented_error(local_store):
 
 @patch("shutil.copy")
 def test_fetch_artifact(mock_copy, local_store):
+    assert local_store.fetch_artifact("src") == "src"
     mock_copy.return_value = "dst"
     assert local_store.fetch_artifact("src", "dst") == "dst"
     mock_copy.assert_called_once_with("src", "dst")

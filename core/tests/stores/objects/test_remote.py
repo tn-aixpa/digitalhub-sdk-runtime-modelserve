@@ -12,11 +12,17 @@ def test_init(remote_store):
     assert remote_store.name == "test_store"
     assert remote_store.type == "remote"
 
-def test_download(remote_store):
-    ...
+@patch("digitalhub_core.stores.objects.remote.RemoteStore._download_file")
+def test_download(mock_download_file, remote_store):
+    mock_download_file.return_value = "dst.csv"
+    assert remote_store.download("http://test.com/src.csv", "dst.csv") == "dst.csv"
+    mock_download_file.assert_called_once_with("http://test.com/src.csv", "dst.csv")
 
-def test_fetch_artifact(remote_store):
-    ...
+@patch("digitalhub_core.stores.objects.remote.RemoteStore._download_file")
+def test_fetch_artifact(mock_download_file, remote_store):
+    mock_download_file.return_value = "dst.csv"
+    assert remote_store.fetch_artifact("http://test.com/src.csv", "dst.csv") == "dst.csv"
+    mock_download_file.assert_called_once_with("http://test.com/src.csv", "dst.csv")
 
 def test_upload_raises_not_implemented_error(remote_store):
     with pytest.raises(NotImplementedError):

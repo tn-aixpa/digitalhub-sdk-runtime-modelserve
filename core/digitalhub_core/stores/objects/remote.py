@@ -82,7 +82,7 @@ class RemoteStore(Store):
             Returns the path of the artifact.
         """
         dst = dst if dst is not None else self._build_temp("remote")
-        if not dst.endswith(".csv") or not dst.endswith(".parquet"):
+        if not dst.endswith(".csv") and not dst.endswith(".parquet"):
             dst = str(Path(dst) / "temp.file")
         return self._download_file(src, dst)
 
