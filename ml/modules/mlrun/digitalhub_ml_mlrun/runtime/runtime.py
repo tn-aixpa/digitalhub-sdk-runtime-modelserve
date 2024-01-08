@@ -8,19 +8,18 @@ from pathlib import Path
 
 import mlrun
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.functions.entity import Function
     from digitalhub_core.entities.artifacts.entity import Artifact
+    from digitalhub_core.entities.functions.entity import Function
     from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
-
 
 
 class RuntimeMLRun(Runtime):
@@ -336,7 +335,8 @@ class RuntimeMLRun(Runtime):
         for art in artifacts:
             dh_art = self._create_artifact(art)
             self._enrich_metadata(dh_art, art)
-            infos.append(self._get_artifact_info(dh_art))
+            mlrun_key = self._get_mlrun_key(art)
+            infos.append(self._get_artifact_info(dh_art, mlrun_key))
         return infos
 
     @staticmethod
@@ -391,7 +391,31 @@ class RuntimeMLRun(Runtime):
             raise RuntimeError(msg)
 
     @staticmethod
-    def _get_artifact_info(artifact: Artifact) -> dict:
+    def _get_mlrun_key(artifact: dict) -> str:
+        """
+        Get MLRun key.
+
+        Parameters
+        ----------
+        artifact : dict
+            Artifact.
+
+        Returns
+        -------
+        str
+            MLRun key.
+        """
+        try:
+            project = artifact.get("metadata", {}).get("project")
+            db_key = artifact.get("spec", {}).get("db_key")
+            return f"store://datasets/{project}/{db_key}"
+        except Exception:
+            msg = "Something got wrong during MLRun key retrieval."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+    @staticmethod
+    def _get_artifact_info(artifact: Artifact, mlrun_key: str) -> dict:
         """
         Get artifact info.
 
@@ -399,6 +423,8 @@ class RuntimeMLRun(Runtime):
         ----------
         artifact : Artifact
             Artifact.
+        mlrun_key : str
+            MLRun key.
 
         Returns
         -------
@@ -410,6 +436,7 @@ class RuntimeMLRun(Runtime):
                 "key": artifact.name,
                 "kind": "artifact",
                 "id": f"store://{artifact.project}/artifacts/{artifact.kind}/{artifact.name}:{artifact.id}",
+                "mlrun_key": mlrun_key,
             }
         except Exception:
             msg = "Something got wrong during artifact info retrieval."
