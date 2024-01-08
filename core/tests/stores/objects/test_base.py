@@ -56,7 +56,7 @@ def test_check_local_dst_not_local(store):
 
 
 def test_build_path():
-    path = "test_dir/test_subdir"
+    path = "/tmp/test_subdir"
     Store._build_path(path)
     assert Path(path).exists()
     os.rmdir(path)

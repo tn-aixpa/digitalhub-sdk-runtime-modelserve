@@ -162,7 +162,11 @@ cython_debug/
 # pylint
 .pylintrc
 
+.ruff_cache
+
+
 TODO.txt
-/tests
 
 /wrapper/*/*.py
+
+.vscode
