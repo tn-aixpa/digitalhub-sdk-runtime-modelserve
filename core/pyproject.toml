@@ -29,20 +29,14 @@ dependencies = [
     "psycopg2-binary~=2.8",
     "pyarrow>=10.0, <15",
     "requests~=2.31",
+    "PyYAML~=5.1"
 ]
 
 [tool.setuptools.packages.find]
 exclude = ["docs*", "tests*", "modules*"]
 
 [project.optional-dependencies]
-base_yaml = [
-    "PyYAML~=5.1",
-]
-dbt_yaml = [
-    "PyYAML>=6",
-]
 dev = [
-    "PyYAML~=5.1",
     "black",
     "pytest",
     "bumpver",
