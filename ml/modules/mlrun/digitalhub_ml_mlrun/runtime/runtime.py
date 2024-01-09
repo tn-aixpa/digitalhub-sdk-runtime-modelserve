@@ -20,6 +20,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.functions.entity import Function
     from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
+    from mlrun.runtimes.base import RunObject
 
 
 class RuntimeMLRun(Runtime):
@@ -239,7 +240,7 @@ class RuntimeMLRun(Runtime):
     ####################
 
     @staticmethod
-    def _run_job(function: BaseRuntime, function_args: dict) -> BaseRuntime:
+    def _run_job(function: BaseRuntime, function_args: dict) -> RunObject:
         """
         Run MLRun job.
 
@@ -256,13 +257,13 @@ class RuntimeMLRun(Runtime):
             Execution results.
         """
         function_args["local"] = True
-        return function.run(**function_args)
+        return mlrun.run_function(function, **function_args)
 
     ####################
     # Results helpers
     ####################
 
-    def _parse_execution_results(self, execution_results: BaseRuntime) -> dict:
+    def _parse_execution_results(self, execution_results: RunObject) -> dict:
         """
         Parse execution results.
 

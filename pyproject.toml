@@ -30,6 +30,9 @@ all = [
     "digitalhub-ml~=0.2",
     "digitalhub-ai~=0.2",
 ]
+ml = ["digitalhub-ml~=0.2"]
+ai = ["digitalhub-ai~=0.2"]
+data = ["digitalhub-data~=0.2"]
 
 [project.urls]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
