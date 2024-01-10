@@ -387,7 +387,8 @@ class RuntimeDBT(Runtime):
             If something got wrong during dataitem creation.
         """
         try:
-            di = new_dataitem(
+            spec_args = self._enrich_dataitem_spec(uuid, result.name)
+            di: Dataitem = new_dataitem(
                 project=project,
                 name=result.name,
                 kind="dataitem",
@@ -395,8 +396,10 @@ class RuntimeDBT(Runtime):
                 uuid=uuid,
                 raw_code=result.raw_code,
                 compiled_code=result.compiled_code,
+                **spec_args,
             )
-            self._enrich_metadata(di, result.name)
+            di.status.preview = self._get_data_preview(di.id, di.name)
+            di.save(update=True)
             return [
                 {
                     "key": output,
@@ -409,14 +412,16 @@ class RuntimeDBT(Runtime):
             LOGGER.exception(msg)
             raise RuntimeError(msg)
 
-    def _enrich_metadata(self, dataitem: Dataitem, table_name: str) -> None:
+    def _enrich_dataitem_spec(self, uuid: str, table_name: str) -> None:
         """
-        Enrich dataitem metadata.
+        Enrich dataitem spec.
 
         Parameters
         ----------
-        dataitem : Dataitem
-            The dataitem.
+        uuid : str
+            The uuid of the model for outputs versioning.
+        table_name : str
+            The output table name.
 
         Returns
         -------
@@ -426,32 +431,49 @@ class RuntimeDBT(Runtime):
         try:
             # Get connection and execute query
             connection = self._get_connection()
-            query = sql.SQL("SELECT * FROM {table} LIMIT 5;").format(
-                table=sql.Identifier(f"{table_name}_v{dataitem.id}")
-            )
-
-            with connection.cursor() as cursor:
-                cursor.execute(query)
-                data = cursor.fetchall()
-                columns = cursor.description
+            query = sql.SQL("SELECT * FROM {table} LIMIT 0;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(query)
+                    columns = cursor.description
 
             # Get schema
-            schema = []
-            for c in cursor.description:
-                schema.append({"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")})
-
-            # Get sample data
-            sample_data = []
-            for c, d in zip(columns, data):
-                sample_data.append({"name": c.name, "value": d})
-
-            # Update dataitem
-            dataitem.metadata.schema = schema
-            dataitem.metadata.sample_data = sample_data
-            dataitem.save(update=True)
+            schema = [{"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")} for c in columns]
+            return {"schema": schema}
 
         except Exception:
-            msg = "Something got wrong during environment cleanup."
+            msg = "Something got wrong during schema fetching."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+        finally:
+            LOGGER.info("Closing connection to postgres.")
+            connection.close()
+
+    def _get_data_preview(self, uuid: str, table_name: str) -> None:
+        """
+        Get a data preview sample.
+
+        """
+
+        LOGGER.info("Get a data preview sample..")
+        try:
+            # Get connection and execute query
+            connection = self._get_connection()
+            query = sql.SQL("SELECT * FROM {table} LIMIT 5;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(query)
+                    data = cursor.fetchall()
+                    columns = cursor.description
+
+            # Pivot data and get sample data
+            ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
+            preview = [{"name": c.name, "value": d} for c, d in zip(columns, ordered_data)]
+
+            return preview
+
+        except Exception:
+            msg = "Something got wrong during data preview fetching."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
         finally:
@@ -473,11 +495,12 @@ class RuntimeDBT(Runtime):
         LOGGER.info("Cleaning up environment.")
         connection = self._get_connection()
         try:
-            for table in self._versioned_tables:
+            with connection:
                 with connection.cursor() as cursor:
-                    LOGGER.info(f"Dropping table '{table}'.")
-                    query = sql.SQL("DROP TABLE {table}").format(table=sql.Identifier(table))
-                    cursor.execute(query)
+                    for table in self._versioned_tables:
+                        LOGGER.info(f"Dropping table '{table}'.")
+                        query = sql.SQL("DROP TABLE {table}").format(table=sql.Identifier(table))
+                        cursor.execute(query)
         except Exception:
             msg = "Something got wrong during environment cleanup."
             LOGGER.exception(msg)
@@ -503,15 +526,13 @@ class RuntimeDBT(Runtime):
         """
         try:
             LOGGER.info("Connecting to postgres.")
-            connection = psycopg2.connect(
+            return psycopg2.connect(
                 host=HOST,
                 port=PORT,
                 database=DATABASE,
                 user=USER,
                 password=PASSWORD,
             )
-            connection.set_session(autocommit=True)
-            return connection
         except Exception:
             msg = "Something got wrong during connection to postgres."
             LOGGER.exception(msg)

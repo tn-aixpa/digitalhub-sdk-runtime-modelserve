@@ -19,7 +19,7 @@ def calculate_blob_hash(data_path: str) -> str:
     """
     with open(data_path, "rb") as f:
         data = f.read()
-        return sha1(data).hexdigest()
+        return f"sha1_{sha1(data).hexdigest()}"
 
 
 def get_file_size(data_path: str) -> int:

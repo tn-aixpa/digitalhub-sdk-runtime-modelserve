@@ -456,8 +456,7 @@ class RuntimeNefertem(Runtime):
             # Replace _ by - in artifact name for backend compatibility
             name = Path(src_path).stem.replace("_", "-")
             art = self._create_artifact(name, project, run_info["run_id"], src_path)
-            self._enrich_artifact_metadata(art)
-            self._upload_artifact_to_minio(name, art)
+            self._upload_artifact_to_minio(name, art, src_path)
             artifacts.append(
                 {
                     "key": art.name,
@@ -467,8 +466,7 @@ class RuntimeNefertem(Runtime):
             )
         return artifacts
 
-    @staticmethod
-    def _create_artifact(name: str, project: str, run_id: str, src_path: str) -> Artifact:
+    def _create_artifact(self, name: str, project: str, run_id: str, src_path: str) -> Artifact:
         """
         Create new artifact in backend.
 
@@ -497,34 +495,42 @@ class RuntimeNefertem(Runtime):
             # Get bucket name from env and filename from path
             LOGGER.info(f"Creating new artifact '{name}'.")
             dst = f"s3://{BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
-            return new_artifact(project, name, "artifact", src_path=src_path, target_path=dst)
+            spec_args = self._enrich_artifact_spec(src_path, name)
+            return new_artifact(project, name, "artifact", target_path=dst, **spec_args)
         except Exception:
             msg = f"Error creating artifact '{name}'."
             LOGGER.exception(msg)
             raise EntityError(msg)
 
     @staticmethod
-    def _enrich_artifact_metadata(artifact: Artifact) -> None:
+    def _enrich_artifact_spec(src_path: str, name: str) -> None:
         """
         Enrich artifact metadata.
 
         Parameters
         ----------
-        artifact : Artifact
-            The artifact to enrich.
+        src_path : str
+            The artifact source local path.
+        name : str
+            The artifact name.
 
         Returns
         -------
         None
         """
-        LOGGER.info(f"Enriching artifact '{artifact.name}' metadata.")
-        artifact.metadata.file_hash = calculate_blob_hash(artifact.spec.src_path)
-        artifact.metadata.file_size = get_file_size(artifact.spec.src_path)
-        artifact.metadata.file_type = get_file_mime_type(artifact.spec.src_path)
-        artifact.save(update=True)
+        try:
+            LOGGER.info(f"Enriching artifact '{name}' spec.")
+            hash_blob = calculate_blob_hash(src_path)
+            size = get_file_size(src_path)
+            filetype = get_file_mime_type(src_path)
+            return {"hash": hash_blob, "size": size, "filetype": filetype}
+        except Exception:
+            msg = f"Error enriching artifact '{name}' spec."
+            LOGGER.exception(msg)
+            raise EntityError(msg)
 
     @staticmethod
-    def _upload_artifact_to_minio(name: str, artifact: Artifact) -> None:
+    def _upload_artifact_to_minio(name: str, artifact: Artifact, src_path: str) -> None:
         """
         Upload artifact to minio.
 
@@ -534,10 +540,16 @@ class RuntimeNefertem(Runtime):
             The artifact name.
         artifact : Artifact
             The artifact to upload.
+        src_path : str
+            The artifact source local path.
+
+        Returns
+        -------
+        None
         """
         try:
             LOGGER.info(f"Uploading artifact '{name}' to minio.")
-            artifact.upload()
+            artifact.upload(source=src_path)
         except Exception:
             msg = f"Error uploading artifact '{name}'."
             LOGGER.exception(msg)

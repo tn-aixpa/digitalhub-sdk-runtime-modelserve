@@ -17,6 +17,9 @@ class ArtifactSpec(Spec):
         key: str | None = None,
         src_path: str | None = None,
         target_path: str | None = None,
+        hash: str | None = None,
+        size: int | None = None,
+        filetype: str | None = None,
         **kwargs,
     ) -> None:
         """
@@ -36,6 +39,9 @@ class ArtifactSpec(Spec):
         self.key = key
         self.src_path = src_path
         self.target_path = target_path
+        self.hash = hash
+        self.size = size
+        self.filetype = filetype
 
         self._any_setter(**kwargs)
 
@@ -53,3 +59,12 @@ class ArtifactParams(BaseModel):
 
     target_path: str = None
     """Target path of the artifact."""
+
+    hash: str = None
+    """Hash of the artifact."""
+
+    size: int = None
+    """Size of the artifact."""
+
+    filetype: str = None
+    """Type of the artifact."""
