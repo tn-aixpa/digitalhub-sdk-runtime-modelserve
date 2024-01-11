@@ -57,7 +57,7 @@ class FunctionSpecMLRun(FunctionSpec):
         self.requirements = requirements if requirements is not None else []
 
         self.build = {
-            "functionSourceCode": encode_source(source),
+            "function_source_code": encode_source(source),
             "code_origin": source,
             "origin_filename": Path(source).name,
         }

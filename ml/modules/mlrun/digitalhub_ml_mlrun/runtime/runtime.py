@@ -9,6 +9,7 @@ from pathlib import Path
 import mlrun
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.dataitems.crud import create_dataitem
 from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import EntityError
@@ -17,6 +18,7 @@ from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
+    from digitalhub_core.entities.dataitems.entity import Dataitem
     from digitalhub_core.entities.functions.entity import Function
     from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
@@ -156,7 +158,7 @@ class RuntimeMLRun(Runtime):
             Path to the function source.
         """
         path = self.root_path / function.spec.build.get("origin_filename")
-        path.write_text(decode_string(function.spec.build.get("functionSourceCode")))
+        path.write_text(decode_string(function.spec.build.get("function_source_code")))
         return str(path)
 
     def _parse_function_specs(self, function: Function) -> dict:
@@ -278,14 +280,32 @@ class RuntimeMLRun(Runtime):
             Parsed execution results.
         """
         try:
-            return {
-                "state": self._map_state(execution_results.status.state),
-                "artifacts": self._get_artifacts(execution_results.status.artifacts),
-                "timing": {
-                    "start": execution_results.status.start_time,
-                    "updated": execution_results.status.last_update,
-                },
+            results = {}
+
+            # Check execution state
+            results["state"] = self._map_state(execution_results.status.state)
+
+            # Get artifacts
+            artifacts = self._get_artifacts(execution_results.status.artifacts)
+            if artifacts:
+                results["artifacts"] = artifacts
+
+            # Get dataitems
+            dataitems = self._get_dataitems(execution_results.status.artifacts)
+            if dataitems:
+                results["dataitems"] = dataitems
+
+            # Get timing
+            results["timing"] = {
+                "start": execution_results.status.start_time,
+                "updated": execution_results.status.last_update,
             }
+
+            # Embed execution results
+            results["mlrun_results"] = execution_results.to_dict()
+
+            # Return results
+            return results
         except Exception:
             msg = "Something got wrong during execution results parsing."
             LOGGER.exception(msg)
@@ -294,17 +314,17 @@ class RuntimeMLRun(Runtime):
     @staticmethod
     def _map_state(state: str) -> str:
         """
-        Map state.
+        Map MLRun state to digitalhub state.
 
         Parameters
         ----------
         state : str
-            State.
+            MLRun state.
 
         Returns
         -------
         str
-            Mapped state.
+            Mapped digitalhub state.
         """
         _map_state = {
             "completed": State.COMPLETED.value,
@@ -318,49 +338,54 @@ class RuntimeMLRun(Runtime):
         }
         return _map_state.get(state, State.ERROR.value)
 
-    def _get_artifacts(self, artifacts: list[dict]) -> dict:
+    ####################
+    # Artifacts helpers
+    ####################
+
+    def _get_artifacts(self, mlrun_outputs: list[dict]) -> list[dict]:
         """
         Get artifacts.
 
         Parameters
         ----------
-        artifacts : dict
-            Artifacts.
+        mlrun_outputs : list[dict]
+            MLRun outputs.
 
         Returns
         -------
-        dict
-            Parsed artifacts.
+        list[dict]
+            Artifacts infos.
         """
         infos = []
-        for art in artifacts:
-            dh_art = self._create_artifact(art)
-            self._enrich_metadata(dh_art, art)
-            mlrun_key = self._get_mlrun_key(art)
-            infos.append(self._get_artifact_info(dh_art, mlrun_key))
+        for outputs in mlrun_outputs:
+            if outputs.get("kind") not in ["model", "dataset"]:
+                artifact = self._create_artifact(outputs)
+                infos.append(self._get_artifact_info(artifact))
         return infos
 
     @staticmethod
-    def _create_artifact(artifact: dict) -> Artifact:
+    def _create_artifact(mlrun_artifact: dict) -> Artifact:
         """
         New artifact.
 
         Parameters
         ----------
-        artifact : dict
-            Artifact.
+        mlrun_arti : dict
+            Mlrun artifact.
 
         Returns
         -------
         dict
-            Parsed artifact.
+            Artifact info.
         """
         try:
             kwargs = {}
-            kwargs["project"] = artifact.get("metadata", {}).get("project")
-            kwargs["name"] = artifact.get("metadata", {}).get("key")
+            kwargs["project"] = mlrun_artifact.get("metadata", {}).get("project")
+            kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
             kwargs["kind"] = "artifact"
-            kwargs["target_path"] = artifact.get("spec", {}).get("target_path")
+            kwargs["target_path"] = mlrun_artifact.get("spec", {}).get("target_path")
+            kwargs["size"] = mlrun_artifact.get("spec", {}).get("size")
+            kwargs["hash"] = mlrun_artifact.get("spec", {}).get("hash")
             return new_artifact(**kwargs)
         except Exception:
             msg = "Something got wrong during artifact creation."
@@ -368,64 +393,14 @@ class RuntimeMLRun(Runtime):
             raise RuntimeError(msg)
 
     @staticmethod
-    def _enrich_metadata(artifact: Artifact, artifact_info: dict) -> None:
-        """
-        Update artifact.
-
-        Parameters
-        ----------
-        artifact : Artifact
-            Artifact.
-        artifact_info : dict
-            Artifact info.
-
-        Returns
-        -------
-        None
-        """
-        try:
-            artifact.metadata.file_size = artifact_info.get("size")
-            artifact.save(update=True)
-        except Exception:
-            msg = "Something got wrong during metadata update."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-
-    @staticmethod
-    def _get_mlrun_key(artifact: dict) -> str:
-        """
-        Get MLRun key.
-
-        Parameters
-        ----------
-        artifact : dict
-            Artifact.
-
-        Returns
-        -------
-        str
-            MLRun key.
-        """
-        try:
-            project = artifact.get("metadata", {}).get("project")
-            db_key = artifact.get("spec", {}).get("db_key")
-            return f"store://datasets/{project}/{db_key}"
-        except Exception:
-            msg = "Something got wrong during MLRun key retrieval."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-
-    @staticmethod
-    def _get_artifact_info(artifact: Artifact, mlrun_key: str) -> dict:
+    def _get_artifact_info(dh_artifact: Artifact) -> dict:
         """
         Get artifact info.
 
         Parameters
         ----------
-        artifact : Artifact
+        dh_art : Artifact
             Artifact.
-        mlrun_key : str
-            MLRun key.
 
         Returns
         -------
@@ -434,12 +409,116 @@ class RuntimeMLRun(Runtime):
         """
         try:
             return {
-                "key": artifact.name,
+                "key": dh_artifact.name,
                 "kind": "artifact",
-                "id": f"store://{artifact.project}/artifacts/{artifact.kind}/{artifact.name}:{artifact.id}",
-                "mlrun_key": mlrun_key,
+                "id": f"store://{dh_artifact.project}/artifacts/{dh_artifact.kind}/{dh_artifact.name}:{dh_artifact.id}",
             }
         except Exception:
             msg = "Something got wrong during artifact info retrieval."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+    ####################
+    # Dataitems helpers
+    ####################
+
+    def _get_dataitems(self, mlrun_outputs: list[dict]) -> list[dict]:
+        """
+        Get dataitems.
+
+        Parameters
+        ----------
+        mlrun_outputs : list[dict]
+            MLRun outputs.
+
+        Returns
+        -------
+        list[dict]
+            Dataitems infos.
+        """
+        infos = []
+        for output in mlrun_outputs:
+            if output.get("kind") == "dataset":
+                dataitem = self._create_dataitem(output)
+                infos.append(self._get_dataitem_info(dataitem))
+        return infos
+
+    def _create_dataitem(self, mlrun_output: dict) -> Dataitem:
+        """
+        New dataitem.
+
+        Parameters
+        ----------
+        mlrun_output : dict
+            Mlrun output.
+
+        Returns
+        -------
+        dict
+            Dataitem info.
+        """
+        try:
+            kwargs = {}
+            kwargs["project"] = mlrun_output.get("metadata", {}).get("project")
+            kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
+            kwargs["kind"] = "dataitem"
+            kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
+            kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {}).get("fields")
+            dataitem = create_dataitem(**kwargs)
+
+            header = mlrun_output.get("spec", {}).get("header", [])
+            sample_data = mlrun_output.get("status", {}).get("preview", [[]])
+            dataitem.status.preview = self._pivot_preview(header, sample_data)
+
+            dataitem.save()
+            return dataitem
+        except Exception:
+            msg = "Something got wrong during dataitem creation."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+    @staticmethod
+    def _pivot_preview(columns: list, data: list[list]) -> list[list]:
+        """
+        Pivot preview from MLRun.
+
+        Parameters
+        ----------
+        columns : list
+            Columns.
+        data : list[list]
+            Data preview.
+
+        Returns
+        -------
+        list[list]
+            Pivoted preview.
+        """
+        ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
+        return [{"name": c, "value": d} for c, d in zip(columns, ordered_data)]
+
+
+    def _get_dataitem_info(self, dh_dataitem: Dataitem) -> dict:
+        """
+        Get dataitem info.
+
+        Parameters
+        ----------
+        dh_dataitem : Dataitem
+            Dataitem.
+
+        Returns
+        -------
+        dict
+            Dataitem info.
+        """
+        try:
+            return {
+                "key": dh_dataitem.name,
+                "kind": "dataitem",
+                "id": f"store://{dh_dataitem.project}/dataitems/{dh_dataitem.kind}/{dh_dataitem.name}:{dh_dataitem.id}",
+            }
+        except Exception:
+            msg = "Something got wrong during dataitem info retrieval."
             LOGGER.exception(msg)
             raise RuntimeError(msg)

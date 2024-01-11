@@ -14,6 +14,7 @@ class RunStatus(Status):
     def __init__(
         self,
         state: str | None = None,
+        message: str | None = None,
         dataitems: list | None = None,
         artifacts: list | None = None,
         timing: dict | None = None,
@@ -38,7 +39,9 @@ class RunStatus(Status):
         --------
         Status.__init__
         """
-        super().__init__(state, **kwargs)
+        super().__init__(state, message)
         self.dataitems = dataitems
         self.artifacts = artifacts
         self.timing = timing
+
+        self._any_setter(**kwargs)
