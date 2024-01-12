@@ -14,6 +14,27 @@ if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
 
 
+# Postgres type mapper to frictionless types.
+TYPE_MAPPER = {
+    16: "boolean",
+    18: "string",
+    20: "integer",
+    21: "integer",
+    23: "integer",
+    25: "string",
+    114: "object",
+    700: "number",
+    701: "number",
+    1043: "string",
+    1082: "date",
+    1083: "time",
+    1114: "datetime",
+    1184: "datetime",
+    1266: "time",
+    1700: "number",
+}
+
+
 @dataclass
 class ParsedResults:
     """
@@ -210,5 +231,53 @@ def get_timings(result: RunResult) -> dict:
         }
     except Exception:
         msg = "Something got wrong during timings parsing."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def get_schema(columns: tuple) -> list[dict]:
+    """
+    Get schema from dbt result.
+
+    Parameters
+    ----------
+    columns : tuple
+        The columns.
+
+    Returns
+    -------
+    list
+        A list of dictionaries containing schema.
+    """
+    try:
+        schema = [{"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")} for c in columns]
+        return {"schema": schema}
+    except Exception:
+        msg = "Something got wrong during schema parsing."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def pivot_data(columns: tuple, data: list[tuple]) -> list[dict]:
+    """
+    Pivot data from dbt result.
+
+    Parameters
+    ----------
+    columns : tuple
+        The columns.
+    data : list[tuple]
+        The data.
+
+    Returns
+    -------
+    list
+        A list of dictionaries containing data.
+    """
+    try:
+        ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
+        return [{"name": c.name, "value": d} for c, d in zip(columns, ordered_data)]
+    except Exception:
+        msg = "Something got wrong during data pivoting."
         LOGGER.exception(msg)
         raise RuntimeError(msg)

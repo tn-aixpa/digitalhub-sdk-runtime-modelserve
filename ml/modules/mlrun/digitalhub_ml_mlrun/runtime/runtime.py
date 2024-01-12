@@ -9,7 +9,9 @@ from pathlib import Path
 import mlrun
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.artifacts.utils import get_artifact_info
 from digitalhub_core.entities.dataitems.crud import create_dataitem
+from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import EntityError
@@ -286,17 +288,17 @@ class RuntimeMLRun(Runtime):
             results["state"] = self._map_state(execution_results.status.state)
 
             # Get artifacts
-            artifacts = self._get_artifacts(execution_results.status.artifacts)
+            artifacts = self._parse_artifacts(execution_results.status.artifacts)
             if artifacts:
-                results["artifacts"] = artifacts
+                results["artifacts"] = [get_artifact_info(i) for i in artifacts]
 
             # Get dataitems
-            dataitems = self._get_dataitems(execution_results.status.artifacts)
+            dataitems = self._parse_dataitems(execution_results.status.artifacts)
             if dataitems:
-                results["dataitems"] = dataitems
+                results["dataitems"] = [get_dataitem_info(i) for i in dataitems]
 
-            # Get timing
-            results["timing"] = {
+            # Get timings
+            results["timings"] = {
                 "start": execution_results.status.start_time,
                 "updated": execution_results.status.last_update,
             }
@@ -342,9 +344,9 @@ class RuntimeMLRun(Runtime):
     # Artifacts helpers
     ####################
 
-    def _get_artifacts(self, mlrun_outputs: list[dict]) -> list[dict]:
+    def _parse_artifacts(self, mlrun_outputs: list[dict]) -> list[Artifact]:
         """
-        Get artifacts.
+        Filter out models and datasets from MLRun outputs and create DHCore artifacts.
 
         Parameters
         ----------
@@ -353,15 +355,11 @@ class RuntimeMLRun(Runtime):
 
         Returns
         -------
-        list[dict]
-            Artifacts infos.
+        list[Artifact]
+            DHCore artifacts list.
         """
-        infos = []
-        for outputs in mlrun_outputs:
-            if outputs.get("kind") not in ["model", "dataset"]:
-                artifact = self._create_artifact(outputs)
-                infos.append(self._get_artifact_info(artifact))
-        return infos
+        outputs = [i for i in mlrun_outputs if i.get("kind") not in ["model", "dataset"]]
+        return [self._create_artifact(j) for j in outputs]
 
     @staticmethod
     def _create_artifact(mlrun_artifact: dict) -> Artifact:
@@ -392,39 +390,13 @@ class RuntimeMLRun(Runtime):
             LOGGER.exception(msg)
             raise RuntimeError(msg)
 
-    @staticmethod
-    def _get_artifact_info(dh_artifact: Artifact) -> dict:
-        """
-        Get artifact info.
-
-        Parameters
-        ----------
-        dh_art : Artifact
-            Artifact.
-
-        Returns
-        -------
-        dict
-            Artifact info.
-        """
-        try:
-            return {
-                "key": dh_artifact.name,
-                "kind": "artifact",
-                "id": f"store://{dh_artifact.project}/artifacts/{dh_artifact.kind}/{dh_artifact.name}:{dh_artifact.id}",
-            }
-        except Exception:
-            msg = "Something got wrong during artifact info retrieval."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-
     ####################
     # Dataitems helpers
     ####################
 
-    def _get_dataitems(self, mlrun_outputs: list[dict]) -> list[dict]:
+    def _parse_dataitems(self, mlrun_outputs: list[dict]) -> list[Dataitem]:
         """
-        Get dataitems.
+        Filter out datasets from MLRun outputs and create DHCore dataitems.
 
         Parameters
         ----------
@@ -433,15 +405,11 @@ class RuntimeMLRun(Runtime):
 
         Returns
         -------
-        list[dict]
-            Dataitems infos.
+        list[Dataitem]
+            DHCore dataitems list.
         """
-        infos = []
-        for output in mlrun_outputs:
-            if output.get("kind") == "dataset":
-                dataitem = self._create_dataitem(output)
-                infos.append(self._get_dataitem_info(dataitem))
-        return infos
+        outputs = [i for i in mlrun_outputs if i.get("kind") == "dataset"]
+        return [self._create_artifact(j) for j in outputs]
 
     def _create_dataitem(self, mlrun_output: dict) -> Dataitem:
         """
@@ -458,6 +426,7 @@ class RuntimeMLRun(Runtime):
             Dataitem info.
         """
         try:
+            # Create dataitem
             kwargs = {}
             kwargs["project"] = mlrun_output.get("metadata", {}).get("project")
             kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
@@ -466,10 +435,12 @@ class RuntimeMLRun(Runtime):
             kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {}).get("fields")
             dataitem = create_dataitem(**kwargs)
 
+            # Add sample preview
             header = mlrun_output.get("spec", {}).get("header", [])
             sample_data = mlrun_output.get("status", {}).get("preview", [[]])
             dataitem.status.preview = self._pivot_preview(header, sample_data)
 
+            # Save dataitem in core and return it
             dataitem.save()
             return dataitem
         except Exception:
@@ -496,29 +467,3 @@ class RuntimeMLRun(Runtime):
         """
         ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
         return [{"name": c, "value": d} for c, d in zip(columns, ordered_data)]
-
-
-    def _get_dataitem_info(self, dh_dataitem: Dataitem) -> dict:
-        """
-        Get dataitem info.
-
-        Parameters
-        ----------
-        dh_dataitem : Dataitem
-            Dataitem.
-
-        Returns
-        -------
-        dict
-            Dataitem info.
-        """
-        try:
-            return {
-                "key": dh_dataitem.name,
-                "kind": "dataitem",
-                "id": f"store://{dh_dataitem.project}/dataitems/{dh_dataitem.kind}/{dh_dataitem.name}:{dh_dataitem.id}",
-            }
-        except Exception:
-            msg = "Something got wrong during dataitem info retrieval."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)

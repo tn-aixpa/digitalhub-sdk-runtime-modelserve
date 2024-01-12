@@ -10,7 +10,8 @@ from pathlib import Path
 import psycopg2
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.dataitems.crud import get_dataitem, new_dataitem
+from digitalhub_core.entities.dataitems.crud import create_dataitem, get_dataitem
+from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string
@@ -21,8 +22,7 @@ from digitalhub_data_dbt.runtime.dbt_utils import (
     generate_inputs_conf,
     generate_outputs_conf,
 )
-from digitalhub_data_dbt.runtime.parse_utils import ParsedResults, parse_results
-from digitalhub_data_dbt.runtime.type_mapper import TYPE_MAPPER
+from digitalhub_data_dbt.runtime.parse_utils import ParsedResults, get_schema, parse_results, pivot_data
 from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
@@ -137,7 +137,7 @@ class RuntimeDBT(Runtime):
 
         # Create dataitem
         LOGGER.info("Creating output dataitem.")
-        dataitem = self._create_dataitem(parsed_result, project, uuid, output)
+        dataitem = self._create_dataitem(parsed_result, project, uuid)
 
         # Clean environment
         self.cleanup()
@@ -145,8 +145,8 @@ class RuntimeDBT(Runtime):
         # Return run status
         LOGGER.info("Task completed, returning run status.")
         return {
-            "dataitems": dataitem,
-            "timing": parsed_result.timings,
+            "dataitems": [get_dataitem_info(dataitem)],
+            "timings": parsed_result.timings,
             "state": State.COMPLETED.value,
         }
 
@@ -170,9 +170,16 @@ class RuntimeDBT(Runtime):
         None
         """
         for name in inputs:
+            # Get dataitem objects from core
             di = self._get_dataitem(name, project)
+
+            # Register dataitem in a dict to be used for inputs confs generation
             self._input_dataitems.append({"name": di.name, "id": di.id})
+
+            # Materialize dataitem in postgres
             table = self._materialize_dataitem(di, name)
+
+            # Save versioned table name to be used for cleanup
             self._versioned_tables.append(table)
 
     @staticmethod
@@ -259,7 +266,7 @@ class RuntimeDBT(Runtime):
             If outputs are not a list of one dataitem.
         """
         if not isinstance(outputs, list) or len(outputs) > 1:
-            msg = "Outputs must be a list of one dataitem."
+            msg = "Outputs must be a list of exactly one dataitem."
             LOGGER.error(msg)
             raise RuntimeError(msg)
         return str(outputs[0])
@@ -361,7 +368,7 @@ class RuntimeDBT(Runtime):
     # Produce outputs
     ####################
 
-    def _create_dataitem(self, result: ParsedResults, project: str, uuid: str, output: str) -> list[dict]:
+    def _create_dataitem(self, result: ParsedResults, project: str, uuid: str) -> Dataitem:
         """
         Create new dataitem.
 
@@ -373,8 +380,6 @@ class RuntimeDBT(Runtime):
             The project name.
         uuid : str
             The uuid of the model for outputs versioning.
-        output : str
-            The output table name.
 
         Returns
         -------
@@ -387,93 +392,62 @@ class RuntimeDBT(Runtime):
             If something got wrong during dataitem creation.
         """
         try:
-            spec_args = self._enrich_dataitem_spec(uuid, result.name)
-            di: Dataitem = new_dataitem(
-                project=project,
-                name=result.name,
-                kind="dataitem",
-                path=result.path,
-                uuid=uuid,
-                raw_code=result.raw_code,
-                compiled_code=result.compiled_code,
-                **spec_args,
-            )
-            di.status.preview = self._get_data_preview(di.id, di.name)
-            di.save(update=True)
-            return [
-                {
-                    "key": output,
-                    "kind": "dataitem",
-                    "id": f"store://{di.project}/dataitems/{di.kind}/{di.name}:{di.id}",
-                }
-            ]
+            # Get columns and data sample from dbt results
+            columns, data = self._get_data_sample(result.name, uuid)
+
+            # Prepare dataitem kwargs
+            kwargs = {}
+            kwargs["project"] = project
+            kwargs["name"] = result.name
+            kwargs["kind"] = "dataitem"
+            kwargs["path"] = result.path
+            kwargs["uuid"] = uuid
+            kwargs["schema"] = get_schema(columns)
+            kwargs["raw_code"] = result.raw_code
+            kwargs["compiled_code"] = result.compiled_code
+
+            # Create dataitem
+            dataitem = create_dataitem(**kwargs)
+
+            # Update dataitem status with preview
+            dataitem.status.preview = pivot_data(columns, data)
+
+            # Save dataitem in core and return it
+            dataitem.save()
+            return dataitem
+
         except Exception:
             msg = "Something got wrong during dataitem creation."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
 
-    def _enrich_dataitem_spec(self, uuid: str, table_name: str) -> None:
+    def _get_data_sample(self, table_name: str, uuid: str) -> None:
         """
-        Enrich dataitem spec.
+        Get columns and data sample from dbt results.
 
         Parameters
         ----------
-        uuid : str
-            The uuid of the model for outputs versioning.
         table_name : str
             The output table name.
+        uuid : str
+            The uuid of the model for outputs versioning.
 
         Returns
         -------
         None
         """
-        LOGGER.info("Enriching dataitem metadata.")
+        LOGGER.info("Getting columns and data sample from dbt results.")
         try:
-            # Get connection and execute query
-            connection = self._get_connection()
-            query = sql.SQL("SELECT * FROM {table} LIMIT 0;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
-            with connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(query)
-                    columns = cursor.description
-
-            # Get schema
-            schema = [{"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")} for c in columns]
-            return {"schema": schema}
-
-        except Exception:
-            msg = "Something got wrong during schema fetching."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-        finally:
-            LOGGER.info("Closing connection to postgres.")
-            connection.close()
-
-    def _get_data_preview(self, uuid: str, table_name: str) -> None:
-        """
-        Get a data preview sample.
-
-        """
-
-        LOGGER.info("Get a data preview sample..")
-        try:
-            # Get connection and execute query
             connection = self._get_connection()
             query = sql.SQL("SELECT * FROM {table} LIMIT 5;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
             with connection:
                 with connection.cursor() as cursor:
                     cursor.execute(query)
-                    data = cursor.fetchall()
                     columns = cursor.description
-
-            # Pivot data and get sample data
-            ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
-            preview = [{"name": c.name, "value": d} for c, d in zip(columns, ordered_data)]
-
-            return preview
-
+                    data = cursor.fetchall()
+            return columns, data
         except Exception:
-            msg = "Something got wrong during data preview fetching."
+            msg = "Something got wrong during data fetching."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
         finally:
@@ -493,8 +467,8 @@ class RuntimeDBT(Runtime):
         None
         """
         LOGGER.info("Cleaning up environment.")
-        connection = self._get_connection()
         try:
+            connection = self._get_connection()
             with connection:
                 with connection.cursor() as cursor:
                     for table in self._versioned_tables:

@@ -11,10 +11,17 @@ from pathlib import Path
 import nefertem
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
-from digitalhub_core.entities.artifacts.utils import calculate_blob_hash, get_file_mime_type, get_file_size
+from digitalhub_core.entities.artifacts.utils import (
+    calculate_blob_hash,
+    get_artifact_info,
+    get_file_extension,
+    get_file_mime_type,
+    get_file_size,
+)
 from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
@@ -37,6 +44,7 @@ class RuntimeNefertem(Runtime):
         """
         self.output_path = "/tmp/nefertem_run"
         self.store = {"name": "local", "store_type": "local"}
+        self.nt_id = build_uuid()
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -104,23 +112,28 @@ class RuntimeNefertem(Runtime):
         LOGGER.info("Executing nefertem run.")
 
         if action == "infer":
-            nt_run = self.infer(client, resources, run_config)
+            nt_run = self.infer(client, resources, run_config, self.nt_id)
 
         elif action == "profile":
-            nt_run = self.profile(client, resources, run_config)
+            nt_run = self.profile(client, resources, run_config, self.nt_id)
 
         elif action == "validate":
             constraints = spec.get("constraints")
             error_report = spec.get("error_report")
-            nt_run = self.validate(client, resources, run_config, constraints, error_report)
+            nt_run = self.validate(client, resources, run_config, self.nt_id, constraints, error_report)
 
         elif action == "metric":
             metrics = spec.get("metrics")
-            nt_run = self.metric(client, resources, run_config, metrics)
+            nt_run = self.metric(client, resources, run_config, self.nt_id, metrics)
+
+        # Create artifacts
+        LOGGER.info("Creating artifacts.")
+        artifacts = [self._create_artifact(i, project, self.nt_id) for i in nt_run.get("output_files", [])]
 
         # Upload outputs
-        LOGGER.info("Uploading outputs.")
-        artifacts = self._upload_outputs(nt_run, project)
+        LOGGER.info("Uploading artifacts to minio.")
+        for i in artifacts:
+            self._upload_artifact(*i)
 
         # Remove tmp folder
         LOGGER.info("Removing tmp folder.")
@@ -130,10 +143,10 @@ class RuntimeNefertem(Runtime):
         LOGGER.info("Task completed, returning run status.")
         return {
             "state": State.COMPLETED.value,
-            "artifacts": artifacts,
-            "timing": {
-                "start_time": nt_run["started"],
-                "end_time": nt_run["finished"],
+            "artifacts": [get_artifact_info(i[0]) for i in artifacts],
+            "timings": {
+                "start_time": nt_run.get("started"),
+                "end_time": nt_run.get("finished"),
             },
         }
 
@@ -141,7 +154,13 @@ class RuntimeNefertem(Runtime):
     # INFER TASK
     ####################
 
-    def infer(self, client: Client, resources: list[dict], run_config: dict) -> dict:
+    @staticmethod
+    def infer(
+        client: Client,
+        resources: list[dict],
+        run_config: dict,
+        run_id: str,
+    ) -> dict:
         """
         Execute infer task.
 
@@ -153,13 +172,15 @@ class RuntimeNefertem(Runtime):
             The list of nefertem resources.
         run_config : dict
             The nefertem run configuration.
+        run_id : str
+            The nefertem run id.
 
         Returns
         -------
         dict
             Nefertem run info.
         """
-        with client.create_run(resources, run_config) as nt_run:
+        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
             nt_run.infer()
             nt_run.log_schema()
             nt_run.persist_schema()
@@ -169,7 +190,13 @@ class RuntimeNefertem(Runtime):
     # PROFILE TASK
     ####################
 
-    def profile(self, client: Client, resources: list[dict], run_config: dict) -> dict:
+    @staticmethod
+    def profile(
+        client: Client,
+        resources: list[dict],
+        run_config: dict,
+        run_id: str,
+    ) -> dict:
         """
         Execute profile task.
 
@@ -181,13 +208,15 @@ class RuntimeNefertem(Runtime):
             The list of nefertem resources.
         run_config : dict
             The nefertem run configuration.
+        run_id : str
+            The nefertem run id.
 
         Returns
         -------
         dict
             Nefertem run info.
         """
-        with client.create_run(resources, run_config) as nt_run:
+        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
             nt_run.profile()
             nt_run.log_profile()
             nt_run.persist_profile()
@@ -197,8 +226,14 @@ class RuntimeNefertem(Runtime):
     # VALIDATE TASK
     ####################
 
+    @staticmethod
     def validate(
-        self, client: Client, resources: list[dict], run_config: dict, constraints: list[dict], error_report: str
+        client: Client,
+        resources: list[dict],
+        run_config: dict,
+        run_id: str,
+        constraints: list[dict],
+        error_report: str | None = None,
     ) -> dict:
         """
         Execute validate task.
@@ -211,6 +246,8 @@ class RuntimeNefertem(Runtime):
             The list of nefertem resources.
         run_config : dict
             The nefertem run configuration.
+        run_id : str
+            The nefertem run id.
         constraints : list[dict]
             The list of nefertem constraints.
         error_report : str
@@ -233,7 +270,7 @@ class RuntimeNefertem(Runtime):
         if error_report is None:
             error_report = "partial"
 
-        with client.create_run(resources, run_config) as nt_run:
+        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
             nt_run.validate(constraints=constraints, error_report=error_report)
             nt_run.log_report()
             nt_run.persist_report()
@@ -243,7 +280,14 @@ class RuntimeNefertem(Runtime):
     # METRIC TASK
     ####################
 
-    def metric(self, client: Client, resources: list[dict], run_config: dict, metrics: list[dict]) -> dict:
+    @staticmethod
+    def metric(
+        client: Client,
+        resources: list[dict],
+        run_config: dict,
+        run_id: str,
+        metrics: list[dict],
+    ) -> dict:
         """
         Execute metric task.
 
@@ -255,6 +299,8 @@ class RuntimeNefertem(Runtime):
             The list of nefertem resources.
         run_config : dict
             The nefertem run configuration.
+        run_id : str
+            The nefertem run id.
         metrics : list[dict]
             The list of nefertem metrics.
 
@@ -273,7 +319,7 @@ class RuntimeNefertem(Runtime):
             LOGGER.error(msg)
             raise RuntimeError(msg)
 
-        with client.create_run(resources, run_config) as nt_run:
+        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
             nt_run.metric(metrics=metrics)
             nt_run.log_metric()
             nt_run.persist_metric()
@@ -435,102 +481,63 @@ class RuntimeNefertem(Runtime):
     # Outputs
     ####################
 
-    def _upload_outputs(self, run_info: dict, project: str) -> dict:
+    def _parse_results(self, run_info: dict) -> tuple[list[str], str]:
         """
-        Upload outputs as artifacts to minio.
+        Parse results from nefertem run.
 
         Parameters
         ----------
         run_info : dict
-            The run info.
-        project : str
-            The project name.
+            The Nefertem run info.
 
         Returns
         -------
-        dict
-            List of artifacts.
+        tuple[list[str], str]
+            List of artifacts paths and Nefertem run id.
         """
-        artifacts = []
-        for src_path in run_info.get("output_files", []):
-            # Replace _ by - in artifact name for backend compatibility
-            name = Path(src_path).stem.replace("_", "-")
-            art = self._create_artifact(name, project, run_info["run_id"], src_path)
-            self._upload_artifact_to_minio(name, art, src_path)
-            artifacts.append(
-                {
-                    "key": art.name,
-                    "kind": "artifact",
-                    "id": f"store://{art.project}/artifacts/{art.kind}/{art.name}:{art.id}",
-                }
-            )
-        return artifacts
+        artifact_paths = run_info.get("output_files", [])
+        run_id = run_info.get("run_id")
+        return artifact_paths, run_id
 
-    def _create_artifact(self, name: str, project: str, run_id: str, src_path: str) -> Artifact:
+    def _create_artifact(self, src_path: str, project: str, run_id: str) -> tuple[Artifact, str]:
         """
         Create new artifact in backend.
 
         Parameters
         ----------
-        name : str
-            The artifact name.
+        src_path : str
+            The artifact source local path.
         project : str
             The project name.
         run_id : str
             Neferetem run id.
-        src_path : str
-            The artifact source local path.
 
         Returns
         -------
         Artifact
-            The new artifact.
-
-        Raises
-        ------
-        EntityError
-            If the artifact cannot be created.
+            DHCore artifact and its src_path.
         """
+
         try:
-            # Get bucket name from env and filename from path
+            name = Path(src_path).stem.replace("_", "-")
             LOGGER.info(f"Creating new artifact '{name}'.")
-            dst = f"s3://{BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
-            spec_args = self._enrich_artifact_spec(src_path, name)
-            return new_artifact(project, name, "artifact", target_path=dst, **spec_args)
+            kwargs = {}
+            kwargs["project"] = project
+            kwargs["name"] = name
+            kwargs["kind"] = "artifact"
+            kwargs["target_path"] = f"s3://{BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
+            kwargs["hash"] = calculate_blob_hash(src_path)
+            kwargs["size"] = get_file_size(src_path)
+            kwargs["file_type"] = get_file_mime_type(src_path)
+            kwargs["file_extension"] = get_file_extension(src_path)
+            return new_artifact(**kwargs), src_path
         except Exception:
             msg = f"Error creating artifact '{name}'."
             LOGGER.exception(msg)
             raise EntityError(msg)
 
     @staticmethod
-    def _enrich_artifact_spec(src_path: str, name: str) -> None:
-        """
-        Enrich artifact metadata.
-
-        Parameters
-        ----------
-        src_path : str
-            The artifact source local path.
-        name : str
-            The artifact name.
-
-        Returns
-        -------
-        None
-        """
-        try:
-            LOGGER.info(f"Enriching artifact '{name}' spec.")
-            hash_blob = calculate_blob_hash(src_path)
-            size = get_file_size(src_path)
-            filetype = get_file_mime_type(src_path)
-            return {"hash": hash_blob, "size": size, "filetype": filetype}
-        except Exception:
-            msg = f"Error enriching artifact '{name}' spec."
-            LOGGER.exception(msg)
-            raise EntityError(msg)
-
-    @staticmethod
-    def _upload_artifact_to_minio(name: str, artifact: Artifact, src_path: str) -> None:
+    def _upload_artifact(artifact: Artifact, src_path: str) -> None:
         """
         Upload artifact to minio.
 
@@ -548,10 +555,10 @@ class RuntimeNefertem(Runtime):
         None
         """
         try:
-            LOGGER.info(f"Uploading artifact '{name}' to minio.")
+            LOGGER.info(f"Uploading artifact '{artifact.name}' to minio.")
             artifact.upload(source=src_path)
         except Exception:
-            msg = f"Error uploading artifact '{name}'."
+            msg = f"Error uploading artifact '{artifact.name}'."
             LOGGER.exception(msg)
             raise EntityError(msg)
 

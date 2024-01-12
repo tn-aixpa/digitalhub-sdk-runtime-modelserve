@@ -17,7 +17,7 @@ class RunStatus(Status):
         message: str | None = None,
         dataitems: list | None = None,
         artifacts: list | None = None,
-        timing: dict | None = None,
+        timings: dict | None = None,
         **kwargs,
     ) -> None:
         """
@@ -42,6 +42,6 @@ class RunStatus(Status):
         super().__init__(state, message)
         self.dataitems = dataitems
         self.artifacts = artifacts
-        self.timing = timing
+        self.timings = timings
 
         self._any_setter(**kwargs)
