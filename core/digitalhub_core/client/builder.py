@@ -14,11 +14,18 @@ if typing.TYPE_CHECKING:
 
 class ClientBuilder:
     """
-    The client builder. It implements the builder pattern to create a client instance.
+    The client builder class.
+
+    It implements the builder pattern to create a client instance.
+    The client builder can be used to create a local or non-local client instance.
     """
 
     def __init__(self) -> None:
-        self._client = None
+        """
+        Constructor.
+        """
+        self._local = None
+        self._dhcore = None
 
     def build(self, local: bool = False) -> Client:
         """
@@ -34,12 +41,14 @@ class ClientBuilder:
         Client
             Returns the client instance.
         """
-        if self._client is None:
-            if local:
-                self._client = ClientLocal()
-            else:
-                self._client = ClientDHCore()
-        return self._client
+        if local:
+            if self._local is None:
+                self._local = ClientLocal()
+            return self._local
+
+        if self._dhcore is None:
+            self._dhcore = ClientDHCore()
+        return self._dhcore
 
 
 def get_client(local: bool = False) -> Client:

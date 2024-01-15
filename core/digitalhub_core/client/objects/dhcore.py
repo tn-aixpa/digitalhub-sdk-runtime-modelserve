@@ -12,8 +12,11 @@ from digitalhub_core.utils.exceptions import BackendError
 
 class ClientDHCore(Client):
     """
-    The DHCore client. Use the builder to get an instance.
-    It is used to make requests to the DHCore API.
+    DHCore client.
+
+    The DHCore client is used to communicate with the Digitalhub Core backendAPI via REST.
+    At creation, the client trys to get the endpoint and authentication parameters
+    from the environment variables. In case the endpoint is not set, it raises an exception.
     """
 
     def __init__(self) -> None:

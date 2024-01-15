@@ -10,8 +10,15 @@ from digitalhub_core.utils.exceptions import BackendError
 
 class ClientLocal(Client):
     """
-    The local client. Use the builder to get an instance.
-    It is used to keep objects in memory.
+    Local client.
+
+    The Local client can be used when a remote Digitalhub backend is not available.
+    It handles the creation, reading, updating and deleting of objects in memory,
+    storing them in a local dictionary.
+    The functionality of the Local client is almost the same as the DHCore client.
+    Main differences are:
+        - Local client does delete objects on cascade.
+        - The run execution are forced to be local.
     """
 
     def __init__(self) -> None:

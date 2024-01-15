@@ -15,7 +15,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.tasks.crud import create_task, delete_task, new_task
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.commons import FUNC
-from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.exceptions import EntityError, BackendError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -185,8 +185,10 @@ class Function(Entity):
         # Run function from task
         run = task.run(inputs, outputs, parameters, local_execution)
 
-        # If execution is done by backend, return the object
+        # If execution is done by DHCore backend, return the object
         if not local_execution:
+            if self._context().local:
+                raise BackendError("Cannot run remote function with local backend.")
             return run
 
         # If local execution, build and launch run

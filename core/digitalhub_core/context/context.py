@@ -11,8 +11,11 @@ if typing.TYPE_CHECKING:
 
 class Context:
     """
-    The context for a project. It contains the project name and the client.
-    It exposes CRUD operations for the entities.
+    Context class.
+
+    It contains the project name, client and information about the type of client.
+    It exposes CRUD operations for the entities and act as a layer between the
+    project object and the client.
     The context is created by the context builder.
     """
 
@@ -23,7 +26,7 @@ class Context:
         Parameters
         ----------
         project : Project
-            The project to create the context for.
+            The project object to create the context from.
         """
         self.name = project.name
         self.client = project._client

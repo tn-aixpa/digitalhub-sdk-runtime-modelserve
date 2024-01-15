@@ -13,8 +13,10 @@ if typing.TYPE_CHECKING:
 
 class ContextBuilder:
     """
-    The context builder. It implements the builder pattern to create a context instance.
-    It allows to use multiple projects at the same time.
+    ContextBuilder class.
+    It implements the builder pattern to create a context instance.
+    It allows to use multiple projects as context at the same time
+    by adding them to the _instances attribute.
     """
 
     def __init__(self) -> None:

@@ -8,7 +8,11 @@ from abc import abstractmethod
 
 class Client:
     """
-    Base Client class.
+    Base Client class interface.
+
+    A client handles the lifeciycle of an object during a coding session.
+    It manages the creation, reading, updating and deleting of objects and comes
+    into 2 subclasses: Local and DHCore.
     """
 
     @abstractmethod

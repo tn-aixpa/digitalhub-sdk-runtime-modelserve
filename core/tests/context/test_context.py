@@ -1,14 +1,8 @@
 import pytest
 from digitalhub_core.context.context import Context
-from digitalhub_core.entities.projects.crud import get_or_create_project
 
 
-@pytest.fixture(autouse=True, scope="session")
-def project():
-    return get_or_create_project(name="test-project", local=True)
-
-
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(scope="session")
 def context(project):
     return Context(project)
 
