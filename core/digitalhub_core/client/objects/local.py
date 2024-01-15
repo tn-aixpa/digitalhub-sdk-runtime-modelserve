@@ -4,7 +4,7 @@ Local Client module.
 from copy import deepcopy
 
 from digitalhub_core.client.objects.base import Client
-from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, PROJ, RUNS, TASK, WKFL
+from digitalhub_core.utils.commons import PROJ, RUNS, TASK
 from digitalhub_core.utils.exceptions import BackendError
 
 
@@ -15,18 +15,11 @@ class ClientLocal(Client):
     """
 
     def __init__(self) -> None:
+        """
+        Constructor.
+        """
         super().__init__()
-        self._db: dict[str, dict[str, dict]] = {
-            # unversioned
-            PROJ: {},
-            TASK: {},
-            RUNS: {},
-            # versioned
-            ARTF: {},
-            DTIT: {},
-            FUNC: {},
-            WKFL: {},
-        }
+        self._db: dict[str, dict[str, dict]] = {}
 
     ########################
     # CRUD
@@ -50,22 +43,55 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
+            # Check if dto is valid
+            if dto is None:
+                raise TypeError
+
+            # Check if dto exists, if not create a mapping
+            self._db.setdefault(dto, {})
+
+            # Unversioned objects uses "base api". For example:
+            #
+            # POST /api/v1/projects
+            # POST /api/v1/tasks
+            # POST /api/v1/runs
+            #
+            # We do not have "name" attribute for tasks and runs
+            # so we use the id to identify them. Projects has
+            # the name attribute, not the id and is also not versioned,
+            # so we use the name as storage key.
             if project is None:
                 name = obj["name"] if dto == PROJ else obj["id"]
                 if name in self._db[dto]:
                     code = 5
                     raise ValueError
                 self._db[dto][name] = obj
+
+            # Versioned objects uses "context api". For example:
+            #
+            # POST /api/v1/-/<project-name>/artifacts
+            # POST /api/v1/-/<project-name>/functions
+            # POST /api/v1/-/<project-name>/workflows
+            #
+            # We have bith "name" and "id" attributes for versioned objects
+            # so we use them as storage keys. The "latest" key is used
+            # to store the latest version of the object.
             else:
                 name = obj["name"]
                 uuid = obj["id"]
                 self._db[dto].setdefault(name, {})
                 self._db[dto][name][uuid] = obj
-                self._db[dto][name]["latest"] = obj  # For versioned objects set also latest version
+                self._db[dto][name]["latest"] = obj
+
+            # Return the created object
             return obj
+
+        # Key error are possibly raised by accessing invalid objects
         except (KeyError, TypeError):
-            msg = self._format_msg(code)
+            msg = self._format_msg(code, dto=dto)
             raise BackendError(msg)
+
+        # If try to create already existing object
         except ValueError:
             msg = self._format_msg(code, dto=dto, name=name)
             raise BackendError(msg)
@@ -86,13 +112,33 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
+            # Unversioned objects
+            # API examples
+            #
+            # GET /api/v1/projects
+            #
+            # self._parse_api() should return only dto
+
             if project is None:
                 obj = self._db[dto][name]
+
+                # If the object is a project, we need to add the project spec,
+                # for example artifacts, functions, workflows, etc.
                 if dto == PROJ:
                     obj = self._get_project_spec(obj, name)
+
+            # Versioned objects
+            # API example
+            #
+            # GET /api/v1/-/<project-name>/artifacts
+            #
+            # self._parse_api() should return dto, name and uuid/version
+
             else:
                 obj = self._db[dto][name][uuid]
+
             return obj
+
         except KeyError:
             msg = self._format_msg(code, project, dto, name, uuid)
             raise BackendError(msg)
@@ -115,10 +161,22 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
+            # Unversioned objects
+            # API example
+            #
+            # PUT /api/v1/projects
+
             if project is None:
                 self._db[dto][name] = obj
+
+            # Versioned objects
+            # API example
+            #
+            # PUT /api/v1/-/<project-name>/artifacts
+
             else:
                 self._db[dto][name][uuid] = obj
+
         except KeyError:
             msg = self._format_msg(code, project, dto, name, uuid)
             raise BackendError(msg)
@@ -139,13 +197,28 @@ class ClientLocal(Client):
         dict
             A generic dictionary.
         """
-        # We do not handle cascade in local client
         project, dto, name, uuid, code = self._parse_api(api)
         try:
+            # Unversioned objects
+            # API example
+            #
+            # DELETE /api/v1/projects
+
             if uuid is None:
                 obj = self._db[dto].pop(name)
+
+            # Versioned objects
+            # API example
+            #
+            # DELETE /api/v1/-/<project-name>/artifacts
+            #
+            # We do not handle cascade in local client and
+            # in the sdk we selectively delete objects by id,
+            # not by name nor dto.
+
             else:
                 obj = self._db[dto][name].pop(uuid)
+
         except KeyError:
             msg = self._format_msg(code, project, dto, name, uuid)
             raise BackendError(msg)
@@ -211,24 +284,29 @@ class ClientLocal(Client):
         # Base API for versioned objects
 
         # POST /api/v1/<dto>
+        # Returns None, dto, None, None
         if len(parsed) == 1:
             return None, parsed[0], None, None, 1
 
         # GET/DELETE/UPDATE /api/v1/<dto>/<name>
+        # Return None, dto, name, None
         if len(parsed) == 2 and not ctx:
             return None, parsed[0], parsed[1], None, 2
 
         # Context API for versioned objects
 
         # POST /api/v1/-/<project>/<dto>
+        # Returns project-name, dto, None, None
         if len(parsed) == 2 and ctx:
             return parsed[0], parsed[1], None, None, 1
 
         # GET/DELETE/UPDATE /api/v1/-/<project>/<dto>/<name>
+        # Return project-name, dto, name, None
         if len(parsed) == 3:
             return parsed[0], parsed[1], parsed[2], None, 3
 
         # GET/DELETE/UPDATE /api/v1/-/<project>/<dto>/<name>/<uuid>
+        # Return project-name, dto, name, uuid
         if len(parsed) == 4:
             return parsed[0], parsed[1], parsed[2], parsed[3], 4
 
@@ -252,7 +330,10 @@ class ClientLocal(Client):
         project = deepcopy(obj)
         spec = project.get("spec", {})
 
-        for entity_type in [ARTF, DTIT, FUNC, WKFL]:
+        # Get all entities associated with the project specs
+        projects_entities = [k for k, _ in self._db[PROJ].items() if k not in [PROJ, RUNS, TASK]]
+
+        for entity_type in projects_entities:
             # Get all objects of the entity type for the project
             objs = self._db[entity_type]
 
@@ -283,8 +364,8 @@ class ClientLocal(Client):
     # Utils
     ########################
 
+    @staticmethod
     def _format_msg(
-        self,
         code: int,
         project: str = None,
         dto: str = None,
@@ -312,16 +393,14 @@ class ClientLocal(Client):
         str
             The formatted message.
         """
-        if code == 1:
-            return "Object to create is not valid"
-        if code == 2:
-            return "Object '{}' named '{}' not found".format(dto, name)
-        if code == 3:
-            return "Object '{}' named '{}' for project '{}' not found".format(dto, name, project)
-        if code == 4:
-            return "Object '{}' named '{}:{}' for project '{}' not found".format(dto, name, uuid, project)
-        if code == 5:
-            return "Object '{}' named '{}' already exists".format(dto, name)
+        msg = {
+            1: f"Object '{dto}' to create is not valid",
+            2: f"Object '{dto}' named '{name}' not found",
+            3: f"Object '{dto}' named '{name}' for project '{project}' not found",
+            4: f"Object '{dto}' named '{name}:{uuid}' for project '{project}' not found",
+            5: f"Object '{dto}' named '{name}' already exists",
+        }
+        return msg[code]
 
     ########################
     # Interface methods

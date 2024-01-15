@@ -12,9 +12,17 @@ from digitalhub_core.utils.exceptions import BackendError
 
 class ClientDHCore(Client):
     """
-    The client. It's a singleton. Use the builder to get an instance.
+    The DHCore client. Use the builder to get an instance.
     It is used to make requests to the DHCore API.
     """
+
+    def __init__(self) -> None:
+        """
+        Constructor.
+        """
+        super().__init__()
+        self._endpoint = self._get_endpoint()
+        self._auth = self._get_auth()
 
     def create_object(self, obj: dict, api: str) -> dict:
         """
@@ -106,8 +114,8 @@ class ClientDHCore(Client):
         dict
             The response object.
         """
-        url = self._get_endpoint() + api
-        kwargs["auth"] = self._get_auth()
+        url = self._endpoint + api
+        kwargs["auth"] = self._auth
         response = None
         try:
             response = requests.request(call_type, url, timeout=60, **kwargs)
