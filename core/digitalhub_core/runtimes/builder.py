@@ -14,7 +14,11 @@ if typing.TYPE_CHECKING:
 
 def build_runtime(kind: str) -> Runtime:
     """
-    Build runtimes.
+    Runtime factory.
+
+    Returns a runtime instance for the given kind. It looks for the
+    runtime registry, imports the specific runtime module, and finally
+    get the class from the module by its name.
 
     Parameters
     ----------

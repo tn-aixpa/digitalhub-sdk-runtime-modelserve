@@ -34,7 +34,6 @@ release = ""
 extensions = [
     "sphinx.ext.autodoc",
     "numpydoc",
-    "sphinxcontrib.autodoc_pydantic",
     "sphinx.ext.autosummary",  # Create neat summary tables for modules/classes/methods etc
     "sphinx.ext.intersphinx",  # Link to other project's documentation (see mapping below)
 ]

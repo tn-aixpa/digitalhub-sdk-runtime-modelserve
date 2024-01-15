@@ -122,7 +122,7 @@ class ClientLocal(Client):
             # Unversioned objects
             # API examples
             #
-            # GET /api/v1/projects
+            # GET /api/v1/projects/<name>
             #
             # self._parse_api() should return only dto
 
@@ -137,7 +137,7 @@ class ClientLocal(Client):
             # Versioned objects
             # API example
             #
-            # GET /api/v1/-/<project-name>/artifacts
+            # GET /api/v1/-/<project-name>/artifacts/<uuid>
             #
             # self._parse_api() should return dto, name and uuid/version
 
@@ -171,7 +171,7 @@ class ClientLocal(Client):
             # Unversioned objects
             # API example
             #
-            # PUT /api/v1/projects
+            # PUT /api/v1/projects/<name>
 
             if project is None:
                 self._db[dto][name] = obj
@@ -179,7 +179,7 @@ class ClientLocal(Client):
             # Versioned objects
             # API example
             #
-            # PUT /api/v1/-/<project-name>/artifacts
+            # PUT /api/v1/-/<project-name>/artifacts/<uuid>
 
             else:
                 self._db[dto][name][uuid] = obj
@@ -209,7 +209,7 @@ class ClientLocal(Client):
             # Unversioned objects
             # API example
             #
-            # DELETE /api/v1/projects
+            # DELETE /api/v1/projects/<name>
 
             if uuid is None:
                 obj = self._db[dto].pop(name)
@@ -217,7 +217,7 @@ class ClientLocal(Client):
             # Versioned objects
             # API example
             #
-            # DELETE /api/v1/-/<project-name>/artifacts
+            # DELETE /api/v1/-/<project-name>/artifacts/<uuid>
             #
             # We do not handle cascade in local client and
             # in the sdk we selectively delete objects by id,

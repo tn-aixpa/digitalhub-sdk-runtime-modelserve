@@ -26,6 +26,36 @@ class Runtime:
     @staticmethod
     def _get_action(run: dict) -> str:
         """
-        Get action from run.
+        Get action to execute from run.
+
+        The run object stores in its spec the identifier of the task
+        it is associated with. The task string is derived from the
+        function string, and has the following format:
+
+        <function-kind>+<task-action>://<function-name>:<function-id>
+
+        Parameters
+        ----------
+        run : dict
+            Run object dictionary.
+
+        Returns
+        -------
+        str
+            Action to execute.
+
+        Raises
+        ------
+        RuntimeError
+            If malformed run spec.
+
+        Examples
+        --------
+        >>> run = {"spec": {"task": dbt+transform://dbt-example-function:some-uuid4}}
+        >>> Runtime._get_action(run)
+        'transform'
         """
-        return run.get("spec").get("task").split(":")[0].split("+")[1]
+        try:
+            return run["spec"]["task"].split(":")[0].split("+")[1]
+        except (KeyError, IndexError):
+            raise RuntimeError("Malformed run spec.")

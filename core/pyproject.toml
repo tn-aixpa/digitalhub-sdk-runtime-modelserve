@@ -45,8 +45,8 @@ dev = [
 ]
 docs = [
     "Sphinx>=7",
-    "pydata-sphinx-theme~=0.13",
-    "numpydoc>=1.5"
+    "pydata-sphinx-theme>=0.15",
+    "numpydoc>=1.6"
 ]
 
 [project.urls]

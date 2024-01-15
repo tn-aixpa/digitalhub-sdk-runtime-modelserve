@@ -14,10 +14,3 @@ Getting started
 
 .. toctree::
    :maxdepth: 1
-
-   docs/entities/index
-   docs/client/index
-   docs/context/index
-   docs/runtimes/index
-   docs/store/index
-   docs/utils/index
