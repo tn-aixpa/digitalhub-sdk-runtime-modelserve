@@ -331,7 +331,7 @@ class ClientLocal(Client):
         spec = project.get("spec", {})
 
         # Get all entities associated with the project specs
-        projects_entities = [k for k, _ in self._db[PROJ].items() if k not in [PROJ, RUNS, TASK]]
+        projects_entities = [k for k, _ in self._db.items() if k not in [PROJ, RUNS, TASK]]
 
         for entity_type in projects_entities:
             # Get all objects of the entity type for the project

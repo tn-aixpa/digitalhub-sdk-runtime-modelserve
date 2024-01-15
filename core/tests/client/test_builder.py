@@ -1,6 +1,10 @@
+import os
+
+from unittest import mock
 from digitalhub_core.client.builder import ClientBuilder, ClientDHCore, ClientLocal, client_builder, get_client
 
 
+@mock.patch.dict(os.environ, {"DIGITALHUB_CORE_ENDPOINT": "http://localhost:8000"})
 def test_client_builder():
     builder = ClientBuilder()
 
@@ -26,7 +30,7 @@ def test_get_client_local():
     # Reset client_builder instance
     client_builder._client = None
 
-
+@mock.patch.dict(os.environ, {"DIGITALHUB_CORE_ENDPOINT": "http://localhost:8000"})
 def test_get_client_non_local():
     # Test get_client method for non-local client
     non_local_client = get_client(local=False)
@@ -35,7 +39,7 @@ def test_get_client_non_local():
     # Reset client_builder instance
     client_builder._client = None
 
-
+@mock.patch.dict(os.environ, {"DIGITALHUB_CORE_ENDPOINT": "http://localhost:8000"})
 def test_get_client_same_instance():
     # Test that the same client instance is returned on subsequent calls to get_client
     same_client = get_client(local=False)

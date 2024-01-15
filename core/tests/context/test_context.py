@@ -13,32 +13,32 @@ def context(project):
     return Context(project)
 
 
-def test_create_object(context):
+def test_create_object(context, api_base):
     obj = {"name": "test", "id": "1"}
-    api = "/api/v1/runs"
+    api = f"{api_base}/runs"
     assert context.create_object(obj, api) == obj
 
 
-def test_read_object(context):
+def test_read_object(context, api_base):
     obj = {"name": "test", "id": "2"}
-    api = "/api/v1/runs"
+    api = f"{api_base}/runs"
     context.create_object(obj, api)
-    api = "/api/v1/runs/2"
+    api = f"{api_base}/runs/2"
     assert context.read_object(api) == obj
 
 
-def test_update_object(context):
+def test_update_object(context, api_base):
     obj = {"name": "test", "id": "3"}
-    api = "/api/v1/runs"
+    api = f"{api_base}/runs"
     context.create_object(obj, api)
     updated_obj = {"name": "test", "id": "3", "updated": True}
-    api = "/api/v1/runs/test"
+    api = f"{api_base}/runs/test"
     assert context.update_object(updated_obj, api) == updated_obj
 
 
-def test_delete_object(context):
+def test_delete_object(context, api_base):
     obj = {"name": "test", "id": "4"}
-    api = "/api/v1/runs"
+    api = f"{api_base}/runs"
     context.create_object(obj, api)
-    api = "/api/v1/runs/4?cascade=false"
+    api = f"{api_base}/runs/4?cascade=false"
     assert context.delete_object(api) == {"deleted": obj}
