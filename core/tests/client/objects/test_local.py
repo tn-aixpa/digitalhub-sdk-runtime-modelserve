@@ -26,7 +26,6 @@ def test_create_object(client, api_base, api_context):
 
 
 def test_read_object(client, api_base, api_context):
-
     expected_result = {"name": "test"}
     client._db.setdefault(PROJ, {}).setdefault("test", expected_result)
     api = f"{api_base}/{PROJ}/test"

@@ -241,11 +241,31 @@ class Run(Entity):
         """
         if not isinstance(status, dict):
             raise EntityError("Status must be a dictionary.")
-        self.status = build_status(RUNS, **status)
+        self.status: RunStatus = build_status(RUNS, **status)
 
     #############################
     #  Artifacts and Dataitems
     #############################
+
+    def get_keys(self) -> dict[str, list[str]]:
+        """
+        Get artifacts and dataitems keys if they exist.
+
+        Returns
+        -------
+        list[dict]
+            List of artifacts and dataitems keys.
+        """
+        try:
+            keys = {}
+            if self.status.dataitems is not None:
+                keys["dataitems"] = [d["key"] for d in self.status.dataitems]
+            if self.status.artifacts is not None:
+                keys["artifacts"] = [a["key"] for a in self.status.artifacts]
+            return keys
+
+        except KeyError:
+            raise EntityError("Run status is possibly malformed.")
 
     def get_artifacts(self, output_key: str | None = None) -> Artifact | list[Artifact]:
         """

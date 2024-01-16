@@ -15,8 +15,8 @@ class RunStatus(Status):
         self,
         state: str | None = None,
         message: str | None = None,
-        dataitems: list | None = None,
-        artifacts: list | None = None,
+        dataitems: list[dict] | None = None,
+        artifacts: list[dict] | None = None,
         timings: dict | None = None,
         **kwargs,
     ) -> None:
