@@ -189,7 +189,7 @@ def workflow_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     **kwargs,
@@ -207,12 +207,16 @@ def workflow_from_parameters(
         Kind of the object.
     uuid : str
         UUID.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     description : str
         A description of the workflow.
     embedded : bool
         Flag to determine if object must be embedded in project.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -226,7 +230,7 @@ def workflow_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=source_remote,
+        source=source,
         labels=labels,
         embedded=embedded,
     )

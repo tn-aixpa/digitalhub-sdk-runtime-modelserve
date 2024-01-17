@@ -36,9 +36,13 @@ def new_task(
     project: str,
     kind: str,
     uuid: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     function: str | None = "",
+    volumes: list[dict] | None = None,
+    volume_mounts: list[dict] | None = None,
+    env: list[dict] | None = None,
+    resources: dict | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -52,10 +56,22 @@ def new_task(
         The type of the task.
     uuid : str
         UUID.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     function : str
         The function string identifying the function.
+    volumes : list[dict]
+        The volumes of the task.
+    volume_mounts : list[dict]
+        The volume mounts of the task.
+    env : list[dict]
+        The env variables of the task.
+    resources : dict
+        Kubernetes resources for the task.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -66,9 +82,13 @@ def new_task(
         project=project,
         kind=kind,
         uuid=uuid,
-        source_remote=source_remote,
+        source=source,
         labels=labels,
         function=function,
+        volumes=volumes,
+        volume_mounts=volume_mounts,
+        env=env,
+        resources=resources,
         **kwargs,
     )
     obj.save()

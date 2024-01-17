@@ -56,7 +56,7 @@ def new_dataitem(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     key: str | None = None,
@@ -78,6 +78,10 @@ def new_dataitem(
         UUID.
     description : str
         Description of the dataitem.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
     key : str
@@ -85,7 +89,7 @@ def new_dataitem(
     path : str
         Path to the dataitem on local file system or remote storage.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -98,7 +102,7 @@ def new_dataitem(
         kind=kind,
         uuid=uuid,
         description=description,
-        source_remote=source_remote,
+        source=source,
         labels=labels,
         embedded=embedded,
         key=key,

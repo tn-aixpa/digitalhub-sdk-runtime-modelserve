@@ -37,7 +37,7 @@ def create_project(**kwargs) -> Project:
 def new_project(
     name: str,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     local: bool = False,
     context: str | None = None,
@@ -56,12 +56,14 @@ def new_project(
         UUID.
     description : str
         Description of the project.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     local : bool
         Flag to determine if object will be exported to backend.
     context : str
         The context of the project.
-    source : str
-        The source of the project.
     **kwargs
         Keyword arguments.
 
@@ -74,7 +76,7 @@ def new_project(
         name=name,
         kind="project",
         description=description,
-        source_remote=source_remote,
+        source=source,
         labels=labels,
         local=local,
         context=context,

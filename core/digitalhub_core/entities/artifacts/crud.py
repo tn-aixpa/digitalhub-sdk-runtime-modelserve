@@ -56,7 +56,7 @@ def new_artifact(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     key: str | None = None,
@@ -79,6 +79,10 @@ def new_artifact(
         UUID.
     description : str
         Description of the artifact.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
     key : str
@@ -88,7 +92,7 @@ def new_artifact(
     targeth_path : str
         Destination path of the artifact.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -101,7 +105,7 @@ def new_artifact(
         kind=kind,
         uuid=uuid,
         description=description,
-        source_remote=source_remote,
+        source=source,
         labels=labels,
         embedded=embedded,
         key=key,

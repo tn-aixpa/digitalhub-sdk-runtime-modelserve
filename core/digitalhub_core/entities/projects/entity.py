@@ -656,7 +656,7 @@ def project_from_parameters(
     name: str,
     kind: str,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     local: bool = False,
     context: str | None = None,
@@ -673,14 +673,16 @@ def project_from_parameters(
         The type of the project.
     description : str
         Description of the project.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     local : bool
         Flag to determine if object will be exported to backend.
     context : str
         The context of the project.
-    source : str
-        The source of the project.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -699,7 +701,7 @@ def project_from_parameters(
         name=name,
         description=description,
         labels=labels,
-        source=source_remote,
+        source=source,
     )
     status = build_status(PROJ)
     return Project(

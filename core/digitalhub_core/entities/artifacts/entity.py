@@ -396,7 +396,7 @@ def artifact_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     key: str | None = None,
@@ -419,6 +419,10 @@ def artifact_from_parameters(
         UUID.
     description : str
         Description of the artifact.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
     key : str
@@ -428,7 +432,7 @@ def artifact_from_parameters(
     targeth_path : str
         Destination path of the artifact.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -442,7 +446,7 @@ def artifact_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=source_remote,
+        source=source,
         labels=labels,
         embedded=embedded,
     )

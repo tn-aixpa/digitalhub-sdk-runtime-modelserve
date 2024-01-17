@@ -452,7 +452,7 @@ def run_from_parameters(
     task_id: str,
     kind: str,
     uuid: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     inputs: dict | None = None,
     outputs: list | None = None,
@@ -475,6 +475,10 @@ def run_from_parameters(
         The type of the run.
     uuid : str
         UUID.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     inputs : dict
         Inputs of the run.
     outputs : list
@@ -486,7 +490,7 @@ def run_from_parameters(
     embedded : bool
         Flag to determine if object must be embedded in project.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -498,7 +502,7 @@ def run_from_parameters(
         RUNS,
         project=project,
         name=uuid,
-        source=source_remote,
+        source=source,
         labels=labels,
     )
     spec = build_spec(

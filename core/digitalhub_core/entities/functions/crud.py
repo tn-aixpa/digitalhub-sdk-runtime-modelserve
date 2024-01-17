@@ -55,7 +55,7 @@ def new_function(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     source_code: str | None = None,
@@ -76,12 +76,16 @@ def new_function(
         UUID.
     description : str
         Description of the function.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
     source_code : str
         Path to the function's source code on the local file system.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -94,7 +98,7 @@ def new_function(
         kind=kind,
         uuid=uuid,
         description=description,
-        source_remote=source_remote,
+        source=source,
         labels=labels,
         source_code=source_code,
         embedded=embedded,

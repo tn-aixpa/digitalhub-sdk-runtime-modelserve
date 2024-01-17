@@ -148,6 +148,10 @@ class Function(Entity):
     def run(
         self,
         action: str,
+        volumes: list[dict] | None = None,
+        volume_mounts: list[dict] | None = None,
+        env: list[dict] | None = None,
+        resources: dict | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -161,6 +165,14 @@ class Function(Entity):
         ----------
         action : str
             Action to execute. Task parameter.
+        volumes : list[dict]
+            The volumes of the task. Task parameter.
+        volume_mounts : list[dict]
+            The volume mounts of the task. Task parameter.
+        env : list[dict]
+            The env variables of the task. Task parameter.
+        resources : dict
+            Kubernetes resources for the task. Task parameter.
         inputs : dict
             Function inputs. Run parameter.
         outputs : dict
@@ -180,7 +192,12 @@ class Function(Entity):
         # Create task if does not exists
         task = self._tasks.get(action)
         if task is None:
-            task = self.new_task(kind=action, **kwargs)
+            task = self.new_task(kind=action,
+                                 volumes=volumes,
+                                 volume_mounts=volume_mounts,
+                                 env=env,
+                                 resources=resources,
+                                 **kwargs)
 
         # Run function from task
         run = task.run(inputs, outputs, parameters, local_execution)
@@ -382,7 +399,7 @@ def function_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     source_code: str | None = None,
@@ -403,12 +420,16 @@ def function_from_parameters(
         UUID.
     description : str
         Description of the function.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    source : str
+    source_code : str
         Path to the function's source code on the local file system.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -429,7 +450,7 @@ def function_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=source_remote,
+        source=source,
         labels=labels,
         embedded=embedded,
     )

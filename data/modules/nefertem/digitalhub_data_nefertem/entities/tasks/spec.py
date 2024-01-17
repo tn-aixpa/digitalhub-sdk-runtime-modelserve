@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Optional
 
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
+from digitalhub_core.utils.exceptions import EntityError
 
 
 class TaskSpecNefertem(TaskSpec):
@@ -14,7 +15,11 @@ class TaskSpecNefertem(TaskSpec):
     def __init__(
         self,
         function: str,
-        framework: str,
+        volumes: list[dict] | None = None,
+        volume_mounts: list[dict] | None = None,
+        env: list[dict] | None = None,
+        resources: dict | None = None,
+        framework: str | None = None,
         exec_args: dict | None = None,
         parallel: bool = False,
         num_worker: int | None = 1,
@@ -23,7 +28,9 @@ class TaskSpecNefertem(TaskSpec):
         """
         Constructor.
         """
-        super().__init__(function, **kwargs)
+        super().__init__(function, volumes, volume_mounts, env, resources, **kwargs)
+        if framework is None:
+            raise EntityError("Framework for Nefertem is not given.")
         self.framework = framework
         self.exec_args = exec_args
         self.parallel = parallel
@@ -35,7 +42,7 @@ class TaskParamsNefertem(TaskParams):
     TaskParamsNefertem model.
     """
 
-    framework: str
+    framework: str = None
     """Nefertem framework."""
 
     exec_args: Optional[dict] = {}

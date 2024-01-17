@@ -330,7 +330,7 @@ def dataitem_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     key: str | None = None,
@@ -352,6 +352,10 @@ def dataitem_from_parameters(
         UUID.
     description : str
         Description of the dataitem.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
     key : str
@@ -359,7 +363,7 @@ def dataitem_from_parameters(
     path : str
         Path to the dataitem on local file system or remote storage.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -374,7 +378,7 @@ def dataitem_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=source_remote,
+        source=source,
         labels=labels,
         embedded=embedded,
     )

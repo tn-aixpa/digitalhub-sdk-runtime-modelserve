@@ -55,7 +55,7 @@ def new_workflow(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source_remote: str | None = None,
+    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     **kwargs,
@@ -75,10 +75,14 @@ def new_workflow(
         UUID.
     description : str
         A description of the workflow.
+    source : str
+        Remote git source for object.
+    labels : list[str]
+        List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
     **kwargs
-        Keyword arguments.
+        Spec keyword arguments.
 
     Returns
     -------
@@ -89,7 +93,7 @@ def new_workflow(
         project=project,
         name=name,
         description=description,
-        source_remote=source_remote,
+        source=source,
         labels=labels,
         kind=kind,
         embedded=embedded,
