@@ -192,12 +192,14 @@ class Function(Entity):
         # Create task if does not exists
         task = self._tasks.get(action)
         if task is None:
-            task = self.new_task(kind=action,
-                                 volumes=volumes,
-                                 volume_mounts=volume_mounts,
-                                 env=env,
-                                 resources=resources,
-                                 **kwargs)
+            task = self.new_task(
+                kind=action,
+                volumes=volumes,
+                volume_mounts=volume_mounts,
+                env=env,
+                resources=resources,
+                **kwargs,
+            )
 
         # Run function from task
         run = task.run(inputs, outputs, parameters, local_execution)
