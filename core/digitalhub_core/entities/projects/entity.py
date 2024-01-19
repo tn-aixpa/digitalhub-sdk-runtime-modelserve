@@ -643,12 +643,14 @@ class Project(Entity):
             **obj.get("spec"),
         )
         status = build_status(entity, **obj.get("status"))
+        local = obj.get("local", False)
         return {
             "name": name,
             "kind": kind,
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "local": local,
         }
 
 

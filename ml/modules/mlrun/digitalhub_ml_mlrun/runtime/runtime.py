@@ -36,7 +36,7 @@ class RuntimeMLRun(Runtime):
         """
         Constructor.
         """
-        self.root_path = Path("/tmp")
+        self.root_path = Path("/tmp/mlrun_run")
         self.function_source = None
 
     def build(self, function: dict, task: dict, run: dict) -> dict:

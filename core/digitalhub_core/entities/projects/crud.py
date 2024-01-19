@@ -158,6 +158,7 @@ def get_project(name: str, local: bool = False) -> Project:
     api = api_base_read(PROJ, name)
     client = get_client(local)
     obj = client.read_object(api)
+    obj["local"] = local
     return project_from_dict(obj)
 
 
