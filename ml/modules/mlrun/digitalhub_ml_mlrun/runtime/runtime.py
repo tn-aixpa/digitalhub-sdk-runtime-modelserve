@@ -142,8 +142,10 @@ class RuntimeMLRun(Runtime):
         Function
             DHCore function.
         """
-        function_name = spec.get("function").split("://")[1].split("/")[1].split(":")[0]
-        return get_function(project, function_name)
+        func = spec.get("function").split("://")[1].split("/")[1]
+        function_name, function_version = func.split(":")
+        LOGGER.info(f"Getting function {function_name}:{function_version}.")
+        return get_function(project, function_name, function_version)
 
     def _save_function_source(self, function: Function) -> str:
         """
@@ -159,6 +161,7 @@ class RuntimeMLRun(Runtime):
         path
             Path to the function source.
         """
+        self.root_path.mkdir(parents=True, exist_ok=True)
         path = self.root_path / function.spec.build.get("origin_filename")
         path.write_text(decode_string(function.spec.build.get("function_source_code")))
         return str(path)

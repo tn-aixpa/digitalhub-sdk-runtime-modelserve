@@ -43,24 +43,26 @@ class FunctionSpecMLRun(FunctionSpec):
         """
         super().__init__(source, **kwargs)
 
-        # Sanity checks
-        if source is None:
-            raise EntityError("Source must be provided.")
-
-        if not (Path(source).suffix == ".py" and Path(source).is_file()):
-            raise EntityError("Source is not a valid python file.")
-
         self.image = image
         self.tag = tag
         self.handler = handler
         self.command = command
         self.requirements = requirements if requirements is not None else []
 
-        self.build = {
-            "function_source_code": encode_source(source),
-            "code_origin": source,
-            "origin_filename": Path(source).name,
-        }
+        build = kwargs.get("build")
+        if build is not None or build:
+            self.build = build
+        else:
+            # Source check
+            if source is None:
+                raise EntityError("Source must be provided.")
+            if not (Path(source).suffix == ".py" and Path(source).is_file()):
+                raise EntityError("Source is not a valid python file.")
+            self.build = {
+                "function_source_code": encode_source(source),
+                "code_origin": source,
+                "origin_filename": Path(source).name,
+            }
 
 
 class FunctionParamsMLRun(FunctionParams):
