@@ -13,19 +13,15 @@ from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
-from digitalhub_core.entities.dataitems.crud import get_dataitem_from_key
 from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
-from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, RUNS, TASK
+from digitalhub_core.utils.commons import FUNC, RUNS, TASK
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_core.entities.dataitems.entity import Dataitem
     from digitalhub_core.entities.runs.metadata import RunMetadata
     from digitalhub_core.entities.runs.spec import RunSpec
     from digitalhub_core.entities.runs.status import RunStatus
@@ -188,6 +184,18 @@ class Run(Entity):
         self.save(update=True)
         return self
 
+    def results(self) -> list[object]:
+        """
+        Get run objects results.
+
+        Returns
+        -------
+        dict
+            Results from backend.
+        """
+        runtime = self._get_runtime()
+        return runtime.results(self.status.to_dict())
+
     def refresh(self) -> Run:
         """
         Get run from backend.
@@ -242,102 +250,6 @@ class Run(Entity):
         if not isinstance(status, dict):
             raise EntityError("Status must be a dictionary.")
         self.status: RunStatus = build_status(RUNS, **status)
-
-    #############################
-    #  Artifacts and Dataitems
-    #############################
-
-    def get_keys(self) -> dict[str, list[str]]:
-        """
-        Get artifacts and dataitems keys if they exist.
-
-        Returns
-        -------
-        list[dict]
-            List of artifacts and dataitems keys.
-        """
-        try:
-            keys = {}
-            if self.status.dataitems is not None:
-                keys["dataitems"] = [d["key"] for d in self.status.dataitems]
-            if self.status.artifacts is not None:
-                keys["artifacts"] = [a["key"] for a in self.status.artifacts]
-            return keys
-
-        except KeyError:
-            raise EntityError("Run status is possibly malformed.")
-
-    def get_artifacts(self, output_key: str | None = None) -> Artifact | list[Artifact]:
-        """
-        Get artifact(s) from backend produced by the run through its key.
-
-        Parameters
-        ----------
-        output_key : str, optional
-            Key of the artifact to get. If not provided, returns all artifacts.
-
-        Returns
-        -------
-        Artifact | list[Artifact]
-            Artifact(s) from backend.
-        """
-        return self._get_objects(ARTF, get_artifact_from_key, output_key)
-
-    def get_dataitems(self, output_key: str | None = None) -> Dataitem | list[Dataitem]:
-        """
-        Get dataitem(s) from backend produced by the run through its key.
-
-        Parameters
-        ----------
-        output_key : str, optional
-            Key of the dataitem to get. If not provided, returns all dataitems.
-
-        Returns
-        -------
-        Dataitem | list[Dataitem]
-            Dataitem(s) from backend.
-        """
-        return self._get_objects(DTIT, get_dataitem_from_key, output_key)
-
-    def _get_objects(self, object_type: str, func: callable, output_key: str | None = None) -> list:
-        """
-        Get objects from backend produced by the run through its key.
-
-        Parameters
-        ----------
-        object_type : str
-            Type of the object to get.
-        func : callable
-            Function to get object from backend.
-        output_key : str
-            Key of the object to get. If not provided, returns all objects.
-
-        Returns
-        -------
-        list
-            Objects from backend.
-
-        Raises
-        ------
-        EntityError
-            If object type is not supported or if run has
-            no result or if object with key is not found.
-        """
-        self.refresh()
-        if object_type == DTIT:
-            result = self.status.dataitems
-        elif object_type == ARTF:
-            result = self.status.artifacts
-        else:
-            raise EntityError(f"Object type '{object_type}' not supported.")
-        if result is None:
-            raise EntityError("Run has no result (maybe try when it finishes).")
-        if output_key is not None:
-            key = next((r.get("id") for r in result if r.get("key") == output_key), None)
-            if key is None:
-                raise EntityError(f"No {object_type} found with key '{output_key}'.")
-            return func(key)
-        return [func(r.get("id")) for r in result]
 
     #############################
     #  Functions and Tasks

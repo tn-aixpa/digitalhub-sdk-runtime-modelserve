@@ -3,7 +3,12 @@ Base Runtime module.
 """
 from __future__ import annotations
 
+import typing
 from abc import abstractmethod
+from typing import Any, Callable
+
+if typing.TYPE_CHECKING:
+    from digitalhub_core.runtimes.results import RunResults
 
 
 class Runtime:
@@ -22,6 +27,33 @@ class Runtime:
         """
         Execute run task.
         """
+
+    @abstractmethod
+    def results(self, run_status: dict) -> RunResults:
+        """
+        Get run results.
+        """
+
+    @staticmethod
+    def _execute(func: Callable, *args, **kwargs) -> Any:
+        """
+        Execute function.
+
+        Parameters
+        ----------
+        func : Callable
+            Function to execute.
+        *args
+            Function arguments.
+        **kwargs
+            Function keyword arguments.
+
+        Returns
+        -------
+        Any
+            Function result.
+        """
+        return func(*args, **kwargs)
 
     @staticmethod
     def _get_action(run: dict) -> str:

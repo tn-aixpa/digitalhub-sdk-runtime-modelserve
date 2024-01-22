@@ -1,5 +1,5 @@
 """
-Runtime Nefertem module.
+Runtime nefertem module.
 """
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ import os
 import shutil
 import typing
 from pathlib import Path
+from typing import Callable
 
-import nefertem
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.artifacts.crud import get_artifact_from_key, new_artifact
 from digitalhub_core.entities.artifacts.utils import (
     calculate_blob_hash,
     get_artifact_info,
@@ -20,9 +20,16 @@ from digitalhub_core.entities.artifacts.utils import (
 )
 from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.runtimes.base import Runtime
+from digitalhub_core.runtimes.results import RunResults
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data_nefertem.runtime.nefertem_utils import (
+    create_client,
+    create_nt_resources,
+    create_nt_run_config,
+    select_function,
+)
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
@@ -35,7 +42,7 @@ BUCKET = os.getenv("S3_BUCKET_NAME")
 
 class RuntimeNefertem(Runtime):
     """
-    Runtime Nefertem class.
+    Runtime nefertem class.
     """
 
     def __init__(self) -> None:
@@ -70,12 +77,25 @@ class RuntimeNefertem(Runtime):
 
         # Handle unknown task kind
         if action not in ["validate", "profile", "infer", "metric"]:
-            msg = f"Task {action} not allowed for Nefertem runtime"
+            msg = f"Task {action} not allowed for nefertem runtime."
             LOGGER.error(msg)
             raise EntityError(msg)
 
         # Execute action
         return self.execute(action, run)
+
+    def results(self, run_status: dict) -> RunResults:
+        """
+        Get run results.
+
+        Returns
+        -------
+        RunResults
+            Run results.
+        """
+        artifacts = run_status.get("artifacts", [])
+        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
+        return RunResults(artifact_objs)
 
     ####################
     # Execute
@@ -95,45 +115,22 @@ class RuntimeNefertem(Runtime):
         spec = run.get("spec")
         project = run.get("project")
 
-        # Get inputs and parameters
-        LOGGER.info("Getting inputs and parameters.")
-        inputs = self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
-        resources = self._get_resources(inputs)
-        run_config = self._get_run_config(action, spec)
+        # Collect inputs
+        LOGGER.info("Collecting inputs.")
+        inputs = self._collect_inputs(spec.get("inputs", {}).get("dataitems", []), project)
 
-        # Create client
-        client = nefertem.create_client(output_path=self.output_path)
-        try:
-            client.add_store(self.store)
-        except nefertem.utils.exceptions.StoreError:
-            pass
+        # Get nefertem configuration and function
+        LOGGER.info("Creating nefertem configuration.")
+        parameters = self._generate_nefertem_config(inputs, spec, action)
+        func = self._select_function(action)
 
-        # Operation to execute
+        # Execute function
         LOGGER.info("Executing nefertem run.")
+        results: dict = self._execute(func, **parameters)
 
-        if action == "infer":
-            nt_run = self.infer(client, resources, run_config, self.nt_id)
-
-        elif action == "profile":
-            nt_run = self.profile(client, resources, run_config, self.nt_id)
-
-        elif action == "validate":
-            constraints = spec.get("constraints")
-            error_report = spec.get("error_report")
-            nt_run = self.validate(client, resources, run_config, self.nt_id, constraints, error_report)
-
-        elif action == "metric":
-            metrics = spec.get("metrics")
-            nt_run = self.metric(client, resources, run_config, self.nt_id, metrics)
-
-        # Create artifacts
-        LOGGER.info("Creating artifacts.")
-        artifacts = [self._create_artifact(i, project, self.nt_id) for i in nt_run.get("output_files", [])]
-
-        # Upload outputs
-        LOGGER.info("Uploading artifacts to minio.")
-        for i in artifacts:
-            self._upload_artifact(*i)
+        # Collect outputs
+        LOGGER.info("Collecting outputs.")
+        outputs = self._collect_outputs(results, project, self.nt_id)
 
         # Remove tmp folder
         LOGGER.info("Removing tmp folder.")
@@ -143,193 +140,19 @@ class RuntimeNefertem(Runtime):
         LOGGER.info("Task completed, returning run status.")
         return {
             "state": State.COMPLETED.value,
-            "artifacts": [get_artifact_info(i[0]) for i in artifacts],
+            "artifacts": [get_artifact_info(i[0]) for i in outputs],
+            "nefertem_result": results,
             "timings": {
-                "start_time": nt_run.get("started"),
-                "end_time": nt_run.get("finished"),
+                "start_time": results.get("started"),
+                "end_time": results.get("finished"),
             },
         }
-
-    ####################
-    # INFER TASK
-    ####################
-
-    @staticmethod
-    def infer(
-        client: Client,
-        resources: list[dict],
-        run_config: dict,
-        run_id: str,
-    ) -> dict:
-        """
-        Execute infer task.
-
-        Parameters
-        ----------
-        client : Client
-            Nefertem client.
-        resources : list[dict]
-            The list of nefertem resources.
-        run_config : dict
-            The nefertem run configuration.
-        run_id : str
-            The nefertem run id.
-
-        Returns
-        -------
-        dict
-            Nefertem run info.
-        """
-        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
-            nt_run.infer()
-            nt_run.log_schema()
-            nt_run.persist_schema()
-        return nt_run.run_info.to_dict()
-
-    ####################
-    # PROFILE TASK
-    ####################
-
-    @staticmethod
-    def profile(
-        client: Client,
-        resources: list[dict],
-        run_config: dict,
-        run_id: str,
-    ) -> dict:
-        """
-        Execute profile task.
-
-        Parameters
-        ----------
-        client : Client
-            Nefertem client.
-        resources : list[dict]
-            The list of nefertem resources.
-        run_config : dict
-            The nefertem run configuration.
-        run_id : str
-            The nefertem run id.
-
-        Returns
-        -------
-        dict
-            Nefertem run info.
-        """
-        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
-            nt_run.profile()
-            nt_run.log_profile()
-            nt_run.persist_profile()
-        return nt_run.run_info.to_dict()
-
-    ####################
-    # VALIDATE TASK
-    ####################
-
-    @staticmethod
-    def validate(
-        client: Client,
-        resources: list[dict],
-        run_config: dict,
-        run_id: str,
-        constraints: list[dict],
-        error_report: str | None = None,
-    ) -> dict:
-        """
-        Execute validate task.
-
-        Parameters
-        ----------
-        client : Client
-            Nefertem client.
-        resources : list[dict]
-            The list of nefertem resources.
-        run_config : dict
-            The nefertem run configuration.
-        run_id : str
-            The nefertem run id.
-        constraints : list[dict]
-            The list of nefertem constraints.
-        error_report : str
-            The error report modality.
-
-        Returns
-        -------
-        dict
-            Nefertem run info.
-
-        Raises
-        ------
-        RuntimeError
-            If no constraints are given.
-        """
-        if constraints is None:
-            msg = "Error. No constraints given."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-        if error_report is None:
-            error_report = "partial"
-
-        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
-            nt_run.validate(constraints=constraints, error_report=error_report)
-            nt_run.log_report()
-            nt_run.persist_report()
-        return nt_run.run_info.to_dict()
-
-    ####################
-    # METRIC TASK
-    ####################
-
-    @staticmethod
-    def metric(
-        client: Client,
-        resources: list[dict],
-        run_config: dict,
-        run_id: str,
-        metrics: list[dict],
-    ) -> dict:
-        """
-        Execute metric task.
-
-        Parameters
-        ----------
-        client : Client
-            Nefertem client.
-        resources : list[dict]
-            The list of nefertem resources.
-        run_config : dict
-            The nefertem run configuration.
-        run_id : str
-            The nefertem run id.
-        metrics : list[dict]
-            The list of nefertem metrics.
-
-        Returns
-        -------
-        dict
-            Nefertem run info.
-
-        Raises
-        ------
-        RuntimeError
-            If no metrics are given.
-        """
-        if metrics is None:
-            msg = "Error. No metrics given."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
-        with client.create_run(resources, run_config, run_id=run_id) as nt_run:
-            nt_run.metric(metrics=metrics)
-            nt_run.log_metric()
-            nt_run.persist_metric()
-        return nt_run.run_info.to_dict()
 
     ####################
     # Inputs
     ####################
 
-    def _get_inputs(self, inputs: list, project: str) -> list[dict]:
+    def _collect_inputs(self, inputs: list, project: str) -> list[dict]:
         """
         Materialize inputs in postgres.
 
@@ -413,91 +236,159 @@ class RuntimeNefertem(Runtime):
             LOGGER.exception(msg)
             raise EntityError(msg)
 
-    def _get_resources(self, inputs: list[dict]) -> list[dict]:
+    ####################
+    # Configuration
+    ####################
+
+    def _generate_nefertem_config(self, inputs: list[dict], spec: dict, action: str) -> tuple[Callable, dict]:
         """
-        Create nefertem resources.
+        Generate nefertem configuration.
 
         Parameters
         ----------
         inputs : list
             The list of inputs dataitems.
+        spec : dict
+            Run spec.
+        action : str
+            Action to execute.
 
         Returns
         -------
-        list[dict]
-            The list of nefertem resources.
+        tuple
+            Function to execute and its parameters.
+        """
+        # Create resources
+        resources = self._create_nt_resources(inputs, self.store)
+
+        # Create run configuration
+        run_config = self._create_nt_run_config(action, spec)
+
+        # Create Nefertem client
+        client = self._create_client(self.output_path, self.store)
+
+        # Return parameters
+        return {
+            "client": client,
+            "resources": resources,
+            "run_config": run_config,
+            "run_id": self.nt_id,
+            "metrics": spec.get("metrics"),
+            "constraints": spec.get("constraints"),
+            "error_report": spec.get("error_report"),
+        }
+
+    def _create_client(self, output_path: str, store: dict) -> Client:
+        """
+        Create Nefertem client.
+
+        Parameters
+        ----------
+        output_path : str
+            Output path where to store Nefertem results.
+        store : dict
+            Store configuration.
+
+        Returns
+        -------
+        Client
+            Nefertem client.
         """
         try:
-            resources = []
-            for i in inputs:
-                res = {}
-                res["name"] = i["name"]
-                res["path"] = i["path"]
-                res["store"] = self.store["name"]
-                resources.append(res)
-            return resources
+            return create_client(output_path, store)
+        except Exception:
+            msg = "Error. Nefertem client cannot be created."
+            LOGGER.exception(msg)
+            raise EntityError(msg)
+
+    def _create_nt_resources(self, inputs: list[dict], store: dict) -> list[dict]:
+        """
+        Create non-terminating resources.
+
+        Parameters
+        ----------
+        inputs : list
+            The list of inputs dataitems.
+        store : dict
+            The store configuration.
+
+        Returns
+        -------
+        list[dict] :
+            List of nefertem resources.
+        """
+        try:
+            return create_nt_resources(inputs, store)
         except KeyError:
             msg = "Error. Dataitem path is not given."
             LOGGER.exception(msg)
             raise EntityError(msg)
 
-    @staticmethod
-    def _get_run_config(action: str, spec: dict) -> dict:
+    def _create_nt_run_config(self, action: str, spec: dict) -> dict:
         """
-        Build nefertem run configuration.
+        Create nefertem run configuration.
 
         Parameters
         ----------
+        action : str
+            Action to execute.
         spec : dict
-            Run specification.
+            Run spec.
 
         Returns
         -------
         dict
             The nefertem run configuration.
         """
-        if action == "infer":
-            operation = "inference"
-        elif action == "profile":
-            operation = "profiling"
-        elif action == "validate":
-            operation = "validation"
-        elif action == "metric":
-            operation = "metric"
-        run_config = {
-            "operation": operation,
-            "exec_config": [
-                {
-                    "framework": spec.get("framework"),
-                    "exec_args": spec.get("exec_args", {}),
-                }
-            ],
-            "parallel": spec.get("parallel", False),
-            "num_worker": spec.get("num_worker", 1),
-        }
-        return run_config
+        return create_nt_run_config(action, spec)
+
+    def _select_function(self, action: str) -> Callable:
+        """
+        Select function according to action.
+
+        Parameters
+        ----------
+        action : str
+            Action to execute.
+
+        Returns
+        -------
+        Callable
+            Function to execute.
+        """
+        return select_function(action)
 
     ####################
     # Outputs
     ####################
 
-    def _parse_results(self, run_info: dict) -> tuple[list[str], str]:
+    def _collect_outputs(self, results: dict, project: str, run_id: str) -> list[Artifact]:
         """
-        Parse results from nefertem run.
+        Collect outputs.
 
         Parameters
         ----------
-        run_info : dict
-            The Nefertem run info.
+        results : dict
+            The nefertem run results.
+        project : str
+            The project name.
+        run_id : str
+            Neferetem run id.
 
         Returns
         -------
-        tuple[list[str], str]
-            List of artifacts paths and Nefertem run id.
+        list
+            List of artifacts paths.
         """
-        artifact_paths = run_info.get("output_files", [])
-        run_id = run_info.get("run_id")
-        return artifact_paths, run_id
+        output_files = results.get("output_files", [])
+
+        LOGGER.info("Creating artifacts.")
+        artifacts = [self._create_artifact(i, project, run_id) for i in output_files]
+
+        LOGGER.info("Uploading artifacts to minio.")
+        [self._upload_artifact(*i) for i in artifacts]
+
+        return artifacts
 
     def _create_artifact(self, src_path: str, project: str, run_id: str) -> tuple[Artifact, str]:
         """
