@@ -371,7 +371,7 @@ class RuntimeMLRun(Runtime):
 
         Parameters
         ----------
-        mlrun_arti : dict
+        mlrun_artifact : dict
             Mlrun artifact.
 
         Returns

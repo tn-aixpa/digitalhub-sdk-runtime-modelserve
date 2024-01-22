@@ -124,12 +124,14 @@ class ClientDHCore(Client):
             response = requests.request(call_type, url, timeout=60, **kwargs)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException:
-            if response is None:
+        except requests.exceptions.RequestException as e:
+            if isinstance(e, requests.exceptions.Timeout):
+                msg = "Request to DHCore backend timed out."
+            elif isinstance(e, requests.exceptions.ConnectionError):
                 msg = "Unable to connect to DHCore backend."
             else:
-                msg = f"Backend error: {response.status_code} - {response.text}"
-            raise BackendError(msg)
+                msg = f"Backend error: {e}"
+            raise BackendError(msg) from e
 
     @staticmethod
     def _get_endpoint() -> str:
