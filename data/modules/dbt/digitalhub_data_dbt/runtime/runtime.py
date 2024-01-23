@@ -3,7 +3,6 @@ Runtime DBT module.
 """
 from __future__ import annotations
 
-import os
 import typing
 from pathlib import Path
 from typing import Callable

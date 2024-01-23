@@ -7,25 +7,22 @@ import typing
 from pathlib import Path
 from typing import Callable
 
-from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.artifacts.crud import new_artifact
-from digitalhub_core.entities.artifacts.utils import get_artifact_info
-from digitalhub_core.entities.dataitems.crud import create_dataitem
-from digitalhub_core.entities.dataitems.utils import get_dataitem_info
-from digitalhub_core.entities.functions.crud import get_function
+from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
+from digitalhub_core.entities.dataitems.crud import get_dataitem_from_key
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.exceptions import BackendError
-from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_ml_mlrun.utils.configurations import (get_mlrun_function,
-                                                      get_mlrun_project,
-                                                      map_state)
+from digitalhub_data.runtimes.results import RunResultsData
+from digitalhub_ml_mlrun.utils.configurations import (
+    get_dhcore_function,
+    get_mlrun_function,
+    get_mlrun_project,
+    parse_function_specs,
+    save_function_source,
+)
 from digitalhub_ml_mlrun.utils.functions import run_job
+from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_core.entities.dataitems.entity import Dataitem
-    from digitalhub_core.entities.functions.entity import Function
     from mlrun.runtimes import BaseRuntime
     from mlrun.runtimes.base import RunObject
 
@@ -63,27 +60,22 @@ class RuntimeMLRun(Runtime):
         dict
             Status of the executed run.
         """
-        # Validate task
         LOGGER.info("Validating task.")
         action = self._validate_task(run)
         func = self._get_function(action)
 
-        # Get run specs
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
 
-        # Configure MLRun
-        LOGGER.info("Configure MLRun execution.")
+        LOGGER.info("Configure execution.")
         mlrun_function, function_args = self._configure_execution(spec, project)
 
-        # Execute function
         LOGGER.info("Executing function.")
-        execution_results = self._execute(func, mlrun_function, function_args)
+        results: RunObject = self._execute(func, mlrun_function, function_args)
 
-        # Parse execution results
-        LOGGER.info("Parsing execution results.")
-        return self._parse_execution_results(execution_results)
+        LOGGER.info("Collecting results.")
+        return self._collect_outputs(results)
 
     @staticmethod
     def _get_function(action: str) -> Callable:
@@ -103,6 +95,22 @@ class RuntimeMLRun(Runtime):
         if action == "mlrun":
             return run_job
         raise NotImplementedError
+
+    @staticmethod
+    def results(run_status: dict) -> RunResultsData:
+        """
+        Get run results.
+
+        Returns
+        -------
+        RunResults
+            Run results.
+        """
+        artifacts = run_status.get("artifacts", [])
+        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
+        datatatems = run_status.get("dataitems", [])
+        dataitem_objs = [get_dataitem_from_key(dti.get("id")) for dti in datatatems]
+        return RunResultsData(artifact_objs, dataitem_objs)
 
     ####################
     # Configuration
@@ -126,20 +134,15 @@ class RuntimeMLRun(Runtime):
         """
 
         # Setup function source and specs
-        LOGGER.info("Getting function source.")
-        dhcore_function = self._get_dhcore_function(project, spec)
-        function_source = self._save_function_source(dhcore_function)
-        function_specs = self._parse_function_specs(dhcore_function)
+        LOGGER.info("Getting function source and specs.")
+        dhcore_function = get_dhcore_function(spec.get("function"))
+        function_source = save_function_source(self.root_path, dhcore_function.spec)
+        function_specs = parse_function_specs(dhcore_function.spec)
 
         # Create MLRun project
         LOGGER.info("Creating MLRun project and function.")
         mlrun_project = get_mlrun_project(project)
-        mlrun_function = get_mlrun_function(
-            mlrun_project,
-            dhcore_function.name,
-            function_source,
-            function_specs,
-        )
+        mlrun_function = get_mlrun_function(mlrun_project, dhcore_function.name, function_source, function_specs)
 
         # Get parameters
         LOGGER.info("Getting parameters.")
@@ -147,256 +150,23 @@ class RuntimeMLRun(Runtime):
 
         return mlrun_function, function_args
 
-    def _get_dhcore_function(self, project: str, spec: dict) -> Function:
-        """
-        Get DHCore function.
-
-        Parameters
-        ----------
-        project : str
-            Name of the project.
-        spec : dict
-            Run specs.
-
-        Returns
-        -------
-        Function
-            DHCore function.
-        """
-        func = spec.get("function").split("://")[1].split("/")[1]
-        function_name, function_version = func.split(":")
-        LOGGER.info(f"Getting function {function_name}:{function_version}.")
-        try:
-            return get_function(project, function_name, function_version)
-        except BackendError:
-            msg = f"Function {function_name}:{function_version} not found in Core."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
-    def _save_function_source(self, function: Function) -> str:
-        """
-        Save function source.
-
-        Parameters
-        ----------
-        function : Function
-            DHCore function.
-
-        Returns
-        -------
-        path
-            Path to the function source.
-        """
-        try:
-            self.root_path.mkdir(parents=True, exist_ok=True)
-            path = self.root_path / function.spec.build.get("origin_filename")
-            path.write_text(decode_string(function.spec.build.get("function_source_code")))
-            return str(path)
-        except Exception:
-            msg = "Error saving function source."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-
-    def _parse_function_specs(self, function: Function) -> dict:
-        """
-        Parse function specs.
-
-        Parameters
-        ----------
-        function : Function
-            DHCore function.
-
-        Returns
-        -------
-        dict
-            Function specs.
-        """
-        try:
-            return {
-                "image": function.spec.image,
-                "tag": function.spec.tag,
-                "handler": function.spec.handler,
-                "requirements": function.spec.requirements,
-            }
-        except AttributeError:
-            msg = "Error parsing function specs."
-            LOGGER.error(msg)
-            raise RuntimeError(msg)
-
     ####################
-    # Output
+    # Outputs
     ####################
 
-    def _parse_execution_results(self, execution_results: RunObject) -> dict:
+    def _collect_outputs(self, results: RunObject) -> dict:
         """
-        Parse execution results.
+        Collect outputs.
 
         Parameters
         ----------
-        execution_results : RunObject
+        results : RunObject
             Execution results.
 
         Returns
         -------
         dict
-            Parsed execution results.
+            Status of the executed run.
         """
-        try:
-            results = {}
-
-            # Check execution state
-            results["state"] = map_state(execution_results.status.state)
-
-            # Get artifacts
-            artifacts = self._parse_artifacts(execution_results.status.artifacts)
-            if artifacts:
-                results["artifacts"] = [get_artifact_info(i) for i in artifacts]
-
-            # Get dataitems
-            dataitems = self._parse_dataitems(execution_results.status.artifacts)
-            if dataitems:
-                results["dataitems"] = [get_dataitem_info(i) for i in dataitems]
-
-            # Get timings
-            results["timings"] = {
-                "start": execution_results.status.start_time,
-                "updated": execution_results.status.last_update,
-            }
-
-            # Embed execution results
-            results["mlrun_results"] = execution_results.to_dict()
-
-            # Return results
-            return results
-        except Exception:
-            msg = "Something got wrong during execution results parsing."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-
-    ####################
-    # Artifacts helpers
-    ####################
-
-    def _parse_artifacts(self, mlrun_outputs: list[dict]) -> list[Artifact]:
-        """
-        Filter out models and datasets from MLRun outputs and create DHCore artifacts.
-
-        Parameters
-        ----------
-        mlrun_outputs : list[dict]
-            MLRun outputs.
-
-        Returns
-        -------
-        list[Artifact]
-            DHCore artifacts list.
-        """
-        outputs = [i for i in mlrun_outputs if i.get("kind") not in ["model", "dataset"]]
-        return [self._create_artifact(j) for j in outputs]
-
-    @staticmethod
-    def _create_artifact(mlrun_artifact: dict) -> Artifact:
-        """
-        New artifact.
-
-        Parameters
-        ----------
-        mlrun_artifact : dict
-            Mlrun artifact.
-
-        Returns
-        -------
-        dict
-            Artifact info.
-        """
-        try:
-            kwargs = {}
-            kwargs["project"] = mlrun_artifact.get("metadata", {}).get("project")
-            kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
-            kwargs["kind"] = "artifact"
-            kwargs["target_path"] = mlrun_artifact.get("spec", {}).get("target_path")
-            kwargs["size"] = mlrun_artifact.get("spec", {}).get("size")
-            kwargs["hash"] = mlrun_artifact.get("spec", {}).get("hash")
-            return new_artifact(**kwargs)
-        except Exception:
-            msg = "Something got wrong during artifact creation."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-
-    ####################
-    # Dataitems helpers
-    ####################
-
-    def _parse_dataitems(self, mlrun_outputs: list[dict]) -> list[Dataitem]:
-        """
-        Filter out datasets from MLRun outputs and create DHCore dataitems.
-
-        Parameters
-        ----------
-        mlrun_outputs : list[dict]
-            MLRun outputs.
-
-        Returns
-        -------
-        list[Dataitem]
-            DHCore dataitems list.
-        """
-        outputs = [i for i in mlrun_outputs if i.get("kind") == "dataset"]
-        return [self._create_artifact(j) for j in outputs]
-
-    def _create_dataitem(self, mlrun_output: dict) -> Dataitem:
-        """
-        New dataitem.
-
-        Parameters
-        ----------
-        mlrun_output : dict
-            Mlrun output.
-
-        Returns
-        -------
-        dict
-            Dataitem info.
-        """
-        try:
-            # Create dataitem
-            kwargs = {}
-            kwargs["project"] = mlrun_output.get("metadata", {}).get("project")
-            kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
-            kwargs["kind"] = "dataitem"
-            kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
-            kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {}).get("fields")
-            dataitem = create_dataitem(**kwargs)
-
-            # Add sample preview
-            header = mlrun_output.get("spec", {}).get("header", [])
-            sample_data = mlrun_output.get("status", {}).get("preview", [[]])
-            dataitem.status.preview = self._pivot_preview(header, sample_data)
-
-            # Save dataitem in core and return it
-            dataitem.save()
-            return dataitem
-        except Exception:
-            msg = "Something got wrong during dataitem creation."
-            LOGGER.exception(msg)
-            raise RuntimeError(msg)
-
-    @staticmethod
-    def _pivot_preview(columns: list, data: list[list]) -> list[list]:
-        """
-        Pivot preview from MLRun.
-
-        Parameters
-        ----------
-        columns : list
-            Columns.
-        data : list[list]
-            Data preview.
-
-        Returns
-        -------
-        list[list]
-            Pivoted preview.
-        """
-        ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
-        return [{"name": c, "value": d} for c, d in zip(columns, ordered_data)]
+        outputs = parse_mlrun_artifacts(results.status.artifacts)
+        return build_status(results, outputs)

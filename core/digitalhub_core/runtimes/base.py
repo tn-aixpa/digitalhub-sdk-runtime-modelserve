@@ -44,8 +44,9 @@ class Runtime:
         Get function from action.
         """
 
+    @staticmethod
     @abstractmethod
-    def results(self, run_status: dict) -> RunResults:
+    def results(run_status: dict) -> RunResults:
         """
         Get run results.
         """

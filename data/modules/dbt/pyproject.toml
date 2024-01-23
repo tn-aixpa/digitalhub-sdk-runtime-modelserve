@@ -21,7 +21,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub-core>=0.0.5",
+"digitalhub-data>=0.0.5",
 ]
 [project.optional-dependencies]
 local = [
