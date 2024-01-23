@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
+from typing import Callable
 
-import mlrun
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.artifacts.utils import get_artifact_info
@@ -14,15 +14,18 @@ from digitalhub_core.entities.dataitems.crud import create_dataitem
 from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.exceptions import BackendError
 from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_ml_mlrun.utils.configurations import (get_mlrun_function,
+                                                      get_mlrun_project,
+                                                      map_state)
+from digitalhub_ml_mlrun.utils.functions import run_job
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_core.entities.dataitems.entity import Dataitem
     from digitalhub_core.entities.functions.entity import Function
-    from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
     from mlrun.runtimes.base import RunObject
 
@@ -31,6 +34,8 @@ class RuntimeMLRun(Runtime):
     """
     Runtime MLRun class.
     """
+
+    allowed_actions = ["mlrun"]
 
     def __init__(self) -> None:
         """
@@ -58,36 +63,67 @@ class RuntimeMLRun(Runtime):
         dict
             Status of the executed run.
         """
-        # Get action
-        action = self._get_action(run)
-
-        # Handle unknown task kind
-        if action not in ["mlrun"]:
-            msg = f"Task {action} not allowed for MLRun runtime"
-            LOGGER.error(msg)
-            raise EntityError(msg)
-
-        # Execute action
-        return self.execute(action, run)
-
-    ####################
-    # Execute
-    ####################
-
-    def execute(self, action: str, run: dict) -> dict:
-        """
-        Execute function.
-
-        Returns
-        -------
-        dict
-            Status of the executed run.
-        """
+        # Validate task
+        LOGGER.info("Validating task.")
+        action = self._validate_task(run)
+        func = self._get_function(action)
 
         # Get run specs
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
+
+        # Configure MLRun
+        LOGGER.info("Configure MLRun execution.")
+        mlrun_function, function_args = self._configure_execution(spec, project)
+
+        # Execute function
+        LOGGER.info("Executing function.")
+        execution_results = self._execute(func, mlrun_function, function_args)
+
+        # Parse execution results
+        LOGGER.info("Parsing execution results.")
+        return self._parse_execution_results(execution_results)
+
+    @staticmethod
+    def _get_function(action: str) -> Callable:
+        """
+        Select function according to action.
+
+        Parameters
+        ----------
+        action : str
+            Action to execute.
+
+        Returns
+        -------
+        Callable
+            Function to execute.
+        """
+        if action == "mlrun":
+            return run_job
+        raise NotImplementedError
+
+    ####################
+    # Configuration
+    ####################
+
+    def _configure_execution(self, spec: dict, project: str) -> tuple[BaseRuntime, dict]:
+        """
+        Create MLRun project and function and prepare parameters.
+
+        Parameters
+        ----------
+        spec : dict
+            Run specs.
+        project : str
+            Name of the project.
+
+        Returns
+        -------
+        tuple
+            MLRun function and parameters.
+        """
 
         # Setup function source and specs
         LOGGER.info("Getting function source.")
@@ -95,36 +131,21 @@ class RuntimeMLRun(Runtime):
         function_source = self._save_function_source(dhcore_function)
         function_specs = self._parse_function_specs(dhcore_function)
 
-        # Get parameters
-        LOGGER.info("Getting parameters.")
-        function_args = spec.get("parameters", {})
-
         # Create MLRun project
-        LOGGER.info("Creating MLRun project.")
-        mlrun_project = self._get_mlrun_project(project)
-        mlrun_function = self._get_mlrun_function(
+        LOGGER.info("Creating MLRun project and function.")
+        mlrun_project = get_mlrun_project(project)
+        mlrun_function = get_mlrun_function(
             mlrun_project,
             dhcore_function.name,
             function_source,
             function_specs,
         )
 
-        # Execute function
-        LOGGER.info("Executing function.")
-        if action == "mlrun":
-            execution_results = self._run_job(mlrun_function, function_args)
-        else:
-            msg = f"Task {action} not allowed for MLRun runtime"
-            LOGGER.error(msg)
-            raise EntityError(msg)
+        # Get parameters
+        LOGGER.info("Getting parameters.")
+        function_args = spec.get("parameters", {})
 
-        # Parse execution results
-        LOGGER.info("Parsing execution results.")
-        return self._parse_execution_results(execution_results)
-
-    ####################
-    # Dhcore function helpers
-    ####################
+        return mlrun_function, function_args
 
     def _get_dhcore_function(self, project: str, spec: dict) -> Function:
         """
@@ -145,7 +166,12 @@ class RuntimeMLRun(Runtime):
         func = spec.get("function").split("://")[1].split("/")[1]
         function_name, function_version = func.split(":")
         LOGGER.info(f"Getting function {function_name}:{function_version}.")
-        return get_function(project, function_name, function_version)
+        try:
+            return get_function(project, function_name, function_version)
+        except BackendError:
+            msg = f"Function {function_name}:{function_version} not found in Core."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
 
     def _save_function_source(self, function: Function) -> str:
         """
@@ -161,10 +187,15 @@ class RuntimeMLRun(Runtime):
         path
             Path to the function source.
         """
-        self.root_path.mkdir(parents=True, exist_ok=True)
-        path = self.root_path / function.spec.build.get("origin_filename")
-        path.write_text(decode_string(function.spec.build.get("function_source_code")))
-        return str(path)
+        try:
+            self.root_path.mkdir(parents=True, exist_ok=True)
+            path = self.root_path / function.spec.build.get("origin_filename")
+            path.write_text(decode_string(function.spec.build.get("function_source_code")))
+            return str(path)
+        except Exception:
+            msg = "Error saving function source."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
 
     def _parse_function_specs(self, function: Function) -> dict:
         """
@@ -180,94 +211,20 @@ class RuntimeMLRun(Runtime):
         dict
             Function specs.
         """
-        return {
-            "image": function.spec.image,
-            "tag": function.spec.tag,
-            "handler": function.spec.handler,
-            "requirements": function.spec.requirements,
-        }
+        try:
+            return {
+                "image": function.spec.image,
+                "tag": function.spec.tag,
+                "handler": function.spec.handler,
+                "requirements": function.spec.requirements,
+            }
+        except AttributeError:
+            msg = "Error parsing function specs."
+            LOGGER.error(msg)
+            raise RuntimeError(msg)
 
     ####################
-    # MLRun helpers
-    ####################
-
-    @staticmethod
-    def _get_mlrun_project(project_name: str) -> MlrunProject:
-        """
-        Get MLRun project.
-
-        Parameters
-        ----------
-        project_name : str
-            Name of the project.
-
-        Returns
-        -------
-        MlrunProject
-            MLRun project.
-        """
-        return mlrun.get_or_create_project(project_name, "./")
-
-    @staticmethod
-    def _get_mlrun_function(
-        project: MlrunProject,
-        function_name: str,
-        function_source: str,
-        function_specs: dict,
-    ) -> BaseRuntime:
-        """
-        Get MLRun function.
-
-        Parameters
-        ----------
-        project : MlrunProject
-            MLRun project.
-        function_name : str
-            Name of the function.
-        function_source : str
-            Path to the function source.
-        function_specs : dict
-            Function specs.
-
-        Returns
-        -------
-        BaseRuntime
-            MLRun function.
-        """
-        project.set_function(
-            function_source,
-            name=function_name,
-            **function_specs,
-        )
-        project.save()
-        return project.get_function(function_name)
-
-    ####################
-    # Execution helpers
-    ####################
-
-    @staticmethod
-    def _run_job(function: BaseRuntime, function_args: dict) -> RunObject:
-        """
-        Run MLRun job.
-
-        Parameters
-        ----------
-        function : BaseRuntime
-            MLRun function.
-        function_args : dict
-            Function arguments.
-
-        Returns
-        -------
-        dict
-            Execution results.
-        """
-        function_args["local"] = True
-        return mlrun.run_function(function, **function_args)
-
-    ####################
-    # Results helpers
+    # Output
     ####################
 
     def _parse_execution_results(self, execution_results: RunObject) -> dict:
@@ -276,7 +233,7 @@ class RuntimeMLRun(Runtime):
 
         Parameters
         ----------
-        execution_results : BaseRuntime
+        execution_results : RunObject
             Execution results.
 
         Returns
@@ -288,7 +245,7 @@ class RuntimeMLRun(Runtime):
             results = {}
 
             # Check execution state
-            results["state"] = self._map_state(execution_results.status.state)
+            results["state"] = map_state(execution_results.status.state)
 
             # Get artifacts
             artifacts = self._parse_artifacts(execution_results.status.artifacts)
@@ -315,33 +272,6 @@ class RuntimeMLRun(Runtime):
             msg = "Something got wrong during execution results parsing."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
-
-    @staticmethod
-    def _map_state(state: str) -> str:
-        """
-        Map MLRun state to digitalhub state.
-
-        Parameters
-        ----------
-        state : str
-            MLRun state.
-
-        Returns
-        -------
-        str
-            Mapped digitalhub state.
-        """
-        _map_state = {
-            "completed": State.COMPLETED.value,
-            "error": State.ERROR.value,
-            "running": State.RUNNING.value,
-            "created": State.CREATED.value,
-            "pending": State.PENDING.value,
-            "unknown": State.ERROR.value,
-            "aborted": State.STOP.value,
-            "aborting": State.STOP.value,
-        }
-        return _map_state.get(state, State.ERROR.value)
 
     ####################
     # Artifacts helpers

@@ -6,9 +6,9 @@ from __future__ import annotations
 import os
 import typing
 from pathlib import Path
+from typing import Callable
 
 import psycopg2
-from dbt.cli.main import dbtRunner, dbtRunnerResult
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.dataitems.crud import create_dataitem, get_dataitem
 from digitalhub_core.entities.dataitems.utils import get_dataitem_info
@@ -16,31 +16,34 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data_dbt.runtime.dbt_utils import (
+from digitalhub_data_dbt.utils.configuration import (
     generate_dbt_profile_yml,
     generate_dbt_project_yml,
     generate_inputs_conf,
     generate_outputs_conf,
 )
-from digitalhub_data_dbt.runtime.parse_utils import ParsedResults, get_schema, parse_results, pivot_data
+from digitalhub_data_dbt.utils.env import (
+    POSTGRES_DATABASE,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_SCHEMA,
+    POSTGRES_USER,
+)
+from digitalhub_data_dbt.utils.functions import transform
+from digitalhub_data_dbt.utils.outputs import ParsedResults, get_schema, parse_results, pivot_data
 from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.dataitems.entity import Dataitem
 
 
-HOST = os.getenv("POSTGRES_HOST")
-PORT = os.getenv("POSTGRES_PORT")
-USER = os.getenv("POSTGRES_USER")
-PASSWORD = os.getenv("POSTGRES_PASSWORD")
-DATABASE = os.getenv("POSTGRES_DATABASE")
-SCHEMA = os.getenv("POSTGRES_SCHEMA", "public")
-
-
 class RuntimeDBT(Runtime):
     """
     Runtime DBT class.
     """
+
+    allowed_actions = ["transform"]
 
     def __init__(self) -> None:
         """
@@ -79,37 +82,20 @@ class RuntimeDBT(Runtime):
         """
         Run function.
 
-        Returns
-        -------
-        dict
-            Status of the executed run.
-        """
-
-        # Get action
-        action = self._get_action(run)
-
-        # Handle unknown task kind
-        if action not in ["transform"]:
-            msg = f"Task {action} not allowed for DBT runtime"
-            LOGGER.error(msg)
-            raise EntityError(msg)
-
-        # Execute action
-        return self.execute(run)
-
-    ####################
-    # TRANSFORM TASK
-    ####################
-
-    def execute(self, run: dict) -> dict:
-        """
-        Execute task.
+        Parameters
+        ----------
+        run : dict
+            The run.
 
         Returns
         -------
         dict
             Status of the executed run.
         """
+        # Validate task
+        LOGGER.info("Validating task.")
+        action = self._validate_task(run)
+        func = self._get_function(action)
 
         # Get run specs
         LOGGER.info("Starting task.")
@@ -118,7 +104,7 @@ class RuntimeDBT(Runtime):
 
         # Parse inputs/outputs and decode sql code
         LOGGER.info("Parsing inputs and output.")
-        self._get_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+        self._collect_inputs(spec.get("inputs", {}).get("dataitems", []), project)
         output = self._get_output_table_name(spec.get("outputs", {}).get("dataitems", []))
         query = self._get_sql(spec)
 
@@ -129,7 +115,7 @@ class RuntimeDBT(Runtime):
 
         # Execute function
         LOGGER.info("Executing dbt project.")
-        execution_results = self.transform(output)
+        execution_results = self._execute(func, output, self.root_dir)
 
         # Parse results
         LOGGER.info("Parsing results.")
@@ -150,11 +136,30 @@ class RuntimeDBT(Runtime):
             "state": State.COMPLETED.value,
         }
 
+    @staticmethod
+    def _get_function(action: str) -> Callable:
+        """
+        Select function according to action.
+
+        Parameters
+        ----------
+        action : str
+            Action to execute.
+
+        Returns
+        -------
+        Callable
+            Function to execute.
+        """
+        if action == "transform":
+            return transform
+        raise NotImplementedError
+
     ####################
     # Parse inputs/outputs
     ####################
 
-    def _get_inputs(self, inputs: list, project: str) -> None:
+    def _collect_inputs(self, inputs: list, project: str) -> None:
         """
         Parse inputs from run spec and materialize dataitems in postgres.
 
@@ -237,7 +242,7 @@ class RuntimeDBT(Runtime):
         try:
             table_name = f"{name}_v{dataitem.id}"
             LOGGER.info(f"Materializing dataitem '{name}' as '{table_name}'.")
-            target_path = f"sql://{DATABASE}/{SCHEMA}/{table_name}"
+            target_path = f"sql://{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
             dataitem.write_df(target_path, if_exists="replace")
             return table_name
         except Exception:
@@ -335,34 +340,6 @@ class RuntimeDBT(Runtime):
         # Generate inputs confs for every dataitem
         for di in self._input_dataitems:
             generate_inputs_conf(self.model_dir, di["name"], di["id"])
-
-    ####################
-    # Execute function
-    ####################
-
-    def transform(self, output: str) -> dbtRunnerResult:
-        """
-        Execute a dbt project with the specified outputs.
-        It initializes a dbt runner, cleans the project and runs it.
-
-        Parameters
-        ----------
-        output : str
-            The output table name.
-
-        Returns
-        -------
-        dbtRunnerResult
-            An object representing the result of the dbt execution.
-        """
-        current_dir = os.getcwd()
-        os.chdir(self.root_dir)
-        dbt = dbtRunner()
-        dbt.invoke("clean")
-        cli_args = ["run", "--select", f"{output}"]
-        res = dbt.invoke(cli_args)
-        os.chdir(current_dir)
-        return res
 
     ####################
     # Produce outputs
@@ -501,11 +478,11 @@ class RuntimeDBT(Runtime):
         try:
             LOGGER.info("Connecting to postgres.")
             return psycopg2.connect(
-                host=HOST,
-                port=PORT,
-                database=DATABASE,
-                user=USER,
-                password=PASSWORD,
+                host=POSTGRES_HOST,
+                port=POSTGRES_PORT,
+                database=POSTGRES_DATABASE,
+                user=POSTGRES_USER,
+                password=POSTGRES_PASSWORD,
             )
         except Exception:
             msg = "Something got wrong during connection to postgres."

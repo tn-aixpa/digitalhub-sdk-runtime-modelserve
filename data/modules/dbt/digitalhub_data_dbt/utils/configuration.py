@@ -1,5 +1,13 @@
-import os
 from pathlib import Path
+
+from digitalhub_data_dbt.utils.env import (
+    POSTGRES_DATABASE,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_SCHEMA,
+    POSTGRES_USER,
+)
 
 ####################
 # Templates
@@ -33,12 +41,12 @@ postgres:
     outputs:
         dev:
             type: postgres
-            host: {os.getenv("POSTGRES_HOST")}
-            user: {os.getenv("POSTGRES_USER")}
-            pass: {os.getenv("POSTGRES_PASSWORD")}
-            port: {os.getenv("POSTGRES_PORT")}
-            dbname: {os.getenv("POSTGRES_DATABASE")}
-            schema: {os.getenv("POSTGRES_SCHEMA", "public")}
+            host: {POSTGRES_HOST}
+            user: {POSTGRES_USER}
+            pass: {POSTGRES_PASSWORD}
+            port: {POSTGRES_PORT}
+            dbname: {POSTGRES_DATABASE}
+            schema: {POSTGRES_SCHEMA}
     target: dev
 """.lstrip(
     "\n"

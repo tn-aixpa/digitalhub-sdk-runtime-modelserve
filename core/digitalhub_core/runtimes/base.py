@@ -7,6 +7,9 @@ import typing
 from abc import abstractmethod
 from typing import Any, Callable
 
+from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.logger import LOGGER
+
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.results import RunResults
 
@@ -15,6 +18,12 @@ class Runtime:
     """
     Base Runtime class.
     """
+
+    ##################################
+    # Abstract methods
+    ##################################
+
+    allowed_actions = []
 
     @abstractmethod
     def build(self, function: dict, task: dict, run: dict) -> dict:
@@ -28,32 +37,43 @@ class Runtime:
         Execute run task.
         """
 
+    @staticmethod
+    @abstractmethod
+    def _get_function(action: str) -> Callable:
+        """
+        Get function from action.
+        """
+
     @abstractmethod
     def results(self, run_status: dict) -> RunResults:
         """
         Get run results.
         """
 
-    @staticmethod
-    def _execute(func: Callable, *args, **kwargs) -> Any:
+    ##################################
+    # Private methods
+    ##################################
+
+    def _validate_task(self, run: dict) -> str:
         """
-        Execute function.
+        Validate task.
 
         Parameters
         ----------
-        func : Callable
-            Function to execute.
-        *args
-            Function arguments.
-        **kwargs
-            Function keyword arguments.
+        run : dict
+            Run object dictionary.
 
         Returns
         -------
-        Any
-            Function result.
+        str
+            Action to execute.
         """
-        return func(*args, **kwargs)
+        action = self._get_action(run)
+        if action not in self.allowed_actions:
+            msg = f"Task {action} not allowed for {self.__class__.__name__} runtime."
+            LOGGER.error(msg)
+            raise EntityError(msg)
+        return action
 
     @staticmethod
     def _get_action(run: dict) -> str:
@@ -90,4 +110,32 @@ class Runtime:
         try:
             return run["spec"]["task"].split(":")[0].split("+")[1]
         except (KeyError, IndexError):
-            raise RuntimeError("Malformed run spec.")
+            msg = "Malformed run spec."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+    @staticmethod
+    def _execute(func: Callable, *args, **kwargs) -> Any:
+        """
+        Execute function.
+
+        Parameters
+        ----------
+        func : Callable
+            Function to execute.
+        *args
+            Function arguments.
+        **kwargs
+            Function keyword arguments.
+
+        Returns
+        -------
+        Any
+            Function result.
+        """
+        try:
+            return func(*args, **kwargs)
+        except Exception:
+            msg = "Something got wrong during function execution."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)

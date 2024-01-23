@@ -3,7 +3,6 @@ Runtime nefertem module.
 """
 from __future__ import annotations
 
-import os
 import shutil
 import typing
 from pathlib import Path
@@ -24,12 +23,9 @@ from digitalhub_core.runtimes.results import RunResults
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data_nefertem.runtime.nefertem_utils import (
-    create_client,
-    create_nt_resources,
-    create_nt_run_config,
-    select_function,
-)
+from digitalhub_data_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config
+from digitalhub_data_nefertem.utils.env import S3_BUCKET
+from digitalhub_data_nefertem.utils.functions import infer, metric, profile, validate
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
@@ -37,13 +33,12 @@ if typing.TYPE_CHECKING:
     from nefertem.client.client import Client
 
 
-BUCKET = os.getenv("S3_BUCKET_NAME")
-
-
 class RuntimeNefertem(Runtime):
     """
     Runtime nefertem class.
     """
+
+    allowed_actions = ["validate", "profile", "infer", "metric"]
 
     def __init__(self) -> None:
         """
@@ -65,44 +60,6 @@ class RuntimeNefertem(Runtime):
 
     def run(self, run: dict) -> dict:
         """
-        Run function.
-
-        Returns
-        -------
-        dict
-            Status of the executed run.
-        """
-        # Get action
-        action = self._get_action(run)
-
-        # Handle unknown task kind
-        if action not in ["validate", "profile", "infer", "metric"]:
-            msg = f"Task {action} not allowed for nefertem runtime."
-            LOGGER.error(msg)
-            raise EntityError(msg)
-
-        # Execute action
-        return self.execute(action, run)
-
-    def results(self, run_status: dict) -> RunResults:
-        """
-        Get run results.
-
-        Returns
-        -------
-        RunResults
-            Run results.
-        """
-        artifacts = run_status.get("artifacts", [])
-        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
-        return RunResults(artifact_objs)
-
-    ####################
-    # Execute
-    ####################
-
-    def execute(self, action: str, run: dict) -> dict:
-        """
         Execute function.
 
         Returns
@@ -110,6 +67,11 @@ class RuntimeNefertem(Runtime):
         dict
             Status of the executed run.
         """
+        # Validate task
+        LOGGER.info("Validating task.")
+        action = self._validate_task(run)
+        func = self._get_function(action)
+
         # Get run specs
         LOGGER.info("Starting task.")
         spec = run.get("spec")
@@ -121,8 +83,7 @@ class RuntimeNefertem(Runtime):
 
         # Get nefertem configuration and function
         LOGGER.info("Creating nefertem configuration.")
-        parameters = self._generate_nefertem_config(inputs, spec, action)
-        func = self._select_function(action)
+        parameters = self._configure_execution(inputs, spec, action)
 
         # Execute function
         LOGGER.info("Executing nefertem run.")
@@ -147,6 +108,44 @@ class RuntimeNefertem(Runtime):
                 "end_time": results.get("finished"),
             },
         }
+
+    @staticmethod
+    def _get_function(action: str) -> Callable:
+        """
+        Select function according to action.
+
+        Parameters
+        ----------
+        action : str
+            Action to execute.
+
+        Returns
+        -------
+        Callable
+            Function to execute.
+        """
+        if action == "validate":
+            return validate
+        if action == "profile":
+            return profile
+        if action == "infer":
+            return infer
+        if action == "metric":
+            return metric
+        raise NotImplementedError
+
+    def results(self, run_status: dict) -> RunResults:
+        """
+        Get run results.
+
+        Returns
+        -------
+        RunResults
+            Run results.
+        """
+        artifacts = run_status.get("artifacts", [])
+        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
+        return RunResults(artifact_objs)
 
     ####################
     # Inputs
@@ -240,7 +239,7 @@ class RuntimeNefertem(Runtime):
     # Configuration
     ####################
 
-    def _generate_nefertem_config(self, inputs: list[dict], spec: dict, action: str) -> tuple[Callable, dict]:
+    def _configure_execution(self, inputs: list[dict], spec: dict, action: str) -> tuple[Callable, dict]:
         """
         Generate nefertem configuration.
 
@@ -342,22 +341,6 @@ class RuntimeNefertem(Runtime):
         """
         return create_nt_run_config(action, spec)
 
-    def _select_function(self, action: str) -> Callable:
-        """
-        Select function according to action.
-
-        Parameters
-        ----------
-        action : str
-            Action to execute.
-
-        Returns
-        -------
-        Callable
-            Function to execute.
-        """
-        return select_function(action)
-
     ####################
     # Outputs
     ####################
@@ -416,7 +399,7 @@ class RuntimeNefertem(Runtime):
             kwargs["project"] = project
             kwargs["name"] = name
             kwargs["kind"] = "artifact"
-            kwargs["target_path"] = f"s3://{BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
+            kwargs["target_path"] = f"s3://{S3_BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
             kwargs["hash"] = calculate_blob_hash(src_path)
             kwargs["size"] = get_file_size(src_path)
             kwargs["file_type"] = get_file_mime_type(src_path)
