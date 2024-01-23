@@ -3,6 +3,11 @@ from __future__ import annotations
 import typing
 
 import nefertem
+from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.logger import LOGGER
+
+if typing.TYPE_CHECKING:
+    from nefertem.client.client import Client
 
 if typing.TYPE_CHECKING:
     from nefertem.client.client import Client
@@ -29,12 +34,17 @@ def create_client(output_path: str, store: dict) -> Client:
     Client
         Nefertem client.
     """
-    client = nefertem.create_client(output_path=output_path)
     try:
-        client.add_store(store)
-    except nefertem.utils.exceptions.StoreError:
-        pass
-    return client
+        client = nefertem.create_client(output_path=output_path)
+        try:
+            client.add_store(store)
+        except nefertem.utils.exceptions.StoreError:
+            pass
+        return client
+    except Exception:
+        msg = "Error. Nefertem client cannot be created."
+        LOGGER.exception(msg)
+        raise EntityError(msg)
 
 
 def create_nt_resources(inputs: list[dict], store: dict) -> list[dict]:
@@ -53,14 +63,19 @@ def create_nt_resources(inputs: list[dict], store: dict) -> list[dict]:
     list[dict]
         The list of nefertem resources.
     """
-    resources = []
-    for i in inputs:
-        res = {}
-        res["name"] = i["name"]
-        res["path"] = i["path"]
-        res["store"] = store["name"]
-        resources.append(res)
-    return resources
+    try:
+        resources = []
+        for i in inputs:
+            res = {}
+            res["name"] = i["name"]
+            res["path"] = i["path"]
+            res["store"] = store["name"]
+            resources.append(res)
+        return resources
+    except KeyError:
+        msg = "Error. Dataitem path is not given."
+        LOGGER.exception(msg)
+        raise EntityError(msg)
 
 
 def create_nt_run_config(action: str, spec: dict) -> dict:
