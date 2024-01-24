@@ -30,7 +30,6 @@ def create_artifact(**kwargs) -> Artifact:
     Artifact
         Object instance.
     """
-    check_context(kwargs.get("project"))
     return artifact_from_parameters(**kwargs)
 
 
@@ -48,6 +47,7 @@ def create_artifact_from_dict(obj: dict) -> Artifact:
     Artifact
         Artifact object.
     """
+    check_context(obj.get("project"))
     return artifact_from_dict(obj)
 
 

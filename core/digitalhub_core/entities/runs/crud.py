@@ -29,7 +29,6 @@ def create_run(**kwargs) -> Run:
     Run
        Object instance.
     """
-    check_context(kwargs.get("project"))
     return run_from_parameters(**kwargs)
 
 

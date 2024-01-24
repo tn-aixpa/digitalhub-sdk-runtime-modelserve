@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+import numpy as np
+from pandas import isna
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.artifacts.utils import get_artifact_info
@@ -150,7 +152,8 @@ def pivot_preview(columns: list, data: list[list]) -> list[list]:
     list[list]
         Pivoted preview.
     """
-    ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
+    ordered_data = np.array(data).T
+    ordered_data = np.where(isna(ordered_data), None, ordered_data).tolist()
     return [{"name": c, "value": d} for c, d in zip(columns, ordered_data)]
 
 
@@ -182,7 +185,7 @@ def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem
                 "start": execution_results.status.start_time,
                 "updated": execution_results.status.last_update,
             },
-            "mlrun_results": execution_results.to_dict(),
+            "mlrun_results": execution_results.to_json(),
         }
     except Exception:
         msg = "Something got wrong during run status building."

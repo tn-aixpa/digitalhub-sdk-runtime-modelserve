@@ -30,7 +30,6 @@ def create_dataitem(**kwargs) -> Dataitem:
     Dataitem
         Object instance.
     """
-    check_context(kwargs.get("project"))
     return dataitem_from_parameters(**kwargs)
 
 
@@ -48,6 +47,7 @@ def create_dataitem_from_dict(obj: dict) -> Dataitem:
     Dataitem
         Dataitem object.
     """
+    check_context(obj.get("project"))
     return dataitem_from_dict(obj)
 
 

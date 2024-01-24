@@ -74,8 +74,11 @@ class RuntimeMLRun(Runtime):
         LOGGER.info("Executing function.")
         results: RunObject = self._execute(func, mlrun_function, function_args)
 
-        LOGGER.info("Collecting results.")
-        return self._collect_outputs(results)
+        LOGGER.info("Collecting outputs.")
+        status = self._collect_outputs(results)
+
+        LOGGER.info("Task completed, returning run status.")
+        return status
 
     @staticmethod
     def _get_function(action: str) -> Callable:

@@ -29,7 +29,6 @@ def create_workflow(**kwargs) -> Workflow:
     Workflow
         An instance of the created workflow.
     """
-    check_context(kwargs.get("project"))
     return workflow_from_parameters(**kwargs)
 
 

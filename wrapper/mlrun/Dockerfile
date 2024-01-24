@@ -7,13 +7,15 @@ LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalh
 WORKDIR /digitalhub-core/
 
 # Get digitalhub-sdk
-ARG DHUB_VERSION=0.2.4
+ARG DHUB_VERSION=0.2.5
 RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/$DHUB_VERSION.zip
 RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
 # Install digitalhub-core, dbt
 RUN pip install ./digitalhub-sdk/core
+RUN pip install ./digitalhub-sdk/data
+RUN pip install ./digitalhub-sdk/ml
 RUN pip install ./digitalhub-sdk/ml/modules/mlrun[local]
 
 # Copy wrapper and set entry point

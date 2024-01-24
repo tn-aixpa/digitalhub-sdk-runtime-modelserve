@@ -29,7 +29,7 @@ def create_function(**kwargs) -> Function:
     Function
        Object instance.
     """
-    check_context(kwargs.get("project"))
+    check_context(obj.get("project"))
     return function_from_parameters(**kwargs)
 
 

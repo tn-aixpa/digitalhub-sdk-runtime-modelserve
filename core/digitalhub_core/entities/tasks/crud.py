@@ -29,7 +29,6 @@ def create_task(**kwargs) -> Task:
     Task
        Object instance.
     """
-    check_context(kwargs.get("project"))
     return task_from_parameters(**kwargs)
 
 
