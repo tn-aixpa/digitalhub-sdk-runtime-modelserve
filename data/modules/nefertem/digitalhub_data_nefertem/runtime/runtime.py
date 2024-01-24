@@ -81,8 +81,6 @@ class RuntimeNefertem(Runtime):
         # Collect outputs
         LOGGER.info("Collecting outputs.")
         outputs = self._collect_outputs(results, project, self.nt_id)
-
-        LOGGER.info("Task completed.")
         status = build_status(results, outputs)
 
         # Remove tmp folder

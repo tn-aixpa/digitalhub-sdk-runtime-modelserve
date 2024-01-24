@@ -98,6 +98,9 @@ class Function(Entity):
         """
         obj = self.to_dict(include_all_non_private=True)
 
+        # Avoid tasks to be saved in backend
+        obj["status"].pop("tasks", None)
+
         if not update:
             api = api_ctx_create(self.project, FUNC)
             return self._context().create_object(obj, api)
