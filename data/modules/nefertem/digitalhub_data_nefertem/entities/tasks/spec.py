@@ -3,10 +3,14 @@ Task DBT specification module.
 """
 from __future__ import annotations
 
+import typing
 from typing import Optional
 
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 from digitalhub_core.utils.exceptions import EntityError
+
+if typing.TYPE_CHECKING:
+    from digitalhub_core.entities.tasks.models import Env, NodeSelector, Resource, Volume
 
 
 class TaskSpecNefertem(TaskSpec):
@@ -15,10 +19,10 @@ class TaskSpecNefertem(TaskSpec):
     def __init__(
         self,
         function: str,
-        volumes: list[dict] | None = None,
-        volume_mounts: list[dict] | None = None,
-        env: list[dict] | None = None,
-        resources: dict | None = None,
+        node_selector: NodeSelector | None = None,
+        volumes: list[Volume] | None = None,
+        resources: Resource | None = None,
+        env: list[Env] | None = None,
         framework: str | None = None,
         exec_args: dict | None = None,
         parallel: bool = False,
@@ -28,7 +32,7 @@ class TaskSpecNefertem(TaskSpec):
         """
         Constructor.
         """
-        super().__init__(function, volumes, volume_mounts, env, resources, **kwargs)
+        super().__init__(function, node_selector, volumes, resources, env, **kwargs)
         if framework is None:
             raise EntityError("Framework for Nefertem is not given.")
         self.framework = framework

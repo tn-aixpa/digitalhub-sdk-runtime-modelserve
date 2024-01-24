@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import get_context
+from digitalhub_core.context.builder import get_context, check_context
 from digitalhub_core.entities.dataitems.entity import dataitem_from_dict, dataitem_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.commons import DTIT
@@ -30,6 +30,7 @@ def create_dataitem(**kwargs) -> Dataitem:
     Dataitem
         Object instance.
     """
+    check_context(kwargs.get("project"))
     return dataitem_from_parameters(**kwargs)
 
 
@@ -134,7 +135,7 @@ def get_dataitem(project: str, name: str, uuid: str | None = None) -> Dataitem:
     """
     api = api_ctx_read(project, DTIT, name, uuid=uuid)
     obj = get_context(project).read_object(api)
-    return dataitem_from_dict(obj)
+    return create_dataitem_from_dict(obj)
 
 
 def get_dataitem_from_key(key: str) -> Dataitem:
@@ -166,7 +167,8 @@ def import_dataitem(file: str) -> Dataitem:
         Object instance.
     """
     obj = read_yaml(file)
-    return dataitem_from_dict(obj)
+    check_context(obj.get("project"))
+    return create_dataitem_from_dict(obj)
 
 
 def delete_dataitem(project: str, name: str, uuid: str | None = None) -> dict:

@@ -7,7 +7,7 @@ import typing
 from collections import namedtuple
 from pathlib import Path
 
-from digitalhub_core.context.builder import get_context
+from digitalhub_core.context.builder import get_context, check_context
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
@@ -339,15 +339,15 @@ class Run(Entity):
         project = obj.get("project")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata"))
+        metadata = build_metadata(entity, **obj.get("metadata", {}))
         spec = build_spec(
             entity,
             kind,
             validate=validate,
             module_to_import=module_to_import,
-            **obj.get("spec"),
+            **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status"))
+        status = build_status(entity, **obj.get("status", {}))
         return {
             "project": project,
             "uuid": uuid,

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import get_context
+from digitalhub_core.context.builder import get_context, check_context
 from digitalhub_core.entities.tasks.entity import task_from_dict, task_from_parameters
 from digitalhub_core.utils.api import api_base_delete, api_base_read, api_base_update
 from digitalhub_core.utils.commons import TASK
@@ -29,7 +29,25 @@ def create_task(**kwargs) -> Task:
     Task
        Object instance.
     """
+    check_context(kwargs.get("project"))
     return task_from_parameters(**kwargs)
+
+
+def create_task_from_dict(obj: dict) -> Task:
+    """
+    Create a new object instance.
+
+    Parameters
+    ----------
+    obj : dict
+        Object dictionary.
+
+    Returns
+    -------
+    Task
+       Object instance.
+    """
+    return task_from_dict(obj)
 
 
 def new_task(
@@ -39,10 +57,10 @@ def new_task(
     source: str | None = None,
     labels: list[str] | None = None,
     function: str | None = "",
+    node_selector: dict | None = None,
     volumes: list[dict] | None = None,
-    volume_mounts: list[dict] | None = None,
-    env: list[dict] | None = None,
     resources: dict | None = None,
+    env: list[dict] | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -62,14 +80,14 @@ def new_task(
         List of labels.
     function : str
         The function string identifying the function.
+    node_selector : dict
+        The node selector of the task.
     volumes : list[dict]
         The volumes of the task.
-    volume_mounts : list[dict]
-        The volume mounts of the task.
-    env : list[dict]
-        The env variables of the task.
     resources : dict
         Kubernetes resources for the task.
+    env : list[dict]
+        The env variables of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -85,10 +103,10 @@ def new_task(
         source=source,
         labels=labels,
         function=function,
+        node_selector=node_selector,
         volumes=volumes,
-        volume_mounts=volume_mounts,
-        env=env,
         resources=resources,
+        env=env,
         **kwargs,
     )
     obj.save()
@@ -113,7 +131,7 @@ def get_task(project: str, name: str) -> Task:
     """
     api = api_base_read(TASK, name)
     obj = get_context(project).read_object(api)
-    return task_from_dict(obj)
+    return create_task_from_dict(obj)
 
 
 def import_task(file: str) -> Task:
@@ -131,7 +149,8 @@ def import_task(file: str) -> Task:
         Object instance.
     """
     obj = read_yaml(file)
-    return task_from_dict(obj)
+    check_context(obj.get("project"))
+    return create_task_from_dict(obj)
 
 
 def delete_task(project: str, name: str, cascade: bool = True) -> dict:

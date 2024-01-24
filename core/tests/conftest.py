@@ -15,4 +15,7 @@ def api_context():
 @pytest.fixture(scope="session")
 def project():
     yield get_or_create_project(name="test", local=True)
-    delete_project(name="test")
+    try:
+        delete_project(name="test")
+    except Exception:
+        pass

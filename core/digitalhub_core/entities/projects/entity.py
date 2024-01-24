@@ -634,15 +634,15 @@ class Project(Entity):
         """
         name = build_uuid(obj.get("name"))
         kind = obj.get("kind")
-        metadata = build_metadata(entity, **obj.get("metadata"))
+        metadata = build_metadata(entity, **obj.get("metadata", {}))
         spec = build_spec(
             entity,
             kind,
             validate=validate,
             module_to_import=module_to_import,
-            **obj.get("spec"),
+            **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status"))
+        status = build_status(entity, **obj.get("status", {}))
         local = obj.get("local", False)
         return {
             "name": name,

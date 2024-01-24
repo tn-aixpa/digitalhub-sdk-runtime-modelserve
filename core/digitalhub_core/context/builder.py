@@ -124,4 +124,23 @@ def delete_context(project: str) -> None:
     context_builder.remove(project)
 
 
+def check_context(project: str) -> None:
+    """
+    Check if the given project is in the context.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    bool
+        True if the project is in the context, False otherwise.
+    """
+    if project not in context_builder._instances:
+        msg = f"Context missing. Set context by creating or importing a project named '{project}'."
+        raise RuntimeError(msg)
+
+
 context_builder = ContextBuilder()

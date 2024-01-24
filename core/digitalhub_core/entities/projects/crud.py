@@ -34,6 +34,23 @@ def create_project(**kwargs) -> Project:
     return project_from_parameters(**kwargs)
 
 
+def create_project_from_dict(obj: dict) -> Project:
+    """
+    Create a new Project instance from a dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary to create the Project from.
+
+    Returns
+    -------
+    Project
+        Project object.
+    """
+    return project_from_dict(obj)
+
+
 def new_project(
     name: str,
     description: str | None = None,
@@ -159,7 +176,7 @@ def get_project(name: str, local: bool = False) -> Project:
     client = get_client(local)
     obj = client.read_object(api)
     obj["local"] = local
-    return project_from_dict(obj)
+    return create_project_from_dict(obj)
 
 
 def import_project(file: str, local: bool = False) -> Project:
@@ -180,7 +197,7 @@ def import_project(file: str, local: bool = False) -> Project:
     """
     obj = read_yaml(file)
     obj["local"] = local
-    return project_from_dict(obj)
+    return create_project_from_dict(obj)
 
 
 def delete_project(name: str, cascade: bool = True, clean_context: bool = True, local: bool = False) -> list[dict]:

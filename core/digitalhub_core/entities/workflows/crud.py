@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import get_context
+from digitalhub_core.context.builder import get_context, check_context
 from digitalhub_core.entities.workflows.entity import workflow_from_dict, workflow_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.commons import WKFL
@@ -29,6 +29,7 @@ def create_workflow(**kwargs) -> Workflow:
     Workflow
         An instance of the created workflow.
     """
+    check_context(kwargs.get("project"))
     return workflow_from_parameters(**kwargs)
 
 
@@ -125,7 +126,7 @@ def get_workflow(project: str, name: str, uuid: str | None = None) -> Workflow:
     """
     api = api_ctx_read(project, WKFL, name, uuid=uuid)
     obj = get_context(project).read_object(api)
-    return workflow_from_dict(obj)
+    return create_workflow_from_dict(obj)
 
 
 def import_workflow(file: str) -> Workflow:
@@ -143,7 +144,8 @@ def import_workflow(file: str) -> Workflow:
         Object instance.
     """
     obj = read_yaml(file)
-    return workflow_from_dict(obj)
+    check_context(obj.get("project"))
+    return create_workflow_from_dict(obj)
 
 
 def delete_workflow(project: str, name: str, uuid: str | None = None) -> dict:

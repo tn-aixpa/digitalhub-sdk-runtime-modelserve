@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 
-from digitalhub_core.context.builder import get_context
+from digitalhub_core.context.builder import get_context, check_context
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
@@ -267,15 +267,15 @@ class Task(Entity):
         kind = obj.get("kind")
 
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata"))
+        metadata = build_metadata(entity, **obj.get("metadata", {}))
         spec = build_spec(
             entity,
             kind,
             validate=validate,
             module_to_import=obj.get("spec", {}).get("function").split("://")[0],
-            **obj.get("spec"),
+            **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status"))
+        status = build_status(entity, **obj.get("status", {}))
         return {
             "project": project,
             "uuid": uuid,
@@ -293,10 +293,10 @@ def task_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     function: str | None = "",
+    node_selector: dict | None = None,
     volumes: list[dict] | None = None,
-    volume_mounts: list[dict] | None = None,
-    env: list[dict] | None = None,
     resources: dict | None = None,
+    env: list[dict] | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -316,14 +316,14 @@ def task_from_parameters(
         List of labels.
     function : str
         The function string identifying the function.
+    node_selector : dict
+        The node selector of the task.
     volumes : list[dict]
         The volumes of the task.
-    volume_mounts : list[dict]
-        The volume mounts of the task.
-    env : list[dict]
-        The env variables of the task.
     resources : dict
         Kubernetes resources for the task.
+    env : list[dict]
+        The env variables of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -345,10 +345,10 @@ def task_from_parameters(
         kind,
         module_to_import=function.split("://")[0],
         function=function,
+        node_selector=node_selector,
         volumes=volumes,
-        volume_mounts=volume_mounts,
-        env=env,
         resources=resources,
+        env=env,
         **kwargs,
     )
     status = build_status(TASK)

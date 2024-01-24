@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import get_context
+from digitalhub_core.context.builder import get_context, check_context
 from digitalhub_core.entities.functions.entity import function_from_dict, function_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.commons import FUNC
@@ -29,6 +29,7 @@ def create_function(**kwargs) -> Function:
     Function
        Object instance.
     """
+    check_context(kwargs.get("project"))
     return function_from_parameters(**kwargs)
 
 
@@ -128,7 +129,7 @@ def get_function(project: str, name: str, uuid: str | None = None) -> Function:
     """
     api = api_ctx_read(project, FUNC, name, uuid=uuid)
     obj = get_context(project).read_object(api)
-    return function_from_dict(obj)
+    return create_function_from_dict(obj)
 
 
 def import_function(file: str) -> Function:
@@ -146,7 +147,8 @@ def import_function(file: str) -> Function:
         Object instance.
     """
     obj = read_yaml(file)
-    return function_from_dict(obj)
+    check_context(obj.get("project"))
+    return create_function_from_dict(obj)
 
 
 def delete_function(project: str, name: str, uuid: str | None = None) -> dict:

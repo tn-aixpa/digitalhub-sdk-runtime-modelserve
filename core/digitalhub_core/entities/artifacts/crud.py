@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import get_context
+from digitalhub_core.context.builder import get_context, check_context
 from digitalhub_core.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.commons import ARTF
@@ -30,6 +30,7 @@ def create_artifact(**kwargs) -> Artifact:
     Artifact
         Object instance.
     """
+    check_context(kwargs.get("project"))
     return artifact_from_parameters(**kwargs)
 
 
@@ -137,7 +138,7 @@ def get_artifact(project: str, name: str, uuid: str | None = None) -> Artifact:
     """
     api = api_ctx_read(project, ARTF, name, uuid=uuid)
     obj = get_context(project).read_object(api)
-    return artifact_from_dict(obj)
+    return create_artifact_from_dict(obj)
 
 
 def get_artifact_from_key(key: str) -> Artifact:
@@ -169,7 +170,8 @@ def import_artifact(file: str) -> Artifact:
         Object instance.
     """
     obj = read_yaml(file)
-    return artifact_from_dict(obj)
+    check_context(obj.get("project"))
+    return create_artifact_from_dict(obj)
 
 
 def delete_artifact(project: str, name: str, uuid: str | None = None) -> dict:

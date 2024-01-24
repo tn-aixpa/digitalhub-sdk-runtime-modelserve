@@ -4,6 +4,7 @@ Task specification module.
 from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec
+from digitalhub_core.entities.tasks.models import Env, NodeSelector, Resource, Volume
 from pydantic import BaseModel
 
 
@@ -13,10 +14,10 @@ class TaskSpec(Spec):
     def __init__(
         self,
         function: str,
-        volumes: list[dict] | None = None,
-        volume_mounts: list[dict] | None = None,
-        env: list[dict] | None = None,
-        resources: dict | None = None,
+        node_selector: NodeSelector | None = None,
+        volumes: list[Volume] | None = None,
+        resources: Resource | None = None,
+        env: list[Env] | None = None,
         **kwargs,
     ) -> None:
         """
@@ -26,20 +27,20 @@ class TaskSpec(Spec):
         ----------
         function : str
             The function string of the task.
-        volumes : list[dict]
+        node_selector : NodeSelector
+            The node selector of the task.
+        volumes : list[Volume]
             The volumes of the task.
-        volume_mounts : list[dict]
-            The volume mounts of the task.
-        env : list[dict]
-            The env variables of the task.
-        resources : dict
+        resources : Resource
             Kubernetes resources for the task.
+        env : list[Env]
+            The env variables of the task.
         """
         self.function = function
-        self.volumes = volumes if volumes is not None else []
-        self.volume_mounts = volume_mounts if volume_mounts is not None else []
-        self.env = env if env is not None else []
-        self.resources = resources if resources is not None else {}
+        self.node_selector = node_selector
+        self.volumes = volumes
+        self.resources = resources
+        self.env = env
 
         self._any_setter(**kwargs)
 
@@ -49,17 +50,17 @@ class TaskParams(BaseModel):
     Base task model.
     """
 
-    function: str = None
-    """Task function."""
+    function: str
+    """Function string."""
 
-    volumes: list[dict] = None
-    """Volumes."""
+    node_selector: NodeSelector = {}
+    """Node selector."""
 
-    volume_mounts: list[dict] = None
-    """Volume mounts."""
+    volumes: list[Volume] = []
+    """List of volumes."""
 
-    env: list[dict] = None
-    """Env variables."""
-
-    resources: dict = None
+    resources: Resource = {}
     """Resources restrictions."""
+
+    env: list[Env] = []
+    """Env variables."""
