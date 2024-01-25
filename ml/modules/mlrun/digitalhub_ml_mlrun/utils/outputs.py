@@ -153,7 +153,9 @@ def pivot_preview(columns: list, data: list[list]) -> list[list]:
         Pivoted preview.
     """
     ordered_data = np.array(data).T
-    ordered_data = np.where(isna(ordered_data), None, ordered_data).tolist()
+    ordered_data = np.where(isna(ordered_data), None, ordered_data)
+    ordered_data = np.where(isinstance(ordered_data, memoryview), None, ordered_data)
+    ordered_data = ordered_data.tolist()
     return [{"name": c, "value": d} for c, d in zip(columns, ordered_data)]
 
 

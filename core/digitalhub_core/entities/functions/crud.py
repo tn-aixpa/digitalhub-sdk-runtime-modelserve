@@ -29,7 +29,6 @@ def create_function(**kwargs) -> Function:
     Function
        Object instance.
     """
-    check_context(obj.get("project"))
     return function_from_parameters(**kwargs)
 
 
@@ -47,6 +46,7 @@ def create_function_from_dict(obj: dict) -> Function:
     Function
         Function object.
     """
+    check_context(obj.get("project"))
     return function_from_dict(obj)
 
 

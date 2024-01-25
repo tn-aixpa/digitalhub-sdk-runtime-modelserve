@@ -16,22 +16,28 @@ if typing.TYPE_CHECKING:
 
 # Postgres type mapper to frictionless types.
 TYPE_MAPPER = {
-    16: "boolean",
-    18: "string",
-    20: "integer",
-    21: "integer",
-    23: "integer",
-    25: "string",
-    114: "object",
-    700: "number",
-    701: "number",
-    1043: "string",
-    1082: "date",
-    1083: "time",
-    1114: "datetime",
-    1184: "datetime",
-    1266: "time",
-    1700: "number",
+    16: "boolean", # bool
+    18: "string", # char
+    20: "integer", # int8
+    21: "integer", # int2
+    23: "integer", # int4
+    25: "string", # text
+    114: "object", # json
+    142: "str", # xml
+    650: "str",	# cidr
+    700: "number", # float4
+    701: "number", # float8
+    774: "str",	# macaddr8
+    829: "str", # macaddr
+    869: "str", # inet
+    1043: "string", # varchar
+    1082: "date", # date
+    1083: "time", # time
+    1114: "datetime", # timestamp
+    1184: "datetime", # timestamptz
+    1266: "time", # timetz
+    1700: "number", # numeric
+    2950: "str", # uuid
 }
 
 
