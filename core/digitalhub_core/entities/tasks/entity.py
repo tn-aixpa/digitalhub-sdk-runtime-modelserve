@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 
-from digitalhub_core.context.builder import get_context, check_context
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec

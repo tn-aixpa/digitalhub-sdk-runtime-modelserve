@@ -7,37 +7,43 @@ import typing
 from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
+from digitalhub_core.entities._base.status import State
+from digitalhub_core.entities.dataitems.crud import create_dataitem
+from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.utils.generic_utils import encode_string
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data_dbt.utils.env import get_connection
+from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
+    from digitalhub_core.entities.dataitems.entity import Dataitem
 
 
 # Postgres type mapper to frictionless types.
 TYPE_MAPPER = {
-    16: "boolean", # bool
-    18: "string", # char
-    20: "integer", # int8
-    21: "integer", # int2
-    23: "integer", # int4
-    25: "string", # text
-    114: "object", # json
-    142: "str", # xml
-    650: "str",	# cidr
-    700: "number", # float4
-    701: "number", # float8
-    774: "str",	# macaddr8
-    829: "str", # macaddr
-    869: "str", # inet
-    1043: "string", # varchar
-    1082: "date", # date
-    1083: "time", # time
-    1114: "datetime", # timestamp
-    1184: "datetime", # timestamptz
-    1266: "time", # timetz
-    1700: "number", # numeric
-    2950: "str", # uuid
+    16: "boolean",  # bool
+    18: "string",  # char
+    20: "integer",  # int8
+    21: "integer",  # int2
+    23: "integer",  # int4
+    25: "string",  # text
+    114: "object",  # json
+    142: "str",  # xml
+    650: "str",  # cidr
+    700: "number",  # float4
+    701: "number",  # float8
+    774: "str",  # macaddr8
+    829: "str",  # macaddr
+    869: "str",  # inet
+    1043: "string",  # varchar
+    1082: "date",  # date
+    1083: "time",  # time
+    1114: "datetime",  # timestamp
+    1184: "datetime",  # timestamptz
+    1266: "time",  # timetz
+    1700: "number",  # numeric
+    2950: "str",  # uuid
 }
 
 
@@ -241,6 +247,94 @@ def get_timings(result: RunResult) -> dict:
         raise RuntimeError(msg)
 
 
+def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem:
+    """
+    Create new dataitem.
+
+    Parameters
+    ----------
+    result : ParsedResults
+        The parsed results.
+    project : str
+        The project name.
+    uuid : str
+        The uuid of the model for outputs versioning.
+
+    Returns
+    -------
+    list[dict]
+        The output dataitem infos.
+
+    Raises
+    ------
+    RuntimeError
+        If something got wrong during dataitem creation.
+    """
+    try:
+        # Get columns and data sample from dbt results
+        columns, data = get_data_sample(result.name, uuid)
+
+        # Prepare dataitem kwargs
+        kwargs = {}
+        kwargs["project"] = project
+        kwargs["name"] = result.name
+        kwargs["kind"] = "dataitem"
+        kwargs["path"] = result.path
+        kwargs["uuid"] = uuid
+        kwargs["schema"] = get_schema(columns)
+        kwargs["raw_code"] = result.raw_code
+        kwargs["compiled_code"] = result.compiled_code
+
+        # Create dataitem
+        dataitem = create_dataitem(**kwargs)
+
+        # Update dataitem status with preview
+        dataitem.status.preview = pivot_data(columns, data)
+
+        # Save dataitem in core and return it
+        dataitem.save()
+        return dataitem
+
+    except Exception:
+        msg = "Something got wrong during dataitem creation."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def get_data_sample(table_name: str, uuid: str) -> None:
+    """
+    Get columns and data sample from dbt results.
+
+    Parameters
+    ----------
+    table_name : str
+        The output table name.
+    uuid : str
+        The uuid of the model for outputs versioning.
+
+    Returns
+    -------
+    None
+    """
+    LOGGER.info("Getting columns and data sample from dbt results.")
+    try:
+        connection = get_connection()
+        query = sql.SQL("SELECT * FROM {table} LIMIT 5;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query)
+                columns = cursor.description
+                data = cursor.fetchall()
+        return columns, data
+    except Exception:
+        msg = "Something got wrong during data fetching."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+    finally:
+        LOGGER.info("Closing connection to postgres.")
+        connection.close()
+
+
 def get_schema(columns: tuple) -> list[dict]:
     """
     Get schema from dbt result.
@@ -287,3 +381,13 @@ def pivot_data(columns: tuple, data: list[tuple]) -> list[dict]:
         msg = "Something got wrong during data pivoting."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
+
+
+def build_status(outputs: tuple[ParsedResults, Dataitem], results: dbtRunnerResult) -> dict:
+    parsed_result, dataitem = outputs
+    return {
+        "dataitems": [get_dataitem_info(dataitem)],
+        "timings": parsed_result.timings,
+        "state": State.COMPLETED.value,
+        "dbt_results": results.result[-1].to_dict(),
+    }

@@ -3,13 +3,13 @@ from __future__ import annotations
 import typing
 
 import numpy as np
-from pandas import isna
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.artifacts.utils import get_artifact_info
 from digitalhub_core.entities.dataitems.crud import create_dataitem
 from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.utils.logger import LOGGER
+from pandas import isna
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact

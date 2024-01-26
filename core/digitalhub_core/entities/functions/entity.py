@@ -7,7 +7,7 @@ import typing
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from digitalhub_core.context.builder import get_context, check_context
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
@@ -251,7 +251,6 @@ class Function(Entity):
         # Loop over tasks in status, the case where the function
         # is imported from local file or from remote.
         for k, v in self.status.tasks.items():
-
             # If task is not a dictionary, keep track of it
             # for later deletion
             if not isinstance(v, dict):

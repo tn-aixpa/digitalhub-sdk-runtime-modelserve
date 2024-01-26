@@ -16,7 +16,7 @@ class RunResults:
 
     def __init__(
         self,
-        artifacts: list[Artifact],
+        artifacts: list[Artifact] | None = None,
     ) -> None:
         """
         Constructor.

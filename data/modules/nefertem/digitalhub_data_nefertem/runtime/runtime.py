@@ -84,8 +84,8 @@ class RuntimeNefertem(Runtime):
         status = build_status(results, outputs)
 
         # Remove tmp folder
-        LOGGER.info("Removing tmp folder.")
-        self.cleanup()
+        LOGGER.info("Clean up environment.")
+        self._cleanup()
 
         # Return run status
         LOGGER.info("Task completed, returning run status.")
@@ -236,7 +236,7 @@ class RuntimeNefertem(Runtime):
     # Cleanup
     ####################
 
-    def cleanup(self) -> None:
+    def _cleanup(self) -> None:
         """
         Cleanup after run.
 

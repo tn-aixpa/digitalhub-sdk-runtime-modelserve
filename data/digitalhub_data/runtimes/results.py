@@ -19,8 +19,8 @@ class RunResultsData(RunResults):
 
     def __init__(
         self,
-        artifacts: list[Artifact],
-        dataitems: list[Dataitem],
+        artifacts: list[Artifact] | None = None,
+        dataitems: list[Dataitem] | None = None,
     ) -> None:
         """
         Constructor.

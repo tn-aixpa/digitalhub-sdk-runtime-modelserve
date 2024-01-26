@@ -19,8 +19,9 @@ class RunResultsML(RunResultsData):
 
     def __init__(
         self,
-        artifacts: list[Artifact],
-        dataitems: list[Dataitem],
+        artifacts: list[Artifact] | None = None,
+        dataitems: list[Dataitem] | None = None,
+        models: list | None = None,
     ) -> None:
         """
         Constructor.
@@ -30,5 +31,5 @@ class RunResultsML(RunResultsData):
         dataitems : list[Dataitem]
             The dataitems.
         """
-        super().__init__(artifacts)
-        self.dataitems = dataitems
+        super().__init__(artifacts, dataitems)
+        self.models = models

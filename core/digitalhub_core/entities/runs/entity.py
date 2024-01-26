@@ -7,7 +7,7 @@ import typing
 from collections import namedtuple
 from pathlib import Path
 
-from digitalhub_core.context.builder import get_context, check_context
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata

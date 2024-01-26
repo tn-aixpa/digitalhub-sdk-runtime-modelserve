@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import get_context, check_context
+from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.dataitems.entity import dataitem_from_dict, dataitem_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.commons import DTIT

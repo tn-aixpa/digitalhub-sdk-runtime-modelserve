@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 from digitalhub_data_dbt.utils.env import (
@@ -51,10 +53,6 @@ postgres:
 """.lstrip(
     "\n"
 )
-
-####################
-# Functions
-####################
 
 
 def generate_dbt_profile_yml(root_dir: Path) -> None:
