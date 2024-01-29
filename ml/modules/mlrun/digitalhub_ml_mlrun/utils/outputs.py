@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import typing
 
-import numpy as np
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.artifacts.utils import get_artifact_info
 from digitalhub_core.entities.dataitems.crud import create_dataitem
 from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.utils.logger import LOGGER
-from pandas import isna
+from digitalhub_data.utils.data_utils import get_data_preview
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
@@ -125,7 +124,7 @@ def create_dataitem_(mlrun_output: dict) -> Dataitem:
         # Add sample preview
         header = mlrun_output.get("spec", {}).get("header", [])
         sample_data = mlrun_output.get("status", {}).get("preview", [[]])
-        dataitem.status.preview = pivot_preview(header, sample_data)
+        dataitem.status.preview = _get_data_preview(header, sample_data)
 
         # Save dataitem in core and return it
         dataitem.save()
@@ -136,27 +135,28 @@ def create_dataitem_(mlrun_output: dict) -> Dataitem:
         raise RuntimeError(msg)
 
 
-def pivot_preview(columns: list, data: list[list]) -> list[list]:
+def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
     """
-    Pivot preview from MLRun.
+    Get data preview from dbt result.
 
     Parameters
     ----------
-    columns : list
-        Columns.
-    data : list[list]
-        Data preview.
+    columns : tuple
+        The columns.
+    data : list[tuple]
+        The data.
 
     Returns
     -------
-    list[list]
-        Pivoted preview.
+    list
+        A list of dictionaries containing data.
     """
-    ordered_data = np.array(data).T
-    ordered_data = np.where(isna(ordered_data), None, ordered_data)
-    ordered_data = np.where(isinstance(ordered_data, memoryview), None, ordered_data)
-    ordered_data = ordered_data.tolist()
-    return [{"name": c, "value": d} for c, d in zip(columns, ordered_data)]
+    try:
+        return get_data_preview(columns, data)
+    except Exception:
+        msg = "Something got wrong during data preview creation."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
 
 
 def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem]) -> dict:

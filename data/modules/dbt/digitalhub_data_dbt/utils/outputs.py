@@ -12,6 +12,7 @@ from digitalhub_core.entities.dataitems.crud import create_dataitem
 from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.utils.generic_utils import encode_string
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data.utils.data_utils import get_data_preview
 from digitalhub_data_dbt.utils.env import get_connection
 from psycopg2 import sql
 
@@ -289,7 +290,7 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
         dataitem = create_dataitem(**kwargs)
 
         # Update dataitem status with preview
-        dataitem.status.preview = pivot_data(columns, data)
+        dataitem.status.preview = _get_data_preview(columns, data)
 
         # Save dataitem in core and return it
         dataitem.save()
@@ -358,9 +359,9 @@ def get_schema(columns: tuple) -> list[dict]:
         raise RuntimeError(msg)
 
 
-def pivot_data(columns: tuple, data: list[tuple]) -> list[dict]:
+def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
     """
-    Pivot data from dbt result.
+    Get data preview from dbt result.
 
     Parameters
     ----------
@@ -375,10 +376,9 @@ def pivot_data(columns: tuple, data: list[tuple]) -> list[dict]:
         A list of dictionaries containing data.
     """
     try:
-        ordered_data = [[j[idx] for j in data] for idx, _ in enumerate(columns)]
-        return [{"name": c.name, "value": d} for c, d in zip(columns, ordered_data)]
+        return get_data_preview(columns, data)
     except Exception:
-        msg = "Something got wrong during data pivoting."
+        msg = "Something got wrong during data preview creation."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
