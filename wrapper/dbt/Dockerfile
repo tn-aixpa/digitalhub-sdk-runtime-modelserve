@@ -15,7 +15,8 @@ RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 # Install digitalhub-core, dbt
 RUN pip install ./digitalhub-sdk/core
 RUN pip install ./digitalhub-sdk/data
-RUN pip install ./digitalhub-sdk/data/modules/dbt[local]
+# module[local] will break, dbt has pYaml > 6, digitalhub ~5, because of mlrun-kfp
+RUN pip install dbt-postgres==1.6.7
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/

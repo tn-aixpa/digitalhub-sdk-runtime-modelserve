@@ -63,6 +63,8 @@ python-dateutil==2.8.2
     #   pandas
 pytz==2023.3
     # via pandas
+pyyaml==5.4.1
+    # via digitalhub-core (pyproject.toml)
 requests==2.31.0
     # via digitalhub-core (pyproject.toml)
 s3transfer==0.6.2

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-ml-mlrun"
-version = "0.2.0"
+version = "0.2.7"
 description = "MLRun runtime for DHCore"
 readme = "README.md"
 authors = [
@@ -26,7 +26,10 @@ dependencies = [
 [project.optional-dependencies]
 local = [
 "mlrun>=1.6rc19, <1.7",
-"s3fs==2023.9.2"
+"s3fs==2023.9.2",
+"nefertem==2.0.3",
+"frictionless==5.15.0",
+"ydata-profiling==4.6.0"
 ]
 
 [project.urls]
@@ -45,7 +48,7 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.2.0"
+current_version = "0.2.7"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false
