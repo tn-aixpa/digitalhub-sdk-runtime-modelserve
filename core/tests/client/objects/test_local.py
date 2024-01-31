@@ -1,6 +1,9 @@
 import pytest
 from digitalhub_core.client.objects.local import ClientLocal
-from digitalhub_core.utils.commons import FUNC, PROJ, RUNS
+
+FUNC = "functions"
+PROJ = "projects"
+RUNS = "runs"
 
 
 @pytest.fixture

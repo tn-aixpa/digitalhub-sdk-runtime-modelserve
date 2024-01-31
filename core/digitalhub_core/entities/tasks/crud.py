@@ -8,7 +8,6 @@ import typing
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.tasks.entity import task_from_dict, task_from_parameters
 from digitalhub_core.utils.api import api_base_delete, api_base_read, api_base_update
-from digitalhub_core.utils.commons import TASK
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -128,7 +127,7 @@ def get_task(project: str, name: str) -> Task:
     Task
         Object instance.
     """
-    api = api_base_read(TASK, name)
+    api = api_base_read("tasks", name)
     obj = get_context(project).read_object(api)
     return create_task_from_dict(obj)
 
@@ -170,7 +169,7 @@ def delete_task(project: str, name: str, cascade: bool = True) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_delete(TASK, name, cascade=cascade)
+    api = api_base_delete("tasks", name, cascade=cascade)
     return get_context(project).delete_object(api)
 
 
@@ -188,5 +187,5 @@ def update_task(task: Task) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_update(TASK, task.id)
+    api = api_base_update("tasks", task.id)
     return get_context(task.project).update_object(task.to_dict(), api)

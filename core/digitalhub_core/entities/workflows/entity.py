@@ -11,16 +11,15 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.workflows.metadata import WorkflowMetadata
+from digitalhub_core.entities.workflows.status import WorkflowStatus
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
-from digitalhub_core.utils.commons import WKFL
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.workflows.metadata import WorkflowMetadata
     from digitalhub_core.entities.workflows.spec import WorkflowSpec
-    from digitalhub_core.entities.workflows.status import WorkflowStatus
 
 
 class Workflow(Entity):
@@ -91,11 +90,11 @@ class Workflow(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, WKFL)
+            api = api_ctx_create(self.project, "workflows")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, WKFL, self.name, self.id)
+        api = api_ctx_update(self.project, "workflows", self.name, self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -139,18 +138,14 @@ class Workflow(Entity):
 
     @staticmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
 
         Parameters
         ----------
-        entity : str
-            Entity type.
         obj : dict
             Dictionary to parse.
 
@@ -163,15 +158,15 @@ class Workflow(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata", {}))
+        metadata = build_metadata(WorkflowMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            entity,
+            "workflows",
             kind,
+            layer_digitalhub="digitalhub_core",
             validate=validate,
-            module_to_import=module_to_import,
             **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status", {}))
+        status = build_status(WorkflowStatus, **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -225,7 +220,7 @@ def workflow_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        WKFL,
+        WorkflowMetadata,
         project=project,
         name=name,
         version=uuid,
@@ -235,11 +230,12 @@ def workflow_from_parameters(
         embedded=embedded,
     )
     spec = build_spec(
-        WKFL,
+        "workflows",
         kind,
+        layer_digitalhub="digitalhub_core",
         **kwargs,
     )
-    status = build_status(WKFL)
+    status = build_status(WorkflowStatus)
     return Workflow(
         project=project,
         name=name,
@@ -265,4 +261,4 @@ def workflow_from_dict(obj: dict) -> Workflow:
     Workflow
         Workflow instance.
     """
-    return Workflow.from_dict(WKFL, obj)
+    return Workflow.from_dict(obj)

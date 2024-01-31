@@ -6,14 +6,13 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import check_context, get_context
-from digitalhub_core.entities.dataitems.entity import dataitem_from_dict, dataitem_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.commons import DTIT
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
+from digitalhub_data.entities.dataitems.entity import dataitem_from_dict, dataitem_from_parameters
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
 def create_dataitem(**kwargs) -> Dataitem:
@@ -133,7 +132,7 @@ def get_dataitem(project: str, name: str, uuid: str | None = None) -> Dataitem:
         Object instance.
 
     """
-    api = api_ctx_read(project, DTIT, name, uuid=uuid)
+    api = api_ctx_read(project, "dataitems", name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return create_dataitem_from_dict(obj)
 
@@ -189,7 +188,7 @@ def delete_dataitem(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, DTIT, name, uuid=uuid)
+    api = api_ctx_delete(project, "dataitems", name, uuid=uuid)
     return get_context(project).delete_object(api)
 
 
@@ -207,5 +206,5 @@ def update_dataitem(dataitem: Dataitem) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(dataitem.project, DTIT, dataitem.name, uuid=dataitem.id)
+    api = api_ctx_update(dataitem.project, "dataitems", dataitem.name, uuid=dataitem.id)
     return get_context(dataitem.project).update_object(dataitem.to_dict(), api)

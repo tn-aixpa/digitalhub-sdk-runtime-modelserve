@@ -8,13 +8,6 @@ from digitalhub_core.entities.artifacts.crud import (
     new_artifact,
     update_artifact,
 )
-from digitalhub_core.entities.dataitems.crud import (
-    delete_dataitem,
-    get_dataitem,
-    import_dataitem,
-    new_dataitem,
-    update_dataitem,
-)
 from digitalhub_core.entities.functions.crud import (
     delete_function,
     get_function,

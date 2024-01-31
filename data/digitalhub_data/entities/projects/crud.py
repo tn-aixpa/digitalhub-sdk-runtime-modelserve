@@ -6,14 +6,13 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.client.builder import get_client
-from digitalhub_core.context.builder import delete_context
-from digitalhub_core.entities.projects.entity import project_from_dict, project_from_parameters
-from digitalhub_core.utils.api import api_base_delete, api_base_read, api_base_update
+from digitalhub_core.utils.api import api_base_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
+from digitalhub_data.entities.projects.entity import project_from_dict, project_from_parameters
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.projects.entity import Project
+    from digitalhub_data.entities.projects.entity import ProjectData as Project
 
 
 def create_project(**kwargs) -> Project:
@@ -197,53 +196,3 @@ def import_project(file: str, local: bool = False) -> Project:
     obj = read_yaml(file)
     obj["local"] = local
     return create_project_from_dict(obj)
-
-
-def delete_project(name: str, cascade: bool = True, clean_context: bool = True, local: bool = False) -> list[dict]:
-    """
-    Delete a project.
-
-    Parameters
-    ----------
-    name : str
-        Name of the project.
-    cascade : bool
-        Flag to determine if delete is cascading.
-    clean_context : bool
-        Flag to determine if context will be deleted. If a context is deleted,
-        all its objects are unreacheable.
-    local : bool
-        Flag to determine if backend is local.
-
-    Returns
-    -------
-    dict
-        Response from backend.
-    """
-    client = get_client(local)
-    api = api_base_delete("projects", name, cascade=cascade)
-    response = client.delete_object(api)
-    if clean_context:
-        delete_context(name)
-    return response
-
-
-def update_project(project: Project, local: bool = False) -> dict:
-    """
-    Update a project.
-
-    Parameters
-    ----------
-    project : Project
-        The project to update.
-    local : bool
-        Flag to determine if backend is local.
-
-    Returns
-    -------
-    dict
-        Response from backend.
-    """
-    api = api_base_update("projects", project.name)
-    client = get_client(local)
-    return client.update_object(project.to_dict(), api)

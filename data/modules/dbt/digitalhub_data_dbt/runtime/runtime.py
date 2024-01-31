@@ -7,10 +7,10 @@ import typing
 from pathlib import Path
 from typing import Callable
 
-from digitalhub_core.entities.dataitems.crud import get_dataitem_from_key
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
 from digitalhub_data.runtimes.results import RunResultsData
 from digitalhub_data_dbt.utils.cleanup import cleanup
 from digitalhub_data_dbt.utils.configuration import (
@@ -25,7 +25,7 @@ from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, pa
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_core.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity import Dataitem
     from digitalhub_data_dbt.utils.outputs import ParsedResults
 
 

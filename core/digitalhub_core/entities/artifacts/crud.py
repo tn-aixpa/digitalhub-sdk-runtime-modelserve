@@ -8,7 +8,6 @@ import typing
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.commons import ARTF
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 
@@ -87,7 +86,7 @@ def new_artifact(
     embedded : bool
         Flag to determine if object must be embedded in project.
     key : str
-        Representation of artfact like store://etc..
+        Representation of "artifacts"act like store://etc..
     src_path : str
         Path to the artifact on local file system.
     targeth_path : str
@@ -136,7 +135,7 @@ def get_artifact(project: str, name: str, uuid: str | None = None) -> Artifact:
     Artifact
         Object instance.
     """
-    api = api_ctx_read(project, ARTF, name, uuid=uuid)
+    api = api_ctx_read(project, "artifacts", name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return create_artifact_from_dict(obj)
 
@@ -192,7 +191,7 @@ def delete_artifact(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, ARTF, name, uuid=uuid)
+    api = api_ctx_delete(project, "artifacts", name, uuid=uuid)
     return get_context(project).delete_object(api)
 
 
@@ -210,5 +209,5 @@ def update_artifact(artifact: Artifact) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(artifact.project, ARTF, artifact.name, uuid=artifact.id)
+    api = api_ctx_update(artifact.project, "artifacts", artifact.name, uuid=artifact.id)
     return get_context(artifact.project).update_object(artifact.to_dict(), api)

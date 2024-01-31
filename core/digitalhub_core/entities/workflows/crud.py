@@ -8,7 +8,6 @@ import typing
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.workflows.entity import workflow_from_dict, workflow_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.commons import WKFL
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -123,7 +122,7 @@ def get_workflow(project: str, name: str, uuid: str | None = None) -> Workflow:
     Workflow
         Object instance.
     """
-    api = api_ctx_read(project, WKFL, name, uuid=uuid)
+    api = api_ctx_read(project, "workflows", name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return create_workflow_from_dict(obj)
 
@@ -165,7 +164,7 @@ def delete_workflow(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, WKFL, name, uuid=uuid)
+    api = api_ctx_delete(project, "workflows", name, uuid=uuid)
     return get_context(project).delete_object(api)
 
 
@@ -183,5 +182,5 @@ def update_workflow(workflow: Workflow) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(workflow.project, WKFL, workflow.name, uuid=workflow.id)
+    api = api_ctx_update(workflow.project, "workflows", workflow.name, uuid=workflow.id)
     return get_context(workflow.project).update_object(workflow.to_dict(), api)

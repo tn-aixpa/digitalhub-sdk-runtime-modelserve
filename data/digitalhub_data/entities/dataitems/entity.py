@@ -14,18 +14,17 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.stores.builder import get_default_store, get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
-from digitalhub_core.utils.commons import DTIT
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub_data.entities.dataitems.metadata import DataitemMetadata
+from digitalhub_data.entities.dataitems.status import DataitemStatus
 
 if typing.TYPE_CHECKING:
     import pandas as pd
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.dataitems.metadata import DataitemMetadata
-    from digitalhub_core.entities.dataitems.spec import DataitemSpec
-    from digitalhub_core.entities.dataitems.status import DataitemStatus
+    from digitalhub_data.entities.dataitems.spec import DataitemSpec
 
 
 class Dataitem(Entity):
@@ -96,11 +95,11 @@ class Dataitem(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, DTIT)
+            api = api_ctx_create(self.project, "dataitems")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, DTIT, self.name, self.id)
+        api = api_ctx_update(self.project, "dataitems", self.name, self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -280,10 +279,8 @@ class Dataitem(Entity):
 
     @staticmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -304,15 +301,15 @@ class Dataitem(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata", {}))
+        metadata = build_metadata(DataitemMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            entity,
+            "dataitems",
             kind,
+            layer_digitalhub="digitalhub_data",
             validate=validate,
-            module_to_import=module_to_import,
             **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status", {}))
+        status = build_status(DataitemStatus, **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -373,7 +370,7 @@ def dataitem_from_parameters(
     uuid = build_uuid(uuid)
     key = key if key is not None else f"store://{project}/dataitems/{kind}/{name}:{uuid}"
     metadata = build_metadata(
-        DTIT,
+        DataitemMetadata,
         project=project,
         name=name,
         version=uuid,
@@ -383,13 +380,14 @@ def dataitem_from_parameters(
         embedded=embedded,
     )
     spec = build_spec(
-        DTIT,
+        "dataitems",
         kind,
+        layer_digitalhub="digitalhub_data",
         key=key,
         path=path,
         **kwargs,
     )
-    status = build_status(DTIT)
+    status = build_status(DataitemStatus)
     return Dataitem(
         project=project,
         name=name,
@@ -415,4 +413,4 @@ def dataitem_from_dict(obj: dict) -> Dataitem:
     Dataitem
         Dataitem object.
     """
-    return Dataitem.from_dict(DTIT, obj)
+    return Dataitem.from_dict(obj)

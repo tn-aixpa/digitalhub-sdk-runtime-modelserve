@@ -3,8 +3,7 @@ Base Function specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec
-from pydantic import BaseModel
+from digitalhub_core.entities._base.spec import Spec, SpecParams
 
 
 class FunctionSpec(Spec):
@@ -32,7 +31,7 @@ class FunctionSpec(Spec):
         self._any_setter(**kwargs)
 
 
-class FunctionParams(BaseModel):
+class FunctionParams(SpecParams):
     """
     Function parameters model.
     """

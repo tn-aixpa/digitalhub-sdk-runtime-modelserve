@@ -3,9 +3,8 @@ Task specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec
+from digitalhub_core.entities._base.spec import Spec, SpecParams
 from digitalhub_core.entities.tasks.models import Env, NodeSelector, Resource, Volume
-from pydantic import BaseModel
 
 
 class TaskSpec(Spec):
@@ -45,7 +44,7 @@ class TaskSpec(Spec):
         self._any_setter(**kwargs)
 
 
-class TaskParams(BaseModel):
+class TaskParams(SpecParams):
     """
     Base task model.
     """
@@ -53,14 +52,14 @@ class TaskParams(BaseModel):
     function: str
     """Function string."""
 
-    node_selector: NodeSelector = {}
+    node_selector: NodeSelector = None
     """Node selector."""
 
-    volumes: list[Volume] = []
+    volumes: list[Volume] = None
     """List of volumes."""
 
-    resources: Resource = {}
+    resources: Resource = None
     """Resources restrictions."""
 
-    env: list[Env] = []
+    env: list[Env] = None
     """Env variables."""

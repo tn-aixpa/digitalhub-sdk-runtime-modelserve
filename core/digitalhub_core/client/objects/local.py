@@ -4,7 +4,6 @@ Local Client module.
 from copy import deepcopy
 
 from digitalhub_core.client.objects.base import Client
-from digitalhub_core.utils.commons import PROJ, RUNS, TASK
 from digitalhub_core.utils.exceptions import BackendError
 
 
@@ -68,7 +67,7 @@ class ClientLocal(Client):
             # the name attribute, not the id and is also not versioned,
             # so we use the name as storage key.
             if project is None:
-                name = obj["name"] if dto == PROJ else obj["id"]
+                name = obj["name"] if dto == "projects" else obj["id"]
                 if name in self._db[dto]:
                     code = 5
                     raise ValueError
@@ -131,7 +130,7 @@ class ClientLocal(Client):
 
                 # If the object is a project, we need to add the project spec,
                 # for example artifacts, functions, workflows, etc.
-                if dto == PROJ:
+                if dto == "projects":
                     obj = self._get_project_spec(obj, name)
 
             # Versioned objects
@@ -338,7 +337,7 @@ class ClientLocal(Client):
         spec = project.get("spec", {})
 
         # Get all entities associated with the project specs
-        projects_entities = [k for k, _ in self._db.items() if k not in [PROJ, RUNS, TASK]]
+        projects_entities = [k for k, _ in self._db.items() if k not in ["projects", "runs", "tasks"]]
 
         for entity_type in projects_entities:
             # Get all objects of the entity type for the project

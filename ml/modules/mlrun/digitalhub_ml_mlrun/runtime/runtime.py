@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Callable
 
 from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
-from digitalhub_core.entities.dataitems.crud import get_dataitem_from_key
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
 from digitalhub_data.runtimes.results import RunResultsData
 from digitalhub_ml_mlrun.utils.configurations import (
     get_dhcore_function,

@@ -8,7 +8,6 @@ import typing
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.runs.entity import run_from_dict, run_from_parameters
 from digitalhub_core.utils.api import api_base_delete, api_base_read, api_base_update
-from digitalhub_core.utils.commons import RUNS
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -134,7 +133,7 @@ def get_run(project: str, name: str) -> Run:
     Run
         Object instance.
     """
-    api = api_base_read(RUNS, name)
+    api = api_base_read("runs", name)
     obj = get_context(project).read_object(api)
     return create_run_from_dict(obj)
 
@@ -174,7 +173,7 @@ def delete_run(project: str, name: str) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_delete(RUNS, name)
+    api = api_base_delete("runs", name)
     return get_context(project).delete_object(api)
 
 
@@ -192,5 +191,5 @@ def update_run(run: Run) -> dict:
     dict
         Response from backend.
     """
-    api = api_base_update(RUNS, run.id)
+    api = api_base_update("runs", run.id)
     return get_context(run.project).update_object(run.to_dict(include_all_non_private=True), api)

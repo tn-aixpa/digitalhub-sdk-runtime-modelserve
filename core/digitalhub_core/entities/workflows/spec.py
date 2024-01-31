@@ -3,8 +3,7 @@ Workflow base specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec
-from pydantic import BaseModel
+from digitalhub_core.entities._base.spec import Spec, SpecParams
 
 
 class WorkflowSpec(Spec):
@@ -18,7 +17,12 @@ class WorkflowSpec(Spec):
         """
 
 
-class WorkflowParams(BaseModel):
+class WorkflowParams(SpecParams):
     """
     Workflow parameters.
     """
+
+
+SPEC_REGISTRY = {
+    "workflow": [WorkflowSpec, WorkflowParams],
+}

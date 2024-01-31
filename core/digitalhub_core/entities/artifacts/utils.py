@@ -8,8 +8,6 @@ from hashlib import sha1
 from mimetypes import guess_type
 from pathlib import Path
 
-from digitalhub_core.utils.commons import ARTF
-
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
 
@@ -29,7 +27,7 @@ def get_artifact_info(artifact: Artifact) -> dict:
         The information of the artifact.
     """
     return {
-        "id": f"store://{artifact.project}/{ARTF}/{artifact.kind}/{artifact.name}:{artifact.id}",
+        "id": f"store://{artifact.project}/artifacts/{artifact.kind}/{artifact.name}:{artifact.id}",
         "key": artifact.name,
         "kind": artifact.kind,
     }

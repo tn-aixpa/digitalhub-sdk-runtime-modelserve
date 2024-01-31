@@ -3,8 +3,7 @@ Artifact base specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec
-from pydantic import BaseModel
+from digitalhub_core.entities._base.spec import Spec, SpecParams
 
 
 class ArtifactSpec(Spec):
@@ -56,7 +55,7 @@ class ArtifactSpec(Spec):
         self._any_setter(**kwargs)
 
 
-class ArtifactParams(BaseModel):
+class ArtifactParams(SpecParams):
     """
     Artifact base parameters.
     """
@@ -81,3 +80,8 @@ class ArtifactParams(BaseModel):
 
     file_extension: str = None
     """File extension of the artifact."""
+
+
+SPEC_REGISTRY = {
+    "artifact": [ArtifactSpec, ArtifactParams],
+}

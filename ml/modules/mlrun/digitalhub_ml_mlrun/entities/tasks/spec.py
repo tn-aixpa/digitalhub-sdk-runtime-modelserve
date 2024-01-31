@@ -14,3 +14,8 @@ class TaskParamsMLRun(TaskParams):
     """
     TaskParamsMLRun model.
     """
+
+
+SPEC_REGISTRY = {
+    "mlrun": [TaskSpecMLRun, TaskParamsMLRun],
+}

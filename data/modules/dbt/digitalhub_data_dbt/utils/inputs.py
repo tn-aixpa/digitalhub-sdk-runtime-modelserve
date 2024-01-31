@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities.dataitems.crud import get_dataitem
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data.entities.dataitems.crud import get_dataitem
 from digitalhub_data_dbt.utils.env import POSTGRES_DATABASE, POSTGRES_SCHEMA
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
 def get_dataitem_(name: str, project: str) -> Dataitem:

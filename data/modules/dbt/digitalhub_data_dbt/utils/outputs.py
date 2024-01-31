@@ -8,17 +8,17 @@ from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.dataitems.crud import create_dataitem
-from digitalhub_core.entities.dataitems.utils import get_dataitem_info
 from digitalhub_core.utils.generic_utils import encode_string
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data.entities.dataitems.crud import create_dataitem
+from digitalhub_data.entities.dataitems.utils import get_dataitem_info
 from digitalhub_data.utils.data_utils import get_data_preview
 from digitalhub_data_dbt.utils.env import get_connection
 from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_core.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
 # Postgres type mapper to frictionless types.
@@ -320,7 +320,7 @@ def get_data_sample(table_name: str, uuid: str) -> None:
     LOGGER.info("Getting columns and data sample from dbt results.")
     try:
         connection = get_connection()
-        query = sql.SQL("SELECT * FROM {table} LIMIT 5;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
+        query = sql.SQL("SELECT * FROM {table} LIMIT 10;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute(query)

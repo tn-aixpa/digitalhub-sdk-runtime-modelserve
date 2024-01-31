@@ -12,17 +12,16 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.crud import delete_run, get_run, new_run, run_from_parameters
+from digitalhub_core.entities.tasks.metadata import TaskMetadata
+from digitalhub_core.entities.tasks.status import TaskStatus
 from digitalhub_core.utils.api import api_base_create, api_base_update
-from digitalhub_core.utils.commons import TASK
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
     from digitalhub_core.entities.runs.entity import Run
-    from digitalhub_core.entities.tasks.metadata import TaskMetadata
     from digitalhub_core.entities.tasks.spec import TaskSpec
-    from digitalhub_core.entities.tasks.status import TaskStatus
 
 
 class Task(Entity):
@@ -89,11 +88,11 @@ class Task(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_base_create(TASK)
+            api = api_base_create("tasks")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_base_update(TASK, self.id)
+        api = api_base_update("tasks", self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -243,10 +242,8 @@ class Task(Entity):
 
     @staticmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -267,15 +264,15 @@ class Task(Entity):
         kind = obj.get("kind")
 
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata", {}))
+        metadata = build_metadata(TaskMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            entity,
+            "tasks",
             kind,
             validate=validate,
-            module_to_import=obj.get("spec", {}).get("function").split("://")[0],
+            framework_runtime=obj.get("spec", {}).get("function").split("://")[0],
             **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status", {}))
+        status = build_status(TaskStatus, **obj.get("status", {}))
         return {
             "project": project,
             "uuid": uuid,
@@ -334,16 +331,16 @@ def task_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        TASK,
+        TaskMetadata,
         project=project,
         name=uuid,
         source=source,
         labels=labels,
     )
     spec = build_spec(
-        TASK,
+        "tasks",
         kind,
-        module_to_import=function.split("://")[0],
+        framework_runtime=function.split("://")[0],
         function=function,
         node_selector=node_selector,
         volumes=volumes,
@@ -351,7 +348,7 @@ def task_from_parameters(
         env=env,
         **kwargs,
     )
-    status = build_status(TASK)
+    status = build_status(TaskStatus)
     return Task(
         project=project,
         uuid=uuid,
@@ -376,4 +373,4 @@ def task_from_dict(obj: dict) -> Task:
     Task
         Task object.
     """
-    return Task.from_dict(TASK, obj)
+    return Task.from_dict(obj)

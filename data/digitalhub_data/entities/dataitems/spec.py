@@ -3,8 +3,8 @@ Dataitem specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec
-from pydantic import BaseModel, Field
+from digitalhub_core.entities._base.spec import Spec, SpecParams
+from pydantic import Field
 
 
 class DataitemSpec(Spec):
@@ -32,7 +32,7 @@ class DataitemSpec(Spec):
         self._any_setter(**kwargs)
 
 
-class DataitemParams(BaseModel):
+class DataitemParams(SpecParams):
     """
     Dataitem parameters.
     """
@@ -45,3 +45,8 @@ class DataitemParams(BaseModel):
 
     _schema: dict = Field(alias="schema")
     """The schema of the dataitem in table schema format."""
+
+
+SPEC_REGISTRY = {
+    "dataitem": [DataitemSpec, DataitemParams],
+}

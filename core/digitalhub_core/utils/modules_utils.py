@@ -6,8 +6,6 @@ from __future__ import annotations
 import importlib
 from collections import namedtuple
 
-from digitalhub_core.utils.commons import FUNC
-
 Rtm = namedtuple("Rtm", ["module", "class_name"])
 Obj = namedtuple("Obj", ["module", "class_spec", "class_params"])
 
@@ -131,7 +129,7 @@ class ModuleRegistry:
         Obj
             Spec class.
         """
-        if entity == FUNC:
+        if entity == "functions":
             return self.function
         return self.tasks[kind]
 

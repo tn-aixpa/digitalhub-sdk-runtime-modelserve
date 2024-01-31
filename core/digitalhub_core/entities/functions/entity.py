@@ -12,18 +12,17 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.functions.metadata import FunctionMetadata
+from digitalhub_core.entities.functions.status import FunctionStatus
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task, new_task
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
-from digitalhub_core.utils.commons import FUNC
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.functions.metadata import FunctionMetadata
     from digitalhub_core.entities.functions.spec import FunctionSpec
-    from digitalhub_core.entities.functions.status import FunctionStatus
     from digitalhub_core.entities.runs.entity import Run
     from digitalhub_core.entities.tasks.entity import Task
 
@@ -102,11 +101,11 @@ class Function(Entity):
         obj["status"].pop("tasks", None)
 
         if not update:
-            api = api_ctx_create(self.project, FUNC)
+            api = api_ctx_create(self.project, "functions")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, FUNC, self.name, self.id)
+        api = api_ctx_update(self.project, "functions", self.name, self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -406,10 +405,8 @@ class Function(Entity):
 
     @staticmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -430,9 +427,9 @@ class Function(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata", {}))
-        spec = build_spec(entity, kind, validate=True, module_to_import=kind, **obj.get("spec", {}))
-        status = build_status(entity, **obj.get("status", {}))
+        metadata = build_metadata(FunctionMetadata, **obj.get("metadata", {}))
+        spec = build_spec("functions", kind, framework_runtime=kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(FunctionStatus, **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -489,14 +486,14 @@ def function_from_parameters(
     """
     uuid = build_uuid(uuid)
     spec = build_spec(
-        FUNC,
+        "functions",
         kind,
-        module_to_import=kind,
+        framework_runtime=kind,
         source=source_code,
         **kwargs,
     )
     metadata = build_metadata(
-        FUNC,
+        FunctionMetadata,
         project=project,
         name=name,
         version=uuid,
@@ -505,7 +502,7 @@ def function_from_parameters(
         labels=labels,
         embedded=embedded,
     )
-    status = build_status(FUNC)
+    status = build_status(FunctionStatus)
     return Function(
         project=project,
         name=name,
@@ -531,4 +528,4 @@ def function_from_dict(obj: dict) -> Function:
     Function
         Function object.
     """
-    return Function.from_dict(FUNC, obj)
+    return Function.from_dict("functions", obj)

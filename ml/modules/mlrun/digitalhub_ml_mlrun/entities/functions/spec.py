@@ -84,3 +84,8 @@ class FunctionParamsMLRun(FunctionParams):
 
     requirements: list = None
     """List of requirements for the Function."""
+
+
+SPEC_REGISTRY = {
+    "mlrun": [FunctionSpecMLRun, FunctionParamsMLRun],
+}

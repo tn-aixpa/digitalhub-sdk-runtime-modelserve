@@ -5,10 +5,8 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.utils.commons import DTIT
-
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
 def get_dataitem_info(dataitem: Dataitem) -> dict:
@@ -26,7 +24,7 @@ def get_dataitem_info(dataitem: Dataitem) -> dict:
         The information of the dataitem.
     """
     return {
-        "id": f"store://{dataitem.project}/{DTIT}/{dataitem.kind}/{dataitem.name}:{dataitem.id}",
+        "id": f"store://{dataitem.project}/dataitems/{dataitem.kind}/{dataitem.name}:{dataitem.id}",
         "key": dataitem.name,
         "kind": dataitem.kind,
     }

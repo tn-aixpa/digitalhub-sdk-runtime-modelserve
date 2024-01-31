@@ -12,9 +12,10 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.artifacts.metadata import ArtifactMetadata
+from digitalhub_core.entities.artifacts.status import ArtifactStatus
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
-from digitalhub_core.utils.commons import ARTF
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -22,9 +23,7 @@ from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.artifacts.metadata import ArtifactMetadata
     from digitalhub_core.entities.artifacts.spec import ArtifactSpec
-    from digitalhub_core.entities.artifacts.status import ArtifactStatus
 
 
 class Artifact(Entity):
@@ -95,11 +94,11 @@ class Artifact(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, ARTF)
+            api = api_ctx_create(self.project, "artifacts")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, ARTF, self.name, self.id)
+        api = api_ctx_update(self.project, "artifacts", self.name, self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -346,10 +345,8 @@ class Artifact(Entity):
 
     @staticmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -370,15 +367,15 @@ class Artifact(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata", {}))
+        metadata = build_metadata(ArtifactMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            entity,
+            "artifacts",
             kind,
+            layer_digitalhub="digitalhub_core",
             validate=validate,
-            module_to_import=module_to_import,
             **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status", {}))
+        status = build_status(ArtifactStatus, **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -426,7 +423,7 @@ def artifact_from_parameters(
     embedded : bool
         Flag to determine if object must be embedded in project.
     key : str
-        Representation of artfact like store://etc..
+        Representation of "artifacts"act like store://etc..
     src_path : str
         Path to the artifact on local file system.
     targeth_path : str
@@ -441,7 +438,7 @@ def artifact_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        ARTF,
+        ArtifactMetadata,
         project=project,
         name=name,
         version=uuid,
@@ -452,14 +449,15 @@ def artifact_from_parameters(
     )
     key = key if key is not None else f"store://{project}/artifacts/{kind}/{name}:{uuid}"
     spec = build_spec(
-        ARTF,
+        "artifacts",
         kind,
+        layer_digitalhub="digitalhub_core",
         key=key,
         src_path=src_path,
         target_path=target_path,
         **kwargs,
     )
-    status = build_status(ARTF)
+    status = build_status(ArtifactStatus)
     return Artifact(
         project=project,
         name=name,
@@ -485,4 +483,4 @@ def artifact_from_dict(obj: dict) -> Artifact:
     Artifact
         Artifact object.
     """
-    return Artifact.from_dict(ARTF, obj)
+    return Artifact.from_dict(obj)

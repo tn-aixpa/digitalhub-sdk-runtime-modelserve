@@ -14,3 +14,8 @@ class TaskParamsTransform(TaskParams):
     """
     TaskParamsTransform model.
     """
+
+
+SPEC_REGISTRY = {
+    "transform": [TaskSpecTransform, TaskParamsTransform],
+}

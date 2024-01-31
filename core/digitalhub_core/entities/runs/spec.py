@@ -3,7 +3,7 @@ Run base specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec
+from digitalhub_core.entities._base.spec import Spec, SpecParams
 from pydantic import BaseModel
 
 
@@ -62,7 +62,7 @@ class Objects(BaseModel):
     """List of artifacts names."""
 
 
-class RunParams(BaseModel):
+class RunParams(SpecParams):
     """
     Run parameters.
     """
@@ -84,3 +84,8 @@ class RunParams(BaseModel):
 
     local_execution: bool = False
     """Flag to indicate if the run will be executed locally."""
+
+
+SPEC_REGISTRY = {
+    "run": [RunSpec, RunParams],
+}

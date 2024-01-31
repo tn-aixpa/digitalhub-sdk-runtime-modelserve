@@ -38,3 +38,8 @@ class FunctionParamsNefertem(FunctionParams):
 
     metrics: list[dict] = None
     """List of metrics for the function."""
+
+
+SPEC_REGISTRY = {
+    "nefertem": [FunctionSpecNefertem, FunctionParamsNefertem],
+}

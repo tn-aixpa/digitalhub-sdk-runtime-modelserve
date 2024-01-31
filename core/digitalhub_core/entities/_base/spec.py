@@ -30,26 +30,7 @@ class Spec(ModelObj):
         return cls(**obj)
 
 
-class SpecRegistry(dict):
+class SpecParams(BaseModel):
     """
-    Specification registry generic class.
+    A class representing the parameters of an entity.
     """
-
-    def register(self, kind: str, spec: Spec, model: BaseModel) -> None:
-        """
-        Register for object specification.
-
-        Parameters
-        ----------
-        kind : Enum
-            Object kind.
-        spec : Spec
-            Object specification.
-        model : BaseModel
-            Object model.
-
-        Returns
-        -------
-        None
-        """
-        self[kind] = {"spec": spec, "model": model}

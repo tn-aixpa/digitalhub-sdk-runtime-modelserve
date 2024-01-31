@@ -3,8 +3,7 @@ Project base specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec
-from pydantic import BaseModel
+from digitalhub_core.entities._base.spec import Spec, SpecParams
 
 
 class ProjectSpec(Spec):
@@ -47,7 +46,7 @@ class ProjectSpec(Spec):
         self.dataitems = dataitems if dataitems is not None else []
 
 
-class ProjectParams(BaseModel):
+class ProjectParams(SpecParams):
     """
     Parameters model for project.
     """
@@ -66,3 +65,8 @@ class ProjectParams(BaseModel):
 
     dataitems: list = None
     """List of project's dataitems."""
+
+
+SPEC_REGISTRY = {
+    "project": [ProjectSpec, ProjectParams],
+}

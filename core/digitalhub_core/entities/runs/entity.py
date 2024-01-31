@@ -13,18 +13,17 @@ from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.runs.metadata import RunMetadata
+from digitalhub_core.entities.runs.status import RunStatus
 from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
-from digitalhub_core.utils.commons import FUNC, RUNS, TASK
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.runs.metadata import RunMetadata
     from digitalhub_core.entities.runs.spec import RunSpec
-    from digitalhub_core.entities.runs.status import RunStatus
     from digitalhub_core.runtimes.base import Runtime
 
 
@@ -98,11 +97,11 @@ class Run(Entity):
         obj = self.to_dict(include_all_non_private=True)
 
         if not update:
-            api = api_base_create(RUNS)
+            api = api_base_create("runs")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_base_update(RUNS, self.id)
+        api = api_base_update("runs", self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -156,7 +155,7 @@ class Run(Entity):
         task = self._get_task()
         runtime = self._get_runtime()
         new_spec = runtime.build(function, task, self.to_dict())
-        self.spec = build_spec(RUNS, self.kind, validate=True, **new_spec)
+        self.spec = build_spec("runs", self.kind, layer_digitalhub="digitalhub_core", validate=False, **new_spec)
         self._set_status({"state": State.BUILT.value})
         self.save()
 
@@ -205,9 +204,9 @@ class Run(Entity):
         Run
             Run object.
         """
-        api = api_base_read(RUNS, self.id)
+        api = api_base_read("runs", self.id)
         obj = self._context().read_object(api)
-        refreshed_run = self.from_dict(RUNS, obj, validate=True)
+        refreshed_run = self.from_dict(obj)
         self.kind = refreshed_run.kind
         self.metadata = refreshed_run.metadata
         self.spec = refreshed_run.spec
@@ -226,7 +225,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_base_read(RUNS, self.id) + "/log"
+        api = api_base_read("runs", self.id) + "/log"
         return self._context().read_object(api)
 
     def _set_status(self, status: dict) -> None:
@@ -249,7 +248,7 @@ class Run(Entity):
         """
         if not isinstance(status, dict):
             raise EntityError("Status must be a dictionary.")
-        self.status: RunStatus = build_status(RUNS, **status)
+        self.status: RunStatus = build_status(RunStatus, **status)
 
     #############################
     #  Functions and Tasks
@@ -278,7 +277,7 @@ class Run(Entity):
             Function from backend.
         """
         parsed = self._parse_task_string()
-        api = api_ctx_read(self.project, FUNC, parsed.function_name, parsed.function_id)
+        api = api_ctx_read(self.project, "functions", parsed.function_name, parsed.function_id)
         return self._context().read_object(api)
 
     def _get_task(self) -> dict:
@@ -291,7 +290,7 @@ class Run(Entity):
             Task from backend.
         """
         parsed = self._parse_task_string()
-        api = api_base_read(TASK, parsed.task_id)
+        api = api_base_read("tasks", parsed.task_id)
         return self._context().read_object(api)
 
     #############################
@@ -316,10 +315,8 @@ class Run(Entity):
 
     @staticmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -339,15 +336,15 @@ class Run(Entity):
         project = obj.get("project")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(entity, **obj.get("metadata", {}))
+        metadata = build_metadata(RunMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            entity,
+            "runs",
             kind,
+            layer_digitalhub="digitalhub_core",
             validate=validate,
-            module_to_import=module_to_import,
             **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status", {}))
+        status = build_status(RunStatus, **obj.get("status", {}))
         return {
             "project": project,
             "uuid": uuid,
@@ -411,15 +408,16 @@ def run_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        RUNS,
+        RunMetadata,
         project=project,
         name=uuid,
         source=source,
         labels=labels,
     )
     spec = build_spec(
-        RUNS,
+        "runs",
         kind,
+        layer_digitalhub="digitalhub_core",
         task=task,
         task_id=task_id,
         inputs=inputs,
@@ -428,7 +426,7 @@ def run_from_parameters(
         local_execution=local_execution,
         **kwargs,
     )
-    status = build_status(RUNS)
+    status = build_status(RunStatus)
     return Run(
         project=project,
         uuid=uuid,
@@ -453,4 +451,4 @@ def run_from_dict(obj: dict) -> Run:
     Run
         Run object.
     """
-    return Run.from_dict(RUNS, obj)
+    return Run.from_dict(obj)

@@ -8,7 +8,6 @@ import typing
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.functions.entity import function_from_dict, function_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.commons import FUNC
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -127,7 +126,7 @@ def get_function(project: str, name: str, uuid: str | None = None) -> Function:
     Function
         Object instance.
     """
-    api = api_ctx_read(project, FUNC, name, uuid=uuid)
+    api = api_ctx_read(project, "functions", name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return create_function_from_dict(obj)
 
@@ -169,7 +168,7 @@ def delete_function(project: str, name: str, uuid: str | None = None) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, FUNC, name, uuid=uuid)
+    api = api_ctx_delete(project, "functions", name, uuid=uuid)
     return get_context(project).delete_object(api)
 
 
@@ -187,5 +186,5 @@ def update_function(function: Function) -> dict:
     dict
         Response from backend.
     """
-    api = api_ctx_update(function.project, FUNC, function.name, uuid=function.id)
+    api = api_ctx_update(function.project, "functions", function.name, uuid=function.id)
     return get_context(function.project).update_object(function.to_dict(), api)

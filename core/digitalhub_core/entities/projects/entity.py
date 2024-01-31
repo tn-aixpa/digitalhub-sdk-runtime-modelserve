@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
-from typing import TypeVar
 
 from digitalhub_core.client.builder import get_client
 from digitalhub_core.context.builder import set_context
@@ -14,32 +13,27 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.artifacts.crud import delete_artifact, get_artifact, new_artifact
-from digitalhub_core.entities.dataitems.crud import delete_dataitem, get_dataitem, new_dataitem
 from digitalhub_core.entities.functions.crud import delete_function, get_function, new_function
+from digitalhub_core.entities.projects.metadata import ProjectMetadata
+from digitalhub_core.entities.projects.status import ProjectStatus
 from digitalhub_core.entities.workflows.crud import delete_workflow, get_workflow, new_workflow
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update
-from digitalhub_core.utils.commons import ARTF, DTIT, FUNC, PROJ, WKFL
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_core.entities.dataitems.entity import Dataitem
     from digitalhub_core.entities.functions.entity import Function
-    from digitalhub_core.entities.projects.metadata import ProjectMetadata
     from digitalhub_core.entities.projects.spec import ProjectSpec
-    from digitalhub_core.entities.projects.status import ProjectStatus
     from digitalhub_core.entities.workflows.entity import Workflow
 
-    Entities = TypeVar("Entities", Artifact, Function, Workflow, Dataitem)
 
-CTX_ENTITIES = [ARTF, FUNC, WKFL, DTIT]
+CTX_ENTITIES = ["artifacts", "functions", "workflows"]
 FUNC_MAP = {
-    ARTF: get_artifact,
-    FUNC: get_function,
-    WKFL: get_workflow,
-    DTIT: get_dataitem,
+    "artifacts": get_artifact,
+    "functions": get_function,
+    "workflows": get_workflow,
 }
 
 
@@ -116,11 +110,11 @@ class Project(Entity):
             obj = self.to_dict()
 
         if not update:
-            api = api_base_create(PROJ)
+            api = api_base_create("projects")
             return self._client.create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_base_update(PROJ, self.id)
+        api = api_base_update("projects", self.id)
         return self._client.update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -167,17 +161,17 @@ class Project(Entity):
             Project object.
         """
         try:
-            api = api_base_read(PROJ, self.name)
+            api = api_base_read("projects", self.name)
             obj = self._client.read_object(api)
-            return self.from_dict(PROJ, obj)
+            return self.from_dict(obj)
         except BackendError:
             return self
 
     #############################
-    #  Generic operations for objects (artifacts, functions, workflows, dataitems)
+    #  Generic operations for objects
     #############################
 
-    def _add_object(self, obj: Entities, entity_type: str) -> None:
+    def _add_object(self, obj: Entity, entity_type: str) -> None:
         """
         Add object to project as specification.
 
@@ -305,7 +299,7 @@ class Project(Entity):
         kwargs["project"] = self.name
         kwargs["kind"] = "artifact"
         obj = new_artifact(**kwargs)
-        self._add_object(obj, ARTF)
+        self._add_object(obj, "artifacts")
         return obj
 
     def get_artifact(self, name: str, uuid: str | None = None) -> Artifact:
@@ -329,7 +323,7 @@ class Project(Entity):
             name=name,
             uuid=uuid,
         )
-        self._add_object(obj, ARTF)
+        self._add_object(obj, "artifacts")
         return obj
 
     def delete_artifact(self, name: str, uuid: str | None = None) -> None:
@@ -348,7 +342,7 @@ class Project(Entity):
         None
         """
         delete_artifact(self.name, name, uuid=uuid)
-        self._delete_object(name, ARTF, uuid=uuid)
+        self._delete_object(name, "artifacts", uuid=uuid)
 
     def set_artifact(self, artifact: Artifact) -> None:
         """
@@ -363,7 +357,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(artifact, ARTF)
+        self._add_object(artifact, "artifacts")
 
     #############################
     #  Functions
@@ -385,7 +379,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_function(**kwargs)
-        self._add_object(obj, FUNC)
+        self._add_object(obj, "functions")
         return obj
 
     def get_function(self, name: str, uuid: str | None = None) -> Function:
@@ -409,7 +403,7 @@ class Project(Entity):
             name=name,
             uuid=uuid,
         )
-        self._add_object(obj, FUNC)
+        self._add_object(obj, "functions")
         return obj
 
     def delete_function(self, name: str, uuid: str | None = None) -> None:
@@ -428,7 +422,7 @@ class Project(Entity):
         None
         """
         delete_function(self.name, name, uuid=uuid)
-        self._delete_object(name, FUNC, uuid=uuid)
+        self._delete_object(name, "functions", uuid=uuid)
 
     def set_function(self, function: Function) -> None:
         """
@@ -443,7 +437,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(function, FUNC)
+        self._add_object(function, "functions")
 
     #############################
     #  Workflows
@@ -465,7 +459,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_workflow(**kwargs)
-        self._add_object(obj, WKFL)
+        self._add_object(obj, "workflows")
         return obj
 
     def get_workflow(self, name: str, uuid: str | None = None) -> Workflow:
@@ -489,7 +483,7 @@ class Project(Entity):
             name=name,
             uuid=uuid,
         )
-        self._add_object(obj, WKFL)
+        self._add_object(obj, "workflows")
         return obj
 
     def delete_workflow(self, name: str, uuid: str | None = None) -> None:
@@ -508,7 +502,7 @@ class Project(Entity):
         None
         """
         delete_workflow(self.name, name, uuid=uuid)
-        self._delete_object(name, WKFL, uuid=uuid)
+        self._delete_object(name, "workflows", uuid=uuid)
 
     def set_workflow(self, workflow: Workflow) -> None:
         """
@@ -523,88 +517,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(workflow, WKFL)
-
-    #############################
-    #  Dataitems
-    #############################
-
-    def new_dataitem(self, **kwargs) -> Dataitem:
-        """
-        Create a Dataitem.
-
-        Parameters
-        ----------
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        Dataitem
-           Object instance.
-        """
-        kwargs["project"] = self.name
-        kwargs["kind"] = "dataitem"
-        obj = new_dataitem(**kwargs)
-        self._add_object(obj, DTIT)
-        return obj
-
-    def get_dataitem(self, name: str, uuid: str | None = None) -> Dataitem:
-        """
-        Get a Dataitem from backend.
-
-        Parameters
-        ----------
-        name : str
-            Identifier of the dataitem.
-        uuid : str
-            Identifier of the dataitem version.
-
-        Returns
-        -------
-        Dataitem
-            Instance of Dataitem class.
-        """
-        obj = get_dataitem(
-            project=self.name,
-            name=name,
-            uuid=uuid,
-        )
-        self._add_object(obj, DTIT)
-        return obj
-
-    def delete_dataitem(self, name: str, uuid: str | None = None) -> None:
-        """
-        Delete a Dataitem from project.
-
-        Parameters
-        ----------
-        name : str
-            Identifier of the dataitem.
-        uuid : str
-            Identifier of the dataitem version.
-
-        Returns
-        -------
-        None
-        """
-        delete_dataitem(self.name, name, uuid=uuid)
-        self._delete_object(name, DTIT, uuid=uuid)
-
-    def set_dataitem(self, dataitem: Dataitem) -> None:
-        """
-        Set a Dataitem.
-
-        Parameters
-        ----------
-        dataitem : Dataitem
-            Dataitem to set.
-
-        Returns
-        -------
-        None
-        """
-        self._add_object(dataitem, DTIT)
+        self._add_object(workflow, "workflows")
 
     #############################
     #  Static interface methods
@@ -612,10 +525,8 @@ class Project(Entity):
 
     @staticmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
@@ -634,15 +545,15 @@ class Project(Entity):
         """
         name = build_uuid(obj.get("name"))
         kind = obj.get("kind")
-        metadata = build_metadata(entity, **obj.get("metadata", {}))
+        metadata = build_metadata(ProjectMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            entity,
+            "projects",
             kind,
+            layer_digitalhub="digitalhub_core",
             validate=validate,
-            module_to_import=module_to_import,
             **obj.get("spec", {}),
         )
-        status = build_status(entity, **obj.get("status", {}))
+        status = build_status(ProjectStatus, **obj.get("status", {}))
         local = obj.get("local", False)
         return {
             "name": name,
@@ -693,19 +604,20 @@ def project_from_parameters(
     """
     name = build_uuid(name)
     spec = build_spec(
-        PROJ,
+        "projects",
         kind,
+        layer_digitalhub="digitalhub_core",
         context=context,
         **kwargs,
     )
     metadata = build_metadata(
-        PROJ,
+        ProjectMetadata,
         name=name,
         description=description,
         labels=labels,
         source=source,
     )
-    status = build_status(PROJ)
+    status = build_status(ProjectStatus)
     return Project(
         name=name,
         kind=kind,
@@ -730,4 +642,4 @@ def project_from_dict(obj: dict) -> Project:
     Project
         Project object.
     """
-    return Project.from_dict(PROJ, obj)
+    return Project.from_dict(obj)

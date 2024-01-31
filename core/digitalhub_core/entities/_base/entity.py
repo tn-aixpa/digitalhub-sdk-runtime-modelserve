@@ -54,24 +54,18 @@ class Entity(ModelObj, metaclass=ABCMeta):
     @classmethod
     def from_dict(
         cls,
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> "Entity":
         """
         Create object instance from a dictionary.
 
         Parameters
         ----------
-        entity : str
-            Entity type.
         obj : dict
             Dictionary to create object from.
         validate : bool
             Flag to indicate if arguments validation must be ignored.
-        module_to_import : str
-            The module to import.
 
         Returns
         -------
@@ -79,20 +73,16 @@ class Entity(ModelObj, metaclass=ABCMeta):
             Self instance.
         """
         parsed_dict = cls._parse_dict(
-            entity,
             obj,
             validate=validate,
-            module_to_import=module_to_import,
         )
         return cls(**parsed_dict)
 
     @staticmethod
     @abstractmethod
     def _parse_dict(
-        entity: str,
         obj: dict,
         validate: bool = True,
-        module_to_import: str | None = None,
     ) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.

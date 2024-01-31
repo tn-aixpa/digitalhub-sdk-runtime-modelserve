@@ -9,7 +9,7 @@ from digitalhub_data.runtimes.results import RunResultsData
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_core.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
 class RunResultsML(RunResultsData):
