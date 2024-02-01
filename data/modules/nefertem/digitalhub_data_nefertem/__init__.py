@@ -1,36 +1,7 @@
-from digitalhub_core.utils.modules_utils import ModuleRegistry
+from digitalhub_core.runtimes.registry import RuntimeRegistry
 
-registry = ModuleRegistry()
-registry.register_runtime(
+registry = RuntimeRegistry()
+registry.register(
     "digitalhub_data_nefertem.runtime.runtime",
     "RuntimeNefertem",
-)
-registry.register_function(
-    "digitalhub_data_nefertem.entities.functions.spec",
-    "FunctionSpecNefertem",
-    "FunctionParamsNefertem",
-)
-registry.register_tasks(
-    "infer",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecInfer",
-    "TaskParamsInfer",
-)
-registry.register_tasks(
-    "profile",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecProfile",
-    "TaskParamsProfile",
-)
-registry.register_tasks(
-    "validate",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecValidate",
-    "TaskParamsValidate",
-)
-registry.register_tasks(
-    "metric",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecMetric",
-    "TaskParamsMetric",
 )

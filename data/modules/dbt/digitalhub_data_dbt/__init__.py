@@ -1,18 +1,7 @@
-from digitalhub_core.utils.modules_utils import ModuleRegistry
+from digitalhub_core.runtimes.registry import RuntimeRegistry
 
-registry = ModuleRegistry()
-registry.register_runtime(
+registry = RuntimeRegistry()
+registry.register(
     "digitalhub_data_dbt.runtime.runtime",
     "RuntimeDBT",
-)
-registry.register_function(
-    "digitalhub_data_dbt.entities.functions.spec",
-    "FunctionSpecDBT",
-    "FunctionParamsDBT",
-)
-registry.register_tasks(
-    "transform",
-    "digitalhub_data_dbt.entities.tasks.spec",
-    "TaskSpecTransform",
-    "TaskParamsTransform",
 )
