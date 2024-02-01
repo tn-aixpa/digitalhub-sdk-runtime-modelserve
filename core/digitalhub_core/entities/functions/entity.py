@@ -252,7 +252,6 @@ class Function(Entity):
         # Loop over tasks list, in the case where the function
         # is imported from local file.
         for task in tasks:
-
             # If task is not a dictionary, skip it
             if not isinstance(task, dict):
                 continue

@@ -37,7 +37,6 @@ def build_runtime(kind: str) -> Runtime:
         raise ValueError(f"Runtime {kind} not found")
 
 
-
 def import_registry(kind: str) -> RuntimeRegistry:
     """
     Import registry from implemented module.

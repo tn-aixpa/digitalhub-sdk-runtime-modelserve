@@ -6,9 +6,9 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import check_context, get_context
-from digitalhub_ml.entities.models.entity import model_from_dict, model_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
+from digitalhub_ml.entities.models.entity import model_from_dict, model_from_parameters
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.models.entity import Model

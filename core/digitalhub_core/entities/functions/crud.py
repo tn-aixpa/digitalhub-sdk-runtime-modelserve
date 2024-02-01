@@ -157,6 +157,7 @@ def import_function(file: str) -> Function:
     func.import_tasks(task_dicts)
     return func
 
+
 def delete_function(project: str, name: str, uuid: str | None = None) -> dict:
     """
     Delete function from the backend. If the uuid is not specified, delete all versions.
