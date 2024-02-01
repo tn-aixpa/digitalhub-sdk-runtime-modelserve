@@ -16,7 +16,9 @@ RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 RUN pip install ./digitalhub-sdk/core
 RUN pip install ./digitalhub-sdk/data
 RUN pip install ./digitalhub-sdk/ml
-RUN pip install ./digitalhub-sdk/ml/modules/mlrun[local]
+RUN pip install -r ./digitalhub-sdk/ml/modules/mlrun/requirements-local.txt
+RUN pip install ./digitalhub-sdk/ml/modules/mlrun
+RUN pip install ./digitalhub-sdk/
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/

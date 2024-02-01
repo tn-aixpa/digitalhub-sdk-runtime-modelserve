@@ -17,8 +17,7 @@ def main():
     run = dhcore.get_run(project.name, os.getenv("RUN_ID"))
 
     LOGGER.info("Installing run dependencies.")
-    requirements = run.spec.requirements
-    for requirement in requirements:
+    for requirement in run.spec.to_dict().get("requirements", []):
         LOGGER.info(f"Installing {requirement}.")
         os.system(f"pip install {requirement}")
 
