@@ -27,7 +27,7 @@ certifi==2023.11.17
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub-core==0.2.9
+digitalhub-core==0.2.10
     # via digitalhub-ml
 digitalhub-ml==0.2.0
     # via digitalhub-ml-mlrun (pyproject.toml)
