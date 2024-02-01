@@ -206,7 +206,7 @@ class Run(Entity):
         """
         api = api_base_read("runs", self.id)
         obj = self._context().read_object(api)
-        refreshed_run = self.from_dict(obj)
+        refreshed_run = self.from_dict(obj, validate=False)
         self.kind = refreshed_run.kind
         self.metadata = refreshed_run.metadata
         self.spec = refreshed_run.spec
@@ -451,4 +451,4 @@ def run_from_dict(obj: dict) -> Run:
     Run
         Run object.
     """
-    return Run.from_dict(obj)
+    return Run.from_dict(obj, validate=False)

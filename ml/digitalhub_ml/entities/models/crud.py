@@ -45,6 +45,7 @@ def create_model_from_dict(obj: dict) -> Model:
     Model
         Model object.
     """
+    check_context(obj.get("project"))
     return model_from_dict(obj)
 
 
@@ -142,7 +143,6 @@ def import_model(file: str) -> Model:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    check_context(obj.get("project"))
     return create_model_from_dict(obj)
 
 

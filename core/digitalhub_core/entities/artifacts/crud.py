@@ -169,7 +169,6 @@ def import_artifact(file: str) -> Artifact:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    check_context(obj.get("project"))
     return create_artifact_from_dict(obj)
 
 

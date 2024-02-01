@@ -261,4 +261,4 @@ def model_from_dict(obj: dict) -> Model:
     Model
         Model instance.
     """
-    return Model.from_dict(obj)
+    return Model.from_dict(obj, validate=False)

@@ -413,4 +413,4 @@ def dataitem_from_dict(obj: dict) -> Dataitem:
     Dataitem
         Dataitem object.
     """
-    return Dataitem.from_dict(obj)
+    return Dataitem.from_dict(obj, validate=False)

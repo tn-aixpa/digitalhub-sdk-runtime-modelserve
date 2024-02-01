@@ -163,7 +163,7 @@ class Project(Entity):
         try:
             api = api_base_read("projects", self.name)
             obj = self._client.read_object(api)
-            return self.from_dict(obj)
+            return self.from_dict(obj, validate=False)
         except BackendError:
             return self
 
@@ -642,4 +642,4 @@ def project_from_dict(obj: dict) -> Project:
     Project
         Project object.
     """
-    return Project.from_dict(obj)
+    return Project.from_dict(obj, validate=False)

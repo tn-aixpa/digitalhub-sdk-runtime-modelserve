@@ -130,7 +130,6 @@ def get_dataitem(project: str, name: str, uuid: str | None = None) -> Dataitem:
     -------
     Dataitem
         Object instance.
-
     """
     api = api_ctx_read(project, "dataitems", name, uuid=uuid)
     obj = get_context(project).read_object(api)
@@ -166,7 +165,6 @@ def import_dataitem(file: str) -> Dataitem:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    check_context(obj.get("project"))
     return create_dataitem_from_dict(obj)
 
 

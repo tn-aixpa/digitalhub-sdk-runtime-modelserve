@@ -524,4 +524,4 @@ def function_from_dict(obj: dict) -> Function:
     Function
         Function object.
     """
-    return Function.from_dict(obj)
+    return Function.from_dict(obj, validate=False)

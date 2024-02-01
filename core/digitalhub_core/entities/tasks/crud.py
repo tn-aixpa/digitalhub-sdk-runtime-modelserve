@@ -45,6 +45,7 @@ def create_task_from_dict(obj: dict) -> Task:
     Task
        Object instance.
     """
+    check_context(obj.get("project"))
     return task_from_dict(obj)
 
 
@@ -147,7 +148,6 @@ def import_task(file: str) -> Task:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    check_context(obj.get("project"))
     return create_task_from_dict(obj)
 
 

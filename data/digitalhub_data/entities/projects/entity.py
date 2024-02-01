@@ -236,4 +236,4 @@ def project_from_dict(obj: dict) -> ProjectData:
     ProjectData
         ProjectData object.
     """
-    return ProjectData.from_dict(obj)
+    return ProjectData.from_dict(obj, validate=False)

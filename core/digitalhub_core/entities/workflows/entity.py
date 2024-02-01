@@ -261,4 +261,4 @@ def workflow_from_dict(obj: dict) -> Workflow:
     Workflow
         Workflow instance.
     """
-    return Workflow.from_dict(obj)
+    return Workflow.from_dict(obj, validate=False)

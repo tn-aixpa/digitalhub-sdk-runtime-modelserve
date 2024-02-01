@@ -45,6 +45,7 @@ def create_workflow_from_dict(obj: dict) -> Workflow:
     Workflow
         Workflow object.
     """
+    check_context(obj.get("project"))
     return workflow_from_dict(obj)
 
 
@@ -142,7 +143,6 @@ def import_workflow(file: str) -> Workflow:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    check_context(obj.get("project"))
     return create_workflow_from_dict(obj)
 
 

@@ -483,4 +483,4 @@ def artifact_from_dict(obj: dict) -> Artifact:
     Artifact
         Artifact object.
     """
-    return Artifact.from_dict(obj)
+    return Artifact.from_dict(obj, validate=False)

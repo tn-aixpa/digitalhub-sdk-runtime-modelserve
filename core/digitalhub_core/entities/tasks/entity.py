@@ -373,4 +373,4 @@ def task_from_dict(obj: dict) -> Task:
     Task
         Task object.
     """
-    return Task.from_dict(obj)
+    return Task.from_dict(obj, validate=False)

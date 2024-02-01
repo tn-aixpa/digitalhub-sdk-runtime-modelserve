@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 import nefertem
+from nefertem_core.utils.exceptions import StoreError
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
 
@@ -38,7 +39,7 @@ def create_client(output_path: str, store: dict) -> Client:
         client = nefertem.create_client(output_path=output_path)
         try:
             client.add_store(store)
-        except nefertem.utils.exceptions.StoreError:
+        except StoreError:
             pass
         return client
     except Exception:

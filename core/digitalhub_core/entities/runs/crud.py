@@ -45,6 +45,7 @@ def create_run_from_dict(obj: dict) -> Run:
     Run
         Run object.
     """
+    check_context(obj.get("project"))
     return run_from_dict(obj)
 
 
@@ -153,7 +154,6 @@ def import_run(file: str) -> Run:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    check_context(obj.get("project"))
     return create_run_from_dict(obj)
 
 
