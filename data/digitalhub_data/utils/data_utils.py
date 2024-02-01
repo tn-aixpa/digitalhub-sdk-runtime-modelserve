@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import numpy as np
 import pandas as pd
 
@@ -25,7 +26,8 @@ def get_data_preview(columns: list, data: list[list]) -> list[dict]:
     masked = mask_data(df)
     columns_to_filter = find_memoryview(masked)
     filtered_data = masked[columns_to_filter]
-    return prepare_preview(filtered_data)
+    preview = prepare_preview(filtered_data)
+    return check_preview_size(preview)
 
 
 def mask_data(data: pd.DataFrame) -> pd.DataFrame:
@@ -100,3 +102,22 @@ def prepare_preview(data: pd.DataFrame) -> list[dict]:
         Preview.
     """
     return [{"name": k, "value": v} for k, v in data.to_dict(orient="list").items()]
+
+
+def check_preview_size(preview: list[dict]) -> list:
+    """
+    Check preview size. If it's too big, return empty list.
+
+    Parameters
+    ----------
+    preview : list[dict]
+        Preview.
+
+    Returns
+    -------
+    list
+        Preview.
+    """
+    if len(json.dumps(preview).encode("utf-8")) >= 64000:
+        return []
+    return preview
