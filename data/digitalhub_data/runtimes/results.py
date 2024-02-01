@@ -1,5 +1,5 @@
 """
-Run module.
+RunResultsData module.
 """
 from __future__ import annotations
 
@@ -32,3 +32,32 @@ class RunResultsData(RunResults):
         """
         super().__init__(artifacts)
         self.dataitems = dataitems
+
+    def get_dataitems(self) -> list[Dataitem]:
+        """
+        Get dataitems.
+
+        Returns
+        -------
+        list[Dataitem]
+            List of dataitems.
+        """
+        return self.dataitems
+
+    def get_dataitem_by_key(self, key: str) -> Dataitem:
+        """
+        Get dataitem by key.
+
+        Parameters
+        ----------
+        key : str
+            Key.
+
+        Returns
+        -------
+        Dataitem
+            Dataitem.
+        """
+        for dataitem in self.dataitems:
+            if dataitem.name == key:
+                return dataitem

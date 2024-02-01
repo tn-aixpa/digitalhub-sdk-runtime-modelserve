@@ -31,22 +31,41 @@ from digitalhub_core import (
 )
 
 _project_imported = False
-try:
-    from digitalhub_data import (
-        delete_dataitem,
-        get_dataitem,
-        get_or_create_project,
-        get_project,
-        import_dataitem,
-        import_project,
-        new_dataitem,
-        new_project,
-        update_dataitem,
-    )
+if not _project_imported:
+    try:
+        from digitalhub_data import (
+            delete_dataitem,
+            get_dataitem,
+            get_or_create_project,
+            get_project,
+            import_dataitem,
+            import_project,
+            new_dataitem,
+            new_project,
+            update_dataitem,
+        )
 
-    _project_imported = True
-except ImportError:
-    raise
+        _project_imported = True
+    except ImportError:
+        ...
+
+if not _project_imported:
+    try:
+        from digitalhub_ml import (
+            delete_model,
+            get_model,
+            get_or_create_project,
+            get_project,
+            import_model,
+            import_project,
+            new_model,
+            new_project,
+            update_model,
+        )
+
+        _project_imported = True
+    except ImportError:
+        ...
 
 if not _project_imported:
     from digitalhub_core import get_or_create_project, get_project, import_project, new_project

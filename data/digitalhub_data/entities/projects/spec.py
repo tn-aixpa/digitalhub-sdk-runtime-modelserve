@@ -6,7 +6,7 @@ from __future__ import annotations
 from digitalhub_core.entities.projects.spec import ProjectParams, ProjectSpec
 
 
-class ProjectDataSpec(ProjectSpec):
+class ProjectSpecData(ProjectSpec):
     """
     Project specification.
     """
@@ -27,11 +27,11 @@ class ProjectDataSpec(ProjectSpec):
         dataitems : list
             List of project's dataitems.
         """
-
+        super().__init__(context, functions, artifacts, workflows)
         self.dataitems = dataitems if dataitems is not None else []
 
 
-class ProjectDataParams(ProjectParams):
+class ProjectParamsData(ProjectParams):
     """
     Parameters model for project.
     """
@@ -41,5 +41,5 @@ class ProjectDataParams(ProjectParams):
 
 
 SPEC_REGISTRY = {
-    "project": [ProjectDataSpec, ProjectDataParams],
+    "project": [ProjectSpecData, ProjectParamsData],
 }
