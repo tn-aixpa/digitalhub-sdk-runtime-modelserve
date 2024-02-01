@@ -141,7 +141,7 @@ def import_workflow(file: str) -> Workflow:
     Workflow
         Object instance.
     """
-    obj = read_yaml(file)
+    obj: dict = read_yaml(file)
     check_context(obj.get("project"))
     return create_workflow_from_dict(obj)
 

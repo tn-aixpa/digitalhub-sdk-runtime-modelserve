@@ -165,7 +165,7 @@ def import_dataitem(file: str) -> Dataitem:
     Dataitem
         Object instance.
     """
-    obj = read_yaml(file)
+    obj: dict = read_yaml(file)
     check_context(obj.get("project"))
     return create_dataitem_from_dict(obj)
 

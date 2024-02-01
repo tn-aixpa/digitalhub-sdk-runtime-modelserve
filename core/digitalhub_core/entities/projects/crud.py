@@ -194,7 +194,7 @@ def import_project(file: str, local: bool = False) -> Project:
     Project
         Object instance.
     """
-    obj = read_yaml(file)
+    obj: dict = read_yaml(file)
     obj["local"] = local
     return create_project_from_dict(obj)
 

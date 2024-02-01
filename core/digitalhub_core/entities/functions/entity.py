@@ -74,8 +74,8 @@ class Function(Entity):
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["project", "name", "id"])
 
-        # Initialize tasks in status
-        self._check_tasks()
+        # Initialize tasks
+        self._tasks = {}
 
     #############################
     #  Save / Export
@@ -96,9 +96,6 @@ class Function(Entity):
             Mapping representation of Function from backend.
         """
         obj = self.to_dict(include_all_non_private=True)
-
-        # Avoid tasks to be saved in backend
-        obj["status"].pop("tasks", None)
 
         if not update:
             api = api_ctx_create(self.project, "functions")
@@ -123,13 +120,15 @@ class Function(Entity):
         """
         obj = self.to_dict()
 
-        # Embed tasks to avoid loosing them when exporting
-        obj["status"]["tasks"] = [v.to_dict() for _, v in self.status.tasks.items()]
-
         if filename is None:
             filename = f"function_{self.kind}_{self.name}_{self.id}.yml"
         pth = Path(self.project) / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
+
+        # Embed tasks in file
+        if self._tasks:
+            obj = [obj] + [v.to_dict() for _, v in self._tasks.items()]
+
         write_yaml(pth, obj)
 
     #############################
@@ -196,7 +195,7 @@ class Function(Entity):
         """
 
         # Create task if does not exists
-        task = self.status.tasks.get(action)
+        task = self._tasks.get(action)
         if task is None:
             task = self.new_task(
                 kind=action,
@@ -237,47 +236,45 @@ class Function(Entity):
     #  CRUD Methods for Tasks
     #############################
 
-    def _check_tasks(self) -> None:
+    def import_tasks(self, tasks: list[dict]) -> None:
         """
-        Check tasks.
+        Import tasks from yaml.
+
+        Parameters
+        ----------
+        tasks : list[dict]
+            List of tasks to import.
 
         Returns
         -------
         None
         """
-        garbage_tasks = []
+        # Loop over tasks list, in the case where the function
+        # is imported from local file.
+        for task in tasks:
 
-        # Loop over tasks in status, the case where the function
-        # is imported from local file or from remote.
-        for k, v in self.status.tasks.items():
-            # If task is not a dictionary, keep track of it
-            # for later deletion
-            if not isinstance(v, dict):
-                garbage_tasks.append(k)
+            # If task is not a dictionary, skip it
+            if not isinstance(task, dict):
                 continue
 
             # Create the object instance from dictionary,
             # the form in which tasks are stored in function
             # status
-            task = create_task_from_dict(v)
+            task_obj = create_task_from_dict(task)
 
             # Try to save it in backend to been able to use
             # it for launching runs. In fact, tasks must be
             # persisted in backend to be able to launch runs.
             # Ignore if task already exists
             try:
-                task.save()
+                task_obj.save()
             except BackendError:
                 pass
 
             # Set task if function is the same. Overwrite
             # status task dict with the new task object
-            if task.spec.function == self._get_function_string():
-                self.status.tasks[k] = task
-
-        # Delete garbage tasks
-        for k in garbage_tasks:
-            self.status.tasks.pop(k, None)
+            if task_obj.spec.function == self._get_function_string():
+                self._tasks[task_obj.kind] = task_obj
 
     def new_task(self, **kwargs) -> Task:
         """
@@ -296,7 +293,7 @@ class Function(Entity):
         kwargs["project"] = self.project
         kwargs["function"] = self._get_function_string()
         task = new_task(**kwargs)
-        self.status.tasks[kwargs["kind"]] = task
+        self._tasks[kwargs["kind"]] = task
         return task
 
     def update_task(self, kind: str, **kwargs) -> None:
@@ -325,12 +322,12 @@ class Function(Entity):
         kwargs["project"] = self.project
         kwargs["kind"] = kind
         kwargs["function"] = self._get_function_string()
-        kwargs["uuid"] = self.status.tasks[kind].id
+        kwargs["uuid"] = self._tasks[kind].id
 
         # Update task
         task = create_task(**kwargs)
         task.save(update=True)
-        self.status.tasks[kind] = task
+        self._tasks[kind] = task
 
     def get_task(self, kind: str) -> Task:
         """
@@ -352,7 +349,7 @@ class Function(Entity):
             If task is not created.
         """
         self._raise_if_not_exists(kind)
-        return self.status.tasks[kind]
+        return self._tasks[kind]
 
     def delete_task(self, kind: str, cascade: bool = True) -> None:
         """
@@ -375,8 +372,8 @@ class Function(Entity):
             If task is not created.
         """
         self._raise_if_not_exists(kind)
-        delete_task(self.project, self.status.tasks[kind].name, cascade=cascade)
-        self.status.tasks.pop(kind, None)
+        delete_task(self.project, self._tasks[kind].name, cascade=cascade)
+        self._tasks.pop(kind, None)
 
     def _raise_if_not_exists(self, kind: str) -> None:
         """
@@ -396,7 +393,7 @@ class Function(Entity):
         EntityError
             If task does not exist.
         """
-        if self.status.tasks.get(kind) is None:
+        if self._tasks.get(kind) is None:
             raise EntityError("Task does not exist.")
 
     #############################
@@ -528,4 +525,4 @@ def function_from_dict(obj: dict) -> Function:
     Function
         Function object.
     """
-    return Function.from_dict("functions", obj)
+    return Function.from_dict(obj)

@@ -12,9 +12,9 @@ import yaml
 ####################
 
 
-def write_yaml(filepath: str | Path, obj: dict) -> None:
+def write_yaml(filepath: str | Path, obj: dict | list[dict]) -> None:
     """
-    Write a dict to a yaml file.
+    Write a dict or a list of dict to a yaml file.
 
     Parameters
     ----------
@@ -27,8 +27,12 @@ def write_yaml(filepath: str | Path, obj: dict) -> None:
     -------
     None
     """
-    with open(filepath, "w", encoding="utf-8") as out_file:
-        yaml.dump(obj, out_file, sort_keys=False)
+    if isinstance(obj, list):
+        with open(filepath, "w", encoding="utf-8") as out_file:
+            yaml.dump_all(obj, out_file, sort_keys=False, default_flow_style=False)
+    else:
+        with open(filepath, "w", encoding="utf-8") as out_file:
+            yaml.dump(obj, out_file, sort_keys=False)
 
 
 ####################
@@ -36,9 +40,9 @@ def write_yaml(filepath: str | Path, obj: dict) -> None:
 ####################
 
 
-def read_yaml(filepath: str | Path) -> dict:
+def read_yaml(filepath: str | Path) -> dict | list[dict]:
     """
-    Read a yaml file and return a dict.
+    Read a yaml file and return a dict or a list of dict.
 
     Parameters
     ----------
@@ -47,11 +51,17 @@ def read_yaml(filepath: str | Path) -> dict:
 
     Returns
     -------
-    dict
+    dict | list[dict]
         The yaml file content.
     """
-    with open(filepath, "r", encoding="utf-8") as in_file:
-        data = yaml.load(in_file, Loader=yaml.SafeLoader)
+    try:
+        with open(filepath, "r", encoding="utf-8") as in_file:
+            data = yaml.load(in_file, Loader=yaml.SafeLoader)
+
+    # If yaml contains multiple documents
+    except yaml.composer.ComposerError:
+        with open(filepath, "r", encoding="utf-8") as in_file:
+            data = list(yaml.load_all(in_file, Loader=yaml.SafeLoader))
     return data
 
 

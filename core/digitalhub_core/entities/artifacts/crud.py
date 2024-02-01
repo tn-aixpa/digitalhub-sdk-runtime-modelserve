@@ -168,7 +168,7 @@ def import_artifact(file: str) -> Artifact:
     Artifact
         Object instance.
     """
-    obj = read_yaml(file)
+    obj: dict = read_yaml(file)
     check_context(obj.get("project"))
     return create_artifact_from_dict(obj)
 

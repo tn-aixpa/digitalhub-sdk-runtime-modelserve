@@ -146,9 +146,16 @@ def import_function(file: str) -> Function:
         Object instance.
     """
     obj = read_yaml(file)
-    check_context(obj.get("project"))
-    return create_function_from_dict(obj)
-
+    if isinstance(obj, list):
+        func_dict = obj[0]
+        task_dicts = obj[1:]
+    else:
+        func_dict = obj
+        task_dicts = []
+    check_context(func_dict.get("project"))
+    func = create_function_from_dict(func_dict)
+    func.import_tasks(task_dicts)
+    return func
 
 def delete_function(project: str, name: str, uuid: str | None = None) -> dict:
     """

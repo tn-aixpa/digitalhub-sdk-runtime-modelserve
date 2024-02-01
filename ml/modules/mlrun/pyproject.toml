@@ -21,15 +21,12 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub-ml>=0.0.5",
+"digitalhub-ml~=0.2",
 ]
 [project.optional-dependencies]
 local = [
 "mlrun>=1.6rc19, <1.7",
 "s3fs==2023.9.2",
-"nefertem==2.0.3",
-"frictionless==5.15.0",
-"ydata-profiling==4.6.0"
 ]
 
 [project.urls]
