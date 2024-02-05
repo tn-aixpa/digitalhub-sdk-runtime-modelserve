@@ -80,7 +80,7 @@ class RuntimeNefertem(Runtime):
 
         # Collect outputs
         LOGGER.info("Collecting outputs.")
-        outputs = self._collect_outputs(results, project, self.nt_id)
+        outputs = self._collect_outputs(results, project)
         status = build_status(results, outputs)
 
         # Remove tmp folder
@@ -204,7 +204,7 @@ class RuntimeNefertem(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: dict, project: str, run_id: str) -> list[Artifact]:
+    def _collect_outputs(self, results: dict, project: str) -> list[Artifact]:
         """
         Collect outputs.
 
@@ -214,8 +214,6 @@ class RuntimeNefertem(Runtime):
             The nefertem run results.
         project : str
             The project name.
-        run_id : str
-            Neferetem run id.
 
         Returns
         -------
@@ -225,10 +223,11 @@ class RuntimeNefertem(Runtime):
         output_files = results.get("output_files", [])
 
         LOGGER.info("Creating artifacts.")
-        artifacts = [create_artifact(i, project, run_id) for i in output_files]
+        artifacts = [create_artifact(i, project, self.nt_id) for i in output_files]
 
         LOGGER.info("Uploading artifacts to minio.")
-        [upload_artifact(*i) for i in artifacts]
+        for i in artifacts:
+            upload_artifact(*i)
 
         return artifacts
 

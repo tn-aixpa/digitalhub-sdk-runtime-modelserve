@@ -30,9 +30,9 @@ from digitalhub_core import (
     update_workflow,
 )
 
-_project_imported = False
+_PROJECT_IMPORTED = False
 
-if not _project_imported:
+if not _PROJECT_IMPORTED:
     try:
         from digitalhub_ml import (
             delete_model,
@@ -46,11 +46,11 @@ if not _project_imported:
             update_model,
         )
 
-        _project_imported = True
+        _PROJECT_IMPORTED = True
     except ImportError:
         ...
 
-if not _project_imported:
+if not _PROJECT_IMPORTED:
     try:
         from digitalhub_data import (
             delete_dataitem,
@@ -64,9 +64,9 @@ if not _project_imported:
             update_dataitem,
         )
 
-        _project_imported = True
+        _PROJECT_IMPORTED = True
     except ImportError:
         ...
 
-if not _project_imported:
+if not _PROJECT_IMPORTED:
     from digitalhub_core import get_or_create_project, get_project, import_project, new_project

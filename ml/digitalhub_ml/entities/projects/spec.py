@@ -28,7 +28,7 @@ class ProjectSpecML(ProjectSpecData):
         dataitems : list
             List of project's dataitems.
         """
-        super().__init__(context, functions, artifacts, workflows, models)
+        super().__init__(context, functions, artifacts, workflows, dataitems)
         self.models = models if models is not None else []
 
 

@@ -37,9 +37,9 @@ class RunResults:
         list[Artifact]
             List of artifacts.
         """
-        return self.artifacts
+        return self.artifacts if self.artifacts is not None else []
 
-    def get_artifact_by_key(self, key: str) -> Artifact:
+    def get_artifact_by_key(self, key: str) -> Artifact | None:
         """
         Get artifact by key.
 
@@ -53,6 +53,7 @@ class RunResults:
         Artifact
             Artifact.
         """
-        for artifact in self.artifacts:
+        for artifact in self.get_artifacts():
             if artifact.name == key:
                 return artifact
+        return None

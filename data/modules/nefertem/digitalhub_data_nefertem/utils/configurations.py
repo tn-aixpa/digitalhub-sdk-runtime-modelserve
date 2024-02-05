@@ -3,9 +3,9 @@ from __future__ import annotations
 import typing
 
 import nefertem
-from nefertem_core.utils.exceptions import StoreError
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
+from nefertem_core.utils.exceptions import StoreError
 
 if typing.TYPE_CHECKING:
     from nefertem.client.client import Client

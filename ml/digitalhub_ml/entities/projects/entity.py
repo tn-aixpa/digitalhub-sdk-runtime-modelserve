@@ -12,7 +12,6 @@ from digitalhub_data.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, Pro
 from digitalhub_ml.entities.models.crud import delete_model, get_model, new_model
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.projects.spec import ProjectSpec
     from digitalhub_ml.entities.models.entity import Model
 
 
@@ -21,19 +20,9 @@ FUNC_MAP["models"] = get_model
 
 
 class ProjectMl(ProjectData):
-    def __init__(
-        self,
-        name: str,
-        kind: str,
-        metadata: ProjectMetadata,
-        spec: ProjectSpec,
-        status: ProjectStatus,
-        local: bool = False,
-    ) -> None:
-        """
-        Constructor.
-        """
-        super().__init__(name, kind, metadata, spec, status, local)
+    """
+    ProjectMl class.
+    """
 
     #############################
     #  Models

@@ -384,6 +384,21 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
 
 
 def build_status(outputs: tuple[ParsedResults, Dataitem], results: dbtRunnerResult) -> dict:
+    """
+    Build status.
+
+    Parameters
+    ----------
+    outputs : tuple
+        The parsed outputs and the dataitem.
+    results : dbtRunnerResult
+        The dbt results.
+
+    Returns
+    -------
+    dict
+        The status.
+    """
     parsed_result, dataitem = outputs
     return {
         "dataitems": [get_dataitem_info(dataitem)],

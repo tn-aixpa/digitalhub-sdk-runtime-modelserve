@@ -12,7 +12,6 @@ from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.dataitems.crud import delete_dataitem, get_dataitem, new_dataitem
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.projects.spec import ProjectSpec
     from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
@@ -21,19 +20,10 @@ FUNC_MAP["dataitems"] = get_dataitem
 
 
 class ProjectData(Project):
-    def __init__(
-        self,
-        name: str,
-        kind: str,
-        metadata: ProjectMetadata,
-        spec: ProjectSpec,
-        status: ProjectStatus,
-        local: bool = False,
-    ) -> None:
-        """
-        Constructor.
-        """
-        super().__init__(name, kind, metadata, spec, status, local)
+
+    """
+    ProjectData class.
+    """
 
     #############################
     #  Dataitems

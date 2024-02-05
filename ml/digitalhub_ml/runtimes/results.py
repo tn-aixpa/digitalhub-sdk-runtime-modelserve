@@ -44,9 +44,9 @@ class RunResultsML(RunResultsData):
         list[Model]
             List of models.
         """
-        return self.models
+        return self.models if self.models is not None else []
 
-    def get_model_by_key(self, key: str) -> Model:
+    def get_model_by_key(self, key: str) -> Model | None:
         """
         Get model by key.
 
@@ -60,6 +60,7 @@ class RunResultsML(RunResultsData):
         Model
             Model.
         """
-        for model in self.models:
+        for model in self.get_models():
             if model.name == key:
                 return model
+        return None

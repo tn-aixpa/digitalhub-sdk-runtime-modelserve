@@ -42,9 +42,9 @@ class RunResultsData(RunResults):
         list[Dataitem]
             List of dataitems.
         """
-        return self.dataitems
+        return self.dataitems if self.dataitems is not None else []
 
-    def get_dataitem_by_key(self, key: str) -> Dataitem:
+    def get_dataitem_by_key(self, key: str) -> Dataitem | None:
         """
         Get dataitem by key.
 
@@ -58,6 +58,7 @@ class RunResultsData(RunResults):
         Dataitem
             Dataitem.
         """
-        for dataitem in self.dataitems:
+        for dataitem in self.get_dataitems():
             if dataitem.name == key:
                 return dataitem
+        return None
