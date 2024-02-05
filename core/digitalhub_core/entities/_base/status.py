@@ -27,6 +27,8 @@ class State(Enum):
 class Status(ModelObj):
     """
     Base Status class.
+    The status class contains information about the state of an entity,
+    for example, the state of a RUNNING run, and eventual error message.
     """
 
     def __init__(self, state: str, message: str | None = None) -> None:

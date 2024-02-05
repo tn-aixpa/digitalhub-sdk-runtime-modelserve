@@ -16,7 +16,7 @@ class ContextBuilder:
     ContextBuilder class.
     It implements the builder pattern to create a context instance.
     It allows to use multiple projects as context at the same time
-    by adding them to the _instances attribute.
+    by adding them to the _instances registry with their name.
     """
 
     def __init__(self) -> None:
@@ -27,7 +27,7 @@ class ContextBuilder:
 
     def build(self, project_object: Project) -> None:
         """
-        Add a project to the context.
+        Add a project as context.
 
         Parameters
         ----------
@@ -42,7 +42,7 @@ class ContextBuilder:
 
     def get(self, project: str) -> Context:
         """
-        Get a project from the context.
+        Get a context from project name if it exists.
 
         Parameters
         ----------
@@ -53,6 +53,11 @@ class ContextBuilder:
         -------
         Context
             The project context.
+
+        Raises
+        ------
+        ValueError
+            If the project is not in the context.
         """
         ctx = self._instances.get(project)
         if ctx is None:

@@ -11,6 +11,9 @@ from digitalhub_core.entities._base.base import ModelObj
 class Entity(ModelObj, metaclass=ABCMeta):
     """
     Abstract class for entities.
+
+    An entity is a collection of metadata, specification and status
+    representing a variety of objects handled by DigitalHub.
     """
 
     # Attributes to render as dict. Need to be expanded in subclasses.
@@ -33,7 +36,9 @@ class Entity(ModelObj, metaclass=ABCMeta):
         include_all_non_private: bool = False,
     ) -> dict:
         """
-        Return object as dict with all keys.
+        Override default to_dict method to add the possibility to exclude
+        some attributes. This requires to set a list of _obj_attr
+        attributes in the subclass.
 
         Parameters
         ----------
@@ -65,7 +70,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         obj : dict
             Dictionary to create object from.
         validate : bool
-            Flag to indicate if arguments validation must be ignored.
+            Flag to indicate if arguments validation against a pydantic schema must be ignored.
 
         Returns
         -------
@@ -85,7 +90,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         validate: bool = True,
     ) -> dict:
         """
-        Get dictionary and parse it to a valid entity dictionary.
+        Parse a dictionary to a valid entity dictionary.
         """
 
     def __repr__(self) -> str:

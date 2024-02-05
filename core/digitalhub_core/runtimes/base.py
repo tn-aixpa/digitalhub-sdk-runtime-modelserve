@@ -17,13 +17,31 @@ if typing.TYPE_CHECKING:
 class Runtime:
     """
     Base Runtime class.
+
+    Runtimes are the entities responsible for the actual execution
+    of a given run. They are highly specialized components which
+    can translate the representation of a given execution as
+    expressed in the run into an actual execution operation performed
+    via libraries, code, external tools etc.
+    Runtime types match function types.
     """
 
     ##################################
     # Abstract methods
     ##################################
 
+    # This attribute is a list of allowed actions (tasks)
+    # MUST BE explicitly extended in the subclass.
     allowed_actions = []
+
+    def __init__(self) -> None:
+        """
+        Constructor.
+        """
+        if not self.allowed_actions:
+            raise EntityError(
+                "'allowed_actions' attribute must be extended in the subclass with the list of allowed actions."
+            )
 
     @abstractmethod
     def build(self, function: dict, task: dict, run: dict) -> dict:
@@ -57,7 +75,9 @@ class Runtime:
 
     def _validate_task(self, run: dict) -> str:
         """
-        Validate task.
+        Check if task is allowed. This presumes that the
+        runtime holds a list of allowed actions in the self.allowed_actions
+        attribute.
 
         Parameters
         ----------

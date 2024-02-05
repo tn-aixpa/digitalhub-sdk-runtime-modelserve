@@ -38,6 +38,8 @@ class RuntimeMLRun(Runtime):
         """
         Constructor.
         """
+        super().__init__()
+
         self.root_path = Path("/tmp/mlrun_run")
         self.function_source = None
 

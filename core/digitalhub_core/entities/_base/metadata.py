@@ -9,6 +9,10 @@ from digitalhub_core.entities._base.base import ModelObj
 class Metadata(ModelObj):
     """
     A class representing the metadata of an entity.
+    Metadata is a collection of information about an entity thought
+    to be modifiable by the user. The information contained in the
+    metadata can be discordant with the actual state of the entity,
+    for example the name of the entity in the database.
     """
 
     def __init__(
@@ -26,13 +30,13 @@ class Metadata(ModelObj):
         Parameters
         ----------
         name : str
-            Name or UUID of the object.
+            Name the object.
         source : str
-            Source of the entity.
+            (Remote GIT) Source of the entity.
         labels : list[str]
-            A list of labels.
+            A list of labels to associate with the entity.
         embedded : bool
-            Whether the entity is embedded.
+            Whether the entity specifications are embedded into a project.
         created : str
             Created date.
         updated : str

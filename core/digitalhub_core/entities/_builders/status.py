@@ -20,7 +20,7 @@ def build_status(status_cls: Status, **kwargs) -> Status:
     status_cls: Status
         Status object.
     **kwargs
-        Keyword arguments.
+        Keyword arguments passed to the constructor.
 
     Returns
     -------
@@ -33,7 +33,7 @@ def build_status(status_cls: Status, **kwargs) -> Status:
 
 def parse_arguments(**kwargs) -> dict:
     """
-    Parse keyword arguments and add default values.
+    Parse keyword arguments and add default values if necessary.
 
     Parameters
     ----------

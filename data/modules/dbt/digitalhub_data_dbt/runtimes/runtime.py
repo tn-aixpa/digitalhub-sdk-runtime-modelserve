@@ -40,6 +40,8 @@ class RuntimeDBT(Runtime):
         """
         Constructor.
         """
+        super().__init__()
+
         # Paths
         self.root_dir = Path("/tmp/dbt_run")
         self.model_dir = self.root_dir / "models"

@@ -10,6 +10,8 @@ from pydantic import BaseModel
 class Spec(ModelObj):
     """
     A class representing the specification of an entity.
+    Specification is a collection of information about an entity
+    thought to be immutable by the user.
     """
 
     @classmethod
@@ -33,4 +35,7 @@ class Spec(ModelObj):
 class SpecParams(BaseModel):
     """
     A class representing the parameters of an entity.
+    This base class is used to define the parameters of an entity
+    specification and is used to validate the parameters passed
+    to the constructor.
     """

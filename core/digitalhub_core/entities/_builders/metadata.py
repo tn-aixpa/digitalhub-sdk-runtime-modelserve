@@ -20,7 +20,7 @@ def build_metadata(metadata_cls: Metadata, **kwargs) -> Metadata:
     metadata_cls: Metadata
         Metadata object.
     **kwargs
-        Keyword arguments.
+        Keyword arguments passed to the constructor.
 
     Returns
     -------
@@ -33,7 +33,7 @@ def build_metadata(metadata_cls: Metadata, **kwargs) -> Metadata:
 
 def parse_arguments(**kwargs) -> dict:
     """
-    Parse keyword arguments and add default values.
+    Parse keyword arguments and add default values if necessary.
 
     Parameters
     ----------

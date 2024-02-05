@@ -6,7 +6,9 @@ from __future__ import annotations
 
 class ModelObj:
     """
-    Base class for all entities.
+    Base class for all entities. It implements the to_dict method to represent
+    the object as a dictionary and a _any_setter method to set attributes
+    coming from a constructor.
     """
 
     def to_dict(self) -> dict:
@@ -35,8 +37,8 @@ class ModelObj:
 
         Parameters
         ----------
-        kwargs : dict
-            A dictionary containing the attributes of the entity instance.
+        **kwargs
+            Keyword arguments to be set as attributes.
 
         Returns
         -------
