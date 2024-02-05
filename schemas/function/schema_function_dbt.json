@@ -1,1 +1,15 @@
-{"title": "FunctionParamsDBT", "description": "Function DBT parameters model.", "type": "object", "properties": {"source": {"title": "Source", "type": "string"}, "sql": {"title": "Sql", "type": "string"}}}
+{
+    "title": "FunctionParamsDBT",
+    "description": "Function DBT parameters model.",
+    "type": "object",
+    "properties": {
+        "source": {
+            "title": "Source",
+            "type": "string"
+        },
+        "sql": {
+            "title": "Sql",
+            "type": "string"
+        }
+    }
+}

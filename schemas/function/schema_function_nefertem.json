@@ -1,1 +1,29 @@
-{"title": "FunctionParamsNefertem", "description": "Function Nefertem parameters model.", "type": "object", "properties": {"source": {"title": "Source", "type": "string"}, "constraints": {"title": "Constraints", "type": "array", "items": {"type": "object"}}, "error_report": {"title": "Error Report", "type": "string"}, "metrics": {"title": "Metrics", "type": "array", "items": {"type": "object"}}}}
+{
+    "title": "FunctionParamsNefertem",
+    "description": "Function Nefertem parameters model.",
+    "type": "object",
+    "properties": {
+        "source": {
+            "title": "Source",
+            "type": "string"
+        },
+        "constraints": {
+            "title": "Constraints",
+            "type": "array",
+            "items": {
+                "type": "object"
+            }
+        },
+        "error_report": {
+            "title": "Error Report",
+            "type": "string"
+        },
+        "metrics": {
+            "title": "Metrics",
+            "type": "array",
+            "items": {
+                "type": "object"
+            }
+        }
+    }
+}

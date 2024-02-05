@@ -1,1 +1,151 @@
-{"title": "TaskParamsProfile", "description": "TaskParamsProfile model.", "type": "object", "properties": {"function": {"title": "Function", "type": "string"}, "node_selector": {"$ref": "#/definitions/NodeSelector"}, "volumes": {"title": "Volumes", "type": "array", "items": {"$ref": "#/definitions/Volume"}}, "resources": {"$ref": "#/definitions/Resource"}, "env": {"title": "Env", "type": "array", "items": {"$ref": "#/definitions/Env"}}, "framework": {"title": "Framework", "type": "string"}, "exec_args": {"title": "Exec Args", "default": {}, "type": "object"}, "parallel": {"title": "Parallel", "default": false, "type": "boolean"}, "num_worker": {"title": "Num Worker", "default": 1, "type": "integer"}}, "required": ["function"], "definitions": {"NodeSelector": {"title": "NodeSelector", "description": "NodeSelector model.", "type": "object", "properties": {"key": {"title": "Key", "type": "string"}, "value": {"title": "Value", "type": "string"}}, "required": ["key", "value"]}, "Volume": {"title": "Volume", "description": "Volume model.", "type": "object", "properties": {"volume_type": {"title": "Volume Type", "enum": ["config_map", "secret", "persistent_volume_claim"], "type": "string"}, "name": {"title": "Name", "type": "string"}, "mount_path": {"title": "Mount Path", "type": "string"}}, "required": ["volume_type", "name", "mount_path"]}, "Resource": {"title": "Resource", "description": "Resource model.", "type": "object", "properties": {"resource_type": {"title": "Resource Type", "enum": ["cpu", "memory", "gpu"], "type": "string"}, "requests": {"title": "Requests", "type": "integer"}, "limits": {"title": "Limits", "type": "integer"}}, "required": ["resource_type", "requests", "limits"]}, "Env": {"title": "Env", "description": "Env variable model.", "type": "object", "properties": {"name": {"title": "Name", "type": "string"}, "value": {"title": "Value", "type": "string"}}, "required": ["name", "value"]}}}
+{
+    "title": "TaskParamsProfile",
+    "description": "TaskParamsProfile model.",
+    "type": "object",
+    "properties": {
+        "function": {
+            "title": "Function",
+            "type": "string"
+        },
+        "node_selector": {
+            "$ref": "#/definitions/NodeSelector"
+        },
+        "volumes": {
+            "title": "Volumes",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Volume"
+            }
+        },
+        "resources": {
+            "$ref": "#/definitions/Resource"
+        },
+        "env": {
+            "title": "Env",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Env"
+            }
+        },
+        "framework": {
+            "title": "Framework",
+            "type": "string"
+        },
+        "exec_args": {
+            "title": "Exec Args",
+            "default": {},
+            "type": "object"
+        },
+        "parallel": {
+            "title": "Parallel",
+            "default": false,
+            "type": "boolean"
+        },
+        "num_worker": {
+            "title": "Num Worker",
+            "default": 1,
+            "type": "integer"
+        }
+    },
+    "required": [
+        "function"
+    ],
+    "definitions": {
+        "NodeSelector": {
+            "title": "NodeSelector",
+            "description": "NodeSelector model.",
+            "type": "object",
+            "properties": {
+                "key": {
+                    "title": "Key",
+                    "type": "string"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "key",
+                "value"
+            ]
+        },
+        "Volume": {
+            "title": "Volume",
+            "description": "Volume model.",
+            "type": "object",
+            "properties": {
+                "volume_type": {
+                    "title": "Volume Type",
+                    "enum": [
+                        "config_map",
+                        "secret",
+                        "persistent_volume_claim"
+                    ],
+                    "type": "string"
+                },
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "mount_path": {
+                    "title": "Mount Path",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "volume_type",
+                "name",
+                "mount_path"
+            ]
+        },
+        "Resource": {
+            "title": "Resource",
+            "description": "Resource model.",
+            "type": "object",
+            "properties": {
+                "resource_type": {
+                    "title": "Resource Type",
+                    "enum": [
+                        "cpu",
+                        "memory",
+                        "gpu"
+                    ],
+                    "type": "string"
+                },
+                "requests": {
+                    "title": "Requests",
+                    "type": "integer"
+                },
+                "limits": {
+                    "title": "Limits",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "resource_type",
+                "requests",
+                "limits"
+            ]
+        },
+        "Env": {
+            "title": "Env",
+            "description": "Env variable model.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "value"
+            ]
+        }
+    }
+}
