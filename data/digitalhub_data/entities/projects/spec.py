@@ -18,6 +18,7 @@ class ProjectSpecData(ProjectSpec):
         artifacts: list | None = None,
         workflows: list | None = None,
         dataitems: list | None = None,
+        **kwargs
     ) -> None:
         """
         Constructor.
@@ -27,7 +28,7 @@ class ProjectSpecData(ProjectSpec):
         dataitems : list
             List of project's dataitems.
         """
-        super().__init__(context, functions, artifacts, workflows)
+        super().__init__(context, functions, artifacts, workflows, **kwargs)
         self.dataitems = dataitems if dataitems is not None else []
 
 
@@ -40,6 +41,6 @@ class ProjectParamsData(ProjectParams):
     """List of project's dataitems."""
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "project": [ProjectSpecData, ProjectParamsData],
 }

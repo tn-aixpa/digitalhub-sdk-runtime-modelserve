@@ -16,6 +16,6 @@ class TaskParamsMLRun(TaskParams):
     """
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "mlrun": [TaskSpecMLRun, TaskParamsMLRun],
 }

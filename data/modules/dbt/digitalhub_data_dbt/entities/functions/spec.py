@@ -49,6 +49,6 @@ class FunctionParamsDBT(FunctionParams):
     """SQL query to run inside the container."""
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "dbt": [FunctionSpecDBT, FunctionParamsDBT],
 }

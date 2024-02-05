@@ -135,4 +135,7 @@ def import_registry(module_to_import: str) -> dict[str, list[Spec, Spec]]:
         Registry.
     """
     module = importlib.import_module(module_to_import)
-    return getattr(module, "SPEC_REGISTRY")
+    try:
+        return getattr(module, "spec_registry")
+    except AttributeError:
+        raise ModuleNotFoundError(f"Module {module_to_import} has no 'spec_registry'.")

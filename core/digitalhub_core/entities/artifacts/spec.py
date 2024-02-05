@@ -82,6 +82,6 @@ class ArtifactParams(SpecParams):
     """File extension of the artifact."""
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "artifact": [ArtifactSpec, ArtifactParams],
 }

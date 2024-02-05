@@ -119,7 +119,7 @@ class TaskParamsMetric(TaskParamsNefertem):
     """
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "infer": [TaskSpecInfer, TaskParamsInfer],
     "profile": [TaskSpecProfile, TaskParamsProfile],
     "validate": [TaskSpecValidate, TaskParamsValidate],

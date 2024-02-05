@@ -19,16 +19,17 @@ class ProjectSpecML(ProjectSpecData):
         workflows: list | None = None,
         dataitems: list | None = None,
         models: list | None = None,
+        **kwargs
     ) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        dataitems : list
-            List of project's dataitems.
+        models : list
+            List of project's models.
         """
-        super().__init__(context, functions, artifacts, workflows, dataitems)
+        super().__init__(context, functions, artifacts, workflows, dataitems, **kwargs)
         self.models = models if models is not None else []
 
 
@@ -41,6 +42,6 @@ class ProjectParamsML(ProjectParamsData):
     """List of project's models."""
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "project": [ProjectSpecML, ProjectParamsML],
 }

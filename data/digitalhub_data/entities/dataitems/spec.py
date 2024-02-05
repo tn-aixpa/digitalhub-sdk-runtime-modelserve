@@ -47,6 +47,6 @@ class DataitemParams(SpecParams):
     """The schema of the dataitem in table schema format."""
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "dataitem": [DataitemSpec, DataitemParams],
 }

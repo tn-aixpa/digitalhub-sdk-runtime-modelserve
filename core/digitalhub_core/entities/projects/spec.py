@@ -17,7 +17,7 @@ class ProjectSpec(Spec):
         functions: list | None = None,
         artifacts: list | None = None,
         workflows: list | None = None,
-        dataitems: list | None = None,
+        **kwargs
     ) -> None:
         """
         Initializes a new instance of the ProjectSpec class.
@@ -32,18 +32,13 @@ class ProjectSpec(Spec):
             List of project's artifacts.
         workflows : list
             List of project's workflows.
-        dataitems : list
-            List of project's dataitems.
-
-        Returns
-        -------
-        None
         """
         self.context = context
         self.functions = functions if functions is not None else []
         self.artifacts = artifacts if artifacts is not None else []
         self.workflows = workflows if workflows is not None else []
-        self.dataitems = dataitems if dataitems is not None else []
+
+        self._any_setter(**kwargs)
 
 
 class ProjectParams(SpecParams):
@@ -63,10 +58,7 @@ class ProjectParams(SpecParams):
     workflows: list = None
     """List of project's workflows."""
 
-    dataitems: list = None
-    """List of project's dataitems."""
 
-
-SPEC_REGISTRY = {
+spec_registry = {
     "project": [ProjectSpec, ProjectParams],
 }

@@ -40,6 +40,6 @@ class FunctionParamsNefertem(FunctionParams):
     """List of metrics for the function."""
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "nefertem": [FunctionSpecNefertem, FunctionParamsNefertem],
 }

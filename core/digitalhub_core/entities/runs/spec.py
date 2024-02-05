@@ -86,6 +86,6 @@ class RunParams(SpecParams):
     """Flag to indicate if the run will be executed locally."""
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "run": [RunSpec, RunParams],
 }

@@ -11,10 +11,12 @@ class ModelSpec(Spec):
     Model specifications.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
         """
         Constructor.
         """
+
+        self._any_setter(**kwargs)
 
 
 class ModelParams(SpecParams):
@@ -23,6 +25,6 @@ class ModelParams(SpecParams):
     """
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "model": [ModelSpec, ModelParams],
 }

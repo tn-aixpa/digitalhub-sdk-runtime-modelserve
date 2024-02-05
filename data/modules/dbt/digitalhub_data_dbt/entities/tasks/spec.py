@@ -16,6 +16,6 @@ class TaskParamsTransform(TaskParams):
     """
 
 
-SPEC_REGISTRY = {
+spec_registry = {
     "transform": [TaskSpecTransform, TaskParamsTransform],
 }
