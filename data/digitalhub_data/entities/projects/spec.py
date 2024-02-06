@@ -18,7 +18,7 @@ class ProjectSpecData(ProjectSpec):
         artifacts: list | None = None,
         workflows: list | None = None,
         dataitems: list | None = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Constructor.

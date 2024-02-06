@@ -21,6 +21,7 @@ from digitalhub_ml_mlrun.utils.configurations import (
 )
 from digitalhub_ml_mlrun.utils.functions import run_job
 from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts
+from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
 
 if typing.TYPE_CHECKING:
     from mlrun.runtimes import BaseRuntime
@@ -64,17 +65,20 @@ class RuntimeMLRun(Runtime):
         """
         LOGGER.info("Validating task.")
         action = self._validate_task(run)
-        func = self._get_function(action)
+        executable = self._get_executable(action)
 
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
 
+        LOGGER.info("Collecting inputs.")
+        function_args = self._collect_inputs(spec)
+
         LOGGER.info("Configure execution.")
-        mlrun_function, function_args = self._configure_execution(spec, project)
+        mlrun_function = self._configure_execution(spec, project)
 
         LOGGER.info("Executing function.")
-        results: RunObject = self._execute(func, mlrun_function, function_args)
+        results: RunObject = self._execute(executable, mlrun_function, function_args)
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results)
@@ -83,7 +87,7 @@ class RuntimeMLRun(Runtime):
         return status
 
     @staticmethod
-    def _get_function(action: str) -> Callable:
+    def _get_executable(action: str) -> Callable:
         """
         Select function according to action.
 
@@ -118,6 +122,27 @@ class RuntimeMLRun(Runtime):
         return RunResultsData(artifact_objs, dataitem_objs)
 
     ####################
+    # Helpers
+    ####################
+
+    def _collect_inputs(self, spec: dict) -> dict:
+        """
+        Collect inputs.
+
+        Parameters
+        ----------
+        spec : dict
+            Run specs.
+
+        Returns
+        -------
+        dict
+            Parameters.
+        """
+        LOGGER.info("Getting inputs.")
+        return get_inputs_parameters(spec)
+
+    ####################
     # Configuration
     ####################
 
@@ -147,13 +172,7 @@ class RuntimeMLRun(Runtime):
         # Create MLRun project
         LOGGER.info("Creating MLRun project and function.")
         mlrun_project = get_mlrun_project(project)
-        mlrun_function = get_mlrun_function(mlrun_project, dhcore_function.name, function_source, function_specs)
-
-        # Get parameters
-        LOGGER.info("Getting parameters.")
-        function_args = spec.get("parameters", {})
-
-        return mlrun_function, function_args
+        return get_mlrun_function(mlrun_project, dhcore_function.name, function_source, function_specs)
 
     ####################
     # Outputs

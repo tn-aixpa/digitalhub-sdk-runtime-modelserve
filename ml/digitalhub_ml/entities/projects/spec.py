@@ -19,7 +19,7 @@ class ProjectSpecML(ProjectSpecData):
         workflows: list | None = None,
         dataitems: list | None = None,
         models: list | None = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Constructor.

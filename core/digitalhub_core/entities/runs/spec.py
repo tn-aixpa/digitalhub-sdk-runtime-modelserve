@@ -4,7 +4,6 @@ Run base specification module.
 from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
-from pydantic import BaseModel
 
 
 class RunSpec(Spec):
@@ -50,18 +49,6 @@ class RunSpec(Spec):
         self._any_setter(**kwargs)
 
 
-class Objects(BaseModel):
-    """
-    Run inputs specification.
-    """
-
-    dataitems: list[str] = None
-    """List of dataitems names."""
-
-    artifacts: list[str] = None
-    """List of artifacts names."""
-
-
 class RunParams(SpecParams):
     """
     Run parameters.
@@ -73,10 +60,10 @@ class RunParams(SpecParams):
     task_id: str = None
     """The task id associated with the run."""
 
-    inputs: Objects = None
+    inputs: dict = None
     """List of input dataitems and artifacts names."""
 
-    outputs: Objects = None
+    outputs: dict = None
     """List of output dataitems and artifacts names."""
 
     parameters: dict = None

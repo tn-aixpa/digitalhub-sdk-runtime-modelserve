@@ -57,7 +57,7 @@ class Runtime:
 
     @staticmethod
     @abstractmethod
-    def _get_function(action: str) -> Callable:
+    def _get_executable(action: str) -> Callable:
         """
         Get function from action.
         """

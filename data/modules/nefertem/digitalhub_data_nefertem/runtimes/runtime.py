@@ -61,7 +61,7 @@ class RuntimeNefertem(Runtime):
         # Validate task
         LOGGER.info("Validating task.")
         action = self._validate_task(run)
-        func = self._get_function(action)
+        executable = self._get_executable(action)
 
         # Get run specs
         LOGGER.info("Starting task.")
@@ -78,7 +78,7 @@ class RuntimeNefertem(Runtime):
 
         # Execute function
         LOGGER.info("Executing run.")
-        results: dict = self._execute(func, **config)
+        results: dict = self._execute(executable, **config)
 
         # Collect outputs
         LOGGER.info("Collecting outputs.")
@@ -94,7 +94,7 @@ class RuntimeNefertem(Runtime):
         return status
 
     @staticmethod
-    def _get_function(action: str) -> Callable:
+    def _get_executable(action: str) -> Callable:
         """
         Select function according to action.
 

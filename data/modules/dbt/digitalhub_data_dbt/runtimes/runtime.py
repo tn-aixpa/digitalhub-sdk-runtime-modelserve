@@ -93,7 +93,7 @@ class RuntimeDBT(Runtime):
         """
         LOGGER.info("Validating task.")
         action = self._validate_task(run)
-        func = self._get_function(action)
+        executable = self._get_executable(action)
 
         LOGGER.info("Starting task.")
         spec = run.get("spec")
@@ -106,7 +106,7 @@ class RuntimeDBT(Runtime):
         output_table = self._configure_execution(spec, project)
 
         LOGGER.info("Executing run.")
-        results = self._execute(func, output_table, self.root_dir)
+        results = self._execute(executable, output_table, self.root_dir)
 
         LOGGER.info("Collecting outputs.")
         outputs = self._collect_outputs(results, output_table, project)
@@ -120,7 +120,7 @@ class RuntimeDBT(Runtime):
         return status
 
     @staticmethod
-    def _get_function(action: str) -> Callable:
+    def _get_executable(action: str) -> Callable:
         """
         Select function according to action.
 

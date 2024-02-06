@@ -17,7 +17,7 @@ class ProjectSpec(Spec):
         functions: list | None = None,
         artifacts: list | None = None,
         workflows: list | None = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes a new instance of the ProjectSpec class.
