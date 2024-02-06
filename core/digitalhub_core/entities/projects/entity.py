@@ -17,6 +17,7 @@ from digitalhub_core.entities.functions.crud import delete_function, get_functio
 from digitalhub_core.entities.projects.metadata import ProjectMetadata
 from digitalhub_core.entities.projects.status import ProjectStatus
 from digitalhub_core.entities.workflows.crud import delete_workflow, get_workflow, new_workflow
+from digitalhub_core.entities.secrets.crud import delete_secret, get_secret, new_secret
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
@@ -27,13 +28,15 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.functions.entity import Function
     from digitalhub_core.entities.projects.spec import ProjectSpec
     from digitalhub_core.entities.workflows.entity import Workflow
+    from digitalhub_core.entities.secrets.entity import Secret
 
 
-CTX_ENTITIES = ["artifacts", "functions", "workflows"]
+CTX_ENTITIES = ["artifacts", "functions", "workflows", "secrets"]
 FUNC_MAP = {
     "artifacts": get_artifact,
     "functions": get_function,
     "workflows": get_workflow,
+    "secrets": get_secret,
 }
 
 
@@ -518,6 +521,86 @@ class Project(Entity):
         None
         """
         self._add_object(workflow, "workflows")
+
+    #############################
+    #  Secrets
+    #############################
+
+    def new_secret(self, **kwargs) -> Secret:
+        """
+        Create a new Secret instance with the specified parameters.
+
+        Parameters
+        ----------
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        Secret
+            An instance of the created secret.
+        """
+        kwargs["project"] = self.name
+        obj = new_secret(**kwargs)
+        self._add_object(obj, "secrets")
+        return obj
+
+    def get_secret(self, name: str, uuid: str | None = None) -> Secret:
+        """
+        Get a Secret from backend.
+
+        Parameters
+        ----------
+        name : str
+            Identifier of the secret.
+        uuid : str
+            Identifier of the secret version.
+
+        Returns
+        -------
+        Secret
+            Instance of Secret class.
+        """
+        obj = get_secret(
+            project=self.name,
+            name=name,
+            uuid=uuid,
+        )
+        self._add_object(obj, "secrets")
+        return obj
+
+    def delete_secret(self, name: str, uuid: str | None = None) -> None:
+        """
+        Delete a Secret from project.
+
+        Parameters
+        ----------
+        name : str
+            Identifier of the secret.
+        uuid : str
+            Identifier of the secret version.
+
+        Returns
+        -------
+        None
+        """
+        delete_secret(self.name, name, uuid=uuid)
+        self._delete_object(name, "secrets", uuid=uuid)
+
+    def set_secret(self, secret: Secret) -> None:
+        """
+        Set a Secret.
+
+        Parameters
+        ----------
+        secret : Secret
+            Secret to set.
+
+        Returns
+        -------
+        None
+        """
+        self._add_object(secret, "secrets")
 
     #############################
     #  Static interface methods

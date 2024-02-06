@@ -3,6 +3,7 @@ Models for task specifications.
 """
 from __future__ import annotations
 
+from typing import Union
 from pydantic import BaseModel
 from typing_extensions import Literal
 
@@ -18,8 +19,38 @@ class Volume(BaseModel):
     name: str
     """Volume name."""
 
+    spec: Union[VolumeConfigMap, VolumeSecret, VolumePVC]
+
+class VolumeConfigMap(BaseModel):
+    """
+    Spec for config map volume.
+    """
     mount_path: str
-    """Volume mount path."""
+    """Volume mount path inside the container."""
+
+    items: list[str] = None
+    """List of keys to mount into the container in the specified path.
+    If None, all items will be mounted."""
+
+
+class VolumeSecret(BaseModel):
+    """
+    Spec for secret volume.
+    """
+    mount_path: str
+    """Volume mount path inside the container."""
+
+    items: list[str] = None
+    """List of keys to mount into the container in the specified path.
+    If None, all items will be mounted."""
+
+
+class VolumePVC(BaseModel):
+    """
+    Spec for persistent volume claim volume.
+    """
+    mount_path: str
+    """Volume mount path inside the container."""
 
 
 class NodeSelector(BaseModel):
@@ -72,8 +103,11 @@ class K8sResources(BaseModel):
     volumes: list[Volume] = []
     """List of volumes."""
 
-    resources: Resource = {}
+    resources: list[Resource] = []
     """Resources restrictions."""
 
     env: list[Env] = []
     """Env variables."""
+
+    secrets: list[str] = []
+    """List of secret names."""

@@ -28,6 +28,16 @@ from digitalhub_core import (
     update_run,
     update_task,
     update_workflow,
+    delete_secret,
+    get_secret,
+    import_secret,
+    new_secret,
+    update_secret,
+    delete_service,
+    get_service,
+    import_service,
+    new_service,
+    update_service,
 )
 
 _PROJECT_IMPORTED = False

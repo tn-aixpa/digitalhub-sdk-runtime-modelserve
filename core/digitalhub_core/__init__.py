@@ -32,5 +32,20 @@ from digitalhub_core.entities.workflows.crud import (
     new_workflow,
     update_workflow,
 )
+from digitalhub_core.entities.secrets.crud import (
+    delete_secret,
+    get_secret,
+    import_secret,
+    new_secret,
+    update_secret,
+)
+
+from digitalhub_core.entities.services.crud import (
+    delete_service,
+    get_service,
+    import_service,
+    new_service,
+    update_service,
+)
 from digitalhub_core.stores.builder import set_store
 from digitalhub_core.utils.generic_utils import set_dhub_env
