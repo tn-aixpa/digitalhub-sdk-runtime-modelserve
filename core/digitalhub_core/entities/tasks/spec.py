@@ -58,8 +58,11 @@ class TaskParams(SpecParams):
     volumes: list[Volume] = None
     """List of volumes."""
 
-    resources: Resource = None
+    resources: list[Resource] = None
     """Resources restrictions."""
 
     env: list[Env] = None
     """Env variables."""
+
+    secrets: list[str] = None
+    """List of secret names."""

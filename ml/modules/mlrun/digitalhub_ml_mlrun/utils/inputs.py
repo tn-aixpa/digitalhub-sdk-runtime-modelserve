@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub_core.entities.artifacts.crud import get_artifact
 from digitalhub_core.utils.exceptions import BackendError
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import get_dataitem
-from digitalhub_core.entities.artifacts.crud import get_artifact
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.entities.dataitems.entity import Dataitem
     from digitalhub_core.entities.artifacts.entity import Artifact
+    from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
 def get_dataitem_(name: str, project: str) -> Dataitem:
@@ -95,9 +95,8 @@ def get_inputs_parameters(spec: dict) -> dict:
         ar: Artifact = get_artifact_(v)
         inputs_objects[k] = ar.spec.target_path
     return {
-            "inputs": {
-                **inputs_objects,
-                **spec.get("parameters", {}).get("inputs", {}),
-            },
-        }
-
+        "inputs": {
+            **inputs_objects,
+            **spec.get("parameters", {}).get("inputs", {}),
+        },
+    }

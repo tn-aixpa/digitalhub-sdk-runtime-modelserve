@@ -20,8 +20,8 @@ from digitalhub_ml_mlrun.utils.configurations import (
     save_function_source,
 )
 from digitalhub_ml_mlrun.utils.functions import run_job
-from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
+from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts
 
 if typing.TYPE_CHECKING:
     from mlrun.runtimes import BaseRuntime

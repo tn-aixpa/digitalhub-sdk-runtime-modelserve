@@ -24,6 +24,14 @@ from digitalhub_core.entities.projects.crud import (
     update_project,
 )
 from digitalhub_core.entities.runs.crud import delete_run, get_run, import_run, new_run, update_run
+from digitalhub_core.entities.secrets.crud import delete_secret, get_secret, import_secret, new_secret, update_secret
+from digitalhub_core.entities.services.crud import (
+    delete_service,
+    get_service,
+    import_service,
+    new_service,
+    update_service,
+)
 from digitalhub_core.entities.tasks.crud import delete_task, get_task, import_task, new_task, update_task
 from digitalhub_core.entities.workflows.crud import (
     delete_workflow,
@@ -31,21 +39,6 @@ from digitalhub_core.entities.workflows.crud import (
     import_workflow,
     new_workflow,
     update_workflow,
-)
-from digitalhub_core.entities.secrets.crud import (
-    delete_secret,
-    get_secret,
-    import_secret,
-    new_secret,
-    update_secret,
-)
-
-from digitalhub_core.entities.services.crud import (
-    delete_service,
-    get_service,
-    import_service,
-    new_service,
-    update_service,
 )
 from digitalhub_core.stores.builder import set_store
 from digitalhub_core.utils.generic_utils import set_dhub_env
