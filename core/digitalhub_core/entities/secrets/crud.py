@@ -58,6 +58,8 @@ def new_secret(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
+    path: str | None = None,
+    provider: str | None = None,
     **kwargs,
 ) -> Secret:
     """
@@ -81,6 +83,10 @@ def new_secret(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
+    path : str
+        Path to the secret file.
+    provider : str
+        Provider of the secret.
     **kwargs
         Spec keyword arguments.
 
@@ -92,12 +98,14 @@ def new_secret(
     obj = create_secret(
         project=project,
         name=name,
+        kind=kind,
+        uuid=uuid,
         description=description,
         source=source,
         labels=labels,
-        kind=kind,
+        path=path,
+        provider=provider,
         embedded=embedded,
-        uuid=uuid,
         **kwargs,
     )
     obj.save()

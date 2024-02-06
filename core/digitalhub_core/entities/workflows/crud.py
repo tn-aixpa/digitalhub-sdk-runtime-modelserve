@@ -92,12 +92,13 @@ def new_workflow(
     obj = create_workflow(
         project=project,
         name=name,
+        kind=kind,
+        uuid=uuid,
         description=description,
         source=source,
         labels=labels,
-        kind=kind,
         embedded=embedded,
-        uuid=uuid,
+
         **kwargs,
     )
     obj.save()

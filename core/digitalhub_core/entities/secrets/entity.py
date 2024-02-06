@@ -187,6 +187,8 @@ def secret_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
+    path: str | None = None,
+    provider: str | None = None,
     **kwargs,
 ) -> Secret:
     """
@@ -210,6 +212,10 @@ def secret_from_parameters(
         A description of the secret.
     embedded : bool
         Flag to determine if object must be embedded in project.
+    path : str
+        Path to the secret file.
+    provider : str
+        Provider of the secret.
     **kwargs
         Spec keyword arguments.
 
@@ -232,6 +238,8 @@ def secret_from_parameters(
     spec = build_spec(
         "secrets",
         kind,
+        path=path,
+        provider=provider,
         layer_digitalhub="digitalhub_core",
         **kwargs,
     )

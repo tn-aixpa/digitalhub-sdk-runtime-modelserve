@@ -92,12 +92,13 @@ def new_model(
     obj = create_model(
         project=project,
         name=name,
+        kind=kind,
+        uuid=uuid,
         description=description,
         source=source,
         labels=labels,
-        kind=kind,
         embedded=embedded,
-        uuid=uuid,
+
         **kwargs,
     )
     obj.save()
