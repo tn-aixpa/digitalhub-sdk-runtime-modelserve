@@ -1,6 +1,6 @@
 {
-    "title": "FunctionParamsDBT",
-    "description": "Function DBT parameters model.",
+    "title": "FunctionParamsDbt",
+    "description": "Function Dbt parameters model.",
     "type": "object",
     "properties": {
         "source": {

@@ -75,19 +75,19 @@ def materialize_dataitem(dataitem: Dataitem, name: str) -> str:
         raise EntityError(msg)
 
 
-def get_sql(spec: dict) -> str:
+def decode_sql(sql: str) -> str:
     """
-    Get sql code from run spec.
+    Decode sql code.
 
     Parameters
     ----------
-    spec : dict
-        The run spec.
+    sql : str
+        The sql code.
 
     Returns
     -------
     str
-        The sql code.
+        The decoded sql code.
 
     Raises
     ------
@@ -95,21 +95,21 @@ def get_sql(spec: dict) -> str:
         If sql code is not a valid string.
     """
     try:
-        return decode_string(spec.get("sql"))
+        return decode_string(sql)
     except Exception:
         msg = "Sql code must be a valid string."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def get_output_table_name(spec: dict) -> str:
+def get_output_table_name(outputs: list[str]) -> str:
     """
     Get output table name from run spec.
 
     Parameters
     ----------
-    spec : dict
-        Run spec dict.
+    outputs : list
+        The outputs.
 
     Returns
     -------
@@ -121,7 +121,6 @@ def get_output_table_name(spec: dict) -> str:
     RuntimeError
         If outputs are not a list of one dataitem.
     """
-    outputs = spec.get("outputs", {}).get("dataitems", [])
     if not isinstance(outputs, list) or len(outputs) > 1:
         msg = "Outputs must be a list of exactly one dataitem."
         LOGGER.error(msg)

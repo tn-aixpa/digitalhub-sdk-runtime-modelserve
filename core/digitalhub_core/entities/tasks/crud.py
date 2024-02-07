@@ -56,10 +56,11 @@ def new_task(
     source: str | None = None,
     labels: list[str] | None = None,
     function: str | None = "",
-    node_selector: dict | None = None,
+    node_selector: list[dict] | None = None,
     volumes: list[dict] | None = None,
-    resources: dict | None = None,
+    resources: list[dict] | None = None,
     env: list[dict] | None = None,
+    secrets: list[str] | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -79,14 +80,16 @@ def new_task(
         List of labels.
     function : str
         The function string identifying the function.
-    node_selector : dict
+    node_selector : list[dict]
         The node selector of the task.
     volumes : list[dict]
         The volumes of the task.
-    resources : dict
+    resources : list[dict]
         Kubernetes resources for the task.
     env : list[dict]
         The env variables of the task.
+    secrets : list[dict]
+        The secrets of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -106,6 +109,7 @@ def new_task(
         volumes=volumes,
         resources=resources,
         env=env,
+        secrets=secrets,
         **kwargs,
     )
     obj.save()

@@ -1,3 +1,3 @@
-# DBT module for digitalhub-core
+# Dbt module for digitalhub-core
 
-Digitalhub DBT runtime to execute functions for DBT.
+Digitalhub Dbt runtime to execute functions for Dbt.

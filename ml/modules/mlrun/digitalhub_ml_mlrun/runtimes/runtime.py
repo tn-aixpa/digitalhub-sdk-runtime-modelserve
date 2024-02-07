@@ -49,8 +49,8 @@ class RuntimeMLRun(Runtime):
         Merge specs.
         """
         return {
-            **function.get("spec", {}),
-            **task.get("spec", {}),
+            "function_spec": function.get("spec", {}),
+            "task_spec": task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -140,7 +140,7 @@ class RuntimeMLRun(Runtime):
             Parameters.
         """
         LOGGER.info("Getting inputs.")
-        return get_inputs_parameters(spec)
+        return get_inputs_parameters(spec.get("inputs", {}), spec.get("parameters", {}))
 
     ####################
     # Configuration

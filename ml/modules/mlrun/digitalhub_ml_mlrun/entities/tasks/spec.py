@@ -6,16 +6,16 @@ from __future__ import annotations
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 
 
-class TaskSpecMLRun(TaskSpec):
-    """Task MLRun specification."""
+class TaskSpecJob(TaskSpec):
+    """Task Job specification."""
 
 
-class TaskParamsMLRun(TaskParams):
+class TaskParamsJob(TaskParams):
     """
-    TaskParamsMLRun model.
+    TaskParamsJob model.
     """
 
 
 spec_registry = {
-    "mlrun": [TaskSpecMLRun, TaskParamsMLRun],
+    "mlrun+job": [TaskSpecJob, TaskParamsJob],
 }

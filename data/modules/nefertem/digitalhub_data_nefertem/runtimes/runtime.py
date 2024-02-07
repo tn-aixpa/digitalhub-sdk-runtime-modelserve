@@ -44,8 +44,8 @@ class RuntimeNefertem(Runtime):
         Merge specs.
         """
         return {
-            **function.get("spec", {}),
-            **task.get("spec", {}),
+            "function_spec": function.get("spec", {}),
+            "task_spec": task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -186,7 +186,15 @@ class RuntimeNefertem(Runtime):
         resources = create_nt_resources(inputs, self.store)
 
         # Create run configuration
-        run_config = create_nt_run_config(action, spec)
+        task_spec = spec.get("task_spec")
+        framework = task_spec.get("framework")
+        exec_args = task_spec.get("exec_args", {})
+        parallel = task_spec.get("parallel", False)
+        num_worker = task_spec.get("num_worker", 1)
+        metrics = task_spec.get("metrics")
+        constraints = task_spec.get("constraints")
+        error_report = task_spec.get("error_report")
+        run_config = create_nt_run_config(action, framework, exec_args, parallel, num_worker)
 
         # Create Nefertem client
         client = create_client(self.output_path, self.store)
@@ -197,9 +205,9 @@ class RuntimeNefertem(Runtime):
             "resources": resources,
             "run_config": run_config,
             "run_id": self.nt_id,
-            "metrics": spec.get("metrics"),
-            "constraints": spec.get("constraints"),
-            "error_report": spec.get("error_report"),
+            "metrics": metrics,
+            "constraints": constraints,
+            "error_report": error_report,
         }
 
     ####################

@@ -1,5 +1,5 @@
 """
-DBT Function specification module.
+Dbt Function specification module.
 """
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import decode_string, encode_string
 
 
-class FunctionSpecDBT(FunctionSpec):
+class FunctionSpecDbt(FunctionSpec):
     """
-    Specification for a Function DBT.
+    Specification for a Function Dbt.
     """
 
     def __init__(
@@ -25,7 +25,7 @@ class FunctionSpecDBT(FunctionSpec):
         Parameters
         ----------
         sql : str
-            SQL query to run inside DBT.
+            SQL query to run inside Dbt.
         """
         super().__init__(source, **kwargs)
         if sql is None:
@@ -40,9 +40,9 @@ class FunctionSpecDBT(FunctionSpec):
         self.sql = encode_string(sql)
 
 
-class FunctionParamsDBT(FunctionParams):
+class FunctionParamsDbt(FunctionParams):
     """
-    Function DBT parameters model.
+    Function Dbt parameters model.
     """
 
     sql: str = None
@@ -50,5 +50,5 @@ class FunctionParamsDBT(FunctionParams):
 
 
 spec_registry = {
-    "dbt": [FunctionSpecDBT, FunctionParamsDBT],
+    "dbt": [FunctionSpecDbt, FunctionParamsDbt],
 }

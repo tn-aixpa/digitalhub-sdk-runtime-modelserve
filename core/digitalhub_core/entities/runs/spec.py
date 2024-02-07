@@ -71,8 +71,3 @@ class RunParams(SpecParams):
 
     local_execution: bool = False
     """Flag to indicate if the run will be executed locally."""
-
-
-spec_registry = {
-    "run": [RunSpec, RunParams],
-}

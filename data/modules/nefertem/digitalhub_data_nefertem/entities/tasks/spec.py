@@ -1,5 +1,5 @@
 """
-Task DBT specification module.
+Task Dbt specification module.
 """
 from __future__ import annotations
 
@@ -19,10 +19,11 @@ class TaskSpecNefertem(TaskSpec):
     def __init__(
         self,
         function: str,
-        node_selector: NodeSelector | None = None,
+        node_selector: list[NodeSelector] | None = None,
         volumes: list[Volume] | None = None,
-        resources: Resource | None = None,
+        resources: list[Resource] | None = None,
         env: list[Env] | None = None,
+        secrets: list[str] | None = None,
         framework: str | None = None,
         exec_args: dict | None = None,
         parallel: bool = False,
@@ -32,7 +33,7 @@ class TaskSpecNefertem(TaskSpec):
         """
         Constructor.
         """
-        super().__init__(function, node_selector, volumes, resources, env, **kwargs)
+        super().__init__(function, node_selector, volumes, resources, env, secrets, **kwargs)
         if framework is None:
             raise EntityError("Framework for Nefertem is not given.")
         self.framework = framework
@@ -120,8 +121,8 @@ class TaskParamsMetric(TaskParamsNefertem):
 
 
 spec_registry = {
-    "infer": [TaskSpecInfer, TaskParamsInfer],
-    "profile": [TaskSpecProfile, TaskParamsProfile],
-    "validate": [TaskSpecValidate, TaskParamsValidate],
-    "metric": [TaskSpecMetric, TaskParamsMetric],
+    "nefertem+infer": [TaskSpecInfer, TaskParamsInfer],
+    "nefertem+profile": [TaskSpecProfile, TaskParamsProfile],
+    "nefertem+validate": [TaskSpecValidate, TaskParamsValidate],
+    "nefertem+metric": [TaskSpecMetric, TaskParamsMetric],
 }

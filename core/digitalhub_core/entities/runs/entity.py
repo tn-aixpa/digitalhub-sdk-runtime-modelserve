@@ -155,7 +155,12 @@ class Run(Entity):
         task = self._get_task()
         runtime = self._get_runtime()
         new_spec = runtime.build(function, task, self.to_dict())
-        self.spec = build_spec("runs", self.kind, layer_digitalhub="digitalhub_core", validate=False, **new_spec)
+        self.spec = build_spec(
+            "runs",
+            self.kind,
+            framework_runtime=self.kind.split("+")[0],
+            **new_spec,
+        )
         self._set_status({"state": State.BUILT.value})
         self.save()
 
@@ -340,7 +345,7 @@ class Run(Entity):
         spec = build_spec(
             "runs",
             kind,
-            layer_digitalhub="digitalhub_core",
+            framework_runtime=kind.split("+")[0],
             validate=validate,
             **obj.get("spec", {}),
         )
@@ -417,7 +422,7 @@ def run_from_parameters(
     spec = build_spec(
         "runs",
         kind,
-        layer_digitalhub="digitalhub_core",
+        framework_runtime=task.split("+")[0],
         task=task,
         task_id=task_id,
         inputs=inputs,

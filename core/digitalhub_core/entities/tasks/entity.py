@@ -164,7 +164,7 @@ class Task(Entity):
             project=self.project,
             task=self._get_task_string(),
             task_id=self.id,
-            kind="run",
+            kind=f"{self.kind.split('+')[0]}+run",
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
@@ -181,7 +181,7 @@ class Task(Entity):
             Task string.
         """
         splitted = self.spec.function.split("://")
-        return f"{splitted[0]}+{self.kind}://{splitted[1]}"
+        return f"{self.kind}://{splitted[1]}"
 
     #############################
     # CRUD Methods for Run
@@ -269,7 +269,7 @@ class Task(Entity):
             "tasks",
             kind,
             validate=validate,
-            framework_runtime=obj.get("spec", {}).get("function").split("://")[0],
+            framework_runtime=kind.split("+")[0],
             **obj.get("spec", {}),
         )
         status = build_status(TaskStatus, **obj.get("status", {}))
@@ -290,10 +290,11 @@ def task_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     function: str | None = "",
-    node_selector: dict | None = None,
+    node_selector: list[dict] | None = None,
     volumes: list[dict] | None = None,
-    resources: dict | None = None,
+    resources: list[dict] | None = None,
     env: list[dict] | None = None,
+    secrets: list[str] | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -313,14 +314,16 @@ def task_from_parameters(
         List of labels.
     function : str
         The function string identifying the function.
-    node_selector : dict
+    node_selector : list[dict]
         The node selector of the task.
     volumes : list[dict]
         The volumes of the task.
-    resources : dict
+    resources : list[dict]
         Kubernetes resources for the task.
     env : list[dict]
         The env variables of the task.
+    secrets : list[dict]
+        The secrets of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -346,6 +349,7 @@ def task_from_parameters(
         volumes=volumes,
         resources=resources,
         env=env,
+        secrets=secrets,
         **kwargs,
     )
     status = build_status(TaskStatus)

@@ -153,10 +153,11 @@ class Function(Entity):
     def run(
         self,
         action: str,
-        node_selector: dict | None = None,
+        node_selector: list[dict] | None = None,
         volumes: list[dict] | None = None,
-        resources: dict | None = None,
+        resources: list[dict] | None = None,
         env: list[dict] | None = None,
+        secrets: list[str] | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -174,10 +175,12 @@ class Function(Entity):
             The node selector of the task. Task parameter.
         volumes : list[dict]
             The volumes of the task. Task parameter.
-        resources : dict
+        resources : list[dict]
             Kubernetes resources for the task. Task parameter.
         env : list[dict]
             The env variables of the task. Task parameter.
+        secrets : list[str]
+            The secrets of the task. Task parameter.
         inputs : dict
             Function inputs. Run parameter.
         outputs : dict
@@ -188,6 +191,7 @@ class Function(Entity):
             Flag to determine if object has local execution. Run parameter.
         **kwargs
             Keyword arguments passed to Task builder.
+
         Returns
         -------
         Run
@@ -198,11 +202,12 @@ class Function(Entity):
         task = self._tasks.get(action)
         if task is None:
             task = self.new_task(
-                kind=action,
+                kind=f"{self.kind}+{action}",
                 node_selector=node_selector,
                 volumes=volumes,
                 resources=resources,
                 env=env,
+                secrets=secrets,
                 **kwargs,
             )
 
@@ -291,6 +296,7 @@ class Function(Entity):
         """
         kwargs["project"] = self.project
         kwargs["function"] = self._get_function_string()
+        kwargs["kind"] = kwargs["kind"]
         task = new_task(**kwargs)
         self._tasks[kwargs["kind"]] = task
         return task

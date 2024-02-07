@@ -1,5 +1,5 @@
 """
-Runtime DBT module.
+Runtime Dbt module.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from digitalhub_data_dbt.utils.configuration import (
     generate_outputs_conf,
 )
 from digitalhub_data_dbt.utils.functions import transform
-from digitalhub_data_dbt.utils.inputs import get_dataitem_, get_output_table_name, get_sql, materialize_dataitem
+from digitalhub_data_dbt.utils.inputs import decode_sql, get_dataitem_, get_output_table_name, materialize_dataitem
 from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
 if typing.TYPE_CHECKING:
@@ -29,9 +29,9 @@ if typing.TYPE_CHECKING:
     from digitalhub_data_dbt.utils.outputs import ParsedResults
 
 
-class RuntimeDBT(Runtime):
+class RuntimeDbt(Runtime):
     """
-    Runtime DBT class.
+    Runtime Dbt class.
     """
 
     allowed_actions = ["transform"]
@@ -72,8 +72,8 @@ class RuntimeDBT(Runtime):
             The run spec.
         """
         return {
-            **function.get("spec", {}),
-            **task.get("spec", {}),
+            "function_spec": function.get("spec", {}),
+            "task_spec": task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -206,9 +206,8 @@ class RuntimeDBT(Runtime):
         str
             Output table name.
         """
-
-        output_table = get_output_table_name(spec)
-        query = get_sql(spec)
+        output_table = get_output_table_name(spec.get("outputs", {}).get("dataitems", []))
+        query = decode_sql(spec.get("function_spec", {}).get("sql"))
 
         # Create directories
         self.model_dir.mkdir(exist_ok=True, parents=True)

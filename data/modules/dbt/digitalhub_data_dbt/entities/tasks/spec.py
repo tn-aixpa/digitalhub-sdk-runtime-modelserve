@@ -17,5 +17,5 @@ class TaskParamsTransform(TaskParams):
 
 
 spec_registry = {
-    "transform": [TaskSpecTransform, TaskParamsTransform],
+    "dbt+transform": [TaskSpecTransform, TaskParamsTransform],
 }
