@@ -90,8 +90,8 @@
             "description": "Spec for config map volume.",
             "type": "object",
             "properties": {
-                "configmap_name": {
-                    "title": "Configmap Name",
+                "name": {
+                    "title": "Name",
                     "type": "string"
                 },
                 "items": {
@@ -103,7 +103,7 @@
                 }
             },
             "required": [
-                "configmap_name"
+                "name"
             ]
         },
         "Secret": {
