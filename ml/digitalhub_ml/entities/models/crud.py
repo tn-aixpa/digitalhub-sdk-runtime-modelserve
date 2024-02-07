@@ -98,7 +98,6 @@ def new_model(
         source=source,
         labels=labels,
         embedded=embedded,
-
         **kwargs,
     )
     obj.save()

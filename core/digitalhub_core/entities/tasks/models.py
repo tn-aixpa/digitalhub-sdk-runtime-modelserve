@@ -9,15 +9,27 @@ from pydantic import BaseModel
 from typing_extensions import Literal
 
 
+class Item(BaseModel):
+    """
+    Item model.
+    """
+
+    key: str
+    """Item name."""
+
+    path: str
+    """Item mount path inside the container."""
+
+
 class ConfigMap(BaseModel):
     """
     Spec for config map volume.
     """
 
-    mount_path: str
-    """Volume mount path inside the container."""
+    configmap_name: str
+    """Config map name."""
 
-    items: list[str] = None
+    items: list[Item] = None
     """List of keys to mount into the container in the specified path.
     If None, all items will be mounted."""
 
@@ -27,10 +39,10 @@ class Secret(BaseModel):
     Spec for secret volume.
     """
 
-    mount_path: str
-    """Volume mount path inside the container."""
+    secret_name: str
+    """Secret name."""
 
-    items: list[str] = None
+    items: list[Item] = None
     """List of keys to mount into the container in the specified path.
     If None, all items will be mounted."""
 
@@ -40,8 +52,8 @@ class PVC(BaseModel):
     Spec for persistent volume claim volume.
     """
 
-    mount_path: str
-    """Volume mount path inside the container."""
+    claim_name: str
+    """Persistent volume claim name."""
 
 
 class Volume(BaseModel):
@@ -54,6 +66,9 @@ class Volume(BaseModel):
 
     name: str
     """Volume name."""
+
+    mount_path: str
+    """Volume mount path inside the container."""
 
     spec: Union[ConfigMap, Secret, PVC]
 
@@ -78,10 +93,10 @@ class Resource(BaseModel):
     resource_type: Literal["cpu", "memory", "gpu"]
     """Resource kind (cpu, memory, gpu)."""
 
-    requests: int
+    requests: str
     """Resource requests."""
 
-    limits: int
+    limits: str
     """Resource limits."""
 
 

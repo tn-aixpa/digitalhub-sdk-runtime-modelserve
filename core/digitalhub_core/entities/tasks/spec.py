@@ -52,7 +52,7 @@ class TaskParams(SpecParams):
     function: str
     """Function string."""
 
-    node_selector: NodeSelector = None
+    node_selector: list[NodeSelector] = None
     """Node selector."""
 
     volumes: list[Volume] = None

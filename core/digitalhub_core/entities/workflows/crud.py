@@ -98,7 +98,6 @@ def new_workflow(
         source=source,
         labels=labels,
         embedded=embedded,
-
         **kwargs,
     )
     obj.save()

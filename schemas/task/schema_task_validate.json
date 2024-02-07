@@ -8,7 +8,11 @@
             "type": "string"
         },
         "node_selector": {
-            "$ref": "#/definitions/NodeSelector"
+            "title": "Node Selector",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/NodeSelector"
+            }
         },
         "volumes": {
             "title": "Volumes",
@@ -81,25 +85,44 @@
                 "value"
             ]
         },
+        "Item": {
+            "title": "Item",
+            "description": "Item model.",
+            "type": "object",
+            "properties": {
+                "key": {
+                    "title": "Key",
+                    "type": "string"
+                },
+                "path": {
+                    "title": "Path",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "key",
+                "path"
+            ]
+        },
         "ConfigMap": {
             "title": "ConfigMap",
             "description": "Spec for config map volume.",
             "type": "object",
             "properties": {
-                "mount_path": {
-                    "title": "Mount Path",
+                "configmap_name": {
+                    "title": "Configmap Name",
                     "type": "string"
                 },
                 "items": {
                     "title": "Items",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/Item"
                     }
                 }
             },
             "required": [
-                "mount_path"
+                "configmap_name"
             ]
         },
         "Secret": {
@@ -107,20 +130,20 @@
             "description": "Spec for secret volume.",
             "type": "object",
             "properties": {
-                "mount_path": {
-                    "title": "Mount Path",
+                "secret_name": {
+                    "title": "Secret Name",
                     "type": "string"
                 },
                 "items": {
                     "title": "Items",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/Item"
                     }
                 }
             },
             "required": [
-                "mount_path"
+                "secret_name"
             ]
         },
         "PVC": {
@@ -128,13 +151,13 @@
             "description": "Spec for persistent volume claim volume.",
             "type": "object",
             "properties": {
-                "mount_path": {
-                    "title": "Mount Path",
+                "claim_name": {
+                    "title": "Claim Name",
                     "type": "string"
                 }
             },
             "required": [
-                "mount_path"
+                "claim_name"
             ]
         },
         "Volume": {
@@ -155,6 +178,10 @@
                     "title": "Name",
                     "type": "string"
                 },
+                "mount_path": {
+                    "title": "Mount Path",
+                    "type": "string"
+                },
                 "spec": {
                     "title": "Spec",
                     "anyOf": [
@@ -173,6 +200,7 @@
             "required": [
                 "volume_type",
                 "name",
+                "mount_path",
                 "spec"
             ]
         },
@@ -192,11 +220,11 @@
                 },
                 "requests": {
                     "title": "Requests",
-                    "type": "integer"
+                    "type": "string"
                 },
                 "limits": {
                     "title": "Limits",
-                    "type": "integer"
+                    "type": "string"
                 }
             },
             "required": [

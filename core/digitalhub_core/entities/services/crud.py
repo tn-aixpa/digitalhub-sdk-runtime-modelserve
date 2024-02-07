@@ -98,7 +98,6 @@ def new_service(
         source=source,
         labels=labels,
         embedded=embedded,
-
         **kwargs,
     )
     obj.save()
