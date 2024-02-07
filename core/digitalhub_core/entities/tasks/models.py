@@ -26,7 +26,7 @@ class ConfigMap(BaseModel):
     Spec for config map volume.
     """
 
-    configmap_name: str
+    name: str
     """Config map name."""
 
     items: list[Item] = None
