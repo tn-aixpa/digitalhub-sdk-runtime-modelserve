@@ -15,7 +15,10 @@ class RunSpecNefertem(RunSpec):
         parameters: dict | None = None,
         local_execution: bool = False,
         function_spec: dict | None = None,
-        task_spec: dict | None = None,
+        infer_spec: dict | None = None,
+        profile_spec: dict | None = None,
+        validate_spec: dict | None = None,
+        metric_spec: dict | None = None,
         **kwargs,
     ) -> None:
         """
@@ -26,7 +29,10 @@ class RunSpecNefertem(RunSpec):
         """
         super().__init__(task, task_id, inputs, outputs, parameters, local_execution, **kwargs)
         self.function_spec = function_spec
-        self.task_spec = task_spec
+        self.infer_spec = infer_spec
+        self.profile_spec = profile_spec
+        self.validate_spec = validate_spec
+        self.metric_spec = metric_spec
 
 
 class RunParamsNefertem(RunParams):
@@ -35,8 +41,17 @@ class RunParamsNefertem(RunParams):
     function_spec: dict = None
     """The function spec."""
 
-    task_spec: dict = None
-    """The task spec."""
+    infer_spec: dict = None
+    """The infer task spec."""
+
+    profile_spec: dict = None
+    """The profile task spec."""
+
+    validate_spec: dict = None
+    """The validate task spec."""
+
+    metric_spec: dict = None
+    """The metric task spec."""
 
 
 spec_registry = {

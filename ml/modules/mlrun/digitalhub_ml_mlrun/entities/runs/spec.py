@@ -15,7 +15,7 @@ class RunSpecMlrun(RunSpec):
         parameters: dict | None = None,
         local_execution: bool = False,
         function_spec: dict | None = None,
-        task_spec: dict | None = None,
+        job_spec: dict | None = None,
         **kwargs,
     ) -> None:
         """
@@ -26,7 +26,7 @@ class RunSpecMlrun(RunSpec):
         """
         super().__init__(task, task_id, inputs, outputs, parameters, local_execution, **kwargs)
         self.function_spec = function_spec
-        self.task_spec = task_spec
+        self.job_spec = job_spec
 
 
 class RunParamsMlrun(RunParams):
@@ -35,8 +35,8 @@ class RunParamsMlrun(RunParams):
     function_spec: dict = None
     """The function spec."""
 
-    task_spec: dict = None
-    """The task spec."""
+    job_spec: dict = None
+    """The job task spec."""
 
 
 spec_registry = {

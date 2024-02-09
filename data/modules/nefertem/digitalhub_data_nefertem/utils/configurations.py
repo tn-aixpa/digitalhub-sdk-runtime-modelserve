@@ -79,14 +79,22 @@ def create_nt_resources(inputs: list[dict], store: dict) -> list[dict]:
         raise EntityError(msg)
 
 
-def create_nt_run_config(action: str, spec: dict) -> dict:
+def create_nt_run_config(action: str, framework: str, exec_args: dict, parallel: bool, num_worker: int) -> dict:
     """
     Build nefertem run configuration.
 
     Parameters
     ----------
-    spec : dict
-        Run specification.
+    action : str
+        Action to execute.
+    framework : str
+        Framework to execute.
+    exec_args : dict
+        Framework execution arguments.
+    parallel : bool
+        Whether to run nefertem run in parallel.
+    num_worker : int
+        Number of workers.
 
     Returns
     -------
@@ -105,10 +113,10 @@ def create_nt_run_config(action: str, spec: dict) -> dict:
         "operation": operation,
         "exec_config": [
             {
-                "framework": spec.get("framework"),
-                "exec_args": spec.get("exec_args", {}),
+                "framework": framework,
+                "exec_args": exec_args,
             }
         ],
-        "parallel": spec.get("parallel", False),
-        "num_worker": spec.get("num_worker", 1),
+        "parallel": parallel,
+        "num_worker": num_worker,
     }

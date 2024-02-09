@@ -33,7 +33,7 @@ class RuntimeMLRun(Runtime):
     Runtime MLRun class.
     """
 
-    allowed_actions = ["mlrun"]
+    allowed_actions = ["job"]
 
     def __init__(self) -> None:
         """
@@ -46,11 +46,26 @@ class RuntimeMLRun(Runtime):
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
-        Merge specs.
+        Build run spec.
+
+        Parameters
+        ----------
+        function : dict
+            The function.
+        task : dict
+            The task.
+        run : dict
+            The run.
+
+        Returns
+        -------
+        dict
+            The run spec.
         """
+        task_kind = task.get("kind").split("+")[1]
         return {
             "function_spec": function.get("spec", {}),
-            "task_spec": task.get("spec", {}),
+            f"{task_kind}_spec": task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -72,10 +87,10 @@ class RuntimeMLRun(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        function_args = self._collect_inputs(spec)
+        function_args = self._collect_inputs(spec, project)
 
         LOGGER.info("Configure execution.")
-        mlrun_function = self._configure_execution(spec, project)
+        mlrun_function = self._configure_execution(spec, action, project)
 
         LOGGER.info("Executing function.")
         results: RunObject = self._execute(executable, mlrun_function, function_args)
@@ -101,7 +116,7 @@ class RuntimeMLRun(Runtime):
         Callable
             Function to execute.
         """
-        if action == "mlrun":
+        if action == "job":
             return run_job
         raise NotImplementedError
 
@@ -125,7 +140,7 @@ class RuntimeMLRun(Runtime):
     # Helpers
     ####################
 
-    def _collect_inputs(self, spec: dict) -> dict:
+    def _collect_inputs(self, spec: dict, project: str) -> dict:
         """
         Collect inputs.
 
@@ -133,6 +148,8 @@ class RuntimeMLRun(Runtime):
         ----------
         spec : dict
             Run specs.
+        project : str
+            Name of the project.
 
         Returns
         -------
@@ -140,13 +157,15 @@ class RuntimeMLRun(Runtime):
             Parameters.
         """
         LOGGER.info("Getting inputs.")
-        return get_inputs_parameters(spec.get("inputs", {}), spec.get("parameters", {}))
+        inputs = spec.get("inputs", {})
+        parameters = spec.get("parameters", {})
+        return get_inputs_parameters(inputs, parameters, project)
 
     ####################
     # Configuration
     ####################
 
-    def _configure_execution(self, spec: dict, project: str) -> tuple[BaseRuntime, dict]:
+    def _configure_execution(self, spec: dict, action: str, project: str) -> tuple[BaseRuntime, dict]:
         """
         Create MLRun project and function and prepare parameters.
 
@@ -154,6 +173,8 @@ class RuntimeMLRun(Runtime):
         ----------
         spec : dict
             Run specs.
+        action : str
+            Action to execute.
         project : str
             Name of the project.
 
@@ -165,7 +186,7 @@ class RuntimeMLRun(Runtime):
 
         # Setup function source and specs
         LOGGER.info("Getting function source and specs.")
-        dhcore_function = get_dhcore_function(spec.get("function"))
+        dhcore_function = get_dhcore_function(spec.get(f"{action}_spec", {}).get("function"))
         function_source = save_function_source(self.root_path, dhcore_function.spec)
         function_specs = parse_function_specs(dhcore_function.spec)
 

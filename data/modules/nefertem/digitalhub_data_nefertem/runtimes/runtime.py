@@ -41,55 +41,68 @@ class RuntimeNefertem(Runtime):
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
-        Merge specs.
+        Build run spec.
+
+        Parameters
+        ----------
+        function : dict
+            The function.
+        task : dict
+            The task.
+        run : dict
+            The run.
+
+        Returns
+        -------
+        dict
+            The run spec.
         """
+        task_kind = task.get("kind").split("+")[1]
         return {
             "function_spec": function.get("spec", {}),
-            "task_spec": task.get("spec", {}),
+            f"{task_kind}_spec": task.get("spec", {}),
             **run.get("spec", {}),
         }
 
     def run(self, run: dict) -> dict:
         """
-        Execute function.
+        Run function.
+
+        Parameters
+        ----------
+        run : dict
+            The run.
 
         Returns
         -------
         dict
             Status of the executed run.
         """
-        # Validate task
+
         LOGGER.info("Validating task.")
         action = self._validate_task(run)
         executable = self._get_executable(action)
 
-        # Get run specs
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
 
-        # Collect inputs
         LOGGER.info("Collecting inputs.")
         inputs = self._collect_inputs(spec.get("inputs", {}).get("dataitems", []), project)
 
-        # Get nefertem configuration and function
         LOGGER.info("Configure execution.")
         config = self._configure_execution(inputs, spec, action)
 
-        # Execute function
         LOGGER.info("Executing run.")
         results: dict = self._execute(executable, **config)
 
-        # Collect outputs
         LOGGER.info("Collecting outputs.")
         outputs = self._collect_outputs(results, project)
         status = build_status(results, outputs)
 
-        # Remove tmp folder
         LOGGER.info("Clean up environment.")
         self._cleanup()
 
-        # Return run status
         LOGGER.info("Task completed, returning run status.")
         return status
 
@@ -186,11 +199,11 @@ class RuntimeNefertem(Runtime):
         resources = create_nt_resources(inputs, self.store)
 
         # Create run configuration
-        task_spec = spec.get("task_spec")
+        task_spec = spec.get(f"{action}_spec")
         framework = task_spec.get("framework")
-        exec_args = task_spec.get("exec_args", {})
-        parallel = task_spec.get("parallel", False)
-        num_worker = task_spec.get("num_worker", 1)
+        exec_args = task_spec.get("exec_args")
+        parallel = task_spec.get("parallel")
+        num_worker = task_spec.get("num_worker")
         metrics = task_spec.get("metrics")
         constraints = task_spec.get("constraints")
         error_report = task_spec.get("error_report")

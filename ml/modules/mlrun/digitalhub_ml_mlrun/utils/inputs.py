@@ -72,7 +72,7 @@ def get_artifact_(name: str, project: str) -> Artifact:
         raise BackendError(msg)
 
 
-def get_inputs_parameters(inputs: dict, parameters: dict) -> dict:
+def get_inputs_parameters(inputs: dict, parameters: dict, project: str) -> dict:
     """
     Set inputs.
 
@@ -82,6 +82,8 @@ def get_inputs_parameters(inputs: dict, parameters: dict) -> dict:
         Run inputs.
     parameters : dict
         Run parameters.
+    project : str
+        The project name.
 
     Returns
     -------
@@ -89,15 +91,11 @@ def get_inputs_parameters(inputs: dict, parameters: dict) -> dict:
         Mlrun inputs.
     """
     inputs_objects = {}
-    for k, v in inputs.get("dataitems", {}):
-        di: Dataitem = get_dataitem_(v)
+    for k, v in inputs.get("dataitems", {}).items():
+        di: Dataitem = get_dataitem_(v, project)
         inputs_objects[k] = di.spec.path
-    for k, v in inputs.get("artifacts", {}):
-        ar: Artifact = get_artifact_(v)
+    for k, v in inputs.get("artifacts", {}).items():
+        ar: Artifact = get_artifact_(v, project)
         inputs_objects[k] = ar.spec.target_path
-    return {
-        "inputs": {
-            **inputs_objects,
-            **parameters.get("inputs", {}),
-        },
-    }
+    input_parameters = parameters.get("inputs", {})
+    return {"inputs": {**inputs_objects, **input_parameters}}
