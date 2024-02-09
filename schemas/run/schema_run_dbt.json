@@ -1,0 +1,61 @@
+{
+    "title": "RunParamsDbt",
+    "description": "Run Dbt parameters.",
+    "type": "object",
+    "properties": {
+        "task": {
+            "title": "Task",
+            "type": "string"
+        },
+        "task_id": {
+            "title": "Task Id",
+            "type": "string"
+        },
+        "inputs": {
+            "$ref": "#/definitions/DataitemList"
+        },
+        "outputs": {
+            "$ref": "#/definitions/DataitemList"
+        },
+        "parameters": {
+            "title": "Parameters",
+            "type": "object"
+        },
+        "local_execution": {
+            "title": "Local Execution",
+            "default": false,
+            "type": "boolean"
+        },
+        "function_spec": {
+            "title": "Function Spec",
+            "type": "object"
+        },
+        "transform_spec": {
+            "title": "Transform Spec",
+            "type": "object"
+        }
+    },
+    "required": [
+        "inputs",
+        "outputs"
+    ],
+    "definitions": {
+        "DataitemList": {
+            "title": "DataitemList",
+            "description": "Dataitem list model.",
+            "type": "object",
+            "properties": {
+                "dataitems": {
+                    "title": "Dataitems",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "dataitems"
+            ]
+        }
+    }
+}

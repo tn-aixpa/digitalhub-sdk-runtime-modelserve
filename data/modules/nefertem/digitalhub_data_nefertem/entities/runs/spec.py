@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from digitalhub_core.entities.runs.spec import RunParams, RunSpec
+from pydantic import BaseModel
 
 
 class RunSpecNefertem(RunSpec):
@@ -35,8 +36,18 @@ class RunSpecNefertem(RunSpec):
         self.metric_spec = metric_spec
 
 
+class DataitemList(BaseModel):
+    """Dataitem list model."""
+
+    dataitems: list[str]
+    """List of dataitem names."""
+
+
 class RunParamsNefertem(RunParams):
     """Run Nefertem parameters."""
+
+    inputs: DataitemList
+    """List of input dataitem names. Override RunSpec.inputs."""
 
     function_spec: dict = None
     """The function spec."""

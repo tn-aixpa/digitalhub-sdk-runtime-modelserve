@@ -88,7 +88,7 @@ class RuntimeNefertem(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        inputs = self._collect_inputs(spec.get("inputs", {}).get("dataitems", []), project)
+        inputs = self._collect_inputs(spec, project)
 
         LOGGER.info("Configure execution.")
         config = self._configure_execution(inputs, spec, action)
@@ -149,14 +149,14 @@ class RuntimeNefertem(Runtime):
     # Inputs
     ####################
 
-    def _collect_inputs(self, inputs: list, project: str) -> list[dict]:
+    def _collect_inputs(self, spec: dict, project: str) -> list[dict]:
         """
-        Materialize inputs in postgres.
+        Collect dataitems inputs.
 
         Parameters
         ----------
-        inputs : list
-            The list of inputs dataitems names.
+        spec : dict
+            Run spec.
         project : str
             The project name.
 
@@ -168,7 +168,7 @@ class RuntimeNefertem(Runtime):
         Path(f"{self.output_path}/tmp").mkdir(parents=True, exist_ok=True)
 
         mapper = []
-        for name in inputs:
+        for name in spec.get("inputs", {}).get("dataitems", []):
             dataitem = get_dataitem_(name, project)
             mapper.append(persist_dataitem(dataitem, name, self.output_path))
         return mapper

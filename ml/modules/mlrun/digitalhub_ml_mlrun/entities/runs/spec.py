@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from digitalhub_core.entities.runs.spec import RunParams, RunSpec
+from pydantic import BaseModel
 
 
 class RunSpecMlrun(RunSpec):
@@ -29,8 +30,18 @@ class RunSpecMlrun(RunSpec):
         self.job_spec = job_spec
 
 
+class DataitemInputs(BaseModel):
+    """Dataitem inputs model."""
+
+    dataitems: dict[str, str]
+    """Pairs of mlrun input dataitem variable and dhcore dataitem names."""
+
+
 class RunParamsMlrun(RunParams):
     """Run Mlrun parameters."""
+
+    inputs: DataitemInputs
+    """List of pairs of input variable and dataitem names. Override RunSpec.inputs."""
 
     function_spec: dict = None
     """The function spec."""
