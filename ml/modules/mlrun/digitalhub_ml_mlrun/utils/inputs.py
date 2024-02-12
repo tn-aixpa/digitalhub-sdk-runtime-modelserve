@@ -76,6 +76,7 @@ def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
         LOGGER.exception(msg)
         raise EntityError(msg)
 
+
 def get_artifact_(name: str, project: str) -> Artifact:
     """
     Get artifact from core.
@@ -137,7 +138,6 @@ def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
         msg = f"Error during artifact '{name}' collection."
         LOGGER.exception(msg)
         raise EntityError(msg)
-
 
 
 def get_inputs_parameters(inputs: dict, parameters: dict, project: str, tmp_dir: str) -> dict:
