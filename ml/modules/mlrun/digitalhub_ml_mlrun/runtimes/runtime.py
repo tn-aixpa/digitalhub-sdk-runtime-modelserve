@@ -3,6 +3,7 @@ Runtime class for running MLRun functions.
 """
 from __future__ import annotations
 
+import shutil
 import typing
 from pathlib import Path
 from typing import Callable
@@ -43,6 +44,8 @@ class RuntimeMLRun(Runtime):
 
         self.root_path = Path("/tmp/mlrun_run")
         self.function_source = None
+
+        self.root_path.mkdir(parents=True, exist_ok=True)
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -87,7 +90,7 @@ class RuntimeMLRun(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        function_args = self._collect_inputs(spec, project)
+        function_args = self._collect_inputs(spec, project, self.root_path)
 
         LOGGER.info("Configure execution.")
         mlrun_function = self._configure_execution(spec, action, project)
@@ -97,6 +100,9 @@ class RuntimeMLRun(Runtime):
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results)
+
+        LOGGER.info("Cleanup")
+        self._cleanup()
 
         LOGGER.info("Task completed, returning run status.")
         return status
@@ -140,7 +146,7 @@ class RuntimeMLRun(Runtime):
     # Helpers
     ####################
 
-    def _collect_inputs(self, spec: dict, project: str) -> dict:
+    def _collect_inputs(self, spec: dict, project: str, tmp_dir: str) -> dict:
         """
         Collect inputs.
 
@@ -159,7 +165,7 @@ class RuntimeMLRun(Runtime):
         LOGGER.info("Getting inputs.")
         inputs = spec.get("inputs", {})
         parameters = spec.get("parameters", {})
-        return get_inputs_parameters(inputs, parameters, project)
+        return get_inputs_parameters(inputs, parameters, project, tmp_dir)
 
     ####################
     # Configuration
@@ -215,3 +221,17 @@ class RuntimeMLRun(Runtime):
         """
         outputs = parse_mlrun_artifacts(results.status.artifacts)
         return build_status(results, outputs)
+
+    ####################
+    # Cleanup
+    ####################
+
+    def _cleanup(self) -> None:
+        """
+        Cleanup root folder.
+
+        Returns
+        -------
+        None
+        """
+        shutil.rmtree(self.root, ignore_errors=True)
