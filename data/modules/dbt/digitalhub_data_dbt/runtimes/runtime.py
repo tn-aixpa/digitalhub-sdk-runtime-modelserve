@@ -26,7 +26,6 @@ from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, pa
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
     from digitalhub_data.entities.dataitems.entity import Dataitem
-    from digitalhub_data_dbt.utils.outputs import ParsedResults
 
 
 class RuntimeDbt(Runtime):
@@ -110,8 +109,8 @@ class RuntimeDbt(Runtime):
         results = self._execute(executable, output_table, self.root_dir)
 
         LOGGER.info("Collecting outputs.")
-        outputs = self._collect_outputs(results, output_table, project)
-        status = build_status(outputs, results)
+        output = self._collect_outputs(results, output_table, project)
+        status = build_status(output, results)
 
         LOGGER.info("Clean up environment.")
         self._cleanup()
@@ -149,7 +148,7 @@ class RuntimeDbt(Runtime):
         RunResultsData
             Run results.
         """
-        dataitems = run_status.get("dataitems", [])
+        dataitems = run_status.get("entities", {}).get("dataitems", [])
         dataitem_objs = [get_dataitem_from_key(dti.get("id")) for dti in dataitems]
         return RunResultsData(dataitems=dataitem_objs)
 
@@ -232,7 +231,7 @@ class RuntimeDbt(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: RunResult, output_table: str, project: str) -> tuple[ParsedResults, Dataitem]:
+    def _collect_outputs(self, results: RunResult, output_table: str, project: str) -> Dataitem:
         """
         Collect outputs.
 
@@ -247,12 +246,11 @@ class RuntimeDbt(Runtime):
 
         Returns
         -------
-        list
-            List of artifacts paths.
+        Dataitem
+            The output dataitem table.
         """
         parsed_result = parse_results(results, output_table, project)
-        dataitem = create_dataitem_(parsed_result, project, self.uuid)
-        return parsed_result, dataitem
+        return create_dataitem_(parsed_result, project, self.uuid)
 
     ####################
     # Cleanup

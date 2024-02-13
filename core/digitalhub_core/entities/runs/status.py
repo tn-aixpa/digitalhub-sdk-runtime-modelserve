@@ -15,9 +15,8 @@ class RunStatus(Status):
         self,
         state: str | None = None,
         message: str | None = None,
-        dataitems: list[dict] | None = None,
-        artifacts: list[dict] | None = None,
-        timings: dict | None = None,
+        results: dict | None = None,
+        entities: dict | None = None,
         **kwargs,
     ) -> None:
         """
@@ -25,12 +24,10 @@ class RunStatus(Status):
 
         Parameters
         ----------
-        dataitems : list
-            Dataitems infos.
-        artifacts : list
-            Artifacts infos.
-        timings : dict
-            Run execution times.
+        results : dict
+            Runtime results.
+        entities : dict
+            Runtime entities outputs.
         **kwargs
             Keyword arguments.
 
@@ -40,8 +37,7 @@ class RunStatus(Status):
         Status.__init__
         """
         super().__init__(state, message)
-        self.dataitems = dataitems
-        self.artifacts = artifacts
-        self.timings = timings
+        self.results = results
+        self.entities = entities
 
         self._any_setter(**kwargs)

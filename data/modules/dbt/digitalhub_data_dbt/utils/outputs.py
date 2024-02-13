@@ -8,10 +8,10 @@ from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
 from digitalhub_core.entities._base.status import State
+from digitalhub_core.runtimes.results import get_entity_info
 from digitalhub_core.utils.generic_utils import encode_string
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
-from digitalhub_data.entities.dataitems.utils import get_dataitem_info
 from digitalhub_data.utils.data_utils import get_data_preview
 from digitalhub_data_dbt.utils.env import get_connection
 from psycopg2 import sql
@@ -383,14 +383,14 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
         raise RuntimeError(msg)
 
 
-def build_status(outputs: tuple[ParsedResults, Dataitem], results: dbtRunnerResult) -> dict:
+def build_status(dataitem: Dataitem, results: dbtRunnerResult) -> dict:
     """
     Build status.
 
     Parameters
     ----------
-    outputs : tuple
-        The parsed outputs and the dataitem.
+    dataitem : Dataitem
+        The dataitem output.
     results : dbtRunnerResult
         The dbt results.
 
@@ -399,10 +399,10 @@ def build_status(outputs: tuple[ParsedResults, Dataitem], results: dbtRunnerResu
     dict
         The status.
     """
-    parsed_result, dataitem = outputs
     return {
-        "dataitems": [get_dataitem_info(dataitem)],
-        "timings": parsed_result.timings,
         "state": State.COMPLETED.value,
-        "dbt_results": results.result[-1].to_dict(),
+        "entities": {
+            "dataitems": [get_entity_info(dataitem, "dataitems")],
+        },
+        "results": results.result[-1].to_dict(),
     }

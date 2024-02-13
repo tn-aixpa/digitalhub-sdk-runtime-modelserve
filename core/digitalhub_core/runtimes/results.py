@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
+    from digitalhub_core.entities._base.entity import Entity
     from digitalhub_core.entities.artifacts.entity import Artifact
 
 
@@ -57,3 +58,26 @@ class RunResults:
             if artifact.name == key:
                 return artifact
         return None
+
+
+def get_entity_info(entity: Entity, entity_type: str) -> dict:
+    """
+    Get the information of an entity.
+
+    Parameters
+    ----------
+    entity : entity
+        The entity object.
+    entity_type : str
+        The type of the entity.
+
+    Returns
+    -------
+    dict
+        The information of the entity.
+    """
+    return {
+        "id": f"store://{entity.project}/{entity_type}/{entity.kind}/{entity.name}:{entity.id}",
+        "key": entity.name,
+        "kind": entity.kind,
+    }

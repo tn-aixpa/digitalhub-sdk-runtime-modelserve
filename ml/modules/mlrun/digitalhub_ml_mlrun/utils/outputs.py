@@ -4,10 +4,9 @@ import typing
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
-from digitalhub_core.entities.artifacts.utils import get_artifact_info
+from digitalhub_core.runtimes.results import get_entity_info
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
-from digitalhub_data.entities.dataitems.utils import get_dataitem_info
 from digitalhub_data.utils.data_utils import get_data_preview
 
 if typing.TYPE_CHECKING:
@@ -176,18 +175,16 @@ def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem
         dataitems = []
         for i in outputs:
             if i.__class__.__name__ == "Artifact":
-                artifacts.append(get_artifact_info(i))
+                artifacts.append(get_entity_info(i, "artifacts"))
             elif i.__class__.__name__ == "Dataitem":
-                dataitems.append(get_dataitem_info(i))
+                dataitems.append(get_entity_info(i, "dataitems"))
         return {
             "state": map_state(execution_results.status.state),
-            "artifacts": artifacts,
-            "dataitems": dataitems,
-            "timings": {
-                "start": execution_results.status.start_time,
-                "updated": execution_results.status.last_update,
+            "entities": {
+                "artifacts": artifacts,
+                "dataitems": dataitems,
             },
-            "mlrun_results": execution_results.to_json(),
+            "results": execution_results.to_json(),
         }
     except Exception:
         msg = "Something got wrong during run status building."

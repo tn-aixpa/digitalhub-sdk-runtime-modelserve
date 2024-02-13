@@ -3,6 +3,7 @@ Secret module.
 """
 from __future__ import annotations
 
+import os
 import typing
 from pathlib import Path
 
@@ -13,7 +14,7 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.secrets.metadata import SecretMetadata
 from digitalhub_core.entities.secrets.status import SecretStatus
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_update, api_base_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -131,6 +132,51 @@ class Secret(Entity):
             Context.
         """
         return get_context(self.project)
+
+    #############################
+    #  Secret methods
+    #############################
+
+    def set_secret(self, key: str, value: str) -> None:
+        """
+        Set a secret.
+
+        Parameters
+        ----------
+        key : str
+            Key of the secret.
+        value : str
+            Value of the secret.
+
+        Returns
+        -------
+        None
+        """
+        if self._context().is_local():
+            os.environ[key] = value
+            return
+        api = api_base_update("projects", self.project) + f"/secrets/data"
+        self._context().update_object({"key": key, "value": value}, api)
+
+    def read_secret(self, key: str) -> str | None:
+        """
+        Read a secret.
+
+        Parameters
+        ----------
+        key : str
+            Key of the secret.
+
+        Returns
+        -------
+        str
+            Value of the secret.
+        """
+        if self._context().is_local():
+            return os.environ[key]
+        api = api_base_update("projects", self.project) + f"/secrets/data"
+        response = self._context().read_object(api)
+        return
 
     #############################
     #  Static interface methods

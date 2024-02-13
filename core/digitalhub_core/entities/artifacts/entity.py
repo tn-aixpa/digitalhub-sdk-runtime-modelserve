@@ -29,6 +29,10 @@ if typing.TYPE_CHECKING:
 class Artifact(Entity):
     """
     A class representing a artifact.
+
+    Artifacts are (binary) objects stored in one of the artifact
+    stores of the platform, and available to every process, module
+    and component as files.
     """
 
     def __init__(
