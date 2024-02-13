@@ -158,7 +158,7 @@ class Secret(Entity):
         api = api_base_update("projects", self.project) + f"/secrets/data"
         self._context().update_object({"key": key, "value": value}, api)
 
-    def read_secret(self, key: str) -> str | None:
+    def read_secret(self, key: str) -> str | dict | None:
         """
         Read a secret.
 
@@ -175,8 +175,7 @@ class Secret(Entity):
         if self._context().is_local():
             return os.environ[key]
         api = api_base_update("projects", self.project) + f"/secrets/data"
-        response = self._context().read_object(api)
-        return
+        return self._context().read_object(api)
 
     #############################
     #  Static interface methods
