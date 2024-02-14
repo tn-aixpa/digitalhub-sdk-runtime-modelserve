@@ -28,6 +28,23 @@
                 "$ref": "#/definitions/Resource"
             }
         },
+        "affinity": {
+            "$ref": "#/definitions/Affinity"
+        },
+        "tolerations": {
+            "title": "Tolerations",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Toleration"
+            }
+        },
+        "labels": {
+            "title": "Labels",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Label"
+            }
+        },
         "env": {
             "title": "Env",
             "type": "array",
@@ -212,6 +229,304 @@
                 "resource_type",
                 "requests",
                 "limits"
+            ]
+        },
+        "V1NodeSelectorRequirement": {
+            "title": "V1NodeSelectorRequirement",
+            "type": "object",
+            "properties": {
+                "key": {
+                    "title": "Key",
+                    "type": "string"
+                },
+                "operator": {
+                    "title": "Operator",
+                    "type": "string"
+                },
+                "values": {
+                    "title": "Values",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "key",
+                "operator"
+            ]
+        },
+        "V1NodeSelectorTerm": {
+            "title": "V1NodeSelectorTerm",
+            "type": "object",
+            "properties": {
+                "match_expressions": {
+                    "title": "Match Expressions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1NodeSelectorRequirement"
+                    }
+                },
+                "match_fields": {
+                    "title": "Match Fields",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1NodeSelectorRequirement"
+                    }
+                }
+            }
+        },
+        "V1NodeSelector": {
+            "title": "V1NodeSelector",
+            "type": "object",
+            "properties": {
+                "node_selector_terms": {
+                    "title": "Node Selector Terms",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1NodeSelectorTerm"
+                    }
+                }
+            },
+            "required": [
+                "node_selector_terms"
+            ]
+        },
+        "V1PreferredSchedulingTerm": {
+            "title": "V1PreferredSchedulingTerm",
+            "type": "object",
+            "properties": {
+                "preference": {
+                    "$ref": "#/definitions/V1NodeSelector"
+                },
+                "weight": {
+                    "title": "Weight",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "preference",
+                "weight"
+            ]
+        },
+        "V1NodeAffinity": {
+            "title": "V1NodeAffinity",
+            "type": "object",
+            "properties": {
+                "preferred_during_scheduling_ignored_during_execution": {
+                    "title": "Preferred During Scheduling Ignored During Execution",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1PreferredSchedulingTerm"
+                    }
+                },
+                "required_during_scheduling_ignored_during_execution": {
+                    "$ref": "#/definitions/V1NodeSelector"
+                }
+            }
+        },
+        "V1LabelSelectorRequirement": {
+            "title": "V1LabelSelectorRequirement",
+            "type": "object",
+            "properties": {
+                "key": {
+                    "title": "Key",
+                    "type": "string"
+                },
+                "operator": {
+                    "title": "Operator",
+                    "type": "string"
+                },
+                "values": {
+                    "title": "Values",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "key",
+                "operator"
+            ]
+        },
+        "V1LabelSelector": {
+            "title": "V1LabelSelector",
+            "type": "object",
+            "properties": {
+                "match_expressions": {
+                    "title": "Match Expressions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1LabelSelectorRequirement"
+                    }
+                },
+                "match_labels": {
+                    "title": "Match Labels",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "V1PodAffinityTerm": {
+            "title": "V1PodAffinityTerm",
+            "type": "object",
+            "properties": {
+                "label_selector": {
+                    "$ref": "#/definitions/V1LabelSelector"
+                },
+                "match_label_keys": {
+                    "title": "Match Label Keys",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mismatch_label_keys": {
+                    "title": "Mismatch Label Keys",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "namespace_selector": {
+                    "$ref": "#/definitions/V1LabelSelector"
+                },
+                "namespaces": {
+                    "title": "Namespaces",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "topology_key": {
+                    "title": "Topology Key",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "topology_key"
+            ]
+        },
+        "V1WeightedPodAffinityTerm": {
+            "title": "V1WeightedPodAffinityTerm",
+            "type": "object",
+            "properties": {
+                "pod_affinity_term": {
+                    "$ref": "#/definitions/V1PodAffinityTerm"
+                },
+                "weight": {
+                    "title": "Weight",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "pod_affinity_term",
+                "weight"
+            ]
+        },
+        "V1PodAffinity": {
+            "title": "V1PodAffinity",
+            "type": "object",
+            "properties": {
+                "preferred_during_scheduling_ignored_during_execution": {
+                    "title": "Preferred During Scheduling Ignored During Execution",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1WeightedPodAffinityTerm"
+                    }
+                },
+                "required_during_scheduling_ignored_during_execution": {
+                    "title": "Required During Scheduling Ignored During Execution",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1PodAffinityTerm"
+                    }
+                }
+            }
+        },
+        "V1PodAntiAffinity": {
+            "title": "V1PodAntiAffinity",
+            "type": "object",
+            "properties": {
+                "preferred_during_scheduling_ignored_during_execution": {
+                    "title": "Preferred During Scheduling Ignored During Execution",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1WeightedPodAffinityTerm"
+                    }
+                },
+                "required_during_scheduling_ignored_during_execution": {
+                    "title": "Required During Scheduling Ignored During Execution",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/V1PodAffinityTerm"
+                    }
+                }
+            }
+        },
+        "Affinity": {
+            "title": "Affinity",
+            "description": "Affinity model.",
+            "type": "object",
+            "properties": {
+                "node_affinity": {
+                    "$ref": "#/definitions/V1NodeAffinity"
+                },
+                "pod_affinity": {
+                    "$ref": "#/definitions/V1PodAffinity"
+                },
+                "pod_anti_affinity": {
+                    "$ref": "#/definitions/V1PodAntiAffinity"
+                }
+            }
+        },
+        "Toleration": {
+            "title": "Toleration",
+            "description": "Toleration model.",
+            "type": "object",
+            "properties": {
+                "key": {
+                    "title": "Key",
+                    "type": "string"
+                },
+                "operator": {
+                    "title": "Operator",
+                    "type": "string"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                },
+                "effect": {
+                    "title": "Effect",
+                    "type": "string"
+                },
+                "toleration_seconds": {
+                    "title": "Toleration Seconds",
+                    "type": "integer"
+                }
+            }
+        },
+        "Label": {
+            "title": "Label",
+            "description": "Label model.",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "value": {
+                    "title": "Value",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "value"
             ]
         },
         "Env": {

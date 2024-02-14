@@ -59,6 +59,9 @@ def new_task(
     node_selector: list[dict] | None = None,
     volumes: list[dict] | None = None,
     resources: list[dict] | None = None,
+    affinity: dict | None = None,
+    tolerations: list[dict] | None = None,
+    k8s_labels: list[dict] | None = None,
     env: list[dict] | None = None,
     secrets: list[str] | None = None,
     **kwargs,
@@ -80,15 +83,21 @@ def new_task(
         List of labels.
     function : str
         The function string identifying the function.
-    node_selector : list[dict]
+    node_selector : list[NodeSelector]
         The node selector of the task.
-    volumes : list[dict]
+    volumes : list[Volume]
         The volumes of the task.
-    resources : list[dict]
+    resources : list[Resource]
         Kubernetes resources for the task.
-    env : list[dict]
+    affinity : Affinity
+        The affinity of the task.
+    tolerations : list[Toleration]
+        The tolerations of the task.
+    k8s_labels : list[Label]
+        The labels of the task.
+    env : list[Env]
         The env variables of the task.
-    secrets : list[dict]
+    secrets : list[str]
         The secrets of the task.
     **kwargs
         Spec keyword arguments.
@@ -108,6 +117,9 @@ def new_task(
         node_selector=node_selector,
         volumes=volumes,
         resources=resources,
+        affinity=affinity,
+        tolerations=tolerations,
+        k8s_labels=k8s_labels,
         env=env,
         secrets=secrets,
         **kwargs,

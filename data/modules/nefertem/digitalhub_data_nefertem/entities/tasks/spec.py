@@ -10,7 +10,7 @@ from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 from digitalhub_core.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.tasks.models import Env, NodeSelector, Resource, Volume
+    from digitalhub_core.entities.tasks.models import Env, NodeSelector, Resource, Volume, Label, Affinity, Toleration
 
 
 class TaskSpecNefertem(TaskSpec):
@@ -22,6 +22,9 @@ class TaskSpecNefertem(TaskSpec):
         node_selector: list[NodeSelector] | None = None,
         volumes: list[Volume] | None = None,
         resources: list[Resource] | None = None,
+        labels: list[Label] | None = None,
+        affinity: Affinity | None = None,
+        tolerations: list[Toleration] | None = None,
         env: list[Env] | None = None,
         secrets: list[str] | None = None,
         framework: str | None = None,
@@ -33,7 +36,7 @@ class TaskSpecNefertem(TaskSpec):
         """
         Constructor.
         """
-        super().__init__(function, node_selector, volumes, resources, env, secrets, **kwargs)
+        super().__init__(function, node_selector, volumes, resources, labels, affinity, tolerations, env, secrets, **kwargs)
         if framework is None:
             raise EntityError("Framework for Nefertem is not given.")
         self.framework = framework

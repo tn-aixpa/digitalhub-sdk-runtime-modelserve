@@ -4,7 +4,7 @@ Task specification module.
 from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
-from digitalhub_core.entities.tasks.models import Env, NodeSelector, Resource, Volume
+from digitalhub_core.entities.tasks.models import Affinity, Env, Label, NodeSelector, Resource, Toleration, Volume
 
 
 class TaskSpec(Spec):
@@ -16,6 +16,9 @@ class TaskSpec(Spec):
         node_selector: list[NodeSelector] | None = None,
         volumes: list[Volume] | None = None,
         resources: list[Resource] | None = None,
+        labels: list[Label] | None = None,
+        affinity: Affinity | None = None,
+        tolerations: list[Toleration] | None = None,
         env: list[Env] | None = None,
         secrets: list[str] | None = None,
         **kwargs,
@@ -33,6 +36,12 @@ class TaskSpec(Spec):
             The volumes of the task.
         resources : list[Resource]
             Kubernetes resources for the task.
+        affinity : Affinity
+            The affinity of the task.
+        tolerations : list[Toleration]
+            The tolerations of the task.
+        labels : list[Label]
+            The labels of the task.
         env : list[Env]
             The env variables of the task.
         secrets : list[str]
@@ -42,6 +51,9 @@ class TaskSpec(Spec):
         self.node_selector = node_selector
         self.volumes = volumes
         self.resources = resources
+        self.labels = labels
+        self.affinity = affinity
+        self.tolerations = tolerations
         self.env = env
         self.secrets = secrets
 
@@ -64,6 +76,15 @@ class TaskParams(SpecParams):
 
     resources: list[Resource] = None
     """Resources restrictions."""
+
+    affinity: Affinity = None
+    """Affinity."""
+
+    tolerations: list[Toleration] = None
+    """Tolerations."""
+
+    labels: list[Label] = None
+    """List of labels."""
 
     env: list[Env] = None
     """Env variables."""
