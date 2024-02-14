@@ -87,8 +87,8 @@ def check_module_existence_by_framework(framework: str) -> str:
     str
         Valid module name.
     """
-    # Cycle over digitalhub layers modules (data, ml, ai).
-    for layer in ["data", "ml", "ai"]:
+    # Cycle over digitalhub layers modules (core, data, ml, ai).
+    for layer in ["core", "data", "ml", "ai"]:
         # Try to import module
         module_name = f"digitalhub_{layer}_{framework}"
         try:
