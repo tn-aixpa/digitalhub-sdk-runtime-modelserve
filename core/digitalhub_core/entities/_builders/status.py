@@ -28,8 +28,6 @@ def build_status(
 
     Parameters
     ----------
-    entity : str
-        Type of entity (e.g. "projects").
     kind : str
         The type of status to build.
     layer_digitalhub : str
