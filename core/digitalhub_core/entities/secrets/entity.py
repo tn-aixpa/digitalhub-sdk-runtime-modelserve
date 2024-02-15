@@ -153,19 +153,13 @@ class Secret(Entity):
         None
         """
         if self._context().is_local():
-            os.environ[key] = value
-            return
+            raise NotImplementedError("set_secret() is not implemented for local projects.")
         api = api_base_update("projects", self.project) + "/secrets/data"
         self._context().update_object({"key": key, "value": value}, api)
 
-    def read_secret(self, key: str) -> str | dict | None:
+    def read_secret(self) -> dict:
         """
-        Read a secret.
-
-        Parameters
-        ----------
-        key : str
-            Key of the secret.
+        Read a secret from the backend.
 
         Returns
         -------
@@ -173,7 +167,7 @@ class Secret(Entity):
             Value of the secret.
         """
         if self._context().is_local():
-            return os.environ[key]
+            raise NotImplementedError("read_secret() is not implemented for local projects.")
         api = api_base_update("projects", self.project) + "/secrets/data"
         return self._context().read_object(api)
 
