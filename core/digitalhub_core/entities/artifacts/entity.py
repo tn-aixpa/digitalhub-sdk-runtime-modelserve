@@ -373,13 +373,12 @@ class Artifact(Entity):
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(ArtifactMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "artifacts",
             kind,
             layer_digitalhub="digitalhub_core",
             validate=validate,
             **obj.get("spec", {}),
         )
-        status = build_status(ArtifactStatus, **obj.get("status", {}))
+        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -453,7 +452,6 @@ def artifact_from_parameters(
     )
     key = key if key is not None else f"store://{project}/artifacts/{kind}/{name}:{uuid}"
     spec = build_spec(
-        "artifacts",
         kind,
         layer_digitalhub="digitalhub_core",
         key=key,
@@ -461,7 +459,7 @@ def artifact_from_parameters(
         target_path=target_path,
         **kwargs,
     )
-    status = build_status(ArtifactStatus)
+    status = build_status(kind, layer_digitalhub="digitalhub_core")
     return Artifact(
         project=project,
         name=name,

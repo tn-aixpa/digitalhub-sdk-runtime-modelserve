@@ -63,8 +63,3 @@ class RunParamsNefertem(RunParams):
 
     metric_spec: dict = None
     """The metric task spec."""
-
-
-spec_registry = {
-    "nefertem+run": [RunSpecNefertem, RunParamsNefertem],
-}

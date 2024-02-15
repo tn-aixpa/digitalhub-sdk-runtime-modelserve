@@ -17,12 +17,12 @@ if typing.TYPE_CHECKING:
 
 def map_state(state: str) -> str:
     """
-    Map MLRun state to digitalhub state.
+    Map Mlrun state to digitalhub state.
 
     Parameters
     ----------
     state : str
-        MLRun state.
+        Mlrun state.
 
     Returns
     -------
@@ -44,12 +44,12 @@ def map_state(state: str) -> str:
 
 def parse_mlrun_artifacts(mlrun_outputs: list[dict]) -> list[Artifact]:
     """
-    Filter out models and datasets from MLRun outputs and create DHCore artifacts.
+    Filter out models and datasets from Mlrun outputs and create DHCore artifacts.
 
     Parameters
     ----------
     mlrun_outputs : list[dict]
-        MLRun outputs.
+        Mlrun outputs.
 
     Returns
     -------

@@ -51,8 +51,3 @@ class RunParamsDbt(RunParams):
 
     transform_spec: dict = None
     """The transform task spec."""
-
-
-spec_registry = {
-    "dbt+run": [RunSpecDbt, RunParamsDbt],
-}

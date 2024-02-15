@@ -40,8 +40,3 @@ class ProjectParamsML(ProjectParamsData):
 
     models: list = None
     """List of project's models."""
-
-
-spec_registry = {
-    "project": [ProjectSpecML, ProjectParamsML],
-}

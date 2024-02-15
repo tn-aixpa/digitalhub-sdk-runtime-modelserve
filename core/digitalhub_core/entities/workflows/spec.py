@@ -21,8 +21,3 @@ class WorkflowParams(SpecParams):
     """
     Workflow parameters.
     """
-
-
-spec_registry = {
-    "workflow": [WorkflowSpec, WorkflowParams],
-}

@@ -1,5 +1,5 @@
 """
-Runtime class for running MLRun functions.
+Runtime class for running Mlrun functions.
 """
 from __future__ import annotations
 
@@ -29,9 +29,9 @@ if typing.TYPE_CHECKING:
     from mlrun.runtimes.base import RunObject
 
 
-class RuntimeMLRun(Runtime):
+class RuntimeMlrun(Runtime):
     """
-    Runtime MLRun class.
+    Runtime Mlrun class.
     """
 
     allowed_actions = ["job"]
@@ -173,7 +173,7 @@ class RuntimeMLRun(Runtime):
 
     def _configure_execution(self, spec: dict, action: str, project: str) -> tuple[BaseRuntime, dict]:
         """
-        Create MLRun project and function and prepare parameters.
+        Create Mlrun project and function and prepare parameters.
 
         Parameters
         ----------
@@ -187,7 +187,7 @@ class RuntimeMLRun(Runtime):
         Returns
         -------
         tuple
-            MLRun function and parameters.
+            Mlrun function and parameters.
         """
 
         # Setup function source and specs
@@ -196,8 +196,8 @@ class RuntimeMLRun(Runtime):
         function_source = save_function_source(self.root_path, dhcore_function.spec)
         function_specs = parse_function_specs(dhcore_function.spec)
 
-        # Create MLRun project
-        LOGGER.info("Creating MLRun project and function.")
+        # Create Mlrun project
+        LOGGER.info("Creating Mlrun project and function.")
         mlrun_project = get_mlrun_project(project)
         return get_mlrun_function(mlrun_project, dhcore_function.name, function_source, function_specs)
 

@@ -1,5 +1,5 @@
 """
-Job Function specification module.
+Function Conatiner specification module.
 """
 from __future__ import annotations
 
@@ -65,8 +65,3 @@ class FunctionParamsContainer(FunctionParams):
 
     args: list[str] = None
     """Arguments to pass to the entrypoint."""
-
-
-spec_registry = {
-    "container": [FunctionSpecContainer, FunctionParamsContainer],
-}

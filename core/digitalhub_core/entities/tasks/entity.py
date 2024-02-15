@@ -266,13 +266,12 @@ class Task(Entity):
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(TaskMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "tasks",
             kind,
             validate=validate,
             framework_runtime=kind.split("+")[0],
             **obj.get("spec", {}),
         )
-        status = build_status(TaskStatus, **obj.get("status", {}))
+        status = build_status(kind, framework_runtime=kind.split("+")[0], **obj.get("status", {}))
         return {
             "project": project,
             "uuid": uuid,
@@ -348,7 +347,6 @@ def task_from_parameters(
         labels=labels,
     )
     spec = build_spec(
-        "tasks",
         kind,
         framework_runtime=function.split("://")[0],
         function=function,
@@ -362,7 +360,10 @@ def task_from_parameters(
         secrets=secrets,
         **kwargs,
     )
-    status = build_status(TaskStatus)
+    status = build_status(
+        kind,
+        framework_runtime=function.split("://")[0],
+    )
     return Task(
         project=project,
         uuid=uuid,

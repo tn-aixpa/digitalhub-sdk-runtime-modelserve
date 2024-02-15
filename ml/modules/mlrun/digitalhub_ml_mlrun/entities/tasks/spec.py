@@ -1,5 +1,5 @@
 """
-Task MLRun specification module.
+Task Mlrun specification module.
 """
 from __future__ import annotations
 

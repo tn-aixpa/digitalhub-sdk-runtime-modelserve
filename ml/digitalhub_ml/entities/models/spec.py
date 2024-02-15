@@ -23,8 +23,3 @@ class ModelParams(SpecParams):
     """
     Model parameters.
     """
-
-
-spec_registry = {
-    "model": [ModelSpec, ModelParams],
-}

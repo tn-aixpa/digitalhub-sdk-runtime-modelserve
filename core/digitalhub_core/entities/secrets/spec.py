@@ -36,8 +36,3 @@ class SecretParams(SpecParams):
 
     provider: str = None
     """Provider of the secret."""
-
-
-spec_registry = {
-    "secret": [SecretSpec, SecretParams],
-}

@@ -1,5 +1,5 @@
 """
-Task MLRun specification module.
+Task Container specification module.
 """
 from __future__ import annotations
 
@@ -34,10 +34,3 @@ class TaskParamsServe(TaskParams):
     """
     TaskParamsServe model.
     """
-
-
-spec_registry = {
-    "container+job": [TaskSpecJob, TaskParamsJob],
-    "container+deploy": [TaskSpecDeploy, TaskParamsDeploy],
-    "container+serve": [TaskSpecServe, TaskParamsServe],
-}

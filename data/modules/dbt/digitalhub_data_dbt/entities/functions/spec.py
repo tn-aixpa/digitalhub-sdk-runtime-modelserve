@@ -47,8 +47,3 @@ class FunctionParamsDbt(FunctionParams):
 
     sql: str = None
     """SQL query to run inside the container."""
-
-
-spec_registry = {
-    "dbt": [FunctionSpecDbt, FunctionParamsDbt],
-}

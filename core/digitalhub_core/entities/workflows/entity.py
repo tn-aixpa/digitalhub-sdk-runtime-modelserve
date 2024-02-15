@@ -160,13 +160,12 @@ class Workflow(Entity):
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(WorkflowMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "workflows",
             kind,
             layer_digitalhub="digitalhub_core",
             validate=validate,
             **obj.get("spec", {}),
         )
-        status = build_status(WorkflowStatus, **obj.get("status", {}))
+        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
         return {
             "project": project,
             "name": name,

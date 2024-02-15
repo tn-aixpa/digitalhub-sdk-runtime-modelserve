@@ -1,5 +1,5 @@
 {
-    "title": "FunctionParamsMLRun",
+    "title": "FunctionParamsMlrun",
     "description": "Function mlrun parameters model.",
     "type": "object",
     "properties": {

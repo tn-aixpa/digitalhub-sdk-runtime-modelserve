@@ -57,8 +57,3 @@ class ProjectParams(SpecParams):
 
     workflows: list = None
     """List of project's workflows."""
-
-
-spec_registry = {
-    "project": [ProjectSpec, ProjectParams],
-}

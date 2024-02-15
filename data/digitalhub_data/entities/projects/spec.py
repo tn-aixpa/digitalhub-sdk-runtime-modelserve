@@ -39,8 +39,3 @@ class ProjectParamsData(ProjectParams):
 
     dataitems: list = None
     """List of project's dataitems."""
-
-
-spec_registry = {
-    "project": [ProjectSpecData, ProjectParamsData],
-}

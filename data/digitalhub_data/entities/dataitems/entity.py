@@ -303,13 +303,12 @@ class Dataitem(Entity):
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(DataitemMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "dataitems",
             kind,
             layer_digitalhub="digitalhub_data",
             validate=validate,
             **obj.get("spec", {}),
         )
-        status = build_status(DataitemStatus, **obj.get("status", {}))
+        status = build_status(kind, layer_digitalhub="digitalhub_data", **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -380,14 +379,13 @@ def dataitem_from_parameters(
         embedded=embedded,
     )
     spec = build_spec(
-        "dataitems",
         kind,
         layer_digitalhub="digitalhub_data",
         key=key,
         path=path,
         **kwargs,
     )
-    status = build_status(DataitemStatus)
+    status = build_status(kind, layer_digitalhub="digitalhub_data")
     return Dataitem(
         project=project,
         name=name,

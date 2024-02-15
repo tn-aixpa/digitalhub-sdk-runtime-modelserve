@@ -630,13 +630,12 @@ class Project(Entity):
         kind = obj.get("kind")
         metadata = build_metadata(ProjectMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "projects",
             kind,
             layer_digitalhub="digitalhub_core",
             validate=validate,
             **obj.get("spec", {}),
         )
-        status = build_status(ProjectStatus, **obj.get("status", {}))
+        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
         local = obj.get("local", False)
         return {
             "name": name,
@@ -687,7 +686,6 @@ def project_from_parameters(
     """
     name = build_uuid(name)
     spec = build_spec(
-        "projects",
         kind,
         layer_digitalhub="digitalhub_core",
         context=context,
@@ -700,7 +698,7 @@ def project_from_parameters(
         labels=labels,
         source=source,
     )
-    status = build_status(ProjectStatus)
+    status = build_status(kind, layer_digitalhub="digitalhub_core")
     return Project(
         name=name,
         kind=kind,

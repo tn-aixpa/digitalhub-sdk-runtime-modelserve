@@ -160,13 +160,12 @@ class Model(Entity):
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(ModelMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "models",
             kind,
             layer_digitalhub="digitalhub_ml",
             validate=validate,
             **obj.get("spec", {}),
         )
-        status = build_status(ModelStatus, **obj.get("status", {}))
+        status = build_status(kind, layer_digitalhub="digitalhub_ml", **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -230,12 +229,11 @@ def model_from_parameters(
         embedded=embedded,
     )
     spec = build_spec(
-        "models",
         kind,
         layer_digitalhub="digitalhub_ml",
         **kwargs,
     )
-    status = build_status(ModelStatus)
+    status = build_status(kind, layer_digitalhub="digitalhub_ml")
     return Model(
         project=project,
         name=name,

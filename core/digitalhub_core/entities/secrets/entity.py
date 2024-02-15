@@ -205,13 +205,12 @@ class Secret(Entity):
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(SecretMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "secrets",
             kind,
             layer_digitalhub="digitalhub_core",
             validate=validate,
             **obj.get("spec", {}),
         )
-        status = build_status(SecretStatus, **obj.get("status", {}))
+        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -281,14 +280,13 @@ def secret_from_parameters(
         embedded=embedded,
     )
     spec = build_spec(
-        "secrets",
         kind,
         path=path,
         provider=provider,
         layer_digitalhub="digitalhub_core",
         **kwargs,
     )
-    status = build_status(SecretStatus)
+    status = build_status(kind, layer_digitalhub="digitalhub_core")
     return Secret(
         project=project,
         name=name,

@@ -10,7 +10,7 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import encode_source
 
 
-class FunctionSpecMLRun(FunctionSpec):
+class FunctionSpecMlrun(FunctionSpec):
     """
     Specification for a Function job.
     """
@@ -65,7 +65,7 @@ class FunctionSpecMLRun(FunctionSpec):
             }
 
 
-class FunctionParamsMLRun(FunctionParams):
+class FunctionParamsMlrun(FunctionParams):
     """
     Function mlrun parameters model.
     """
@@ -87,5 +87,5 @@ class FunctionParamsMLRun(FunctionParams):
 
 
 spec_registry = {
-    "mlrun": [FunctionSpecMLRun, FunctionParamsMLRun],
+    "mlrun": [FunctionSpecMlrun, FunctionParamsMlrun],
 }

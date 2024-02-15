@@ -156,7 +156,6 @@ class Run(Entity):
         runtime = self._get_runtime()
         new_spec = runtime.build(function, task, self.to_dict())
         self.spec = build_spec(
-            "runs",
             self.kind,
             framework_runtime=self.kind.split("+")[0],
             **new_spec,
@@ -253,7 +252,7 @@ class Run(Entity):
         """
         if not isinstance(status, dict):
             raise EntityError("Status must be a dictionary.")
-        self.status: RunStatus = build_status(RunStatus, **status)
+        self.status: RunStatus = build_status(self.kind, framework_runtime=self.kind.split("+")[0], **status)
 
     #############################
     #  Functions and Tasks
@@ -343,13 +342,12 @@ class Run(Entity):
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(RunMetadata, **obj.get("metadata", {}))
         spec = build_spec(
-            "runs",
             kind,
             framework_runtime=kind.split("+")[0],
             validate=validate,
             **obj.get("spec", {}),
         )
-        status = build_status(RunStatus, **obj.get("status", {}))
+        status = build_status(kind, framework_runtime=kind.split("+")[0], **obj.get("status", {}))
         return {
             "project": project,
             "uuid": uuid,
@@ -420,7 +418,6 @@ def run_from_parameters(
         labels=labels,
     )
     spec = build_spec(
-        "runs",
         kind,
         framework_runtime=task.split("+")[0],
         task=task,
@@ -431,7 +428,7 @@ def run_from_parameters(
         local_execution=local_execution,
         **kwargs,
     )
-    status = build_status(RunStatus)
+    status = build_status(kind, framework_runtime=task.split("+")[0])
     return Run(
         project=project,
         uuid=uuid,

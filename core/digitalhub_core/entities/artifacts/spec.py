@@ -80,8 +80,3 @@ class ArtifactParams(SpecParams):
 
     file_extension: str = None
     """File extension of the artifact."""
-
-
-spec_registry = {
-    "artifact": [ArtifactSpec, ArtifactParams],
-}

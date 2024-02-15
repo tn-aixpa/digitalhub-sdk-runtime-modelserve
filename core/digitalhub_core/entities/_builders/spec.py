@@ -3,16 +3,20 @@ Spec factory entity.
 """
 from __future__ import annotations
 
-import importlib
-import importlib.metadata
 import typing
 
+from digitalhub_core.utils.import_utils import (
+    check_layer_existence,
+    check_module_existence_by_framework,
+    import_class,
+    import_registry,
+)
+
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities._base.spec import Spec
+    from digitalhub_core.entities._base.spec import Spec, SpecParams
 
 
 def build_spec(
-    entity: str,
     kind: str,
     layer_digitalhub: str | None = None,
     framework_runtime: str | None = None,
@@ -24,8 +28,6 @@ def build_spec(
 
     Parameters
     ----------
-    entity : str
-        Type of entity (e.g. "projects").
     kind : str
         The type of spec to build.
     layer_digitalhub : str
@@ -55,16 +57,11 @@ def build_spec(
 
     # Import registry
     # Note that this requires the creation of a registry whenever a new spec entity is created.
-    module_to_import = f"{layer_digitalhub}.entities.{entity}.spec"
-    registry = import_registry(module_to_import)
+    module_to_import = f"{layer_digitalhub}.entities.registries"
+    registry = import_registry(module_to_import, "spec_registry")
 
-    # Extract class spec and parameters schema from registry by kind
-    try:
-        class_spec, class_params = registry[kind]
-    except KeyError:
-        raise ValueError(f"Spec {kind} not found in registry.")
-    except ValueError as err:
-        raise ValueError(f"Spec registry of module {module_to_import} is not valid: {err}.")
+    # Import classes
+    class_spec, class_params = import_classes(registry, kind)
 
     # Validate arguments
     if validate:
@@ -73,69 +70,32 @@ def build_spec(
     return class_spec(**kwargs)
 
 
-def check_module_existence_by_framework(framework: str) -> str:
+def import_classes(registry: dict[str, dict[str, str]], kind: str) -> tuple[Spec, SpecParams]:
     """
-    Try to import registry from implemented module.
+    Import spec and params classes from registry.
 
     Parameters
     ----------
-    framework : str
-        Framework name.
-
-    Returns
-    -------
-    str
-        Valid module name.
-    """
-    # Cycle over digitalhub layers modules (core, data, ml, ai).
-    for layer in ["core", "data", "ml", "ai"]:
-        # Try to import module
-        module_name = f"digitalhub_{layer}_{framework}"
-        try:
-            importlib.metadata.distribution(module_name)
-            return module_name
-        except importlib.metadata.PackageNotFoundError:
-            continue
-    # If no module is found raise error
-    else:
-        raise ModuleNotFoundError(f"Module not found in digitalhub layers data, ml, ai for framework {framework}")
-
-
-def check_layer_existence(layer: str) -> None:
-    """
-    Check if layer exists.
-
-    Parameters
-    ----------
-    layer : str
-        Layer name.
-
-    Returns
-    -------
-    None
-    """
-    try:
-        importlib.metadata.distribution(layer)
-    except importlib.metadata.PackageNotFoundError:
-        raise ModuleNotFoundError(f"Layer {layer} not found.")
-
-
-def import_registry(module_to_import: str) -> dict[str, list[Spec, Spec]]:
-    """
-    Import registry from implemented module.
-
-    Parameters
-    ----------
-    module_to_import : str
-        Module name.
-
-    Returns
-    -------
-    typing.Any
+    registry : dict
         Registry.
+    kind : str
+        Spec kind.
+
+    Returns
+    -------
+    tuple
+        Spec class and params class.
     """
-    module = importlib.import_module(module_to_import)
     try:
-        return getattr(module, "spec_registry")
-    except AttributeError:
-        raise ModuleNotFoundError(f"Module {module_to_import} has no 'spec_registry'.")
+        module_and_class = registry[kind]
+    except KeyError:
+        raise ValueError(f"Spec {kind} not found in registry.")
+
+    try:
+        module = module_and_class["module"]
+        spec_class = module_and_class["spec_class"]
+        param_class = module_and_class["spec_params"]
+    except KeyError:
+        raise ValueError("Malformed registration.")
+
+    return import_class(module, spec_class), import_class(module, param_class)

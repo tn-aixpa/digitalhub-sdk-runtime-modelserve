@@ -45,8 +45,3 @@ class DataitemParams(SpecParams):
 
     _schema: dict = Field(alias="schema")
     """The schema of the dataitem in table schema format."""
-
-
-spec_registry = {
-    "dataitem": [DataitemSpec, DataitemParams],
-}

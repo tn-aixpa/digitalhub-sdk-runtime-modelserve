@@ -430,8 +430,8 @@ class Function(Entity):
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(FunctionMetadata, **obj.get("metadata", {}))
-        spec = build_spec("functions", kind, framework_runtime=kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(FunctionStatus, **obj.get("status", {}))
+        spec = build_spec(kind, framework_runtime=kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, framework_runtime=kind, **obj.get("status", {}))
         return {
             "project": project,
             "name": name,
@@ -488,7 +488,6 @@ def function_from_parameters(
     """
     uuid = build_uuid(uuid)
     spec = build_spec(
-        "functions",
         kind,
         framework_runtime=kind,
         source=source_code,
@@ -504,7 +503,10 @@ def function_from_parameters(
         labels=labels,
         embedded=embedded,
     )
-    status = build_status(FunctionStatus)
+    status = build_status(
+        kind,
+        framework_runtime=kind,
+    )
     return Function(
         project=project,
         name=name,

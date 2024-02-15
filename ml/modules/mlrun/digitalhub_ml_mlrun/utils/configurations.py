@@ -9,7 +9,7 @@ from mlrun import get_or_create_project
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.functions.entity import Function
-    from digitalhub_ml_mlrun.entities.functions.spec import FunctionSpecMLRun
+    from digitalhub_ml_mlrun.entities.functions.spec import FunctionSpecMlrun
     from mlrun.projects import MlrunProject
     from mlrun.runtimes import BaseRuntime
 
@@ -39,7 +39,7 @@ def get_dhcore_function(function_string: str) -> Function:
         raise RuntimeError(msg)
 
 
-def save_function_source(path: str, spec: FunctionSpecMLRun) -> str:
+def save_function_source(path: str, spec: FunctionSpecMlrun) -> str:
     """
     Save function source.
 
@@ -47,7 +47,7 @@ def save_function_source(path: str, spec: FunctionSpecMLRun) -> str:
     ----------
     path : str
         Path to the function source.
-    function : FunctionSpecMLRun
+    function : FunctionSpecMlrun
         DHCore function spec.
 
     Returns
@@ -69,7 +69,7 @@ def save_function_source(path: str, spec: FunctionSpecMLRun) -> str:
 
 def get_mlrun_project(project_name: str) -> MlrunProject:
     """
-    Get MLRun project.
+    Get Mlrun project.
 
     Parameters
     ----------
@@ -79,12 +79,12 @@ def get_mlrun_project(project_name: str) -> MlrunProject:
     Returns
     -------
     MlrunProject
-        MLRun project.
+        Mlrun project.
     """
     try:
         return get_or_create_project(project_name, "./")
     except Exception:
-        msg = f"Error getting MLRun project '{project_name}'."
+        msg = f"Error getting Mlrun project '{project_name}'."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
@@ -96,12 +96,12 @@ def get_mlrun_function(
     function_specs: dict,
 ) -> BaseRuntime:
     """
-    Get MLRun function.
+    Get Mlrun function.
 
     Parameters
     ----------
     project : MlrunProject
-        MLRun project.
+        Mlrun project.
     function_name : str
         Name of the function.
     function_source : str
@@ -112,25 +112,25 @@ def get_mlrun_function(
     Returns
     -------
     BaseRuntime
-        MLRun function.
+        Mlrun function.
     """
     try:
         project.set_function(function_source, name=function_name, **function_specs)
         project.save()
         return project.get_function(function_name)
     except Exception:
-        msg = f"Error getting MLRun function '{function_name}'."
+        msg = f"Error getting Mlrun function '{function_name}'."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def parse_function_specs(spec: FunctionSpecMLRun) -> dict:
+def parse_function_specs(spec: FunctionSpecMlrun) -> dict:
     """
     Parse function specs.
 
     Parameters
     ----------
-    function : FunctionSpecMLRun
+    function : FunctionSpecMlrun
         DHCore function spec.
 
     Returns

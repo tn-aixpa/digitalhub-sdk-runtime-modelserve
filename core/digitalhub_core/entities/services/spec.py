@@ -21,8 +21,3 @@ class ServiceParams(SpecParams):
     """
     Service parameters.
     """
-
-
-spec_registry = {
-    "service": [ServiceSpec, ServiceParams],
-}

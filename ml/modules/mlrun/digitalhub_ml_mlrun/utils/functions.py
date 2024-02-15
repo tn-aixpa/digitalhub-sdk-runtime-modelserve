@@ -11,12 +11,12 @@ if typing.TYPE_CHECKING:
 
 def run_job(function: BaseRuntime, function_args: dict) -> RunObject:
     """
-    Run MLRun job.
+    Run Mlrun job.
 
     Parameters
     ----------
     function : BaseRuntime
-        MLRun function.
+        Mlrun function.
     function_args : dict
         Function arguments.
 

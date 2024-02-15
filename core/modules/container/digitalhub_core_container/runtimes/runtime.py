@@ -1,5 +1,5 @@
 """
-Runtime class for running MLRun functions.
+Runtime class for running Mlrun functions.
 """
 from __future__ import annotations
 
@@ -13,9 +13,9 @@ if typing.TYPE_CHECKING:
     pass
 
 
-class RuntimeMLRun(Runtime):
+class RuntimeMlrun(Runtime):
     """
-    Runtime MLRun class.
+    Runtime Mlrun class.
     """
 
     allowed_actions = ["job", "deploy", "serve"]

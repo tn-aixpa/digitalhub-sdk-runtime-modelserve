@@ -10,7 +10,7 @@ from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 from digitalhub_core.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.tasks.models import Env, NodeSelector, Resource, Volume, Label, Affinity, Toleration
+    from digitalhub_core.entities.tasks.models import Affinity, Env, Label, NodeSelector, Resource, Toleration, Volume
 
 
 class TaskSpecNefertem(TaskSpec):
@@ -36,7 +36,9 @@ class TaskSpecNefertem(TaskSpec):
         """
         Constructor.
         """
-        super().__init__(function, node_selector, volumes, resources, labels, affinity, tolerations, env, secrets, **kwargs)
+        super().__init__(
+            function, node_selector, volumes, resources, labels, affinity, tolerations, env, secrets, **kwargs
+        )
         if framework is None:
             raise EntityError("Framework for Nefertem is not given.")
         self.framework = framework
@@ -121,11 +123,3 @@ class TaskParamsMetric(TaskParamsNefertem):
     """
     TaskParamsMetric model.
     """
-
-
-spec_registry = {
-    "nefertem+infer": [TaskSpecInfer, TaskParamsInfer],
-    "nefertem+profile": [TaskSpecProfile, TaskParamsProfile],
-    "nefertem+validate": [TaskSpecValidate, TaskParamsValidate],
-    "nefertem+metric": [TaskSpecMetric, TaskParamsMetric],
-}

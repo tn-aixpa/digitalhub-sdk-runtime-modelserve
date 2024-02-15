@@ -35,8 +35,3 @@ class RunSpecContainer(RunSpec):
 
 class RunParamsContainer(RunParams):
     """Run Container parameters."""
-
-
-spec_registry = {
-    "container+run": [RunSpecContainer, RunParamsContainer],
-}
