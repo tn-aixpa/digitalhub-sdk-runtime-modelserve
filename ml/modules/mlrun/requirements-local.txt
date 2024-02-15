@@ -90,11 +90,11 @@ deprecated==1.2.14
     # via
     #   kfp
     #   mlrun
-digitalhub-core==0.2.13
+digitalhub-core==0.2.17
     # via digitalhub-ml
-digitalhub-data==0.2.13
+digitalhub-data==0.2.17
     # via digitalhub-ml
-digitalhub-ml==0.2.13
+digitalhub-ml==0.2.17
     # via digitalhub-ml-mlrun (pyproject.toml)
 docstring-parser==0.15
     # via kfp
@@ -560,7 +560,7 @@ v3iofs==0.1.18
     # via
     #   mlrun
     #   storey
-wcwidth==0.2.13
+wcwidth==0.2.17
     # via prompt-toolkit
 webcolors==1.13
     # via jsonschema
