@@ -137,6 +137,8 @@ class ClientLocal(Client):
             # self._parse_api() should return dto, name and uuid/version
 
             else:
+                if uuid is None:
+                    uuid = name
                 obj = self._db[dto][name][uuid]
 
             return obj

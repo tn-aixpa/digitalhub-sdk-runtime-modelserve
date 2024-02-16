@@ -52,7 +52,6 @@ def create_secret_from_dict(obj: dict) -> Secret:
 def new_secret(
     project: str,
     name: str,
-    kind: str,
     uuid: str | None = None,
     description: str | None = None,
     source: str | None = None,
@@ -71,8 +70,6 @@ def new_secret(
         A string representing the project associated with this secret.
     name : str
         The name of the secret.
-    kind : str
-        Kind of the object.
     uuid : str
         UUID.
     description : str
@@ -98,7 +95,7 @@ def new_secret(
     obj = create_secret(
         project=project,
         name=name,
-        kind=kind,
+        kind="secret",
         uuid=uuid,
         description=description,
         source=source,

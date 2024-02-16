@@ -52,7 +52,6 @@ def create_workflow_from_dict(obj: dict) -> Workflow:
 def new_workflow(
     project: str,
     name: str,
-    kind: str,
     uuid: str | None = None,
     description: str | None = None,
     source: str | None = None,
@@ -69,8 +68,6 @@ def new_workflow(
         A string representing the project associated with this workflow.
     name : str
         The name of the workflow.
-    kind : str
-        Kind of the object.
     uuid : str
         UUID.
     description : str
@@ -92,7 +89,7 @@ def new_workflow(
     obj = create_workflow(
         project=project,
         name=name,
-        kind=kind,
+        kind="workflow",
         uuid=uuid,
         description=description,
         source=source,
