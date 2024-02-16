@@ -1,0 +1,37 @@
+{
+    "title": "FunctionParamsContainer",
+    "description": "Function container parameters model.",
+    "type": "object",
+    "properties": {
+        "source": {
+            "title": "Source",
+            "type": "string"
+        },
+        "image": {
+            "title": "Image",
+            "type": "string"
+        },
+        "base_image": {
+            "title": "Base Image",
+            "type": "string"
+        },
+        "command": {
+            "title": "Command",
+            "type": "string"
+        },
+        "entrypoint": {
+            "title": "Entrypoint",
+            "type": "string"
+        },
+        "args": {
+            "title": "Args",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "image"
+    ]
+}
