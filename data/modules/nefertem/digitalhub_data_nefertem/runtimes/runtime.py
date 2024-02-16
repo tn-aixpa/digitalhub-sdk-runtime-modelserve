@@ -141,7 +141,7 @@ class RuntimeNefertem(Runtime):
         RunResults
             Run results.
         """
-        artifacts = run_status.get("entities", {}).get("artifacts", [])
+        artifacts = run_status.get("outputs", {}).get("artifacts", [])
         artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
         return RunResults(artifact_objs)
 

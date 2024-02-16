@@ -14,7 +14,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.crud import delete_run, get_run, new_run, run_from_parameters
 from digitalhub_core.entities.tasks.metadata import TaskMetadata
 from digitalhub_core.entities.tasks.status import TaskStatus
-from digitalhub_core.utils.api import api_base_create, api_base_update
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_update_name_only
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -88,11 +88,11 @@ class Task(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_base_create("tasks")
+            api = api_ctx_create(self.project, "tasks")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_base_update("tasks", self.id)
+        api = api_ctx_update_name_only(self.project, "tasks", self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:

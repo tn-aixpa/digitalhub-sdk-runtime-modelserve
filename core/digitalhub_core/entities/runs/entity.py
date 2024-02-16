@@ -16,7 +16,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.metadata import RunMetadata
 from digitalhub_core.entities.runs.status import RunStatus
 from digitalhub_core.runtimes.builder import build_runtime
-from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update_name_only
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -97,11 +97,11 @@ class Run(Entity):
         obj = self.to_dict(include_all_non_private=True)
 
         if not update:
-            api = api_base_create("runs")
+            api = api_ctx_create(self.project, "runs")
             return self._context().create_object(obj, api)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_base_update("runs", self.id)
+        api = api_ctx_update_name_only(self.project, "runs", self.id)
         return self._context().update_object(obj, api)
 
     def export(self, filename: str | None = None) -> None:
@@ -208,7 +208,7 @@ class Run(Entity):
         Run
             Run object.
         """
-        api = api_base_read("runs", self.id)
+        api = api_ctx_read(self.project, "runs", self.id)
         obj = self._context().read_object(api)
         refreshed_run = self.from_dict(obj, validate=False)
         self.kind = refreshed_run.kind
@@ -229,7 +229,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_base_read("runs", self.id) + "/log"
+        api = api_ctx_read(self.project, "runs", self.id) + "/log"
         return self._context().read_object(api)
 
     def _set_status(self, status: dict) -> None:
@@ -294,7 +294,7 @@ class Run(Entity):
             Task from backend.
         """
         parsed = self._parse_task_string()
-        api = api_base_read("tasks", parsed.task_id)
+        api = api_ctx_read(self.project, "tasks", parsed.task_id)
         return self._context().read_object(api)
 
     #############################

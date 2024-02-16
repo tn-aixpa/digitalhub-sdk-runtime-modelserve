@@ -102,7 +102,7 @@ def build_status(results: dict, outputs: list[tuple[Artifact, str]]) -> dict:
     """
     return {
         "state": State.COMPLETED.value,
-        "entities": {
+        "outputs": {
             "artifacts": [get_entity_info(i[0], "artifacts") for i in outputs],
         },
         "results": results,

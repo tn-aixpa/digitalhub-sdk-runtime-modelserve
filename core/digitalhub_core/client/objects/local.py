@@ -59,15 +59,8 @@ class ClientLocal(Client):
             # Unversioned objects uses "base api". For example:
             #
             # POST /api/v1/projects
-            # POST /api/v1/tasks
-            # POST /api/v1/runs
-            #
-            # We do not have "name" attribute for tasks and runs
-            # so we use the id to identify them. Projects has
-            # the name attribute, not the id and is also not versioned,
-            # so we use the name as storage key.
             if project is None:
-                name = obj["name"] if dto == "projects" else obj["id"]
+                name = obj["name"]
                 if name in self._db[dto]:
                     code = 5
                     raise ValueError
@@ -83,7 +76,10 @@ class ClientLocal(Client):
             # so we use them as storage keys. The "latest" key is used
             # to store the latest version of the object.
             else:
-                name = obj["name"]
+                if dto in ("runs", "tasks"):
+                    name = obj["id"]
+                else:
+                    name = obj["name"]
                 uuid = obj["id"]
                 self._db[dto].setdefault(name, {})
                 self._db[dto][name][uuid] = obj
@@ -181,6 +177,8 @@ class ClientLocal(Client):
             # PUT /api/v1/-/<project-name>/artifacts/<uuid>
 
             else:
+                if uuid is None:
+                    uuid = name
                 self._db[dto][name][uuid] = obj
 
         except KeyError:

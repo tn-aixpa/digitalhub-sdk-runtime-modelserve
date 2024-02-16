@@ -136,9 +136,9 @@ class RuntimeMlrun(Runtime):
         RunResults
             Run results.
         """
-        artifacts = run_status.get("entities", {}).get("artifacts", [])
+        artifacts = run_status.get("outputs", {}).get("artifacts", [])
         artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
-        datatatems = run_status.get("entities", {}).get("dataitems", [])
+        datatatems = run_status.get("outputs", {}).get("dataitems", [])
         dataitem_objs = [get_dataitem_from_key(dti.get("id")) for dti in datatatems]
         return RunResultsData(artifact_objs, dataitem_objs)
 
@@ -234,4 +234,4 @@ class RuntimeMlrun(Runtime):
         -------
         None
         """
-        shutil.rmtree(self.root, ignore_errors=True)
+        shutil.rmtree(self.root_path, ignore_errors=True)

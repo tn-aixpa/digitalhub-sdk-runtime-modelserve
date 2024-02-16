@@ -49,7 +49,3 @@ class RunParamsMlrun(RunParams):
     job_spec: dict = None
     """The job task spec."""
 
-
-spec_registry = {
-    "mlrun+run": [RunSpecMlrun, RunParamsMlrun],
-}

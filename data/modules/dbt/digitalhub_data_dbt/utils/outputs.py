@@ -376,6 +376,7 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
         A list of dictionaries containing data.
     """
     try:
+        columns = [i.name for i in columns]
         return get_data_preview(columns, data)
     except Exception:
         msg = "Something got wrong during data preview creation."
@@ -401,7 +402,7 @@ def build_status(dataitem: Dataitem, results: dbtRunnerResult) -> dict:
     """
     return {
         "state": State.COMPLETED.value,
-        "entities": {
+        "outputs": {
             "dataitems": [get_entity_info(dataitem, "dataitems")],
         },
         "results": results.result[-1].to_dict(),

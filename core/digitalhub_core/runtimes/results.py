@@ -78,6 +78,5 @@ def get_entity_info(entity: Entity, entity_type: str) -> dict:
     """
     return {
         "id": f"store://{entity.project}/{entity_type}/{entity.kind}/{entity.name}:{entity.id}",
-        "key": entity.name,
-        "kind": entity.kind,
+        "name": entity.name,
     }

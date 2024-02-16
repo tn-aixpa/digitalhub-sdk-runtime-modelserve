@@ -148,7 +148,7 @@ class RuntimeDbt(Runtime):
         RunResultsData
             Run results.
         """
-        dataitems = run_status.get("entities", {}).get("dataitems", [])
+        dataitems = run_status.get("outputs", {}).get("dataitems", [])
         dataitem_objs = [get_dataitem_from_key(dti.get("id")) for dti in dataitems]
         return RunResultsData(dataitems=dataitem_objs)
 

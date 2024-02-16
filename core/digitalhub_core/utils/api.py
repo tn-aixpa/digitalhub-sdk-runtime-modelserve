@@ -90,6 +90,30 @@ def api_ctx_update(
     return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
 
 
+def api_ctx_update_name_only(
+    proj: str,
+    dto: str,
+    name: str,
+) -> str:
+    """
+    Update context API.
+
+    Parameters
+    ----------
+    proj : str
+        Name of the project.
+    dto : str
+        The type of the DTO.
+    name : str
+        The name of the DTO.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{proj}/{dto}/{name}"
+
 def api_ctx_delete(
     proj: str,
     dto: str,

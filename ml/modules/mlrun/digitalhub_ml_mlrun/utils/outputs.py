@@ -180,7 +180,7 @@ def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem
                 dataitems.append(get_entity_info(i, "dataitems"))
         return {
             "state": map_state(execution_results.status.state),
-            "entities": {
+            "outputs": {
                 "artifacts": artifacts,
                 "dataitems": dataitems,
             },

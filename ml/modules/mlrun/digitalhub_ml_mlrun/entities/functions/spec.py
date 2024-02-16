@@ -84,8 +84,3 @@ class FunctionParamsMlrun(FunctionParams):
 
     requirements: list = None
     """List of requirements for the Function."""
-
-
-spec_registry = {
-    "mlrun": [FunctionSpecMlrun, FunctionParamsMlrun],
-}

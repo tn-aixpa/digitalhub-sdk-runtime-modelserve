@@ -15,7 +15,3 @@ class TaskParamsJob(TaskParams):
     TaskParamsJob model.
     """
 
-
-spec_registry = {
-    "mlrun+job": [TaskSpecJob, TaskParamsJob],
-}
