@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.runs.entity import run_from_dict, run_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update_name_only
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read_no_version, api_ctx_update_name_only
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -134,7 +134,7 @@ def get_run(project: str, name: str) -> Run:
     Run
         Object instance.
     """
-    api = api_ctx_read(project, "runs", name)
+    api = api_ctx_read_no_version(project, "runs", name)
     obj = get_context(project).read_object(api)
     return create_run_from_dict(obj)
 

@@ -3,7 +3,6 @@ Secret module.
 """
 from __future__ import annotations
 
-import os
 import typing
 from pathlib import Path
 
@@ -14,7 +13,7 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.secrets.metadata import SecretMetadata
 from digitalhub_core.entities.secrets.status import SecretStatus
-from digitalhub_core.utils.api import api_base_update, api_ctx_create, api_ctx_update
+from digitalhub_core.utils.api import api_base_update, api_ctx_create, api_ctx_update, api_base_read
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -137,7 +136,7 @@ class Secret(Entity):
     #  Secret methods
     #############################
 
-    def set_secret(self, key: str, value: str) -> None:
+    def set_secret(self, key: str, value: str) -> dict:
         """
         Set a secret.
 
@@ -150,25 +149,33 @@ class Secret(Entity):
 
         Returns
         -------
-        None
+        dict
+            Response from backend.
         """
-        if self._context().is_local():
+        if self._context().local:
             raise NotImplementedError("set_secret() is not implemented for local projects.")
-        api = api_base_update("projects", self.project) + "/secrets/data"
-        self._context().update_object({"key": key, "value": value}, api)
 
-    def read_secret(self) -> dict:
+        obj = {key: value}
+        api = api_base_update("projects", self.project) + "/secrets/data"
+        return self._context().update_object(obj, api)
+
+    def read_secret(self, key: str) -> dict:
         """
         Read a secret from the backend.
+
+        Parameters
+        ----------
+        key : str
+            Key of the secret.
 
         Returns
         -------
         str
             Value of the secret.
         """
-        if self._context().is_local():
+        if self._context().local:
             raise NotImplementedError("read_secret() is not implemented for local projects.")
-        api = api_base_update("projects", self.project) + "/secrets/data"
+        api = api_base_read("projects", self.project) + f"/secrets/data?keys={key}"
         return self._context().read_object(api)
 
     #############################

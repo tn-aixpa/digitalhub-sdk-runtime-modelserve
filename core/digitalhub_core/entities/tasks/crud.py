@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.tasks.entity import task_from_dict, task_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update_name_only
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read_no_version, api_ctx_update_name_only
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -144,7 +144,7 @@ def get_task(project: str, name: str) -> Task:
     Task
         Object instance.
     """
-    api = api_ctx_read(project, "tasks", name)
+    api = api_ctx_read_no_version(project, "tasks", name)
     obj = get_context(project).read_object(api)
     return create_task_from_dict(obj)
 

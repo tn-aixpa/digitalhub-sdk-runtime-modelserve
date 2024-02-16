@@ -129,6 +129,8 @@ class ClientDHCore(Client):
                 msg = "Request to DHCore backend timed out."
             elif isinstance(e, requests.exceptions.ConnectionError):
                 msg = "Unable to connect to DHCore backend."
+            elif isinstance(e, requests.exceptions.JSONDecodeError):
+                return {}
             else:
                 msg = f"Backend error: {e}"
             raise BackendError(msg) from e
