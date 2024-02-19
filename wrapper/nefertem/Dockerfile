@@ -15,11 +15,12 @@ RUN rm $DHUB_VERSION.zip
 
 # Install digitalhub-core, neferetem
 RUN pip install digitalhub-sdk/core
-RUN pip install ./digitalhub-sdk/data
+RUN pip install digitalhub-sdk/data --no-deps
+RUN pip install digitalhub-sdk/ --no-deps
 RUN pip install digitalhub-sdk/data/modules/nefertem[local]
 
 # Get nefertem
-ARG NEFERTEM_VERSION=2.0.4
+ARG NEFERTEM_VERSION=2.0.5
 RUN wget https://github.com/scc-digitalhub/nefertem/archive/refs/tags/$NEFERTEM_VERSION.zip
 RUN unzip $NEFERTEM_VERSION.zip
 RUN mv nefertem-$NEFERTEM_VERSION nefertem

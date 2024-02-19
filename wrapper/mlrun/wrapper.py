@@ -3,7 +3,7 @@ Wrapper to execute an arbitrary function.
 """
 import os
 
-import digitalhub_core as dhcore
+import digitalhub as dhcore
 from digitalhub_core.utils.logger import LOGGER
 
 
