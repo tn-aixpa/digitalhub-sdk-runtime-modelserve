@@ -13,16 +13,16 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.runtimes.results import RunResults
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config
-from digitalhub_data_nefertem.utils.functions import infer, metric, profile, validate
-from digitalhub_data_nefertem.utils.inputs import get_dataitem_, persist_dataitem
-from digitalhub_data_nefertem.utils.outputs import build_status, create_artifact, upload_artifact
+from digitalhub_data_nefertem_frictionless.utils.configurations import create_client, create_nt_resources, create_nt_run_config
+from digitalhub_data_nefertem_frictionless.utils.functions import infer, profile, validate
+from digitalhub_data_nefertem_frictionless.utils.inputs import get_dataitem_, persist_dataitem
+from digitalhub_data_nefertem_frictionless.utils.outputs import build_status, create_artifact, upload_artifact
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
 
 
-class RuntimeNefertem(Runtime):
+class RuntimeNefertemFrictionless(Runtime):
     """
     Runtime nefertem class.
     """
@@ -127,8 +127,6 @@ class RuntimeNefertem(Runtime):
             return profile
         if action == "infer":
             return infer
-        if action == "metric":
-            return metric
         raise NotImplementedError
 
     @staticmethod
@@ -198,16 +196,27 @@ class RuntimeNefertem(Runtime):
         # Create resources
         resources = create_nt_resources(inputs, self.store)
 
-        # Create run configuration
+        # Task spec
         task_spec = spec.get(f"{action}_spec")
-        function_spec = spec.get("function_spec")
         framework = task_spec.get("framework")
-        exec_args = task_spec.get("exec_args")
         parallel = task_spec.get("parallel")
         num_worker = task_spec.get("num_worker")
+        exec_args = None
+        if action != "validate":
+            resource_title = task_spec.get("resource_title")
+            resource_description = task_spec.get("resource_description")
+            exec_args = {
+                "title": resource_title,
+                "description": resource_description,
+            }
+
+        # Function spec
+        function_spec = spec.get("function_spec")
         metrics = function_spec.get("metrics")
         constraints = function_spec.get("constraints")
         error_report = function_spec.get("error_report")
+
+        # Create run configuration
         run_config = create_nt_run_config(action, framework, exec_args, parallel, num_worker)
 
         # Create Nefertem client
