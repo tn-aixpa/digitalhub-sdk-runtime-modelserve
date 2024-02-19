@@ -10,7 +10,7 @@ aiobotocore==2.5.4
     # via
     #   digitalhub-core
     #   s3fs
-aiohttp==3.9.2
+aiohttp==3.9.3
     # via
     #   aiobotocore
     #   aiohttp-retry
@@ -60,7 +60,7 @@ botocore==1.31.17
     #   s3transfer
 cachetools==5.3.2
     # via google-auth
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   kfp-server-api
     #   kubernetes
@@ -78,7 +78,7 @@ cloudpickle==2.2.1
     # via kfp
 comm==0.2.1
     # via ipykernel
-debugpy==1.8.0
+debugpy==1.8.1
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -90,11 +90,11 @@ deprecated==1.2.14
     # via
     #   kfp
     #   mlrun
-digitalhub-core==0.2.17
+digitalhub-core==0.2.18
+    # via digitalhub-data
+digitalhub-data==0.2.18
     # via digitalhub-ml
-digitalhub-data==0.2.17
-    # via digitalhub-ml
-digitalhub-ml==0.2.17
+digitalhub-ml==0.2.18
     # via digitalhub-ml-mlrun (pyproject.toml)
 docstring-parser==0.15
     # via kfp
@@ -126,9 +126,9 @@ future==0.18.3
     # via v3io
 gitdb==4.0.11
     # via gitpython
-gitpython==3.1.41
+gitpython==3.1.42
     # via mlrun
-google-api-core==2.15.0
+google-api-core==2.17.1
     # via
     #   google-api-python-client
     #   google-cloud-core
@@ -136,7 +136,7 @@ google-api-core==2.15.0
     #   kfp
 google-api-python-client==1.12.11
     # via kfp
-google-auth==2.27.0
+google-auth==2.28.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -163,7 +163,7 @@ googleapis-common-protos==1.62.0
     #   v3io-frames
 greenlet==3.0.3
     # via sqlalchemy
-grpcio==1.60.0
+grpcio==1.60.1
     # via grpcio-tools
 grpcio-tools==1.48.2
     # via v3io-frames
@@ -181,7 +181,7 @@ importlib-metadata==7.0.1
     # via nbconvert
 inflection==0.5.1
     # via mlrun
-ipykernel==6.29.0
+ipykernel==6.29.2
     # via
     #   nbclassic
     #   notebook
@@ -253,7 +253,7 @@ kfp-server-api==1.8.5
     # via kfp
 kubernetes==25.3.0
     # via kfp
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via
     #   jinja2
     #   nbconvert
@@ -265,9 +265,9 @@ mergedeep==1.3.4
     # via mlrun
 mistune==3.0.2
     # via nbconvert
-mlrun==1.6.0rc23
+mlrun==1.6.0rc33
     # via digitalhub-ml-mlrun (pyproject.toml)
-multidict==6.0.4
+multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
@@ -275,7 +275,7 @@ nbclassic==1.0.0
     # via notebook
 nbclient==0.9.0
     # via nbconvert
-nbconvert==7.14.2
+nbconvert==7.16.0
     # via
     #   jupyter-server
     #   nbclassic
@@ -297,13 +297,13 @@ nest-asyncio==1.6.0
     #   notebook
 notebook==6.5.6
     # via nuclio-jupyter
-notebook-shim==0.2.3
+notebook-shim==0.2.4
     # via nbclassic
-nuclio-jupyter==0.9.14
+nuclio-jupyter==0.9.16
     # via mlrun
 nuclio-sdk==0.5.9
     # via storey
-numpy==1.26.3
+numpy==1.26.4
     # via
     #   mlrun
     #   pandas
@@ -311,7 +311,7 @@ numpy==1.26.3
     #   storey
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.9.12
+orjson==3.9.14
     # via mlrun
 overrides==7.7.0
     # via jupyter-server
@@ -332,9 +332,9 @@ parso==0.8.3
     # via jedi
 pexpect==4.9.0
     # via ipython
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via jupyter-core
-prometheus-client==0.19.0
+prometheus-client==0.20.0
     # via
     #   jupyter-server
     #   nbclassic
@@ -394,7 +394,7 @@ python-dotenv==0.17.1
     # via mlrun
 python-json-logger==2.0.7
     # via jupyter-events
-pytz==2023.4
+pytz==2024.1
     # via pandas
 pyyaml==5.4.1
     # via
@@ -440,7 +440,7 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-rpds-py==0.17.1
+rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
@@ -529,7 +529,7 @@ typing-extensions==4.9.0
     #   ipython
     #   pydantic
     #   typer
-tzdata==2023.4
+tzdata==2024.1
     # via pandas
 ujson==5.9.0
     # via v3io
@@ -552,7 +552,7 @@ v3io==0.5.23
     #   mlrun
     #   storey
     #   v3iofs
-v3io-frames==0.10.12
+v3io-frames==0.10.13
     # via
     #   mlrun
     #   storey
@@ -560,7 +560,7 @@ v3iofs==0.1.18
     # via
     #   mlrun
     #   storey
-wcwidth==0.2.17
+wcwidth==0.2.13
     # via prompt-toolkit
 webcolors==1.13
     # via jsonschema

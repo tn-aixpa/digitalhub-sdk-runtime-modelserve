@@ -6,7 +6,7 @@
 #
 aiobotocore==2.7.0
     # via digitalhub-core (pyproject.toml)
-aiohttp==3.9.1
+aiohttp==3.9.3
     # via aiobotocore
 aioitertools==0.11.0
     # via aiobotocore
@@ -14,26 +14,26 @@ aiosignal==1.3.1
     # via aiohttp
 async-timeout==4.0.3
     # via aiohttp
-attrs==23.1.0
+attrs==23.2.0
     # via aiohttp
-boto3==1.28.54
+boto3==1.28.64
     # via digitalhub-core (pyproject.toml)
 botocore==1.31.64
     # via
     #   aiobotocore
     #   boto3
     #   s3transfer
-certifi==2023.7.22
+certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-frozenlist==1.4.0
+frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-greenlet==2.0.2
+greenlet==3.0.3
     # via sqlalchemy
-idna==3.4
+idna==3.6
     # via
     #   requests
     #   yarl
@@ -41,42 +41,44 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-multidict==6.0.4
+multidict==6.0.5
     # via
     #   aiohttp
     #   yarl
-numpy==1.25.2
+numpy==1.26.4
     # via
     #   pandas
     #   pyarrow
-pandas==1.3.5
+pandas==2.2.0
     # via digitalhub-core (pyproject.toml)
-psycopg2-binary==2.9.7
+psycopg2-binary==2.9.9
     # via digitalhub-core (pyproject.toml)
-pyarrow==12.0.1
+pyarrow==14.0.2
     # via digitalhub-core (pyproject.toml)
-pydantic==1.10.13
+pydantic==1.10.14
     # via digitalhub-core (pyproject.toml)
 python-dateutil==2.8.2
     # via
     #   botocore
     #   pandas
-pytz==2023.3
+pytz==2024.1
     # via pandas
 pyyaml==5.4.1
     # via digitalhub-core (pyproject.toml)
 requests==2.31.0
     # via digitalhub-core (pyproject.toml)
-s3transfer==0.6.2
+s3transfer==0.7.0
     # via boto3
 six==1.16.0
     # via python-dateutil
-sqlalchemy==1.4.50
+sqlalchemy==1.4.51
     # via digitalhub-core (pyproject.toml)
-typing-extensions==4.7.1
+typing-extensions==4.9.0
     # via
     #   aioitertools
     #   pydantic
+tzdata==2024.1
+    # via pandas
 urllib3==1.26.18
     # via
     #   botocore
