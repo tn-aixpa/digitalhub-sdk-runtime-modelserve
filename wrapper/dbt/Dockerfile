@@ -15,9 +15,11 @@ RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 # Install digitalhub-core, dbt
 RUN pip install ./digitalhub-sdk/core
 RUN pip install ./digitalhub-sdk/data --no-deps
-RUN pip install ./digitalhub-sdk/ --no-deps
+RUN pip install ./digitalhub-sdk/data/modules/dbt --no-deps
+RUN pip install ./digitalhub-sdk --no-deps
 # module[local] will break, dbt has pYaml > 6, digitalhub ~5, because of mlrun-kfp
-RUN pip install dbt-postgres==1.6.7
+# Pandas < 2.2 because of sqlalchemy 1.4 for mlrun
+RUN pip install dbt-postgres==1.6.7 pandas==2.1.4
 
 # Copy wrapper and set entry point
 COPY wrapper.py /digitalhub-core/
