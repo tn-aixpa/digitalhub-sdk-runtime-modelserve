@@ -14,4 +14,3 @@ class TaskParamsJob(TaskParams):
     """
     TaskParamsJob model.
     """
-

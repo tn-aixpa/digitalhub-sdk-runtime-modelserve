@@ -7,8 +7,3 @@ class RunStatusContainer(RunStatus):
     """
     Run Container status.
     """
-
-
-status_registry = {
-    "container+run": RunStatusContainer,
-}

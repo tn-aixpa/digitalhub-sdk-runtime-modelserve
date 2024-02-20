@@ -13,7 +13,7 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.secrets.metadata import SecretMetadata
 from digitalhub_core.entities.secrets.status import SecretStatus
-from digitalhub_core.utils.api import api_base_update, api_ctx_create, api_ctx_update, api_base_read
+from digitalhub_core.utils.api import api_base_read, api_base_update, api_ctx_create, api_ctx_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 

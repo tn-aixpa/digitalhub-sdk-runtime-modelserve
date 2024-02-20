@@ -4,7 +4,7 @@ FROM python:3.9
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 
 # Set working dir
-WORKDIR /digitalhub-core/
+WORKDIR /app/
 
 # Get digitalhub-sdk
 ARG DHUB_VERSION=
@@ -33,7 +33,7 @@ RUN pip install ./nefertem/plugins/sqlalchemy*
 RUN pip install ./nefertem/plugins/ydata*
 
 # Copy wrapper and set entry point
-COPY wrapper.py /digitalhub-core/
+COPY wrapper.py /app/
 
 # Cleanup folders
 RUN rm -rf digitalhub-sdk nefertem

@@ -35,7 +35,7 @@ class RuntimeNefertem(Runtime):
         """
         super().__init__()
 
-        self.output_path = "./nefertem_run"
+        self.output_path = "./data/nefertem_run"
         self.store = {"name": "local", "store_type": "local"}
         self.nt_id = build_uuid()
 

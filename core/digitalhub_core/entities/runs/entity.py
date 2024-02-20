@@ -16,7 +16,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.metadata import RunMetadata
 from digitalhub_core.entities.runs.status import RunStatus
 from digitalhub_core.runtimes.builder import build_runtime
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update_name_only, api_ctx_read_no_version
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_read_no_version, api_ctx_update_name_only
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml

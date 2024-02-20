@@ -4,7 +4,7 @@ FROM python:3.9
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 
 # Set working dir
-WORKDIR /digitalhub-core/
+WORKDIR /app/
 
 # Get digitalhub-sdk
 ARG DHUB_VERSION=
@@ -21,7 +21,7 @@ RUN pip install ./digitalhub-sdk/ml/modules/mlrun
 RUN pip install ./digitalhub-sdk/ --no-deps
 
 # Copy wrapper and set entry point
-COPY wrapper.py /digitalhub-core/
+COPY wrapper.py /app/
 
 # Cleanup
 RUN rm -rf digitalhub-sdk $DHUB_VERSION.zip

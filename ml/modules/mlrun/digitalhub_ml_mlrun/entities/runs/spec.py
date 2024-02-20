@@ -48,4 +48,3 @@ class RunParamsMlrun(RunParams):
 
     job_spec: dict = None
     """The job task spec."""
-

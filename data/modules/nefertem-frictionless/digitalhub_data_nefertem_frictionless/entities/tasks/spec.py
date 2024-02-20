@@ -110,7 +110,6 @@ class TaskParamsInfer(TaskParamsNefertem):
     TaskParamsInfer model.
     """
 
-
     resource_title: str = None
     """Resource title."""
 
@@ -167,7 +166,6 @@ class TaskParamsProfile(TaskParamsNefertem):
     """
     TaskParamsProfile model.
     """
-
 
     resource_title: str = None
     """Resource title."""

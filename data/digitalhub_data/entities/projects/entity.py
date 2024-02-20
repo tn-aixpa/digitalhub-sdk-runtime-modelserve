@@ -7,7 +7,6 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, Project
 from digitalhub_core.entities.projects.metadata import ProjectMetadata
-from digitalhub_core.entities.projects.status import ProjectStatus
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.dataitems.crud import delete_dataitem, get_dataitem, new_dataitem
 

@@ -3,8 +3,9 @@ Wrapper to execute an arbitrary function.
 """
 import os
 
-import digitalhub as dhcore
 from digitalhub_core.utils.logger import LOGGER
+
+import digitalhub as dhcore
 
 
 def main():

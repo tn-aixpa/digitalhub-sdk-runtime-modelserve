@@ -6,23 +6,23 @@ from digitalhub_core.entities._base.status import StatusRegistry
 status_registry = StatusRegistry()
 status_registry.register(
     "nefertem_frictionless",
-    "digitalhub_core.entities.functions.status",
-    "FunctionStatus",
+    "digitalhub_data_nefertem_frictionless.entities.functions.status",
+    "FunctionStatusNefertemFrictionless",
 )
 status_registry.register(
     "nefertem_frictionless+infer",
-    "digitalhub_core.entities.tasks.status",
-    "TaskStatus",
+    "digitalhub_data_nefertem_frictionless.entities.tasks.status",
+    "TaskStatusInfer",
 )
 status_registry.register(
     "nefertem_frictionless+profile",
-    "digitalhub_core.entities.tasks.status",
-    "TaskStatus",
+    "digitalhub_data_nefertem_frictionless.entities.tasks.status",
+    "TaskStatusProfile",
 )
 status_registry.register(
     "nefertem_frictionless+validate",
-    "digitalhub_core.entities.tasks.status",
-    "TaskStatus",
+    "digitalhub_data_nefertem_frictionless.entities.tasks.status",
+    "TaskStatusValidate",
 )
 status_registry.register(
     "nefertem_frictionless+run",

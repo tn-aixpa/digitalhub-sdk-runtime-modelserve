@@ -61,6 +61,7 @@ def api_ctx_read(
     version = f"/{uuid}" if uuid is not None else "/latest"
     return f"{API_CONTEXT}/{proj}/{dto}/{name}{version}"
 
+
 def api_ctx_read_no_version(
     proj: str,
     dto: str,
@@ -137,6 +138,7 @@ def api_ctx_update_name_only(
         The API string formatted.
     """
     return f"{API_CONTEXT}/{proj}/{dto}/{name}"
+
 
 def api_ctx_delete(
     proj: str,
