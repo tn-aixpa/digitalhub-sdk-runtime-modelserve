@@ -58,6 +58,17 @@
             "items": {
                 "type": "string"
             }
+        },
+        "service_ports": {
+            "title": "Service Ports",
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/CorePort"
+            }
+        },
+        "service_type": {
+            "title": "Service Type",
+            "type": "string"
         }
     },
     "required": [
@@ -546,6 +557,25 @@
             "required": [
                 "name",
                 "value"
+            ]
+        },
+        "CorePort": {
+            "title": "CorePort",
+            "description": "Port mapper model.",
+            "type": "object",
+            "properties": {
+                "port": {
+                    "title": "Port",
+                    "type": "integer"
+                },
+                "target_port": {
+                    "title": "Target Port",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "port",
+                "target_port"
             ]
         }
     }
