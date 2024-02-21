@@ -1,13 +1,16 @@
+from __future__ import annotations
+
 from kfp import dsl
 import json
 import os
 
-WORKFLOW_IMAGE = "dhcore/workflow-base"
+
+WORKFLOW_IMAGE = os.environ.get("DIGITALHUB_CORE_WORKFLOW_IMAGE")
 KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
 
 def step(
-        name: str,
         project: str,
+        name: str,
         function: str,
         action: str,
         node_selector: list[dict] | None = None,
@@ -25,10 +28,13 @@ def step(
         "volumes": volumes,
         "resources": resources,
         "env": env,
-        "secrets": secrets,
-        "parameters": parameters
+        "secrets": secrets
     }
     
+    params = {} if parameters is None else parameters
+    inputs = {} if inputs is None else inputs
+    outputs = {} if outputs is None else outputs
+
     if kwargs is not None:
         props.update(kwargs)
     
@@ -39,6 +45,12 @@ def step(
         "--action", action,
         "--json-props", json.dumps(props)
     ]
+    for param, val in params.items():
+        cmd += ["-p", f"{param}={val}"]
+    for input_param, val in inputs.items():
+        cmd += ["-i", f"{input_param}={val}"]
+    for output in outputs:
+        cmd += ["-o", str(output)]
     
     cop = dsl.ContainerOp(
         name=name,

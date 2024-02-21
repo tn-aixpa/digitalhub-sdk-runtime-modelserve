@@ -127,7 +127,7 @@ class RuntimeKFP(Runtime):
         function_specs = parse_function_specs(dhcore_function.spec)
 
         # Create Mlrun project
-        LOGGER.info("Creating Mlrun project and function.")
+        LOGGER.info("Creating KFP project and function.")
         return get_kfp_pipeline(dhcore_function.name, function_source, function_specs)
 
 

@@ -8,7 +8,7 @@ import os
 from kfp_server_api.models import ApiRun
 import kfp
 
-def kfp_execution(pipeline: Callable, function_args: dict) -> ApiRun:
+def kfp_execution(pipeline: Callable, **function_args) -> ApiRun:
     
     client = kfp.Client(host=os.environ.get("KFP_ENDPOINT"))
     result = client.create_run_from_pipeline_func(pipeline, arguments=function_args)
@@ -17,16 +17,16 @@ def kfp_execution(pipeline: Callable, function_args: dict) -> ApiRun:
 
 
 
-def run_kfp_pipeline(pipeline: Callable, function_args: dict) -> ApiRun:
+def run_kfp_pipeline(pipeline: Callable, pipeline_args) -> ApiRun:
     """
     Run KFP pipeline.
 
     Parameters
     ----------
-    function : BaseRuntime
-        Mlrun function.
-    function_args : dict
-        Function arguments.
+    pipeline : BaseRuntime
+        KFP pipeline function.
+    pipeline_args : dict
+        Pipeline arguments.
 
     Returns
     -------
@@ -34,4 +34,4 @@ def run_kfp_pipeline(pipeline: Callable, function_args: dict) -> ApiRun:
         Execution results.
     """
     
-    return kfp_execution(function, **function_args)
+    return kfp_execution(pipeline, **pipeline_args)

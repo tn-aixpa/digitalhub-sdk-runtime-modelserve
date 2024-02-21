@@ -168,4 +168,4 @@ def get_inputs_parameters(inputs: dict, parameters: dict, project: str, tmp_dir:
         ar: Artifact = get_artifact_(v, project)
         inputs_objects[k] = persist_artifact(ar, v, tmp_dir)
     input_parameters = parameters.get("inputs", {})
-    return {"inputs": {**inputs_objects, **input_parameters}}
+    return {**inputs_objects, **input_parameters}

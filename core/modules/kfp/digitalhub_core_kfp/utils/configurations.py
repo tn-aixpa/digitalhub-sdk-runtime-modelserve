@@ -98,7 +98,7 @@ def parse_function_specs(spec: FunctionSpecKFP) -> dict:
         LOGGER.error(msg)
         raise RuntimeError(msg)
 
-def get_kfp_pipelne(name: str, function_source: str, function_specs: dict) -> dict:
+def get_kfp_pipeline(name: str, function_source: str, function_specs: dict) -> dict:
     """
     Get KFP pipeline.
 
@@ -163,7 +163,7 @@ def _get_handler_extended(
     :return: function handler (callable)
     """
     if "::" not in handler_path:
-        return get_function(handler_path, namespaces)
+        return _get_function_to_exec(handler_path, namespaces)
 
     splitted = handler_path.split("::")
     class_path = splitted[0].strip()
@@ -213,12 +213,12 @@ def _get_class(class_name, namespace=None):
         return class_object
 
     try:
-        class_object = create_class(class_name)
+        class_object = _create_class(class_name)
     except (ImportError, ValueError) as exc:
         raise ImportError(f"Failed to import {class_name}") from exc
     return class_object
 
-def create_class(pkg_class: str):
+def _create_class(pkg_class: str):
     """Create a class from a package.module.class string
 
     :param pkg_class:  full class location,
@@ -229,3 +229,38 @@ def create_class(pkg_class: str):
     pkg_module = splits[:-1]
     class_ = getattr(import_module(".".join(pkg_module)), clfclass)
     return class_
+
+def _get_function_to_exec(function, namespace):
+    """return function callable object from function name string"""
+    if callable(function):
+        return function
+
+    function = function.strip()
+    if function.startswith("("):
+        if not function.endswith(")"):
+            raise ValueError('function expression must start with "(" and end with ")"')
+        return eval("lambda event: " + function[1:-1], {}, {})
+    function_object = _search_in_namespaces(function, namespace)
+    if function_object is not None:
+        return function_object
+
+    try:
+        function_object = _create_function(function)
+    except (ImportError, ValueError) as exc:
+        raise ImportError(
+            f"state/function init failed, handler '{function}' not found"
+        ) from exc
+    return function_object
+
+def _create_function(pkg_func: str):
+    """Create a function from a package.module.function string
+
+    :param pkg_func:  full function location,
+                      e.g. "sklearn.feature_selection.f_classif"
+    """
+    splits = pkg_func.split(".")
+    pkg_module = ".".join(splits[:-1])
+    cb_fname = splits[-1]
+    pkg_module = __import__(pkg_module, fromlist=[cb_fname])
+    function_ = getattr(pkg_module, cb_fname)
+    return function_
