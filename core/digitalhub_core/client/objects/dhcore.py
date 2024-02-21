@@ -8,6 +8,23 @@ import os
 import requests
 from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError
+from pydantic import BaseModel
+
+
+class ClientConfig(BaseModel):
+    """Authentication config model."""
+
+    endpoint: str = None
+    """Endpoint."""
+
+    username: str = None
+    """Username."""
+
+    password: str = None
+    """Password."""
+
+    token: str = None
+    """Token."""
 
 
 class ClientDHCore(Client):
@@ -19,13 +36,16 @@ class ClientDHCore(Client):
     from the environment variables. In case the endpoint is not set, it raises an exception.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, config: dict = None) -> None:
         """
         Constructor.
         """
         super().__init__()
-        self._endpoint = self._get_endpoint()
-        self._auth = self._get_auth()
+
+        self._endpoint = None
+        self._auth_type = None
+        self._auth_params = None
+        self._set_connection(config)
 
     def create_object(self, obj: dict, api: str) -> dict:
         """
@@ -118,7 +138,14 @@ class ClientDHCore(Client):
             The response object.
         """
         url = self._endpoint + api
-        kwargs["auth"] = self._auth
+
+        # Choose auth type
+        if self._auth_type == "basic":
+            kwargs["auth"] = self._auth_params
+        elif self._auth_type == "token":
+            kwargs["headers"] = {"Authorization": f"Bearer {self._auth_params}"}
+
+        # Call
         response = None
         try:
             response = requests.request(call_type, url, timeout=60, **kwargs)
@@ -134,6 +161,56 @@ class ClientDHCore(Client):
             else:
                 msg = f"Backend error: {e}"
             raise BackendError(msg) from e
+
+    ################################
+    # Env methods
+    ################################
+
+    def _set_connection(self, config: dict = None) -> None:
+        """
+        Function to set environment variables for DHub Core config.
+
+        Parameters
+        ----------
+        config : ClientConfig
+            The client config.
+
+        Returns
+        -------
+        None
+        """
+
+        # Get endpoint at the beginning
+        self._endpoint = self._get_endpoint()
+
+        # Evaluate configuration authentication parameters
+        # In case, override endpoint if provided
+        if config is not None:
+
+            # Validate configuration against pydantic model
+            config = ClientConfig(**config)
+
+            # Set connection parameters
+            if config.username is not None and config.password is not None:
+                self._auth_params = (config.username, config.password)
+                self._auth_type = "basic"
+
+            if config.token is not None:
+                self._auth_params = config.token
+                self._auth_type = "token"
+
+            if config.endpoint is not None:
+                self._endpoint = config.endpoint
+
+            return
+
+        # Otherwise, use environment variables
+        self._auth_params = self._get_auth()
+        if isinstance(self._auth_params, tuple):
+            self._auth_type = "basic"
+        if isinstance(self._auth_params, str):
+            self._auth_type = "token"
+        return
 
     @staticmethod
     def _get_endpoint() -> str:
@@ -153,23 +230,30 @@ class ClientDHCore(Client):
         endpoint = os.getenv("DIGITALHUB_CORE_ENDPOINT")
         if endpoint is None:
             raise BackendError("Endpoint not set as environment variables.")
+
+        # Sanitize endpoint string
         if endpoint.endswith("/"):
             endpoint = endpoint[:-1]
+
         return endpoint
 
     @staticmethod
-    def _get_auth() -> tuple[str, str] | None:
+    def _get_auth() -> tuple[str, str] | str | None:
         """
         Get authentication parameters from the config.
 
         Returns
         -------
-        tuple[str, str]
+        tuple[str, str], str, None
             The authentication parameters.
         """
         user = os.getenv("DIGITALHUB_CORE_USER")
         password = os.getenv("DIGITALHUB_CORE_PASSWORD")
+
         if user is None or password is None:
+            token = os.getenv("DIGITALHUB_CORE_TOKEN")
+            if token is not None:
+                return token
             return None
         return user, password
 

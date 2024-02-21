@@ -3,10 +3,9 @@ Task Container specification module.
 """
 from __future__ import annotations
 
-from pydantic import BaseModel
-
 from digitalhub_core.entities.tasks.models import Affinity, Env, Label, NodeSelector, Resource, Toleration, Volume
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
+from pydantic import BaseModel
 
 
 class TaskSpecJob(TaskSpec):
@@ -23,6 +22,7 @@ class CorePort(BaseModel):
     """
     Port mapper model.
     """
+
     port: int
     target_port: int
 
