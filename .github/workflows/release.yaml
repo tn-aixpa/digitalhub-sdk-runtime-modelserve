@@ -46,6 +46,7 @@ jobs:
           file: ${{ matrix.dockerfile }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: "DHUB_VERSION={{ github.ref_name }}"
+          build-args: |
+            DHUB_VERSION={{ github.ref_name }}
 
           
