@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.client.builder import get_client, build_client
+from digitalhub_core.client.builder import build_client, get_client
 from digitalhub_core.utils.api import api_base_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
@@ -47,58 +47,6 @@ def create_project_from_dict(obj: dict) -> Project:
         Project object.
     """
     return project_from_dict(obj)
-
-
-def new_project(
-    name: str,
-    description: str | None = None,
-    source: str | None = None,
-    labels: list[str] | None = None,
-    local: bool = False,
-    context: str | None = None,
-    **kwargs,
-) -> Project:
-    """
-    Create project.
-
-    Parameters
-    ----------
-    name : str
-        Identifier of the project.
-    kind : str
-        The type of the project.
-    uuid : str
-        UUID.
-    description : str
-        Description of the project.
-    source : str
-        Remote git source for object.
-    labels : list[str]
-        List of labels.
-    local : bool
-        Flag to determine if object will be exported to backend.
-    context : str
-        The context of the project.
-    **kwargs
-        Keyword arguments.
-
-    Returns
-    -------
-    Project
-        Project object.
-    """
-    obj = create_project(
-        name=name,
-        kind="project",
-        description=description,
-        source=source,
-        labels=labels,
-        local=local,
-        context=context,
-        **kwargs,
-    )
-    obj.save()
-    return obj
 
 
 def load_project(

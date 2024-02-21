@@ -186,7 +186,6 @@ class ClientDHCore(Client):
         # Evaluate configuration authentication parameters
         # In case, override endpoint if provided
         if config is not None:
-
             # Validate configuration against pydantic model
             config = ClientConfig(**config)
 

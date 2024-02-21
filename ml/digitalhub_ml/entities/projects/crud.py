@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.client.builder import get_client, build_client
+from digitalhub_core.client.builder import build_client, get_client
 from digitalhub_core.utils.api import api_base_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
