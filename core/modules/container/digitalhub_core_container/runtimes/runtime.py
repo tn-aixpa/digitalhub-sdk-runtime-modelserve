@@ -1,5 +1,5 @@
 """
-Runtime class for running Mlrun functions.
+Runtime class for running Container functions.
 """
 from __future__ import annotations
 
@@ -13,9 +13,9 @@ if typing.TYPE_CHECKING:
     pass
 
 
-class RuntimeMlrun(Runtime):
+class RuntimeContainer(Runtime):
     """
-    Runtime Mlrun class.
+    Runtime Container class.
     """
 
     allowed_actions = ["job", "deploy", "serve"]
