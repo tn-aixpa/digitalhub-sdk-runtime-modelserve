@@ -54,7 +54,7 @@ def import_registry(kind: str) -> RuntimeRegistry:
     """
 
     # Cycle over digitalhub layers modules (data, ml, ai).
-    for layer in ["data", "ml", "ai"]:
+    for layer in ["core", "data", "ml", "ai"]:
         # Try to import module
         module_name = f"digitalhub_{layer}_{kind}"
         try:
