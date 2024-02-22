@@ -229,12 +229,11 @@ def workflow_from_parameters(
         embedded=embedded,
     )
     spec = build_spec(
-        "workflows",
         kind,
         layer_digitalhub="digitalhub_core",
         **kwargs,
     )
-    status = build_status(WorkflowStatus)
+    status = build_status(kind, layer_digitalhub="digitalhub_core")
     return Workflow(
         project=project,
         name=name,

@@ -56,9 +56,11 @@ class ClientLocal(Client):
             # Check if dto exists, if not create a mapping
             self._db.setdefault(dto, {})
 
-            # Unversioned objects uses "base api". For example:
+            # Base API
             #
             # POST /api/v1/projects
+            #
+            # Project are not versioned, everything is stored on "name" key
             if project is None:
                 name = obj["name"]
                 if name in self._db[dto]:
@@ -66,24 +68,26 @@ class ClientLocal(Client):
                     raise ValueError
                 self._db[dto][name] = obj
 
-            # Versioned objects uses "context api". For example:
+            # Context API
             #
             # POST /api/v1/-/<project-name>/artifacts
             # POST /api/v1/-/<project-name>/functions
             # POST /api/v1/-/<project-name>/workflows
             #
-            # We have bith "name" and "id" attributes for versioned objects
-            # so we use them as storage keys. The "latest" key is used
-            # to store the latest version of the object.
+            # Runs and tasks are not versioned, so we keep them on name/id only key.
+            # We have both "name" and "id" attributes for versioned objects so we use them as storage keys.
+            # The "latest" key is used to store the latest version of the object.
             else:
                 if dto in ("runs", "tasks"):
                     name = obj["id"]
+                    self._db[dto].setdefault(name, {})
+                    self._db[dto][name] = obj
                 else:
                     name = obj["name"]
-                uuid = obj["id"]
-                self._db[dto].setdefault(name, {})
-                self._db[dto][name][uuid] = obj
-                self._db[dto][name]["latest"] = obj
+                    uuid = obj["id"]
+                    self._db[dto].setdefault(name, {})
+                    self._db[dto][name][uuid] = obj
+                    self._db[dto][name]["latest"] = obj
 
             # Return the created object
             return obj
@@ -114,8 +118,8 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
-            # Unversioned objects
-            # API examples
+
+            # Base API
             #
             # GET /api/v1/projects/<name>
             #
@@ -126,21 +130,28 @@ class ClientLocal(Client):
 
                 # If the object is a project, we need to add the project spec,
                 # for example artifacts, functions, workflows, etc.
+                # Technically we have only projects that access base apis,
+                # we check dto just in case we add something else.
                 if dto == "projects":
                     obj = self._get_project_spec(obj, name)
 
-            # Versioned objects
-            # API example
+
+            # Context API
             #
-            # GET /api/v1/-/<project-name>/artifacts/<uuid>
+            # GET /api/v1/-/<project-name>/runs/<name>
+            # GET /api/v1/-/<project-name>/artifacts/<name>
+            # GET /api/v1/-/<project-name>/artifacts/<name>/<uuid>
             #
             # self._parse_api() should return dto, name and uuid/version
 
             else:
                 if uuid is None:
-                    uuid = name
-                print(uuid)
-                obj = self._db[dto][name][uuid]
+                    if dto in ["runs", "tasks"]:
+                        obj = self._db[dto][name]
+                    else:
+                        obj = self._db[dto][name]
+                else:
+                    obj = self._db[dto][name][uuid]
 
             return obj
 
@@ -166,7 +177,7 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
-            # Unversioned objects
+
             # API example
             #
             # PUT /api/v1/projects/<name>
@@ -174,15 +185,17 @@ class ClientLocal(Client):
             if project is None:
                 self._db[dto][name] = obj
 
-            # Versioned objects
-            # API example
+
+            # Context API
             #
-            # PUT /api/v1/-/<project-name>/artifacts/<uuid>
+            # PUT /api/v1/-/<project-name>/runs/<name>
+            # PUT /api/v1/-/<project-name>/artifacts/<name>/<uuid>
 
             else:
-                if uuid is None:
-                    uuid = name
-                self._db[dto][name][uuid] = obj
+                if dto in ["runs", "tasks"]:
+                    self._db[dto][name] = obj
+                else:
+                    self._db[dto][name][uuid] = obj
 
         except KeyError:
             msg = self._format_msg(code, project, dto, name, uuid)
@@ -206,16 +219,16 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
-            # Unversioned objects
-            # API example
+
+            # Base API
             #
             # DELETE /api/v1/projects/<name>
 
-            if uuid is None:
+            if dto == "project":
                 obj = self._db[dto].pop(name)
 
-            # Versioned objects
-            # API example
+
+            # Context API
             #
             # DELETE /api/v1/-/<project-name>/artifacts/<uuid>
             #
@@ -224,7 +237,10 @@ class ClientLocal(Client):
             # not by name nor dto.
 
             else:
-                obj = self._db[dto][name].pop(uuid)
+                if dto in ["runs", "tasks"]:
+                    obj = self._db[dto].pop(name)
+                else:
+                    obj = self._db[dto][name].pop(uuid)
 
         except KeyError:
             msg = self._format_msg(code, project, dto, name, uuid)
