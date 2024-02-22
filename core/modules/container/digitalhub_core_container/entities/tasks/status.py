@@ -9,9 +9,9 @@ class TaskStatusJob(TaskStatus):
     """
 
 
-class TaskStatusBuild(TaskStatus):
+class TaskStatusDeploy(TaskStatus):
     """
-    Task Build status.
+    Task Deploy status.
     """
 
 
