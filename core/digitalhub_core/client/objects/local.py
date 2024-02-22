@@ -139,6 +139,7 @@ class ClientLocal(Client):
             else:
                 if uuid is None:
                     uuid = name
+                print(uuid)
                 obj = self._db[dto][name][uuid]
 
             return obj

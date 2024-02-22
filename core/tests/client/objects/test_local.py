@@ -18,12 +18,12 @@ def test_create_object(client, api_base, api_context):
     assert result1 == obj1
 
     obj2 = {"id": "test"}
-    api2 = f"{api_base}/{RUNS}"
+    api2 = f"{api_context}/test/{RUNS}"
     result2 = client.create_object(obj2, api2)
     assert result2 == obj2
 
     obj3 = {"id": "test", "name": "test"}
-    api3 = f"{api_context}/{FUNC}"
+    api3 = f"{api_context}/test/{FUNC}"
     result3 = client.create_object(obj3, api3)
     assert result3 == obj3
 
