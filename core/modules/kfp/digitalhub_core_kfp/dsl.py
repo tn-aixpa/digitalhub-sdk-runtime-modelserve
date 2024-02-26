@@ -1,12 +1,10 @@
 from __future__ import annotations
 
+from kubernetes import client as k8s_client
 from kfp import dsl
 import json
 import os
 
-
-WORKFLOW_IMAGE = os.environ.get("DIGITALHUB_CORE_WORKFLOW_IMAGE")
-KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
 
 def step(
         project: str,
@@ -23,6 +21,10 @@ def step(
         parameters: dict | None = None,
         **kwargs) -> dsl.ContainerOp:
     
+    WORKFLOW_IMAGE = os.environ.get("DIGITALHUB_CORE_WORKFLOW_IMAGE")
+    KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
+    DIGITALHUB_CORE_ENDPOINT = os.environ.get('DIGITALHUB_CORE_ENDPOINT', 'http://localhost:8080/')
+
     props = {
         "node_selector": node_selector,
         "volumes": volumes,
@@ -61,6 +63,9 @@ def step(
             "mlpipeline-metrics": KFPMETA_DIR + "/mlpipeline-metrics.json",
         },
     )
+    cop.container.add_env_variable(
+            k8s_client.V1EnvVar(name="DIGITALHUB_CORE_ENDPOINT", value=DIGITALHUB_CORE_ENDPOINT)
+        )
 
     return cop
     
