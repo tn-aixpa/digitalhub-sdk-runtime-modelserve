@@ -43,7 +43,7 @@ def step(
         "--project", project,
         "--function", function,
         "--action", action,
-        "--json-props", json.dumps(props)
+        "--jsonprops", json.dumps(props)
     ]
     for param, val in params.items():
         cmd += ["-p", f"{param}={val}"]
