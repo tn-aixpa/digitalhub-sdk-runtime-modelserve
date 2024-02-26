@@ -24,7 +24,7 @@ dependencies = [
 ]
 [project.optional-dependencies]
 local = [
-"mlrun>=1.6rc33, <1.7",
+"mlrun~=1.6",
 "s3fs==2023.9.2",
 ]
 
