@@ -14,9 +14,6 @@ from pydantic import BaseModel
 class ClientConfig(BaseModel):
     """Authentication config model."""
 
-    endpoint: str = None
-    """Endpoint."""
-
     username: str = None
     """Username."""
 
@@ -184,7 +181,6 @@ class ClientDHCore(Client):
         self._endpoint = self._get_endpoint()
 
         # Evaluate configuration authentication parameters
-        # In case, override endpoint if provided
         if config is not None:
             # Validate configuration against pydantic model
             config = ClientConfig(**config)
@@ -197,9 +193,6 @@ class ClientDHCore(Client):
             if config.token is not None:
                 self._auth_params = config.token
                 self._auth_type = "token"
-
-            if config.endpoint is not None:
-                self._endpoint = config.endpoint
 
             return
 
