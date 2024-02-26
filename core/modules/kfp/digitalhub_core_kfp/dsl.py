@@ -41,7 +41,7 @@ def step(
         props.update(kwargs)
     
     cmd = [
-        "python", "wrapper.py",
+        "python", "step.py",
         "--project", project,
         "--function", function,
         "--action", action,
