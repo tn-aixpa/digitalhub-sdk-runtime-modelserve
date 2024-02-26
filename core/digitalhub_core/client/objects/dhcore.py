@@ -4,6 +4,7 @@ DHCore Client module.
 from __future__ import annotations
 
 import os
+from typing import Literal
 
 import requests
 from digitalhub_core.client.objects.base import Client
@@ -11,17 +12,24 @@ from digitalhub_core.utils.exceptions import BackendError
 from pydantic import BaseModel
 
 
-class ClientConfig(BaseModel):
-    """Authentication config model."""
+class AuthConfig(BaseModel):
+    """Client configuration model."""
+    auth_type: Literal["basic", "token"]
 
-    username: str = None
-    """Username."""
 
-    password: str = None
-    """Password."""
+class OAuth2TokenAuth(AuthConfig):
+    """OAuth2 token authentication model."""
+    token: str
+    """OAuth2 token."""
 
-    token: str = None
-    """Token."""
+
+class BasicAuth(AuthConfig):
+    """Basic authentication model."""
+    username: str
+    """Basic authentication username."""
+    password: str
+    """Basic authentication password."""
+
 
 
 class ClientDHCore(Client):
@@ -182,18 +190,18 @@ class ClientDHCore(Client):
 
         # Evaluate configuration authentication parameters
         if config is not None:
+
+            auth_type = config.get("auth_type")
+
             # Validate configuration against pydantic model
-            config = ClientConfig(**config)
-
-            # Set connection parameters
-            if config.username is not None and config.password is not None:
-                self._auth_params = (config.username, config.password)
-                self._auth_type = "basic"
-
-            if config.token is not None:
+            if auth_type == "token":
+                config = OAuth2TokenAuth(**config)
                 self._auth_params = config.token
-                self._auth_type = "token"
+            elif auth_type == "basic":
+                config = BasicAuth(**config)
+                self._auth_params = (config.username, config.password)
 
+            self._auth_type = auth_type
             return
 
         # Otherwise, use environment variables
@@ -224,13 +232,10 @@ class ClientDHCore(Client):
             raise BackendError("Endpoint not set as environment variables.")
 
         # Sanitize endpoint string
-        if endpoint.endswith("/"):
-            endpoint = endpoint[:-1]
-
-        return endpoint
+        return endpoint.removesuffix("/")
 
     @staticmethod
-    def _get_auth() -> tuple[str, str] | str | None:
+    def _get_auth() -> str | tuple[str, str] | None:
         """
         Get authentication parameters from the config.
 
@@ -239,15 +244,14 @@ class ClientDHCore(Client):
         tuple[str, str], str, None
             The authentication parameters.
         """
+        token = os.getenv("DIGITALHUB_CORE_TOKEN")
+        if token is not None:
+            return token
+
         user = os.getenv("DIGITALHUB_CORE_USER")
         password = os.getenv("DIGITALHUB_CORE_PASSWORD")
-
-        if user is None or password is None:
-            token = os.getenv("DIGITALHUB_CORE_TOKEN")
-            if token is not None:
-                return token
-            return None
-        return user, password
+        if user is not None and password is not None:
+            return user, password
 
     @staticmethod
     def is_local() -> bool:
