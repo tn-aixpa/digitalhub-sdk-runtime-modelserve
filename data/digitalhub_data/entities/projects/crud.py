@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.client.builder import get_client
+from digitalhub_core.client.builder import build_client, get_client
 from digitalhub_core.utils.api import api_base_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
@@ -49,12 +49,76 @@ def create_project_from_dict(obj: dict) -> Project:
     return project_from_dict(obj)
 
 
+def load_project(
+    name: str | None = None,
+    filename: str | None = None,
+    local: bool = False,
+    config: dict | None = None,
+) -> Project:
+    """
+    Load project and context from backend or file.
+
+    Parameters
+    ----------
+    name : str
+        Name of the project.
+    filename : str
+        Path to file where to load project from.
+    local : bool
+        Flag to determine if backend is local.
+    config : dict
+        DHCore env configuration.
+
+    Returns
+    -------
+    Project
+        A Project instance with setted context.
+    """
+    if name is not None:
+        return get_project(name=name, local=local, config=config)
+    if filename is not None:
+        return import_project(filename, local=local, config=config)
+    raise EntityError("Either name or filename must be provided.")
+
+
+def get_or_create_project(
+    name: str,
+    local: bool = False,
+    config: dict | None = None,
+    **kwargs,
+) -> Project:
+    """
+    Get or create a project.
+
+    Parameters
+    ----------
+    name : str
+        Name of the project.
+    local : bool
+        Flag to determine if backend is local.
+    config : dict
+        DHCore env configuration.
+    **kwargs
+        Keyword arguments.
+
+    Returns
+    -------
+    Project
+        A Project instance.
+    """
+    try:
+        return get_project(name, local, config=config)
+    except BackendError:
+        return new_project(name, local=local, config=config, **kwargs)
+
+
 def new_project(
     name: str,
     description: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
     local: bool = False,
+    config: dict | None = None,
     context: str | None = None,
     **kwargs,
 ) -> Project:
@@ -77,6 +141,8 @@ def new_project(
         List of labels.
     local : bool
         Flag to determine if object will be exported to backend.
+    config : dict
+        DHCore env configuration.
     context : str
         The context of the project.
     **kwargs
@@ -87,6 +153,7 @@ def new_project(
     Project
         Project object.
     """
+    build_client(local, config)
     obj = create_project(
         name=name,
         kind="project",
@@ -101,60 +168,7 @@ def new_project(
     return obj
 
 
-def load_project(name: str | None = None, filename: str | None = None, local: bool = False) -> Project:
-    """
-    Load project and context from backend or file.
-
-    Parameters
-    ----------
-    name : str
-        Name of the project.
-    filename : str
-        Path to file where to load project from.
-    local : bool
-        Flag to determine if backend is local.
-
-    Returns
-    -------
-    Project
-        A Project instance with setted context.
-    """
-    if name is not None:
-        return get_project(name, local)
-    if filename is not None:
-        return import_project(filename, local)
-    raise EntityError("Either name or filename must be provided.")
-
-
-def get_or_create_project(
-    name: str,
-    local: bool = False,
-    **kwargs,
-) -> Project:
-    """
-    Get or create a project.
-
-    Parameters
-    ----------
-    name : str
-        Name of the project.
-    local : bool
-        Flag to determine if backend is local.
-    **kwargs
-        Keyword arguments.
-
-    Returns
-    -------
-    Project
-        A Project instance.
-    """
-    try:
-        return get_project(name, local)
-    except BackendError:
-        return new_project(name, local=local, **kwargs)
-
-
-def get_project(name: str, local: bool = False) -> Project:
+def get_project(name: str, local: bool = False, config: dict | None = None) -> Project:
     """
     Retrieves project details from the backend.
 
@@ -164,12 +178,15 @@ def get_project(name: str, local: bool = False) -> Project:
         The name or UUID.
     local : bool
         Flag to determine if backend is local.
+    config : dict
+        DHCore env configuration.
 
     Returns
     -------
     Project
         Object instance.
     """
+    build_client(local, config)
     api = api_base_read("projects", name)
     client = get_client(local)
     obj = client.read_object(api)
@@ -177,7 +194,7 @@ def get_project(name: str, local: bool = False) -> Project:
     return create_project_from_dict(obj)
 
 
-def import_project(file: str, local: bool = False) -> Project:
+def import_project(file: str, local: bool = False, config: dict | None = None) -> Project:
     """
     Import an Project object from a file using the specified file path.
 
@@ -187,12 +204,15 @@ def import_project(file: str, local: bool = False) -> Project:
         Path to the file.
     local : bool
         Flag to determine if backend is local.
+    config : dict
+        DHCore env configuration.
 
     Returns
     -------
     Project
         Object instance.
     """
+    build_client(local, config)
     obj: dict = read_yaml(file)
     obj["local"] = local
     return create_project_from_dict(obj)

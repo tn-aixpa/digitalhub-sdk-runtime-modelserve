@@ -3,10 +3,9 @@ Task Container specification module.
 """
 from __future__ import annotations
 
-from pydantic import BaseModel
-
 from digitalhub_core.entities.tasks.models import Affinity, Env, Label, NodeSelector, Resource, Toleration, Volume
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
+from digitalhub_core_container.entities.tasks.models import CorePort
 
 
 class TaskSpecJob(TaskSpec):
@@ -19,16 +18,18 @@ class TaskParamsJob(TaskParams):
     """
 
 
-class CorePort(BaseModel):
-    """
-    Port mapper model.
-    """
-    port: int
-    target_port: int
-
-
 class TaskSpecDeploy(TaskSpec):
     """Task Deploy specification."""
+
+
+class TaskParamsDeploy(TaskParams):
+    """
+    TaskParamsDeploy model.
+    """
+
+
+class TaskSpecServe(TaskSpec):
+    """Task Serve specification."""
 
     def __init__(
         self,
@@ -61,9 +62,9 @@ class TaskSpecDeploy(TaskSpec):
         self.service_type = service_type
 
 
-class TaskParamsDeploy(TaskParams):
+class TaskParamsServe(TaskParams):
     """
-    TaskParamsDeploy model.
+    TaskParamsServe model.
     """
 
     service_ports: list[CorePort] = None
@@ -71,13 +72,3 @@ class TaskParamsDeploy(TaskParams):
 
     service_type: str = None
     """Service type."""
-
-
-class TaskSpecServe(TaskSpec):
-    """Task Serve specification."""
-
-
-class TaskParamsServe(TaskParams):
-    """
-    TaskParamsServe model.
-    """

@@ -9,9 +9,9 @@ class TaskMetadataJob(TaskMetadata):
     """
 
 
-class TaskMetadataBuild(TaskMetadata):
+class TaskMetadataDeploy(TaskMetadata):
     """
-    Task Build metadata.
+    Task Deploy metadata.
     """
 
 

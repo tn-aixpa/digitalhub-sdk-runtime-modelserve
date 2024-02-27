@@ -1,9 +1,13 @@
 import pytest
 from digitalhub_core.client.objects.local import ClientLocal
+from digitalhub_core.utils.exceptions import BackendError
 
+ARTF = "artifacts"
+WKFL = "workflows"
 FUNC = "functions"
 PROJ = "projects"
 RUNS = "runs"
+TASK = "tasks"
 
 
 @pytest.fixture
@@ -12,21 +16,31 @@ def client():
 
 
 def test_create_object(client, api_base, api_context):
-    obj1 = {"name": "test"}
-    api1 = f"{api_base}/{PROJ}"
-    result1 = client.create_object(obj1, api1)
-    assert result1 == obj1
 
-    obj2 = {"id": "test"}
-    api2 = f"{api_base}/{RUNS}"
-    result2 = client.create_object(obj2, api2)
-    assert result2 == obj2
+    obj = {"name": "test"}
+    api = f"{api_base}/{PROJ}"
+    result = client.create_object(obj, api)
+    assert result == obj
+    with pytest.raises(BackendError):
+        client.create_object(obj, api)
 
-    obj3 = {"id": "test", "name": "test"}
-    api3 = f"{api_context}/{FUNC}"
-    result3 = client.create_object(obj3, api3)
-    assert result3 == obj3
+    for i in [TASK, RUNS]:
+        obj = {"id": "test"}
+        api = f"{api_context}/test/{i}"
+        result = client.create_object(obj, api)
+        assert result == obj
+        obj = {"id": "test2", "name": "test"}
+        result = client.create_object(obj, api)
+        assert result == obj
 
+    for i in [ARTF, WKFL, FUNC, "generic"]:
+        obj = {"id": "test", "name": "test"}
+        api = f"{api_context}/test/{FUNC}"
+        result = client.create_object(obj, api)
+        assert result == obj
+        obj = {"id": "test2", "name": "test"}
+        result = client.create_object(obj, api)
+        assert result == obj
 
 def test_read_object(client, api_base, api_context):
     expected_result = {"name": "test"}
