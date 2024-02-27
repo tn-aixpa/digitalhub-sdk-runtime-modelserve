@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-core-kfp"
-version = "0.2.21"
+version = "0.2.24"
 description = "KFP runtime for DHCore"
 readme = "README.md"
 authors = [
