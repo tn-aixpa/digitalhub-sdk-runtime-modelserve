@@ -45,3 +45,27 @@ class DataitemParams(SpecParams):
 
     _schema: dict = Field(alias="schema")
     """The schema of the dataitem in table schema format."""
+
+
+class DataitemSpecTable(DataitemSpec):
+    """
+    Dataitem table specifications.
+    """
+
+
+class DataitemParamsTable(DataitemParams):
+    """
+    Dataitem table parameters.
+    """
+
+
+class DataitemSpecIceberg(DataitemSpec):
+    """
+    Dataitem iceberg specifications.
+    """
+
+
+class DataitemParamsIceberg(DataitemParams):
+    """
+    Dataitem iceberg parameters.
+    """

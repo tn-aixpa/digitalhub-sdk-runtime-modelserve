@@ -52,10 +52,10 @@ def test_delete_object(context, api_context):
     api = f"{api_context}/{context.name}/runs"
     context.create_object(obj, api)
     api = f"{api_context}/{context.name}/runs/4?cascade=false"
-    assert context.delete_object(api) == {'deleted': {'id': '4'}}
+    assert context.delete_object(api) == {"deleted": {"id": "4"}}
 
     obj = {"name": "test", "id": "4"}
     api = f"{api_context}/{context.name}/artifacts"
     context.create_object(obj, api)
     api = f"{api_context}/{context.name}/artifacts/test/4?cascade=false"
-    assert context.delete_object(api) == {'deleted': {'id': '4', 'name': 'test'}}
+    assert context.delete_object(api) == {"deleted": {"id": "4", "name": "test"}}

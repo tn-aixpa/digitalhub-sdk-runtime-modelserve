@@ -44,3 +44,15 @@ class DataitemMetadata(Metadata):
         self.project = project
         self.version = version
         self.description = description
+
+
+class DataitemMetadataTable(DataitemMetadata):
+    """
+    A class representing Dataitem table metadata.
+    """
+
+
+class DataitemMetadataIceberg(DataitemMetadata):
+    """
+    A class representing Dataitem iceberg metadata.
+    """

@@ -118,7 +118,6 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
-
             # Base API
             #
             # GET /api/v1/projects/<name>
@@ -134,7 +133,6 @@ class ClientLocal(Client):
                 # we check dto just in case we add something else.
                 if dto == "projects":
                     obj = self._get_project_spec(obj, name)
-
 
             # Context API
             #
@@ -177,14 +175,12 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
-
             # API example
             #
             # PUT /api/v1/projects/<name>
 
             if project is None:
                 self._db[dto][name] = obj
-
 
             # Context API
             #
@@ -219,14 +215,12 @@ class ClientLocal(Client):
         """
         project, dto, name, uuid, code = self._parse_api(api)
         try:
-
             # Base API
             #
             # DELETE /api/v1/projects/<name>
 
             if dto == "project":
                 obj = self._db[dto].pop(name)
-
 
             # Context API
             #

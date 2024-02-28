@@ -22,3 +22,15 @@ class DataitemStatus(Status):
         """
         super().__init__(state, message)
         self.preview = preview
+
+
+class DataitemStatusTable(DataitemStatus):
+    """
+    Status class for dataitem table entities.
+    """
+
+
+class DataitemStatusIceberg(DataitemStatus):
+    """
+    Status class for dataitem iceberg entities.
+    """

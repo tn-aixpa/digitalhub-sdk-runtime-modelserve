@@ -14,22 +14,24 @@ from pydantic import BaseModel
 
 class AuthConfig(BaseModel):
     """Client configuration model."""
+
     auth_type: Literal["basic", "token"]
 
 
 class OAuth2TokenAuth(AuthConfig):
     """OAuth2 token authentication model."""
+
     token: str
     """OAuth2 token."""
 
 
 class BasicAuth(AuthConfig):
     """Basic authentication model."""
+
     username: str
     """Basic authentication username."""
     password: str
     """Basic authentication password."""
-
 
 
 class ClientDHCore(Client):
@@ -190,7 +192,6 @@ class ClientDHCore(Client):
 
         # Evaluate configuration authentication parameters
         if config is not None:
-
             auth_type = config.get("auth_type")
 
             # Validate configuration against pydantic model
