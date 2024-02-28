@@ -18,7 +18,7 @@ RUN pip install digitalhub-sdk/ --no-deps
 RUN pip install digitalhub-sdk/data/modules/nefertem-frictionless[local]
 
 # Install frictionless plugins
-ARG NEFERTEM_VERSION=2.0.5
+ARG NEFERTEM_VERSION=2.0.6
 RUN wget https://github.com/scc-digitalhub/nefertem/archive/refs/tags/$NEFERTEM_VERSION.zip | unzip
 RUN mv nefertem-$NEFERTEM_VERSION nefertem
 RUN pip install ./nefertem/plugins/frictionless*
