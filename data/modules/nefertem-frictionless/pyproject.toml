@@ -28,9 +28,9 @@ local = [
 "nefertem-inference~=2.0",
 "nefertem-profiling~=2.0",
 "nefertem-validation~=2.0",
-"nefertem-inference-frictionless @ git+https://git@github.com/scc-digitalhub/nefertem@2.0.4#subdirectory=plugins/frictionless-inference",
-"nefertem-profiling-frictionless @ git+https://git@github.com/scc-digitalhub/nefertem@2.0.4#subdirectory=plugins/frictionless-profiling",
-"nefertem-validation-frictionless @ git+https://git@github.com/scc-digitalhub/nefertem@2.0.4#subdirectory=plugins/frictionless-validation",
+"nefertem-inference-frictionless @ git+https://git@github.com/scc-digitalhub/nefertem@2.0.6#subdirectory=plugins/frictionless-inference",
+"nefertem-profiling-frictionless @ git+https://git@github.com/scc-digitalhub/nefertem@2.0.6#subdirectory=plugins/frictionless-profiling",
+"nefertem-validation-frictionless @ git+https://git@github.com/scc-digitalhub/nefertem@2.0.6#subdirectory=plugins/frictionless-validation",
 ]
 
 
