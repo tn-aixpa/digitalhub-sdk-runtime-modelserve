@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities.projects.crud import _setup_project
 from digitalhub_core.client.builder import build_client, get_client
+from digitalhub_core.entities.projects.crud import _setup_project
 from digitalhub_core.utils.api import api_base_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
@@ -174,7 +174,12 @@ def new_project(
     return _setup_project(obj, setup_kwargs)
 
 
-def get_project(name: str, local: bool = False, config: dict | None = None, setup_kwargs: dict | None = None,) -> Project:
+def get_project(
+    name: str,
+    local: bool = False,
+    config: dict | None = None,
+    setup_kwargs: dict | None = None,
+) -> Project:
     """
     Retrieves project details from the backend.
 
@@ -201,7 +206,12 @@ def get_project(name: str, local: bool = False, config: dict | None = None, setu
     return _setup_project(project, setup_kwargs)
 
 
-def import_project(file: str, local: bool = False, config: dict | None = None, setup_kwargs: dict | None = None,) -> Project:
+def import_project(
+    file: str,
+    local: bool = False,
+    config: dict | None = None,
+    setup_kwargs: dict | None = None,
+) -> Project:
     """
     Import an Project object from a file using the specified file path.
 

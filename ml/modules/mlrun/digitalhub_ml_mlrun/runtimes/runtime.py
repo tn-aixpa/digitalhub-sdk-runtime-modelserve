@@ -4,7 +4,6 @@ Runtime class for running Mlrun functions.
 from __future__ import annotations
 
 import shutil
-import typing
 from pathlib import Path
 from typing import Callable
 
