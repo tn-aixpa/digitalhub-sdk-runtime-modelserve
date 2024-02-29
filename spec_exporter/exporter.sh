@@ -11,6 +11,9 @@ curl $BASE_API/$DTO/$KIND | jq -r ".schema" > ${DTO}_${KIND}.json
 datamodel-codegen   --input ${DTO}_${KIND}.json \
                     --input-file-type jsonschema \
                     --output ${DTO}_${KIND}.py \
+                    --output-model-type pydantic.BaseModel \
+                    --field-constraints \
                     --target-python-version 3.9 \
                     --use-standard-collection \
                     --use-schema-description
+rm ${DTO}_${KIND}.json
