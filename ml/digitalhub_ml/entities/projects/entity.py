@@ -8,14 +8,14 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.projects.metadata import ProjectMetadata
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
-from digitalhub_ml.entities.models.crud import delete_model, get_model, new_model
+from digitalhub_ml.entities.models.crud import delete_model, get_model, new_model, create_model_from_dict
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.models.entity import Model
 
 
 CTX_ENTITIES.append("models")
-FUNC_MAP["models"] = get_model
+FUNC_MAP["models"] = create_model_from_dict
 
 
 class ProjectMl(ProjectData):

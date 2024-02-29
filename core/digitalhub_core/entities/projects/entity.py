@@ -7,18 +7,18 @@ import typing
 from pathlib import Path
 
 from digitalhub_core.client.builder import get_client
-from digitalhub_core.context.builder import set_context
+from digitalhub_core.context.builder import set_context, get_context
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.artifacts.crud import delete_artifact, get_artifact, new_artifact
-from digitalhub_core.entities.functions.crud import delete_function, get_function, new_function
+from digitalhub_core.entities.artifacts.crud import delete_artifact, get_artifact, new_artifact, create_artifact_from_dict
+from digitalhub_core.entities.functions.crud import delete_function, get_function, new_function, create_function_from_dict
 from digitalhub_core.entities.projects.metadata import ProjectMetadata
 from digitalhub_core.entities.projects.status import ProjectStatus
-from digitalhub_core.entities.secrets.crud import delete_secret, get_secret, new_secret
-from digitalhub_core.entities.workflows.crud import delete_workflow, get_workflow, new_workflow
-from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update
+from digitalhub_core.entities.secrets.crud import delete_secret, get_secret, new_secret, create_secret_from_dict
+from digitalhub_core.entities.workflows.crud import delete_workflow, get_workflow, new_workflow, create_workflow_from_dict
+from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -29,14 +29,15 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.projects.spec import ProjectSpec
     from digitalhub_core.entities.secrets.entity import Secret
     from digitalhub_core.entities.workflows.entity import Workflow
+    from digitalhub_core.context.context import Context
 
 
 CTX_ENTITIES = ["artifacts", "functions", "workflows", "secrets"]
 FUNC_MAP = {
-    "artifacts": get_artifact,
-    "functions": get_function,
-    "workflows": get_workflow,
-    "secrets": get_secret,
+    "artifacts": create_artifact_from_dict,
+    "functions": create_function_from_dict,
+    "workflows": create_workflow_from_dict,
+    "secrets": create_secret_from_dict,
 }
 
 
@@ -149,8 +150,9 @@ class Project(Entity):
         # Export objects related to project if not embedded
         for entity_type in CTX_ENTITIES:
             for entity in self._get_objects(entity_type):
-                name, version = entity["name"], entity["id"]
-                ctx_obj = FUNC_MAP[entity_type](self.name, name, uuid=version)
+                api = api_ctx_read(self.name, entity_type, entity["name"], uuid=entity["id"])
+                obj = self._client.read_object(api)
+                ctx_obj = FUNC_MAP[entity_type](obj)
                 if not ctx_obj.metadata.embedded:
                     ctx_obj.export()
 
