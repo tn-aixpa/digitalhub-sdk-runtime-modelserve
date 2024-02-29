@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub_core.entities.projects.crud import _setup_project
 from digitalhub_core.client.builder import build_client, get_client
 from digitalhub_core.utils.api import api_base_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
@@ -54,6 +55,7 @@ def load_project(
     filename: str | None = None,
     local: bool = False,
     config: dict | None = None,
+    setup_kwargs: dict | None = None,
 ) -> Project:
     """
     Load project and context from backend or file.
@@ -75,9 +77,9 @@ def load_project(
         A Project instance with setted context.
     """
     if name is not None:
-        return get_project(name=name, local=local, config=config)
+        return get_project(name=name, local=local, config=config, setup_kwargs=setup_kwargs)
     if filename is not None:
-        return import_project(filename, local=local, config=config)
+        return import_project(filename, local=local, config=config, setup_kwargs=setup_kwargs)
     raise EntityError("Either name or filename must be provided.")
 
 
@@ -85,6 +87,7 @@ def get_or_create_project(
     name: str,
     local: bool = False,
     config: dict | None = None,
+    setup_kwargs: dict | None = None,
     **kwargs,
 ) -> Project:
     """
@@ -107,9 +110,9 @@ def get_or_create_project(
         A Project instance.
     """
     try:
-        return get_project(name, local, config=config)
+        return get_project(name, local, config=config, setup_kwargs=setup_kwargs)
     except BackendError:
-        return new_project(name, local=local, config=config, **kwargs)
+        return new_project(name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
 
 
 def new_project(
@@ -120,6 +123,7 @@ def new_project(
     local: bool = False,
     config: dict | None = None,
     context: str | None = None,
+    setup_kwargs: dict | None = None,
     **kwargs,
 ) -> Project:
     """
@@ -145,6 +149,8 @@ def new_project(
         DHCore env configuration.
     context : str
         The context of the project.
+    setup_kwargs : dict
+        Setup keyword arguments.
     **kwargs
         Keyword arguments.
 
@@ -165,10 +171,10 @@ def new_project(
         **kwargs,
     )
     obj.save()
-    return obj
+    return _setup_project(obj, setup_kwargs)
 
 
-def get_project(name: str, local: bool = False, config: dict | None = None) -> Project:
+def get_project(name: str, local: bool = False, config: dict | None = None, setup_kwargs: dict | None = None,) -> Project:
     """
     Retrieves project details from the backend.
 
@@ -191,10 +197,11 @@ def get_project(name: str, local: bool = False, config: dict | None = None) -> P
     client = get_client(local)
     obj = client.read_object(api)
     obj["local"] = local
-    return create_project_from_dict(obj)
+    project = create_project_from_dict(obj)
+    return _setup_project(project, setup_kwargs)
 
 
-def import_project(file: str, local: bool = False, config: dict | None = None) -> Project:
+def import_project(file: str, local: bool = False, config: dict | None = None, setup_kwargs: dict | None = None,) -> Project:
     """
     Import an Project object from a file using the specified file path.
 
@@ -215,4 +222,5 @@ def import_project(file: str, local: bool = False, config: dict | None = None) -
     build_client(local, config)
     obj: dict = read_yaml(file)
     obj["local"] = local
-    return create_project_from_dict(obj)
+    project = create_project_from_dict(obj)
+    return _setup_project(project, setup_kwargs)

@@ -142,7 +142,7 @@ class Project(Entity):
 
         if filename is None:
             filename = f"{self.kind}_{self.name}.yml"
-        pth = Path(self.name) / filename
+        pth = Path(self.spec.context) / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 

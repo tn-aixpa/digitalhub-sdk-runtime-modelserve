@@ -113,7 +113,7 @@ class Workflow(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self.project) / filename
+        pth = Path(self._context().project_dir) / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
