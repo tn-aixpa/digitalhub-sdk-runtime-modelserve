@@ -122,7 +122,7 @@ class Function(Entity):
 
         if filename is None:
             filename = f"function_{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self.project) / filename
+        pth = Path(self._context().project_dir) / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
 
         # Embed tasks in file

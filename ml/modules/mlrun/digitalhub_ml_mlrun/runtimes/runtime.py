@@ -4,7 +4,6 @@ Runtime class for running Mlrun functions.
 from __future__ import annotations
 
 import shutil
-import typing
 from pathlib import Path
 from typing import Callable
 
@@ -23,10 +22,6 @@ from digitalhub_ml_mlrun.utils.configurations import (
 from digitalhub_ml_mlrun.utils.functions import run_job
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
 from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts
-
-if typing.TYPE_CHECKING:
-    from mlrun.runtimes import BaseRuntime
-    from mlrun.runtimes.base import RunObject
 
 
 class RuntimeMlrun(Runtime):
@@ -96,7 +91,7 @@ class RuntimeMlrun(Runtime):
         mlrun_function = self._configure_execution(spec, action, project)
 
         LOGGER.info("Executing function.")
-        results: RunObject = self._execute(executable, mlrun_function, function_args)
+        results: object = self._execute(executable, mlrun_function, function_args)
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results)
@@ -171,7 +166,7 @@ class RuntimeMlrun(Runtime):
     # Configuration
     ####################
 
-    def _configure_execution(self, spec: dict, action: str, project: str) -> tuple[BaseRuntime, dict]:
+    def _configure_execution(self, spec: dict, action: str, project: str) -> tuple[object, dict]:
         """
         Create Mlrun project and function and prepare parameters.
 
@@ -205,13 +200,13 @@ class RuntimeMlrun(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: RunObject) -> dict:
+    def _collect_outputs(self, results: object) -> dict:
         """
         Collect outputs.
 
         Parameters
         ----------
-        results : RunObject
+        results : object
             Execution results.
 
         Returns

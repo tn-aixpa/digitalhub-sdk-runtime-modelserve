@@ -31,6 +31,7 @@ class Context:
         self.name = project.name
         self.client = project._client
         self.local = project._client.is_local()
+        self.project_dir = project.spec.context
 
     def create_object(self, obj: dict, api: str) -> dict:
         """

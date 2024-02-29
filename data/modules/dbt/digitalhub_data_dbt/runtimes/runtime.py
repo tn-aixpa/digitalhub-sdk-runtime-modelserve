@@ -24,7 +24,6 @@ from digitalhub_data_dbt.utils.inputs import decode_sql, get_dataitem_, get_outp
 from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
 if typing.TYPE_CHECKING:
-    from dbt.contracts.results import RunResult
     from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
@@ -231,14 +230,14 @@ class RuntimeDbt(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: RunResult, output_table: str, project: str) -> Dataitem:
+    def _collect_outputs(self, results: dict, output_table: str, project: str) -> Dataitem:
         """
         Collect outputs.
 
         Parameters
         ----------
         results : dict
-            The dbt run results.
+            The dbt run results. (For typing is a dbt object)
         output_table : str
             Output table name.
         project : str

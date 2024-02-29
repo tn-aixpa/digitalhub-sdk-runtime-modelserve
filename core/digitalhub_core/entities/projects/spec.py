@@ -25,7 +25,7 @@ class ProjectSpec(Spec):
         Parameters
         ----------
         context : str
-            The project's context.
+            The project's context folder.
         functions : list
             List of project's functions.
         artifacts : list
@@ -33,7 +33,7 @@ class ProjectSpec(Spec):
         workflows : list
             List of project's workflows.
         """
-        self.context = context
+        self.context = context if context is not None else "./"
         self.functions = functions if functions is not None else []
         self.artifacts = artifacts if artifacts is not None else []
         self.workflows = workflows if workflows is not None else []
