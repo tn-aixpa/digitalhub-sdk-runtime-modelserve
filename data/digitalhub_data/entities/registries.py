@@ -9,6 +9,16 @@ status_registry.register(
     "digitalhub_data.entities.dataitems.status",
     "DataitemStatus",
 )
+status_registry.register(
+    "table",
+    "digitalhub_data.entities.dataitems.status",
+    "DataitemStatusTable",
+)
+status_registry.register(
+    "iceberg",
+    "digitalhub_data.entities.dataitems.status",
+    "DataitemStatusIceberg",
+)
 
 spec_registry = SpecRegistry()
 spec_registry.register(
@@ -16,6 +26,18 @@ spec_registry.register(
     "digitalhub_data.entities.dataitems.spec",
     "DataitemSpec",
     "DataitemParams",
+)
+spec_registry.register(
+    "table",
+    "digitalhub_data.entities.dataitems.spec",
+    "DataitemSpecTable",
+    "DataitemParamsTable",
+)
+spec_registry.register(
+    "iceberg",
+    "digitalhub_data.entities.dataitems.spec",
+    "DataitemSpecIceberg",
+    "DataitemParamsIceberg",
 )
 spec_registry.register(
     "project",

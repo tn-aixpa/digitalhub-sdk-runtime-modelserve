@@ -16,7 +16,6 @@ def client():
 
 
 def test_create_object(client, api_base, api_context):
-
     obj = {"name": "test"}
     api = f"{api_base}/{PROJ}"
     result = client.create_object(obj, api)
@@ -41,6 +40,7 @@ def test_create_object(client, api_base, api_context):
         obj = {"id": "test2", "name": "test"}
         result = client.create_object(obj, api)
         assert result == obj
+
 
 def test_read_object(client, api_base, api_context):
     expected_result = {"name": "test"}

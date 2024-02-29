@@ -15,7 +15,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.functions.metadata import FunctionMetadata
 from digitalhub_core.entities.functions.status import FunctionStatus
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task, new_task
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
+from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -200,6 +200,12 @@ class Function(Entity):
 
         # Create task if does not exists
         task = self._tasks.get(action)
+
+        # Check in backend
+        if task is None:
+            task = self._check_task_in_backend(action)
+
+        # Create new task
         if task is None:
             task = self.new_task(
                 kind=f"{self.kind}+{action}",
@@ -225,6 +231,29 @@ class Function(Entity):
         with ThreadPoolExecutor(max_workers=1) as executor:
             result = executor.submit(run.run)
         return result.result()
+
+    def _check_task_in_backend(self, action: str) -> None | Task:
+        """
+        Check if task exists in backend.
+
+        Parameters
+        ----------
+        action : str
+            Action to check.
+
+        Returns
+        -------
+        None | Task
+            Task if exists, None otherwise.
+        """
+        if self._context().local:
+            return
+        api = api_base_list("tasks") + f"?function={self._get_function_string()}"
+        obj = self._context().read_object(api)
+        for i in obj.get("content", []):
+            if i["kind"] == f"{self.kind}+{action}":
+                self._tasks[action] = create_task_from_dict(i)
+                return self._tasks[action]
 
     def _get_function_string(self) -> str:
         """

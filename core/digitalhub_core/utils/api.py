@@ -174,6 +174,23 @@ def api_ctx_delete(
 ####################
 
 
+def api_base_list(dto: str) -> str:
+    """
+    List base API.
+
+    Parameters
+    ----------
+    dto : str
+        The type of the DTO.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_BASE}/{dto}"
+
+
 def api_base_create(dto: str) -> str:
     """
     Create base API.
