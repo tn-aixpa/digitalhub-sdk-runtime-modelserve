@@ -1,19 +1,18 @@
 """
-RunResultsML module.
+RunResultsData module.
 """
 from __future__ import annotations
 
 import typing
 
-from digitalhub_data.runtimes.results import RunResultsData
+from digitalhub_core.entities.runs.results import RunResults
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity import Dataitem
-    from digitalhub_ml.entities.models.entity import Model
 
 
-class RunResultsML(RunResultsData):
+class RunResultsData(RunResults):
     """
     A class representing a run results.
     """
@@ -22,7 +21,6 @@ class RunResultsML(RunResultsData):
         self,
         artifacts: list[Artifact] | None = None,
         dataitems: list[Dataitem] | None = None,
-        models: list[Model] | None = None,
     ) -> None:
         """
         Constructor.
@@ -32,23 +30,23 @@ class RunResultsML(RunResultsData):
         dataitems : list[Dataitem]
             The dataitems.
         """
-        super().__init__(artifacts, dataitems)
-        self.models = models
+        super().__init__(artifacts)
+        self.dataitems = dataitems
 
-    def get_models(self) -> list[Model]:
+    def get_dataitems(self) -> list[Dataitem]:
         """
-        Get models.
+        Get dataitems.
 
         Returns
         -------
-        list[Model]
-            List of models.
+        list[Dataitem]
+            List of dataitems.
         """
-        return self.models if self.models is not None else []
+        return self.dataitems if self.dataitems is not None else []
 
-    def get_model_by_key(self, key: str) -> Model | None:
+    def get_dataitem_by_key(self, key: str) -> Dataitem | None:
         """
-        Get model by key.
+        Get dataitem by key.
 
         Parameters
         ----------
@@ -57,10 +55,10 @@ class RunResultsML(RunResultsData):
 
         Returns
         -------
-        Model
-            Model.
+        Dataitem
+            Dataitem.
         """
-        for model in self.get_models():
-            if model.name == key:
-                return model
+        for dataitem in self.get_dataitems():
+            if dataitem.name == key:
+                return dataitem
         return None

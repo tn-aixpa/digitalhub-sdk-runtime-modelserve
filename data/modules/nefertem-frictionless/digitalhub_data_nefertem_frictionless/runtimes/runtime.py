@@ -8,9 +8,7 @@ import typing
 from pathlib import Path
 from typing import Callable
 
-from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.runtimes.results import RunResults
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data_nefertem_frictionless.utils.configurations import (
@@ -132,20 +130,6 @@ class RuntimeNefertemFrictionless(Runtime):
         if action == "infer":
             return infer
         raise NotImplementedError
-
-    @staticmethod
-    def results(run_status: dict) -> RunResults:
-        """
-        Get run results.
-
-        Returns
-        -------
-        RunResults
-            Run results.
-        """
-        artifacts = run_status.get("outputs", {}).get("artifacts", [])
-        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
-        return RunResults(artifact_objs)
 
     ####################
     # Inputs

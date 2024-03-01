@@ -59,6 +59,9 @@ class RunResults:
                 return artifact
         return None
 
+    def __repr__(self) -> str:
+        return str(self.__dict__)
+
 
 def get_entity_info(entity: Entity, entity_type: str) -> dict:
     """

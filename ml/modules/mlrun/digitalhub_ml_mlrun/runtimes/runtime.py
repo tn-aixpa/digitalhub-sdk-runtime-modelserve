@@ -4,14 +4,12 @@ Runtime class for running Mlrun functions.
 from __future__ import annotations
 
 import shutil
+import typing
 from pathlib import Path
 from typing import Callable
 
-from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
-from digitalhub_data.runtimes.results import RunResultsData
 from digitalhub_ml_mlrun.utils.configurations import (
     get_dhcore_function,
     get_mlrun_function,
@@ -22,6 +20,10 @@ from digitalhub_ml_mlrun.utils.configurations import (
 from digitalhub_ml_mlrun.utils.functions import run_job
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
 from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts
+
+if typing.TYPE_CHECKING:
+    from mlrun.runtimes import BaseRuntime
+    from mlrun.runtimes.base import RunObject
 
 
 class RuntimeMlrun(Runtime):
@@ -91,7 +93,7 @@ class RuntimeMlrun(Runtime):
         mlrun_function = self._configure_execution(spec, action, project)
 
         LOGGER.info("Executing function.")
-        results: object = self._execute(executable, mlrun_function, function_args)
+        results: RunObject = self._execute(executable, mlrun_function, function_args)
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results)
@@ -120,22 +122,6 @@ class RuntimeMlrun(Runtime):
         if action == "job":
             return run_job
         raise NotImplementedError
-
-    @staticmethod
-    def results(run_status: dict) -> RunResultsData:
-        """
-        Get run results.
-
-        Returns
-        -------
-        RunResults
-            Run results.
-        """
-        artifacts = run_status.get("outputs", {}).get("artifacts", [])
-        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
-        datatatems = run_status.get("outputs", {}).get("dataitems", [])
-        dataitem_objs = [get_dataitem_from_key(dti.get("id")) for dti in datatatems]
-        return RunResultsData(artifact_objs, dataitem_objs)
 
     ####################
     # Helpers
@@ -166,7 +152,7 @@ class RuntimeMlrun(Runtime):
     # Configuration
     ####################
 
-    def _configure_execution(self, spec: dict, action: str, project: str) -> tuple[object, dict]:
+    def _configure_execution(self, spec: dict, action: str, project: str) -> tuple[BaseRuntime, dict]:
         """
         Create Mlrun project and function and prepare parameters.
 
@@ -200,13 +186,13 @@ class RuntimeMlrun(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: object) -> dict:
+    def _collect_outputs(self, results: RunObject) -> dict:
         """
         Collect outputs.
 
         Parameters
         ----------
-        results : object
+        results : RunObject
             Execution results.
 
         Returns
