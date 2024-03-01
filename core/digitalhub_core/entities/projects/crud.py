@@ -3,7 +3,7 @@ Project operations module.
 """
 from __future__ import annotations
 
-import importlib
+import importlib.util as imputil
 import typing
 from pathlib import Path
 
@@ -305,11 +305,15 @@ def _setup_project(project: Project, setup_kwargs: dict = None) -> Project:
     Project
         Set up project.
     """
+    if setup_kwargs is None:
+        setup_kwargs = {}
     check_pth = Path(project.spec.context, ".CHECK")
     setup_pth = Path(project.spec.context, "setup_project.py")
     if setup_pth.exists() and not check_pth.exists():
-        setup_module = importlib.import_module("setup_project")
-        handler = getattr(setup_module, "setup")
+        spec = imputil.spec_from_file_location("setup_project", setup_pth)
+        mod = imputil.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        handler = getattr(mod, "setup")
         project = handler(project, **setup_kwargs)
         check_pth.touch()
     return project
