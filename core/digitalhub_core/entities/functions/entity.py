@@ -75,7 +75,7 @@ class Function(Entity):
         self._obj_attr.extend(["project", "name", "id"])
 
         # Initialize tasks
-        self._tasks = {}
+        self._tasks: dict[str, Task] = {}
 
     #############################
     #  Save / Export
