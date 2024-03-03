@@ -273,7 +273,7 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
     """
     try:
         # Get columns and data sample from dbt results
-        columns, data = get_data_sample(result.name, uuid)
+        columns, data, rows_count = get_data_sample(result.name, uuid)
 
         # Prepare dataitem kwargs
         kwargs = {}
@@ -283,14 +283,17 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
         kwargs["path"] = result.path
         kwargs["uuid"] = uuid
         kwargs["schema"] = get_schema(columns)
-        kwargs["raw_code"] = result.raw_code
-        kwargs["compiled_code"] = result.compiled_code
 
         # Create dataitem
         dataitem = create_dataitem(**kwargs)
 
         # Update dataitem status with preview
-        dataitem.status.preview = _get_data_preview(columns, data)
+        preview = _get_data_preview(columns, data)
+
+        dataitem.status.preview = {
+            "cols": preview,
+            "rows": rows_count,
+        }
 
         # Save dataitem in core and return it
         dataitem.save()
@@ -320,13 +323,16 @@ def get_data_sample(table_name: str, uuid: str) -> None:
     LOGGER.info("Getting columns and data sample from dbt results.")
     try:
         connection = get_connection()
-        query = sql.SQL("SELECT * FROM {table} LIMIT 10;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
+        query_sample = sql.SQL("SELECT * FROM {table} LIMIT 10;").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
+        query_count = sql.SQL("SELECT count(*) FROM {table};").format(table=sql.Identifier(f"{table_name}_v{uuid}"))
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(query)
+                cursor.execute(query_sample)
                 columns = cursor.description
                 data = cursor.fetchall()
-        return columns, data
+                cursor.execute(query_count)
+                rows_count = cursor.fetchone()[0]
+        return columns, data, rows_count
     except Exception:
         msg = "Something got wrong during data fetching."
         LOGGER.exception(msg)

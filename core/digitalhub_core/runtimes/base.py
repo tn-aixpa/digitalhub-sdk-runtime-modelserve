@@ -3,15 +3,11 @@ Base Runtime module.
 """
 from __future__ import annotations
 
-import typing
 from abc import abstractmethod
 from typing import Any, Callable
 
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
-
-if typing.TYPE_CHECKING:
-    from digitalhub_core.runtimes.results import RunResults
 
 
 class Runtime:
@@ -60,13 +56,6 @@ class Runtime:
     def _get_executable(action: str) -> Callable:
         """
         Get function from action.
-        """
-
-    @staticmethod
-    @abstractmethod
-    def results(run_status: dict) -> RunResults:
-        """
-        Get run results.
         """
 
     ##################################

@@ -10,3 +10,9 @@ class RunStatus(Status):
     """
     Status class for run entities.
     """
+
+    def get_results(self) -> list[object]:
+        """
+        Get run objects results. If no results are available.
+        """
+        return []

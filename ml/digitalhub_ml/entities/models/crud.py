@@ -7,6 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_ml.entities.models.entity import model_from_dict, model_from_parameters
 
@@ -126,6 +127,20 @@ def get_model(project: str, name: str, uuid: str | None = None) -> Model:
     api = api_ctx_read(project, "models", name, uuid=uuid)
     obj = get_context(project).read_object(api)
     return create_model_from_dict(obj)
+
+
+def get_model_from_key(key: str) -> Model:
+    """
+    Get model from key.
+
+    Parameters
+    ----------
+    key : str
+        Key of the model.
+        It's format is store://<project>/models/<kind>/<name>:<uuid>.
+    """
+    project, name, uuid = parse_entity_key(key)
+    return get_model(project, name, uuid)
 
 
 def import_model(file: str) -> Model:

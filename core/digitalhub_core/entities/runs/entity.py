@@ -196,8 +196,7 @@ class Run(Entity):
         dict
             Results from backend.
         """
-        runtime = self._get_runtime()
-        return runtime.results(self.status.to_dict())
+        return self.status.get_results()
 
     def refresh(self) -> Run:
         """

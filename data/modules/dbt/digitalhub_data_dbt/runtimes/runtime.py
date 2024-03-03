@@ -10,8 +10,6 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
-from digitalhub_data.runtimes.results import RunResultsData
 from digitalhub_data_dbt.utils.cleanup import cleanup
 from digitalhub_data_dbt.utils.configuration import (
     generate_dbt_profile_yml,
@@ -24,6 +22,7 @@ from digitalhub_data_dbt.utils.inputs import decode_sql, get_dataitem_, get_outp
 from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
 if typing.TYPE_CHECKING:
+    from dbt.contracts.results import RunResult
     from digitalhub_data.entities.dataitems.entity import Dataitem
 
 
@@ -137,20 +136,6 @@ class RuntimeDbt(Runtime):
             return transform
         raise NotImplementedError
 
-    @staticmethod
-    def results(run_status: dict) -> RunResultsData:
-        """
-        Get run results.
-
-        Returns
-        -------
-        RunResultsData
-            Run results.
-        """
-        dataitems = run_status.get("outputs", {}).get("dataitems", [])
-        dataitem_objs = [get_dataitem_from_key(dti.get("id")) for dti in dataitems]
-        return RunResultsData(dataitems=dataitem_objs)
-
     ####################
     # Inputs
     ####################
@@ -230,14 +215,14 @@ class RuntimeDbt(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: dict, output_table: str, project: str) -> Dataitem:
+    def _collect_outputs(self, results: RunResult, output_table: str, project: str) -> Dataitem:
         """
         Collect outputs.
 
         Parameters
         ----------
         results : dict
-            The dbt run results. (For typing is a dbt object)
+            The dbt run results.
         output_table : str
             Output table name.
         project : str

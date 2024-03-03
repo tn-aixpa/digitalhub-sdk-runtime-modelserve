@@ -3,14 +3,9 @@ Runtime class for running Container functions.
 """
 from __future__ import annotations
 
-import typing
 from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_data.runtimes.results import RunResultsData
-
-if typing.TYPE_CHECKING:
-    pass
 
 
 class RuntimeContainer(Runtime):
@@ -70,17 +65,5 @@ class RuntimeContainer(Runtime):
         -------
         Callable
             Function to execute.
-        """
-        raise NotImplementedError
-
-    @staticmethod
-    def results(run_status: dict) -> RunResultsData:
-        """
-        Get run results.
-
-        Returns
-        -------
-        RunResults
-            Run results.
         """
         raise NotImplementedError

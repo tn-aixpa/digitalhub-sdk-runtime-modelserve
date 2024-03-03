@@ -8,9 +8,7 @@ import typing
 from pathlib import Path
 from typing import Callable
 
-from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.runtimes.results import RunResults
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config
@@ -130,20 +128,6 @@ class RuntimeNefertem(Runtime):
         if action == "metric":
             return metric
         raise NotImplementedError
-
-    @staticmethod
-    def results(run_status: dict) -> RunResults:
-        """
-        Get run results.
-
-        Returns
-        -------
-        RunResults
-            Run results.
-        """
-        artifacts = run_status.get("outputs", {}).get("artifacts", [])
-        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
-        return RunResults(artifact_objs)
 
     ####################
     # Inputs
