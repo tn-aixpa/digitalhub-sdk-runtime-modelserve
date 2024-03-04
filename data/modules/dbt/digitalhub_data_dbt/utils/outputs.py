@@ -18,7 +18,7 @@ from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_data.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
 # Postgres type mapper to frictionless types.
@@ -279,7 +279,7 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
         kwargs = {}
         kwargs["project"] = project
         kwargs["name"] = result.name
-        kwargs["kind"] = "dataitem"
+        kwargs["kind"] = "table"
         kwargs["path"] = result.path
         kwargs["uuid"] = uuid
         kwargs["schema"] = get_schema(columns)

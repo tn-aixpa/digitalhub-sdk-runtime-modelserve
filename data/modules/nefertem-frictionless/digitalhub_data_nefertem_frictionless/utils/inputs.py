@@ -10,7 +10,7 @@ from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import get_dataitem
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
 def get_dataitem_(name: str, project: str) -> Dataitem:

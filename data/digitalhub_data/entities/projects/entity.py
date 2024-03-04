@@ -16,7 +16,7 @@ from digitalhub_data.entities.dataitems.crud import (
 )
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
 CTX_ENTITIES.append("dataitems")
@@ -48,7 +48,6 @@ class ProjectData(Project):
            Object instance.
         """
         kwargs["project"] = self.name
-        kwargs["kind"] = "dataitem"
         obj = new_dataitem(**kwargs)
         self._add_object(obj, "dataitems")
         return obj

@@ -64,27 +64,8 @@ class DataitemSpecIceberg(DataitemSpec):
     Dataitem iceberg specifications.
     """
 
-    def __init__(
-        self,
-        key: str | None = None,
-        path: str | None = None,
-        schema: dict | None = None,
-        nessie_endpoint: str | None = None,
-        branch: str | None = None,
-        **kwargs,
-    ) -> None:
-        super().__init__(key, path, schema, **kwargs)
-        self.nessie_endpoint = nessie_endpoint
-        self.branch = branch
-
 
 class DataitemParamsIceberg(DataitemParams):
     """
     Dataitem iceberg parameters.
     """
-
-    nessie_endpoint: str = None
-    """The nessie endpoint to retrieve table infos."""
-
-    branch: str = None
-    """The branch to retrieve table infos."""

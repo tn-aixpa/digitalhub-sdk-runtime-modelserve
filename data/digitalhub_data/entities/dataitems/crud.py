@@ -9,10 +9,10 @@ from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
-from digitalhub_data.entities.dataitems.entity import dataitem_from_dict, dataitem_from_parameters
+from digitalhub_data.entities.dataitems.builder import dataitem_from_dict, dataitem_from_parameters
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
 def create_dataitem(**kwargs) -> Dataitem:
