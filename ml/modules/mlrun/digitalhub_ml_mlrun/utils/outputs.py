@@ -11,7 +11,7 @@ from digitalhub_data.utils.data_utils import get_data_preview
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_data.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity._base import Dataitem
     from mlrun.runtimes.base import RunObject
 
 
@@ -115,7 +115,7 @@ def create_dataitem_(mlrun_output: dict) -> Dataitem:
         kwargs = {}
         kwargs["project"] = mlrun_output.get("metadata", {}).get("project")
         kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
-        kwargs["kind"] = "dataitem"
+        kwargs["kind"] = "table"
         kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
         kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {}).get("fields")
         dataitem = create_dataitem(**kwargs)

@@ -23,7 +23,7 @@ from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, pa
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_data.entities.dataitems.entity import Dataitem
+    from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
 class RuntimeDbt(Runtime):
