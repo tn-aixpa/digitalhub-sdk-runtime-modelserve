@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.runs.spec import RunParams, RunSpec
-from pydantic import BaseModel
+from digitalhub_data.entities.runs.spec import RunParamsData, RunSpecData
 
 
-class RunSpecNefertem(RunSpec):
+class RunSpecNefertem(RunSpecData):
     """Run Nefertem specification."""
 
     def __init__(
         self,
         task: str,
-        task_id: str,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -24,11 +22,8 @@ class RunSpecNefertem(RunSpec):
     ) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
         """
-        super().__init__(task, task_id, inputs, outputs, parameters, local_execution, **kwargs)
+        super().__init__(task, inputs, outputs, parameters, local_execution, **kwargs)
         self.function_spec = function_spec
         self.infer_spec = infer_spec
         self.profile_spec = profile_spec
@@ -36,18 +31,8 @@ class RunSpecNefertem(RunSpec):
         self.metric_spec = metric_spec
 
 
-class DataitemList(BaseModel):
-    """Dataitem list model."""
-
-    dataitems: list[str]
-    """List of dataitem names."""
-
-
-class RunParamsNefertem(RunParams):
+class RunParamsNefertem(RunParamsData):
     """Run Nefertem parameters."""
-
-    inputs: DataitemList
-    """List of input dataitem names. Override RunSpec.inputs."""
 
     function_spec: dict = None
     """The function spec."""

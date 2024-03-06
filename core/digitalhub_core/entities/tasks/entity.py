@@ -163,7 +163,6 @@ class Task(Entity):
         return self.new_run(
             project=self.project,
             task=self._get_task_string(),
-            task_id=self.id,
             kind=f"{self.kind.split('+')[0]}+run",
             inputs=inputs,
             outputs=outputs,

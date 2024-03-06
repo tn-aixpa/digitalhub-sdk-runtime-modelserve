@@ -52,7 +52,6 @@ def create_run_from_dict(obj: dict) -> Run:
 def new_run(
     project: str,
     task: str,
-    task_id: str,
     kind: str,
     uuid: str | None = None,
     source: str | None = None,
@@ -70,8 +69,6 @@ def new_run(
     ----------
     project : str
         Name of the project.
-    task_id : str
-        Identifier of the task associated with the run.
     task : str
         Name of the task associated with the run.
     kind : str
@@ -103,7 +100,6 @@ def new_run(
     obj = create_run(
         project=project,
         task=task,
-        task_id=task_id,
         kind=kind,
         uuid=uuid,
         source=source,

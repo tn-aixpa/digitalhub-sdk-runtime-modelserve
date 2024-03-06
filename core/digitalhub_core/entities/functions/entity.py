@@ -246,14 +246,11 @@ class Function(Entity):
         None | Task
             Task if exists, None otherwise.
         """
-        if self._context().local:
-            return
-        api = api_base_list("tasks") + f"?function={self._get_function_string()}"
+        api = api_base_list("tasks") + f"?function={self._get_function_string()}&kind={self.kind}+{action}"
         obj = self._context().read_object(api)
         for i in obj.get("content", []):
-            if i["kind"] == f"{self.kind}+{action}":
-                self._tasks[action] = create_task_from_dict(i)
-                return self._tasks[action]
+            self._tasks[action] = create_task_from_dict(i)
+            return self._tasks[action]
 
     def _get_function_string(self) -> str:
         """

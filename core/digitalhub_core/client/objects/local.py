@@ -144,10 +144,7 @@ class ClientLocal(Client):
 
             else:
                 if uuid is None:
-                    if dto in ["runs", "tasks"]:
-                        obj = self._db[dto][name]
-                    else:
-                        obj = self._db[dto][name]
+                    obj = self._db[dto][name]
                 else:
                     obj = self._db[dto][name][uuid]
 
@@ -240,6 +237,40 @@ class ClientLocal(Client):
             msg = self._format_msg(code, project, dto, name, uuid)
             raise BackendError(msg)
         return {"deleted": obj}
+
+    def list_objects(self, api: str, filters: dict) -> list[dict]:
+        """
+        List objects.
+
+        Parameters
+        ----------
+        api : str
+            The api to list the objects with.
+
+        Returns
+        -------
+        list[dict]
+            The list of objects.
+        """
+        project, dto, name, uuid, code = self._parse_api(api)
+        try:
+            # Base API
+            #
+            # GET /api/v1/projects
+            if project is None:
+                objs = self._db[dto].values()
+
+            # Context API
+            #
+            # GET /api/v1/-/<project-name>/artifacts
+            else:
+                objs = self._db[dto].values()
+
+            return list(objs)
+
+        except KeyError:
+            msg = self._format_msg(code, project, dto, name, uuid)
+            raise BackendError(msg)
 
     ########################
     # Logic for CRUD

@@ -39,6 +39,12 @@ class Client:
         Delete object method.
         """
 
+    @abstractmethod
+    def list_objects(self, api: str, filters: dict) -> dict:
+        """
+        Generic call method.
+        """
+
     @staticmethod
     @abstractmethod
     def is_local() -> bool:

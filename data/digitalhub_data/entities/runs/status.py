@@ -1,18 +1,41 @@
 """
-RunResultsData module.
+RunStatusData module.
 """
 from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities.runs.results import RunResults
+from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
+from digitalhub_core.entities.runs.status import EntitiesOutputs, RunStatus
+from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
-class RunResultsData(RunResults):
+class RunStatusData(RunStatus):
+    """
+    A class representing a run status.
+    """
+
+    def get_outputs(self) -> dict:
+        """
+        Get results.
+
+        Returns
+        -------
+        dict
+            The results.
+        """
+        artifacts = self.outputs.get("artifacts", [])
+        artifact_objs = [get_artifact_from_key(dti.get("id")) for dti in artifacts]
+        dataitems = self.outputs.get("dataitems", [])
+        dataitems_objs = [get_dataitem_from_key(dti.get("id")) for dti in dataitems]
+        return EntitiesOutputsData(artifacts=artifact_objs, dataitems=dataitems_objs)
+
+
+class EntitiesOutputsData(EntitiesOutputs):
     """
     A class representing a run results.
     """
@@ -44,14 +67,14 @@ class RunResultsData(RunResults):
         """
         return self.dataitems if self.dataitems is not None else []
 
-    def get_dataitem_by_key(self, key: str) -> Dataitem | None:
+    def get_dataitem_by_name(self, name: str) -> Dataitem | None:
         """
-        Get dataitem by key.
+        Get dataitem by name.
 
         Parameters
         ----------
-        key : str
-            Key.
+        name : str
+            Entity name.
 
         Returns
         -------
@@ -59,6 +82,6 @@ class RunResultsData(RunResults):
             Dataitem.
         """
         for dataitem in self.get_dataitems():
-            if dataitem.name == key:
+            if dataitem.name == name:
                 return dataitem
         return None
