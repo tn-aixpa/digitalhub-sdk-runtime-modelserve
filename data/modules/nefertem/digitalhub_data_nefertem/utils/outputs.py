@@ -45,7 +45,7 @@ def create_artifact(src_path: str, project: str, run_id: str) -> tuple[Artifact,
         kwargs["project"] = project
         kwargs["name"] = name
         kwargs["kind"] = "artifact"
-        kwargs["target_path"] = f"s3://{S3_BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
+        kwargs["path"] = f"s3://{S3_BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
         kwargs["hash"] = calculate_blob_hash(src_path)
         kwargs["size"] = get_file_size(src_path)
         kwargs["file_type"] = get_file_mime_type(src_path)

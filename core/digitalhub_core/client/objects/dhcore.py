@@ -127,11 +127,40 @@ class ClientDHCore(Client):
             resp = {"deleted": resp}
         return resp
 
-    def list_objects(self, api: str, filters: dict | None = None) -> dict:
+    def list_objects(self, api: str, filters: dict | None = None) -> list[dict]:
         """
-        Generic call method.
+        List objects.
+
+        Parameters
+        ----------
+        api : str
+            The api to list the objects with.
+        filters : dict
+            The filters to list the objects with.
+
+        Returns
+        -------
+        list[dict]
+            The list of objects.
         """
-        return self._call("GET", api, params=filters)
+        if filters is None:
+            filters = {}
+
+        start_page = 0
+        if "page" not in filters:
+            filters["page"] = start_page
+
+        objects = []
+        while True:
+            # Maybe introduce some sleep?
+            resp = self._call("GET", api, params=filters)
+            contents = resp["content"]
+            if not contents:
+                break
+            objects.extend(contents)
+            filters["page"] = filters["page"] + 1
+
+        return objects
 
     def _call(self, call_type: str, api: str, **kwargs) -> dict:
         """

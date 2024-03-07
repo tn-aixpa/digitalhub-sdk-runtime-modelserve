@@ -86,7 +86,7 @@ def create_artifact(mlrun_artifact: dict) -> Artifact:
         kwargs["project"] = mlrun_artifact.get("metadata", {}).get("project")
         kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
         kwargs["kind"] = "artifact"
-        kwargs["target_path"] = mlrun_artifact.get("spec", {}).get("target_path")
+        kwargs["path"] = mlrun_artifact.get("spec", {}).get("path")
         kwargs["size"] = mlrun_artifact.get("spec", {}).get("size")
         kwargs["hash"] = mlrun_artifact.get("spec", {}).get("hash")
         return new_artifact(**kwargs)
@@ -116,7 +116,7 @@ def create_dataitem_(mlrun_output: dict) -> Dataitem:
         kwargs["project"] = mlrun_output.get("metadata", {}).get("project")
         kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
         kwargs["kind"] = "table"
-        kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
+        kwargs["path"] = mlrun_output.get("spec", {}).get("path")
         kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {}).get("fields")
         dataitem = create_dataitem(**kwargs)
 

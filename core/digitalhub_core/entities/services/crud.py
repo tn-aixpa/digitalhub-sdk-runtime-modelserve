@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.services.entity import service_from_dict, service_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -184,3 +184,21 @@ def update_service(service: Service) -> dict:
     """
     api = api_ctx_update(service.project, "services", service.name, uuid=service.id)
     return get_context(service.project).update_object(service.to_dict(), api)
+
+
+def list_services(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all services.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of services dict representations.
+    """
+    api = api_ctx_list(project, "services")
+    return get_context(project).list_objects(api, filters=filters)

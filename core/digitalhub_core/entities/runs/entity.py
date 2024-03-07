@@ -352,7 +352,7 @@ class Run(Entity):
         api = api_base_list("tasks")
         filters = {"function": function_string, "kind": parsed.task_kind}
         obj = self._context().list_objects(api, filters=filters)
-        return obj.get("content", [])[0]
+        return obj[0]
 
     #############################
     # Runtimes

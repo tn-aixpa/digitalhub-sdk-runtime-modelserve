@@ -17,21 +17,24 @@ from digitalhub_core.entities.artifacts.crud import (
     delete_artifact,
     get_artifact,
     new_artifact,
+    list_artifacts,
 )
 from digitalhub_core.entities.functions.crud import (
     create_function_from_dict,
     delete_function,
     get_function,
+    list_functions,
     new_function,
 )
 from digitalhub_core.entities.projects.metadata import ProjectMetadata
 from digitalhub_core.entities.projects.status import ProjectStatus
-from digitalhub_core.entities.secrets.crud import create_secret_from_dict, delete_secret, get_secret, new_secret
+from digitalhub_core.entities.secrets.crud import create_secret_from_dict, delete_secret, get_secret, new_secret, list_secrets
 from digitalhub_core.entities.workflows.crud import (
     create_workflow_from_dict,
     delete_workflow,
     get_workflow,
     new_workflow,
+    list_workflows,
 )
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
@@ -379,6 +382,22 @@ class Project(Entity):
         """
         self._add_object(artifact, "artifacts")
 
+    def list_artifacts(self, filters: dict | None = None) -> list[dict]:
+        """
+        List artifacts associated with the project.
+
+        Parameters
+        ----------
+        filters : dict
+            Filters to apply to the list.
+
+        Returns
+        -------
+        list[dict]
+            List of objects related to project.
+        """
+        return list_artifacts(self.name, filters)
+
     #############################
     #  Functions
     #############################
@@ -458,6 +477,22 @@ class Project(Entity):
         None
         """
         self._add_object(function, "functions")
+
+    def list_functions(self, filters: dict | None = None) -> list[dict]:
+        """
+        List functions associated with the project.
+
+        Parameters
+        ----------
+        filters : dict
+            Filters to apply to the list.
+
+        Returns
+        -------
+        list[dict]
+            List of objects related to project.
+        """
+        return list_functions(self.name, filters)
 
     #############################
     #  Workflows
@@ -539,6 +574,22 @@ class Project(Entity):
         """
         self._add_object(workflow, "workflows")
 
+    def list_workflows(self, filters: dict | None = None) -> list[dict]:
+        """
+        List workflows associated with the project.
+
+        Parameters
+        ----------
+        filters : dict
+            Filters to apply to the list.
+
+        Returns
+        -------
+        list[dict]
+            List of objects related to project.
+        """
+        return list_workflows(self.name, filters)
+
     #############################
     #  Secrets
     #############################
@@ -618,6 +669,22 @@ class Project(Entity):
         None
         """
         self._add_object(secret, "secrets")
+
+    def list_secrets(self, filters: dict | None = None) -> list[dict]:
+        """
+        List secrets associated with the project.
+
+        Parameters
+        ----------
+        filters : dict
+            Filters to apply to the list.
+
+        Returns
+        -------
+        list[dict]
+            List of objects related to project.
+        """
+        return list_secrets(self.name, filters)
 
     #############################
     #  Static interface methods

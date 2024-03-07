@@ -12,6 +12,7 @@ from digitalhub_data.entities.dataitems.crud import (
     delete_dataitem,
     get_dataitem,
     new_dataitem,
+    list_dataitems,
 )
 
 if typing.TYPE_CHECKING:
@@ -107,6 +108,22 @@ class ProjectData(Project):
         None
         """
         self._add_object(dataitem, "dataitems")
+
+    def list_dataitems(self, filters: dict | None = None) -> list[dict]:
+        """
+        List dataitems associated with the project.
+
+        Parameters
+        ----------
+        filters : dict
+            Filters to apply to the list.
+
+        Returns
+        -------
+        list[dict]
+            List of objects related to project.
+        """
+        return list_dataitems(self.name, filters)
 
     @staticmethod
     def _parse_dict(

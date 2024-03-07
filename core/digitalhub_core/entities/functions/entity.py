@@ -249,8 +249,8 @@ class Function(Entity):
         """
         api = api_base_list("tasks")
         filters = {"function": self._get_function_string(), "kind": f"{self.kind}+{action}"}
-        obj = self._context().list_objects(api, filters)
-        for i in obj.get("content", []):
+        objs = self._context().list_objects(api, filters)
+        for i in objs:
             self._tasks[action] = create_task_from_dict(i)
             return self._tasks[action]
 
