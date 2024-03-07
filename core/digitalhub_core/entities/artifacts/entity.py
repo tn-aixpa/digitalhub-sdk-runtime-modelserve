@@ -162,7 +162,7 @@ class Artifact(Entity):
             Path of the artifact (temporary or not).
         """
         # Check if target path is provided and if it is remote
-        trg = self._parameter_or_default(target, self.spec.target_path)
+        trg = self._parameter_or_default(target, self.spec.path)
         self._check_remote(trg)
 
         # If local store, return local artifact path
@@ -195,7 +195,7 @@ class Artifact(Entity):
         """
 
         # Check if target path is provided and if it is remote
-        trg = self._parameter_or_default(target, self.spec.target_path)
+        trg = self._parameter_or_default(target, self.spec.path)
         self._check_remote(trg)
 
         # Check if download destination path is specified and rebuild it if necessary
@@ -227,7 +227,7 @@ class Artifact(Entity):
             Path of the uploaded artifact.
         """
         # Check if target path is provided and if it is remote
-        trg = self._parameter_or_default(target, self.spec.target_path)
+        trg = self._parameter_or_default(target, self.spec.path)
         self._check_remote(trg)
 
         # Check if source path is provided and if it is local
@@ -400,8 +400,8 @@ def artifact_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
+    path: str | None = None,
     src_path: str | None = None,
-    target_path: str | None = None,
     **kwargs,
 ) -> Artifact:
     """
@@ -425,10 +425,10 @@ def artifact_from_parameters(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
+    path : str
+        Destination path of the artifact.
     src_path : str
         Path to the artifact on local file system.
-    targeth_path : str
-        Destination path of the artifact.
     **kwargs
         Spec keyword arguments.
 
@@ -452,8 +452,8 @@ def artifact_from_parameters(
     spec = build_spec(
         kind,
         layer_digitalhub="digitalhub_core",
+        path=path,
         src_path=src_path,
-        target_path=target_path,
         **kwargs,
     )
     status = build_status(kind, layer_digitalhub="digitalhub_core")
