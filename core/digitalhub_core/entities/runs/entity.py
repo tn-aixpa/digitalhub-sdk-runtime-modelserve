@@ -226,7 +226,7 @@ class Run(Entity):
         dict
             Results from backend.
         """
-        return self.status.get_outputs()
+        return self.status.get_outputs(self.project)
 
     def refresh(self) -> Run:
         """

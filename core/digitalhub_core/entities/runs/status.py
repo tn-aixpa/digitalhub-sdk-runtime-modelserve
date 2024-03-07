@@ -44,7 +44,7 @@ class RunStatus(Status):
         """
         return self.results if self.results is not None else {}
 
-    def get_outputs(self, project_name: str) -> dict:
+    def get_outputs(self, project_name: str) -> EntitiesOutputs:
         """
         Get results.
 
@@ -54,7 +54,7 @@ class RunStatus(Status):
             The results.
         """
         outputs = EntityGetter().collect_entity(self.outputs, project_name)
-        return EntitiesOutputs(**outputs).to_dict()
+        return EntitiesOutputs(**outputs)
 
 
 class EntitiesOutputs:

@@ -18,7 +18,7 @@ class RunStatusData(RunStatus):
     A class representing a run status.
     """
 
-    def get_outputs(self, project_name: str) -> dict:
+    def get_outputs(self, project_name: str) -> EntitiesOutputsData:
         """
         Get results.
 
@@ -33,7 +33,7 @@ class RunStatusData(RunStatus):
             The results.
         """
         outputs = EntityGetterData().collect_entity(self.outputs, project_name)
-        return EntitiesOutputsData(**outputs).to_dict()
+        return EntitiesOutputsData(**outputs)
 
 
 class EntitiesOutputsData(EntitiesOutputs):

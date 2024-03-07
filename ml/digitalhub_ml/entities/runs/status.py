@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 
 
 class RunStatusMl(RunStatusData):
-    def get_outputs(self, project_name: str) -> dict:
+    def get_outputs(self, project_name: str) -> EntitiesOutputsMl:
         """
         Get results.
 
@@ -27,7 +27,7 @@ class RunStatusMl(RunStatusData):
             The results.
         """
         outputs = EntityGetterMl().collect_entity(self.outputs, project_name)
-        return EntitiesOutputsMl(**outputs).to_dict()
+        return EntitiesOutputsMl(**outputs)
 
 
 class EntitiesOutputsMl(EntitiesOutputsData):
