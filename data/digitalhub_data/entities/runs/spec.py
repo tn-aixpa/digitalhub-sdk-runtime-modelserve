@@ -16,7 +16,7 @@ if typing.TYPE_CHECKING:
 class RunSpecData(RunSpec):
     """Run specification."""
 
-    def get_inputs(self, project_name: str) -> dict[list[Entity]]:
+    def get_inputs(self, project_name: str) -> dict[str, list[Entity]]:
         """
         Get inputs.
 

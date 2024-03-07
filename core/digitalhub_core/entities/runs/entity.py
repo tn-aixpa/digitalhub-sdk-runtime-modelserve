@@ -204,7 +204,7 @@ class Run(Entity):
         list
             List of input objects.
         """
-        return self.spec.get_inputs()
+        return self.spec.get_inputs(self.project)
 
     def results(self) -> dict:
         """

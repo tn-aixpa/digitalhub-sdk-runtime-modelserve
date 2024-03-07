@@ -49,7 +49,7 @@ class RunSpec(Spec):
         self.parameters = parameters if parameters is not None else {}
         self.local_execution = local_execution
 
-    def get_inputs(self, project_name: str) -> dict[list[Entity]]:
+    def get_inputs(self, project_name: str) -> dict[str, list[Entity]]:
         """
         Get inputs.
 
@@ -60,8 +60,8 @@ class RunSpec(Spec):
 
         Returns
         -------
-        dict
-            The inputs of the run.
+        dict[str, list[Entity]]
+            The inputs.
         """
         return EntityGetter().collect_entity(self.inputs, project_name)
 

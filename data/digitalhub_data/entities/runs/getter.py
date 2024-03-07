@@ -27,7 +27,7 @@ class EntityGetterData(EntityGetter):
                 raise ValueError(f"Invalid dataitem: {i}")
         return dataitems
 
-    def collect_entity(self, object_to_parse: dict, project: str) -> dict[list[Entity]]:
+    def collect_entity(self, object_to_parse: dict, project: str) -> dict[str, list[Entity]]:
         entities = super().collect_entity(object_to_parse, project)
         dataitem_list = object_to_parse.get("dataitems", [])
         entities["dataitems"] = self.collect_dataitems(project, dataitem_list)

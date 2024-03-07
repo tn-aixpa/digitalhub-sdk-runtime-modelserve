@@ -27,7 +27,7 @@ class EntityGetterMl(EntityGetterData):
                 raise ValueError(f"Invalid model: {i}")
         return models
 
-    def collect_entity(self, object_to_parse: dict, project: str) -> dict[list[Entity]]:
+    def collect_entity(self, object_to_parse: dict, project: str) -> dict[str, list[Entity]]:
         entities = super().collect_entity(object_to_parse, project)
         model_list = object_to_parse.get("models", [])
         entities["models"] = self.collect_models(project, model_list)

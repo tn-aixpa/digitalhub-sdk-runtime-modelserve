@@ -10,7 +10,26 @@ if typing.TYPE_CHECKING:
 
 
 class EntityGetter:
+    """
+    Class used to collect entity objects from keys, names or dict representations.
+    """
+
     def collect_artifacts(self, project: str, artifact_list: list[str | dict]) -> list[Artifact]:
+        """
+        Collect artifacts from artifact_list.
+
+        Parameters
+        ----------
+        project : str
+            Project name.
+        artifact_list : list
+            List of artifacts.
+
+        Returns
+        -------
+        list
+            The artifacts.
+        """
         artifacts = []
         for i in artifact_list:
             if isinstance(i, str):
@@ -26,8 +45,24 @@ class EntityGetter:
                 raise ValueError(f"Invalid artifact: {i}")
         return artifacts
 
-    def collect_entity(self, object_to_parse: dict, project: str) -> dict[list[Entity]]:
+    def collect_entity(self, object_to_parse: dict, project: str) -> dict[str, list[Entity]]:
+        """
+        Collect entities from object_to_parse.
+
+        Parameters
+        ----------
+        object_to_parse : dict
+            Object to parse.
+        project : str
+            Project name.
+
+        Returns
+        -------
+        dict
+            The entities.
+        """
         entities = {}
         artifact_list = object_to_parse.get("artifacts", [])
+        artifact_list = artifact_list if artifact_list is not None else []
         entities["artifacts"] = self.collect_artifacts(project, artifact_list)
         return entities
