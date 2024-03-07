@@ -64,12 +64,13 @@ class Dataitem(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/dataitems/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "name", "id"])
+        self._obj_attr.extend(["project", "name", "id", "key"])
 
     #############################
     #  Save / Export
@@ -217,7 +218,7 @@ class Dataitem(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(DataitemMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, layer_digitalhub="digitalhub_data", **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             layer_digitalhub="digitalhub_data",

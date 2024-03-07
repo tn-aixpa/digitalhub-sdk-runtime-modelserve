@@ -40,7 +40,7 @@ class Client:
         """
 
     @abstractmethod
-    def list_objects(self, api: str, filters: dict) -> dict:
+    def list_objects(self, api: str, filters: dict | None = None) -> dict:
         """
         Generic call method.
         """

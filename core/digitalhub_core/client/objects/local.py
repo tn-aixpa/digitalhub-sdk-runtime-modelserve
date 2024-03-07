@@ -1,6 +1,8 @@
 """
 Local Client module.
 """
+from __future__ import annotations
+
 from copy import deepcopy
 
 from digitalhub_core.client.objects.base import Client
@@ -238,7 +240,7 @@ class ClientLocal(Client):
             raise BackendError(msg)
         return {"deleted": obj}
 
-    def list_objects(self, api: str, filters: dict) -> list[dict]:
+    def list_objects(self, api: str, filters: dict | None = None) -> list:
         """
         List objects.
 
@@ -249,28 +251,14 @@ class ClientLocal(Client):
 
         Returns
         -------
-        list[dict]
+        list | None
             The list of objects.
         """
-        project, dto, name, uuid, code = self._parse_api(api)
+        _, dto, _, _, _ = self._parse_api(api)
         try:
-            # Base API
-            #
-            # GET /api/v1/projects
-            if project is None:
-                objs = self._db[dto].values()
-
-            # Context API
-            #
-            # GET /api/v1/-/<project-name>/artifacts
-            else:
-                objs = self._db[dto].values()
-
-            return list(objs)
-
+            return self._db[dto]
         except KeyError:
-            msg = self._format_msg(code, project, dto, name, uuid)
-            raise BackendError(msg)
+            return None
 
     ########################
     # Logic for CRUD

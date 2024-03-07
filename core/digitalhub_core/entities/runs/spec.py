@@ -3,8 +3,14 @@ Run base specification module.
 """
 from __future__ import annotations
 
+import typing
+
 from digitalhub_core.entities._base.spec import Spec, SpecParams
+from digitalhub_core.entities.runs.getter import EntityGetter
 from digitalhub_core.entities.runs.models import EntityInputsOutputs
+
+if typing.TYPE_CHECKING:
+    from digitalhub_core.entities._base.entity import Entity
 
 
 class RunSpec(Spec):
@@ -43,16 +49,21 @@ class RunSpec(Spec):
         self.parameters = parameters if parameters is not None else {}
         self.local_execution = local_execution
 
-    def get_inputs(self) -> dict:
+    def get_inputs(self, project_name: str) -> dict[list[Entity]]:
         """
         Get inputs.
+
+        Parameters
+        ----------
+        project_name : str
+            Name of the project.
 
         Returns
         -------
         dict
             The inputs of the run.
         """
-        return self.inputs
+        return EntityGetter().collect_entity(self.inputs, project_name)
 
 
 class RunParams(SpecParams):

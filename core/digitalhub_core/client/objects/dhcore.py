@@ -127,7 +127,7 @@ class ClientDHCore(Client):
             resp = {"deleted": resp}
         return resp
 
-    def list_objects(self, api: str, filters: dict) -> dict:
+    def list_objects(self, api: str, filters: dict | None = None) -> dict:
         """
         Generic call method.
         """

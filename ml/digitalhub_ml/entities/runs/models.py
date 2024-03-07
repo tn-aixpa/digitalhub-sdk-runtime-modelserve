@@ -8,5 +8,5 @@ class EntityInputsOutputsMl(EntityInputsOutputsData):
     Inputs/outputs model for runs.
     """
 
-    models: list[str, dict]
+    models: list[str, dict] = None
     """List of model names, keys or objects."""

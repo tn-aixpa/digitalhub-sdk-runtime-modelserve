@@ -90,12 +90,13 @@ class Project(Entity):
         super().__init__()
         self.name = name
         self.kind = kind
+        self.key = f"store://{name}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.append("name")
+        self._obj_attr.extend(["name", "key"])
 
         # Set client
         self._client = get_client(local)
@@ -644,7 +645,7 @@ class Project(Entity):
         """
         name = build_uuid(obj.get("name"))
         kind = obj.get("kind")
-        metadata = build_metadata(ProjectMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, layer_digitalhub="digitalhub_core", **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             layer_digitalhub="digitalhub_core",
@@ -708,7 +709,8 @@ def project_from_parameters(
         **kwargs,
     )
     metadata = build_metadata(
-        ProjectMetadata,
+        kind,
+        layer_digitalhub="digitalhub_core",
         name=name,
         description=description,
         labels=labels,

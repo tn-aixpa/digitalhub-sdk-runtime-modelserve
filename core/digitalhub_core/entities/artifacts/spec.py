@@ -13,7 +13,6 @@ class ArtifactSpec(Spec):
 
     def __init__(
         self,
-        key: str | None = None,
         src_path: str | None = None,
         target_path: str | None = None,
         hash: str | None = None,
@@ -27,8 +26,6 @@ class ArtifactSpec(Spec):
 
         Parameters
         ----------
-        key : str
-            The key of the artifact.
         src_path : str
             The source path of the artifact.
         target_path : str
@@ -44,7 +41,6 @@ class ArtifactSpec(Spec):
         **kwargs
             Keywords arguments.
         """
-        self.key = key
         self.src_path = src_path
         self.target_path = target_path
         self.hash = hash
@@ -59,9 +55,6 @@ class ArtifactParams(SpecParams):
     """
     Artifact base parameters.
     """
-
-    key: str = None
-    """Key of the artifact"""
 
     src_path: str = None
     """Source path of the artifact."""

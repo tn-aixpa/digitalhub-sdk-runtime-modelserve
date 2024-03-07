@@ -76,12 +76,13 @@ class Run(Entity):
         self.project = project
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/runs/{kind}/{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "id"])
+        self._obj_attr.extend(["project", "id", "key"])
 
     #############################
     #  Save / Export
@@ -335,15 +336,22 @@ class Run(Entity):
             Task from backend.
         """
         parsed = self._parse_task_string()
+        function_string = f"{parsed.function_kind}://{self.project}/{parsed.function_name}:{parsed.function_id}"
+
+        # Local backend
         if self._context().local:
             api = api_base_list("tasks")
             tasks = self._context().list_objects(api)
-            for k, v in tasks.items():
-                ...
+            for _, v in tasks.items():
+                func = v.get("spec").get("function")
+                if func == function_string:
+                    return v
+            raise EntityError("Task not found.")
 
-        function_string = f"{parsed.function_kind}://{self.project}/{parsed.function_name}/{parsed.function_id}"
-        api = api_base_list("tasks") + f"?function={function_string}&kind={parsed.function_kind}+{parsed.task_kind}"
-        obj = self._context().read_object(api)
+        # Remote backend
+        api = api_base_list("tasks")
+        filters = {"function": function_string, "kind": parsed.task_kind}
+        obj = self._context().list_objects(api, filters=filters)
         return obj.get("content", [])[0]
 
     #############################
@@ -389,7 +397,7 @@ class Run(Entity):
         project = obj.get("project")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(RunMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, framework_runtime=kind.split("+")[0], **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             framework_runtime=kind.split("+")[0],
@@ -457,7 +465,8 @@ def run_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        RunMetadata,
+        kind=kind,
+        framework_runtime=task.split("+")[0],
         project=project,
         name=uuid,
         source=source,

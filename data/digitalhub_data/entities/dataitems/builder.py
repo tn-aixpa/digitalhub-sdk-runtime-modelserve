@@ -10,7 +10,6 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid
-from digitalhub_data.entities.dataitems.metadata import DataitemMetadata
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
@@ -60,7 +59,6 @@ def dataitem_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    key: str | None = None,
     path: str | None = None,
     **kwargs,
 ) -> Dataitem:
@@ -85,8 +83,6 @@ def dataitem_from_parameters(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    key : str
-        Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
     **kwargs
@@ -98,9 +94,9 @@ def dataitem_from_parameters(
        Object instance.
     """
     uuid = build_uuid(uuid)
-    key = key if key is not None else f"store://{project}/dataitems/{kind}/{name}:{uuid}"
     metadata = build_metadata(
-        DataitemMetadata,
+        kind,
+        layer_digitalhub="digitalhub_data",
         project=project,
         name=name,
         version=uuid,
@@ -112,7 +108,6 @@ def dataitem_from_parameters(
     spec = build_spec(
         kind,
         layer_digitalhub="digitalhub_data",
-        key=key,
         path=path,
         **kwargs,
     )

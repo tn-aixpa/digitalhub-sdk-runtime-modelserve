@@ -61,7 +61,7 @@ def build_spec(
     registry = import_registry(module_to_import, "spec_registry")
 
     # Import classes
-    class_spec, class_params = import_classes(registry, kind)
+    class_spec, class_params = _import_classes(registry, kind)
 
     # Validate arguments
     if validate:
@@ -70,7 +70,7 @@ def build_spec(
     return class_spec(**kwargs)
 
 
-def import_classes(registry: dict[str, dict[str, str]], kind: str) -> tuple[Spec, SpecParams]:
+def _import_classes(registry: dict[str, dict[str, str]], kind: str) -> tuple[Spec, SpecParams]:
     """
     Import spec and params classes from registry.
 
@@ -79,7 +79,7 @@ def import_classes(registry: dict[str, dict[str, str]], kind: str) -> tuple[Spec
     registry : dict
         Registry.
     kind : str
-        Spec kind.
+        Entity kind.
 
     Returns
     -------

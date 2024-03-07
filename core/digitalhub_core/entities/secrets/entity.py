@@ -62,12 +62,13 @@ class Secret(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/secrets/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "name", "id"])
+        self._obj_attr.extend(["project", "name", "id", "key"])
 
     #############################
     #  Save / Export
@@ -204,7 +205,7 @@ class Secret(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(SecretMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, layer_digitalhub="digitalhub_core", **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             layer_digitalhub="digitalhub_core",
@@ -271,7 +272,8 @@ def secret_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        SecretMetadata,
+        kind,
+        layer_digitalhub="digitalhub_core",
         project=project,
         name=name,
         version=uuid,

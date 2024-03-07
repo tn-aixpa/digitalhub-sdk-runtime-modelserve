@@ -5,7 +5,6 @@ import typing
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.projects.metadata import ProjectMetadata
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
 from digitalhub_ml.entities.models.crud import create_model_from_dict, delete_model, get_model, new_model
@@ -127,7 +126,7 @@ class ProjectMl(ProjectData):
         # Override methods to search in digitalhub_ml
         name = build_uuid(obj.get("name"))
         kind = obj.get("kind")
-        metadata = build_metadata(ProjectMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, layer_digitalhub="digitalhub_core", **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             layer_digitalhub="digitalhub_ml",
@@ -191,7 +190,8 @@ def project_from_parameters(
         **kwargs,
     )
     metadata = build_metadata(
-        ProjectMetadata,
+        kind,
+        layer_digitalhub="digitalhub_core",
         name=name,
         description=description,
         labels=labels,

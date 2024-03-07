@@ -5,7 +5,6 @@ from pathlib import Path
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
-from digitalhub_core.entities.runs.status import get_entity_info
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import (
     calculate_blob_hash,
@@ -103,7 +102,9 @@ def build_status(results: dict, outputs: list[tuple[Artifact, str]]) -> dict:
     return {
         "state": State.COMPLETED.value,
         "outputs": {
-            "artifacts": [get_entity_info(i[0], "artifacts") for i in outputs],
+            "artifacts": [i[0].key for i in outputs],
         },
-        "results": results,
+        "results": {
+            "nefertem_result": results,
+        },
     }

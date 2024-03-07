@@ -8,5 +8,5 @@ class EntityInputsOutputs(BaseModel):
     Inputs/outputs model for runs.
     """
 
-    artifacts: list[str, dict]
+    artifacts: list[str, dict] = None
     """List of artifact names, keys or objects."""

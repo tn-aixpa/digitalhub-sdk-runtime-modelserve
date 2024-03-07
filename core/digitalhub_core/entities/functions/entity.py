@@ -67,12 +67,13 @@ class Function(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/functions/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "name", "id"])
+        self._obj_attr.extend(["project", "name", "id", "key"])
 
         # Initialize tasks
         self._tasks: dict[str, Task] = {}
@@ -202,7 +203,7 @@ class Function(Entity):
         task = self._tasks.get(action)
 
         # Check in backend
-        if task is None:
+        if task is None and not self._context().local:
             task = self._check_task_in_backend(action)
 
         # Create new task
@@ -246,8 +247,9 @@ class Function(Entity):
         None | Task
             Task if exists, None otherwise.
         """
-        api = api_base_list("tasks") + f"?function={self._get_function_string()}&kind={self.kind}+{action}"
-        obj = self._context().read_object(api)
+        api = api_base_list("tasks")
+        filters = {"function": self._get_function_string(), "kind": f"{self.kind}+{action}"}
+        obj = self._context().list_objects(api, filters)
         for i in obj.get("content", []):
             self._tasks[action] = create_task_from_dict(i)
             return self._tasks[action]
@@ -455,7 +457,7 @@ class Function(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(FunctionMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, framework_runtime=kind, **obj.get("metadata", {}))
         spec = build_spec(kind, framework_runtime=kind, validate=validate, **obj.get("spec", {}))
         status = build_status(kind, framework_runtime=kind, **obj.get("status", {}))
         return {
@@ -520,7 +522,8 @@ def function_from_parameters(
         **kwargs,
     )
     metadata = build_metadata(
-        FunctionMetadata,
+        kind,
+        framework_runtime=kind,
         project=project,
         name=name,
         version=uuid,

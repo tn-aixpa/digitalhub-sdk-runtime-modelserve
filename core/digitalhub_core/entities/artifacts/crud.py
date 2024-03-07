@@ -59,7 +59,6 @@ def new_artifact(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
     **kwargs,
@@ -85,8 +84,6 @@ def new_artifact(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    key : str
-        Representation of "artifacts"act like store://etc..
     src_path : str
         Path to the artifact on local file system.
     targeth_path : str
@@ -108,7 +105,6 @@ def new_artifact(
         source=source,
         labels=labels,
         embedded=embedded,
-        key=key,
         src_path=src_path,
         target_path=target_path,
         **kwargs,

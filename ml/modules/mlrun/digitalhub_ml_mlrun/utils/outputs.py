@@ -4,7 +4,6 @@ import typing
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
-from digitalhub_core.entities.runs.status import get_entity_info
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.utils.data_utils import get_data_preview
@@ -12,6 +11,7 @@ from digitalhub_data.utils.data_utils import get_data_preview
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
+    from digitalhub_ml.entities.models.entity import Model
     from mlrun.runtimes.base import RunObject
 
 
@@ -158,7 +158,7 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
         raise RuntimeError(msg)
 
 
-def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem]) -> dict:
+def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem | Model]) -> dict:
     """
     Collect outputs.
 
@@ -166,25 +166,31 @@ def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem
     ----------
     execution_results : RunObject
         Execution results.
-    outputs : list[Artifact | Dataitem]
+    outputs : list[Artifact | Dataitem | Model]
         List of entities to collect outputs from.
 
     """
     try:
         artifacts = []
         dataitems = []
+        models = []
         for i in outputs:
             if i.__class__.__name__ == "Artifact":
-                artifacts.append(get_entity_info(i, "artifacts"))
+                artifacts.append(i.key)
             elif i.__class__.__name__ == "Dataitem":
-                dataitems.append(get_entity_info(i, "dataitems"))
+                dataitems.append(i.key)
+            elif i.__class__.__name__ == "Model":
+                models.append(i.key)
         return {
             "state": map_state(execution_results.status.state),
             "outputs": {
                 "artifacts": artifacts,
                 "dataitems": dataitems,
+                "models": models,
             },
-            "results": execution_results.to_json(),
+            "results": {
+                "mlrun_result": execution_results.to_json(),
+            },
         }
     except Exception:
         msg = "Something got wrong during run status building."

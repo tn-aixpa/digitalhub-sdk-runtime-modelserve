@@ -5,9 +5,8 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
 from digitalhub_core.entities.runs.status import EntitiesOutputs, RunStatus
-from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
+from digitalhub_data.entities.runs.getter import EntityGetterData
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
@@ -19,20 +18,22 @@ class RunStatusData(RunStatus):
     A class representing a run status.
     """
 
-    def get_outputs(self) -> dict:
+    def get_outputs(self, project_name: str) -> dict:
         """
         Get results.
+
+        Parameters
+        ----------
+        project_name : str
+            Name of the project.
 
         Returns
         -------
         dict
             The results.
         """
-        artifacts = self.outputs.get("artifacts", [])
-        artifact_objs = [get_artifact_from_key(dti.get("id")) for dti in artifacts]
-        dataitems = self.outputs.get("dataitems", [])
-        dataitems_objs = [get_dataitem_from_key(dti.get("id")) for dti in dataitems]
-        return EntitiesOutputsData(artifacts=artifact_objs, dataitems=dataitems_objs)
+        outputs = EntityGetterData().collect_entity(self.outputs, project_name)
+        return EntitiesOutputsData(**outputs).to_dict()
 
 
 class EntitiesOutputsData(EntitiesOutputs):

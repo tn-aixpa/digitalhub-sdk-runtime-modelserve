@@ -12,8 +12,6 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.artifacts.metadata import ArtifactMetadata
-from digitalhub_core.entities.artifacts.status import ArtifactStatus
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
@@ -23,7 +21,9 @@ from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_core.entities.artifacts.metadata import ArtifactMetadata
     from digitalhub_core.entities.artifacts.spec import ArtifactSpec
+    from digitalhub_core.entities.artifacts.status import ArtifactStatus
 
 
 class Artifact(Entity):
@@ -70,12 +70,13 @@ class Artifact(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/artifacts/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "name", "id"])
+        self._obj_attr.extend(["project", "name", "id", "key"])
 
     #############################
     #  Save / Export
@@ -371,7 +372,7 @@ class Artifact(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(ArtifactMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, layer_digitalhub="digitalhub_core", **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             layer_digitalhub="digitalhub_core",
@@ -399,7 +400,6 @@ def artifact_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    key: str | None = None,
     src_path: str | None = None,
     target_path: str | None = None,
     **kwargs,
@@ -425,8 +425,6 @@ def artifact_from_parameters(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    key : str
-        Representation of "artifacts"act like store://etc..
     src_path : str
         Path to the artifact on local file system.
     targeth_path : str
@@ -441,7 +439,8 @@ def artifact_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        ArtifactMetadata,
+        kind,
+        layer_digitalhub="digitalhub_core",
         project=project,
         name=name,
         version=uuid,
@@ -450,11 +449,9 @@ def artifact_from_parameters(
         labels=labels,
         embedded=embedded,
     )
-    key = key if key is not None else f"store://{project}/artifacts/{kind}/{name}:{uuid}"
     spec = build_spec(
         kind,
         layer_digitalhub="digitalhub_core",
-        key=key,
         src_path=src_path,
         target_path=target_path,
         **kwargs,
