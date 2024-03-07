@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.tasks.entity import task_from_dict, task_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read_no_version, api_ctx_update_name_only
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read_no_version, api_ctx_update_name_only
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -205,3 +205,21 @@ def update_task(task: Task) -> dict:
     """
     api = api_ctx_update_name_only(task.project, "tasks", task.id)
     return get_context(task.project).update_object(task.to_dict(), api)
+
+
+def list_tasks(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all tasks.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of tasks dict representations.
+    """
+    api = api_ctx_list(project, "tasks")
+    return get_context(project).list_objects(api, filters=filters)

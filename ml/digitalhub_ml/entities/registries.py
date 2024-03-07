@@ -1,25 +1,19 @@
 from __future__ import annotations
 
+from digitalhub_core.entities._base.metadata import MetadataRegistry
 from digitalhub_core.entities._base.spec import SpecRegistry
 from digitalhub_core.entities._base.status import StatusRegistry
 
-status_registry = StatusRegistry()
-status_registry.register(
-    "model",
-    "digitalhub_ml.entities.models.status",
-    "ModelStatus",
-)
-
+metadata_registry = MetadataRegistry()
 spec_registry = SpecRegistry()
-spec_registry.register(
+status_registry = StatusRegistry()
+
+spec_registry.register("project", "digitalhub_ml.entities.projects.spec", "ProjectSpecMl", "ProjectParamsMl")
+
+for i in [
     "model",
-    "digitalhub_ml.entities.models.spec",
-    "ModelSpec",
-    "ModelParams",
-)
-spec_registry.register(
-    "project",
-    "digitalhub_ml.entities.projects.spec",
-    "ProjectSpecMl",
-    "ProjectParamsMl",
-)
+]:
+    root = f"digitalhub_ml.entities.{i}s"
+    metadata_registry.register(i, f"{root}.metadata", f"{i.title()}Metadata")
+    spec_registry.register(i, f"{root}.spec", f"{i.title()}Spec", f"{i.title()}Params")
+    status_registry.register(i, f"{root}.status", f"{i.title()}Status")

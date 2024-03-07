@@ -62,12 +62,13 @@ class Service(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/services/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "name", "id"])
+        self._obj_attr.extend(["project", "name", "id", "key"])
 
     #############################
     #  Save / Export

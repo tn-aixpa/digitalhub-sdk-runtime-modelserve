@@ -4,7 +4,6 @@ DHCore Client module.
 from __future__ import annotations
 
 import os
-from typing import Literal
 
 import requests
 from digitalhub_core.client.objects.base import Client
@@ -15,21 +14,20 @@ from pydantic import BaseModel
 class AuthConfig(BaseModel):
     """Client configuration model."""
 
-    auth_type: Literal["basic", "token"]
+    user: str = None
+    """Username."""
 
 
 class OAuth2TokenAuth(AuthConfig):
     """OAuth2 token authentication model."""
 
-    token: str
+    access_token: str
     """OAuth2 token."""
 
 
 class BasicAuth(AuthConfig):
     """Basic authentication model."""
 
-    username: str
-    """Basic authentication username."""
     password: str
     """Basic authentication password."""
 
@@ -50,9 +48,13 @@ class ClientDHCore(Client):
         super().__init__()
 
         self._endpoint = None
+
         self._auth_type = None
-        self._auth_params = None
-        self._set_connection(config)
+        self._user = None
+        self._password = None
+        self._access_token = None
+
+        self._configure(config)
 
     def create_object(self, obj: dict, api: str) -> dict:
         """
@@ -125,6 +127,41 @@ class ClientDHCore(Client):
             resp = {"deleted": resp}
         return resp
 
+    def list_objects(self, api: str, filters: dict | None = None) -> list[dict]:
+        """
+        List objects.
+
+        Parameters
+        ----------
+        api : str
+            The api to list the objects with.
+        filters : dict
+            The filters to list the objects with.
+
+        Returns
+        -------
+        list[dict]
+            The list of objects.
+        """
+        if filters is None:
+            filters = {}
+
+        start_page = 0
+        if "page" not in filters:
+            filters["page"] = start_page
+
+        objects = []
+        while True:
+            # Maybe introduce some sleep?
+            resp = self._call("GET", api, params=filters)
+            contents = resp["content"]
+            if not contents:
+                break
+            objects.extend(contents)
+            filters["page"] = filters["page"] + 1
+
+        return objects
+
     def _call(self, call_type: str, api: str, **kwargs) -> dict:
         """
         Make a call to the DHCore API.
@@ -148,9 +185,9 @@ class ClientDHCore(Client):
 
         # Choose auth type
         if self._auth_type == "basic":
-            kwargs["auth"] = self._auth_params
-        elif self._auth_type == "token":
-            kwargs["headers"] = {"Authorization": f"Bearer {self._auth_params}"}
+            kwargs["auth"] = self._user, self._password
+        elif self._auth_type == "oauth2":
+            kwargs["headers"] = {"Authorization": f"Bearer {self._access_token}"}
 
         # Call
         response = None
@@ -170,10 +207,10 @@ class ClientDHCore(Client):
             raise BackendError(msg) from e
 
     ################################
-    # Env methods
+    # Configuration methods
     ################################
 
-    def _set_connection(self, config: dict = None) -> None:
+    def _configure(self, config: dict = None) -> None:
         """
         Function to set environment variables for DHub Core config.
 
@@ -188,40 +225,38 @@ class ClientDHCore(Client):
         """
 
         # Get endpoint at the beginning
-        self._endpoint = self._get_endpoint()
+        self._get_endpoint_from_env()
 
         # Evaluate configuration authentication parameters
         if config is not None:
-            auth_type = config.get("auth_type")
-
             # Validate configuration against pydantic model
-            if auth_type == "token":
-                config = OAuth2TokenAuth(**config)
-                self._auth_params = config.token
-            elif auth_type == "basic":
-                config = BasicAuth(**config)
-                self._auth_params = (config.username, config.password)
 
-            self._auth_type = auth_type
+            # Try to get user/access_token or user/password
+
+            if config.get("access_token") is not None:
+                config = OAuth2TokenAuth(**config)
+                self._user = config.user
+                self._access_token = config.access_token
+                self._auth_type = "oauth2"
+
+            elif config.get("user") is not None and config.get("password") is not None:
+                config = BasicAuth(**config)
+                self._user = config.user
+                self._password = config.password
+                self._auth_type = "basic"
+
             return
 
         # Otherwise, use environment variables
-        self._auth_params = self._get_auth()
-        if isinstance(self._auth_params, tuple):
-            self._auth_type = "basic"
-        if isinstance(self._auth_params, str):
-            self._auth_type = "token"
-        return
+        self._get_auth_from_env()
 
-    @staticmethod
-    def _get_endpoint() -> str:
+    def _get_endpoint_from_env(self) -> None:
         """
         Get DHub Core endpoint environment variables.
 
         Returns
         -------
-        str
-            DHub Core endpoint environment variables.
+        None
 
         Raises
         ------
@@ -233,26 +268,35 @@ class ClientDHCore(Client):
             raise BackendError("Endpoint not set as environment variables.")
 
         # Sanitize endpoint string
-        return endpoint.removesuffix("/")
+        sanitized_endpoint = endpoint.removesuffix("/")
 
-    @staticmethod
-    def _get_auth() -> str | tuple[str, str] | None:
+        # Set endpoint
+        self._endpoint = sanitized_endpoint
+
+    def _get_auth_from_env(self) -> None:
         """
-        Get authentication parameters from the config.
+        Get authentication parameters from the env.
 
         Returns
         -------
         tuple[str, str], str, None
             The authentication parameters.
         """
+        # User for future entity ownership
+        self.user = os.getenv("DIGITALHUB_CORE_USER")
+
+        # Prioritize token over user/password
         token = os.getenv("DIGITALHUB_CORE_TOKEN")
         if token is not None:
-            return token
+            self._auth_type = "token"
+            self._access_token = token
+            return
 
-        user = os.getenv("DIGITALHUB_CORE_USER")
         password = os.getenv("DIGITALHUB_CORE_PASSWORD")
-        if user is not None and password is not None:
-            return user, password
+        if self.user is not None and password is not None:
+            self._auth_type = "basic"
+            self._password = password
+            return
 
     @staticmethod
     def is_local() -> bool:

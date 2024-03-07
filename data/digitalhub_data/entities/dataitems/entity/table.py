@@ -6,7 +6,6 @@ from pathlib import Path
 
 from digitalhub_core.stores.builder import get_default_store, get_store
 from digitalhub_core.utils.exceptions import EntityError
-
 from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 if typing.TYPE_CHECKING:

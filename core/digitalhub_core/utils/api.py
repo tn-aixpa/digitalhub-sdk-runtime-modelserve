@@ -87,6 +87,25 @@ def api_ctx_read_no_version(
     return f"{API_CONTEXT}/{proj}/{dto}/{name}"
 
 
+def api_ctx_list(proj: str, dto: str) -> str:
+    """
+    List context API.
+
+    Parameters
+    ----------
+    proj : str
+        Name of the project.
+    dto : str
+        The type of the DTO.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{proj}/{dto}"
+
+
 def api_ctx_update(
     proj: str,
     dto: str,

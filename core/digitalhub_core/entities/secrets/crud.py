@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.secrets.entity import secret_from_dict, secret_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -189,3 +189,21 @@ def update_secret(secret: Secret) -> dict:
     """
     api = api_ctx_update(secret.project, "secrets", secret.name, uuid=secret.id)
     return get_context(secret.project).update_object(secret.to_dict(), api)
+
+
+def list_secrets(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all secrets.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of secrets dict representations.
+    """
+    api = api_ctx_list(project, "secrets")
+    return get_context(project).list_objects(api, filters=filters)

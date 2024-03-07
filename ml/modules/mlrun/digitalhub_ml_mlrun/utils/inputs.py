@@ -132,7 +132,7 @@ def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
     """
     try:
         LOGGER.info(f"Persisting dataitem '{name}' locally.")
-        filename = Path(artifact.spec.target_path).name
+        filename = Path(artifact.spec.path).name
         return artifact.download(dst=f"{tmp_dir}/{filename}")
     except Exception:
         msg = f"Error during artifact '{name}' collection."

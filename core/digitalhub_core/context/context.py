@@ -100,3 +100,21 @@ class Context:
             The deleted object.
         """
         return self.client.delete_object(api)
+
+    def list_objects(self, api: str, filters: dict | None = None) -> dict:
+        """
+        List objects.
+
+        Parameters
+        ----------
+        api : str
+            The api to list the objects with.
+        filters : dict
+            The filters to list the objects with.
+
+        Returns
+        -------
+        dict
+            The list of objects.
+        """
+        return self.client.list_objects(api, filters)

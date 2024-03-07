@@ -95,7 +95,7 @@ def _import_class(registry: dict, kind: str) -> Status:
     registry : dict
         Registry.
     kind : str
-        Spec kind.
+        Entity kind.
 
     Returns
     -------
@@ -105,7 +105,7 @@ def _import_class(registry: dict, kind: str) -> Status:
     try:
         module_and_class = registry[kind]
     except KeyError:
-        raise ValueError(f"Spec {kind} not found in registry.")
+        raise ValueError(f"Status {kind} not found in registry.")
 
     try:
         module = module_and_class["module"]

@@ -60,12 +60,13 @@ class Task(Entity):
         self.project = project
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/tasks/{kind}/{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "id"])
+        self._obj_attr.extend(["project", "id", "key"])
 
     #############################
     #  Save / Export
@@ -163,7 +164,6 @@ class Task(Entity):
         return self.new_run(
             project=self.project,
             task=self._get_task_string(),
-            task_id=self.id,
             kind=f"{self.kind.split('+')[0]}+run",
             inputs=inputs,
             outputs=outputs,
@@ -264,7 +264,7 @@ class Task(Entity):
         kind = obj.get("kind")
 
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(TaskMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, framework_runtime=kind.split("+")[0], **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             validate=validate,
@@ -340,7 +340,8 @@ def task_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        TaskMetadata,
+        kind=kind,
+        framework_runtime=kind.split("+")[0],
         project=project,
         name=uuid,
         source=source,

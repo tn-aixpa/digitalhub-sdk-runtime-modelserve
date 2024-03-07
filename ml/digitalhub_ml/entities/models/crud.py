@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import check_context, get_context
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_ml.entities.models.entity import model_from_dict, model_from_parameters
@@ -199,3 +199,21 @@ def update_model(model: Model) -> dict:
     """
     api = api_ctx_update(model.project, "models", model.name, uuid=model.id)
     return get_context(model.project).update_object(model.to_dict(), api)
+
+
+def list_models(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all models.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of models dict representations.
+    """
+    api = api_ctx_list(project, "models")
+    return get_context(project).list_objects(api, filters=filters)

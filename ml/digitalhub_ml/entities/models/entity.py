@@ -62,12 +62,13 @@ class Model(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/models/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "name", "id"])
+        self._obj_attr.extend(["project", "name", "id", "key"])
 
     #############################
     #  Save / Export
@@ -158,7 +159,7 @@ class Model(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(ModelMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, layer_digitalhub="digitalhub_ml", **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             layer_digitalhub="digitalhub_ml",
@@ -219,7 +220,8 @@ def model_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        ModelMetadata,
+        kind,
+        layer_digitalhub="digitalhub_ml",
         project=project,
         name=name,
         version=uuid,

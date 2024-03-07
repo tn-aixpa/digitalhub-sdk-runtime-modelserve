@@ -48,38 +48,38 @@ class Status(ModelObj):
     @classmethod
     def from_dict(cls, obj: dict) -> "Status":
         """
-        Return entity statusification object from dictionary.
+        Return entity status object from dictionary.
 
         Parameters
         ----------
         obj : dict
-            A dictionary containing the attributes of the entity statusification.
+            A dictionary containing the attributes of the entity status.
 
         Returns
         -------
         EntityStatus
-            An entity statusification object.
+            An entity status object.
         """
         return cls(**obj)
 
 
 class StatusRegistry(dict):
     """
-    A class representing the registry of entity statusifications.
+    A class representing the registry of entity statuss.
     """
 
     def register(self, kind: str, module: str, status_class: str) -> None:
         """
-        Register an entity statusification.
+        Register an entity status.
 
         Parameters
         ----------
         kind : str
             The kind of the entity.
         module : str
-            The module name of the entity statusification.
+            The module name of the entity status.
         status_class : str
-            The class name of the entity statusification.
+            The class name of the entity status.
 
         Returns
         -------

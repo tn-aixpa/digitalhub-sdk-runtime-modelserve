@@ -9,7 +9,6 @@ class RunSpecContainer(RunSpec):
     def __init__(
         self,
         task: str,
-        task_id: str,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -22,11 +21,8 @@ class RunSpecContainer(RunSpec):
     ) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
         """
-        super().__init__(task, task_id, inputs, outputs, parameters, local_execution, **kwargs)
+        super().__init__(task, inputs, outputs, parameters, local_execution, **kwargs)
         self.function_spec = function_spec
         self.job_spec = job_spec
         self.deploy_spec = deploy_spec
@@ -35,3 +31,8 @@ class RunSpecContainer(RunSpec):
 
 class RunParamsContainer(RunParams):
     """Run Container parameters."""
+
+    function_spec: dict | None = None
+    job_spec: dict | None = None
+    deploy_spec: dict | None = None
+    serve_spec: dict | None = None

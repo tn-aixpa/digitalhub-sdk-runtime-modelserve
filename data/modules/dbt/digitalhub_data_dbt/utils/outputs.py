@@ -8,7 +8,6 @@ from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.runtimes.results import get_entity_info
 from digitalhub_core.utils.generic_utils import encode_string
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
@@ -409,7 +408,9 @@ def build_status(dataitem: Dataitem, results: dbtRunnerResult) -> dict:
     return {
         "state": State.COMPLETED.value,
         "outputs": {
-            "dataitems": [get_entity_info(dataitem, "dataitems")],
+            "dataitems": [dataitem.key],
         },
-        "results": results.result[-1].to_dict(),
+        "results": {
+            "dbt_result": results.result[-1].to_dict(),
+        },
     }

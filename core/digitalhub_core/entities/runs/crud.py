@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.runs.entity import run_from_dict, run_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read_no_version, api_ctx_update_name_only
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read_no_version, api_ctx_update_name_only
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -52,7 +52,6 @@ def create_run_from_dict(obj: dict) -> Run:
 def new_run(
     project: str,
     task: str,
-    task_id: str,
     kind: str,
     uuid: str | None = None,
     source: str | None = None,
@@ -70,8 +69,6 @@ def new_run(
     ----------
     project : str
         Name of the project.
-    task_id : str
-        Identifier of the task associated with the run.
     task : str
         Name of the task associated with the run.
     kind : str
@@ -103,7 +100,6 @@ def new_run(
     obj = create_run(
         project=project,
         task=task,
-        task_id=task_id,
         kind=kind,
         uuid=uuid,
         source=source,
@@ -193,3 +189,21 @@ def update_run(run: Run) -> dict:
     """
     api = api_ctx_update_name_only(run.project, "runs", run.id)
     return get_context(run.project).update_object(run.to_dict(include_all_non_private=True), api)
+
+
+def list_runs(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all runs.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of runs dict representations.
+    """
+    api = api_ctx_list(project, "runs")
+    return get_context(project).list_objects(api, filters=filters)

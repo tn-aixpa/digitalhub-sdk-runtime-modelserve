@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 
@@ -59,9 +59,8 @@ def new_artifact(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    key: str | None = None,
+    path: str | None = None,
     src_path: str | None = None,
-    target_path: str | None = None,
     **kwargs,
 ) -> Artifact:
     """
@@ -85,12 +84,10 @@ def new_artifact(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    key : str
-        Representation of "artifacts"act like store://etc..
+    path : str
+        Destination path of the artifact.
     src_path : str
         Path to the artifact on local file system.
-    targeth_path : str
-        Destination path of the artifact.
     **kwargs
         Spec keyword arguments.
 
@@ -108,9 +105,8 @@ def new_artifact(
         source=source,
         labels=labels,
         embedded=embedded,
-        key=key,
+        path=path,
         src_path=src_path,
-        target_path=target_path,
         **kwargs,
     )
     obj.save()
@@ -210,3 +206,21 @@ def update_artifact(artifact: Artifact) -> dict:
     """
     api = api_ctx_update(artifact.project, "artifacts", artifact.name, uuid=artifact.id)
     return get_context(artifact.project).update_object(artifact.to_dict(), api)
+
+
+def list_artifacts(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all artifacts.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of artifacts dict representations.
+    """
+    api = api_ctx_list(project, "artifacts")
+    return get_context(project).list_objects(api, filters=filters)

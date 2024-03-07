@@ -6,7 +6,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import check_context, get_context
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_data.entities.dataitems.builder import dataitem_from_dict, dataitem_from_parameters
@@ -59,7 +59,6 @@ def new_dataitem(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    key: str | None = None,
     path: str | None = None,
     **kwargs,
 ) -> Dataitem:
@@ -84,8 +83,6 @@ def new_dataitem(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    key : str
-        Representation of the dataitem, e.g. store://etc.
     path : str
         Path to the dataitem on local file system or remote storage.
     **kwargs
@@ -105,7 +102,6 @@ def new_dataitem(
         source=source,
         labels=labels,
         embedded=embedded,
-        key=key,
         path=path,
         **kwargs,
     )
@@ -206,3 +202,21 @@ def update_dataitem(dataitem: Dataitem) -> dict:
     """
     api = api_ctx_update(dataitem.project, "dataitems", dataitem.name, uuid=dataitem.id)
     return get_context(dataitem.project).update_object(dataitem.to_dict(), api)
+
+
+def list_dataitems(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all dataitems.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of dataitems dict representations.
+    """
+    api = api_ctx_list(project, "dataitems")
+    return get_context(project).list_objects(api, filters=filters)

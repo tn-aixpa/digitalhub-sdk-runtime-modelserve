@@ -1,74 +1,31 @@
 from __future__ import annotations
 
+from digitalhub_core.entities._base.metadata import MetadataRegistry
 from digitalhub_core.entities._base.spec import SpecRegistry
 from digitalhub_core.entities._base.status import StatusRegistry
 
-status_registry = StatusRegistry()
-status_registry.register(
-    "nefertem",
-    "digitalhub_data_nefertem.entities.functions.status",
-    "FunctionStatusNefertem",
-)
-status_registry.register(
-    "nefertem+infer",
-    "digitalhub_data_nefertem.entities.tasks.status",
-    "TaskStatusInfer",
-)
-status_registry.register(
-    "nefertem+metric",
-    "digitalhub_data_nefertem.entities.tasks.status",
-    "TaskStatusMetric",
-)
-status_registry.register(
-    "nefertem+profile",
-    "digitalhub_data_nefertem.entities.tasks.status",
-    "TaskStatusProfile",
-)
-status_registry.register(
-    "nefertem+validate",
-    "digitalhub_data_nefertem.entities.tasks.status",
-    "TaskStatusValidate",
-)
-status_registry.register(
-    "nefertem+run",
-    "digitalhub_data_nefertem.entities.runs.status",
-    "RunStatusNefertem",
-)
-
+metadata_registry = MetadataRegistry()
 spec_registry = SpecRegistry()
-spec_registry.register(
-    "nefertem",
-    "digitalhub_data_nefertem.entities.functions.spec",
-    "FunctionSpecNefertem",
-    "FunctionParamsNefertem",
-)
-spec_registry.register(
-    "nefertem+infer",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecInfer",
-    "TaskParamsInfer",
-)
-spec_registry.register(
-    "nefertem+metric",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecMetric",
-    "TaskParamsMetric",
-)
-spec_registry.register(
-    "nefertem+profile",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecProfile",
-    "TaskParamsProfile",
-)
-spec_registry.register(
-    "nefertem+validate",
-    "digitalhub_data_nefertem.entities.tasks.spec",
-    "TaskSpecValidate",
-    "TaskParamsValidate",
-)
-spec_registry.register(
-    "nefertem+run",
-    "digitalhub_data_nefertem.entities.runs.spec",
-    "RunSpecNefertem",
-    "RunParamsNefertem",
-)
+status_registry = StatusRegistry()
+
+# Function
+func_root = "digitalhub_data_nefertem.entities.functions"
+func_kind = "nefertem"
+metadata_registry.register(func_kind, f"{func_root}.metadata", "FunctionMetadataNefertem")
+spec_registry.register(func_kind, f"{func_root}.spec", "FunctionSpecNefertem", "FunctionParamsNefertem")
+status_registry.register(func_kind, f"{func_root}.status", "FunctionStatusNefertem")
+
+# Tasks
+task_root = "digitalhub_data_nefertem.entities.tasks"
+for i in ["infer", "profile", "validate", "metric"]:
+    task_kind = f"{func_kind}+{i}"
+    metadata_registry.register(task_kind, f"{task_root}.metadata", f"TaskMetadata{i.title()}")
+    spec_registry.register(task_kind, f"{task_root}.spec", f"TaskSpec{i.title()}", f"TaskParams{i.title()}")
+    status_registry.register(task_kind, f"{task_root}.status", f"TaskStatus{i.title()}")
+
+# Runs
+run_root = "digitalhub_data_nefertem.entities.runs"
+run_kind = f"{func_kind}+run"
+metadata_registry.register(run_kind, f"{run_root}.metadata", "RunMetadataNefertem")
+spec_registry.register(run_kind, f"{run_root}.spec", "RunSpecNefertem", "RunParamsNefertem")
+status_registry.register(run_kind, f"{run_root}.status", "RunStatusNefertem")

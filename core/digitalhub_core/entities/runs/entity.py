@@ -16,7 +16,13 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.metadata import RunMetadata
 from digitalhub_core.entities.runs.status import RunStatus
 from digitalhub_core.runtimes.builder import build_runtime
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_read_no_version, api_ctx_update_name_only
+from digitalhub_core.utils.api import (
+    api_base_list,
+    api_ctx_create,
+    api_ctx_read,
+    api_ctx_read_no_version,
+    api_ctx_update_name_only,
+)
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -24,12 +30,13 @@ from digitalhub_core.utils.io_utils import write_yaml
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
     from digitalhub_core.entities.runs.spec import RunSpec
+    from digitalhub_core.entities.runs.status import EntitiesOutputs
     from digitalhub_core.runtimes.base import Runtime
 
 
 TaskString = namedtuple(
     "TaskString",
-    ["function_kind", "task_kind", "function_name", "function_id", "task_id"],
+    ["function_kind", "task_kind", "function_name", "function_id"],
 )
 
 
@@ -69,12 +76,13 @@ class Run(Entity):
         self.project = project
         self.id = uuid
         self.kind = kind
+        self.key = f"store://{project}/runs/{kind}/{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "id"])
+        self._obj_attr.extend(["project", "id", "key"])
 
     #############################
     #  Save / Export
@@ -187,7 +195,29 @@ class Run(Entity):
         self.save(update=True)
         return self
 
-    def results(self) -> list[object]:
+    def inputs(self) -> list[Entity]:
+        """
+        Get inputs passed in spec as objects.
+
+        Returns
+        -------
+        list
+            List of input objects.
+        """
+        return self.spec.get_inputs(self.project)
+
+    def results(self) -> dict:
+        """
+        Get results from runtime execution.
+
+        Returns
+        -------
+        dict
+            Results from backend.
+        """
+        return self.status.get_results()
+
+    def outputs(self) -> EntitiesOutputs:
         """
         Get run objects results.
 
@@ -196,7 +226,7 @@ class Run(Entity):
         dict
             Results from backend.
         """
-        return self.status.get_results()
+        return self.status.get_outputs(self.project)
 
     def refresh(self) -> Run:
         """
@@ -230,6 +260,19 @@ class Run(Entity):
             return {}
         api = api_ctx_read_no_version(self.project, "runs", self.id) + "/log"
         return self._context().read_object(api)
+
+    def stop(self) -> None:
+        """
+        Stop run.
+
+        Returns
+        -------
+        None
+        """
+        # Do nothing if context is local
+        if self._context().local:
+            return
+        raise NotImplementedError
 
     def _set_status(self, status: dict) -> None:
         """
@@ -268,7 +311,7 @@ class Run(Entity):
         kinds, func = self.spec.task.split("://")
         fnc_kind, tsk_kind = kinds.split("+")
         fnc_name, fnc_id = func.split("/")[1].split(":")
-        return TaskString(fnc_kind, tsk_kind, fnc_name, fnc_id, self.spec.task_id)
+        return TaskString(fnc_kind, tsk_kind, fnc_name, fnc_id)
 
     def _get_function(self) -> dict:
         """
@@ -293,8 +336,23 @@ class Run(Entity):
             Task from backend.
         """
         parsed = self._parse_task_string()
-        api = api_ctx_read_no_version(self.project, "tasks", parsed.task_id)
-        return self._context().read_object(api)
+        function_string = f"{parsed.function_kind}://{self.project}/{parsed.function_name}:{parsed.function_id}"
+
+        # Local backend
+        if self._context().local:
+            api = api_base_list("tasks")
+            tasks = self._context().list_objects(api)
+            for _, v in tasks.items():
+                func = v.get("spec").get("function")
+                if func == function_string:
+                    return v
+            raise EntityError("Task not found.")
+
+        # Remote backend
+        api = api_base_list("tasks")
+        filters = {"function": function_string, "kind": parsed.task_kind}
+        obj = self._context().list_objects(api, filters=filters)
+        return obj[0]
 
     #############################
     # Runtimes
@@ -339,7 +397,7 @@ class Run(Entity):
         project = obj.get("project")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(RunMetadata, **obj.get("metadata", {}))
+        metadata = build_metadata(kind, framework_runtime=kind.split("+")[0], **obj.get("metadata", {}))
         spec = build_spec(
             kind,
             framework_runtime=kind.split("+")[0],
@@ -360,7 +418,6 @@ class Run(Entity):
 def run_from_parameters(
     project: str,
     task: str,
-    task_id: str,
     kind: str,
     uuid: str | None = None,
     source: str | None = None,
@@ -378,8 +435,6 @@ def run_from_parameters(
     ----------
     project : str
         Name of the project.
-    task_id : str
-        Identifier of the task associated with the run.
     task : str
         Name of the task associated with the run.
     kind : str
@@ -410,7 +465,8 @@ def run_from_parameters(
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(
-        RunMetadata,
+        kind=kind,
+        framework_runtime=task.split("+")[0],
         project=project,
         name=uuid,
         source=source,
@@ -420,7 +476,6 @@ def run_from_parameters(
         kind,
         framework_runtime=task.split("+")[0],
         task=task,
-        task_id=task_id,
         inputs=inputs,
         outputs=outputs,
         parameters=parameters,

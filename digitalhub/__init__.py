@@ -44,6 +44,7 @@ _PROJECT_IMPORTED = False
 
 if not _PROJECT_IMPORTED:
     try:
+        from digitalhub_data import delete_dataitem, get_dataitem, import_dataitem, new_dataitem, update_dataitem
         from digitalhub_ml import (
             delete_model,
             get_model,

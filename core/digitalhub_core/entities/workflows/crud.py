@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.workflows.entity import workflow_from_dict, workflow_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -181,3 +181,21 @@ def update_workflow(workflow: Workflow) -> dict:
     """
     api = api_ctx_update(workflow.project, "workflows", workflow.name, uuid=workflow.id)
     return get_context(workflow.project).update_object(workflow.to_dict(), api)
+
+
+def list_workflows(project: str, filters: dict | None = None) -> list[dict]:
+    """
+    List all workflows.
+
+    Parameters
+    ----------
+    project : str
+        Name of the project.
+
+    Returns
+    -------
+    list[dict]
+        List of workflows dict representations.
+    """
+    api = api_ctx_list(project, "workflows")
+    return get_context(project).list_objects(api, filters=filters)

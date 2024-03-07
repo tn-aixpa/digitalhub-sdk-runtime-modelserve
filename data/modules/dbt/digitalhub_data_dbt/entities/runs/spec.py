@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.runs.spec import RunParams, RunSpec
-from pydantic import BaseModel
+from digitalhub_data.entities.runs.spec import RunParamsData, RunSpecData
 
 
-class RunSpecDbt(RunSpec):
+class RunSpecDbt(RunSpecData):
     """Run Dbt specification."""
 
     def __init__(
         self,
         task: str,
-        task_id: str,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -21,30 +19,14 @@ class RunSpecDbt(RunSpec):
     ) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
         """
-        super().__init__(task, task_id, inputs, outputs, parameters, local_execution, **kwargs)
+        super().__init__(task, inputs, outputs, parameters, local_execution, **kwargs)
         self.function_spec = function_spec
         self.transform_spec = transform_spec
 
 
-class DataitemList(BaseModel):
-    """Dataitem list model."""
-
-    dataitems: list[str]
-    """List of dataitem names."""
-
-
-class RunParamsDbt(RunParams):
+class RunParamsDbt(RunParamsData):
     """Run Dbt parameters."""
-
-    inputs: DataitemList
-    """List of input dataitem names. Override RunSpec.inputs."""
-
-    outputs: DataitemList
-    """List of output dataitem names. Override RunSpec.outputs."""
 
     function_spec: dict = None
     """The function spec."""
