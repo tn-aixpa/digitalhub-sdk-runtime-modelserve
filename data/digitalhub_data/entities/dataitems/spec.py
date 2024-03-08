@@ -12,7 +12,7 @@ class DataitemSpec(Spec):
     Dataitem specifications.
     """
 
-    def __init__(self, path: str | None = None, schema: dict | None = None, **kwargs) -> None:
+    def __init__(self, path: str, schema: dict | None = None, **kwargs) -> None:
         """
         Constructor.
 
@@ -34,7 +34,7 @@ class DataitemParams(SpecParams):
     Dataitem parameters.
     """
 
-    path: str = None
+    path: str
     "The path of the dataitem."
 
     _schema: dict = Field(alias="schema")

@@ -54,12 +54,12 @@ def new_artifact(
     project: str,
     name: str,
     kind: str,
+    path: str,
     uuid: str | None = None,
     description: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    path: str | None = None,
     src_path: str | None = None,
     **kwargs,
 ) -> Artifact:
@@ -74,6 +74,8 @@ def new_artifact(
         Identifier of the artifact.
     kind : str
         The type of the artifact.
+    path : str
+        Destination path of the artifact.
     uuid : str
         UUID.
     description : str
@@ -84,8 +86,6 @@ def new_artifact(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    path : str
-        Destination path of the artifact.
     src_path : str
         Path to the artifact on local file system.
     **kwargs
