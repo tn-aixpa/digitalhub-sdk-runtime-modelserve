@@ -10,6 +10,7 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data_dbt.entities.runs.spec import RunSpecDbt
 from digitalhub_data_dbt.utils.cleanup import cleanup
 from digitalhub_data_dbt.utils.configuration import (
     generate_dbt_profile_yml,
@@ -18,7 +19,7 @@ from digitalhub_data_dbt.utils.configuration import (
     generate_outputs_conf,
 )
 from digitalhub_data_dbt.utils.functions import transform
-from digitalhub_data_dbt.utils.inputs import decode_sql, get_dataitem_, get_output_table_name, materialize_dataitem
+from digitalhub_data_dbt.utils.inputs import decode_sql, get_output_table_name, materialize_dataitem
 from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
 if typing.TYPE_CHECKING:
@@ -156,16 +157,13 @@ class RuntimeDbt(Runtime):
         None
         """
         # Collect input dataitems
-        inputs = spec.get("inputs", {}).get("dataitems", [])
-        for name in inputs:
-            # Get dataitem objects from core
-            di = get_dataitem_(name, project)
-
+        inputs = RunSpecDbt(**spec).get_inputs(project_name=project)["dataitems"]
+        for di in inputs:
             # Register dataitem in a dict to be used for inputs confs generation
             self._input_dataitems.append({"name": di.name, "id": di.id})
 
             # Materialize dataitem in postgres
-            table = materialize_dataitem(di, name)
+            table = materialize_dataitem(di, di.name)
 
             # Save versioned table name to be used for cleanup
             self._versioned_tables.append(table)

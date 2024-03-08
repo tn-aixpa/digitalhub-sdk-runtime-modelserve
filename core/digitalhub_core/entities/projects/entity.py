@@ -16,8 +16,8 @@ from digitalhub_core.entities.artifacts.crud import (
     create_artifact_from_dict,
     delete_artifact,
     get_artifact,
-    new_artifact,
     list_artifacts,
+    new_artifact,
 )
 from digitalhub_core.entities.functions.crud import (
     create_function_from_dict,
@@ -28,13 +28,19 @@ from digitalhub_core.entities.functions.crud import (
 )
 from digitalhub_core.entities.projects.metadata import ProjectMetadata
 from digitalhub_core.entities.projects.status import ProjectStatus
-from digitalhub_core.entities.secrets.crud import create_secret_from_dict, delete_secret, get_secret, new_secret, list_secrets
+from digitalhub_core.entities.secrets.crud import (
+    create_secret_from_dict,
+    delete_secret,
+    get_secret,
+    list_secrets,
+    new_secret,
+)
 from digitalhub_core.entities.workflows.crud import (
     create_workflow_from_dict,
     delete_workflow,
     get_workflow,
-    new_workflow,
     list_workflows,
+    new_workflow,
 )
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError

@@ -2,44 +2,13 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.utils.exceptions import BackendError, EntityError
+from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import get_dataitem
 from digitalhub_data_dbt.utils.env import POSTGRES_DATABASE, POSTGRES_SCHEMA
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
-
-
-def get_dataitem_(name: str, project: str) -> Dataitem:
-    """
-    Get dataitem from core.
-
-    Parameters
-    ----------
-    name : str
-        The dataitem name.
-    project : str
-        The project name.
-
-    Returns
-    -------
-    Dataitem
-        The dataitem.
-
-    Raises
-    ------
-    BackendError
-        If dataitem is not found.
-    """
-    try:
-        LOGGER.info(f"Getting dataitem '{name}'")
-        return get_dataitem(project, name)
-    except BackendError:
-        msg = f"Dataitem {name} not found."
-        LOGGER.exception(msg)
-        raise BackendError(msg)
 
 
 def materialize_dataitem(dataitem: Dataitem, name: str) -> str:

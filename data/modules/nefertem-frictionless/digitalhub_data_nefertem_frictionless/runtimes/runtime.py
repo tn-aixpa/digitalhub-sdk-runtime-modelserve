@@ -11,13 +11,14 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data_nefertem_frictionless.entities.runs.spec import RunSpecNefertemFrictionless
 from digitalhub_data_nefertem_frictionless.utils.configurations import (
     create_client,
     create_nt_resources,
     create_nt_run_config,
 )
 from digitalhub_data_nefertem_frictionless.utils.functions import infer, profile, validate
-from digitalhub_data_nefertem_frictionless.utils.inputs import get_dataitem_, persist_dataitem
+from digitalhub_data_nefertem_frictionless.utils.inputs import persist_dataitem
 from digitalhub_data_nefertem_frictionless.utils.outputs import build_status, create_artifact, upload_artifact
 
 if typing.TYPE_CHECKING:
@@ -152,11 +153,8 @@ class RuntimeNefertemFrictionless(Runtime):
             The list of inputs dataitems.
         """
         Path(f"{self.output_path}/tmp").mkdir(parents=True, exist_ok=True)
-
-        mapper = []
-        for name in spec.get("inputs", {}).get("dataitems", []):
-            dataitem = get_dataitem_(name, project)
-            mapper.append(persist_dataitem(dataitem, name, self.output_path))
+        inputs = RunSpecNefertemFrictionless(**spec).get_inputs(project_name=project)["dataitems"]
+        mapper = [persist_dataitem(di, di.name, self.output_path) for di in inputs]
         return mapper
 
     ####################

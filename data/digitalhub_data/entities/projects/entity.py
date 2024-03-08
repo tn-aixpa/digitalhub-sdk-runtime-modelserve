@@ -11,8 +11,8 @@ from digitalhub_data.entities.dataitems.crud import (
     create_dataitem_from_dict,
     delete_dataitem,
     get_dataitem,
-    new_dataitem,
     list_dataitems,
+    new_dataitem,
 )
 
 if typing.TYPE_CHECKING:

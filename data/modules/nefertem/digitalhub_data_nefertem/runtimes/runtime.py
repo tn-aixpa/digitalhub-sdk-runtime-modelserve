@@ -11,9 +11,10 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data_nefertem.entities.runs.spec import RunSpecNefertem
 from digitalhub_data_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config
 from digitalhub_data_nefertem.utils.functions import infer, metric, profile, validate
-from digitalhub_data_nefertem.utils.inputs import get_dataitem_, persist_dataitem
+from digitalhub_data_nefertem.utils.inputs import persist_dataitem
 from digitalhub_data_nefertem.utils.outputs import build_status, create_artifact, upload_artifact
 
 if typing.TYPE_CHECKING:
@@ -150,11 +151,8 @@ class RuntimeNefertem(Runtime):
             The list of inputs dataitems.
         """
         Path(f"{self.output_path}/tmp").mkdir(parents=True, exist_ok=True)
-
-        mapper = []
-        for name in spec.get("inputs", {}).get("dataitems", []):
-            dataitem = get_dataitem_(name, project)
-            mapper.append(persist_dataitem(dataitem, name, self.output_path))
+        inputs = RunSpecNefertem(**spec).get_inputs(project_name=project)["dataitems"]
+        mapper = [persist_dataitem(di, di.name, self.output_path) for di in inputs]
         return mapper
 
     ####################
