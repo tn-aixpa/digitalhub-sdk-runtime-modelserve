@@ -195,7 +195,7 @@ class Run(Entity):
         self.save(update=True)
         return self
 
-    def inputs(self) -> list[Entity]:
+    def inputs(self) -> list[dict[str, Entity]]:
         """
         Get inputs passed in spec as objects.
 
@@ -204,7 +204,7 @@ class Run(Entity):
         list
             List of input objects.
         """
-        return self.spec.get_inputs(self.project)
+        return self.spec.get_inputs()
 
     def results(self) -> dict:
         """

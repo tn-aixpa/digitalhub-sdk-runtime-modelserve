@@ -20,7 +20,7 @@ def materialize_dataitem(dataitem: Dataitem, name: str) -> str:
     dataitem : Dataitem
         The dataitem.
     name : str
-        The dataitem name.
+        The parameter SQL name.
 
     Returns
     -------
@@ -34,7 +34,7 @@ def materialize_dataitem(dataitem: Dataitem, name: str) -> str:
     """
     try:
         table_name = f"{name}_v{dataitem.id}"
-        LOGGER.info(f"Materializing dataitem '{name}' as '{table_name}'.")
+        LOGGER.info(f"Materializing dataitem '{dataitem.name}' as '{table_name}'.")
         target_path = f"sql://{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
         dataitem.write_df(target_path, if_exists="replace")
         return table_name
@@ -71,7 +71,7 @@ def decode_sql(sql: str) -> str:
         raise RuntimeError(msg)
 
 
-def get_output_table_name(outputs: list[str]) -> str:
+def get_output_table_name(outputs: list[dict]) -> str:
     """
     Get output table name from run spec.
 
@@ -90,8 +90,13 @@ def get_output_table_name(outputs: list[str]) -> str:
     RuntimeError
         If outputs are not a list of one dataitem.
     """
-    if not isinstance(outputs, list) or len(outputs) > 1:
-        msg = "Outputs must be a list of exactly one dataitem."
-        LOGGER.error(msg)
+    try:
+        return outputs[0]["output_table"]
+    except IndexError:
+        msg = "Outputs must be a list of one dataitem."
+        LOGGER.exception(msg)
         raise RuntimeError(msg)
-    return str(outputs[0])
+    except KeyError:
+        msg = "Must pass reference to 'output_table'."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
