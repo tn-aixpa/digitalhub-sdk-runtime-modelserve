@@ -12,8 +12,6 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.crud import delete_run, get_run, new_run, run_from_parameters
-from digitalhub_core.entities.tasks.metadata import TaskMetadata
-from digitalhub_core.entities.tasks.status import TaskStatus
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update_name_only
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -21,7 +19,9 @@ from digitalhub_core.utils.io_utils import write_yaml
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
     from digitalhub_core.entities.runs.entity import Run
+    from digitalhub_core.entities.tasks.metadata import TaskMetadata
     from digitalhub_core.entities.tasks.spec import TaskSpec
+    from digitalhub_core.entities.tasks.status import TaskStatus
 
 
 class Task(Entity):

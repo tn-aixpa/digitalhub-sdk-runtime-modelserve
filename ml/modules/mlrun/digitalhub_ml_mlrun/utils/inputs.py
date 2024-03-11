@@ -8,9 +8,9 @@ from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
+    from digitalhub_core.entities._base.entity import Entity
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
-    from digitalhub_core.entities._base.entity import Entity
 
 
 def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
@@ -102,9 +102,9 @@ def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict, tmp
     for i in inputs:
         for k, v in i.items():
             _, entity_type, _, _, _ = parse_entity_key(v.key)
-            if entity_type== "dataitems":
+            if entity_type == "dataitems":
                 inputs_objects[k] = persist_dataitem(v, v.name, tmp_dir)
-            elif entity_type== "artifacts":
+            elif entity_type == "artifacts":
                 inputs_objects[k] = persist_artifact(v, v.name, tmp_dir)
     input_parameters = parameters.get("inputs", {})
     return {"inputs": {**inputs_objects, **input_parameters}}

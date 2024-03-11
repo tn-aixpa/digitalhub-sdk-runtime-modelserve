@@ -38,10 +38,10 @@ class FunctionSpecDbt(FunctionSpec):
         except Exception:
             ...
         self.sql = SourceCodeStruct(
-                source_code=sql,
-                source_encoded=encode_string(sql),
-                lang="sql",
-            )
+            source_code=sql,
+            source_encoded=encode_string(sql),
+            lang="sql",
+        )
 
     def show_source_code(self) -> str:
         """

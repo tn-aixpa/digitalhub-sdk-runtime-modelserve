@@ -26,8 +26,6 @@ from digitalhub_core.entities.functions.crud import (
     list_functions,
     new_function,
 )
-from digitalhub_core.entities.projects.metadata import ProjectMetadata
-from digitalhub_core.entities.projects.status import ProjectStatus
 from digitalhub_core.entities.secrets.crud import (
     create_secret_from_dict,
     delete_secret,
@@ -50,7 +48,9 @@ from digitalhub_core.utils.io_utils import write_yaml
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_core.entities.functions.entity import Function
+    from digitalhub_core.entities.projects.metadata import ProjectMetadata
     from digitalhub_core.entities.projects.spec import ProjectSpec
+    from digitalhub_core.entities.projects.status import ProjectStatus
     from digitalhub_core.entities.secrets.entity import Secret
     from digitalhub_core.entities.workflows.entity import Workflow
 

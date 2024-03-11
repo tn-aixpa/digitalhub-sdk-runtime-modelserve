@@ -45,7 +45,9 @@ class SourceCodeStruct:
     Source code struct.
     """
 
-    def __init__(self, source_code: str | None = None, source_encoded: str | None = None, lang: str | None = None) -> None:
+    def __init__(
+        self, source_code: str | None = None, source_encoded: str | None = None, lang: str | None = None
+    ) -> None:
         """
         Constructor.
 

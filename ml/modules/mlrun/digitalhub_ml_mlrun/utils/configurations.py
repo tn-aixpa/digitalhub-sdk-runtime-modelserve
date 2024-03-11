@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.entities.functions.crud import get_function
-from digitalhub_core.utils.generic_utils import decode_string, build_uuid
+from digitalhub_core.utils.generic_utils import build_uuid, decode_string
 from digitalhub_core.utils.logger import LOGGER
 from mlrun import get_or_create_project
 
