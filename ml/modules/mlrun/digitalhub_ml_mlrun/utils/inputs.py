@@ -4,11 +4,13 @@ import typing
 from pathlib import Path
 
 from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
+    from digitalhub_core.entities._base.entity import Entity
 
 
 def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
@@ -78,18 +80,16 @@ def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
         raise EntityError(msg)
 
 
-def get_inputs_parameters(inputs: dict, parameters: dict, project: str, tmp_dir: str) -> dict:
+def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict, tmp_dir: str) -> dict:
     """
     Set inputs.
 
     Parameters
     ----------
-    inputs : dict
+    inputs : list[dict[str, Entity]]
         Run inputs.
     parameters : dict
         Run parameters.
-    project : str
-        The project name.
     tmp_dir : str
         Temporary directory for storing dataitms and artifacts.
 
@@ -99,15 +99,12 @@ def get_inputs_parameters(inputs: dict, parameters: dict, project: str, tmp_dir:
         Mlrun inputs.
     """
     inputs_objects = {}
-    k = 0
-    for di in inputs["dataitems"]:
-        inputs_objects[k] = persist_dataitem(di, di.name, tmp_dir)
-        k += 1
-
-    k = 0
-    for ar in inputs["artifacts"]:
-        inputs_objects[k] = persist_artifact(ar, ar.name, tmp_dir)
-        k += 1
-
+    for i in inputs:
+        for k, v in i.items():
+            _, entity_type, _, _, _ = parse_entity_key(v.key)
+            if entity_type== "dataitems":
+                inputs_objects[k] = persist_dataitem(v, v.name, tmp_dir)
+            elif entity_type== "artifacts":
+                inputs_objects[k] = persist_artifact(v, v.name, tmp_dir)
     input_parameters = parameters.get("inputs", {})
     return {"inputs": {**inputs_objects, **input_parameters}}

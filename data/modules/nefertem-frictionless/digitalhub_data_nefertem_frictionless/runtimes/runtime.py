@@ -91,7 +91,7 @@ class RuntimeNefertemFrictionless(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        inputs = self._collect_inputs(spec, project)
+        inputs = self._collect_inputs(spec)
 
         LOGGER.info("Configure execution.")
         config = self._configure_execution(inputs, spec, action)
@@ -136,7 +136,7 @@ class RuntimeNefertemFrictionless(Runtime):
     # Inputs
     ####################
 
-    def _collect_inputs(self, spec: dict, project: str) -> list[dict]:
+    def _collect_inputs(self, spec: dict) -> list[dict]:
         """
         Collect dataitems inputs.
 
@@ -153,8 +153,11 @@ class RuntimeNefertemFrictionless(Runtime):
             The list of inputs dataitems.
         """
         Path(f"{self.output_path}/tmp").mkdir(parents=True, exist_ok=True)
-        inputs = RunSpecNefertemFrictionless(**spec).get_inputs(project_name=project)["dataitems"]
-        mapper = [persist_dataitem(di, di.name, self.output_path) for di in inputs]
+        inputs = RunSpecNefertemFrictionless(**spec).get_inputs()
+        mapper = []
+        for i in inputs:
+            for _, v in i.items():
+                mapper.append(persist_dataitem(v, v.name, self.output_path))
         return mapper
 
     ####################
@@ -246,7 +249,7 @@ class RuntimeNefertemFrictionless(Runtime):
 
         LOGGER.info("Uploading artifacts to minio.")
         for i in artifacts:
-            upload_artifact(*i)
+            upload_artifact(i)
 
         return artifacts
 

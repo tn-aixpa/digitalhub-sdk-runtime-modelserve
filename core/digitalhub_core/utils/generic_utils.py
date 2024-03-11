@@ -130,7 +130,7 @@ def set_dhub_env(
         os.environ["DIGITALHUB_CORE_TOKEN"] = token
 
 
-def parse_entity_key(key: str) -> tuple[str, str, str]:
+def parse_entity_key(key: str) -> tuple[str]:
     """
     Parse the entity key.
 
@@ -141,18 +141,23 @@ def parse_entity_key(key: str) -> tuple[str, str, str]:
 
     Returns
     -------
-    tuple[str, str, str]
-        The project, the name and the uuid of the entity.
+    tuple[str]
+        Project, entity type, kind, name and uuid.
     """
     try:
         # Remove "store://" from the key
         key = key.replace("store://", "")
         # Split the key into parts
         parts = key.split("/")
+        # The project is the first part
         project = parts[0]
+        # The entity type is the second part
+        entity_type = parts[1]
+        # The kind is the third part
+        kind = parts[2]
         # The name and uuid are separated by a colon in the last part
-        name, uuid = parts[-1].split(":")
-        return project, name, uuid
+        name, uuid = parts[3].split(":")
+        return project, entity_type, kind, name, uuid
     except Exception as e:
         raise ValueError("Invalid key format.") from e
 

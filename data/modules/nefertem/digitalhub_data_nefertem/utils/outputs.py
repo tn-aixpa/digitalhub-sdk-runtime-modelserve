@@ -19,7 +19,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
 
 
-def create_artifact(src_path: str, project: str, run_id: str) -> tuple[Artifact, str]:
+def create_artifact(src_path: str, project: str, run_id: str) -> Artifact:
     """
     Create new artifact in backend.
 
@@ -35,7 +35,7 @@ def create_artifact(src_path: str, project: str, run_id: str) -> tuple[Artifact,
     Returns
     -------
     Artifact
-        DHCore artifact and its src_path.
+        DHCore artifact.
     """
 
     try:
@@ -50,25 +50,23 @@ def create_artifact(src_path: str, project: str, run_id: str) -> tuple[Artifact,
         kwargs["size"] = get_file_size(src_path)
         kwargs["file_type"] = get_file_mime_type(src_path)
         kwargs["file_extension"] = get_file_extension(src_path)
-        return new_artifact(**kwargs), src_path
+        artifact = new_artifact(**kwargs)
+        artifact.spec.src_path = src_path
+        return artifact
     except Exception:
         msg = f"Error creating artifact '{name}'."
         LOGGER.exception(msg)
         raise EntityError(msg)
 
 
-def upload_artifact(artifact: Artifact, src_path: str) -> None:
+def upload_artifact(artifact: Artifact) -> None:
     """
     Upload artifact to minio.
 
     Parameters
     ----------
-    name : str
-        The artifact name.
     artifact : Artifact
         The artifact to upload.
-    src_path : str
-        The artifact source local path.
 
     Returns
     -------
@@ -76,14 +74,14 @@ def upload_artifact(artifact: Artifact, src_path: str) -> None:
     """
     try:
         LOGGER.info(f"Uploading artifact '{artifact.name}' to minio.")
-        artifact.upload(source=src_path)
+        artifact.upload()
     except Exception:
         msg = f"Error uploading artifact '{artifact.name}'."
         LOGGER.exception(msg)
         raise EntityError(msg)
 
 
-def build_status(results: dict, outputs: list[tuple[Artifact, str]]) -> dict:
+def build_status(results: dict, outputs: list[Artifact]) -> dict:
     """
     Build run status.
 
@@ -92,7 +90,7 @@ def build_status(results: dict, outputs: list[tuple[Artifact, str]]) -> dict:
     results : dict
         Neferetem run results.
     outputs : list
-        Couples of Artifact and their src_path.
+        The list of DHCore artifacts.
 
     Returns
     -------
@@ -102,7 +100,7 @@ def build_status(results: dict, outputs: list[tuple[Artifact, str]]) -> dict:
     return {
         "state": State.COMPLETED.value,
         "outputs": {
-            "artifacts": [i[0].key for i in outputs],
+            "artifacts": [i.key for i in outputs],
         },
         "results": {
             "nefertem_result": results,

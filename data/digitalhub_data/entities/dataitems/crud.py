@@ -142,7 +142,7 @@ def get_dataitem_from_key(key: str) -> Dataitem:
         Key of the dataitem.
         It's format is store://<project>/dataitems/<kind>/<name>:<uuid>.
     """
-    project, name, uuid = parse_entity_key(key)
+    project, _, _, name, uuid = parse_entity_key(key)
     return get_dataitem(project, name, uuid)
 
 

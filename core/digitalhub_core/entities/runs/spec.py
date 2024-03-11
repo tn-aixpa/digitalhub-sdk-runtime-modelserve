@@ -4,8 +4,8 @@ Run base specification module.
 from __future__ import annotations
 
 import typing
-from typing import Union
 
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.entities._base.spec import Spec, SpecParams
 from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
 
@@ -49,8 +49,8 @@ class RunSpec(Spec):
             Keywords arguments.
         """
         self.task = task
-        self.inputs = inputs if inputs is not None else {}
-        self.outputs = outputs if outputs is not None else {}
+        self.inputs = inputs if inputs is not None else []
+        self.outputs = outputs if outputs is not None else []
         self.parameters = parameters if parameters is not None else {}
         self.local_execution = local_execution
 
@@ -73,7 +73,7 @@ class RunSpec(Spec):
                 if entity_type is None:
                     # Get entity by type from entity key
                     if v.startswith("store://"):
-                        entity_type = self._entity_type_from_entity_key(v)
+                        _, entity_type, _, _, _ = parse_entity_key(v)
                         entity = ENTITY_FUNC[entity_type](v)
                         inputs.append({parameter: entity})
                     else:

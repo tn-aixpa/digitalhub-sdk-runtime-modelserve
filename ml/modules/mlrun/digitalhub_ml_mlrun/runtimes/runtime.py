@@ -88,7 +88,7 @@ class RuntimeMlrun(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        function_args = self._collect_inputs(spec, project, self.root_path)
+        function_args = self._collect_inputs(spec, self.root_path)
 
         LOGGER.info("Configure execution.")
         mlrun_function = self._configure_execution(spec, action, project)
@@ -128,7 +128,7 @@ class RuntimeMlrun(Runtime):
     # Helpers
     ####################
 
-    def _collect_inputs(self, spec: dict, project: str, tmp_dir: str) -> dict:
+    def _collect_inputs(self, spec: dict, tmp_dir: str) -> dict:
         """
         Collect inputs.
 
@@ -145,9 +145,8 @@ class RuntimeMlrun(Runtime):
             Parameters.
         """
         LOGGER.info("Getting inputs.")
-        inputs = RunSpecMlrun(**spec).get_inputs(project)
-        parameters = spec.parameters if spec.parameters is not None else {}
-        return get_inputs_parameters(inputs, parameters, project, tmp_dir)
+        inputs = RunSpecMlrun(**spec).get_inputs()
+        return get_inputs_parameters(inputs, spec.get("parameters", {}), tmp_dir)
 
     ####################
     # Configuration

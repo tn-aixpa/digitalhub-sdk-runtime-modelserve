@@ -146,7 +146,7 @@ def get_artifact_from_key(key: str) -> Artifact:
         Key of the artifact.
         It's format is store://<project>/artifacts/<kind>/<name>:<uuid>.
     """
-    project, name, uuid = parse_entity_key(key)
+    project, _, _, name, uuid = parse_entity_key(key)
     return get_artifact(project, name, uuid)
 
 
