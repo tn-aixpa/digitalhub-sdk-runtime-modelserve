@@ -139,7 +139,7 @@ def get_model_from_key(key: str) -> Model:
         Key of the model.
         It's format is store://<project>/models/<kind>/<name>:<uuid>.
     """
-    project, name, uuid = parse_entity_key(key)
+    project, _, _, name, uuid = parse_entity_key(key)
     return get_model(project, name, uuid)
 
 

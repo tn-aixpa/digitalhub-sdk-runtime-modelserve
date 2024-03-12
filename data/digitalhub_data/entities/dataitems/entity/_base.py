@@ -16,12 +16,12 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import map_uri_scheme
-from digitalhub_data.entities.dataitems.metadata import DataitemMetadata
-from digitalhub_data.entities.dataitems.status import DataitemStatus
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_data.entities.dataitems.metadata import DataitemMetadata
     from digitalhub_data.entities.dataitems.spec import DataitemSpec
+    from digitalhub_data.entities.dataitems.status import DataitemStatus
 
 
 class Dataitem(Entity):

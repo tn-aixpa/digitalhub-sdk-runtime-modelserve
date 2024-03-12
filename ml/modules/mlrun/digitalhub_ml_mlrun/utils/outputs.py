@@ -4,6 +4,7 @@ import typing
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.utils.data_utils import get_data_preview
@@ -116,14 +117,20 @@ def create_dataitem_(mlrun_output: dict) -> Dataitem:
         kwargs["project"] = mlrun_output.get("metadata", {}).get("project")
         kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
         kwargs["kind"] = "table"
-        kwargs["path"] = mlrun_output.get("spec", {}).get("path")
+        kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
         kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {}).get("fields")
+
         dataitem = create_dataitem(**kwargs)
 
         # Add sample preview
         header = mlrun_output.get("spec", {}).get("header", [])
         sample_data = mlrun_output.get("status", {}).get("preview", [[]])
-        dataitem.status.preview = _get_data_preview(header, sample_data)
+        data_preview = _get_data_preview(header, sample_data)
+        rows = mlrun_output.get("spec", {}).get("lenght")
+        dataitem.status.preview = {
+            "cols": data_preview,
+            "rows": rows,
+        }
 
         # Save dataitem in core and return it
         dataitem.save()
@@ -171,23 +178,18 @@ def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem
 
     """
     try:
-        artifacts = []
-        dataitems = []
-        models = []
+        out_dict = {
+            "artifacts": [],
+            "dataitems": [],
+            "models": [],
+        }
         for i in outputs:
-            if i.__class__.__name__ == "Artifact":
-                artifacts.append(i.key)
-            elif i.__class__.__name__ == "Dataitem":
-                dataitems.append(i.key)
-            elif i.__class__.__name__ == "Model":
-                models.append(i.key)
+            _, entity_type, _, _, _ = parse_entity_key(i.key)
+            out_dict[entity_type].append(i.key)
+
         return {
             "state": map_state(execution_results.status.state),
-            "outputs": {
-                "artifacts": artifacts,
-                "dataitems": dataitems,
-                "models": models,
-            },
+            "outputs": out_dict,
             "results": {
                 "mlrun_result": execution_results.to_json(),
             },

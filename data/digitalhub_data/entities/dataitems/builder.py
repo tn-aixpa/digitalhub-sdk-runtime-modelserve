@@ -54,12 +54,12 @@ def dataitem_from_parameters(
     project: str,
     name: str,
     kind: str,
+    path: str,
     uuid: str | None = None,
     description: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    path: str | None = None,
     **kwargs,
 ) -> Dataitem:
     """
@@ -73,6 +73,8 @@ def dataitem_from_parameters(
         Identifier of the dataitem.
     kind : str
         The type of the dataitem.
+    path : str
+        Path to the dataitem on local file system or remote storage.
     uuid : str
         UUID.
     description : str
@@ -83,8 +85,6 @@ def dataitem_from_parameters(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    path : str
-        Path to the dataitem on local file system or remote storage.
     **kwargs
         Spec keyword arguments.
 

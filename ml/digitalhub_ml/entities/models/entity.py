@@ -14,12 +14,12 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
-from digitalhub_ml.entities.models.metadata import ModelMetadata
-from digitalhub_ml.entities.models.status import ModelStatus
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_ml.entities.models.metadata import ModelMetadata
     from digitalhub_ml.entities.models.spec import ModelSpec
+    from digitalhub_ml.entities.models.status import ModelStatus
 
 
 class Model(Entity):

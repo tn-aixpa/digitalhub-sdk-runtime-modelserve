@@ -13,8 +13,6 @@ from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.runs.metadata import RunMetadata
-from digitalhub_core.entities.runs.status import RunStatus
 from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import (
     api_base_list,
@@ -29,8 +27,9 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_core.entities.runs.metadata import RunMetadata
     from digitalhub_core.entities.runs.spec import RunSpec
-    from digitalhub_core.entities.runs.status import EntitiesOutputs
+    from digitalhub_core.entities.runs.status import EntitiesOutputs, RunStatus
     from digitalhub_core.runtimes.base import Runtime
 
 
@@ -195,7 +194,7 @@ class Run(Entity):
         self.save(update=True)
         return self
 
-    def inputs(self) -> list[Entity]:
+    def inputs(self) -> list[dict[str, Entity]]:
         """
         Get inputs passed in spec as objects.
 
@@ -204,7 +203,7 @@ class Run(Entity):
         list
             List of input objects.
         """
-        return self.spec.get_inputs(self.project)
+        return self.spec.get_inputs()
 
     def results(self) -> dict:
         """

@@ -10,6 +10,7 @@ from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_ml_mlrun.entities.runs.spec import RunSpecMlrun
 from digitalhub_ml_mlrun.utils.configurations import (
     get_dhcore_function,
     get_mlrun_function,
@@ -87,7 +88,7 @@ class RuntimeMlrun(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        function_args = self._collect_inputs(spec, project, self.root_path)
+        function_args = self._collect_inputs(spec, self.root_path)
 
         LOGGER.info("Configure execution.")
         mlrun_function = self._configure_execution(spec, action, project)
@@ -127,7 +128,7 @@ class RuntimeMlrun(Runtime):
     # Helpers
     ####################
 
-    def _collect_inputs(self, spec: dict, project: str, tmp_dir: str) -> dict:
+    def _collect_inputs(self, spec: dict, tmp_dir: str) -> dict:
         """
         Collect inputs.
 
@@ -144,9 +145,8 @@ class RuntimeMlrun(Runtime):
             Parameters.
         """
         LOGGER.info("Getting inputs.")
-        inputs = spec.get("inputs", {})
-        parameters = spec.get("parameters", {})
-        return get_inputs_parameters(inputs, parameters, project, tmp_dir)
+        inputs = RunSpecMlrun(**spec).get_inputs()
+        return get_inputs_parameters(inputs, spec.get("parameters", {}), tmp_dir)
 
     ####################
     # Configuration

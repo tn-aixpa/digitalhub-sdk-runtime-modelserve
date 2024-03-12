@@ -10,6 +10,7 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data_dbt.entities.runs.spec import RunSpecDbt
 from digitalhub_data_dbt.utils.cleanup import cleanup
 from digitalhub_data_dbt.utils.configuration import (
     generate_dbt_profile_yml,
@@ -18,7 +19,7 @@ from digitalhub_data_dbt.utils.configuration import (
     generate_outputs_conf,
 )
 from digitalhub_data_dbt.utils.functions import transform
-from digitalhub_data_dbt.utils.inputs import decode_sql, get_dataitem_, get_output_table_name, materialize_dataitem
+from digitalhub_data_dbt.utils.inputs import decode_sql, get_output_table_name, materialize_dataitem
 from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
 if typing.TYPE_CHECKING:
@@ -98,7 +99,7 @@ class RuntimeDbt(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        self._collect_inputs(spec, project)
+        self._collect_inputs(spec)
 
         LOGGER.info("Configure execution.")
         output_table = self._configure_execution(spec, project)
@@ -140,7 +141,7 @@ class RuntimeDbt(Runtime):
     # Inputs
     ####################
 
-    def _collect_inputs(self, spec: dict, project: str) -> None:
+    def _collect_inputs(self, spec: dict) -> None:
         """
         Parse inputs from run spec and materialize dataitems in postgres.
 
@@ -148,27 +149,23 @@ class RuntimeDbt(Runtime):
         ----------
         spec : dict
             Run spec dict.
-        project : str
-            The project name.
 
         Returns
         -------
         None
         """
         # Collect input dataitems
-        inputs = spec.get("inputs", {}).get("dataitems", [])
-        for name in inputs:
-            # Get dataitem objects from core
-            di = get_dataitem_(name, project)
+        inputs = RunSpecDbt(**spec).get_inputs()
+        for i in inputs:
+            for param, di in i.items():
+                # Register dataitem in a dict to be used for inputs confs generation
+                self._input_dataitems.append({"name": param, "id": di.id})
 
-            # Register dataitem in a dict to be used for inputs confs generation
-            self._input_dataitems.append({"name": di.name, "id": di.id})
+                # Materialize dataitem in postgres
+                table = materialize_dataitem(di, param)
 
-            # Materialize dataitem in postgres
-            table = materialize_dataitem(di, name)
-
-            # Save versioned table name to be used for cleanup
-            self._versioned_tables.append(table)
+                # Save versioned table name to be used for cleanup
+                self._versioned_tables.append(table)
 
     ####################
     # Configuration
@@ -190,8 +187,8 @@ class RuntimeDbt(Runtime):
         str
             Output table name.
         """
-        output_table = get_output_table_name(spec.get("outputs", {}).get("dataitems", []))
-        query = decode_sql(spec.get("function_spec", {}).get("sql"))
+        output_table = get_output_table_name(spec.get("outputs", []))
+        query = decode_sql(spec.get("function_spec", {}).get("sql", {}).get("source_encoded", ""))
 
         # Create directories
         self.model_dir.mkdir(exist_ok=True, parents=True)

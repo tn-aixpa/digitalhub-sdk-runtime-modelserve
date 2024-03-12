@@ -7,40 +7,9 @@ import typing
 
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import get_dataitem
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
-
-
-def get_dataitem_(name: str, project: str) -> Dataitem:
-    """
-    Get dataitem from backend.
-
-    Parameters
-    ----------
-    name : str
-        The dataitem name.
-    project : str
-        The project name.
-
-    Returns
-    -------
-    dict
-        The dataitem.
-
-    Raises
-    ------
-    BackendError
-        If the dataitem cannot be retrieved.
-    """
-    try:
-        LOGGER.info(f"Getting dataitem '{name}'.")
-        return get_dataitem(project, name)
-    except Exception:
-        msg = f"Error getting dataitem '{name}'."
-        LOGGER.exception(msg)
-        raise RuntimeError(msg)
 
 
 def persist_dataitem(dataitem: Dataitem, name: str, output_path: str) -> dict:

@@ -12,8 +12,6 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities.functions.metadata import FunctionMetadata
-from digitalhub_core.entities.functions.status import FunctionStatus
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task, new_task
 from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
@@ -22,7 +20,9 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_core.entities.functions.metadata import FunctionMetadata
     from digitalhub_core.entities.functions.spec import FunctionSpec
+    from digitalhub_core.entities.functions.status import FunctionStatus
     from digitalhub_core.entities.runs.entity import Run
     from digitalhub_core.entities.tasks.entity import Task
 

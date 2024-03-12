@@ -6,11 +6,16 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
-from digitalhub_core.entities.runs.getter import EntityGetter
-from digitalhub_core.entities.runs.models import EntityInputsOutputs
+from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
+from digitalhub_core.utils.generic_utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
+
+
+ENTITY_FUNC = {
+    "artifacts": get_artifact_from_key,
+}
 
 
 class RunSpec(Spec):
@@ -44,26 +49,90 @@ class RunSpec(Spec):
             Keywords arguments.
         """
         self.task = task
-        self.inputs = inputs if inputs is not None else {}
-        self.outputs = outputs if outputs is not None else {}
+        self.inputs = inputs if inputs is not None else []
+        self.outputs = outputs if outputs is not None else []
         self.parameters = parameters if parameters is not None else {}
         self.local_execution = local_execution
 
-    def get_inputs(self, project_name: str) -> dict[str, list[Entity]]:
+    def get_inputs(self) -> list[dict[str, Entity]]:
         """
         Get inputs.
 
+        Returns
+        -------
+        list[dict[str, Entity]]
+            The inputs.
+        """
+        inputs = []
+        for i in self.inputs:
+            for k, v in i.items():
+                parameter, entity_type, _ = self._parse_input_key(k)
+
+                # TODO: Check if entity exists, otherwise create it
+
+                if entity_type is None:
+                    # Get entity by type from entity key
+                    if v.startswith("store://"):
+                        _, entity_type, _, _, _ = parse_entity_key(v)
+                        entity = ENTITY_FUNC[entity_type](v)
+                        inputs.append({parameter: entity})
+                    else:
+                        raise ValueError(f"Invalid entity key: {v}")
+
+                # TODO: Create new entity
+                else:
+                    raise NotImplementedError
+
+        return inputs
+
+    @staticmethod
+    def _parse_input_key(key: str) -> tuple:
+        """
+        Parse input key.
+
         Parameters
         ----------
-        project_name : str
-            Name of the project.
+        key : str
+            Input key.
 
         Returns
         -------
-        dict[str, list[Entity]]
-            The inputs.
+        tuple
+            The parsed key.
         """
-        return EntityGetter().collect_entity(self.inputs, project_name)
+        # Get parameter name
+        splitted = key.split(":")
+        parameter = splitted[0]
+
+        try:
+            splitted = splitted[1].split(".")
+        except IndexError:
+            return parameter, None, None
+
+        # Get entity type
+        if len(splitted) == 1:
+            return parameter, splitted[0], None
+
+        # Get entity kind
+        return parameter, splitted[0], splitted[1]
+
+    @staticmethod
+    def _entity_type_from_entity_key(key: str) -> str:
+        """
+        Split key and return entity type.
+
+        Parameters
+        ----------
+        key : str
+            Entity key.
+
+        Returns
+        -------
+        str
+            Entity type.
+        """
+        key = key.replace("store://", "")
+        return key.split("/")[1]
 
 
 class RunParams(SpecParams):
@@ -74,10 +143,10 @@ class RunParams(SpecParams):
     task: str = None
     """The task string associated with the run."""
 
-    inputs: EntityInputsOutputs = None
+    inputs: list[dict[str, str]] = None
     """Run inputs."""
 
-    outputs: EntityInputsOutputs = None
+    outputs: list[dict[str, str]] = None
     """Run outputs."""
 
     parameters: dict = None

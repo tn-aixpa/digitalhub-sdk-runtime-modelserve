@@ -54,12 +54,12 @@ def new_dataitem(
     project: str,
     name: str,
     kind: str,
+    path: str,
     uuid: str | None = None,
     description: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    path: str | None = None,
     **kwargs,
 ) -> Dataitem:
     """
@@ -73,6 +73,8 @@ def new_dataitem(
         Identifier of the dataitem.
     kind : str
         The type of the dataitem.
+    path : str
+        Path to the dataitem on local file system or remote storage.
     uuid : str
         UUID.
     description : str
@@ -83,8 +85,6 @@ def new_dataitem(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    path : str
-        Path to the dataitem on local file system or remote storage.
     **kwargs
         Spec keyword arguments.
 
@@ -97,12 +97,12 @@ def new_dataitem(
         project=project,
         name=name,
         kind=kind,
+        path=path,
         uuid=uuid,
         description=description,
         source=source,
         labels=labels,
         embedded=embedded,
-        path=path,
         **kwargs,
     )
     obj.save()
@@ -142,7 +142,7 @@ def get_dataitem_from_key(key: str) -> Dataitem:
         Key of the dataitem.
         It's format is store://<project>/dataitems/<kind>/<name>:<uuid>.
     """
-    project, name, uuid = parse_entity_key(key)
+    project, _, _, name, uuid = parse_entity_key(key)
     return get_dataitem(project, name, uuid)
 
 

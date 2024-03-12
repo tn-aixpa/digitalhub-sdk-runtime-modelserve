@@ -11,9 +11,10 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_data_nefertem.entities.runs.spec import RunSpecNefertem
 from digitalhub_data_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config
 from digitalhub_data_nefertem.utils.functions import infer, metric, profile, validate
-from digitalhub_data_nefertem.utils.inputs import get_dataitem_, persist_dataitem
+from digitalhub_data_nefertem.utils.inputs import persist_dataitem
 from digitalhub_data_nefertem.utils.outputs import build_status, create_artifact, upload_artifact
 
 if typing.TYPE_CHECKING:
@@ -86,7 +87,7 @@ class RuntimeNefertem(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        inputs = self._collect_inputs(spec, project)
+        inputs = self._collect_inputs(spec)
 
         LOGGER.info("Configure execution.")
         config = self._configure_execution(inputs, spec, action)
@@ -133,7 +134,7 @@ class RuntimeNefertem(Runtime):
     # Inputs
     ####################
 
-    def _collect_inputs(self, spec: dict, project: str) -> list[dict]:
+    def _collect_inputs(self, spec: dict) -> list[dict]:
         """
         Collect dataitems inputs.
 
@@ -150,11 +151,11 @@ class RuntimeNefertem(Runtime):
             The list of inputs dataitems.
         """
         Path(f"{self.output_path}/tmp").mkdir(parents=True, exist_ok=True)
-
+        inputs = RunSpecNefertem(**spec).get_inputs()
         mapper = []
-        for name in spec.get("inputs", {}).get("dataitems", []):
-            dataitem = get_dataitem_(name, project)
-            mapper.append(persist_dataitem(dataitem, name, self.output_path))
+        for i in inputs:
+            for _, v in i.items():
+                mapper.append(persist_dataitem(v, v.name, self.output_path))
         return mapper
 
     ####################
@@ -235,7 +236,7 @@ class RuntimeNefertem(Runtime):
 
         LOGGER.info("Uploading artifacts to minio.")
         for i in artifacts:
-            upload_artifact(*i)
+            upload_artifact(i)
 
         return artifacts
 

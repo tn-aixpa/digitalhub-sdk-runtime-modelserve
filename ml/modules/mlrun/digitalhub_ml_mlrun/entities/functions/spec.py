@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
+from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec, SourceCodeStruct
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import encode_source
 
@@ -51,18 +51,42 @@ class FunctionSpecMlrun(FunctionSpec):
 
         build = kwargs.get("build")
         if build is not None or build:
-            self.build = build
+            self.build = SourceCodeStruct(**build)
         else:
             # Source check
             if source is None:
                 raise EntityError("Source must be provided.")
             if not (Path(source).suffix == ".py" and Path(source).is_file()):
                 raise EntityError("Source is not a valid python file.")
-            self.build = {
-                "function_source_code": encode_source(source),
-                "code_origin": source,
-                "origin_filename": Path(source).name,
-            }
+            self.build = SourceCodeStruct(
+                source_code=Path(source).read_text(),
+                source_encoded=encode_source(source),
+                lang="python",
+            )
+
+    def show_source_code(self) -> str:
+        """
+        Show source code.
+
+        Returns
+        -------
+        str
+            Source code.
+        """
+        return str(self.build.source_code)
+
+    def to_dict(self) -> dict:
+        """
+        Override to_dict to exclude build source_code.
+
+        Returns
+        -------
+        dict
+            Dictionary representation of the object.
+        """
+        dict_ = super().to_dict()
+        dict_["build"] = self.build.to_dict()
+        return dict_
 
 
 class FunctionParamsMlrun(FunctionParams):

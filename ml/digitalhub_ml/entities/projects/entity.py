@@ -7,7 +7,7 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
-from digitalhub_ml.entities.models.crud import create_model_from_dict, delete_model, get_model, new_model, list_models
+from digitalhub_ml.entities.models.crud import create_model_from_dict, delete_model, get_model, list_models, new_model
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.models.entity import Model
@@ -118,7 +118,6 @@ class ProjectMl(ProjectData):
             List of objects related to project.
         """
         return list_models(self.name, filters)
-
 
     @staticmethod
     def _parse_dict(
