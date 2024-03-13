@@ -13,7 +13,7 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task, new_task
-from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -48,7 +48,7 @@ class Function(Entity):
         Parameters
         ----------
         project : str
-            Name of the project.
+            Project name.
         name : str
             Name of the object.
         uuid : str
@@ -100,11 +100,11 @@ class Function(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "functions")
-            return self._context().create_object(obj, api)
+            return self._context().create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "functions", self.name, self.id)
-        return self._context().update_object(obj, api)
+        api = api_ctx_update(self.project, "functions", self.id)
+        return self._context().update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -162,6 +162,7 @@ class Function(Entity):
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
+        values: list | None = None,
         local_execution: bool = False,
         **kwargs,
     ) -> Run:
@@ -188,6 +189,8 @@ class Function(Entity):
             Function outputs. Run parameter.
         parameters : dict
             Function parameters. Run parameter.
+        values : list
+            Function values. Run parameter.
         local_execution : bool
             Flag to determine if object has local execution. Run parameter.
         **kwargs
@@ -219,7 +222,7 @@ class Function(Entity):
             )
 
         # Run function from task
-        run = task.run(inputs, outputs, parameters, local_execution)
+        run = task.run(inputs, outputs, parameters, values, local_execution)
 
         # If execution is done by DHCore backend, return the object
         if not local_execution:
@@ -247,9 +250,9 @@ class Function(Entity):
         None | Task
             Task if exists, None otherwise.
         """
-        api = api_base_list("tasks")
-        filters = {"function": self._get_function_string(), "kind": f"{self.kind}+{action}"}
-        objs = self._context().list_objects(api, filters)
+        api = api_ctx_list(self.project, "tasks")
+        params = {"function": self._get_function_string(), "kind": f"{self.kind}+{action}"}
+        objs = self._context().list_objects(api, params=params)
         for i in objs:
             self._tasks[action] = create_task_from_dict(i)
             return self._tasks[action]
@@ -477,10 +480,9 @@ def function_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    source_code: str | None = None,
     **kwargs,
 ) -> Function:
     """
@@ -489,23 +491,21 @@ def function_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     name : str
-        Identifier of the function.
+        Name that identifies the object.
     kind : str
-        The type of the function.
+        Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
-        Description of the function.
-    source : str
+        Description of the object.
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    source_code : str
-        Path to the function's source code on the local file system.
     **kwargs
         Spec keyword arguments.
 
@@ -518,7 +518,6 @@ def function_from_parameters(
     spec = build_spec(
         kind,
         framework_runtime=kind,
-        source=source_code,
         **kwargs,
     )
     metadata = build_metadata(
@@ -528,7 +527,7 @@ def function_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=source,
+        source=git_source,
         labels=labels,
         embedded=embedded,
     )
@@ -554,7 +553,7 @@ def function_from_dict(obj: dict) -> Function:
     Parameters
     ----------
     obj : dict
-        Dictionary to create function from.
+        Dictionary to create object from.
 
     Returns
     -------

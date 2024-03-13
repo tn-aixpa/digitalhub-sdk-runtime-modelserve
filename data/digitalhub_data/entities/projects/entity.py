@@ -52,47 +52,47 @@ class ProjectData(Project):
         self._add_object(obj, "dataitems")
         return obj
 
-    def get_dataitem(self, name: str, uuid: str | None = None) -> Dataitem:
+    def get_dataitem(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Dataitem:
         """
-        Get a Dataitem from backend.
+        Get object from backend.
 
         Parameters
         ----------
-        name : str
-            Identifier of the dataitem.
-        uuid : str
-            Identifier of the dataitem version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         Dataitem
             Instance of Dataitem class.
         """
-        obj = get_dataitem(
-            project=self.name,
-            name=name,
-            uuid=uuid,
-        )
+        obj = get_dataitem(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
         self._add_object(obj, "dataitems")
         return obj
 
-    def delete_dataitem(self, name: str, uuid: str | None = None) -> None:
+    def delete_dataitem(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
         """
         Delete a Dataitem from project.
 
         Parameters
         ----------
-        name : str
-            Identifier of the dataitem.
-        uuid : str
-            Identifier of the dataitem version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         None
         """
-        delete_dataitem(self.name, name, uuid=uuid)
-        self._delete_object(name, "dataitems", uuid=uuid)
+        delete_dataitem(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
+        self._delete_object("dataitems", entity_name, entity_id)
 
     def set_dataitem(self, dataitem: Dataitem) -> None:
         """
@@ -109,21 +109,21 @@ class ProjectData(Project):
         """
         self._add_object(dataitem, "dataitems")
 
-    def list_dataitems(self, filters: dict | None = None) -> list[dict]:
+    def list_dataitems(self, **kwargs) -> list[dict]:
         """
         List dataitems associated with the project.
 
         Parameters
         ----------
-        filters : dict
-            Filters to apply to the list.
+        **kwargs : dict
+            Filters to apply to the list. Shold be params={"filter": "value"}.
 
         Returns
         -------
         list[dict]
             List of objects related to project.
         """
-        return list_dataitems(self.name, filters)
+        return list_dataitems(self.name, **kwargs)
 
     @staticmethod
     def _parse_dict(
@@ -183,11 +183,11 @@ def project_from_parameters(
     Parameters
     ----------
     name : str
-        Identifier of the project.
+        Name that identifies the object.
     kind : str
-        The type of the project.
+        Kind of the object.
     description : str
-        Description of the project.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -240,7 +240,7 @@ def project_from_dict(obj: dict) -> ProjectData:
     Parameters
     ----------
     obj : dict
-        Dictionary to create project from.
+        Dictionary to create object from.
 
     Returns
     -------

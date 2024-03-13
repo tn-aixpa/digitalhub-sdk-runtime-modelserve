@@ -20,9 +20,8 @@ class EntityGetterData(EntityGetter):
                 else:
                     dataitems.append(get_dataitem(project, i))
             elif isinstance(i, dict):
-                name = i.get("name")
                 uuid = i.get("uuid")
-                dataitems.append(get_dataitem(project, name, uuid))
+                dataitems.append(get_dataitem(project, entity_id=uuid))
             else:
                 raise ValueError(f"Invalid dataitem: {i}")
         return dataitems

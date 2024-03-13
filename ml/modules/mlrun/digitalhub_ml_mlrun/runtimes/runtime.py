@@ -10,7 +10,6 @@ from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_ml_mlrun.entities.runs.spec import RunSpecMlrun
 from digitalhub_ml_mlrun.utils.configurations import (
     get_dhcore_function,
     get_mlrun_function,
@@ -137,7 +136,7 @@ class RuntimeMlrun(Runtime):
         spec : dict
             Run specs.
         project : str
-            Name of the project.
+            Project name.
 
         Returns
         -------
@@ -145,8 +144,7 @@ class RuntimeMlrun(Runtime):
             Parameters.
         """
         LOGGER.info("Getting inputs.")
-        inputs = RunSpecMlrun(**spec).get_inputs()
-        return get_inputs_parameters(inputs, spec.get("parameters", {}), tmp_dir)
+        return get_inputs_parameters(spec.get("inputs", []), spec.get("parameters", {}), tmp_dir)
 
     ####################
     # Configuration
@@ -163,7 +161,7 @@ class RuntimeMlrun(Runtime):
         action : str
             Action to execute.
         project : str
-            Name of the project.
+            Project name.
 
         Returns
         -------
@@ -174,8 +172,8 @@ class RuntimeMlrun(Runtime):
         # Setup function source and specs
         LOGGER.info("Getting function source and specs.")
         dhcore_function = get_dhcore_function(spec.get(f"{action}_spec", {}).get("function"))
-        function_source = save_function_source(self.root_path, dhcore_function.spec)
-        function_specs = parse_function_specs(dhcore_function.spec)
+        function_source = save_function_source(self.root_path, dhcore_function.spec.to_dict())
+        function_specs = parse_function_specs(dhcore_function.spec.to_dict())
 
         # Create Mlrun project
         LOGGER.info("Creating Mlrun project and function.")

@@ -18,6 +18,9 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.projects.entity import Project
 
 
+ENTITY_TYPE = "projects"
+
+
 def create_project(**kwargs) -> Project:
     """
     Create a new project.
@@ -42,7 +45,7 @@ def create_project_from_dict(obj: dict) -> Project:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Project from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -58,6 +61,7 @@ def load_project(
     local: bool = False,
     config: dict | None = None,
     setup_kwargs: dict | None = None,
+    **kwargs,
 ) -> Project:
     """
     Load project and context from backend or file.
@@ -65,13 +69,15 @@ def load_project(
     Parameters
     ----------
     name : str
-        Name of the project.
-    filename : str
-        Path to file where to load project from.
+        Project name.
     local : bool
         Flag to determine if backend is local.
     config : dict
         DHCore env configuration.
+    setup_kwargs : dict
+        Setup keyword arguments.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -98,11 +104,13 @@ def get_or_create_project(
     Parameters
     ----------
     name : str
-        Name of the project.
+        Project name.
     local : bool
         Flag to determine if backend is local.
     config : dict
         DHCore env configuration.
+    setup_kwargs : dict
+        Setup keyword arguments.
     **kwargs
         Keyword arguments.
 
@@ -112,7 +120,7 @@ def get_or_create_project(
         A Project instance.
     """
     try:
-        return get_project(name, local, config=config, setup_kwargs=setup_kwargs)
+        return get_project(name, local, config=config, setup_kwargs=setup_kwargs, **kwargs)
     except BackendError:
         return new_project(name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
 
@@ -134,13 +142,13 @@ def new_project(
     Parameters
     ----------
     name : str
-        Identifier of the project.
+        Name that identifies the object.
     kind : str
-        The type of the project.
+        Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
-        Description of the project.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -181,18 +189,23 @@ def get_project(
     local: bool = False,
     config: dict | None = None,
     setup_kwargs: dict | None = None,
+    **kwargs,
 ) -> Project:
     """
-    Retrieves project details from the backend.
+    Retrieves project details from backend.
 
     Parameters
     ----------
     name : str
-        The name or UUID.
+        The Project name.
     local : bool
         Flag to determine if backend is local.
     config : dict
         DHCore env configuration.
+    setup_kwargs : dict
+        Setup keyword arguments.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
@@ -202,7 +215,7 @@ def get_project(
     build_client(local, config)
     api = api_base_read("projects", name)
     client = get_client(local)
-    obj = client.read_object(api)
+    obj = client.read_object(api, **kwargs)
     obj["local"] = local
     project = create_project_from_dict(obj)
     return _setup_project(project, setup_kwargs)
@@ -238,14 +251,16 @@ def import_project(
     return _setup_project(project, setup_kwargs)
 
 
-def delete_project(name: str, cascade: bool = True, clean_context: bool = True, local: bool = False) -> list[dict]:
+def delete_project(
+    name: str, cascade: bool = True, clean_context: bool = True, local: bool = False, **kwargs
+) -> list[dict]:
     """
     Delete a project.
 
     Parameters
     ----------
     name : str
-        Name of the project.
+        Project name.
     cascade : bool
         Flag to determine if delete is cascading.
     clean_context : bool
@@ -253,6 +268,8 @@ def delete_project(name: str, cascade: bool = True, clean_context: bool = True, 
         all its objects are unreacheable.
     local : bool
         Flag to determine if backend is local.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
@@ -260,32 +277,38 @@ def delete_project(name: str, cascade: bool = True, clean_context: bool = True, 
         Response from backend.
     """
     client = get_client(local)
-    api = api_base_delete("projects", name, cascade=cascade)
-    response = client.delete_object(api)
+    api = api_base_delete("projects", name)
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+    kwargs["params"]["cascade"] = str(cascade).lower()
+    response = client.delete_object(api, **kwargs)
     if clean_context:
         delete_context(name)
     return response
 
 
-def update_project(project: Project, local: bool = False) -> dict:
+def update_project(entity: Project, local: bool = False, **kwargs) -> dict:
     """
-    Update a project.
+    Update object in backend.
 
     Parameters
     ----------
-    project : Project
-        The project to update.
+    entity : Project
+        The object to update.
     local : bool
         Flag to determine if backend is local.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_base_update("projects", project.name)
+    api = api_base_update("projects", entity.name)
     client = get_client(local)
-    return client.update_object(project.to_dict(), api)
+    return client.update_object(api, entity.to_dict(), **kwargs)
 
 
 def _setup_project(project: Project, setup_kwargs: dict = None) -> Project:

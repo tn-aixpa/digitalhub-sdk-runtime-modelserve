@@ -51,7 +51,7 @@ class Artifact(Entity):
         Parameters
         ----------
         project : str
-            Name of the project.
+            Project name.
         name : str
             Name of the object.
         uuid : str
@@ -100,11 +100,11 @@ class Artifact(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "artifacts")
-            return self._context().create_object(obj, api)
+            return self._context().create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "artifacts", self.name, self.id)
-        return self._context().update_object(obj, api)
+        api = api_ctx_update(self.project, "artifacts", self.id)
+        return self._context().update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -410,17 +410,17 @@ def artifact_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     name : str
-        Identifier of the artifact.
+        Name that identifies the object.
     kind : str
-        The type of the artifact.
+        Kind of the object.
     path : str
         Destination path of the artifact.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
-        Description of the artifact.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -475,7 +475,7 @@ def artifact_from_dict(obj: dict) -> Artifact:
     Parameters
     ----------
     obj : dict
-        Dictionary to create artifact from.
+        Dictionary to create object from.
 
     Returns
     -------

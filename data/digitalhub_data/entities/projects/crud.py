@@ -40,7 +40,7 @@ def create_project_from_dict(obj: dict) -> Project:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Project from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -56,6 +56,7 @@ def load_project(
     local: bool = False,
     config: dict | None = None,
     setup_kwargs: dict | None = None,
+    **kwargs,
 ) -> Project:
     """
     Load project and context from backend or file.
@@ -63,13 +64,15 @@ def load_project(
     Parameters
     ----------
     name : str
-        Name of the project.
-    filename : str
-        Path to file where to load project from.
+        Project name.
     local : bool
         Flag to determine if backend is local.
     config : dict
         DHCore env configuration.
+    setup_kwargs : dict
+        Setup keyword arguments.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
@@ -96,11 +99,13 @@ def get_or_create_project(
     Parameters
     ----------
     name : str
-        Name of the project.
+        Project name.
     local : bool
         Flag to determine if backend is local.
     config : dict
         DHCore env configuration.
+    setup_kwargs : dict
+        Setup keyword arguments.
     **kwargs
         Keyword arguments.
 
@@ -110,7 +115,7 @@ def get_or_create_project(
         A Project instance.
     """
     try:
-        return get_project(name, local, config=config, setup_kwargs=setup_kwargs)
+        return get_project(name, local, config=config, setup_kwargs=setup_kwargs, **kwargs)
     except BackendError:
         return new_project(name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
 
@@ -132,13 +137,13 @@ def new_project(
     Parameters
     ----------
     name : str
-        Identifier of the project.
+        Name that identifies the object.
     kind : str
-        The type of the project.
+        Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
-        Description of the project.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -179,18 +184,23 @@ def get_project(
     local: bool = False,
     config: dict | None = None,
     setup_kwargs: dict | None = None,
+    **kwargs,
 ) -> Project:
     """
-    Retrieves project details from the backend.
+    Retrieves project details from backend.
 
     Parameters
     ----------
     name : str
-        The name or UUID.
+        The Project name.
     local : bool
         Flag to determine if backend is local.
     config : dict
         DHCore env configuration.
+    setup_kwargs : dict
+        Setup keyword arguments.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
@@ -200,7 +210,7 @@ def get_project(
     build_client(local, config)
     api = api_base_read("projects", name)
     client = get_client(local)
-    obj = client.read_object(api)
+    obj = client.read_object(api, **kwargs)
     obj["local"] = local
     project = create_project_from_dict(obj)
     return _setup_project(project, setup_kwargs)

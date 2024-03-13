@@ -6,281 +6,211 @@ from __future__ import annotations
 API_BASE = "/api/v1"
 API_CONTEXT = f"{API_BASE}/-"
 
+
 ####################
 # Context APIs
 ####################
 
 
+def api_ctx_list(project: str, entity_type: str) -> str:
+    """
+    List context API.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{project}/{entity_type}"
+
+
 def api_ctx_create(
-    proj: str,
-    dto: str,
+    project: str,
+    entity_type: str,
 ) -> str:
     """
     Create context API.
 
     Parameters
     ----------
-    proj : str
-        Name of the project.
-    dto : str
-        The name of the DTO.
+    project : str
+        Project name.
+    entity_type : str
+        The name of the entity_type.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{proj}/{dto}"
+    return f"{API_CONTEXT}/{project}/{entity_type}"
 
 
-def api_ctx_read(
-    proj: str,
-    dto: str,
-    name: str,
-    uuid: str | None = None,
-) -> str:
+def api_ctx_read(project: str, entity_type: str, entity_id: str) -> str:
     """
     Read context API.
 
     Parameters
     ----------
-    proj : str
-        Name of the project.
-    dto : str
-        The type of the DTO.
-    name : str
-        The name of the DTO.
-    uuid : str
-        The UUID of the DTO. If not provided, the latest version is returned.
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    version = f"/{uuid}" if uuid is not None else "/latest"
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}{version}"
-
-
-def api_ctx_read_no_version(
-    proj: str,
-    dto: str,
-    name: str,
-) -> str:
-    """
-    Read context API.
-
-    Parameters
-    ----------
-    proj : str
-        Name of the project.
-    dto : str
-        The type of the DTO.
-    name : str
-        The name of the DTO.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}"
-
-
-def api_ctx_list(proj: str, dto: str) -> str:
-    """
-    List context API.
-
-    Parameters
-    ----------
-    proj : str
-        Name of the project.
-    dto : str
-        The type of the DTO.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    return f"{API_CONTEXT}/{proj}/{dto}"
+    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}"
 
 
 def api_ctx_update(
-    proj: str,
-    dto: str,
-    name: str,
-    uuid: str,
+    project: str,
+    entity_type: str,
+    entity_id: str,
 ) -> str:
     """
     Update context API.
 
     Parameters
     ----------
-    proj : str
-        Name of the project.
-    dto : str
-        The type of the DTO.
-    name : str
-        The name of the DTO.
-    uuid : str
-        The UUID of the DTO.
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}/{uuid}"
+    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}"
 
 
-def api_ctx_update_name_only(
-    proj: str,
-    dto: str,
-    name: str,
-) -> str:
-    """
-    Update context API.
-
-    Parameters
-    ----------
-    proj : str
-        Name of the project.
-    dto : str
-        The type of the DTO.
-    name : str
-        The name of the DTO.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}"
-
-
-def api_ctx_delete(
-    proj: str,
-    dto: str,
-    name: str,
-    uuid: str | None = None,
-) -> str:
+def api_ctx_delete(project: str, entity_type: str, entity_id: str) -> str:
     """
     Delete context API.
 
     Parameters
     ----------
-    proj : str
-        Name of the project.
-    dto : str
-        The type of the DTO.
-    name : str
-        The name of the DTO.
-    uuid : str
-        The UUID of the DTO. If not provided, all versions are deleted.
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    version = f"/{uuid}" if uuid is not None else ""
-    return f"{API_CONTEXT}/{proj}/{dto}/{name}{version}?cascade=true"
+    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}"
 
 
 ####################
-# Base controller APIs
+# Base APIs
 ####################
 
 
-def api_base_list(dto: str) -> str:
+def api_base_list(entity_type: str) -> str:
     """
     List base API.
 
     Parameters
     ----------
-    dto : str
-        The type of the DTO.
+    entity_type : str
+        Entity type.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{dto}"
+    return f"{API_BASE}/{entity_type}"
 
 
-def api_base_create(dto: str) -> str:
+def api_base_create(entity_type: str) -> str:
     """
     Create base API.
 
     Parameters
     ----------
-    dto : str
-        The type of the DTO.
+    entity_type : str
+        Entity type.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{dto}"
+    return f"{API_BASE}/{entity_type}"
 
 
-def api_base_read(dto: str, name: str) -> str:
+def api_base_read(entity_type: str, entity_id: str) -> str:
     """
     Read base API.
 
     Parameters
     ----------
-    dto : str
-        The type of the DTO.
-    name : str
-        The name or UUID of the DTO.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{dto}/{name}"
+    return f"{API_BASE}/{entity_type}/{entity_id}"
 
 
-def api_base_update(dto: str, name: str) -> str:
+def api_base_update(entity_type: str, entity_id: str) -> str:
     """
     Update base API.
 
     Parameters
     ----------
-    dto : str
-        The type of the DTO.
-    name : str
-        The name or UUID of the DTO.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{dto}/{name}"
+    return f"{API_BASE}/{entity_type}/{entity_id}"
 
 
-def api_base_delete(dto: str, name: str, cascade: bool = False) -> str:
+def api_base_delete(entity_type: str, entity_id: str) -> str:
     """
     Delete base API.
 
     Parameters
     ----------
-    dto : str
-        The type of the DTO.
-    name : str
-        The name or UUID of the DTO.
-    cascade : bool
-        Whether to cascade delete. By default, True.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
 
     Returns
     -------
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{dto}/{name}?cascade={str(cascade).lower()}"
+    return f"{API_BASE}/{entity_type}/{entity_id}"

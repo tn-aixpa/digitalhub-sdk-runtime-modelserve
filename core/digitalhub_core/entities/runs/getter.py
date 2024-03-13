@@ -38,9 +38,8 @@ class EntityGetter:
                 else:
                     artifacts.append(get_artifact(project, i))
             elif isinstance(i, dict):
-                name = i.get("name")
                 uuid = i.get("uuid")
-                artifacts.append(get_artifact(project, name, uuid))
+                artifacts.append(get_artifact(project, entity_id=uuid))
             else:
                 raise ValueError(f"Invalid artifact: {i}")
         return artifacts

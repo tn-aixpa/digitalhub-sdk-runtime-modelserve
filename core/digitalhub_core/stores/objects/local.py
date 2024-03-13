@@ -50,7 +50,7 @@ class LocalStore(Store):
 
     def download(self, src: str, dst: str | None = None) -> str:
         """
-        Method to download an artifact from the backend. Please note that this method is not
+        Method to download an artifact from backend. Please note that this method is not
         implemented since the local store is not meant to download artifacts.
 
         Raises
@@ -62,7 +62,7 @@ class LocalStore(Store):
 
     def fetch_artifact(self, src: str, dst: str | None = None) -> str:
         """
-        Method to fetch an artifact from the backend and to register it on the paths registry.
+        Method to fetch an artifact from backend and to register it on the paths registry.
         If destination is not provided, return the source path, otherwise the path of the copied
         file.
 

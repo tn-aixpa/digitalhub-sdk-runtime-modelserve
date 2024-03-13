@@ -7,11 +7,14 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.runs.entity import run_from_dict, run_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read_no_version, api_ctx_update_name_only
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.runs.entity import Run
+
+
+ENTITY_TYPE = "runs"
 
 
 def create_run(**kwargs) -> Run:
@@ -38,7 +41,7 @@ def create_run_from_dict(obj: dict) -> Run:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Run from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -59,6 +62,7 @@ def new_run(
     inputs: dict | None = None,
     outputs: list | None = None,
     parameters: dict | None = None,
+    values: list | None = None,
     local_execution: bool = False,
     **kwargs,
 ) -> Run:
@@ -68,13 +72,13 @@ def new_run(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     task : str
         Name of the task associated with the run.
     kind : str
-        The type of the run.
+        Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -85,6 +89,8 @@ def new_run(
         Outputs of the run.
     parameters : dict
         Parameters of the run.
+    values : list
+        Values of the run.
     local_execution : bool
         Flag to determine if object has local execution.
     embedded : bool
@@ -107,6 +113,7 @@ def new_run(
         inputs=inputs,
         outputs=outputs,
         parameters=parameters,
+        values=values,
         local_execution=local_execution,
         **kwargs,
     )
@@ -114,24 +121,26 @@ def new_run(
     return obj
 
 
-def get_run(project: str, name: str) -> Run:
+def get_run(project: str, entity_id: str, **kwargs) -> Run:
     """
     Get object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the run.
+        Project name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     Run
         Object instance.
     """
-    api = api_ctx_read_no_version(project, "runs", name)
-    obj = get_context(project).read_object(api)
+    api = api_ctx_read(project, ENTITY_TYPE, entity_id)
+    obj = get_context(project).read_object(api, **kwargs)
     return create_run_from_dict(obj)
 
 
@@ -153,57 +162,63 @@ def import_run(file: str) -> Run:
     return create_run_from_dict(obj)
 
 
-def delete_run(project: str, name: str) -> dict:
+def delete_run(project: str, entity_id: str, cascade: bool = True, **kwargs) -> dict:
     """
-    Delete run from the backend.
+    Delete object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the run.
+        Project name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, "runs", name)
-    return get_context(project).delete_object(api)
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+        kwargs["params"]["cascade"] = str(cascade).lower()
+    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    return get_context(project).delete_object(api, **kwargs)
 
 
-def update_run(run: Run) -> dict:
+def update_run(entity: Run, **kwargs) -> dict:
     """
-    Update run.
+    Update object in backend.
 
     Parameters
     ----------
-    run : Run
-        The run object to update.
+    entity : Run
+        The object to update.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_update_name_only(run.project, "runs", run.id)
-    return get_context(run.project).update_object(run.to_dict(include_all_non_private=True), api)
+    api = api_ctx_update(entity.project, ENTITY_TYPE, entity.id)
+    return get_context(entity.project).update_object(api, entity.to_dict(include_all_non_private=True), **kwargs)
 
 
-def list_runs(project: str, filters: dict | None = None) -> list[dict]:
+def list_runs(project: str, **kwargs) -> list[dict]:
     """
-    List all runs.
+    List all objects from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
     list[dict]
         List of runs dict representations.
     """
-    api = api_ctx_list(project, "runs")
-    return get_context(project).list_objects(api, filters=filters)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    return get_context(project).list_objects(api, **kwargs)

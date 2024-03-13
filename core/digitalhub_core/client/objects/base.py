@@ -16,31 +16,31 @@ class Client:
     """
 
     @abstractmethod
-    def create_object(self, obj: dict, api: str) -> dict:
+    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Create object method.
         """
 
     @abstractmethod
-    def read_object(self, api: str) -> dict:
+    def read_object(self, api: str, **kwargs) -> dict:
         """
         Read object method.
         """
 
     @abstractmethod
-    def update_object(self, obj: dict, api: str) -> dict:
+    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Update object method.
         """
 
     @abstractmethod
-    def delete_object(self, api: str) -> dict:
+    def delete_object(self, api: str, **kwargs) -> dict:
         """
         Delete object method.
         """
 
     @abstractmethod
-    def list_objects(self, api: str, filters: dict | None = None) -> dict:
+    def list_objects(self, api: str, **kwargs) -> dict:
         """
         Generic call method.
         """

@@ -27,34 +27,20 @@ class RunSpec(Spec):
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
+        values: list | None = None,
         local_execution: bool = False,
-        **kwargs,
     ) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
-        task : str
-            The task associated with the run.
-        inputs : dict
-            The inputs of the run.
-        outputs : dict
-            The outputs of the run.
-        parameters : dict
-            The parameters for the run.
-        local_execution : bool
-            Flag to indicate if the run will be executed locally
-        **kwargs
-            Keywords arguments.
         """
         self.task = task
         self.inputs = inputs if inputs is not None else []
         self.outputs = outputs if outputs is not None else []
         self.parameters = parameters if parameters is not None else {}
+        self.values = values if values is not None else []
         self.local_execution = local_execution
 
-    def get_inputs(self) -> list[dict[str, Entity]]:
+    def get_inputs(self, as_dict: bool = False) -> list[dict[str, Entity]]:
         """
         Get inputs.
 
@@ -75,6 +61,8 @@ class RunSpec(Spec):
                     if v.startswith("store://"):
                         _, entity_type, _, _, _ = parse_entity_key(v)
                         entity = ENTITY_FUNC[entity_type](v)
+                        if as_dict:
+                            entity = entity.to_dict()
                         inputs.append({parameter: entity})
                     else:
                         raise ValueError(f"Invalid entity key: {v}")
@@ -151,6 +139,9 @@ class RunParams(SpecParams):
 
     parameters: dict = None
     """Parameters to be used in the run."""
+
+    values: list = None
+    """Values to be used in the run."""
 
     local_execution: bool = False
     """Flag to indicate if the run will be executed locally."""

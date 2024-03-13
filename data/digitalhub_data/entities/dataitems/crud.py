@@ -15,6 +15,9 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
+ENTITY_TYPE = "dataitems"
+
+
 def create_dataitem(**kwargs) -> Dataitem:
     """
     Create a new data item with the provided parameters.
@@ -39,7 +42,7 @@ def create_dataitem_from_dict(obj: dict) -> Dataitem:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Dataitem from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -68,17 +71,17 @@ def new_dataitem(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     name : str
-        Identifier of the dataitem.
+        Name that identifies the object.
     kind : str
-        The type of the dataitem.
+        Kind of the object.
     path : str
         Path to the dataitem on local file system or remote storage.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
-        Description of the dataitem.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -109,26 +112,42 @@ def new_dataitem(
     return obj
 
 
-def get_dataitem(project: str, name: str, uuid: str | None = None) -> Dataitem:
+def get_dataitem(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Dataitem:
     """
     Get object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the dataitem.
-    uuid : str
-        UUID.
+        Project name.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     Dataitem
         Object instance.
     """
-    api = api_ctx_read(project, "dataitems", name, uuid=uuid)
-    obj = get_context(project).read_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    if entity_name is not None:
+        params = kwargs.get("params", {})
+        if params is None or not params:
+            kwargs["params"] = {}
+
+        api = api_ctx_list(project, ENTITY_TYPE)
+        kwargs["params"]["name"] = entity_name
+        obj = context.list_objects(api, **kwargs)[0]
+    else:
+        api = api_ctx_read(project, ENTITY_TYPE, entity_id)
+        obj = context.read_object(api, **kwargs)
     return create_dataitem_from_dict(obj)
 
 
@@ -142,8 +161,8 @@ def get_dataitem_from_key(key: str) -> Dataitem:
         Key of the dataitem.
         It's format is store://<project>/dataitems/<kind>/<name>:<uuid>.
     """
-    project, _, _, name, uuid = parse_entity_key(key)
-    return get_dataitem(project, name, uuid)
+    project, _, _, _, uuid = parse_entity_key(key)
+    return get_dataitem(project, entity_id=uuid)
 
 
 def import_dataitem(file: str) -> Dataitem:
@@ -164,59 +183,90 @@ def import_dataitem(file: str) -> Dataitem:
     return create_dataitem_from_dict(obj)
 
 
-def delete_dataitem(project: str, name: str, uuid: str | None = None) -> dict:
+def delete_dataitem(
+    project: str,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    delete_all_versions: bool = False,
+    cascade: bool = True,
+    **kwargs,
+) -> dict:
     """
-    Delete dataitem from the backend. If the uuid is not specified, delete all versions.
+    Delete object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the dataitem.
-    uuid : str
-        UUID.
+        Project name.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    delete_all_versions : bool
+        Delete all versions of the named entity. Entity name is required.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, "dataitems", name, uuid=uuid)
-    return get_context(project).delete_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+        kwargs["params"]["cascade"] = str(cascade).lower()
+
+    if entity_id is not None:
+        api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    else:
+        kwargs["params"]["name"] = entity_name
+        api = api_ctx_list(project, ENTITY_TYPE)
+        if delete_all_versions:
+            return context.delete_object(api, **kwargs)
+        obj = context.list_objects(api, **kwargs)[0]
+        entity_id = obj["id"]
+
+    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    return context.delete_object(api, **kwargs)
 
 
-def update_dataitem(dataitem: Dataitem) -> dict:
+def update_dataitem(entity: Dataitem, **kwargs) -> dict:
     """
-    Update a dataitem.
+    Update object in backend.
 
     Parameters
     ----------
-    dataitem : Dataitem
-        The dataitem to update.
+    entity : Dataitem
+        The object to update.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_update(dataitem.project, "dataitems", dataitem.name, uuid=dataitem.id)
-    return get_context(dataitem.project).update_object(dataitem.to_dict(), api)
+    api = api_ctx_update(entity.project, ENTITY_TYPE, entity_id=entity.id)
+    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
 
 
-def list_dataitems(project: str, filters: dict | None = None) -> list[dict]:
+def list_dataitems(project: str, **kwargs) -> list[dict]:
     """
-    List all dataitems.
+    List all objects from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
     list[dict]
         List of dataitems dict representations.
     """
-    api = api_ctx_list(project, "dataitems")
-    return get_context(project).list_objects(api, filters=filters)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    return get_context(project).list_objects(api, **kwargs)

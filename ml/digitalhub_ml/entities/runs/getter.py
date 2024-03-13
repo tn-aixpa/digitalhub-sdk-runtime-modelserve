@@ -20,9 +20,8 @@ class EntityGetterMl(EntityGetterData):
                 else:
                     models.append(get_model(project, i))
             elif isinstance(i, dict):
-                name = i.get("name")
                 uuid = i.get("uuid")
-                models.append(get_model(project, name, uuid))
+                models.append(get_model(project, entity_id=uuid))
             else:
                 raise ValueError(f"Invalid model: {i}")
         return models

@@ -14,6 +14,9 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflows.entity import Workflow
 
 
+ENTITY_TYPE = "workflows"
+
+
 def create_workflow(**kwargs) -> Workflow:
     """
     Create a new Workflow instance with the specified parameters.
@@ -38,7 +41,7 @@ def create_workflow_from_dict(obj: dict) -> Workflow:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Workflow from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -69,7 +72,7 @@ def new_workflow(
     name : str
         The name of the workflow.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
         A description of the workflow.
     source : str
@@ -101,27 +104,41 @@ def new_workflow(
     return obj
 
 
-def get_workflow(project: str, name: str, uuid: str | None = None) -> Workflow:
+def get_workflow(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Workflow:
     """
-    Retrieves workflow details from the backend.
+    Retrieves workflow details from backend.
 
     Parameters
     ----------
 
     project : str
-        Name of the project.
+        Project name.
     name : str
         The name of the workflow.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
 
     Returns
     -------
     Workflow
         Object instance.
     """
-    api = api_ctx_read(project, "workflows", name, uuid=uuid)
-    obj = get_context(project).read_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    if entity_name is not None:
+        params = kwargs.get("params", {})
+        if params is None or not params:
+            kwargs["params"] = {}
+
+        api = api_ctx_list(project, ENTITY_TYPE)
+        kwargs["params"]["name"] = entity_name
+        obj = context.list_objects(api, **kwargs)[0]
+    else:
+        api = api_ctx_read(project, ENTITY_TYPE, entity_id)
+        obj = context.read_object(api, **kwargs)
     return create_workflow_from_dict(obj)
 
 
@@ -143,59 +160,90 @@ def import_workflow(file: str) -> Workflow:
     return create_workflow_from_dict(obj)
 
 
-def delete_workflow(project: str, name: str, uuid: str | None = None) -> dict:
+def delete_workflow(
+    project: str,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    delete_all_versions: bool = False,
+    cascade: bool = True,
+    **kwargs,
+) -> dict:
     """
-    Delete workflow from the backend. If the uuid is not specified, delete all versions.
+    Delete object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the workflow.
-    uuid : str
-        UUID.
+        Project name.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    delete_all_versions : bool
+        Delete all versions of the named entity. Entity name is required.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, "workflows", name, uuid=uuid)
-    return get_context(project).delete_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+        kwargs["params"]["cascade"] = str(cascade).lower()
+
+    if entity_id is not None:
+        api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    else:
+        kwargs["params"]["name"] = entity_name
+        api = api_ctx_list(project, ENTITY_TYPE)
+        if delete_all_versions:
+            return context.delete_object(api, **kwargs)
+        obj = context.list_objects(api, **kwargs)[0]
+        entity_id = obj["id"]
+
+    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    return context.delete_object(api, **kwargs)
 
 
-def update_workflow(workflow: Workflow) -> dict:
+def update_workflow(entity: Workflow, **kwargs) -> dict:
     """
-    Update a workflow.
+    Update object in backend.
 
     Parameters
     ----------
-    workflow : Workflow
-        The workflow to update.
+    entity : Workflow
+        The object to update.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_update(workflow.project, "workflows", workflow.name, uuid=workflow.id)
-    return get_context(workflow.project).update_object(workflow.to_dict(), api)
+    api = api_ctx_update(entity.project, ENTITY_TYPE, entity_id=entity.id)
+    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
 
 
-def list_workflows(project: str, filters: dict | None = None) -> list[dict]:
+def list_workflows(project: str, **kwargs) -> list[dict]:
     """
-    List all workflows.
+    List all objects from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
     list[dict]
         List of workflows dict representations.
     """
-    api = api_ctx_list(project, "workflows")
-    return get_context(project).list_objects(api, filters=filters)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    return get_context(project).list_objects(api, **kwargs)

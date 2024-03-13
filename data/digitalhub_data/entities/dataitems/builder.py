@@ -68,17 +68,17 @@ def dataitem_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     name : str
-        Identifier of the dataitem.
+        Name that identifies the object.
     kind : str
-        The type of the dataitem.
+        Kind of the object.
     path : str
         Path to the dataitem on local file system or remote storage.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
-        Description of the dataitem.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -131,7 +131,7 @@ def dataitem_from_dict(obj: dict) -> Dataitem:
     Parameters
     ----------
     obj : dict
-        Dictionary to create dataitem from.
+        Dictionary to create object from.
 
     Returns
     -------

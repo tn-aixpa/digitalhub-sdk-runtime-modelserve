@@ -12,7 +12,7 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.crud import delete_run, get_run, new_run, run_from_parameters
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_update_name_only
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -44,7 +44,7 @@ class Task(Entity):
         Parameters
         ----------
         project : str
-            Name of the project.
+            Project name.
         uuid : str
             UUID.
         kind : str
@@ -90,11 +90,11 @@ class Task(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "tasks")
-            return self._context().create_object(obj, api)
+            return self._context().create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update_name_only(self.project, "tasks", self.id)
-        return self._context().update_object(obj, api)
+        api = api_ctx_update(self.project, "tasks", self.id)
+        return self._context().update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -137,9 +137,10 @@ class Task(Entity):
 
     def run(
         self,
-        inputs: dict | None,
-        outputs: dict | None = None,
+        inputs: list | None,
+        outputs: list | None = None,
         parameters: dict | None = None,
+        values: list | None = None,
         local_execution: bool = False,
     ) -> Run:
         """
@@ -147,12 +148,14 @@ class Task(Entity):
 
         Parameters
         ----------
-        inputs : dict
+        inputs : list
             The inputs of the run.
-        outputs : dict
+        outputs : list
             The outputs of the run.
         parameters : dict
             The parameters of the run.
+        values : list
+            The values of the run.
         local_execution : bool
             Flag to indicate if the run will be executed locally.
 
@@ -168,6 +171,7 @@ class Task(Entity):
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
+            values=values,
             local_execution=local_execution,
         )
 
@@ -205,36 +209,36 @@ class Task(Entity):
             return run_from_parameters(**kwargs)
         return new_run(**kwargs)
 
-    def get_run(self, uuid: str) -> Run:
+    def get_run(self, entity_id: str) -> Run:
         """
         Get run.
 
         Parameters
         ----------
-        update : bool
-            Flag to indicate update.
+        entity_id : str
+            Entity ID.
 
         Returns
         -------
         Run
             Run object.
         """
-        return get_run(self.project, uuid)
+        return get_run(self.project, entity_id)
 
-    def delete_run(self, uuid: str) -> None:
+    def delete_run(self, entity_id: str) -> None:
         """
         Delete run.
 
         Parameters
         ----------
-        update : bool
-            Flag to indicate update.
+        entity_id : str
+            Entity ID.
 
         Returns
         -------
         None
         """
-        delete_run(self.project, uuid)
+        delete_run(self.project, entity_id)
 
     #############################
     #  Static interface methods
@@ -305,11 +309,11 @@ def task_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     kind : str
-        The type of the task.
+        Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     source : str
         Remote git source for object.
     labels : list[str]

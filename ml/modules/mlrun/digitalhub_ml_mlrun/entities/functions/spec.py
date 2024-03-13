@@ -7,7 +7,7 @@ from pathlib import Path
 
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec, SourceCodeStruct
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import encode_source
+from digitalhub_core.utils.generic_utils import decode_string, encode_source
 
 
 class FunctionSpecMlrun(FunctionSpec):
@@ -17,31 +17,17 @@ class FunctionSpecMlrun(FunctionSpec):
 
     def __init__(
         self,
-        source: str | None = None,
+        source: dict,
         image: str | None = None,
         tag: str | None = None,
         handler: str | None = None,
         command: str | None = None,
         requirements: list | None = None,
-        **kwargs,
     ) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
-        image : str
-            Name of the Function's container image.
-        tag : str
-            Tag of the Function's container image.
-        handler : str
-            Function handler name.
-        command : str
-            Command to run inside the container.
-        requirements : list
-            List of requirements for the Function.
         """
-        super().__init__(source, **kwargs)
+        super().__init__()
 
         self.image = image
         self.tag = tag
@@ -49,20 +35,51 @@ class FunctionSpecMlrun(FunctionSpec):
         self.command = command
         self.requirements = requirements if requirements is not None else []
 
-        build = kwargs.get("build")
-        if build is not None or build:
-            self.build = SourceCodeStruct(**build)
-        else:
-            # Source check
-            if source is None:
-                raise EntityError("Source must be provided.")
-            if not (Path(source).suffix == ".py" and Path(source).is_file()):
+        self._source_check(source)
+        self.source = SourceCodeStruct(**source)
+
+    @staticmethod
+    def _source_check(source: dict) -> dict:
+        """
+        Check source.
+
+        Parameters
+        ----------
+        source : dict
+            Source.
+
+        Returns
+        -------
+        dict
+            Checked source.
+        """
+        if source is None:
+            raise EntityError("Source must be provided.")
+
+        # Source check
+        source_path = source.get("source")
+        code = source.get("code")
+        base64 = source.get("base64")
+
+        if source_path is None and code is None and base64 is None:
+            raise EntityError("Source must be provided.")
+
+        if base64 is not None:
+            if code is None:
+                source["code"] = decode_string(base64)
+            return source
+
+        if source_path is not None:
+            if not (Path(source_path).suffix == ".py" and Path(source_path).is_file()):
                 raise EntityError("Source is not a valid python file.")
-            self.build = SourceCodeStruct(
-                source_code=Path(source).read_text(),
-                source_encoded=encode_source(source),
-                lang="python",
-            )
+
+            if base64 is None:
+                source["base64"] = encode_source(source_path)
+
+            if code is None:
+                source["code"] = Path(source_path).read_text()
+
+        return source
 
     def show_source_code(self) -> str:
         """
@@ -73,11 +90,13 @@ class FunctionSpecMlrun(FunctionSpec):
         str
             Source code.
         """
-        return str(self.build.source_code)
+        if self.source.code is None:
+            return ""
+        return self.source.code
 
     def to_dict(self) -> dict:
         """
-        Override to_dict to exclude build source_code.
+        Override to_dict to exclude code from source.
 
         Returns
         -------
@@ -85,7 +104,7 @@ class FunctionSpecMlrun(FunctionSpec):
             Dictionary representation of the object.
         """
         dict_ = super().to_dict()
-        dict_["build"] = self.build.to_dict()
+        dict_["source"] = self.source.to_dict()
         return dict_
 
 
@@ -94,17 +113,20 @@ class FunctionParamsMlrun(FunctionParams):
     Function mlrun parameters model.
     """
 
+    source: dict
+    "Source code"
+
     image: str = None
-    """Name of the Function's container image."""
+    "Container image name"
 
     tag: str = None
-    """Tag of the Function's container image."""
+    "Container image tag"
 
     handler: str = None
-    """Function handler name."""
+    "Handler method inside the function"
 
     command: str = None
-    """Command to run inside the container."""
+    "Override the command run in the container"
 
     requirements: list = None
-    """List of requirements for the Function."""
+    "Requirements list, as used by the runtime"

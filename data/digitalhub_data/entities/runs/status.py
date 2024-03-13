@@ -20,7 +20,7 @@ class RunStatusData(RunStatus):
         Parameters
         ----------
         project_name : str
-            Name of the project.
+            Project name.
 
         Returns
         -------
