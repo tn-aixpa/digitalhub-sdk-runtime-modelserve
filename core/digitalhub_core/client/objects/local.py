@@ -8,7 +8,6 @@ from copy import deepcopy
 
 from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError
-from digitalhub_core.utils.generic_utils import parse_entity_key, get_timestamp
 
 
 class ClientLocal(Client):
@@ -59,7 +58,6 @@ class ClientLocal(Client):
 
             # Check if dto exists, if not, create a mapping
             self._db.setdefault(dto, {})
-
 
             # Base API
             #
@@ -246,7 +244,13 @@ class ClientLocal(Client):
                         latest_uuid = None
                         latest_date = None
                         for k, v in self._db[dto][name].items():
-                            current_created = datetime.datetime.fromisoformat(v.get("metadata", {}).get("created", get_timestamp()))
+                            # Accept only ISO format
+                            fallback = datetime.datetime.utcfromtimestamp(0).astimezone()
+                            try:
+                                current_created = datetime.datetime.fromisoformat(v.get("metadata", {}).get("created"))
+                            except ValueError:
+                                current_created = fallback
+
                             if latest_date is None or current_created > latest_date:
                                 latest_uuid = k
                                 latest_date = current_created

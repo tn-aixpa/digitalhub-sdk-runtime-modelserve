@@ -11,7 +11,7 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data_nefertem.entities.runs.spec import RunSpecNefertem
+from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 from digitalhub_data_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config
 from digitalhub_data_nefertem.utils.functions import infer, metric, profile, validate
 from digitalhub_data_nefertem.utils.inputs import persist_dataitem
@@ -151,11 +151,11 @@ class RuntimeNefertem(Runtime):
             The list of inputs dataitems.
         """
         Path(f"{self.output_path}/tmp").mkdir(parents=True, exist_ok=True)
-        inputs = RunSpecNefertem(**spec).get_inputs()
         mapper = []
-        for i in inputs:
-            for _, v in i.items():
-                mapper.append(persist_dataitem(v, v.name, self.output_path))
+        for i in spec.get("inputs"):
+            for _, di in i.items():
+                di = dataitem_from_dict(di)
+                mapper.append(persist_dataitem(di, di.name, self.output_path))
         return mapper
 
     ####################

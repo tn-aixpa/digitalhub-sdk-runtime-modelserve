@@ -14,7 +14,7 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.runtimes.builder import build_runtime
-from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -176,11 +176,12 @@ class Run(Entity):
         if self.spec.local_execution:
             if not self.status.state == State.BUILT.value:
                 raise EntityError("Run is not in built state. Build it again.")
-            self._set_status({"state": State.RUNNING.value})
-            self.save(update=True)
 
         runtime = self._get_runtime()
         try:
+            self.spec.inputs = self.inputs(as_dict=True)
+            self._set_status({"state": State.RUNNING.value})
+            self.save(update=True)
             status = runtime.run(self.to_dict(include_all_non_private=True))
         except Exception as err:
             status = {"state": State.ERROR.value, "message": str(err)}
@@ -188,16 +189,21 @@ class Run(Entity):
         self.save(update=True)
         return self
 
-    def inputs(self) -> list[dict[str, Entity]]:
+    def inputs(self, as_dict: bool = False) -> list[dict[str, Entity]]:
         """
-        Get inputs passed in spec as objects.
+        Get inputs passed in spec as objects or as dictionaries.
+
+        Parameters
+        ----------
+        as_dict : bool
+            If True, return inputs as dictionaries.
 
         Returns
         -------
         list
             List of input objects.
         """
-        return self.spec.get_inputs()
+        return self.spec.get_inputs(as_dict=as_dict)
 
     def results(self) -> dict:
         """
@@ -341,8 +347,8 @@ class Run(Entity):
             raise EntityError("Task not found.")
 
         # Remote backend
-        api = api_base_list("tasks")
-        params = {"function": function_string, "kind": parsed.task_kind}
+        api = api_ctx_list(self.project, "tasks")
+        params = {"function": function_string, "kind": f"{parsed.function_kind}+{parsed.task_kind}"}
         obj = self._context().list_objects(api, params=params)
         return obj[0]
 

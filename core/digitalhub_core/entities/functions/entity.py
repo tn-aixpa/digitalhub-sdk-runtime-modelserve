@@ -477,10 +477,9 @@ def function_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    source_code: str | None = None,
     **kwargs,
 ) -> Function:
     """
@@ -498,14 +497,12 @@ def function_from_parameters(
         ID of the object in form of UUID.
     description : str
         Description of the object.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    source_code : str
-        Path to the function's source code on the local file system.
     **kwargs
         Spec keyword arguments.
 
@@ -518,7 +515,6 @@ def function_from_parameters(
     spec = build_spec(
         kind,
         framework_runtime=kind,
-        source=source_code,
         **kwargs,
     )
     metadata = build_metadata(
@@ -528,7 +524,7 @@ def function_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=source,
+        source=git_source,
         labels=labels,
         embedded=embedded,
     )

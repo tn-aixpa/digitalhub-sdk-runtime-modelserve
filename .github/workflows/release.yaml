@@ -21,9 +21,9 @@ jobs:
           - dockerfile: ./wrapper/nefertem/Dockerfile
             image: ghcr.io/${{ github.repository }}/wrapper-nefertem
             context: ./wrapper/nefertem/
-          - dockerfile: ./wrapper/nefertem/Dockerfile
-            image: ghcr.io/${{ github.repository }}/wrapper-nefertem-frictionless
-            context: ./wrapper/nefertem-frictionless/
+          # - dockerfile: ./wrapper/nefertem-frictionless/Dockerfile
+          #   image: ghcr.io/${{ github.repository }}/wrapper-nefertem-frictionless
+          #   context: ./wrapper/nefertem-frictionless/
     permissions:
       contents: read
       packages: write

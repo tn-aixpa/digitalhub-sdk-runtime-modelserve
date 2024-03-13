@@ -11,33 +11,11 @@ class FunctionSpec(Spec):
     Specification for a Function.
     """
 
-    def __init__(
-        self,
-        source: str | None = None,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        source : str
-            Path to the Function's source code on the local file system.
-        **kwargs
-            Keyword arguments.
-        """
-        self.source = source
-
-        self._any_setter(**kwargs)
-
 
 class FunctionParams(SpecParams):
     """
     Function parameters model.
     """
-
-    source: str = None
-    """Path to the Function's source code on the local file system."""
 
 
 class SourceCodeStruct:
@@ -46,22 +24,29 @@ class SourceCodeStruct:
     """
 
     def __init__(
-        self, source_code: str | None = None, source_encoded: str | None = None, lang: str | None = None
+        self,
+        source: str | None = None,
+        code: str | None = None,
+        base64: str | None = None,
+        lang: str | None = None,
     ) -> None:
         """
         Constructor.
 
         Parameters
         ----------
-        source_code : str
-            Source code.
-        source_encoded : str
-            Base64 encoded source code.
+        source : str
+            Source reference.
+        code : str
+            Source code (plain).
+        base64 : str
+            Source code (base64 encoded).
         lang : str
-            Code language.
+            Source code language (hint).
         """
-        self.source_code = source_code
-        self.source_encoded = source_encoded
+        self.source = source
+        self.code = code
+        self.base64 = base64
         self.lang = lang
 
     def to_dict(self) -> dict:
@@ -73,7 +58,16 @@ class SourceCodeStruct:
         dict
             Dictionary representation of the object.
         """
-        return {
-            "source_encoded": self.source_encoded,
-            "lang": self.lang,
-        }
+        dict_ = {}
+        if self.source is not None:
+            dict_["source"] = self.source
+        if self.code is not None:
+            dict_["code"] = self.code
+        if self.base64 is not None:
+            dict_["base64"] = self.base64
+        if self.lang is not None:
+            dict_["lang"] = self.lang
+        return dict_
+
+    def __repr__(self) -> str:
+        return str(self.__dict__)

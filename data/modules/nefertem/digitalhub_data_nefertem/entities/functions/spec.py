@@ -13,13 +13,11 @@ class FunctionSpecNefertem(FunctionSpec):
 
     def __init__(
         self,
-        source: str | None = None,
         constraints: list[dict] | None = None,
         error_report: str | None = None,
         metrics: list[dict] | None = None,
-        **kwargs,
     ):
-        super().__init__(source, **kwargs)
+        super().__init__()
         self.constraints = constraints
         self.error_report = error_report
         self.metrics = metrics

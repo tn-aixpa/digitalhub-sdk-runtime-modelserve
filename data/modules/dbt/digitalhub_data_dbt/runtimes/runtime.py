@@ -10,7 +10,7 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data_dbt.entities.runs.spec import RunSpecDbt
+from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 from digitalhub_data_dbt.utils.cleanup import cleanup
 from digitalhub_data_dbt.utils.configuration import (
     generate_dbt_profile_yml,
@@ -155,9 +155,10 @@ class RuntimeDbt(Runtime):
         None
         """
         # Collect input dataitems
-        inputs = RunSpecDbt(**spec).get_inputs()
-        for i in inputs:
+        for i in spec.get("inputs"):
             for param, di in i.items():
+                di = dataitem_from_dict(di)
+
                 # Register dataitem in a dict to be used for inputs confs generation
                 self._input_dataitems.append({"name": param, "id": di.id})
 
@@ -188,7 +189,7 @@ class RuntimeDbt(Runtime):
             Output table name.
         """
         output_table = get_output_table_name(spec.get("outputs", []))
-        query = decode_sql(spec.get("function_spec", {}).get("sql", {}).get("source_encoded", ""))
+        query = decode_sql(spec.get("function_spec", {}).get("source", {}).get("base64"))
 
         # Create directories
         self.model_dir.mkdir(exist_ok=True, parents=True)

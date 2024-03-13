@@ -54,7 +54,7 @@ class RunSpec(Spec):
         self.parameters = parameters if parameters is not None else {}
         self.local_execution = local_execution
 
-    def get_inputs(self) -> list[dict[str, Entity]]:
+    def get_inputs(self, as_dict: bool = False) -> list[dict[str, Entity]]:
         """
         Get inputs.
 
@@ -75,6 +75,8 @@ class RunSpec(Spec):
                     if v.startswith("store://"):
                         _, entity_type, _, _, _ = parse_entity_key(v)
                         entity = ENTITY_FUNC[entity_type](v)
+                        if as_dict:
+                            entity = entity.to_dict()
                         inputs.append({parameter: entity})
                     else:
                         raise ValueError(f"Invalid entity key: {v}")

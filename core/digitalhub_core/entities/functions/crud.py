@@ -40,7 +40,7 @@ def create_function_from_dict(obj: dict) -> Function:
     Parameters
     ----------
     obj : dict
-        Dictionary to create object from.
+        Dictionary to create the Function from.
 
     Returns
     -------
@@ -57,10 +57,9 @@ def new_function(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    source_code: str | None = None,
     **kwargs,
 ) -> Function:
     """
@@ -78,14 +77,12 @@ def new_function(
         ID of the object in form of UUID.
     description : str
         Description of the object.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    source_code : str
-        Path to the function's source code on the local file system.
     **kwargs
         Spec keyword arguments.
 
@@ -100,9 +97,8 @@ def new_function(
         kind=kind,
         uuid=uuid,
         description=description,
-        source=source,
+        git_source=git_source,
         labels=labels,
-        source_code=source_code,
         embedded=embedded,
         **kwargs,
     )
