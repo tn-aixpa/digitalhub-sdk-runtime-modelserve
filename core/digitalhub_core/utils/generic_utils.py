@@ -21,7 +21,7 @@ def build_uuid(uuid: str | None = None) -> str:
     Parameters
     ----------
     uuid : str
-        UUID. Optional.
+        ID of the object in form of UUID. Optional.
 
     Returns
     -------

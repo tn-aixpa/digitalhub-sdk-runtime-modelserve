@@ -47,7 +47,7 @@ class RemoteStore(Store):
 
     def download(self, src: str, dst: str | None = None) -> str:
         """
-        Method to download an artifact from the backend.
+        Method to download an artifact from backend.
 
         Parameters
         ----------

@@ -7,11 +7,14 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.tasks.entity import task_from_dict, task_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read_no_version, api_ctx_update_name_only
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.tasks.entity import Task
+
+
+ENTITY_TYPE = "tasks"
 
 
 def create_task(**kwargs) -> Task:
@@ -72,11 +75,11 @@ def new_task(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     kind : str
-        The type of the task.
+        Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -128,24 +131,26 @@ def new_task(
     return obj
 
 
-def get_task(project: str, name: str) -> Task:
+def get_task(project: str, entity_id: str, **kwargs) -> Task:
     """
     Get object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the task.
+        Project name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     Task
         Object instance.
     """
-    api = api_ctx_read_no_version(project, "tasks", name)
-    obj = get_context(project).read_object(api)
+    api = api_ctx_read(project, ENTITY_TYPE, entity_id)
+    obj = get_context(project).read_object(api, **kwargs)
     return create_task_from_dict(obj)
 
 
@@ -167,59 +172,63 @@ def import_task(file: str) -> Task:
     return create_task_from_dict(obj)
 
 
-def delete_task(project: str, name: str, cascade: bool = True) -> dict:
+def delete_task(project: str, entity_id: str, cascade: bool = True, **kwargs) -> dict:
     """
-    Delete task from the backend.
+    Delete object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the task.
-    cascade : bool
-        Whether to cascade delete.
+        Project name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, "tasks", name, cascade=cascade)
-    return get_context(project).delete_object(api)
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+        kwargs["params"]["cascade"] = str(cascade).lower()
+    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    return get_context(project).delete_object(api, **kwargs)
 
 
-def update_task(task: Task) -> dict:
+def update_task(entity: Task, **kwargs) -> dict:
     """
-    Update task.
+    Update object in backend.
 
     Parameters
     ----------
-    task : Task
-        The task object to update.
+    entity : Task
+        The object to update.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_update_name_only(task.project, "tasks", task.id)
-    return get_context(task.project).update_object(task.to_dict(), api)
+    api = api_ctx_update(entity.project, ENTITY_TYPE, entity.id)
+    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
 
 
-def list_tasks(project: str, filters: dict | None = None) -> list[dict]:
+def list_tasks(project: str, **kwargs) -> list[dict]:
     """
-    List all tasks.
+    List all objects from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
     list[dict]
         List of tasks dict representations.
     """
-    api = api_ctx_list(project, "tasks")
-    return get_context(project).list_objects(api, filters=filters)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    return get_context(project).list_objects(api, **kwargs)

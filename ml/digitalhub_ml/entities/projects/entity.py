@@ -46,47 +46,47 @@ class ProjectMl(ProjectData):
         self._add_object(obj, "models")
         return obj
 
-    def get_model(self, name: str, uuid: str | None = None) -> Model:
+    def get_model(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Model:
         """
-        Get a Model from backend.
+        Get object from backend.
 
         Parameters
         ----------
-        name : str
-            Identifier of the model.
-        uuid : str
-            Identifier of the model version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         Model
             Instance of Model class.
         """
-        obj = get_model(
-            project=self.name,
-            name=name,
-            uuid=uuid,
-        )
+        obj = get_model(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
         self._add_object(obj, "models")
         return obj
 
-    def delete_model(self, name: str, uuid: str | None = None) -> None:
+    def delete_model(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
         """
         Delete a Model from project.
 
         Parameters
         ----------
-        name : str
-            Identifier of the model.
-        uuid : str
-            Identifier of the model version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         None
         """
-        delete_model(self.name, name, uuid=uuid)
-        self._delete_object(name, "models", uuid=uuid)
+        delete_model(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
+        self._delete_object("models", entity_name, entity_id)
 
     def set_model(self, model: Model) -> None:
         """
@@ -103,21 +103,21 @@ class ProjectMl(ProjectData):
         """
         self._add_object(model, "models")
 
-    def list_models(self, filters: dict | None = None) -> list[dict]:
+    def list_models(self, **kwargs) -> list[dict]:
         """
         List models associated with the project.
 
         Parameters
         ----------
-        filters : dict
-            Filters to apply to the list.
+        **kwargs : dict
+            Filters to apply to the list. Shold be params={"filter": "value"}.
 
         Returns
         -------
         list[dict]
             List of objects related to project.
         """
-        return list_models(self.name, filters)
+        return list_models(self.name, **kwargs)
 
     @staticmethod
     def _parse_dict(
@@ -177,11 +177,11 @@ def project_from_parameters(
     Parameters
     ----------
     name : str
-        Identifier of the project.
+        Name that identifies the object.
     kind : str
-        The type of the project.
+        Kind of the object.
     description : str
-        Description of the project.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -231,7 +231,7 @@ def project_from_dict(obj: dict) -> ProjectData:
     Parameters
     ----------
     obj : dict
-        Dictionary to create project from.
+        Dictionary to create object from.
 
     Returns
     -------

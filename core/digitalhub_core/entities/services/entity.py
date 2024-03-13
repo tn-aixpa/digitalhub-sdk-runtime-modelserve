@@ -43,7 +43,7 @@ class Service(Entity):
         Parameters
         ----------
         project : str
-            Name of the project.
+            Project name.
         name : str
             Name of the object.
         uuid : str
@@ -92,11 +92,11 @@ class Service(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "services")
-            return self._context().create_object(obj, api)
+            return self._context().create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "services", self.name, self.id)
-        return self._context().update_object(obj, api)
+        api = api_ctx_update(self.project, "services", self.id)
+        return self._context().update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -201,7 +201,7 @@ def service_from_parameters(
     kind : str
         Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -256,7 +256,7 @@ def service_from_dict(obj: dict) -> Service:
     Parameters
     ----------
     obj : dict
-        Dictionary to create Service from.
+        Dictionary to create object from.
 
     Returns
     -------

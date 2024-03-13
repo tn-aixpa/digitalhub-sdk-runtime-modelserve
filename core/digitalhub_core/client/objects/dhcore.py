@@ -56,7 +56,7 @@ class ClientDHCore(Client):
 
         self._configure(config)
 
-    def create_object(self, obj: dict, api: str) -> dict:
+    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Create an object.
 
@@ -72,9 +72,9 @@ class ClientDHCore(Client):
         dict
             The created object.
         """
-        return self._call("POST", api, json=obj)
+        return self._call("POST", api, json=obj, **kwargs)
 
-    def read_object(self, api: str) -> dict:
+    def read_object(self, api: str, **kwargs) -> dict:
         """
         Get an object.
 
@@ -88,9 +88,9 @@ class ClientDHCore(Client):
         dict
             The object.
         """
-        return self._call("GET", api)
+        return self._call("GET", api, **kwargs)
 
-    def update_object(self, obj: dict, api: str) -> dict:
+    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Update an object.
 
@@ -106,9 +106,9 @@ class ClientDHCore(Client):
         dict
             The updated object.
         """
-        return self._call("PUT", api, json=obj)
+        return self._call("PUT", api, json=obj, **kwargs)
 
-    def delete_object(self, api: str) -> dict:
+    def delete_object(self, api: str, **kwargs) -> dict:
         """
         Delete an object.
 
@@ -122,12 +122,12 @@ class ClientDHCore(Client):
         dict
             A generic dictionary.
         """
-        resp = self._call("DELETE", api)
+        resp = self._call("DELETE", api, **kwargs)
         if isinstance(resp, bool):
             resp = {"deleted": resp}
         return resp
 
-    def list_objects(self, api: str, filters: dict | None = None) -> list[dict]:
+    def list_objects(self, api: str, **kwargs) -> list[dict]:
         """
         List objects.
 
@@ -135,30 +135,33 @@ class ClientDHCore(Client):
         ----------
         api : str
             The api to list the objects with.
-        filters : dict
-            The filters to list the objects with.
+        **kwargs : dict
+
 
         Returns
         -------
         list[dict]
             The list of objects.
         """
-        if filters is None:
-            filters = {}
+        if kwargs is None:
+            kwargs = {}
+
+        if kwargs.get("params") is None:
+            kwargs["params"] = {}
 
         start_page = 0
-        if "page" not in filters:
-            filters["page"] = start_page
+        if "page" not in kwargs["params"]:
+            kwargs["params"]["page"] = start_page
 
         objects = []
         while True:
-            # Maybe introduce some sleep?
-            resp = self._call("GET", api, params=filters)
+            resp = self._call("GET", api, **kwargs)
             contents = resp["content"]
-            if not contents:
+            total_pages = resp["totalPages"]
+            if not contents or kwargs["params"]["page"] >= total_pages:
                 break
             objects.extend(contents)
-            filters["page"] = filters["page"] + 1
+            kwargs["params"]["page"] += 1
 
         return objects
 

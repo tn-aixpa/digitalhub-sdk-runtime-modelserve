@@ -3,10 +3,12 @@ Local Client module.
 """
 from __future__ import annotations
 
+import datetime
 from copy import deepcopy
 
 from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError
+from digitalhub_core.utils.generic_utils import parse_entity_key, get_timestamp
 
 
 class ClientLocal(Client):
@@ -33,42 +35,43 @@ class ClientLocal(Client):
     # CRUD
     ########################
 
-    def create_object(self, obj: dict, api: str) -> dict:
+    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Create an object.
 
         Parameters
         ----------
-        obj : dict
-            The object to create.
         api : str
             The api to create the object with.
+        obj : dict
+            The object to create.
 
         Returns
         -------
         dict
             The created object.
         """
-        project, dto, name, uuid, code = self._parse_api(api)
+        project, dto, uuid, ctx = self._parse_api(api)
         try:
             # Check if dto is valid
             if dto is None:
                 raise TypeError
 
-            # Check if dto exists, if not create a mapping
+            # Check if dto exists, if not, create a mapping
             self._db.setdefault(dto, {})
+
 
             # Base API
             #
             # POST /api/v1/projects
             #
-            # Project are not versioned, everything is stored on "name" key
-            if project is None:
-                name = obj["name"]
-                if name in self._db[dto]:
+            # Project are not versioned, everything is stored on "uuid" key
+            if not ctx:
+                uuid = obj["name"]
+                if uuid in self._db[dto]:
                     code = 5
                     raise ValueError
-                self._db[dto][name] = obj
+                self._db[dto][uuid] = obj
 
             # Context API
             #
@@ -76,35 +79,30 @@ class ClientLocal(Client):
             # POST /api/v1/-/<project-name>/functions
             # POST /api/v1/-/<project-name>/workflows
             #
-            # Runs and tasks are not versioned, so we keep them on name/id only key.
+            # Runs and tasks are not versioned, so we keep name as uuid.
             # We have both "name" and "id" attributes for versioned objects so we use them as storage keys.
             # The "latest" key is used to store the latest version of the object.
             else:
-                if dto in ("runs", "tasks"):
-                    name = obj["id"]
-                    self._db[dto].setdefault(name, {})
-                    self._db[dto][name] = obj
-                else:
-                    name = obj["name"]
-                    uuid = obj["id"]
-                    self._db[dto].setdefault(name, {})
-                    self._db[dto][name][uuid] = obj
-                    self._db[dto][name]["latest"] = obj
+                uuid = obj["id"]
+                name = obj.get("name", uuid)
+                self._db[dto].setdefault(name, {})
+                self._db[dto][name][uuid] = obj
+                self._db[dto][name]["latest"] = obj
 
             # Return the created object
             return obj
 
         # Key error are possibly raised by accessing invalid objects
         except (KeyError, TypeError):
-            msg = self._format_msg(code, dto=dto)
+            msg = self._format_msg(1, dto=dto)
             raise BackendError(msg)
 
         # If try to create already existing object
         except ValueError:
-            msg = self._format_msg(code, dto=dto, name=name)
+            msg = self._format_msg(1, dto=dto, name=name)
             raise BackendError(msg)
 
-    def read_object(self, api: str) -> dict:
+    def read_object(self, api: str, **kwargs) -> dict:
         """
         Get an object.
 
@@ -118,45 +116,44 @@ class ClientLocal(Client):
         dict or None
             The object, or None if it doesn't exist.
         """
-        project, dto, name, uuid, code = self._parse_api(api)
+        project, dto, uuid, ctx = self._parse_api(api)
         try:
             # Base API
             #
-            # GET /api/v1/projects/<name>
+            # GET /api/v1/projects/<uuid>
             #
             # self._parse_api() should return only dto
 
-            if project is None:
-                obj = self._db[dto][name]
+            if not ctx:
+                obj = self._db[dto][uuid]
 
                 # If the object is a project, we need to add the project spec,
                 # for example artifacts, functions, workflows, etc.
                 # Technically we have only projects that access base apis,
                 # we check dto just in case we add something else.
                 if dto == "projects":
-                    obj = self._get_project_spec(obj, name)
+                    obj = self._get_project_spec(obj, uuid)
 
             # Context API
             #
-            # GET /api/v1/-/<project-name>/runs/<name>
-            # GET /api/v1/-/<project-name>/artifacts/<name>
-            # GET /api/v1/-/<project-name>/artifacts/<name>/<uuid>
+            # GET /api/v1/-/<project-name>/runs/<uuid>
+            # GET /api/v1/-/<project-name>/artifacts/<uuid>
+            # GET /api/v1/-/<project-name>/functions/<uuid>
             #
-            # self._parse_api() should return dto, name and uuid/version
+            # self._parse_api() should return dto and uuid/version
 
             else:
-                if uuid is None:
-                    obj = self._db[dto][name]
-                else:
-                    obj = self._db[dto][name][uuid]
+                for _, v in self._db[dto].items():
+                    obj = v[uuid]
+                    break
 
             return obj
 
         except KeyError:
-            msg = self._format_msg(code, project, dto, name, uuid)
+            msg = self._format_msg(1, project, dto, uuid)
             raise BackendError(msg)
 
-    def update_object(self, obj: dict, api: str) -> dict:
+    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Update an object.
 
@@ -172,33 +169,31 @@ class ClientLocal(Client):
         dict
             The updated object.
         """
-        project, dto, name, uuid, code = self._parse_api(api)
+        project, dto, uuid, ctx = self._parse_api(api)
         try:
             # API example
             #
-            # PUT /api/v1/projects/<name>
+            # PUT /api/v1/projects/<uuid>
 
-            if project is None:
-                self._db[dto][name] = obj
+            if not ctx:
+                self._db[dto][uuid] = obj
 
             # Context API
             #
-            # PUT /api/v1/-/<project-name>/runs/<name>
-            # PUT /api/v1/-/<project-name>/artifacts/<name>/<uuid>
+            # PUT /api/v1/-/<project-name>/runs/<uuid>
+            # PUT /api/v1/-/<project-name>/artifacts/<uuid>
 
             else:
-                if dto in ["runs", "tasks"]:
-                    self._db[dto][name] = obj
-                else:
-                    self._db[dto][name][uuid] = obj
+                name = obj.get("name", uuid)
+                self._db[dto][name][uuid] = obj
 
         except KeyError:
-            msg = self._format_msg(code, project, dto, name, uuid)
+            msg = self._format_msg(1, project, dto, uuid)
             raise BackendError(msg)
 
         return obj
 
-    def delete_object(self, api: str) -> dict:
+    def delete_object(self, api: str, **kwargs) -> dict:
         """
         Delete an object.
 
@@ -212,14 +207,14 @@ class ClientLocal(Client):
         dict
             A generic dictionary.
         """
-        project, dto, name, uuid, code = self._parse_api(api)
+        project, dto, uuid, ctx = self._parse_api(api)
         try:
             # Base API
             #
-            # DELETE /api/v1/projects/<name>
+            # DELETE /api/v1/projects/<uuid>
 
-            if dto == "project":
-                obj = self._db[dto].pop(name)
+            if not ctx:
+                obj = self._db[dto].pop(uuid)
 
             # Context API
             #
@@ -230,17 +225,40 @@ class ClientLocal(Client):
             # not by name nor dto.
 
             else:
-                if dto in ["runs", "tasks"]:
-                    obj = self._db[dto].pop(name)
-                else:
-                    obj = self._db[dto][name].pop(uuid)
+                reset_latest = False
+                name = None
+                for _, v in self._db[dto].items():
+                    obj = v.pop(uuid)
+                    # Handle latest
+                    if v["latest"]["id"] == uuid:
+                        name = v["latest"].get("name", uuid)
+                        v.pop("latest")
+                        reset_latest = True
+                    break
+
+                if name is not None:
+                    # Pop name if empty
+                    if not self._db[dto][name]:
+                        self._db[dto].pop(name)
+
+                    # Handle latest
+                    elif reset_latest:
+                        latest_uuid = None
+                        latest_date = None
+                        for k, v in self._db[dto][name].items():
+                            current_created = datetime.datetime.fromisoformat(v.get("metadata", {}).get("created", get_timestamp()))
+                            if latest_date is None or current_created > latest_date:
+                                latest_uuid = k
+                                latest_date = current_created
+                        if latest_uuid is not None:
+                            self._db[dto][name]["latest"] = self._db[dto][name][latest_uuid]
 
         except KeyError:
-            msg = self._format_msg(code, project, dto, name, uuid)
+            msg = self._format_msg(1, project, dto, uuid)
             raise BackendError(msg)
         return {"deleted": obj}
 
-    def list_objects(self, api: str, filters: dict | None = None) -> list:
+    def list_objects(self, api: str, **kwargs) -> list:
         """
         List objects.
 
@@ -254,14 +272,14 @@ class ClientLocal(Client):
         list | None
             The list of objects.
         """
-        _, dto, _, _, _ = self._parse_api(api)
-        try:
-            return self._db[dto]
-        except KeyError:
-            return None
+        _, dto, _, _ = self._parse_api(api)
+        name = kwargs.get("params", {}).get("name")
+        if name is not None:
+            return [self._db[dto][name]["latest"]]
+        return [v["latest"] for _, v in self._db[dto].items()]
 
     ########################
-    # Logic for CRUD
+    # Helpers
     ########################
 
     def _parse_api(self, api: str) -> list[str]:
@@ -276,7 +294,7 @@ class ClientLocal(Client):
         Returns
         -------
         list[str]
-            The parsed API.
+            The parsed API elements.
         """
         # Remove prefix from API
         api = api.removeprefix("/api/v1/")
@@ -289,10 +307,6 @@ class ClientLocal(Client):
             ctx = True
             api = api[2:]
 
-        # Remove delete flag from API. Local client does not handle cascade
-        if api.endswith("?cascade=true") or api.endswith("?cascade=false"):
-            api = api.removesuffix("?cascade=true").removesuffix("?cascade=false")
-
         # Return parsed elements
         return self._parse_api_elements(api, ctx)
 
@@ -300,7 +314,7 @@ class ClientLocal(Client):
     def _parse_api_elements(api: str, ctx: bool) -> tuple:
         """
         Parse the elements from the given API.
-        Elements returned are: project-name, dto, name, uuid, error_code.
+        Elements returned are: project-name, dto, uuid, context_api.
 
         Parameters
         ----------
@@ -320,31 +334,26 @@ class ClientLocal(Client):
         # Base API for versioned objects
 
         # POST /api/v1/<dto>
-        # Returns None, dto, None, None
+        # Returns None, dto, None, False
         if len(parsed) == 1:
-            return None, parsed[0], None, None, 1
+            return None, parsed[0], None, ctx
 
-        # GET/DELETE/UPDATE /api/v1/<dto>/<name>
-        # Return None, dto, name, None
+        # GET/DELETE/UPDATE /api/v1/<dto>/<uuid>
+        # Return None, dto, name, False
         if len(parsed) == 2 and not ctx:
-            return None, parsed[0], parsed[1], None, 2
+            return None, parsed[0], parsed[1], ctx
 
         # Context API for versioned objects
 
         # POST /api/v1/-/<project>/<dto>
-        # Returns project-name, dto, None, None
+        # Returns project-name, dto, None, True
         if len(parsed) == 2 and ctx:
-            return parsed[0], parsed[1], None, None, 1
+            return parsed[0], parsed[1], None, ctx
 
-        # GET/DELETE/UPDATE /api/v1/-/<project>/<dto>/<name>
-        # Return project-name, dto, name, None
+        # GET/DELETE/UPDATE /api/v1/-/<project>/<dto>/<uuid>
+        # Return project-name, dto, uuid, True
         if len(parsed) == 3:
-            return parsed[0], parsed[1], parsed[2], None, 3
-
-        # GET/DELETE/UPDATE /api/v1/-/<project>/<dto>/<name>/<uuid>
-        # Return project-name, dto, name, uuid
-        if len(parsed) == 4:
-            return parsed[0], parsed[1], parsed[2], parsed[3], 4
+            return parsed[0], parsed[1], parsed[2], ctx
 
     def _get_project_spec(self, obj: dict, name: str) -> dict:
         """

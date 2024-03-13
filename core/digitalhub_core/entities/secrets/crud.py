@@ -14,6 +14,9 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.secrets.entity import Secret
 
 
+ENTITY_TYPE = "secrets"
+
+
 def create_secret(**kwargs) -> Secret:
     """
     Create a new Secret instance with the specified parameters.
@@ -38,7 +41,7 @@ def create_secret_from_dict(obj: dict) -> Secret:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Secret from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -71,7 +74,7 @@ def new_secret(
     name : str
         The name of the secret.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
         A description of the secret.
     source : str
@@ -109,27 +112,41 @@ def new_secret(
     return obj
 
 
-def get_secret(project: str, name: str, uuid: str | None = None) -> Secret:
+def get_secret(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Secret:
     """
-    Retrieves secret details from the backend.
+    Retrieves secret details from backend.
 
     Parameters
     ----------
 
     project : str
-        Name of the project.
+        Project name.
     name : str
         The name of the secret.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
 
     Returns
     -------
     Secret
         Object instance.
     """
-    api = api_ctx_read(project, "secrets", name, uuid=uuid)
-    obj = get_context(project).read_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    if entity_name is not None:
+        params = kwargs.get("params", {})
+        if params is None or not params:
+            kwargs["params"] = {}
+
+        api = api_ctx_list(project, ENTITY_TYPE)
+        kwargs["params"]["name"] = entity_name
+        obj = context.list_objects(api, **kwargs)[0]
+    else:
+        api = api_ctx_read(project, ENTITY_TYPE, entity_id)
+        obj = context.read_object(api, **kwargs)
     return create_secret_from_dict(obj)
 
 
@@ -151,59 +168,90 @@ def import_secret(file: str) -> Secret:
     return create_secret_from_dict(obj)
 
 
-def delete_secret(project: str, name: str, uuid: str | None = None) -> dict:
+def delete_secret(
+    project: str,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    delete_all_versions: bool = False,
+    cascade: bool = True,
+    **kwargs,
+) -> dict:
     """
-    Delete secret from the backend. If the uuid is not specified, delete all versions.
+    Delete object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the secret.
-    uuid : str
-        UUID.
+        Project name.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    delete_all_versions : bool
+        Delete all versions of the named entity. Entity name is required.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, "secrets", name, uuid=uuid)
-    return get_context(project).delete_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+        kwargs["params"]["cascade"] = str(cascade).lower()
+
+    if entity_id is not None:
+        api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    else:
+        kwargs["params"]["name"] = entity_name
+        api = api_ctx_list(project, ENTITY_TYPE)
+        if delete_all_versions:
+            return context.delete_object(api, **kwargs)
+        obj = context.list_objects(api, **kwargs)[0]
+        entity_id = obj["id"]
+
+    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    return context.delete_object(api, **kwargs)
 
 
-def update_secret(secret: Secret) -> dict:
+def update_secret(entity: Secret, **kwargs) -> dict:
     """
-    Update a secret.
+    Update object in backend.
 
     Parameters
     ----------
-    secret : Secret
-        The secret to update.
+    entity : Secret
+        The object to update.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_update(secret.project, "secrets", secret.name, uuid=secret.id)
-    return get_context(secret.project).update_object(secret.to_dict(), api)
+    api = api_ctx_update(entity.project, ENTITY_TYPE, entity_id=entity.id)
+    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
 
 
-def list_secrets(project: str, filters: dict | None = None) -> list[dict]:
+def list_secrets(project: str, **kwargs) -> list[dict]:
     """
-    List all secrets.
+    List all objects from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
     list[dict]
         List of secrets dict representations.
     """
-    api = api_ctx_list(project, "secrets")
-    return get_context(project).list_objects(api, filters=filters)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    return get_context(project).list_objects(api, **kwargs)

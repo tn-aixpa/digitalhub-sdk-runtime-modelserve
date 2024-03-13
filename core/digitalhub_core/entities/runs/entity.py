@@ -14,13 +14,7 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.runtimes.builder import build_runtime
-from digitalhub_core.utils.api import (
-    api_base_list,
-    api_ctx_create,
-    api_ctx_read,
-    api_ctx_read_no_version,
-    api_ctx_update_name_only,
-)
+from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -59,11 +53,11 @@ class Run(Entity):
         Parameters
         ----------
         project : str
-            Name of the project.
+            Project name.
         uuid : str
             UUID.
         kind : str
-            The type of the run.
+            Kind of the object.
         metadata : RunMetadata
             Metadata of the object.
         spec : RunSpec
@@ -93,8 +87,8 @@ class Run(Entity):
 
         Parameters
         ----------
-        uuid : str
-            Ignore this parameter.
+        update : bool
+            If True, the object will be updated.
 
         Returns
         -------
@@ -105,11 +99,11 @@ class Run(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "runs")
-            return self._context().create_object(obj, api)
+            return self._context().create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update_name_only(self.project, "runs", self.id)
-        return self._context().update_object(obj, api)
+        api = api_ctx_update(self.project, "runs", self.id)
+        return self._context().update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -229,14 +223,14 @@ class Run(Entity):
 
     def refresh(self) -> Run:
         """
-        Get run from backend.
+        Get object from backend.
 
         Returns
         -------
         Run
             Run object.
         """
-        api = api_ctx_read_no_version(self.project, "runs", self.id)
+        api = api_ctx_read(self.project, "runs", self.id)
         obj = self._context().read_object(api)
         refreshed_run = self.from_dict(obj, validate=False)
         self.kind = refreshed_run.kind
@@ -247,7 +241,7 @@ class Run(Entity):
 
     def logs(self) -> dict:
         """
-        Get run's logs from backend.
+        Get object from backend.
         Returns empty dictionary if context is local.
 
         Returns
@@ -257,7 +251,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_ctx_read_no_version(self.project, "runs", self.id) + "/log"
+        api = api_ctx_read(self.project, "runs", self.id) + "/log"
         return self._context().read_object(api)
 
     def stop(self) -> None:
@@ -314,7 +308,7 @@ class Run(Entity):
 
     def _get_function(self) -> dict:
         """
-        Get function from backend. Reimplemented to avoid circular imports.
+        Get object from backend. Reimplemented to avoid circular imports.
 
         Returns
         -------
@@ -322,12 +316,12 @@ class Run(Entity):
             Function from backend.
         """
         parsed = self._parse_task_string()
-        api = api_ctx_read(self.project, "functions", parsed.function_name, parsed.function_id)
+        api = api_ctx_read(self.project, "functions", parsed.function_id)
         return self._context().read_object(api)
 
     def _get_task(self) -> dict:
         """
-        Get task from backend. Reimplemented to avoid circular imports.
+        Get object from backend. Reimplemented to avoid circular imports.
 
         Returns
         -------
@@ -341,16 +335,15 @@ class Run(Entity):
         if self._context().local:
             api = api_base_list("tasks")
             tasks = self._context().list_objects(api)
-            for _, v in tasks.items():
-                func = v.get("spec").get("function")
-                if func == function_string:
-                    return v
+            for i in tasks:
+                if i.get("spec").get("function") == function_string:
+                    return i
             raise EntityError("Task not found.")
 
         # Remote backend
         api = api_base_list("tasks")
-        filters = {"function": function_string, "kind": parsed.task_kind}
-        obj = self._context().list_objects(api, filters=filters)
+        params = {"function": function_string, "kind": parsed.task_kind}
+        obj = self._context().list_objects(api, params=params)
         return obj[0]
 
     #############################
@@ -433,13 +426,13 @@ def run_from_parameters(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     task : str
         Name of the task associated with the run.
     kind : str
-        The type of the run.
+        Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -499,7 +492,7 @@ def run_from_dict(obj: dict) -> Run:
     Parameters
     ----------
     obj : dict
-        Dictionary to create run from.
+        Dictionary to create object from.
 
     Returns
     -------

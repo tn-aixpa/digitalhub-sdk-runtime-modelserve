@@ -14,6 +14,9 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.services.entity import Service
 
 
+ENTITY_TYPE = "services"
+
+
 def create_service(**kwargs) -> Service:
     """
     Create a new Service instance with the specified parameters.
@@ -38,7 +41,7 @@ def create_service_from_dict(obj: dict) -> Service:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Service from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -72,7 +75,7 @@ def new_service(
     kind : str
         Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
         A description of the service.
     source : str
@@ -104,27 +107,41 @@ def new_service(
     return obj
 
 
-def get_service(project: str, name: str, uuid: str | None = None) -> Service:
+def get_service(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Service:
     """
-    Retrieves service details from the backend.
+    Retrieves service details from backend.
 
     Parameters
     ----------
 
     project : str
-        Name of the project.
+        Project name.
     name : str
         The name of the service.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
 
     Returns
     -------
     Service
         Object instance.
     """
-    api = api_ctx_read(project, "services", name, uuid=uuid)
-    obj = get_context(project).read_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    if entity_name is not None:
+        params = kwargs.get("params", {})
+        if params is None or not params:
+            kwargs["params"] = {}
+
+        api = api_ctx_list(project, ENTITY_TYPE)
+        kwargs["params"]["name"] = entity_name
+        obj = context.list_objects(api, **kwargs)[0]
+    else:
+        api = api_ctx_read(project, ENTITY_TYPE, entity_id)
+        obj = context.read_object(api, **kwargs)
     return create_service_from_dict(obj)
 
 
@@ -146,59 +163,90 @@ def import_service(file: str) -> Service:
     return create_service_from_dict(obj)
 
 
-def delete_service(project: str, name: str, uuid: str | None = None) -> dict:
+def delete_service(
+    project: str,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    delete_all_versions: bool = False,
+    cascade: bool = True,
+    **kwargs,
+) -> dict:
     """
-    Delete service from the backend. If the uuid is not specified, delete all versions.
+    Delete object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the service.
-    uuid : str
-        UUID.
+        Project name.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    delete_all_versions : bool
+        Delete all versions of the named entity. Entity name is required.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, "services", name, uuid=uuid)
-    return get_context(project).delete_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+        kwargs["params"]["cascade"] = str(cascade).lower()
+
+    if entity_id is not None:
+        api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    else:
+        kwargs["params"]["name"] = entity_name
+        api = api_ctx_list(project, ENTITY_TYPE)
+        if delete_all_versions:
+            return context.delete_object(api, **kwargs)
+        obj = context.list_objects(api, **kwargs)[0]
+        entity_id = obj["id"]
+
+    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    return context.delete_object(api, **kwargs)
 
 
-def update_service(service: Service) -> dict:
+def update_service(entity: Service, **kwargs) -> dict:
     """
-    Update a service.
+    Update object in backend.
 
     Parameters
     ----------
-    service : Service
-        The service to update.
+    entity : Service
+        The object to update.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_update(service.project, "services", service.name, uuid=service.id)
-    return get_context(service.project).update_object(service.to_dict(), api)
+    api = api_ctx_update(entity.project, ENTITY_TYPE, entity_id=entity.id)
+    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
 
 
-def list_services(project: str, filters: dict | None = None) -> list[dict]:
+def list_services(project: str, **kwargs) -> list[dict]:
     """
-    List all services.
+    List all objects from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
     list[dict]
         List of services dict representations.
     """
-    api = api_ctx_list(project, "services")
-    return get_context(project).list_objects(api, filters=filters)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    return get_context(project).list_objects(api, **kwargs)

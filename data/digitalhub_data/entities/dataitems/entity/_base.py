@@ -45,7 +45,7 @@ class Dataitem(Entity):
         Parameters
         ----------
         project : str
-            Name of the project.
+            Project name.
         name : str
             Name of the object.
         uuid : str
@@ -94,11 +94,11 @@ class Dataitem(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "dataitems")
-            return self._context().create_object(obj, api)
+            return self._context().create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "dataitems", self.name, self.id)
-        return self._context().update_object(obj, api)
+        api = api_ctx_update(self.project, "dataitems", self.id)
+        return self._context().update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """

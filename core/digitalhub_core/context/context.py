@@ -33,7 +33,7 @@ class Context:
         self.local = project._client.is_local()
         self.project_dir = project.spec.context
 
-    def create_object(self, obj: dict, api: str) -> dict:
+    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Create an object.
 
@@ -49,9 +49,9 @@ class Context:
         dict
             The created object.
         """
-        return self.client.create_object(obj, api)
+        return self.client.create_object(api, obj, **kwargs)
 
-    def read_object(self, api: str) -> dict:
+    def read_object(self, api: str, **kwargs) -> dict:
         """
         Get an object.
 
@@ -65,9 +65,9 @@ class Context:
         dict
             The read object.
         """
-        return self.client.read_object(api)
+        return self.client.read_object(api, **kwargs)
 
-    def update_object(self, obj: dict, api: str) -> dict:
+    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Update an object.
 
@@ -83,9 +83,9 @@ class Context:
         dict
             The updated object.
         """
-        return self.client.update_object(obj, api)
+        return self.client.update_object(api, obj, **kwargs)
 
-    def delete_object(self, api: str) -> dict:
+    def delete_object(self, api: str, **kwargs) -> dict:
         """
         Delete an object.
 
@@ -99,9 +99,9 @@ class Context:
         dict
             The deleted object.
         """
-        return self.client.delete_object(api)
+        return self.client.delete_object(api, **kwargs)
 
-    def list_objects(self, api: str, filters: dict | None = None) -> dict:
+    def list_objects(self, api: str, **kwargs) -> dict:
         """
         List objects.
 
@@ -117,4 +117,4 @@ class Context:
         dict
             The list of objects.
         """
-        return self.client.list_objects(api, filters)
+        return self.client.list_objects(api, **kwargs)

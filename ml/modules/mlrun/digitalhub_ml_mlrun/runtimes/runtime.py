@@ -137,7 +137,7 @@ class RuntimeMlrun(Runtime):
         spec : dict
             Run specs.
         project : str
-            Name of the project.
+            Project name.
 
         Returns
         -------
@@ -163,7 +163,7 @@ class RuntimeMlrun(Runtime):
         action : str
             Action to execute.
         project : str
-            Name of the project.
+            Project name.
 
         Returns
         -------

@@ -103,7 +103,7 @@ def get_context(project: str) -> Context:
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
@@ -120,7 +120,7 @@ def delete_context(project: str) -> None:
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
@@ -136,7 +136,7 @@ def check_context(project: str) -> None:
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------

@@ -43,7 +43,7 @@ class Secret(Entity):
         Parameters
         ----------
         project : str
-            Name of the project.
+            Project name.
         name : str
             Name of the object.
         uuid : str
@@ -92,11 +92,11 @@ class Secret(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "secrets")
-            return self._context().create_object(obj, api)
+            return self._context().create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "secrets", self.name, self.id)
-        return self._context().update_object(obj, api)
+        api = api_ctx_update(self.project, "secrets", self.id)
+        return self._context().update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -158,11 +158,11 @@ class Secret(Entity):
 
         obj = {key: value}
         api = api_base_update("projects", self.project) + "/secrets/data"
-        return self._context().update_object(obj, api)
+        return self._context().update_object(api, obj)
 
     def read_secret(self, key: str) -> dict:
         """
-        Read a secret from the backend.
+        Read a secret from backend.
 
         Parameters
         ----------
@@ -249,7 +249,7 @@ def secret_from_parameters(
     kind : str
         Kind of the object.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -308,7 +308,7 @@ def secret_from_dict(obj: dict) -> Secret:
     Parameters
     ----------
     obj : dict
-        Dictionary to create Secret from.
+        Dictionary to create object from.
 
     Returns
     -------

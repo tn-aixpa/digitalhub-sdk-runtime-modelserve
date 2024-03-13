@@ -139,11 +139,11 @@ class Project(Entity):
 
         if not update:
             api = api_base_create("projects")
-            return self._client.create_object(obj, api)
+            return self._client.create_object(api, obj)
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_base_update("projects", self.id)
-        return self._client.update_object(obj, api)
+        return self._client.update_object(api, obj)
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -174,7 +174,7 @@ class Project(Entity):
         # Export objects related to project if not embedded
         for entity_type in CTX_ENTITIES:
             for entity in self._get_objects(entity_type):
-                api = api_ctx_read(self.name, entity_type, entity["name"], uuid=entity["id"])
+                api = api_ctx_read(self.name, entity_type, entity["id"])
                 obj = self._client.read_object(api)
                 ctx_obj = FUNC_MAP[entity_type](obj)
                 if not ctx_obj.metadata.embedded:
@@ -241,29 +241,29 @@ class Project(Entity):
         # Set attribute
         setattr(self.spec, entity_type, attr)
 
-    def _delete_object(self, name: str, entity_type: str, uuid: str | None = None) -> None:
+    def _delete_object(self, entity_type: str, entity_name: str | None = None, entity_id: str | None = None) -> None:
         """
         Delete object from project.
 
         Parameters
         ----------
-        name : str
-            Name of object to be deleted.
         entity_type : str
             Type of object to be deleted.
-        uuid : str
-            UUID.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
 
         Returns
         -------
         None
         """
-        if uuid is None:
+        if entity_id is None:
             attr_name = "name"
-            var = name
+            var = entity_name
         else:
             attr_name = "id"
-            var = uuid
+            var = entity_id
         self._check_entity_type(entity_type)
         spec_list = getattr(self.spec, entity_type, [])
         setattr(self.spec, entity_type, [i for i in spec_list if i.get(attr_name) != var])
@@ -331,47 +331,47 @@ class Project(Entity):
         self._add_object(obj, "artifacts")
         return obj
 
-    def get_artifact(self, name: str, uuid: str | None = None) -> Artifact:
+    def get_artifact(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Artifact:
         """
-        Get a Artifact from backend.
+        Get object from backend.
 
         Parameters
         ----------
-        name : str
-            Identifier of the artifact.
-        uuid : str
-            Identifier of the artifact version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         Artifact
             Instance of Artifact class.
         """
-        obj = get_artifact(
-            project=self.name,
-            name=name,
-            uuid=uuid,
-        )
+        obj = get_artifact(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
         self._add_object(obj, "artifacts")
         return obj
 
-    def delete_artifact(self, name: str, uuid: str | None = None) -> None:
+    def delete_artifact(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
         """
         Delete a Artifact from project.
 
         Parameters
         ----------
-        name : str
-            Identifier of the artifact.
-        uuid : str
-            Identifier of the artifact version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         None
         """
-        delete_artifact(self.name, name, uuid=uuid)
-        self._delete_object(name, "artifacts", uuid=uuid)
+        delete_artifact(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
+        self._delete_object("artifacts", entity_name, entity_id)
 
     def set_artifact(self, artifact: Artifact) -> None:
         """
@@ -388,21 +388,21 @@ class Project(Entity):
         """
         self._add_object(artifact, "artifacts")
 
-    def list_artifacts(self, filters: dict | None = None) -> list[dict]:
+    def list_artifacts(self, **kwargs) -> list[dict]:
         """
         List artifacts associated with the project.
 
         Parameters
         ----------
-        filters : dict
-            Filters to apply to the list.
+        **kwargs : dict
+            Filters to apply to the list. Shold be params={"filter": "value"}.
 
         Returns
         -------
         list[dict]
             List of objects related to project.
         """
-        return list_artifacts(self.name, filters)
+        return list_artifacts(self.name, **kwargs)
 
     #############################
     #  Functions
@@ -427,47 +427,47 @@ class Project(Entity):
         self._add_object(obj, "functions")
         return obj
 
-    def get_function(self, name: str, uuid: str | None = None) -> Function:
+    def get_function(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Function:
         """
-        Get a Function from backend.
+        Get object from backend.
 
         Parameters
         ----------
-        name : str
-            Identifier of the function.
-        uuid : str
-            Identifier of the function version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         Function
             Instance of Function class.
         """
-        obj = get_function(
-            project=self.name,
-            name=name,
-            uuid=uuid,
-        )
+        obj = get_function(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
         self._add_object(obj, "functions")
         return obj
 
-    def delete_function(self, name: str, uuid: str | None = None) -> None:
+    def delete_function(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
         """
         Delete a Function from project.
 
         Parameters
         ----------
-        name : str
-            Identifier of the function.
-        uuid : str
-            Identifier of the function version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         None
         """
-        delete_function(self.name, name, uuid=uuid)
-        self._delete_object(name, "functions", uuid=uuid)
+        delete_function(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
+        self._delete_object("functions", entity_name, entity_id)
 
     def set_function(self, function: Function) -> None:
         """
@@ -484,21 +484,21 @@ class Project(Entity):
         """
         self._add_object(function, "functions")
 
-    def list_functions(self, filters: dict | None = None) -> list[dict]:
+    def list_functions(self, **kwargs) -> list[dict]:
         """
         List functions associated with the project.
 
         Parameters
         ----------
-        filters : dict
-            Filters to apply to the list.
+        **kwargs : dict
+            Filters to apply to the list. Shold be params={"filter": "value"}.
 
         Returns
         -------
         list[dict]
             List of objects related to project.
         """
-        return list_functions(self.name, filters)
+        return list_functions(self.name, **kwargs)
 
     #############################
     #  Workflows
@@ -523,47 +523,47 @@ class Project(Entity):
         self._add_object(obj, "workflows")
         return obj
 
-    def get_workflow(self, name: str, uuid: str | None = None) -> Workflow:
+    def get_workflow(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Workflow:
         """
-        Get a Workflow from backend.
+        Get object from backend.
 
         Parameters
         ----------
-        name : str
-            Identifier of the workflow.
-        uuid : str
-            Identifier of the workflow version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         Workflow
             Instance of Workflow class.
         """
-        obj = get_workflow(
-            project=self.name,
-            name=name,
-            uuid=uuid,
-        )
+        obj = get_workflow(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
         self._add_object(obj, "workflows")
         return obj
 
-    def delete_workflow(self, name: str, uuid: str | None = None) -> None:
+    def delete_workflow(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
         """
         Delete a Workflow from project.
 
         Parameters
         ----------
-        name : str
-            Identifier of the workflow.
-        uuid : str
-            Identifier of the workflow version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         None
         """
-        delete_workflow(self.name, name, uuid=uuid)
-        self._delete_object(name, "workflows", uuid=uuid)
+        delete_workflow(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
+        self._delete_object("workflows", entity_name, entity_id)
 
     def set_workflow(self, workflow: Workflow) -> None:
         """
@@ -580,21 +580,21 @@ class Project(Entity):
         """
         self._add_object(workflow, "workflows")
 
-    def list_workflows(self, filters: dict | None = None) -> list[dict]:
+    def list_workflows(self, **kwargs) -> list[dict]:
         """
         List workflows associated with the project.
 
         Parameters
         ----------
-        filters : dict
-            Filters to apply to the list.
+        **kwargs : dict
+            Filters to apply to the list. Shold be params={"filter": "value"}.
 
         Returns
         -------
         list[dict]
             List of objects related to project.
         """
-        return list_workflows(self.name, filters)
+        return list_workflows(self.name, **kwargs)
 
     #############################
     #  Secrets
@@ -619,47 +619,47 @@ class Project(Entity):
         self._add_object(obj, "secrets")
         return obj
 
-    def get_secret(self, name: str, uuid: str | None = None) -> Secret:
+    def get_secret(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Secret:
         """
-        Get a Secret from backend.
+        Get object from backend.
 
         Parameters
         ----------
-        name : str
-            Identifier of the secret.
-        uuid : str
-            Identifier of the secret version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         Secret
             Instance of Secret class.
         """
-        obj = get_secret(
-            project=self.name,
-            name=name,
-            uuid=uuid,
-        )
+        obj = get_secret(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
         self._add_object(obj, "secrets")
         return obj
 
-    def delete_secret(self, name: str, uuid: str | None = None) -> None:
+    def delete_secret(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
         """
         Delete a Secret from project.
 
         Parameters
         ----------
-        name : str
-            Identifier of the secret.
-        uuid : str
-            Identifier of the secret version.
+        entity_name : str
+            Entity name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
 
         Returns
         -------
         None
         """
-        delete_secret(self.name, name, uuid=uuid)
-        self._delete_object(name, "secrets", uuid=uuid)
+        delete_secret(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
+        self._delete_object("secrets", entity_name, entity_id)
 
     def set_secret(self, secret: Secret) -> None:
         """
@@ -676,21 +676,21 @@ class Project(Entity):
         """
         self._add_object(secret, "secrets")
 
-    def list_secrets(self, filters: dict | None = None) -> list[dict]:
+    def list_secrets(self, **kwargs) -> list[dict]:
         """
         List secrets associated with the project.
 
         Parameters
         ----------
-        filters : dict
-            Filters to apply to the list.
+        **kwargs : dict
+            Filters to apply to the list. Shold be params={"filter": "value"}.
 
         Returns
         -------
         list[dict]
             List of objects related to project.
         """
-        return list_secrets(self.name, filters)
+        return list_secrets(self.name, **kwargs)
 
     #############################
     #  Static interface methods
@@ -753,11 +753,11 @@ def project_from_parameters(
     Parameters
     ----------
     name : str
-        Identifier of the project.
+        Name that identifies the object.
     kind : str
-        The type of the project.
+        Kind of the object.
     description : str
-        Description of the project.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -807,7 +807,7 @@ def project_from_dict(obj: dict) -> Project:
     Parameters
     ----------
     obj : dict
-        Dictionary to create project from.
+        Dictionary to create object from.
 
     Returns
     -------

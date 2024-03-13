@@ -15,6 +15,9 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
 
 
+ENTITY_TYPE = "artifacts"
+
+
 def create_artifact(**kwargs) -> Artifact:
     """
     Create a new artifact with the provided parameters.
@@ -39,7 +42,7 @@ def create_artifact_from_dict(obj: dict) -> Artifact:
     Parameters
     ----------
     obj : dict
-        Dictionary to create the Artifact from.
+        Dictionary to create object from.
 
     Returns
     -------
@@ -69,17 +72,17 @@ def new_artifact(
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
     name : str
-        Identifier of the artifact.
+        Name that identifies the object.
     kind : str
-        The type of the artifact.
+        Kind of the object.
     path : str
         Destination path of the artifact.
     uuid : str
-        UUID.
+        ID of the object in form of UUID.
     description : str
-        Description of the artifact.
+        Description of the object.
     source : str
         Remote git source for object.
     labels : list[str]
@@ -113,26 +116,42 @@ def new_artifact(
     return obj
 
 
-def get_artifact(project: str, name: str, uuid: str | None = None) -> Artifact:
+def get_artifact(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Artifact:
     """
-    Retrieves artifact details from the backend.
+    Get object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the artifact.
-    uuid : str
-        UUID.
+        Project name.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     Artifact
         Object instance.
     """
-    api = api_ctx_read(project, "artifacts", name, uuid=uuid)
-    obj = get_context(project).read_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    if entity_name is not None:
+        params = kwargs.get("params", {})
+        if params is None or not params:
+            kwargs["params"] = {}
+
+        api = api_ctx_list(project, ENTITY_TYPE)
+        kwargs["params"]["name"] = entity_name
+        obj = context.list_objects(api, **kwargs)["content"][0]
+    else:
+        api = api_ctx_read(project, ENTITY_TYPE, entity_id)
+        obj = context.read_object(api, **kwargs)
     return create_artifact_from_dict(obj)
 
 
@@ -146,8 +165,8 @@ def get_artifact_from_key(key: str) -> Artifact:
         Key of the artifact.
         It's format is store://<project>/artifacts/<kind>/<name>:<uuid>.
     """
-    project, _, _, name, uuid = parse_entity_key(key)
-    return get_artifact(project, name, uuid)
+    project, _, _, _, uuid = parse_entity_key(key)
+    return get_artifact(project, entity_id=uuid)
 
 
 def import_artifact(file: str) -> Artifact:
@@ -168,59 +187,90 @@ def import_artifact(file: str) -> Artifact:
     return create_artifact_from_dict(obj)
 
 
-def delete_artifact(project: str, name: str, uuid: str | None = None) -> dict:
+def delete_artifact(
+    project: str,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    delete_all_versions: bool = False,
+    cascade: bool = True,
+    **kwargs,
+) -> dict:
     """
-    Delete artifact from the backend. If the uuid is not specified, delete all versions.
+    Delete object from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
-    name : str
-        The name of the artifact.
-    uuid : str
-        UUID.
+        Project name.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    delete_all_versions : bool
+        Delete all versions of the named entity. Entity name is required.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_delete(project, "artifacts", name, uuid=uuid)
-    return get_context(project).delete_object(api)
+    if (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_name or entity_id must be provided.")
+
+    context = get_context(project)
+
+    params = kwargs.get("params", {})
+    if params is None or not params:
+        kwargs["params"] = {}
+        kwargs["params"]["cascade"] = str(cascade).lower()
+
+    if entity_id is not None:
+        api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    else:
+        kwargs["params"]["name"] = entity_name
+        api = api_ctx_list(project, ENTITY_TYPE)
+        if delete_all_versions:
+            return context.delete_object(api, **kwargs)
+        obj = context.list_objects(api, **kwargs)["content"][0]
+        entity_id = obj["id"]
+
+    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
+    return context.delete_object(api, **kwargs)
 
 
-def update_artifact(artifact: Artifact) -> dict:
+def update_artifact(entity: Artifact, **kwargs) -> dict:
     """
-    Update a artifact.
+    Update object in backend.
 
     Parameters
     ----------
-    artifact : Artifact
-        The artifact to update.
+    entity : Artifact
+        The object to update.
 
     Returns
     -------
     dict
         Response from backend.
     """
-    api = api_ctx_update(artifact.project, "artifacts", artifact.name, uuid=artifact.id)
-    return get_context(artifact.project).update_object(artifact.to_dict(), api)
+    api = api_ctx_update(entity.project, ENTITY_TYPE, entity_id=entity.id)
+    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
 
 
-def list_artifacts(project: str, filters: dict | None = None) -> list[dict]:
+def list_artifacts(project: str, **kwargs) -> list[dict]:
     """
-    List all artifacts.
+    List all objects from backend.
 
     Parameters
     ----------
     project : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
     list[dict]
         List of artifacts dict representations.
     """
-    api = api_ctx_list(project, "artifacts")
-    return get_context(project).list_objects(api, filters=filters)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    return get_context(project).list_objects(api, **kwargs)

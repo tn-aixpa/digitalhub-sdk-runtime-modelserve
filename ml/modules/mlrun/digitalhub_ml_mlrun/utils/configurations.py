@@ -75,7 +75,7 @@ def get_mlrun_project(project_name: str) -> MlrunProject:
     Parameters
     ----------
     project_name : str
-        Name of the project.
+        Project name.
 
     Returns
     -------
