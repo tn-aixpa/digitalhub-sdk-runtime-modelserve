@@ -57,9 +57,9 @@ class FunctionSpecMlrun(FunctionSpec):
             raise EntityError("Source must be provided.")
 
         # Source check
-        source_path = str(source.get("source"))
-        code = str(source.get("code"))
-        base64 = str(source.get("base64"))
+        source_path = source.get("source")
+        code = source.get("code")
+        base64 = source.get("base64")
 
         if source_path is None and code is None and base64 is None:
             raise EntityError("Source must be provided.")

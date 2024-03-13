@@ -172,8 +172,8 @@ class RuntimeMlrun(Runtime):
         # Setup function source and specs
         LOGGER.info("Getting function source and specs.")
         dhcore_function = get_dhcore_function(spec.get(f"{action}_spec", {}).get("function"))
-        function_source = save_function_source(self.root_path, dhcore_function.spec)
-        function_specs = parse_function_specs(dhcore_function.spec)
+        function_source = save_function_source(self.root_path, dhcore_function.spec.to_dict())
+        function_specs = parse_function_specs(dhcore_function.spec.to_dict())
 
         # Create Mlrun project
         LOGGER.info("Creating Mlrun project and function.")
