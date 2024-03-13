@@ -162,6 +162,7 @@ class Function(Entity):
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
+        values: list | None = None,
         local_execution: bool = False,
         **kwargs,
     ) -> Run:
@@ -188,6 +189,8 @@ class Function(Entity):
             Function outputs. Run parameter.
         parameters : dict
             Function parameters. Run parameter.
+        values : list
+            Function values. Run parameter.
         local_execution : bool
             Flag to determine if object has local execution. Run parameter.
         **kwargs
@@ -219,7 +222,7 @@ class Function(Entity):
             )
 
         # Run function from task
-        run = task.run(inputs, outputs, parameters, local_execution)
+        run = task.run(inputs, outputs, parameters, values, local_execution)
 
         # If execution is done by DHCore backend, return the object
         if not local_execution:

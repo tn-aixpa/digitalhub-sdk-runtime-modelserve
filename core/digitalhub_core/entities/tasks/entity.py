@@ -137,9 +137,10 @@ class Task(Entity):
 
     def run(
         self,
-        inputs: dict | None,
-        outputs: dict | None = None,
+        inputs: list | None,
+        outputs: list | None = None,
         parameters: dict | None = None,
+        values: list | None = None,
         local_execution: bool = False,
     ) -> Run:
         """
@@ -147,12 +148,14 @@ class Task(Entity):
 
         Parameters
         ----------
-        inputs : dict
+        inputs : list
             The inputs of the run.
-        outputs : dict
+        outputs : list
             The outputs of the run.
         parameters : dict
             The parameters of the run.
+        values : list
+            The values of the run.
         local_execution : bool
             Flag to indicate if the run will be executed locally.
 
@@ -168,6 +171,7 @@ class Task(Entity):
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
+            values=values,
             local_execution=local_execution,
         )
 
