@@ -74,3 +74,14 @@ class RunStatus(Status):
                 else:
                     raise ValueError(f"Invalid entity key: {v}")
         return outputs
+
+    def get_values(self) -> list:
+        """
+        Get values.
+
+        Returns
+        -------
+        list
+            The values.
+        """
+        return self.values if self.values is not None else []

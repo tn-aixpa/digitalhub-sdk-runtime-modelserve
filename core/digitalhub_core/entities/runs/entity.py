@@ -234,6 +234,18 @@ class Run(Entity):
         """
         return self.status.get_outputs(as_key=as_key, as_dict=as_dict)
 
+    def values(self) -> list:
+        """
+        Get values from runtime execution.
+
+        Returns
+        -------
+        list
+            Values from backend.
+        """
+        return self.status.get_values()
+
+
     def refresh(self) -> Run:
         """
         Get object from backend.

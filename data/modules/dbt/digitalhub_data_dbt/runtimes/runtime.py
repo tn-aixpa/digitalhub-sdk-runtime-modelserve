@@ -109,7 +109,7 @@ class RuntimeDbt(Runtime):
 
         LOGGER.info("Collecting outputs.")
         output = self._collect_outputs(results, output_table, project)
-        status = build_status(output, results)
+        status = build_status(output, results, output_table)
 
         LOGGER.info("Clean up environment.")
         self._cleanup()
