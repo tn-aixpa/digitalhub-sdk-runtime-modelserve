@@ -157,6 +157,9 @@ class Function(Entity):
         node_selector: list[dict] | None = None,
         volumes: list[dict] | None = None,
         resources: list[dict] | None = None,
+        affinity: dict | None = None,
+        tolerations: list[dict] | None = None,
+        labels: list[dict] | None = None,
         env: list[dict] | None = None,
         secrets: list[str] | None = None,
         inputs: dict | None = None,
@@ -179,6 +182,12 @@ class Function(Entity):
             The volumes of the task. Task parameter.
         resources : list[dict]
             Kubernetes resources for the task. Task parameter.
+        affinity : Affinity
+            Kubernetes affinity parameters. Task parameter.
+        tolerations : list[dict]
+            Kubernetes tolerations parameters. Task parameter.
+        labels : list[dict]
+            The labels of the task.
         env : list[dict]
             The env variables of the task. Task parameter.
         secrets : list[str]
@@ -216,6 +225,9 @@ class Function(Entity):
                 node_selector=node_selector,
                 volumes=volumes,
                 resources=resources,
+                affinity=affinity,
+                tolerations=tolerations,
+                labels=labels,
                 env=env,
                 secrets=secrets,
                 **kwargs,
