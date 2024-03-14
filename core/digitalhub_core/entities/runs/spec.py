@@ -4,6 +4,7 @@ Run base specification module.
 from __future__ import annotations
 
 import typing
+from typing import Union
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
 from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
@@ -131,10 +132,10 @@ class RunParams(SpecParams):
     task: str = None
     """The task string associated with the run."""
 
-    inputs: list[dict[str, str]] = None
+    inputs: list[dict[str, Union[str, dict]]] = None
     """Run inputs."""
 
-    outputs: list[dict[str, str]] = None
+    outputs: list[dict[str, Union[str, dict]]] = None
     """Run outputs."""
 
     parameters: dict = None

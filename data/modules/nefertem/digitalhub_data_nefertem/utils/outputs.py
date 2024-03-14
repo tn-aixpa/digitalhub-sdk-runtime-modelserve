@@ -99,10 +99,6 @@ def build_status(results: dict, outputs: list[Artifact]) -> dict:
     """
     return {
         "state": State.COMPLETED.value,
-        "outputs": {
-            "artifacts": [i.key for i in outputs],
-        },
-        "results": {
-            "nefertem_result": results,
-        },
+        "outputs": [{i.name: i.key} for i in outputs],
+        "results": {"nefertem_result": results},
     }

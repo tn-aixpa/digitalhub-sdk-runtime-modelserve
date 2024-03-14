@@ -96,7 +96,7 @@ class RuntimeMlrun(Runtime):
         results: RunObject = self._execute(executable, mlrun_function, function_args)
 
         LOGGER.info("Collecting outputs.")
-        status = self._collect_outputs(results)
+        status = self._collect_outputs(results, spec)
 
         LOGGER.info("Cleanup")
         self._cleanup()
@@ -184,7 +184,7 @@ class RuntimeMlrun(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: RunObject) -> dict:
+    def _collect_outputs(self, results: RunObject, spec: dict) -> dict:
         """
         Collect outputs.
 
@@ -198,8 +198,8 @@ class RuntimeMlrun(Runtime):
         dict
             Status of the executed run.
         """
-        outputs = parse_mlrun_artifacts(results.status.artifacts)
-        return build_status(results, outputs)
+        execution_outputs = parse_mlrun_artifacts(results.status.artifacts)
+        return build_status(results, execution_outputs, spec.get("outputs"), spec.get("values"))
 
     ####################
     # Cleanup
