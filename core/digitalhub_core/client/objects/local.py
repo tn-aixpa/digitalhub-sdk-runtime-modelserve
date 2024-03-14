@@ -450,7 +450,7 @@ class ClientLocal(Client):
             1: f"Object '{entity_type}' to create is not valid",
             2: f"Object '{entity_type}' with id '{entity_id}' already exists",
             3: f"Object '{entity_type}' with id '{entity_id}' not found",
-            4: f"Must provide entity_id to read an object",
+            4: "Must provide entity_id to read an object",
         }
         return msg[error_code]
 

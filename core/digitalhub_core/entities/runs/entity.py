@@ -23,7 +23,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
     from digitalhub_core.entities.runs.metadata import RunMetadata
     from digitalhub_core.entities.runs.spec import RunSpec
-    from digitalhub_core.entities.runs.status import EntitiesOutputs, RunStatus
+    from digitalhub_core.entities.runs.status import RunStatus
     from digitalhub_core.runtimes.base import Runtime
 
 
@@ -216,16 +216,35 @@ class Run(Entity):
         """
         return self.status.get_results()
 
-    def outputs(self) -> EntitiesOutputs:
+    def outputs(self, as_key: bool = True, as_dict: bool = False) -> list:
         """
         Get run objects results.
 
+        Parameters
+        ----------
+        as_key : bool
+            If True, return results as keys.
+        as_dict : bool
+            If True, return results as dictionaries.
+
         Returns
         -------
-        dict
-            Results from backend.
+        list
+            List of output objects.
         """
-        return self.status.get_outputs(self.project)
+        return self.status.get_outputs(as_key=as_key, as_dict=as_dict)
+
+    def values(self) -> list:
+        """
+        Get values from runtime execution.
+
+        Returns
+        -------
+        list
+            Values from backend.
+        """
+        return self.status.get_values()
+
 
     def refresh(self) -> Run:
         """

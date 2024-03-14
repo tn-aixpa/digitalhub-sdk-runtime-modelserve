@@ -53,7 +53,7 @@ class RunSpec(Spec):
         inputs = []
         for i in self.inputs:
             for k, v in i.items():
-                parameter, entity_type, _ = self._parse_input_key(k)
+                parameter, entity_type, _ = self._parse_input_parameter(k)
 
                 # TODO: Check if entity exists, otherwise create it
 
@@ -75,9 +75,9 @@ class RunSpec(Spec):
         return inputs
 
     @staticmethod
-    def _parse_input_key(key: str) -> tuple:
+    def _parse_input_parameter(key: str) -> tuple:
         """
-        Parse input key.
+        Parse input parameter.
 
         Parameters
         ----------
@@ -87,7 +87,7 @@ class RunSpec(Spec):
         Returns
         -------
         tuple
-            The parsed key.
+            The parsed parameter.
         """
         # Get parameter name
         splitted = key.split(":")
@@ -104,24 +104,6 @@ class RunSpec(Spec):
 
         # Get entity kind
         return parameter, splitted[0], splitted[1]
-
-    @staticmethod
-    def _entity_type_from_entity_key(key: str) -> str:
-        """
-        Split key and return entity type.
-
-        Parameters
-        ----------
-        key : str
-            Entity key.
-
-        Returns
-        -------
-        str
-            Entity type.
-        """
-        key = key.replace("store://", "")
-        return key.split("/")[1]
 
 
 class RunParams(SpecParams):

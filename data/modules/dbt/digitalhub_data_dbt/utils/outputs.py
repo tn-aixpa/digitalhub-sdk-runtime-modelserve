@@ -300,7 +300,7 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
         raise RuntimeError(msg)
 
 
-def build_status(dataitem: Dataitem, results: dbtRunnerResult) -> dict:
+def build_status(dataitem: Dataitem, results: dbtRunnerResult, output_table: str) -> dict:
     """
     Build status.
 
@@ -310,6 +310,8 @@ def build_status(dataitem: Dataitem, results: dbtRunnerResult) -> dict:
         The dataitem output.
     results : dbtRunnerResult
         The dbt results.
+    output_table : str
+        The output table name.
 
     Returns
     -------
@@ -318,6 +320,6 @@ def build_status(dataitem: Dataitem, results: dbtRunnerResult) -> dict:
     """
     return {
         "state": State.COMPLETED.value,
-        "outputs": [{"output_table": dataitem.key}],
+        "outputs": [{output_table: dataitem.key}],
         "results": {"dbt_result": results.result[-1].to_dict()},
     }

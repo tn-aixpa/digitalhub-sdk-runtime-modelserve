@@ -3,9 +3,18 @@ RunStatus class module.
 """
 from __future__ import annotations
 
+import typing
+
 from digitalhub_core.entities._base.status import Status
-from digitalhub_core.entities.runs.getter import EntityGetter
-from digitalhub_core.entities.runs.outputs import EntitiesOutputs
+from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
+from digitalhub_core.utils.generic_utils import parse_entity_key
+
+if typing.TYPE_CHECKING:
+    from digitalhub_core.entities._base.entity import Entity
+
+ENTITY_FUNC = {
+    "artifacts": get_artifact_from_key,
+}
 
 
 class RunStatus(Status):
@@ -40,14 +49,39 @@ class RunStatus(Status):
         """
         return self.results if self.results is not None else {}
 
-    def get_outputs(self, project_name: str) -> EntitiesOutputs:
+    def get_outputs(self, as_key: bool = True, as_dict: bool = False) -> list[dict[str, str | dict | Entity]]:
         """
-        Get results.
+        Get outputs.
 
         Returns
         -------
-        dict
-            The results.
+        list[dict[str, str | dict | Entity]]
+            The outputs.
         """
-        outputs = EntityGetter().collect_entity(self.outputs, project_name)
-        return EntitiesOutputs(**outputs)
+        outputs = []
+        if self.outputs is None:
+            return outputs
+        for i in self.outputs:
+            for k, v in i.items():
+                _, entity_type, _, _, _ = parse_entity_key(v)
+                if v.startswith("store://"):
+                    entity = ENTITY_FUNC[entity_type](v)
+                    if as_key:
+                        entity = entity.key
+                    if as_dict:
+                        entity = entity.to_dict()
+                    outputs.append({k: entity})
+                else:
+                    raise ValueError(f"Invalid entity key: {v}")
+        return outputs
+
+    def get_values(self) -> list:
+        """
+        Get values.
+
+        Returns
+        -------
+        list
+            The values.
+        """
+        return self.values if self.values is not None else []
