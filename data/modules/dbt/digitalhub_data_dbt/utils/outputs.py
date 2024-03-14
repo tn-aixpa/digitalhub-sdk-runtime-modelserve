@@ -318,10 +318,6 @@ def build_status(dataitem: Dataitem, results: dbtRunnerResult) -> dict:
     """
     return {
         "state": State.COMPLETED.value,
-        "outputs": {
-            "dataitems": [dataitem.key],
-        },
-        "results": {
-            "dbt_result": results.result[-1].to_dict(),
-        },
+        "outputs": [{"output_table": dataitem.key}],
+        "results": {"dbt_result": results.result[-1].to_dict()},
     }

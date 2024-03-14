@@ -165,7 +165,12 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
         raise RuntimeError(msg)
 
 
-def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem | Model]) -> dict:
+def build_status(
+    execution_results: RunObject,
+    entity_outputs: list[Artifact | Dataitem | Model],
+    mapped_outputs: dict = None,
+    mapped_values: list = None,
+) -> dict:
     """
     Collect outputs.
 
@@ -175,21 +180,39 @@ def build_status(execution_results: RunObject, outputs: list[Artifact | Dataitem
         Execution results.
     outputs : list[Artifact | Dataitem | Model]
         List of entities to collect outputs from.
+    mapped_outputs : dict
+        Mapped outputs.
 
     """
-    try:
-        out_dict = {
-            "artifacts": [],
-            "dataitems": [],
-            "models": [],
-        }
-        for i in outputs:
-            _, entity_type, _, _, _ = parse_entity_key(i.key)
-            out_dict[entity_type].append(i.key)
+    execution_outputs_keys = [k for k, _ in execution_results.outputs.items()]
 
+    # Map outputs
+    if mapped_outputs is not None:
+        outputs = []
+        for i in mapped_outputs:
+            for k, v in i.items():
+                if k in execution_outputs_keys:
+                    for j in entity_outputs:
+                        if j.name == k:
+                            outputs.append({v: j.key})
+    else:
+        outputs = [{i.name: i.key} for i in entity_outputs]
+
+    # Map values
+    if mapped_values is not None:
+        values = []
+        for i in mapped_values:
+            if i in execution_outputs_keys:
+                val = [v for k, v in execution_results.outputs.items() if k == i][0]
+                values.append({i: val})
+    else:
+        values = [{i: j} for i, j in execution_results.outputs.items()]
+
+    try:
         return {
-            "state": map_state(execution_results.status.state),
-            "outputs": out_dict,
+            "state": State.COMPLETED.value,
+            "outputs": outputs,
+            "values": values,
             "results": {
                 "mlrun_result": execution_results.to_json(),
             },

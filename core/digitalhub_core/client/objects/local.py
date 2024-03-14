@@ -3,8 +3,8 @@ Local Client module.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from copy import deepcopy
+from datetime import datetime, timezone
 
 from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError

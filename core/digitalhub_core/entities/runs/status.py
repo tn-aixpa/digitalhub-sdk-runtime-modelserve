@@ -14,20 +14,19 @@ class RunStatus(Status):
     """
 
     def __init__(
-        self, state: str, message: str | None = None, outputs: dict | None = None, results: dict | None = None
+        self,
+        state: str,
+        message: str | None = None,
+        outputs: list | None = None,
+        values: list | None = None,
+        results: dict | None = None,
     ) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
-        state : str
-            The state of the entity.
-        message : str
-            Error message.
         """
         super().__init__(state, message)
         self.outputs = outputs
+        self.values = values
         self.results = results
 
     def get_results(self) -> dict:
