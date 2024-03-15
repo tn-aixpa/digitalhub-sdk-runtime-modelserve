@@ -176,19 +176,15 @@ class Run(Entity):
         if self.spec.local_execution:
             if not self.status.state == State.BUILT.value:
                 raise EntityError("Run is not in built state. Build it again.")
-            self._set_status({"state": State.RUNNING.value})
 
         runtime = self._get_runtime()
         try:
+            self._set_status({"state": State.RUNNING.value})
             self.spec.inputs = self.inputs(as_dict=True)
             self.save(update=True)
             status = runtime.run(self.to_dict(include_all_non_private=True))
         except Exception as err:
             status = {"state": State.ERROR.value, "message": str(err)}
-
-        # This is needed to leave to backend setting states
-        if not self.spec.local_execution:
-            status.pop("state")
 
         self._set_status(status)
         self.save(update=True)
