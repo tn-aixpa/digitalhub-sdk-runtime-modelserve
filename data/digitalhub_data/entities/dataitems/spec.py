@@ -41,6 +41,18 @@ class DataitemParams(SpecParams):
     """The schema of the dataitem in table schema format."""
 
 
+class DataitemSpecDataitem(DataitemSpec):
+    """
+    Dataitem dataitem specifications.
+    """
+
+
+class DataitemParamsDataitem(DataitemParams):
+    """
+    Dataitem dataitem parameters.
+    """
+
+
 class DataitemSpecTable(DataitemSpec):
     """
     Dataitem table specifications.

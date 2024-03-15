@@ -24,6 +24,12 @@ class DataitemStatus(Status):
         self.preview = preview
 
 
+class DataitemStatusDataitem(DataitemStatus):
+    """
+    Status class for dataitem dataitem entities.
+    """
+
+
 class DataitemStatusTable(DataitemStatus):
     """
     Status class for dataitem table entities.

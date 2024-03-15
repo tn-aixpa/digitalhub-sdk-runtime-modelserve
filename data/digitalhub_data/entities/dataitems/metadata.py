@@ -46,6 +46,12 @@ class DataitemMetadata(Metadata):
         self.description = description
 
 
+class DataitemMetadataDataitem(DataitemMetadata):
+    """
+    A class representing Dataitem dataitem metadata.
+    """
+
+
 class DataitemMetadataTable(DataitemMetadata):
     """
     A class representing Dataitem table metadata.

@@ -17,6 +17,12 @@ if typing.TYPE_CHECKING:
 # Manage class mapper
 cls_mapper = {}
 try:
+    from digitalhub_data.entities.dataitems.entity.dataitem import DataitemDataitem
+
+    cls_mapper["dataitem"] = DataitemDataitem
+except ImportError:
+    ...
+try:
     from digitalhub_data.entities.dataitems.entity.table import DataitemTable
 
     cls_mapper["table"] = DataitemTable
