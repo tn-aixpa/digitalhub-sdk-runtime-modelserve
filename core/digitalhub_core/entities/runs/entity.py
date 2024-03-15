@@ -217,7 +217,7 @@ class Run(Entity):
         """
         return self.status.get_results()
 
-    def outputs(self, as_key: bool = True, as_dict: bool = False) -> list:
+    def outputs(self, as_key: bool = False, as_dict: bool = False) -> list:
         """
         Get run objects results.
 

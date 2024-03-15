@@ -65,7 +65,7 @@ def build_spec(
 
     # Validate arguments
     if validate:
-        kwargs = class_params(**kwargs).dict()
+        kwargs = class_params(**kwargs).dict(by_alias=True)
 
     return class_spec(**kwargs)
 

@@ -111,6 +111,7 @@ def dataitem_from_parameters(
         labels=labels,
         embedded=embedded,
     )
+
     spec = build_spec(
         kind,
         layer_digitalhub="digitalhub_data",

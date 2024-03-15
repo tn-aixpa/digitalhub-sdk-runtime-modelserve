@@ -117,7 +117,7 @@ def create_dataitem_(mlrun_output: dict) -> Dataitem:
         kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
         kwargs["kind"] = "table"
         kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
-        kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {}).get("fields")
+        kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {})
 
         dataitem = create_dataitem(**kwargs)
 

@@ -49,7 +49,7 @@ class RunStatus(Status):
         """
         return self.results if self.results is not None else {}
 
-    def get_outputs(self, as_key: bool = True, as_dict: bool = False) -> list[dict[str, str | dict | Entity]]:
+    def get_outputs(self, as_key: bool = False, as_dict: bool = False) -> list[dict[str, str | dict | Entity]]:
         """
         Get outputs.
 

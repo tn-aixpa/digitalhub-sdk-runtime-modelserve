@@ -12,21 +12,11 @@ class DataitemSpec(Spec):
     Dataitem specifications.
     """
 
-    def __init__(self, path: str, schema: dict | None = None, **kwargs) -> None:
+    def __init__(self, path: str) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
-        path : str
-            The path of the dataitem.
-        **kwargs
-            Keyword arguments.
         """
         self.path = path
-        self.schema = schema
-
-        self._any_setter(**kwargs)
 
 
 class DataitemParams(SpecParams):
@@ -36,9 +26,6 @@ class DataitemParams(SpecParams):
 
     path: str
     "The path of the dataitem."
-
-    _schema: dict = Field(alias="schema")
-    """The schema of the dataitem in table schema format."""
 
 
 class DataitemSpecDataitem(DataitemSpec):
@@ -58,11 +45,21 @@ class DataitemSpecTable(DataitemSpec):
     Dataitem table specifications.
     """
 
+    def __init__(self, path: str, schema: str | None = None) -> None:
+        """
+        Constructor.
+        """
+        super().__init__(path)
+        self.schema = schema
+
 
 class DataitemParamsTable(DataitemParams):
     """
     Dataitem table parameters.
     """
+
+    schema_: dict = Field(default=None, alias="schema")
+    """The schema of the dataitem in table schema format."""
 
 
 class DataitemSpecIceberg(DataitemSpec):
