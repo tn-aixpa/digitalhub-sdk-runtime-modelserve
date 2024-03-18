@@ -168,7 +168,7 @@ def build_status(
     execution_results: RunObject,
     entity_outputs: list[Artifact | Dataitem | Model],
     mapped_outputs: dict = None,
-    mapped_values: list = None,
+    values_list: list = None,
 ) -> dict:
     """
     Collect outputs.
@@ -181,13 +181,15 @@ def build_status(
         List of entities to collect outputs from.
     mapped_outputs : dict
         Mapped outputs.
+    values_list : list
+        Values list.
 
     """
-    execution_outputs_keys = [k for k, _ in execution_results.outputs.items()]
-
     # Map outputs
+    outputs = []
+
+    execution_outputs_keys = [k for k, _ in execution_results.outputs.items()]
     if mapped_outputs is not None:
-        outputs = []
         for i in mapped_outputs:
             for k, v in i.items():
                 if k in execution_outputs_keys:
@@ -197,24 +199,24 @@ def build_status(
     else:
         outputs = [{i.name: i.key} for i in entity_outputs]
 
-    # Map values
-    if mapped_values is not None:
-        values = []
-        for i in mapped_values:
+    # Map results and values
+    results = {}
+
+    if values_list is not None:
+        for i in values_list:
             if i in execution_outputs_keys:
-                val = [v for k, v in execution_results.outputs.items() if k == i][0]
-                values.append({i: val})
+                results[i] = [v for k, v in execution_results.outputs.items() if k == i][0]
     else:
-        values = [{i: j} for i, j in execution_results.outputs.items()]
+        for i, j in execution_results.outputs.items():
+            results[i] = j
+
+    results["mlrun_result"] = execution_results.to_json()
 
     try:
         return {
             "state": State.COMPLETED.value,
             "outputs": outputs,
-            "values": values,
-            "results": {
-                "mlrun_result": execution_results.to_json(),
-            },
+            "results": results,
         }
     except Exception:
         msg = "Something got wrong during run status building."

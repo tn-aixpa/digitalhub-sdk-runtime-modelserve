@@ -155,7 +155,7 @@ class RuntimeDbt(Runtime):
         None
         """
         # Collect input dataitems
-        for i in spec.get("inputs"):
+        for i in spec.get("inputs", []):
             for param, di in i.items():
                 di = dataitem_from_dict(di)
 

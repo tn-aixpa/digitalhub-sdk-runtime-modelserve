@@ -70,4 +70,4 @@ class SourceCodeStruct:
         return dict_
 
     def __repr__(self) -> str:
-        return str(self.__dict__)
+        return str(self.to_dict())

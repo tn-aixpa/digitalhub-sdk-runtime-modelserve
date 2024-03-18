@@ -244,7 +244,7 @@ class Run(Entity):
         list
             Values from backend.
         """
-        return self.status.get_values()
+        return self.status.get_values(self.spec.values)
 
     def refresh(self) -> Run:
         """
