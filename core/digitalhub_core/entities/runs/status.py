@@ -87,4 +87,4 @@ class RunStatus(Status):
         list
             The values.
         """
-        return [{k: v} for k, v in self.get_results().items() if k in values_list]
+        return {k: v for k, v in self.get_results().items() if k in values_list}
