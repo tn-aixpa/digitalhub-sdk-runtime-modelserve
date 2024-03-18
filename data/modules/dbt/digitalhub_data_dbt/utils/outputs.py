@@ -267,8 +267,7 @@ def get_schema(columns: tuple) -> list[dict]:
         A list of dictionaries containing schema.
     """
     try:
-        schema = [{"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")} for c in columns]
-        return {"schema": schema}
+        return {"fields": [{"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")} for c in columns]}
     except Exception:
         msg = "Something got wrong during schema parsing."
         LOGGER.exception(msg)

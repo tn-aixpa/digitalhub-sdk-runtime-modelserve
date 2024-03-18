@@ -199,7 +199,7 @@ class RuntimeMlrun(Runtime):
             Status of the executed run.
         """
         execution_outputs = parse_mlrun_artifacts(results.status.artifacts)
-        return build_status(results, execution_outputs, spec.get("outputs"), spec.get("values"))
+        return build_status(results, execution_outputs, spec.get("outputs", []), spec.get("values", []))
 
     ####################
     # Cleanup

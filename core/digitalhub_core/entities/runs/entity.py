@@ -179,12 +179,13 @@ class Run(Entity):
 
         runtime = self._get_runtime()
         try:
-            self.spec.inputs = self.inputs(as_dict=True)
             self._set_status({"state": State.RUNNING.value})
+            self.spec.inputs = self.inputs(as_dict=True)
             self.save(update=True)
             status = runtime.run(self.to_dict(include_all_non_private=True))
         except Exception as err:
             status = {"state": State.ERROR.value, "message": str(err)}
+
         self._set_status(status)
         self.save(update=True)
         return self
@@ -216,7 +217,7 @@ class Run(Entity):
         """
         return self.status.get_results()
 
-    def outputs(self, as_key: bool = True, as_dict: bool = False) -> list:
+    def outputs(self, as_key: bool = False, as_dict: bool = False) -> list:
         """
         Get run objects results.
 
@@ -243,8 +244,9 @@ class Run(Entity):
         list
             Values from backend.
         """
-        return self.status.get_values()
-
+        value_list = getattr(self.spec, "values", [])
+        value_list = value_list if value_list is not None else []
+        return self.status.get_values(value_list)
 
     def refresh(self) -> Run:
         """

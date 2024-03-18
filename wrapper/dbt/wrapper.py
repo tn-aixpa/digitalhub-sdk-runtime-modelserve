@@ -2,7 +2,9 @@
 Wrapper to execute an arbitrary function.
 """
 import os
+import sys
 
+from digitalhub_core.entities._base.status import State
 from digitalhub_core.utils.logger import LOGGER
 
 import digitalhub as dhcore
@@ -20,8 +22,8 @@ def main():
     LOGGER.info("Executing function.")
     run.run()
 
-    LOGGER.info("Saving run.")
-    run.save(update=True)
+    if run.status.state == State.ERROR.value:
+        sys.exit(1)
 
     LOGGER.info("Done.")
 

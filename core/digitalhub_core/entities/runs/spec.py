@@ -8,6 +8,7 @@ from typing import Union
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
 from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
+from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
@@ -35,10 +36,10 @@ class RunSpec(Spec):
         Constructor.
         """
         self.task = task
-        self.inputs = inputs if inputs is not None else []
-        self.outputs = outputs if outputs is not None else []
-        self.parameters = parameters if parameters is not None else {}
-        self.values = values if values is not None else []
+        self.inputs = inputs
+        self.outputs = outputs
+        self.parameters = parameters
+        self.values = values
         self.local_execution = local_execution
 
     def get_inputs(self, as_dict: bool = False) -> list[dict[str, Entity]]:
@@ -51,31 +52,73 @@ class RunSpec(Spec):
             The inputs.
         """
         inputs = []
+        if self.inputs is None:
+            return inputs
+
         for i in self.inputs:
-            for k, v in i.items():
-                parameter, entity_type, _ = self._parse_input_parameter(k)
+            for parameter, item in i.items():
+                parameter_type = self._parse_parameter(parameter)
 
-                # TODO: Check if entity exists, otherwise create it
+                # Get entity from key
+                if parameter_type == "key":
+                    entity = self._collect_entity(item)
+                    if as_dict:
+                        entity = entity.to_dict()
+                    inputs.append({parameter: entity})
 
-                if entity_type is None:
-                    # Get entity by type from entity key
-                    if v.startswith("store://"):
-                        _, entity_type, _, _, _ = parse_entity_key(v)
-                        entity = ENTITY_FUNC[entity_type](v)
-                        if as_dict:
-                            entity = entity.to_dict()
-                        inputs.append({parameter: entity})
-                    else:
-                        raise ValueError(f"Invalid entity key: {v}")
-
-                # TODO: Create new entity
-                else:
+                # Create entity from parameter
+                elif parameter_type == "create":
                     raise NotImplementedError
 
         return inputs
 
     @staticmethod
-    def _parse_input_parameter(key: str) -> tuple:
+    def _parse_parameter(parameter: str) -> str:
+        """
+        Parse parameter.
+
+        Parameters
+        ----------
+        parameter : str
+            Parameter.
+
+        Returns
+        -------
+        str
+            The parsed parameter.
+        """
+        if len(parameter.split(":")) == 1:
+            return "key"
+        return "create"
+
+    def _collect_entity(self, item: str | dict) -> Entity:
+        """
+        Collect entity from key.
+
+        Parameters
+        ----------
+        item : str | dict
+            Key or dict representation of the entity.
+
+        Returns
+        -------
+        Entity
+            The entity.
+        """
+        # Get key
+        if isinstance(item, str):
+            key = item
+        else:
+            key = item.get("key")
+        if not key.startswith("store://"):
+            raise EntityError(f"Invalid entity key: {key}")
+
+        # Get entity
+        _, entity_type, _, _, _ = parse_entity_key(key)
+        return ENTITY_FUNC[entity_type](key)
+
+    @staticmethod
+    def _parse_input_key(key: str) -> tuple:
         """
         Parse input parameter.
 

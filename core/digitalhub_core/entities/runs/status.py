@@ -27,7 +27,6 @@ class RunStatus(Status):
         state: str,
         message: str | None = None,
         outputs: list | None = None,
-        values: list | None = None,
         results: dict | None = None,
     ) -> None:
         """
@@ -35,7 +34,6 @@ class RunStatus(Status):
         """
         super().__init__(state, message)
         self.outputs = outputs
-        self.values = values
         self.results = results
 
     def get_results(self) -> dict:
@@ -49,7 +47,7 @@ class RunStatus(Status):
         """
         return self.results if self.results is not None else {}
 
-    def get_outputs(self, as_key: bool = True, as_dict: bool = False) -> list[dict[str, str | dict | Entity]]:
+    def get_outputs(self, as_key: bool = False, as_dict: bool = False) -> list[dict[str, str | dict | Entity]]:
         """
         Get outputs.
 
@@ -75,13 +73,18 @@ class RunStatus(Status):
                     raise ValueError(f"Invalid entity key: {v}")
         return outputs
 
-    def get_values(self) -> list:
+    def get_values(self, values_list: list) -> list:
         """
         Get values.
+
+        Parameters
+        ----------
+        values_list : list
+            The values list to search in.
 
         Returns
         -------
         list
             The values.
         """
-        return self.values if self.values is not None else []
+        return {k: v for k, v in self.get_results().items() if k in values_list}
