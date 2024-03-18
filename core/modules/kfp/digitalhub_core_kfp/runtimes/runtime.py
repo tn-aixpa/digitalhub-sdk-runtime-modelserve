@@ -8,13 +8,8 @@ from typing import Callable, Any
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 
-from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
-from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
-from digitalhub_data.runtimes.results import RunResultsData
-
-from digitalhub_core_kfp.utils.functions import run_kfp_pipeline
-from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
-from digitalhub_core_kfp.utils.outputs import build_status, parse_kfp_artifacts
+if typing.TYPE_CHECKING:
+    from kfp_server_api.models import ApiRun
 
 from digitalhub_core_kfp.utils.configurations import (
     get_dhcore_function,
@@ -22,6 +17,10 @@ from digitalhub_core_kfp.utils.configurations import (
     save_function_source,
     get_kfp_pipeline
 )
+
+from digitalhub_core_kfp.utils.functions import run_kfp_pipeline
+from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
+from digitalhub_core_kfp.utils.outputs import build_status, parse_kfp_artifacts
 
 class RuntimeKFP(Runtime):
     """
@@ -84,7 +83,7 @@ class RuntimeKFP(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        function_args = self._collect_inputs(spec, project, self.root_path)
+        function_args = self._collect_inputs(spec, self.root_path)
 
         LOGGER.info("Configure execution.")
         kfp_function = self._configure_execution(spec, action, project)
@@ -100,7 +99,54 @@ class RuntimeKFP(Runtime):
 
         LOGGER.info("Task completed, returning run status.")
         return status
+
+    @staticmethod
+    def _get_executable(action: str) -> Callable:
+        """
+        Select function according to action.
+
+        Parameters
+        ----------
+        action : str
+            Action to execute.
+
+        Returns
+        -------
+        Callable
+            Function to execute.
+        """
+        if action == "pipeline":
+            return run_kfp_pipeline
+        raise NotImplementedError
     
+    ####################
+    # Helpers
+    ####################
+    def _collect_inputs(self, spec: dict, tmp_dir: str) -> dict:
+        """
+        Collect inputs.
+
+        Parameters
+        ----------
+        spec : dict
+            Run specs.
+        project : str
+            Name of the project.
+
+        Returns
+        -------
+        dict
+            Parameters.
+        """
+        LOGGER.info("Getting inputs.")
+        inputs = spec.get("inputs", {})
+        parameters = spec.get("parameters", {})
+        return get_inputs_parameters(inputs, parameters)
+        
+    ####################
+    # Configuration
+    ####################
+
     def _configure_execution(self, spec: dict, action: str, project: str):
         """
         Create KFP pipeline and prepare parameters.
@@ -130,71 +176,11 @@ class RuntimeKFP(Runtime):
         LOGGER.info("Creating KFP project and function.")
         return get_kfp_pipeline(dhcore_function.name, function_source, function_specs)
 
-
-    @staticmethod
-    def _get_executable(action: str) -> Callable:
-        """
-        Select function according to action.
-
-        Parameters
-        ----------
-        action : str
-            Action to execute.
-
-        Returns
-        -------
-        Callable
-            Function to execute.
-        """
-        if action == "pipeline":
-            return run_kfp_pipeline
-        raise NotImplementedError
-    
-    @staticmethod
-    def results(run_status: dict) -> RunResultsData:
-        """
-        Get run results.
-
-        Returns
-        -------
-        RunResults
-            Run results.
-        """
-        artifacts = run_status.get("outputs", {}).get("artifacts", [])
-        artifact_objs = [get_artifact_from_key(art.get("id")) for art in artifacts]
-        datatatems = run_status.get("outputs", {}).get("dataitems", [])
-        dataitem_objs = [get_dataitem_from_key(dti.get("id")) for dti in datatatems]
-        return RunResultsData(artifact_objs, dataitem_objs)
-
-    ####################
-    # Helpers
-    ####################
-    def _collect_inputs(self, spec: dict, project: str, tmp_dir: str) -> dict:
-        """
-        Collect inputs.
-
-        Parameters
-        ----------
-        spec : dict
-            Run specs.
-        project : str
-            Name of the project.
-
-        Returns
-        -------
-        dict
-            Parameters.
-        """
-        LOGGER.info("Getting inputs.")
-        inputs = spec.get("inputs", {})
-        parameters = spec.get("parameters", {})
-        return get_inputs_parameters(inputs, parameters, project, tmp_dir)
-    
     ####################
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: Any) -> dict:
+    def _collect_outputs(self, results: ApiRun, spec: dict) -> dict:
         """
         Collect outputs.
 
@@ -209,7 +195,7 @@ class RuntimeKFP(Runtime):
             Status of the executed run.
         """
         outputs = parse_kfp_artifacts(results.status.artifacts)
-        return build_status(results, outputs)
+        return build_status(results, outputs, spec.get("outputs"), spec.get("values"))
     
     ####################
     # Cleanup

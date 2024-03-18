@@ -63,12 +63,16 @@ def save_function_source(path: str, spec: FunctionSpecKFP) -> str:
     """
     try:
         path.mkdir(parents=True, exist_ok=True)
-        path = path / spec.build.get("origin_filename")
-        decoded_text = decode_string(spec.build.get("function_source_code"))
-        path.write_text(decoded_text)
+        path = path / spec.source.source
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if 'code' in spec.source.code:
+            code = spec.source.code
+        else:
+            code = decode_string(spec.source.base64)
+        path.write_text(code)
         return str(path)
-    except Exception:
-        msg = "Error saving function source."
+    except Exception as err:
+        msg = "Error saving function source: " + str(err)
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
@@ -255,8 +259,7 @@ def _get_function_to_exec(function, namespace):
 def _create_function(pkg_func: str):
     """Create a function from a package.module.function string
 
-    :param pkg_func:  full function location,
-                      e.g. "sklearn.feature_selection.f_classif"
+    :param pkg_func:  full function location"
     """
     splits = pkg_func.split(".")
     pkg_module = ".".join(splits[:-1])

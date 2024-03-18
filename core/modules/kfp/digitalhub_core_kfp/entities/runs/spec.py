@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.runs.spec import RunParams, RunSpec
+from digitalhub_data.entities.runs.spec import RunParamsData, RunSpecData
 from pydantic import BaseModel
 
 
-class RunSpecKFP(RunSpec):
+class RunSpecKFP(RunSpecData):
     """Run Mlrun specification."""
 
     def __init__(
         self,
         task: str,
-        task_id: str,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
+        values: list | None = None,
         local_execution: bool = False,
         function_spec: dict | None = None,
         pipeline_spec: dict | None = None,
@@ -25,12 +25,12 @@ class RunSpecKFP(RunSpec):
         Parameters
         ----------
         """
-        super().__init__(task, task_id, inputs, outputs, parameters, local_execution, **kwargs)
+        super().__init__(task, inputs, outputs, parameters, values, local_execution, **kwargs)
         self.function_spec = function_spec
         self.pipeline_spec = pipeline_spec
 
 
-class RunParamsKFP(RunParams):
+class RunParamsKFP(RunParamsData):
     """Run KFP parameters."""
 
     function_spec: dict = None

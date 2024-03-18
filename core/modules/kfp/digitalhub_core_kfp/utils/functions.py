@@ -12,6 +12,7 @@ def kfp_execution(pipeline: Callable, **function_args) -> ApiRun:
     
     client = kfp.Client(host=os.environ.get("KFP_ENDPOINT"))
     result = client.create_run_from_pipeline_func(pipeline, arguments=function_args)
+    # TODO distinguish between local and remote for completion
     response: ApiRun = result.wait_for_run_completion()
     return response
 

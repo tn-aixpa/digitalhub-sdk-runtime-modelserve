@@ -3,44 +3,16 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 
-from digitalhub_core.entities.artifacts.crud import get_artifact
-from digitalhub_core.utils.exceptions import BackendError, EntityError
+from digitalhub_core.entities.artifacts.crud import artifact_from_dict
+from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import get_dataitem
+from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 
 if typing.TYPE_CHECKING:
+    from digitalhub_core.entities._base.entity import Entity
     from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_data.entities.dataitems.entity import Dataitem
-
-
-def get_dataitem_(name: str, project: str) -> Dataitem:
-    """
-    Get dataitem from core.
-
-    Parameters
-    ----------
-    name : str
-        The dataitem name.
-    project : str
-        The project name.
-
-    Returns
-    -------
-    Dataitem
-        The dataitem.
-
-    Raises
-    ------
-    BackendError
-        If dataitem is not found.
-    """
-    try:
-        LOGGER.info(f"Getting dataitem '{name}'")
-        return get_dataitem(project, name)
-    except BackendError:
-        msg = f"Dataitem {name} not found."
-        LOGGER.exception(msg)
-        raise BackendError(msg)
+    from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
 def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
@@ -77,36 +49,6 @@ def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
         raise EntityError(msg)
 
 
-def get_artifact_(name: str, project: str) -> Artifact:
-    """
-    Get artifact from core.
-
-    Parameters
-    ----------
-    name : str
-        The artifact name.
-    project : str
-        The project name.
-
-    Returns
-    -------
-    dict
-        The artifact.
-
-    Raises
-    ------
-    BackendError
-        If artifact is not found.
-    """
-    try:
-        LOGGER.info(f"Getting artifact '{name}'")
-        return get_artifact(project, name)
-    except BackendError:
-        msg = f"Artifact {name} not found."
-        LOGGER.exception(msg)
-        raise BackendError(msg)
-
-
 def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
     """
     Persist artifact locally.
@@ -132,7 +74,7 @@ def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
     """
     try:
         LOGGER.info(f"Persisting dataitem '{name}' locally.")
-        filename = Path(artifact.spec.target_path).name
+        filename = Path(artifact.spec.path).name
         return artifact.download(dst=f"{tmp_dir}/{filename}")
     except Exception:
         msg = f"Error during artifact '{name}' collection."
@@ -140,18 +82,16 @@ def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
         raise EntityError(msg)
 
 
-def get_inputs_parameters(inputs: dict, parameters: dict, project: str, tmp_dir: str) -> dict:
+def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict) -> dict:
     """
     Set inputs.
 
     Parameters
     ----------
-    inputs : dict
+    inputs : list[dict[str, Entity]]
         Run inputs.
     parameters : dict
         Run parameters.
-    project : str
-        The project name.
     tmp_dir : str
         Temporary directory for storing dataitms and artifacts.
 
@@ -161,11 +101,8 @@ def get_inputs_parameters(inputs: dict, parameters: dict, project: str, tmp_dir:
         Mlrun inputs.
     """
     inputs_objects = {}
-    for k, v in inputs.get("dataitems", {}).items():
-        di: Dataitem = get_dataitem_(v, project)
-        inputs_objects[k] = persist_dataitem(di, v, tmp_dir)
-    for k, v in inputs.get("artifacts", {}).items():
-        ar: Artifact = get_artifact_(v, project)
-        inputs_objects[k] = persist_artifact(ar, v, tmp_dir)
-    input_parameters = parameters.get("inputs", {})
+    for i in inputs:
+        for k, v in i.items():
+            inputs_objects[k] = v
+    input_parameters = parameters if parameters is not None else {}
     return {**inputs_objects, **input_parameters}

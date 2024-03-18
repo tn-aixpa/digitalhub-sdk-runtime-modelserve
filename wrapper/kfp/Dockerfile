@@ -20,6 +20,7 @@ RUN pip install ./digitalhub-sdk/ --no-deps
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
+COPY step.py /app/
 
 # Cleanup
 RUN rm -rf digitalhub-sdk $DHUB_VERSION.zip
