@@ -244,7 +244,9 @@ class Run(Entity):
         list
             Values from backend.
         """
-        return self.status.get_values(self.spec.values)
+        value_list = getattr(self.spec, "values", [])
+        value_list = value_list if value_list is not None else []
+        return self.status.get_values(value_list)
 
     def refresh(self) -> Run:
         """
