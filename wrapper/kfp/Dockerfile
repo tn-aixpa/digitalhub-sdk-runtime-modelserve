@@ -12,11 +12,17 @@ RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/$DHU
 RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
-# Install digitalhub-core, dbt
-RUN pip install ./digitalhub-sdk/core
-RUN pip install ./digitalhub-sdk/data --no-deps
-RUN pip install ./digitalhub-sdk/core/modules/kfp
+# Install digitalhub-core
 RUN pip install ./digitalhub-sdk/ --no-deps
+RUN pip install ./digitalhub-sdk/core
+RUN pip install ./digitalhub-sdk/core/modules/kfp
+RUN pip install ./digitalhub-sdk/core/modules/container --no-deps
+# Install digitalhub-data, and modules
+RUN pip install ./digitalhub-sdk/data --no-deps
+RUN pip install ./digitalhub-sdk/data/modules/* --no-deps
+# Install digitalhub-ml, and modules
+RUN pip install ./digitalhub-sdk/ml/ --no-deps
+RUN pip install ./digitalhub-sdk/ml/modules/* --no-deps
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/

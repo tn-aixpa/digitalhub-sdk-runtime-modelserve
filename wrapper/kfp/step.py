@@ -7,9 +7,18 @@ from pathlib import Path
 import json
 import time
 
+from copy import deepcopy
+
+# default KFP artifacts and output (ui metadata, metrics etc.)
+# directories to /tmp to allow running with security context
+KFPMETA_DIR = "/tmp"
+KFP_ARTIFACTS_DIR = "/tmp"
+
 from digitalhub_core.utils.logger import LOGGER
 
 import digitalhub as dhcore
+from digitalhub_core.entities.runs.entity import Run
+from digitalhub_core.entities._base.entity import Entity
 
 def _is_finished(state: str):
     return state == "COMPLETED" or state == "ERROR" or state == "STOPPED"
@@ -58,31 +67,53 @@ def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={
     # If the run is complete process outputs
     if _is_complete(run.status.state):
         LOGGER.info("Step completed: " + run.status.state)
+
+        results = {"run_id": run.id }
+
         # process entities
-        for o in run.outputs():
+        for o in run.status.get_outputs():
             for prop, val in o.items():
-                if prop in outputs:
-                    # write to file val 
-                    target_output = f"/tmp/entity_{outputs[prop]}"
-                    target_output = Path(target_output)
-                    target_output.parent.mkdir(parents=True, exist_ok=True)
-                    with open(target_output, "w") as f:
-                        f.write(val)
-    
+                # write to file val 
+                target_output = f"entity_{prop}"
+                results[target_output] = val if isinstance(val, str) else val.key if isinstance(val, Entity) else val['key']
         # process values
-        for o in run.values():
-            for prop, val in o.items():
-                if prop in values:
+        if values is not None:
+            for o in run.status.get_values(values_list=values):
+                for prop, val in o.items():
                     # write to file val 
-                    target_output = f"/tmp/value_{outputs[prop]}"
-                    target_output = Path(target_output)
-                    target_output.parent.mkdir(parents=True, exist_ok=True)
-                    with open(target_output, "w") as f:
-                        f.write(val)
+                    target_output = f"value_{prop}"
+                    results[target_output] = str(val)
+            
+        for key, value in results.items():
+            try:
+                # NOTE: if key has "../x", it would fail on path traversal
+                path = os.path.join(KFP_ARTIFACTS_DIR, key)
+                if not _is_safe_path(KFP_ARTIFACTS_DIR, path):
+                    LOGGER.warning(f"Path traversal is not allowed ignoring, {path} / {key}")
+                    continue
+                path = os.path.abspath(path)
+                LOGGER.info(f"Writing artifact output, {path}, {value}")
+                with open(path, "w") as fp:
+                    fp.write(value)
+                # check file
+                file_stats = os.stat(path)
+                LOGGER.debug(f"Checking file {path}: {file_stats.st_size}")
+                
+            except Exception as exc:
+                LOGGER.warning(f"Failed writing to temp file. Ignoring ({repr(exc)})")
+                pass
+        
         LOGGER.info("Done.")
     else:
         LOGGER.info("Step failed: " + run.status.state)
         exit(1)
+
+def _is_safe_path(base, filepath, is_symlink=False):
+    # Avoid path traversal attacks by ensuring that the path is safe
+    resolved_filepath = (
+        os.path.abspath(filepath) if not is_symlink else os.path.realpath(filepath)
+    )
+    return base == os.path.commonpath((base, resolved_filepath))
 
 def parser():
     

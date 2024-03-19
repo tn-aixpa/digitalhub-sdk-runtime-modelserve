@@ -73,7 +73,7 @@ def step(
         for param, val in dict.items():
             cmd += ["-oe", f"{param}={val}"]
             if isinstance(val, dsl.PipelineParam):
-                oname = val.full_name
+                raise Exception('Invalid output specification: cannot use pipeline params')
             else:
                 oname = str(val)
             file_outputs[oname.replace(".", "_")] = (
