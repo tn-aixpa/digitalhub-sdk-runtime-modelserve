@@ -221,3 +221,42 @@ class Affinity(BaseModel):
 
     pod_anti_affinity: V1PodAntiAffinity = None
     """Pod anti affinity."""
+
+
+class K8s(BaseModel):
+    """
+    Kubernetes resource model.
+    """
+
+    node_selector: list[NodeSelector] = None
+    """Node selector."""
+
+    volumes: list[Volume] = None
+    """List of volumes."""
+
+    resources: list[Resource] = None
+    """Resources restrictions."""
+
+    affinity: Affinity = None
+    """Affinity."""
+
+    tolerations: list[Toleration] = None
+    """Tolerations."""
+
+    labels: list[Label] = None
+    """List of labels."""
+
+    env: list[Env] = None
+    """Env variables."""
+
+    secrets: list[str] = None
+    """List of secret names."""
+
+    backoff_limit: int = None
+    """Backoff limit."""
+
+    schedule: str = None
+    """Schedule."""
+
+    replicas: int = None
+    """Replicas."""

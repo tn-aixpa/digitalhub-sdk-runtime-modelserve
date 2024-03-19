@@ -3,14 +3,10 @@ Task Dbt specification module.
 """
 from __future__ import annotations
 
-import typing
 from typing import Optional
 
+from digitalhub_core.entities.tasks.models import K8s
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
-from digitalhub_core.utils.exceptions import EntityError
-
-if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.tasks.models import Affinity, Env, Label, NodeSelector, Resource, Toleration, Volume
 
 
 class TaskSpecNefertem(TaskSpec):
@@ -19,32 +15,35 @@ class TaskSpecNefertem(TaskSpec):
     def __init__(
         self,
         function: str,
-        node_selector: list[NodeSelector] | None = None,
-        volumes: list[Volume] | None = None,
-        resources: list[Resource] | None = None,
-        labels: list[Label] | None = None,
-        affinity: Affinity | None = None,
-        tolerations: list[Toleration] | None = None,
-        env: list[Env] | None = None,
-        secrets: list[str] | None = None,
-        framework: str | None = None,
+        framework: str,
         exec_args: dict | None = None,
         parallel: bool = False,
         num_worker: int | None = 1,
-        **kwargs,
+        k8s: K8s | None = None,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(
-            function, node_selector, volumes, resources, labels, affinity, tolerations, env, secrets, **kwargs
-        )
-        if framework is None:
-            raise EntityError("Framework for Nefertem is not given.")
+        super().__init__(function)
+
         self.framework = framework
         self.exec_args = exec_args
         self.parallel = parallel
         self.num_worker = num_worker
+        self.k8s = k8s
+
+    def to_dict(self) -> dict:
+        """
+        Override to_dict to filter k8s None.
+
+        Returns
+        -------
+        dict
+            Dictionary representation of the object.
+        """
+        dict_ = super().to_dict()
+        dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
+        return dict_
 
 
 class TaskParamsNefertem(TaskParams):
@@ -52,7 +51,7 @@ class TaskParamsNefertem(TaskParams):
     TaskParamsNefertem model.
     """
 
-    framework: str = None
+    framework: str
     """Nefertem framework."""
 
     exec_args: Optional[dict] = {}
@@ -63,6 +62,9 @@ class TaskParamsNefertem(TaskParams):
 
     num_worker: Optional[int] = 1
     """Nefertem number of workers."""
+
+    k8s: Optional[K8s] = None
+    """Kubernetes resources."""
 
 
 ###########################

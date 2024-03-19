@@ -67,6 +67,9 @@ def new_task(
     k8s_labels: list[dict] | None = None,
     env: list[dict] | None = None,
     secrets: list[str] | None = None,
+    backoff_limit: int | None = None,
+    schedule: str | None = None,
+    replicas: int | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -102,6 +105,12 @@ def new_task(
         The env variables of the task.
     secrets : list[str]
         The secrets of the task.
+    backoff_limit : int
+        The backoff limit of the task.
+    schedule : str
+        The schedule of the task.
+    replicas : int
+        The replicas of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -125,6 +134,9 @@ def new_task(
         k8s_labels=k8s_labels,
         env=env,
         secrets=secrets,
+        backoff_limit=backoff_limit,
+        schedule=schedule,
+        replicas=replicas,
         **kwargs,
     )
     obj.save()

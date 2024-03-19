@@ -61,8 +61,6 @@ class SourceCodeStruct:
         dict_ = {}
         if self.source is not None:
             dict_["source"] = self.source
-        if self.code is not None:
-            dict_["code"] = self.code
         if self.base64 is not None:
             dict_["base64"] = self.base64
         if self.lang is not None:

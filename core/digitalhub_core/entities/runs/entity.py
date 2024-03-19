@@ -292,7 +292,9 @@ class Run(Entity):
         # Do nothing if context is local
         if self._context().local:
             return
-        raise NotImplementedError
+        api = api_ctx_create(self.project, "runs") + f"/{self.id}/stop"
+        self._context().create_object(api)
+        self.status.state = State.STOPPED.value
 
     def _set_status(self, status: dict) -> None:
         """

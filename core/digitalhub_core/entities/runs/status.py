@@ -51,6 +51,13 @@ class RunStatus(Status):
         """
         Get outputs.
 
+        Parameters
+        ----------
+        as_key : bool
+            If True, return outputs as keys.
+        as_dict : bool
+            If True, return outputs as dictionaries.
+
         Returns
         -------
         list[dict[str, str | dict | Entity]]
@@ -59,19 +66,37 @@ class RunStatus(Status):
         outputs = []
         if self.outputs is None:
             return outputs
+
         for i in self.outputs:
-            for k, v in i.items():
-                _, entity_type, _, _, _ = parse_entity_key(v)
-                if v.startswith("store://"):
-                    entity = ENTITY_FUNC[entity_type](v)
-                    if as_key:
-                        entity = entity.key
-                    if as_dict:
-                        entity = entity.to_dict()
-                    outputs.append({k: entity})
-                else:
-                    raise ValueError(f"Invalid entity key: {v}")
+            for parameter, key in i.items():
+
+                entity_type = self._get_entity_type(key)
+                entity = ENTITY_FUNC[entity_type](key)
+                if as_key:
+                    entity = entity.key
+                if as_dict:
+                    entity = entity.to_dict()
+                outputs.append({parameter: entity})
+
         return outputs
+
+    @staticmethod
+    def _get_entity_type(key: str) -> str:
+        """
+        Get entity type.
+
+        Parameters
+        ----------
+        key : str
+            The key of the entity.
+
+        Returns
+        -------
+        str
+            The entity type.
+        """
+        _, entity_type, _, _, _ = parse_entity_key(key)
+        return entity_type
 
     def get_values(self, values_list: list) -> list:
         """

@@ -56,7 +56,7 @@ class ClientDHCore(Client):
 
         self._configure(config)
 
-    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
+    def create_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
         Create an object.
 
@@ -72,7 +72,8 @@ class ClientDHCore(Client):
         dict
             The created object.
         """
-        return self._call("POST", api, json=obj, **kwargs)
+        kwargs["json"] = obj
+        return self._call("POST", api, **kwargs)
 
     def read_object(self, api: str, **kwargs) -> dict:
         """
@@ -90,7 +91,7 @@ class ClientDHCore(Client):
         """
         return self._call("GET", api, **kwargs)
 
-    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
+    def update_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
         Update an object.
 
@@ -106,7 +107,8 @@ class ClientDHCore(Client):
         dict
             The updated object.
         """
-        return self._call("PUT", api, json=obj, **kwargs)
+        kwargs["json"] = obj
+        return self._call("PUT", api, **kwargs)
 
     def delete_object(self, api: str, **kwargs) -> dict:
         """

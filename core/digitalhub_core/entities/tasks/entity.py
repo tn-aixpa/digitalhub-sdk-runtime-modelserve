@@ -301,6 +301,9 @@ def task_from_parameters(
     k8s_labels: list[dict] | None = None,
     env: list[dict] | None = None,
     secrets: list[str] | None = None,
+    backoff_limit: int | None = None,
+    schedule: str | None = None,
+    replicas: int | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -334,6 +337,12 @@ def task_from_parameters(
         The env variables of the task.
     secrets : list[str]
         The secrets of the task.
+    backoff_limit : int
+        The backoff limit of the task.
+    schedule : str
+        The schedule of the task.
+    replicas : int
+        The replicas of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -351,18 +360,25 @@ def task_from_parameters(
         source=source,
         labels=labels,
     )
+
+    k8s = {
+        "node_selector": node_selector,
+        "volumes": volumes,
+        "resources": resources,
+        "affinity": affinity,
+        "tolerations": tolerations,
+        "labels": k8s_labels,
+        "env": env,
+        "secrets": secrets,
+        "backoff_limit": backoff_limit,
+        "schedule": schedule,
+        "replicas": replicas,
+    }
+    kwargs["k8s"] = k8s
     spec = build_spec(
         kind,
         framework_runtime=function.split("://")[0],
         function=function,
-        node_selector=node_selector,
-        volumes=volumes,
-        resources=resources,
-        affinity=affinity,
-        tolerations=tolerations,
-        k8s_labels=k8s_labels,
-        env=env,
-        secrets=secrets,
         **kwargs,
     )
     status = build_status(

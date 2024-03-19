@@ -61,7 +61,8 @@ class RunSpec(Spec):
 
                 # Get entity from key
                 if parameter_type == "key":
-                    entity = self._collect_entity(item)
+                    key = self._collect_key(item)
+                    entity = self._collect_entity(key)
                     if as_dict:
                         entity = entity.to_dict()
                     inputs.append({parameter: entity})
@@ -91,9 +92,10 @@ class RunSpec(Spec):
             return "key"
         return "create"
 
-    def _collect_entity(self, item: str | dict) -> Entity:
+    @staticmethod
+    def _collect_key(item: str | dict) -> str:
         """
-        Collect entity from key.
+        Collect key from item.
 
         Parameters
         ----------
@@ -102,51 +104,30 @@ class RunSpec(Spec):
 
         Returns
         -------
-        Entity
-            The entity.
+        str
+            The key.
         """
-        # Get key
         if isinstance(item, str):
-            key = item
-        else:
-            key = item.get("key")
-        if not key.startswith("store://"):
-            raise EntityError(f"Invalid entity key: {key}")
-
-        # Get entity
-        _, entity_type, _, _, _ = parse_entity_key(key)
-        return ENTITY_FUNC[entity_type](key)
+            return item
+        return item.get("key")
 
     @staticmethod
-    def _parse_input_key(key: str) -> tuple:
+    def _collect_entity(key: str) -> Entity:
         """
-        Parse input parameter.
+        Collect entity from key.
 
         Parameters
         ----------
         key : str
-            Input key.
+            Key of the entity.
 
         Returns
         -------
-        tuple
-            The parsed parameter.
+        Entity
+            The entity.
         """
-        # Get parameter name
-        splitted = key.split(":")
-        parameter = splitted[0]
-
-        try:
-            splitted = splitted[1].split(".")
-        except IndexError:
-            return parameter, None, None
-
-        # Get entity type
-        if len(splitted) == 1:
-            return parameter, splitted[0], None
-
-        # Get entity kind
-        return parameter, splitted[0], splitted[1]
+        _, entity_type, _, _, _ = parse_entity_key(key)
+        return ENTITY_FUNC[entity_type](key)
 
 
 class RunParams(SpecParams):
