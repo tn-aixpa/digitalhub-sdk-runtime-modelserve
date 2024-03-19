@@ -13,10 +13,10 @@ RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
 # Install digitalhub-core, dbt
+RUN pip install -r ./digitalhub-sdk/ml/modules/mlrun/requirements-local.txt
 RUN pip install ./digitalhub-sdk/core
 RUN pip install ./digitalhub-sdk/data --no-deps
 RUN pip install ./digitalhub-sdk/ml --no-deps
-RUN pip install -r ./digitalhub-sdk/ml/modules/mlrun/requirements-local.txt
 RUN pip install ./digitalhub-sdk/ml/modules/mlrun
 RUN pip install ./digitalhub-sdk/ --no-deps
 
