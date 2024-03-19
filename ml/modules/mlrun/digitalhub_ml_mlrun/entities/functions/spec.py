@@ -62,7 +62,7 @@ class FunctionSpecMlrun(FunctionSpec):
         base64 = source.get("base64")
 
         if source.get("lang") is None:
-            source["lang"] = "sql"
+            source["lang"] = "python"
 
         if source_path is None and code is None and base64 is None:
             raise EntityError("Source must be provided.")
