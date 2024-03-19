@@ -162,6 +162,9 @@ class Function(Entity):
         labels: list[dict] | None = None,
         env: list[dict] | None = None,
         secrets: list[str] | None = None,
+        backoff_limit: int | None = None,
+        schedule: str | None = None,
+        replicas: int | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -192,6 +195,12 @@ class Function(Entity):
             The env variables of the task. Task parameter.
         secrets : list[str]
             The secrets of the task. Task parameter.
+        backoff_limit : int
+            The backoff limit of the task. Task parameter.
+        schedule : str
+            The schedule of the task. Task parameter.
+        replicas : int
+            The replicas of the task. Task parameter.
         inputs : dict
             Function inputs. Run parameter.
         outputs : dict
@@ -230,6 +239,9 @@ class Function(Entity):
                 labels=labels,
                 env=env,
                 secrets=secrets,
+                backoff_limit=backoff_limit,
+                schedule=schedule,
+                replicas=replicas,
                 **kwargs,
             )
 

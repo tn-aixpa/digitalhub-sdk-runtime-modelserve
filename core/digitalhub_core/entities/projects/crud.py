@@ -85,7 +85,7 @@ def load_project(
         A Project instance with setted context.
     """
     if name is not None:
-        return get_project(name=name, local=local, config=config, setup_kwargs=setup_kwargs)
+        return get_project(name=name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
     if filename is not None:
         return import_project(filename, local=local, config=config, setup_kwargs=setup_kwargs)
     raise EntityError("Either name or filename must be provided.")
@@ -95,6 +95,7 @@ def get_or_create_project(
     name: str,
     local: bool = False,
     config: dict | None = None,
+    context: str | None = None,
     setup_kwargs: dict | None = None,
     **kwargs,
 ) -> Project:
@@ -109,6 +110,8 @@ def get_or_create_project(
         Flag to determine if backend is local.
     config : dict
         DHCore env configuration.
+    context : str
+        Folder where the project will saves its context locally.
     setup_kwargs : dict
         Setup keyword arguments.
     **kwargs
@@ -120,9 +123,22 @@ def get_or_create_project(
         A Project instance.
     """
     try:
-        return get_project(name, local, config=config, setup_kwargs=setup_kwargs, **kwargs)
+        return get_project(
+            name,
+            local=local,
+            config=config,
+            setup_kwargs=setup_kwargs,
+            **kwargs,
+        )
     except BackendError:
-        return new_project(name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
+        return new_project(
+            name,
+            local=local,
+            config=config,
+            setup_kwargs=setup_kwargs,
+            context=context,
+            **kwargs,
+        )
 
 
 def new_project(
@@ -252,7 +268,11 @@ def import_project(
 
 
 def delete_project(
-    name: str, cascade: bool = True, clean_context: bool = True, local: bool = False, **kwargs
+    name: str,
+    cascade: bool = True,
+    clean_context: bool = True,
+    local: bool = False,
+    **kwargs,
 ) -> list[dict]:
     """
     Delete a project.

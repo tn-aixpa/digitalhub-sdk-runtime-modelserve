@@ -7,7 +7,7 @@ from pathlib import Path
 
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec, SourceCodeStruct
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import decode_string, encode_source
+from digitalhub_core.utils.generic_utils import decode_string, encode_source, encode_string
 
 
 class FunctionSpecMlrun(FunctionSpec):
@@ -61,23 +61,23 @@ class FunctionSpecMlrun(FunctionSpec):
         code = source.get("code")
         base64 = source.get("base64")
 
+        if source.get("lang") is None:
+            source["lang"] = "sql"
+
         if source_path is None and code is None and base64 is None:
             raise EntityError("Source must be provided.")
 
         if base64 is not None:
-            if code is None:
-                source["code"] = decode_string(base64)
+            return source
+
+        if code is not None:
+            source["base64"] = encode_string(code)
             return source
 
         if source_path is not None:
             if not (Path(source_path).suffix == ".py" and Path(source_path).is_file()):
                 raise EntityError("Source is not a valid python file.")
-
-            if base64 is None:
-                source["base64"] = encode_source(source_path)
-
-            if code is None:
-                source["code"] = Path(source_path).read_text()
+            source["base64"] = encode_source(source_path)
 
         return source
 
@@ -90,9 +90,19 @@ class FunctionSpecMlrun(FunctionSpec):
         str
             Source code.
         """
-        if self.source.code is None:
-            return ""
-        return self.source.code
+        if self.source.code is not None:
+            return str(self.source.code)
+        if self.source.base64 is not None:
+            try:
+                return decode_string(self.source.base64)
+            except Exception:
+                raise EntityError("Something got wrong during source code decoding.")
+        if self.source.source is not None:
+            try:
+                return Path(self.source.source).read_text()
+            except Exception:
+                raise EntityError("Cannot access source code.")
+        return ""
 
     def to_dict(self) -> dict:
         """

@@ -3,14 +3,38 @@ Task Transform specification module.
 """
 from __future__ import annotations
 
+from digitalhub_core.entities.tasks.models import K8s
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 
 
 class TaskSpecTransform(TaskSpec):
     """Task Transform specification."""
 
+    def __init__(self, function: str, k8s: K8s) -> None:
+        """
+        Constructor.
+        """
+        super().__init__(function)
+        self.k8s = k8s
+
+    def to_dict(self) -> dict:
+        """
+        Override to_dict to filter k8s None.
+
+        Returns
+        -------
+        dict
+            Dictionary representation of the object.
+        """
+        dict_ = super().to_dict()
+        dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
+        return dict_
+
 
 class TaskParamsTransform(TaskParams):
     """
     TaskParamsTransform model.
     """
+
+    k8s: K8s
+    """Kubernetes resources."""

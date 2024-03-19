@@ -48,17 +48,20 @@ class FunctionSpecDbt(FunctionSpec):
         code = source.get("code")
         base64 = source.get("base64")
 
-        if not source_path and not code and not base64:
-            raise EntityError("Source code must be provided.")
+        if source.get("lang") is None:
+            source["lang"] = "python"
+
+        if source_path is None and code is None and base64 is None:
+            raise EntityError("Source must be provided.")
+
+        # Check source code
+
+        if base64 is not None:
+            return source
 
         if code is not None:
             source["base64"] = encode_string(code)
-
-        if base64 is not None:
-            try:
-                source["code"] = decode_string(base64)
-            except Exception:
-                ...
+            return source
 
         if source_path is not None:
             try:
@@ -78,13 +81,23 @@ class FunctionSpecDbt(FunctionSpec):
         str
             Source code.
         """
-        if self.source is None:
-            return ""
-        return str(self.source.code)
+        if self.source.code is not None:
+            return str(self.source.code)
+        if self.source.base64 is not None:
+            try:
+                return decode_string(self.source.base64)
+            except Exception:
+                raise EntityError("Something got wrong during source code decoding.")
+        if self.source.source is not None:
+            try:
+                return Path(self.source.source).read_text()
+            except Exception:
+                raise EntityError("Cannot access source code.")
+        return ""
 
     def to_dict(self) -> dict:
         """
-        Override to_dict to exclude sql source_code.
+        Override to_dict to exclude code from source.
 
         Returns
         -------
