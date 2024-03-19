@@ -16,7 +16,7 @@ class Client:
     """
 
     @abstractmethod
-    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
+    def create_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
         Create object method.
         """
@@ -28,7 +28,7 @@ class Client:
         """
 
     @abstractmethod
-    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
+    def update_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
         Update object method.
         """

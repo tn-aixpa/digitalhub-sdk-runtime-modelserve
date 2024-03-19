@@ -33,7 +33,7 @@ class Context:
         self.local = project._client.is_local()
         self.project_dir = project.spec.context
 
-    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
+    def create_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
         Create an object.
 
@@ -67,7 +67,7 @@ class Context:
         """
         return self.client.read_object(api, **kwargs)
 
-    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
+    def update_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
         Update an object.
 
