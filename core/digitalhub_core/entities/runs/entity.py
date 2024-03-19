@@ -281,20 +281,20 @@ class Run(Entity):
         api = api_ctx_read(self.project, "runs", self.id) + "/log"
         return self._context().read_object(api)
 
-    def stop(self) -> dict:
+    def stop(self) -> None:
         """
         Stop run.
 
         Returns
         -------
-        dict
-            Response from backend.
+        None
         """
         # Do nothing if context is local
         if self._context().local:
-            return {}
+            return
         api = api_ctx_create(self.project, "runs") + f"/{self.id}/stop"
-        return self._context().create_object(api)
+        self._context().create_object(api)
+        self.status.state = State.STOPPED.value
 
     def _set_status(self, status: dict) -> None:
         """
