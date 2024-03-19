@@ -15,8 +15,8 @@ RUN rm $DHUB_VERSION.zip
 
 # Install digitalhub-core, neferetem
 RUN pip install digitalhub-sdk/core
-RUN pip install digitalhub-sdk/data --no-deps
-RUN pip install digitalhub-sdk/ --no-deps
+RUN pip install digitalhub-sdk/data \
+                digitalhub-sdk/ --no-deps
 RUN pip install digitalhub-sdk/data/modules/nefertem[local]
 
 # Get nefertem
@@ -27,10 +27,10 @@ RUN mv nefertem-$NEFERTEM_VERSION nefertem
 RUN rm $NEFERTEM_VERSION.zip
 
 # Install nefertem plugins
-RUN pip install ./nefertem/plugins/frictionless*
-RUN pip install ./nefertem/plugins/duckdb*
-RUN pip install ./nefertem/plugins/sqlalchemy*
-RUN pip install ./nefertem/plugins/ydata*
+RUN pip install nefertem/plugins/frictionless*
+RUN pip install nefertem/plugins/duckdb*
+RUN pip install nefertem/plugins/sqlalchemy*
+RUN pip install nefertem/plugins/ydata*
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
