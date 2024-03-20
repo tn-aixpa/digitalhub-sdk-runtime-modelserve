@@ -56,7 +56,7 @@ def build_status(execution_results: ApiRunDetail, outputs: list[dict] = None, va
     try:
         run = execution_results.run
         return {
-            "state": map_state(run.status.state),
+            "state": map_state(run.status),
             "results": run.to_json(),
         }
     except Exception:
