@@ -92,7 +92,7 @@ class RuntimeKFP(Runtime):
         results = self._execute(executable, kfp_function, function_args)
 
         LOGGER.info("Collecting outputs.")
-        status = self._collect_outputs(results)
+        status = self._collect_outputs(results, spec)
 
         LOGGER.info("Cleanup")
         self._cleanup()
