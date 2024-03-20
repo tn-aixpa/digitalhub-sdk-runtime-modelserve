@@ -11,7 +11,7 @@ from digitalhub_data.utils.data_utils import get_data_preview
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity import Dataitem
-    from kfp_server_api.models import ApiRun
+    from kfp_server_api.models import ApiRunDetail
 
 
 def map_state(state: str) -> str:
@@ -39,7 +39,7 @@ def map_state(state: str) -> str:
     return kfp_states.get(state, State.ERROR.value)
 
 
-def build_status(execution_results: ApiRun, outputs: list[dict] = None, values: list[str] = None) -> dict:
+def build_status(execution_results: ApiRunDetail, outputs: list[dict] = None, values: list[str] = None) -> dict:
     """
     Collect outputs.
 
@@ -54,9 +54,10 @@ def build_status(execution_results: ApiRun, outputs: list[dict] = None, values: 
 
     """
     try:
+        run = execution_results.run
         return {
-            "state": map_state(execution_results.status.state),
-            "results": execution_results.to_json(),
+            "state": map_state(run.status.state),
+            "results": run.to_json(),
         }
     except Exception:
         msg = "Something got wrong during run status building."

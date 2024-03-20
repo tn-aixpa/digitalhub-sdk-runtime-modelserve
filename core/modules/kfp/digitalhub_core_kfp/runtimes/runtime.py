@@ -9,7 +9,7 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from kfp_server_api.models import ApiRun
+    from kfp_server_api.models import ApiRunDetail
 
 from digitalhub_core_kfp.utils.configurations import (
     get_dhcore_function,
@@ -180,7 +180,7 @@ class RuntimeKFP(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: ApiRun, spec: dict) -> dict:
+    def _collect_outputs(self, results: ApiRunDetail, spec: dict) -> dict:
         """
         Collect outputs.
 
