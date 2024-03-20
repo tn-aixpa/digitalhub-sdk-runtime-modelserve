@@ -69,7 +69,6 @@ class RunStatus(Status):
 
         for i in self.outputs:
             for parameter, key in i.items():
-
                 entity_type = self._get_entity_type(key)
                 entity = ENTITY_FUNC[entity_type](key)
                 if as_key:

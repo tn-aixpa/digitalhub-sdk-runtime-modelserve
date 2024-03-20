@@ -10,7 +10,7 @@ from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 class TaskSpecJob(TaskSpec):
     """Task Job specification."""
 
-    def __init__(self, function: str, k8s: K8s) -> None:
+    def __init__(self, function: str, k8s: K8s | None = None,) -> None:
         """
         Constructor.
         """
@@ -27,7 +27,8 @@ class TaskSpecJob(TaskSpec):
             Dictionary representation of the object.
         """
         dict_ = super().to_dict()
-        dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
+        if self.k8s is not None:
+            dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
         return dict_
 
 
@@ -36,5 +37,5 @@ class TaskParamsJob(TaskParams):
     TaskParamsJob model.
     """
 
-    k8s: K8s
+    k8s: K8s = None
     """Kubernetes resources."""

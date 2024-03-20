@@ -11,11 +11,17 @@ from digitalhub_core_container.entities.tasks.models import CorePort
 class TaskSpecJob(TaskSpec):
     """Task Job specification."""
 
-    def __init__(self, function: str, k8s: K8s) -> None:
+    def __init__(
+        self,
+        function: str,
+        k8s: K8s | None = None,
+    ) -> None:
         """
         Constructor.
         """
         super().__init__(function)
+        if k8s is None:
+            k8s = K8s()
         self.node_selector = k8s.node_selector
         self.volumes = k8s.volumes
         self.resources = k8s.resources
@@ -41,11 +47,17 @@ class TaskParamsJob(TaskParams):
 class TaskSpecDeploy(TaskSpec):
     """Task Deploy specification."""
 
-    def __init__(self, function: str, k8s: K8s) -> None:
+    def __init__(
+        self,
+        function: str,
+        k8s: K8s | None = None,
+    ) -> None:
         """
         Constructor.
         """
         super().__init__(function)
+        if k8s is None:
+            k8s = K8s()
         self.node_selector = k8s.node_selector
         self.volumes = k8s.volumes
         self.resources = k8s.resources
@@ -74,7 +86,7 @@ class TaskSpecServe(TaskSpec):
     def __init__(
         self,
         function: str,
-        k8s: K8s,
+        k8s: K8s | None = None,
         service_ports: list[CorePort] = None,
         service_type: str = None,
     ) -> None:
@@ -82,6 +94,8 @@ class TaskSpecServe(TaskSpec):
         Constructor.
         """
         super().__init__(function)
+        if k8s is None:
+            k8s = K8s()
         self.node_selector = k8s.node_selector
         self.volumes = k8s.volumes
         self.resources = k8s.resources
