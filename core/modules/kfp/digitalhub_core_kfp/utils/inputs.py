@@ -3,11 +3,8 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 
-from digitalhub_core.entities.artifacts.crud import artifact_from_dict
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity

@@ -20,7 +20,7 @@ from digitalhub_core_kfp.utils.configurations import (
 
 from digitalhub_core_kfp.utils.functions import run_kfp_pipeline
 from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
-from digitalhub_core_kfp.utils.outputs import build_status, parse_kfp_artifacts
+from digitalhub_core_kfp.utils.outputs import build_status
 
 class RuntimeKFP(Runtime):
     """
@@ -194,8 +194,7 @@ class RuntimeKFP(Runtime):
         dict
             Status of the executed run.
         """
-        outputs = parse_kfp_artifacts(results.status.artifacts)
-        return build_status(results, outputs, spec.get("outputs"), spec.get("values"))
+        return build_status(results, spec.get("outputs"), spec.get("values"))
     
     ####################
     # Cleanup
