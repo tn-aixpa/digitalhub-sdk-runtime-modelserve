@@ -10,7 +10,7 @@ from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 class TaskSpecPipeline(TaskSpec):
     """Task Pipeline specification."""
 
-    def __init__(self, function: str, k8s: K8s) -> None:
+    def __init__(self, function: str, k8s: K8s | None = None) -> None:
         """
         Constructor.
         """
@@ -27,7 +27,8 @@ class TaskSpecPipeline(TaskSpec):
             Dictionary representation of the object.
         """
         dict_ = super().to_dict()
-        dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
+        if "k8s" in dict_:
+            dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
         return dict_
     
 class TaskParamsPipeline(TaskParams):

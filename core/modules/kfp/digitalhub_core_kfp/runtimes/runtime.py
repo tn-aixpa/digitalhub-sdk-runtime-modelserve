@@ -89,6 +89,8 @@ class RuntimeKFP(Runtime):
         kfp_function = self._configure_execution(spec, action, project)
 
         LOGGER.info("Executing function.")
+        # workaround to pass the project implicitly, removed before actual execution
+        function_args['_project_name'] = project
         results = self._execute(executable, kfp_function, function_args)
 
         LOGGER.info("Collecting outputs.")
