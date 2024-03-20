@@ -42,7 +42,8 @@ class TaskSpecNefertem(TaskSpec):
             Dictionary representation of the object.
         """
         dict_ = super().to_dict()
-        dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
+        if self.k8s is not None:
+            dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
         return dict_
 
 
