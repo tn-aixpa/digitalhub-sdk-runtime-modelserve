@@ -21,7 +21,8 @@ class TaskSpecJob(TaskSpec):
         """
         super().__init__(function)
         if k8s is None:
-            k8s = K8s()
+            k8s = {}
+        k8s = K8s(**k8s)
         self.node_selector = k8s.node_selector
         self.volumes = k8s.volumes
         self.resources = k8s.resources
@@ -57,7 +58,8 @@ class TaskSpecDeploy(TaskSpec):
         """
         super().__init__(function)
         if k8s is None:
-            k8s = K8s()
+            k8s = {}
+        k8s = K8s(**k8s)
         self.node_selector = k8s.node_selector
         self.volumes = k8s.volumes
         self.resources = k8s.resources
@@ -95,7 +97,8 @@ class TaskSpecServe(TaskSpec):
         """
         super().__init__(function)
         if k8s is None:
-            k8s = K8s()
+            k8s = {}
+        k8s = K8s(**k8s)
         self.node_selector = k8s.node_selector
         self.volumes = k8s.volumes
         self.resources = k8s.resources

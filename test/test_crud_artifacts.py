@@ -1,10 +1,10 @@
 import dotenv
 
 dotenv.load_dotenv()
+
 from copy import deepcopy
 
 from digitalhub_core.entities.artifacts.entity import Artifact
-from digitalhub_core.utils.exceptions import BackendError
 
 import digitalhub
 
@@ -19,15 +19,11 @@ paths = ["./data/test.csv", "s3://bucket/key.csv", "sql://database/schema/table"
 kind = ["artifact", "artifact", "artifact", "artifact"]
 
 dicts = []
-
 for i in range(len(names)):
-    dicts.append({"name": names[i], "id": uuids[i], "path": paths[i], "kind": kind[i]})
+    dicts.append({"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]})
 
 
-try:
-    digitalhub.delete_project("test")
-except BackendError:
-    pass
+digitalhub.delete_project("test")
 
 p = digitalhub.get_or_create_project("test")
 
@@ -45,7 +41,7 @@ for i in dicts:
     digitalhub.new_artifact(p.name, **i)
 
     c = deepcopy(i)
-    c.pop("id")
+    c.pop("uuid")
     digitalhub.new_artifact(p.name, **c)
     digitalhub.new_artifact(p.name, **c)
     digitalhub.new_artifact(p.name, **c)
@@ -59,6 +55,8 @@ assert len(l_obj) == 4
 for i in l_obj:
     assert isinstance(i, dict)
 
+for uuid in uuids:
+    digitalhub.delete_function(p.name, entity_id=uuid)
 
 # Get artifacts test
 for i in dicts:
@@ -77,7 +75,7 @@ for i in dicts:
 
     # Get by name as latest
     c = deepcopy(i)
-    c.pop("id")
+    c.pop("uuid")
     o4 = digitalhub.new_artifact(p.name, **c)
     o5 = digitalhub.get_artifact(p.name, entity_name=o1.name)
     assert isinstance(o5, Artifact)
@@ -90,7 +88,4 @@ for n in names:
 l_obj = digitalhub.list_artifacts(p.name)
 assert not l_obj
 
-try:
-    digitalhub.delete_project("test")
-except BackendError:
-    pass
+digitalhub.delete_project("test")
