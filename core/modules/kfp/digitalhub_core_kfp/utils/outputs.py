@@ -1,10 +1,8 @@
 from __future__ import annotations
 
+import json
 import typing
-import json 
-
 from datetime import datetime
-
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
@@ -15,7 +13,7 @@ from digitalhub_data.utils.data_utils import get_data_preview
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity import Dataitem
-    from kfp_server_api.models import ApiRunDetail, ApiRun
+    from kfp_server_api.models import ApiRun, ApiRunDetail
 
 
 def map_state(state: str) -> str:
@@ -67,7 +65,7 @@ def build_status(execution_results: ApiRunDetail, outputs: list[dict] = None, va
         msg = "Something got wrong during run status building."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
-    
+
 
 def _convert_run(run: ApiRun) -> dict:
     """
@@ -89,7 +87,8 @@ def _convert_run(run: ApiRun) -> dict:
         msg = "Something got wrong during run conversion."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
-    
+
+
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):

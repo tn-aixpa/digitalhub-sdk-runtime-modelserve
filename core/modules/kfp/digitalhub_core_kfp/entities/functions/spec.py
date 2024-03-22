@@ -122,6 +122,7 @@ class FunctionSpecKFP(FunctionSpec):
         dict_["source"] = self.source.to_dict()
         return dict_
 
+
 class FunctionParamsKFP(FunctionParams):
     """
     Function kfp parameters model.
@@ -144,4 +145,3 @@ class FunctionParamsKFP(FunctionParams):
 
     requirements: list = None
     """List of requirements for the Function."""
-

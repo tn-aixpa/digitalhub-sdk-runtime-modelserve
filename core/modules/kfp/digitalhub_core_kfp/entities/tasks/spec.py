@@ -30,7 +30,8 @@ class TaskSpecPipeline(TaskSpec):
         if "k8s" in dict_:
             dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
         return dict_
-    
+
+
 class TaskParamsPipeline(TaskParams):
     """
     TaskParamsPipeline model.

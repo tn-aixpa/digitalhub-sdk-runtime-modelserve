@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import typing
-
-from types import ModuleType
-
-from os import path
-import sys
-from pathlib import Path
-from importlib import import_module
 import importlib.util as imputil
 import inspect
+import sys
+import typing
+from importlib import import_module
+from os import path
+from pathlib import Path
+from types import ModuleType
 
 from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.utils.generic_utils import decode_string
@@ -65,7 +63,7 @@ def save_function_source(path: str, spec: FunctionSpecKFP) -> str:
         path.mkdir(parents=True, exist_ok=True)
         path = path / spec.source.source
         path.parent.mkdir(parents=True, exist_ok=True)
-        if 'code' in spec.source.code:
+        if "code" in spec.source.code:
             code = spec.source.code
         else:
             code = decode_string(spec.source.base64)
@@ -75,6 +73,7 @@ def save_function_source(path: str, spec: FunctionSpecKFP) -> str:
         msg = "Error saving function source: " + str(err)
         LOGGER.exception(msg)
         raise RuntimeError(msg)
+
 
 def parse_function_specs(spec: FunctionSpecKFP) -> dict:
     """
@@ -101,6 +100,7 @@ def parse_function_specs(spec: FunctionSpecKFP) -> dict:
         msg = "Error parsing function specs."
         LOGGER.error(msg)
         raise RuntimeError(msg)
+
 
 def get_kfp_pipeline(name: str, function_source: str, function_specs: dict) -> dict:
     """
@@ -133,7 +133,7 @@ def get_kfp_pipeline(name: str, function_source: str, function_specs: dict) -> d
         msg = "Error getting KFP pipeline."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
-    
+
 
 def _load_module(file_name, handler):
     """Load module from file name"""
@@ -148,7 +148,7 @@ def _load_module(file_name, handler):
             msg = "Error loading KFP pipeline source."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
-        
+
         module = imputil.module_from_spec(spec)
         spec.loader.exec_module(module)
 
@@ -156,9 +156,8 @@ def _load_module(file_name, handler):
 
     return _get_handler_extended(handler, class_args, namespaces=module)
 
-def _get_handler_extended(
-    handler_path: str, class_args: dict = {}, namespaces=None
-):
+
+def _get_handler_extended(handler_path: str, class_args: dict = {}, namespaces=None):
     """get function handler from [class_name::]handler string
 
     :param handler_path:  path to the function ([class_name::]handler)
@@ -177,23 +176,19 @@ def _get_handler_extended(
     try:
         instance = class_object(**class_args)
     except TypeError as exc:
-        raise TypeError(
-            f"failed to init class {class_path}\n args={class_args}"
-        ) from exc
+        raise TypeError(f"failed to init class {class_path}\n args={class_args}") from exc
 
     if not hasattr(instance, handler_path):
-        raise ValueError(
-            f"handler ({handler_path}) specified but doesnt exist in class {class_path}"
-        )
+        raise ValueError(f"handler ({handler_path}) specified but doesnt exist in class {class_path}")
     return getattr(instance, handler_path)
+
 
 def _module_to_namespace(namespace):
     if isinstance(namespace, ModuleType):
-        members = inspect.getmembers(
-            namespace, lambda o: inspect.isfunction(o) or isinstance(o, type)
-        )
+        members = inspect.getmembers(namespace, lambda o: inspect.isfunction(o) or isinstance(o, type))
         return {key: mod for key, mod in members}
     return namespace
+
 
 def _search_in_namespaces(name, namespaces):
     """search the class/function in a list of modules"""
@@ -222,6 +217,7 @@ def _get_class(class_name, namespace=None):
         raise ImportError(f"Failed to import {class_name}") from exc
     return class_object
 
+
 def _create_class(pkg_class: str):
     """Create a class from a package.module.class string
 
@@ -233,6 +229,7 @@ def _create_class(pkg_class: str):
     pkg_module = splits[:-1]
     class_ = getattr(import_module(".".join(pkg_module)), clfclass)
     return class_
+
 
 def _get_function_to_exec(function, namespace):
     """return function callable object from function name string"""
@@ -251,10 +248,9 @@ def _get_function_to_exec(function, namespace):
     try:
         function_object = _create_function(function)
     except (ImportError, ValueError) as exc:
-        raise ImportError(
-            f"state/function init failed, handler '{function}' not found"
-        ) from exc
+        raise ImportError(f"state/function init failed, handler '{function}' not found") from exc
     return function_object
+
 
 def _create_function(pkg_func: str):
     """Create a function from a package.module.function string

@@ -3,7 +3,7 @@ from __future__ import annotations
 import shutil
 import typing
 from pathlib import Path
-from typing import Callable, Any
+from typing import Any, Callable
 
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
@@ -13,14 +13,14 @@ if typing.TYPE_CHECKING:
 
 from digitalhub_core_kfp.utils.configurations import (
     get_dhcore_function,
+    get_kfp_pipeline,
     parse_function_specs,
     save_function_source,
-    get_kfp_pipeline
 )
-
 from digitalhub_core_kfp.utils.functions import run_kfp_pipeline
 from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
 from digitalhub_core_kfp.utils.outputs import build_status
+
 
 class RuntimeKFP(Runtime):
     """
@@ -90,7 +90,7 @@ class RuntimeKFP(Runtime):
 
         LOGGER.info("Executing function.")
         # workaround to pass the project implicitly, removed before actual execution
-        function_args['_project_name'] = project
+        function_args["_project_name"] = project
         results = self._execute(executable, kfp_function, function_args)
 
         LOGGER.info("Collecting outputs.")
@@ -120,7 +120,7 @@ class RuntimeKFP(Runtime):
         if action == "pipeline":
             return run_kfp_pipeline
         raise NotImplementedError
-    
+
     ####################
     # Helpers
     ####################
@@ -144,7 +144,7 @@ class RuntimeKFP(Runtime):
         inputs = spec.get("inputs", {})
         parameters = spec.get("parameters", {})
         return get_inputs_parameters(inputs, parameters)
-        
+
     ####################
     # Configuration
     ####################
@@ -197,7 +197,7 @@ class RuntimeKFP(Runtime):
             Status of the executed run.
         """
         return build_status(results, spec.get("outputs"), spec.get("values"))
-    
+
     ####################
     # Cleanup
     ####################

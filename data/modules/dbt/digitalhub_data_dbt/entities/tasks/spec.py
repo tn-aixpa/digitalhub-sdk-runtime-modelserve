@@ -10,7 +10,11 @@ from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 class TaskSpecTransform(TaskSpec):
     """Task Transform specification."""
 
-    def __init__(self, function: str, k8s: K8s | None = None,) -> None:
+    def __init__(
+        self,
+        function: str,
+        k8s: K8s | None = None,
+    ) -> None:
         """
         Constructor.
         """

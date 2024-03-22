@@ -4,28 +4,30 @@ from digitalhub_core import (
     delete_project,
     delete_run,
     delete_secret,
-    delete_service,
     delete_task,
     delete_workflow,
     get_artifact,
     get_function,
     get_run,
     get_secret,
-    get_service,
     get_task,
     get_workflow,
     import_artifact,
     import_function,
     import_run,
     import_secret,
-    import_service,
     import_task,
     import_workflow,
+    list_artifacts,
+    list_functions,
+    list_runs,
+    list_secrets,
+    list_tasks,
+    list_workflows,
     new_artifact,
     new_function,
     new_run,
     new_secret,
-    new_service,
     new_task,
     new_workflow,
     set_dhub_env,
@@ -35,7 +37,6 @@ from digitalhub_core import (
     update_project,
     update_run,
     update_secret,
-    update_service,
     update_task,
     update_workflow,
 )
@@ -44,7 +45,14 @@ _PROJECT_IMPORTED = False
 
 if not _PROJECT_IMPORTED:
     try:
-        from digitalhub_data import delete_dataitem, get_dataitem, import_dataitem, new_dataitem, update_dataitem
+        from digitalhub_data import (
+            delete_dataitem,
+            get_dataitem,
+            import_dataitem,
+            list_dataitems,
+            new_dataitem,
+            update_dataitem,
+        )
         from digitalhub_ml import (
             delete_model,
             get_model,
@@ -52,6 +60,8 @@ if not _PROJECT_IMPORTED:
             get_project,
             import_model,
             import_project,
+            list_models,
+            load_project,
             new_model,
             new_project,
             update_model,
@@ -70,6 +80,8 @@ if not _PROJECT_IMPORTED:
             get_project,
             import_dataitem,
             import_project,
+            list_dataitems,
+            load_project,
             new_dataitem,
             new_project,
             update_dataitem,
@@ -80,4 +92,4 @@ if not _PROJECT_IMPORTED:
         ...
 
 if not _PROJECT_IMPORTED:
-    from digitalhub_core import get_or_create_project, get_project, import_project, new_project
+    from digitalhub_core import get_or_create_project, get_project, import_project, load_project, new_project
