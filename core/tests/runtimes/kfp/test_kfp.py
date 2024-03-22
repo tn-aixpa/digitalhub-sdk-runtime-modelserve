@@ -1,5 +1,4 @@
 import digitalhub_core as dhcore
-import pytest
 
 
 def test_kfp_runtime():

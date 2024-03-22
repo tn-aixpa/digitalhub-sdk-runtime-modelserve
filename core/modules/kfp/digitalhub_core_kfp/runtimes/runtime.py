@@ -3,7 +3,7 @@ from __future__ import annotations
 import shutil
 import typing
 from pathlib import Path
-from typing import Any, Callable
+from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER

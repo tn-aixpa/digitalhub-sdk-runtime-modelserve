@@ -5,14 +5,9 @@ import typing
 from datetime import datetime
 
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import create_dataitem
-from digitalhub_data.utils.data_utils import get_data_preview
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_data.entities.dataitems.entity import Dataitem
     from kfp_server_api.models import ApiRun, ApiRunDetail
 
 

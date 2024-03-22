@@ -183,7 +183,6 @@ def delete_model(
     entity_name: str | None = None,
     entity_id: str | None = None,
     delete_all_versions: bool = False,
-    cascade: bool = True,
     **kwargs,
 ) -> dict:
     """
@@ -215,7 +214,6 @@ def delete_model(
     params = kwargs.get("params", {})
     if params is None or not params:
         kwargs["params"] = {}
-        kwargs["params"]["cascade"] = str(cascade).lower()
 
     if entity_id is not None:
         api = api_ctx_delete(project, ENTITY_TYPE, entity_id)

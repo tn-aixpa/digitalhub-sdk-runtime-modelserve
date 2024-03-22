@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from digitalhub_data.entities.runs.spec import RunParamsData, RunSpecData
-from pydantic import BaseModel
 
 
 class RunSpecKFP(RunSpecData):

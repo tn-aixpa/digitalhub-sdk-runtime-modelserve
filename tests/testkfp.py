@@ -1,8 +1,6 @@
 import os
-from pathlib import Path
 
 import digitalhub_core as dhcore
-import digitalhub_core_kfp as dh_kfp
 
 os.environ["DIGITALHUB_CORE_ENDPOINT"] = "http://localhost:8080/"
 os.environ["DIGITALHUB_CORE_WORKFLOW_IMAGE"] = "dhcore/workflow:latest"

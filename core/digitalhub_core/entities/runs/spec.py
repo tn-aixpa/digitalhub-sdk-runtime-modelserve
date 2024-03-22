@@ -8,7 +8,6 @@ from typing import Union
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
 from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
-from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import parse_entity_key
 
 if typing.TYPE_CHECKING:

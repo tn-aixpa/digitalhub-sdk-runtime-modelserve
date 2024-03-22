@@ -1,5 +1,4 @@
 import digitalhub_core as dhcore
-import kfp
 from digitalhub_core_kfp.dsl import step
 
 

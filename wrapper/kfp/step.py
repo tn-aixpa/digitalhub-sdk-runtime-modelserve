@@ -5,8 +5,6 @@ import argparse
 import json
 import os
 import time
-from copy import deepcopy
-from pathlib import Path
 
 # default KFP artifacts and output (ui metadata, metrics etc.)
 # directories to /tmp to allow running with security context
@@ -14,10 +12,9 @@ KFPMETA_DIR = "/tmp"
 KFP_ARTIFACTS_DIR = "/tmp"
 
 from digitalhub_core.entities._base.entity import Entity
-from digitalhub_core.entities.runs.entity import Run
 from digitalhub_core.utils.logger import LOGGER
 
-import digitalhub as dhcore
+import digitalhub as dh
 
 
 def _is_finished(state: str):
@@ -34,7 +31,7 @@ def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={
     """
 
     LOGGER.info("Loading project " + project)
-    project = dhcore.get_project(project)
+    project = dh.get_project(project)
 
     LOGGER.info("Executing function " + function + " task " + action)
     function = project.get_function(function)

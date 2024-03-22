@@ -148,7 +148,7 @@ def get_artifact(project: str, entity_name: str | None = None, entity_id: str | 
 
         api = api_ctx_list(project, ENTITY_TYPE)
         kwargs["params"]["name"] = entity_name
-        obj = context.list_objects(api, **kwargs)["content"][0]
+        obj = context.list_objects(api, **kwargs)[0]
     else:
         api = api_ctx_read(project, ENTITY_TYPE, entity_id)
         obj = context.read_object(api, **kwargs)
@@ -192,7 +192,6 @@ def delete_artifact(
     entity_name: str | None = None,
     entity_id: str | None = None,
     delete_all_versions: bool = False,
-    cascade: bool = True,
     **kwargs,
 ) -> dict:
     """
@@ -224,7 +223,6 @@ def delete_artifact(
     params = kwargs.get("params", {})
     if params is None or not params:
         kwargs["params"] = {}
-        kwargs["params"]["cascade"] = str(cascade).lower()
 
     if entity_id is not None:
         api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
@@ -233,7 +231,7 @@ def delete_artifact(
         api = api_ctx_list(project, ENTITY_TYPE)
         if delete_all_versions:
             return context.delete_object(api, **kwargs)
-        obj = context.list_objects(api, **kwargs)["content"][0]
+        obj = context.list_objects(api, **kwargs)[0]
         entity_id = obj["id"]
 
     api = api_ctx_delete(project, ENTITY_TYPE, entity_id)

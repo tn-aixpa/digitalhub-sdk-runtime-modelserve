@@ -19,9 +19,9 @@ status_registry.register(func_kind, f"{func_root}.status", "FunctionStatusKFP")
 task_root = "digitalhub_core_kfp.entities.tasks"
 for i in ["pipeline"]:
     task_kind = f"{func_kind}+{i}"
-    metadata_registry.register(task_kind, f"{task_root}.metadata", f"TaskMetadataPipeline")
-    spec_registry.register(task_kind, f"{task_root}.spec", f"TaskSpecPipeline", f"TaskParamsPipeline")
-    status_registry.register(task_kind, f"{task_root}.status", f"TaskStatusPipeline")
+    metadata_registry.register(task_kind, f"{task_root}.metadata", "TaskMetadataPipeline")
+    spec_registry.register(task_kind, f"{task_root}.spec", "TaskSpecPipeline", "TaskParamsPipeline")
+    status_registry.register(task_kind, f"{task_root}.status", "TaskStatusPipeline")
 
 # Runs
 run_root = "digitalhub_core_kfp.entities.runs"

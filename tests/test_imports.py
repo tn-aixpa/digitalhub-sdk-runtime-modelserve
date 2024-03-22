@@ -1,6 +1,5 @@
 import digitalhub
 
-
 METHODS = [
     "new_artifact",
     "new_function",
