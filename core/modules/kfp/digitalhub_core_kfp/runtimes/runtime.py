@@ -76,7 +76,7 @@ class RuntimeKFP(Runtime):
         """
         LOGGER.info("Validating task.")
         action = self._validate_task(run)
-        executable = self._get_executable(action)
+        executable = self._get_executable(action, run)
 
         LOGGER.info("Starting task.")
         spec = run.get("spec")
@@ -89,8 +89,6 @@ class RuntimeKFP(Runtime):
         kfp_function = self._configure_execution(spec, action, project)
 
         LOGGER.info("Executing function.")
-        # workaround to pass the project implicitly, removed before actual execution
-        function_args["_project_name"] = project
         results = self._execute(executable, kfp_function, function_args)
 
         LOGGER.info("Collecting outputs.")
@@ -103,7 +101,7 @@ class RuntimeKFP(Runtime):
         return status
 
     @staticmethod
-    def _get_executable(action: str) -> Callable:
+    def _get_executable(action: str, run: dict) -> Callable:
         """
         Select function according to action.
 
@@ -118,7 +116,7 @@ class RuntimeKFP(Runtime):
             Function to execute.
         """
         if action == "pipeline":
-            return run_kfp_pipeline
+            return run_kfp_pipeline(run)
         raise NotImplementedError
 
     ####################

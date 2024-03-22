@@ -77,7 +77,8 @@ def _convert_run(run: ApiRun) -> dict:
         Run dict.
     """
     try:
-        return json.loads(json.dumps(run.to_dict(), cls=DateTimeEncoder))
+        dict = run.to_dict()
+        return json.loads(json.dumps(dict, cls=DateTimeEncoder))
     except Exception:
         msg = "Something got wrong during run conversion."
         LOGGER.exception(msg)
