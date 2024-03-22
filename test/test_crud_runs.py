@@ -3,24 +3,23 @@ import dotenv
 dotenv.load_dotenv()
 
 
-from digitalhub_core.entities.tasks.entity import Task
+from digitalhub_core.entities.runs.entity import Run
 
 import digitalhub
 
 
 def add_param(kwargs) -> dict:
-    if kwargs["kind"] == "mlrun+job":
-        kwargs["function"] = f1._get_function_string()
+    if kwargs["kind"] == "mlrun+run":
+        kwargs["task"] = t1._get_task_string()
 
-    if kwargs["kind"] == "dbt+transform":
-        kwargs["function"] = f2._get_function_string()
+    if kwargs["kind"] == "dbt+run":
+        kwargs["task"] = t2._get_task_string()
 
-    if kwargs["kind"] == "container+job":
-        kwargs["function"] = f3._get_function_string()
+    if kwargs["kind"] == "container+run":
+        kwargs["task"] = t3._get_task_string()
 
-    if kwargs["kind"] == "nefertem+infer":
-        kwargs["function"] = f4._get_function_string()
-        kwargs["framework"] = "test"
+    if kwargs["kind"] == "nefertem+run":
+        kwargs["task"] = t4._get_task_string()
 
     return kwargs
 
@@ -32,7 +31,7 @@ uuids = [
     "1678f9ab-a2e0-48ff-870a-2384o3fa1334",
     "adb746dd-4e81-4ff8-82de-4916624o17dc",
 ]
-kind = ["mlrun+job", "dbt+transform", "container+job", "nefertem+infer"]
+kind = ["mlrun+run", "dbt+run", "container+run", "nefertem+run"]
 
 dicts = []
 for i in range(len(names)):
@@ -43,41 +42,45 @@ digitalhub.delete_project("test")
 p = digitalhub.get_or_create_project("test")
 
 f1 = p.new_function(name="t1", kind="mlrun", source={"code": "test"})
+t1 = f1.new_task(kind="mlrun+job")
 f2 = p.new_function(name="t2", kind="dbt", source={"code": "test"})
+t2 = f2.new_task(kind="dbt+transform")
 f3 = p.new_function(name="t3", kind="container", image="test")
+t3 = f3.new_task(kind="container+job")
 f4 = p.new_function(name="t4", kind="nefertem")
+t4 = f4.new_task(kind="nefertem+infer", framework="test")
 
 
-# Create and delete tasks
+# Create and delete runs
 for i in dicts:
     i = add_param(i)
-    d = digitalhub.new_task(p.name, **i)
-    digitalhub.delete_task(p.name, entity_id=d.id)
+    d = digitalhub.new_run(p.name, **i)
+    digitalhub.delete_run(p.name, entity_id=d.id)
 
-# Create multiple tasks
+# Create multiple runs
 for i in dicts:
     i = add_param(i)
-    digitalhub.new_task(p.name, **i)
+    digitalhub.new_run(p.name, **i)
 
-# List tasks
-l_obj = digitalhub.list_tasks(p.name)
+# List runs
+l_obj = digitalhub.list_runs(p.name)
 assert isinstance(l_obj, list)
 assert len(l_obj) == 4
 for i in l_obj:
     assert isinstance(i, dict)
 
 for uuid in uuids:
-    digitalhub.delete_task(p.name, entity_id=uuid)
+    digitalhub.delete_run(p.name, entity_id=uuid)
 
-# Get tasks test
+# Get runs test
 for i in dicts:
     i = add_param(i)
-    o1 = digitalhub.new_task(p.name, **i)
-    assert isinstance(o1, Task)
+    o1 = digitalhub.new_run(p.name, **i)
+    assert isinstance(o1, Run)
 
     # Get by id
-    o2 = digitalhub.get_task(p.name, entity_id=o1.id)
-    assert isinstance(o2, Task)
+    o2 = digitalhub.get_run(p.name, entity_id=o1.id)
+    assert isinstance(o2, Run)
     assert o1.id == o2.id
 
 digitalhub.delete_project("test")

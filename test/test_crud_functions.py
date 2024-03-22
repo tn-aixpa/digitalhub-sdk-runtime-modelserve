@@ -8,8 +8,8 @@ from digitalhub_core.entities.functions.entity import Function
 
 import digitalhub
 
-def add_param(kwargs) -> dict:
 
+def add_param(kwargs) -> dict:
     if kwargs["kind"] == "dbt":
         kwargs["source"] = {"code": "test"}
 
