@@ -11,7 +11,7 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.utils.api import api_base_read, api_base_update, api_ctx_create, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_update, api_ctx_list
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -137,7 +137,7 @@ class Secret(Entity):
     #  Secret methods
     #############################
 
-    def set_secret(self, key: str, value: str) -> dict:
+    def set_secret(self, key: str, value: str) -> None:
         """
         Set a secret.
 
@@ -150,24 +150,23 @@ class Secret(Entity):
 
         Returns
         -------
-        dict
-            Response from backend.
+        None
         """
         if self._context().local:
             raise NotImplementedError("set_secret() is not implemented for local projects.")
 
         obj = {key: value}
-        api = api_base_update("projects", self.project) + "/secrets/data"
-        return self._context().update_object(api, obj)
+        api = api_ctx_list(self.project, "secrets") + "/data"
+        self._context().update_object(api, obj)
 
-    def read_secret(self, key: str) -> dict:
+    def read_secret(self, key: str | list[str]) -> dict:
         """
         Read a secret from backend.
 
         Parameters
         ----------
         key : str
-            Key of the secret.
+            Key or list of keys from the secret.
 
         Returns
         -------
@@ -176,8 +175,11 @@ class Secret(Entity):
         """
         if self._context().local:
             raise NotImplementedError("read_secret() is not implemented for local projects.")
-        api = api_base_read("projects", self.project) + f"/secrets/data?keys={key}"
-        return self._context().read_object(api)
+
+        keys = ",".join(key if isinstance(key, list) else [key])
+        params = {"keys": keys}
+        api = api_ctx_list(self.project, "secrets") + "/data"
+        return self._context().read_object(api, params=params)
 
     #############################
     #  Static interface methods

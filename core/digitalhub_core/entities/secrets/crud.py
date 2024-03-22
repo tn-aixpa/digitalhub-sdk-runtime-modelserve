@@ -7,7 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.secrets.entity import secret_from_dict, secret_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update, api_ctx_create
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -52,7 +52,34 @@ def create_secret_from_dict(obj: dict) -> Secret:
     return secret_from_dict(obj)
 
 
-def new_secret(
+def new_secret(project: str, key: str, value: str) -> Secret:
+    """
+    Create a new Secret instance with the specified parameters.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    key : str
+        Key of the secret.
+    value : str
+        Value of the secret.
+
+    Returns
+    -------
+    Secret
+        An instance of the created secret.
+    """
+    api = api_ctx_create(project, ENTITY_TYPE) + "/data"
+    context = get_context(project)
+    obj = {key: value}
+    context.update_object(api, obj)
+    api = api_ctx_list(project, ENTITY_TYPE)
+    secret = context.list_objects(api)[0]
+    return create_secret_from_dict(secret)
+
+
+def _new_secret(
     project: str,
     name: str,
     uuid: str | None = None,
