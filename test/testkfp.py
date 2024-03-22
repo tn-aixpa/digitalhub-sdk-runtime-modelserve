@@ -16,17 +16,7 @@ os.environ["KFP_ENDPOINT"] = "http://localhost:8888/"
 project = dhcore.get_or_create_project("project-kfp2")
 
 url = "https://gist.githubusercontent.com/kevin336/acbb2271e66c10a5b73aacf82ca82784/raw/e38afe62e088394d61ed30884dd50a6826eee0a8/employees.csv"
-# di = project.new_dataitem(name="employees",
-#                           kind="table",
-#                           path=url)
-# function = project.get_function("function-dbt")
-# run = function.run("transform",
-#                    inputs=[{"employees": di.key}],
-#                    outputs=[{"output_table": "department-60"}], local_execution=False)
 
-# while not _is_finished(run.status.state):
-#         time.sleep(5)
-#         run = run.refresh()
 di = project.new_dataitem(name="employees", kind="table", path=url)
 
 function = project.get_function(entity_name="test-kfp")
