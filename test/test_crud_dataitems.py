@@ -55,7 +55,7 @@ for i in l_obj:
     assert isinstance(i, dict)
 
 for uuid in uuids:
-    digitalhub.delete_function(p.name, entity_id=uuid)
+    digitalhub.delete_dataitem(p.name, entity_id=uuid)
 
 # Get dataitems test
 for i in dicts:
