@@ -7,8 +7,9 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.secrets.entity import secret_from_dict, secret_from_parameters
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
+from digitalhub_core.utils.exceptions import BackendError
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.secrets.entity import Secret
@@ -52,34 +53,7 @@ def create_secret_from_dict(obj: dict) -> Secret:
     return secret_from_dict(obj)
 
 
-def new_secret(project: str, key: str, value: str) -> Secret:
-    """
-    Create a new Secret instance with the specified parameters.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    key : str
-        Key of the secret.
-    value : str
-        Value of the secret.
-
-    Returns
-    -------
-    Secret
-        An instance of the created secret.
-    """
-    api = api_ctx_create(project, ENTITY_TYPE) + "/data"
-    context = get_context(project)
-    obj = {key: value}
-    context.update_object(api, obj)
-    api = api_ctx_list(project, ENTITY_TYPE)
-    secret = context.list_objects(api)[0]
-    return create_secret_from_dict(secret)
-
-
-def _new_secret(
+def new_secret(
     project: str,
     name: str,
     uuid: str | None = None,
@@ -87,8 +61,7 @@ def _new_secret(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    path: str | None = None,
-    provider: str | None = None,
+    secret_value: str | None = None,
     **kwargs,
 ) -> Secret:
     """
@@ -110,10 +83,8 @@ def _new_secret(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    path : str
-        Path to the secret file.
-    provider : str
-        Provider of the secret.
+    secret_value : str
+        Value of the secret.
     **kwargs
         Spec keyword arguments.
 
@@ -122,6 +93,9 @@ def _new_secret(
     Secret
         An instance of the created secret.
     """
+    if secret_value is None:
+        raise ValueError("secret_value must be provided.")
+
     obj = create_secret(
         project=project,
         name=name,
@@ -130,12 +104,10 @@ def _new_secret(
         description=description,
         source=source,
         labels=labels,
-        path=path,
-        provider=provider,
         embedded=embedded,
         **kwargs,
     )
-    obj.save()
+    obj.set_secret_value(value=secret_value)
     return obj
 
 

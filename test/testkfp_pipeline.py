@@ -2,7 +2,6 @@ from digitalhub_core_kfp.dsl import pipeline_context
 
 
 def myhandler(ref):
-
     with pipeline_context() as pc:
         s1 = pc.step(
             name="step1",

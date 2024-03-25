@@ -137,7 +137,7 @@ class Secret(Entity):
     #  Secret methods
     #############################
 
-    def set_secret(self, key: str, value: str) -> None:
+    def set_secret_value(self, value: str) -> None:
         """
         Set a secret.
 
@@ -155,11 +155,11 @@ class Secret(Entity):
         if self._context().local:
             raise NotImplementedError("set_secret() is not implemented for local projects.")
 
-        obj = {key: value}
+        obj = {self.name: value}
         api = api_ctx_list(self.project, "secrets") + "/data"
         self._context().update_object(api, obj)
 
-    def read_secret(self, key: str | list[str]) -> dict:
+    def read_secret_value(self) -> dict:
         """
         Read a secret from backend.
 
@@ -176,8 +176,7 @@ class Secret(Entity):
         if self._context().local:
             raise NotImplementedError("read_secret() is not implemented for local projects.")
 
-        keys = ",".join(key if isinstance(key, list) else [key])
-        params = {"keys": keys}
+        params = {"keys": self.name}
         api = api_ctx_list(self.project, "secrets") + "/data"
         return self._context().read_object(api, params=params)
 
@@ -235,8 +234,6 @@ def secret_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
-    path: str | None = None,
-    provider: str | None = None,
     **kwargs,
 ) -> Secret:
     """
@@ -260,10 +257,6 @@ def secret_from_parameters(
         A description of the secret.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    path : str
-        Path to the secret file.
-    provider : str
-        Provider of the secret.
     **kwargs
         Spec keyword arguments.
 
@@ -284,6 +277,8 @@ def secret_from_parameters(
         labels=labels,
         embedded=embedded,
     )
+    path = f"kubernetes://dhcore-proj-secrets-{project}/{name}"
+    provider = "kubernetes"
     spec = build_spec(
         kind,
         path=path,
