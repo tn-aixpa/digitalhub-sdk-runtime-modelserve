@@ -107,6 +107,7 @@ def new_secret(
         embedded=embedded,
         **kwargs,
     )
+    obj.save()
     obj.set_secret_value(value=secret_value)
     return obj
 
