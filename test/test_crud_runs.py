@@ -21,6 +21,8 @@ def add_param(kwargs) -> dict:
     if kwargs["kind"] == "nefertem+run":
         kwargs["task"] = t4._get_task_string()
 
+    kwargs["local_execution"] = True
+
     return kwargs
 
 
