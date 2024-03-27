@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-data-dbt"
-version = "0.2.32"
+version = "0.3.0"
 description = "Dbt runtime for DHCore"
 readme = "README.md"
 authors = [
@@ -20,7 +20,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub-data~=0.2",
+"digitalhub-data~=0.3",
 ]
 [project.optional-dependencies]
 local = [
@@ -43,7 +43,7 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.2.32"
+current_version = "0.3.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false

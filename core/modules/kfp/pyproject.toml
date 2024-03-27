@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-core-kfp"
-version = "0.2.32"
+version = "0.3.0"
 description = "KFP runtime for DHCore"
 readme = "README.md"
 authors = [
@@ -21,7 +21,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub-core~=0.2",
+"digitalhub-core~=0.3",
 "kfp==1.8.11",
 ]
 
