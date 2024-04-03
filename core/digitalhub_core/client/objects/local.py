@@ -230,15 +230,27 @@ class ClientLocal(Client):
 
             else:
                 reset_latest = False
-                name = None
+                name = kwargs.get("params", {}).get("name")
+
+                # Delete by name
+                if entity_id is None and name is not None:
+                    self._db[entity_type].pop(name, None)
+                    return {"deleted": True}
+
+
+                # Delete by id
                 for _, v in self._db[entity_type].items():
-                    obj = v.pop(entity_id)
-                    # Handle latest
-                    if v["latest"]["id"] == entity_id:
-                        name = v["latest"].get("name", entity_id)
-                        v.pop("latest")
-                        reset_latest = True
-                    break
+                    if entity_id in v:
+                        obj = v.pop(entity_id)
+
+                        # Handle latest
+                        if v["latest"]["id"] == entity_id:
+                            name = v["latest"].get("name", entity_id)
+                            v.pop("latest")
+                            reset_latest = True
+                        break
+                else:
+                    raise KeyError
 
                 if name is not None:
                     # Pop name if empty
@@ -269,7 +281,7 @@ class ClientLocal(Client):
         except KeyError:
             msg = self._format_msg(3, entity_type=entity_type, entity_id=entity_id)
             raise BackendError(msg)
-        return {"deleted": obj}
+        return {"deleted": True}
 
     def list_objects(self, api: str, **kwargs) -> list:
         """
