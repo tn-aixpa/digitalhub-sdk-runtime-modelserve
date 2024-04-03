@@ -64,11 +64,18 @@ def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={
         run = run.refresh()
         LOGGER.info("Step state: " + run.status.state)
 
+    # write run_id
+    try:
+        _write_output("run_id", run.id)
+    except Exception as exc:
+        LOGGER.warning(f"Failed writing run_id to temp file. Ignoring ({repr(exc)})")
+        pass
+
     # If the run is complete process outputs
     if _is_complete(run.status.state):
         LOGGER.info("Step completed: " + run.status.state)
 
-        results = {"run_id": run.id}
+        results = {}
 
         # process entities
         for o in run.status.get_outputs():
@@ -88,19 +95,7 @@ def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={
 
         for key, value in results.items():
             try:
-                # NOTE: if key has "../x", it would fail on path traversal
-                path = os.path.join(KFP_ARTIFACTS_DIR, key)
-                if not _is_safe_path(KFP_ARTIFACTS_DIR, path):
-                    LOGGER.warning(f"Path traversal is not allowed ignoring, {path} / {key}")
-                    continue
-                path = os.path.abspath(path)
-                LOGGER.info(f"Writing artifact output, {path}, {value}")
-                with open(path, "w") as fp:
-                    fp.write(value)
-                # check file
-                file_stats = os.stat(path)
-                LOGGER.debug(f"Checking file {path}: {file_stats.st_size}")
-
+                _write_output(key, value)
             except Exception as exc:
                 LOGGER.warning(f"Failed writing to temp file. Ignoring ({repr(exc)})")
                 pass
@@ -110,6 +105,19 @@ def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={
         LOGGER.info("Step failed: " + run.status.state)
         exit(1)
 
+def _write_output(key: str, value: str):
+    # NOTE: if key has "../x", it would fail on path traversal
+    path = os.path.join(KFP_ARTIFACTS_DIR, key)
+    if not _is_safe_path(KFP_ARTIFACTS_DIR, path):
+        LOGGER.warning(f"Path traversal is not allowed ignoring, {path} / {key}")
+        return
+    path = os.path.abspath(path)
+    LOGGER.info(f"Writing artifact output, {path}, {value}")
+    with open(path, "w") as fp:
+        fp.write(value)
+    # check file
+    file_stats = os.stat(path)
+    LOGGER.debug(f"Checking file {path}: {file_stats.st_size}")
 
 def _is_safe_path(base, filepath, is_symlink=False):
     # Avoid path traversal attacks by ensuring that the path is safe

@@ -12,6 +12,7 @@ from kubernetes import client as k8s_client
 # Variable to track the current project reference without affecting the code
 current_project = None
 
+label_prefix = "kfp-digitalhub-core-"
 
 def set_current_project(val: str):
     """Set the current project for the context of the pipeline
@@ -109,7 +110,7 @@ class PipelineContext:
 
         WORKFLOW_IMAGE = os.environ.get("DIGITALHUB_CORE_WORKFLOW_IMAGE")
         KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
-        DIGITALHUB_CORE_ENDPOINT = os.environ.get("DIGITALHUB_CORE_ENDPOINT", "http://localhost:8080/")
+        DIGITALHUB_CORE_ENDPOINT = os.environ.get("DIGITALHUB_CORE_ENDPOINT", "http://localhost:8080/") #"http://host.minikube.internal:8080/" 
 
         props = {
             "node_selector": node_selector,
@@ -131,6 +132,7 @@ class PipelineContext:
         file_outputs = {
             "mlpipeline-ui-metadata": KFPMETA_DIR + "/mlpipeline-ui-metadata.json",
             "mlpipeline-metrics": KFPMETA_DIR + "/mlpipeline-metrics.json",
+            "run_id": "/tmp/run_id"
         }
 
         cmd = [
@@ -180,6 +182,10 @@ class PipelineContext:
             command=cmd,
             file_outputs=file_outputs,
         )
+        cop.add_pod_label(label_prefix + "project", self._project.name)
+        cop.add_pod_label(label_prefix + "function", function)
+        cop.add_pod_label(label_prefix + "action", action)
+
         cop.container.add_env_variable(
             k8s_client.V1EnvVar(name="DIGITALHUB_CORE_ENDPOINT", value=DIGITALHUB_CORE_ENDPOINT)
         )

@@ -8,8 +8,6 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 
-if typing.TYPE_CHECKING:
-    from kfp_server_api.models import ApiRunDetail
 
 from digitalhub_core_kfp.utils.configurations import (
     get_dhcore_function,
@@ -19,7 +17,6 @@ from digitalhub_core_kfp.utils.configurations import (
 )
 from digitalhub_core_kfp.utils.functions import run_kfp_pipeline
 from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
-from digitalhub_core_kfp.utils.outputs import build_status
 
 
 class RuntimeKFP(Runtime):
@@ -180,9 +177,9 @@ class RuntimeKFP(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: ApiRunDetail, spec: dict) -> dict:
+    def _collect_outputs(self, results: dict, spec: dict) -> dict:
         """
-        Collect outputs.
+        Collect outputs. Use the produced results directly
 
         Parameters
         ----------
@@ -194,7 +191,7 @@ class RuntimeKFP(Runtime):
         dict
             Status of the executed run.
         """
-        return build_status(results, spec.get("outputs"), spec.get("values"))
+        return results
 
     ####################
     # Cleanup

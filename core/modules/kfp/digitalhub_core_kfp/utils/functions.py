@@ -12,7 +12,7 @@ from kfp_server_api.models import ApiRun
 import digitalhub as dhcore
 
 
-def run_kfp_pipeline(run: dict) -> ApiRun:
+def run_kfp_pipeline(run: dict) -> any:
     """
     Run KFP pipeline.
 
@@ -29,7 +29,7 @@ def run_kfp_pipeline(run: dict) -> ApiRun:
         Execution results.
     """
 
-    def _kfp_execution(pipeline: Callable, function_args) -> ApiRun:
+    def _kfp_execution(pipeline: Callable, function_args) -> dict:
         client = kfp.Client(host=os.environ.get("KFP_ENDPOINT"))
         # workaround to pass the project implicitly
         set_current_project(run.get("project"))
@@ -38,18 +38,19 @@ def run_kfp_pipeline(run: dict) -> ApiRun:
 
         status = None
         response = None
+        run_status = None
         while status is None or status.lower() not in ["succeeded", "failed", "skipped", "error"]:
             time.sleep(5)
             try:
                 response = client.get_run(run_id=result.run_id)
                 status = response.run.status
-                run_status = build_status(response)
+                run_status = build_status(response, client)
                 # update status
                 dhcore_run = dhcore.get_run(run.get("project"), run.get("id"))
                 dhcore_run._set_status(run_status)
                 dhcore_run.save(update=True)
             except Exception:
                 pass
-        return response
+        return run_status
 
     return _kfp_execution
