@@ -7,7 +7,6 @@ from typing import Callable
 import kfp
 from digitalhub_core_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_core_kfp.utils.outputs import build_status
-from kfp_server_api.models import ApiRun
 
 import digitalhub as dhcore
 

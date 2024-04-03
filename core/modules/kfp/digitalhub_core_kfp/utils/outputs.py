@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import json
-import typing
-from datetime import datetime
-
 import tarfile
+import typing
 from base64 import b64decode
+from datetime import datetime
 from io import BytesIO
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.utils.logger import LOGGER
-
 from digitalhub_core_kfp.dsl import label_prefix
 
 if typing.TYPE_CHECKING:
-    from kfp_server_api.models import ApiRunDetail
     from kfp import Client
+    from kfp_server_api.models import ApiRunDetail
 
 
 def map_state(state: str) -> str:
@@ -76,7 +74,7 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
         KFP run.
     client: Client
         reference to the KFP API client
-        
+
     Returns
     -------
     dict
@@ -92,7 +90,7 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
             "resourceVersion": manifest["metadata"]["resourceVersion"],
             "creationTimestamp": manifest["metadata"]["creationTimestamp"],
             "labels": manifest["metadata"]["labels"],
-            "annotations": manifest["metadata"]["annotations"]
+            "annotations": manifest["metadata"]["annotations"],
         }
         result["spec"] = manifest["spec"]
         nodes = manifest["status"]["nodes"] or {}
@@ -111,9 +109,9 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
         msg = "Something got wrong during run conversion."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
-    
 
-def _node_to_graph(id:str, run_detail: ApiRunDetail, node, templates, client: Client):
+
+def _node_to_graph(id: str, run_detail: ApiRunDetail, node, templates, client: Client):
     res = {
         "id": id,
         "name": node["name"],
@@ -141,15 +139,18 @@ def _node_to_graph(id:str, run_detail: ApiRunDetail, node, templates, client: Cl
                 res["function"] = labels[label_prefix + "function"]
             if label_prefix + "action" in labels:
                 res["action"] = labels[label_prefix + "action"]
-    
+
     # run_id
     if node["type"] == "Pod" and "outputs" in node:
         try:
-            run_id_artifact = client.runs.read_artifact(run_detail.run.id, node["id"], f"{node['displayName']}-run_id", async_req = False)
+            run_id_artifact = client.runs.read_artifact(
+                run_detail.run.id, node["id"], f"{node['displayName']}-run_id", async_req=False
+            )
             res["run_id"] = _get_artifact_value(run_id_artifact.data)
         except Exception as e:
             LOGGER.warning("Could not get run_id artifact: %s", e)
     return res
+
 
 def _process_params(params):
     result = []
@@ -169,9 +170,9 @@ def _get_artifact_value(indata):
     with tarfile.open(fileobj=io_buffer) as tar:
         member_names = tar.getnames()
         if len(member_names) == 1:
-            data = tar.extractfile(member_names[0]).read().decode('utf-8')
+            data = tar.extractfile(member_names[0]).read().decode("utf-8")
         else:
             data = {}
             for member_name in member_names:
-                data[member_name] = tar.extractfile(member_name).read().decode('utf-8')
+                data[member_name] = tar.extractfile(member_name).read().decode("utf-8")
     return data

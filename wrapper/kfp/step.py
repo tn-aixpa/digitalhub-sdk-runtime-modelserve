@@ -105,6 +105,7 @@ def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={
         LOGGER.info("Step failed: " + run.status.state)
         exit(1)
 
+
 def _write_output(key: str, value: str):
     # NOTE: if key has "../x", it would fail on path traversal
     path = os.path.join(KFP_ARTIFACTS_DIR, key)
@@ -118,6 +119,7 @@ def _write_output(key: str, value: str):
     # check file
     file_stats = os.stat(path)
     LOGGER.debug(f"Checking file {path}: {file_stats.st_size}")
+
 
 def _is_safe_path(base, filepath, is_symlink=False):
     # Avoid path traversal attacks by ensuring that the path is safe

@@ -237,11 +237,10 @@ class ClientLocal(Client):
                     self._db[entity_type].pop(name, None)
                     return {"deleted": True}
 
-
                 # Delete by id
                 for _, v in self._db[entity_type].items():
                     if entity_id in v:
-                        obj = v.pop(entity_id)
+                        v.pop(entity_id)
 
                         # Handle latest
                         if v["latest"]["id"] == entity_id:

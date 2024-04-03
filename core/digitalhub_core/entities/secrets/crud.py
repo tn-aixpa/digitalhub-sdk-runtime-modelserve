@@ -9,7 +9,6 @@ from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.secrets.entity import secret_from_dict, secret_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
-from digitalhub_core.utils.exceptions import BackendError
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.secrets.entity import Secret
