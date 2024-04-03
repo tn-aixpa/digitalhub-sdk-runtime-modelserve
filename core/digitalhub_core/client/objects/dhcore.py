@@ -215,7 +215,7 @@ class ClientDHCore(Client):
     # Configuration methods
     ################################
 
-    def _configure(self, config: dict = None) -> None:
+    def _configure(self, config: dict | None = None) -> None:
         """
         Function to set environment variables for DHub Core config.
 
@@ -288,7 +288,7 @@ class ClientDHCore(Client):
             The authentication parameters.
         """
         # User for future entity ownership
-        self.user = os.getenv("DIGITALHUB_CORE_USER")
+        self._user = os.getenv("DIGITALHUB_CORE_USER")
 
         # Prioritize token over user/password
         token = os.getenv("DIGITALHUB_CORE_TOKEN")
@@ -298,7 +298,7 @@ class ClientDHCore(Client):
             return
 
         password = os.getenv("DIGITALHUB_CORE_PASSWORD")
-        if self.user is not None and password is not None:
+        if self._user is not None and password is not None:
             self._auth_type = "basic"
             self._password = password
             return
