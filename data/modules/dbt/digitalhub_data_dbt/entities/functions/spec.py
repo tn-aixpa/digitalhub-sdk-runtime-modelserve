@@ -8,6 +8,7 @@ from pathlib import Path
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec, SourceCodeStruct
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import decode_string, encode_string
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 
 class FunctionSpecDbt(FunctionSpec):
@@ -63,7 +64,7 @@ class FunctionSpecDbt(FunctionSpec):
             source["base64"] = encode_string(code)
             return source
 
-        if source_path is not None:
+        if (source_path is not None) and (map_uri_scheme(source_path) == "local"):
             try:
                 source["code"] = Path(source_path).read_text()
                 source["base64"] = encode_string(source["code"])
@@ -88,7 +89,7 @@ class FunctionSpecDbt(FunctionSpec):
                 return decode_string(self.source.base64)
             except Exception:
                 raise EntityError("Something got wrong during source code decoding.")
-        if self.source.source is not None:
+        if (self.source.source is not None) and (map_uri_scheme(self.source.source) == "local"):
             try:
                 return Path(self.source.source).read_text()
             except Exception:

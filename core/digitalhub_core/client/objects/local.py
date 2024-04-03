@@ -136,6 +136,7 @@ class ClientLocal(Client):
                 # we check entity_type just in case we add something else.
                 if entity_type == "projects":
                     obj = self._get_project_spec(obj, entity_id)
+                return obj
 
             # Context API
             #
@@ -147,10 +148,10 @@ class ClientLocal(Client):
 
             else:
                 for _, v in self._db[entity_type].items():
-                    obj = v[entity_id]
-                    break
-
-            return obj
+                    if entity_id in v:
+                        return v[entity_id]
+                else:
+                    raise KeyError
 
         except KeyError:
             msg = self._format_msg(3, entity_type=entity_type, entity_id=entity_id)
