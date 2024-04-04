@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 
 from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string
@@ -38,16 +39,39 @@ def get_dhcore_function(function_string: str) -> Function:
         raise RuntimeError(msg)
 
 
-def save_function_source(path: str, spec: dict) -> str:
+def save_function_source(path: Path, source_spec: dict) -> str:
+    """
+    Save function source.
+
+    Parameters
+    ----------
+    path : Path
+        Path where to save the function source.
+    source_spec : dict
+        Function source spec.
+
+    Returns
+    -------
+    path
+        Path to the function source.
+    """
+    base64 = source_spec.get("base64")
+    source = source_spec.get("source")
+    if base64 is not None:
+        return decode_base64(path, base64)
+    raise NotImplementedError
+
+
+def decode_base64(path: Path, base64: str) -> str:
     """
     Save function source.
 
     Parameters
     ----------
     path : str
-        Path to the function source.
-    function : dict
-        DHCore function spec.
+        Path where to save the function source.
+    base64 : str
+        Function source base64.
 
     Returns
     -------
@@ -58,7 +82,7 @@ def save_function_source(path: str, spec: dict) -> str:
         path.mkdir(parents=True, exist_ok=True)
         filename = build_uuid().replace("-", "_") + ".py"
         path = path / filename
-        decoded_text = decode_string(spec.get("source", {}).get("base64"))
+        decoded_text = decode_string(base64)
         path.write_text(decoded_text)
         return str(path)
     except Exception:

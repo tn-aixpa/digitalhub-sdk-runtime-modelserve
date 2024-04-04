@@ -44,7 +44,33 @@ def materialize_dataitem(dataitem: Dataitem, name: str) -> str:
         raise EntityError(msg)
 
 
-def decode_sql(sql: str) -> str:
+def parse_source(source: dict) -> str:
+    """
+    Parse source code.
+
+    Parameters
+    ----------
+    source : dict
+        The source code.
+
+    Returns
+    -------
+    str
+        The parsed source code.
+
+    Raises
+    ------
+    RuntimeError
+        If source code is not a valid string.
+    """
+    base64 = source.get("base64")
+    if base64 is not None:
+        return decode_sql(base64)
+    else:
+        NotImplementedError
+
+
+def decode_sql(base64: str) -> str:
     """
     Decode sql code.
 
@@ -64,7 +90,7 @@ def decode_sql(sql: str) -> str:
         If sql code is not a valid string.
     """
     try:
-        return decode_string(sql)
+        return decode_string(base64)
     except Exception:
         msg = "Sql code must be a valid string."
         LOGGER.exception(msg)

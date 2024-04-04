@@ -218,7 +218,7 @@ class ClientLocal(Client):
             # DELETE /api/v1/projects/<entity_id>
 
             if not context_api:
-                obj = self._db[entity_type].pop(entity_id)
+                self._db[entity_type].pop(entity_id)
 
             # Context API
             #
