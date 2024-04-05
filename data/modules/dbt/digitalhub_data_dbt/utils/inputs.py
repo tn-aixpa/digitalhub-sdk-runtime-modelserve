@@ -3,7 +3,6 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import decode_string
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data_dbt.utils.env import POSTGRES_DATABASE, POSTGRES_SCHEMA
 
@@ -42,87 +41,3 @@ def materialize_dataitem(dataitem: Dataitem, name: str) -> str:
         msg = f"Something got wrong during dataitem {name} materialization."
         LOGGER.exception(msg)
         raise EntityError(msg)
-
-
-def parse_source(source: dict) -> str:
-    """
-    Parse source code.
-
-    Parameters
-    ----------
-    source : dict
-        The source code.
-
-    Returns
-    -------
-    str
-        The parsed source code.
-
-    Raises
-    ------
-    RuntimeError
-        If source code is not a valid string.
-    """
-    base64 = source.get("base64")
-    if base64 is not None:
-        return decode_sql(base64)
-    else:
-        NotImplementedError
-
-
-def decode_sql(base64: str) -> str:
-    """
-    Decode sql code.
-
-    Parameters
-    ----------
-    sql : str
-        The sql code.
-
-    Returns
-    -------
-    str
-        The decoded sql code.
-
-    Raises
-    ------
-    RuntimeError
-        If sql code is not a valid string.
-    """
-    try:
-        return decode_string(base64)
-    except Exception:
-        msg = "Sql code must be a valid string."
-        LOGGER.exception(msg)
-        raise RuntimeError(msg)
-
-
-def get_output_table_name(outputs: list[dict]) -> str:
-    """
-    Get output table name from run spec.
-
-    Parameters
-    ----------
-    outputs : list
-        The outputs.
-
-    Returns
-    -------
-    str
-        The output dataitem/table name.
-
-    Raises
-    ------
-    RuntimeError
-        If outputs are not a list of one dataitem.
-    """
-    try:
-        return outputs[0]["output_table"]
-    except IndexError:
-        msg = "Outputs must be a list of one dataitem."
-        LOGGER.exception(msg)
-        raise RuntimeError(msg)
-    except KeyError:
-        msg = "Must pass reference to 'output_table'."
-        LOGGER.exception(msg)
-        raise RuntimeError(msg)

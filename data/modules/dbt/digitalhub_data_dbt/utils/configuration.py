@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+from zipfile import ZipFile
 
+import requests
+from digitalhub_core.utils.generic_utils import decode_string
+from digitalhub_core.utils.logger import LOGGER
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data_dbt.utils.env import (
     POSTGRES_DATABASE,
     POSTGRES_HOST,
@@ -10,6 +15,7 @@ from digitalhub_data_dbt.utils.env import (
     POSTGRES_SCHEMA,
     POSTGRES_USER,
 )
+from git import Repo
 
 ####################
 # Templates
@@ -131,3 +137,160 @@ def generate_inputs_conf(model_dir: Path, name: str, uuid: str) -> None:
     # write also sql select for the schema
     sql_path = model_dir / f"{name}_v{uuid}.sql"
     sql_path.write_text(f'SELECT * FROM "{name}_v{uuid}"')
+
+
+def get_output_table_name(outputs: list[dict]) -> str:
+    """
+    Get output table name from run spec.
+
+    Parameters
+    ----------
+    outputs : list
+        The outputs.
+
+    Returns
+    -------
+    str
+        The output dataitem/table name.
+
+    Raises
+    ------
+    RuntimeError
+        If outputs are not a list of one dataitem.
+    """
+    try:
+        return outputs[0]["output_table"]
+    except IndexError:
+        msg = "Outputs must be a list of one dataitem."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+    except KeyError:
+        msg = "Must pass reference to 'output_table'."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def save_function_source(path: Path, source_spec: dict) -> str:
+    """
+    Save function source.
+
+    Parameters
+    ----------
+    path : Path
+        Path where to save the function source.
+    source_spec : dict
+        Function source spec.
+
+    Returns
+    -------
+    path
+        Path to the function source.
+    """
+    # Prepare path
+    path.mkdir(parents=True, exist_ok=True)
+
+    # First check if source is base64
+    base64 = source_spec.get("base64")
+    if base64 is not None:
+        return decode_base64(base64)
+
+    # Second check if source is path
+    source = source_spec.get("source")
+    if source is not None:
+        scheme = map_uri_scheme(source)
+
+        # Local paths are not supported
+        if scheme == "local":
+            raise RuntimeError("Local files are not supported at Runtime execution.")
+
+        # Http(s) and remote paths (s3 presigned urls)
+        if scheme == "remote":
+            return get_remote_source(path, source)
+
+        # Git repos
+        if scheme == "git":
+            return get_repository(path, source)
+
+    raise RuntimeError("Function source not found.")
+
+
+def get_remote_source(path: Path, source: str) -> str:
+    """
+    Get remote source.
+
+    Parameters
+    ----------
+    source : str
+        Source.
+
+    Returns
+    -------
+    str
+        Source.
+    """
+    try:
+        filename = path / "archive.zip"
+        with requests.get(source, stream=True) as r:
+            r.raise_for_status()
+            with filename.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        with ZipFile(filename, "r") as zip_file:
+            zip_file.extractall(path)
+        return str(path)
+    except Exception:
+        msg = "Source must be a valid zipfile."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def get_repository(path: Path, source: str) -> str:
+    """
+    Get repository.
+
+    Parameters
+    ----------
+    source : str
+        Source.
+
+    Returns
+    -------
+    str
+        Repository.
+    """
+    try:
+        source = source.replace("git://", "https://")
+        path = path / "repository"
+        Repo.clone_from(source, path)
+        return str(path)
+    except Exception:
+        msg = "Source must be a valid url."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def decode_base64(base64: str) -> str:
+    """
+    Decode sql code.
+
+    Parameters
+    ----------
+    sql : str
+        The sql code.
+
+    Returns
+    -------
+    str
+        The decoded sql code.
+
+    Raises
+    ------
+    RuntimeError
+        If sql code is not a valid string.
+    """
+    try:
+        return decode_string(base64)
+    except Exception:
+        msg = "Sql code must be a valid string."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
