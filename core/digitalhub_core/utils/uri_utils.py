@@ -34,4 +34,6 @@ def map_uri_scheme(uri: str) -> str:
         return "s3"
     if scheme in ["sql", "postgresql"]:
         return "sql"
+    if scheme in ["git"]:
+        return "git"
     raise ValueError(f"Unknown scheme '{scheme}'!")

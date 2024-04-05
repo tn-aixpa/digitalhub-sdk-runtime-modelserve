@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
+from zipfile import ZipFile
 
+import requests
 from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.utils.generic_utils import build_uuid, decode_string
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_core.utils.uri_utils import map_uri_scheme
+from git import Repo
 from mlrun import get_or_create_project
 
 if typing.TYPE_CHECKING:
@@ -55,11 +59,32 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     path
         Path to the function source.
     """
+    # Prepare path
+    path.mkdir(parents=True, exist_ok=True)
+
+    # First check if source is base64
     base64 = source_spec.get("base64")
-    source = source_spec.get("source")
     if base64 is not None:
         return decode_base64(path, base64)
-    raise NotImplementedError
+
+    # Second check if source is path
+    source = source_spec.get("source")
+    if source is not None:
+        scheme = map_uri_scheme(source)
+
+        # Local paths are not supported
+        if scheme == "local":
+            raise RuntimeError("Local files are not supported at Runtime execution.")
+
+        # Http(s) and remote paths (s3 presigned urls)
+        if scheme == "remote":
+            return get_remote_source(path, source)
+
+        # Git repos
+        if scheme == "git":
+            return get_repository(path, source)
+
+    raise RuntimeError("Function source not found.")
 
 
 def decode_base64(path: Path, base64: str) -> str:
@@ -79,7 +104,6 @@ def decode_base64(path: Path, base64: str) -> str:
         Path to the function source.
     """
     try:
-        path.mkdir(parents=True, exist_ok=True)
         filename = build_uuid().replace("-", "_") + ".py"
         path = path / filename
         decoded_text = decode_string(base64)
@@ -87,6 +111,61 @@ def decode_base64(path: Path, base64: str) -> str:
         return str(path)
     except Exception:
         msg = "Error saving function source."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def get_remote_source(path: Path, source: str) -> str:
+    """
+    Get remote source.
+
+    Parameters
+    ----------
+    source : str
+        Source.
+
+    Returns
+    -------
+    str
+        Source.
+    """
+    try:
+        filename = path / "archive.zip"
+        with requests.get(source, stream=True) as r:
+            r.raise_for_status()
+            with filename.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        with ZipFile(filename, "r") as zip_file:
+            zip_file.extractall(path)
+        return str(path)
+    except Exception:
+        msg = "Source must be a valid zipfile."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def get_repository(path: Path, source: str) -> str:
+    """
+    Get repository.
+
+    Parameters
+    ----------
+    source : str
+        Source.
+
+    Returns
+    -------
+    str
+        Repository.
+    """
+    try:
+        source = source.replace("git://", "https://")
+        path = path / "repository"
+        Repo.clone_from(source, path)
+        return str(path)
+    except Exception:
+        msg = "Source must be a valid url."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 

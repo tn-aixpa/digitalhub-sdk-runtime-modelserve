@@ -17,9 +17,11 @@ from digitalhub_data_dbt.utils.configuration import (
     generate_dbt_project_yml,
     generate_inputs_conf,
     generate_outputs_conf,
+    get_output_table_name,
+    save_function_source,
 )
 from digitalhub_data_dbt.utils.functions import transform
-from digitalhub_data_dbt.utils.inputs import get_output_table_name, materialize_dataitem, parse_source
+from digitalhub_data_dbt.utils.inputs import materialize_dataitem
 from digitalhub_data_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
 if typing.TYPE_CHECKING:
@@ -189,7 +191,7 @@ class RuntimeDbt(Runtime):
             Output table name.
         """
         output_table = get_output_table_name(spec.get("outputs", []))
-        query = parse_source(spec.get("function_spec", {}).get("source", {}))
+        query = save_function_source(self.root_dir, spec.get("function_spec", {}).get("source", {}))
 
         # Create directories
         self.model_dir.mkdir(exist_ok=True, parents=True)
