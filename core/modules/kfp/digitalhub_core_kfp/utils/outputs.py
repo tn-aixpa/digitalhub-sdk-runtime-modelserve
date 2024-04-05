@@ -127,16 +127,24 @@ def _node_to_graph(id: str, run_detail: ApiRunDetail, node, templates, client: C
         res["end_time"] = node["finishedAt"]
     if "exit_code" in node:
         res["exit_code"] = node["exit_code"]
-    if "inputs" in node:
-        res["inputs"] = _process_params(node["inputs"])
-    if "outputs" in node:
-        res["outputs"] = _process_params(node["outputs"])
+    try:
+        if "inputs" in node:
+            res["inputs"] = _process_params(node["inputs"])
+        if "outputs" in node:
+            res["outputs"] = _process_params(node["outputs"])
+    except Exception:
+        LOGGER.warning("Could not process values: %s", e)
+        pass
 
     for template in templates:
         if "container" in template and template["name"] == node["displayName"]:
             labels = template["metadata"]["labels"] if "labels" in template["metadata"] else {}
             if label_prefix + "function" in labels:
                 res["function"] = labels[label_prefix + "function"]
+            if label_prefix + "function_id" in labels:
+                res["function_id"] = labels[label_prefix + "function_id"]
+            if label_prefix + "function_key" in labels:
+                res["function_key"] = labels[label_prefix + "function_key"]
             if label_prefix + "action" in labels:
                 res["action"] = labels[label_prefix + "action"]
 
@@ -156,7 +164,7 @@ def _process_params(params):
     result = []
     if "parameters" in params:
         for param in params["parameters"]:
-            result.append({"name": param["name"], "value": param["value"]})
+            result.append({"name": param["name"], "value": param["value"] if "value" in param else ""})
     return result
 
 
