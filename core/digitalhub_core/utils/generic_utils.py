@@ -6,12 +6,13 @@ from __future__ import annotations
 import base64
 import os
 from datetime import datetime
-from hashlib import sha1
-from mimetypes import guess_type
 from pathlib import Path
 from uuid import uuid4
+from zipfile import ZipFile
 
+import requests
 from digitalhub_core.utils.io_utils import read_text
+from git import Repo
 
 
 def build_uuid(uuid: str | None = None) -> str:
@@ -162,71 +163,60 @@ def parse_entity_key(key: str) -> tuple[str]:
         raise ValueError("Invalid key format.") from e
 
 
-def calculate_blob_hash(data_path: str) -> str:
+def clone_repository(path: Path, source: str) -> None:
     """
-    Calculate the hash of a file.
+    Clone repository.
 
     Parameters
     ----------
-    data_path : str
-        Path to the file.
+    path : Path
+        Path where to save the repository.
+    source : str
+        HTTP(S) URL of the repository.
 
     Returns
     -------
-    str
-        The hash of the file.
+    None
     """
-    with open(data_path, "rb") as f:
-        data = f.read()
-        return f"sha1_{sha1(data).hexdigest()}"
+    Repo.clone_from(source, path)
 
 
-def get_file_size(data_path: str) -> int:
+def requests_chunk_download(source: str, filename: Path) -> None:
     """
-    Get the size of a file.
+    Download a file in chunks.
 
     Parameters
     ----------
-    data_path : str
-        Path to the file.
+    source : str
+        URL to download the file.
+    filename : Path
+        Path where to save the file.
 
     Returns
     -------
-    int
-        The size of the file.
+    None
     """
-    return Path(data_path).stat().st_size
+    with requests.get(source, stream=True) as r:
+        r.raise_for_status()
+        with filename.open("wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
 
 
-def get_file_mime_type(data_path: str) -> str:
+def extract_archive(path: Path, filename: Path) -> None:
     """
-    Get the mime type of a file.
+    Extract an archive.
 
     Parameters
     ----------
-    data_path : str
-        Path to the file.
+    path : Path
+        Path where to extract the archive.
+    filename : Path
+        Path to the archive.
 
     Returns
     -------
-    str
-        The mime type of the file.
+    None
     """
-    return guess_type(data_path)[0]
-
-
-def get_file_extension(data_path: str) -> str:
-    """
-    Get the extension of a file.
-
-    Parameters
-    ----------
-    data_path : str
-        Path to the file.
-
-    Returns
-    -------
-    str
-        The extension of the file.
-    """
-    return Path(data_path).suffix[1:]
+    with ZipFile(filename, "r") as zip_file:
+        zip_file.extractall(path)

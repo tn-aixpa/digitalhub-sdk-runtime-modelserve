@@ -6,12 +6,7 @@ from pathlib import Path
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import (
-    calculate_blob_hash,
-    get_file_extension,
-    get_file_mime_type,
-    get_file_size,
-)
+from digitalhub_core.utils.file_utils import calculate_blob_hash, get_file_extension, get_file_mime_type, get_file_size
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data_nefertem.utils.env import S3_BUCKET
 
