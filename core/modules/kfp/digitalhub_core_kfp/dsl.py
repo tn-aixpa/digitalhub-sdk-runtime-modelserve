@@ -129,7 +129,7 @@ class PipelineContext:
         outputs = [] if outputs is None else outputs
         values = [] if values is None else values
 
-        function_object = dhcore.get_function(function)
+        function_object = dhcore.get_function(self._project.name, entity_name=function)
         if function_object is None:
             raise RuntimeError(f"Function {function} not found")
 
@@ -194,7 +194,6 @@ class PipelineContext:
         )
         cop.add_pod_label(label_prefix + "project", self._project.name)
         cop.add_pod_label(label_prefix + "function", function)
-        cop.add_pod_label(label_prefix + "function_key", function_object.key)
         cop.add_pod_label(label_prefix + "function_id", function_object.id)
         cop.add_pod_label(label_prefix + "action", action)
 

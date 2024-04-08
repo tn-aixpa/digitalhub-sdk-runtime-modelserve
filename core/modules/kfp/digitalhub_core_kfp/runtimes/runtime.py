@@ -12,7 +12,7 @@ from digitalhub_core_kfp.utils.configurations import (
     parse_function_specs,
     save_function_source,
 )
-from digitalhub_core_kfp.utils.functions import run_kfp_pipeline
+from digitalhub_core_kfp.utils.functions import run_kfp_pipeline, build_kfp_pipeline
 from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
 
 
@@ -53,11 +53,17 @@ class RuntimeKFP(Runtime):
             The run spec.
         """
         task_kind = task.get("kind").split("+")[1]
-        return {
+        res = {
             "function_spec": function.get("spec", {}),
             f"{task_kind}_spec": task.get("spec", {}),
             **run.get("spec", {}),
         }
+
+        if task_kind == "pipeline":
+            kfp_function = self._configure_execution(res, task_kind, run.get("project"))
+            pipeline_spec = build_kfp_pipeline(run, kfp_function)
+            res[f"{task_kind}_spec"]["workflow"] = pipeline_spec 
+        return res
 
     def run(self, run: dict) -> dict:
         """
@@ -74,16 +80,12 @@ class RuntimeKFP(Runtime):
 
         LOGGER.info("Starting task.")
         spec = run.get("spec")
-        project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
         function_args = self._collect_inputs(spec, self.root_path)
 
-        LOGGER.info("Configure execution.")
-        kfp_function = self._configure_execution(spec, action, project)
-
         LOGGER.info("Executing function.")
-        results = self._execute(executable, kfp_function, function_args)
+        results = self._execute(executable, None, function_args)
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results, spec)

@@ -92,7 +92,6 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
             "labels": manifest["metadata"]["labels"],
             "annotations": manifest["metadata"]["annotations"],
         }
-        result["spec"] = manifest["spec"]
         nodes = manifest["status"]["nodes"] or {}
         graph_nodes = []
         for id, node in nodes.items():
@@ -143,8 +142,6 @@ def _node_to_graph(id: str, run_detail: ApiRunDetail, node, templates, client: C
                 res["function"] = labels[label_prefix + "function"]
             if label_prefix + "function_id" in labels:
                 res["function_id"] = labels[label_prefix + "function_id"]
-            if label_prefix + "function_key" in labels:
-                res["function_key"] = labels[label_prefix + "function_key"]
             if label_prefix + "action" in labels:
                 res["action"] = labels[label_prefix + "action"]
 
