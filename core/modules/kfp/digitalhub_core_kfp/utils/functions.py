@@ -67,9 +67,9 @@ def run_kfp_pipeline(run: dict) -> any:
         if workflow is None:
             dhcore_run = dhcore.get_run(run.get("project"), run.get("id"))
             workflow = build_kfp_pipeline(run, pipeline)
-            spec = dhcore_run.to_dict()
-            spec["spec"]["pipeline_spec"]["workflow"] = workflow
-            dhcore_run.spec = Run.from_dict(spec, validate=False)
+            run_dict = dhcore_run.to_dict()
+            run_dict["spec"]["pipeline_spec"]["workflow"] = workflow
+            dhcore_run.spec = Run.from_dict(run_dict, validate=False).spec
             # update spec
             dhcore_run.save(update=True)
 
