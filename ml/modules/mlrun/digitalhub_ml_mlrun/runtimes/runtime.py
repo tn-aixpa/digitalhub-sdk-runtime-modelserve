@@ -40,6 +40,7 @@ class RuntimeMlrun(Runtime):
         super().__init__()
 
         self.root_path = Path("/tmp/mlrun_run")
+        self.tmp_path = self.root_path / "temp"
         self.function_source = None
 
         self.root_path.mkdir(parents=True, exist_ok=True)
@@ -172,7 +173,7 @@ class RuntimeMlrun(Runtime):
         # Setup function source and specs
         LOGGER.info("Getting function source and specs.")
         dhcore_function = get_dhcore_function(spec.get(f"{action}_spec", {}).get("function"))
-        function_source = save_function_source(self.root_path, dhcore_function.spec.to_dict().get("source"))
+        function_source = save_function_source(self.tmp_path, dhcore_function.spec.to_dict().get("source"))
         function_specs = parse_function_specs(dhcore_function.spec.to_dict())
 
         # Create Mlrun project

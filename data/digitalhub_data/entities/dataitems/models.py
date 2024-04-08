@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from enum import Enum
@@ -10,6 +9,7 @@ class FieldType(str, Enum):
     """
     Field type enum.
     """
+
     STRING = "string"
     NUMBER = "number"
     INTEGER = "integer"
@@ -25,6 +25,7 @@ class FieldType(str, Enum):
     GEOPOINT = "geopoint"
     GEOJSON = "geojson"
     ANY = "any"
+
 
 class TableSchemaFieldEntry(BaseModel):
     """
@@ -48,6 +49,9 @@ class TableSchemaFieldEntry(BaseModel):
 
     description: str = None
     """Field description."""
+
+    class Config:
+        use_enum_values = True
 
 
 class TableSchema(BaseModel):

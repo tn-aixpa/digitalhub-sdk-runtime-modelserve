@@ -69,22 +69,24 @@ def save_function_source(path: Path, source_spec: dict) -> str:
 
     # Second check if source is path
     source = source_spec.get("source")
-    if source is not None:
-        scheme = map_uri_scheme(source)
+    handler = source_spec.get("handler")
 
-        # Local paths are not supported
-        if scheme == "local":
-            raise RuntimeError("Local files are not supported at Runtime execution.")
+    if source is None or handler is None:
+        raise RuntimeError("Function source or handler is not defined.")
 
-        # Http(s) and remote paths (s3 presigned urls)
-        if scheme == "remote":
-            return get_remote_source(path, source)
+    scheme = map_uri_scheme(source)
 
-        # Git repos
-        if scheme == "git":
-            return get_repository(path, source)
+    # Local paths are not supported
+    if scheme == "local":
+        raise RuntimeError("Local files are not supported at Runtime execution.")
 
-    raise RuntimeError("Function source not found.")
+    # Http(s) and remote paths (s3 presigned urls)
+    if scheme == "remote":
+        return get_remote_source(path, source, handler)
+
+    # Git repos
+    if scheme == "git":
+        return get_repository(path, source, handler)
 
 
 def decode_base64(path: Path, base64: str) -> str:
@@ -115,55 +117,70 @@ def decode_base64(path: Path, base64: str) -> str:
         raise RuntimeError(msg)
 
 
-def get_remote_source(path: Path, source: str) -> str:
+def get_remote_source(path: Path, source: str, handler: str) -> str:
     """
     Get remote source.
 
     Parameters
     ----------
+    path : Path
+        Path where to save the function source.
     source : str
         Source.
+    handler : str
+        Function entrypoint.
 
     Returns
     -------
     str
-        Source.
+        Path to the function source.
     """
     try:
+        # Download archive and save as zip
         filename = path / "archive.zip"
         with requests.get(source, stream=True) as r:
             r.raise_for_status()
             with filename.open("wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
+
+        # Extract archive
         with ZipFile(filename, "r") as zip_file:
             zip_file.extractall(path)
-        return str(path)
+
+        # Return handler
+        return str(path / handler)
+
     except Exception:
         msg = "Source must be a valid zipfile."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def get_repository(path: Path, source: str) -> str:
+def get_repository(path: Path, source: str, handler: str) -> str:
     """
     Get repository.
 
     Parameters
     ----------
+    path : Path
+        Path where to save the function source.
     source : str
         Source.
+    handler : str
+        Function entrypoint.
 
     Returns
     -------
     str
-        Repository.
+        Path to the function source.
     """
     try:
         source = source.replace("git://", "https://")
         path = path / "repository"
         Repo.clone_from(source, path)
-        return str(path)
+        return str(path / handler)
+
     except Exception:
         msg = "Source must be a valid url."
         LOGGER.exception(msg)

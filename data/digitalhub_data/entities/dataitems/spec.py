@@ -4,8 +4,8 @@ Dataitem specification module.
 from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
-from pydantic import Field
 from digitalhub_data.entities.dataitems.models import TableSchema
+from pydantic import Field
 
 
 class DataitemSpec(Spec):
