@@ -84,8 +84,12 @@ class RuntimeKFP(Runtime):
         LOGGER.info("Collecting inputs.")
         function_args = self._collect_inputs(spec, self.root_path)
 
+        project = run.get("project")
+        LOGGER.info("Configure execution.")
+        kfp_function = self._configure_execution(spec, action, project)
+
         LOGGER.info("Executing function.")
-        results = self._execute(executable, None, function_args)
+        results = self._execute(executable, kfp_function, function_args)
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results, spec)

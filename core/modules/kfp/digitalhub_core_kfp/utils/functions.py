@@ -13,6 +13,7 @@ from digitalhub_core_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_core_kfp.utils.outputs import build_status
 
 from digitalhub_core.utils.io_utils import read_yaml, write_yaml
+from digitalhub_core.entities.runs.entity import Run
 
 import digitalhub as dhcore
 
@@ -62,6 +63,17 @@ def run_kfp_pipeline(run: dict) -> any:
         client = kfp.Client(host=os.environ.get("KFP_ENDPOINT"))
         # workaround to pass the project implicitly
         workflow = run.get("spec", {}).get("pipeline_spec", {}).get("workflow", None)
+        # workflow was not built locally, need to replicate the build
+        if workflow is None:
+            dhcore_run = dhcore.get_run(run.get("project"), run.get("id"))
+            workflow = build_kfp_pipeline(run, pipeline)
+            spec = dhcore_run.to_dict()
+            spec["spec"]["pipeline_spec"]["workflow"] = workflow
+            dhcore_run.spec = Run.from_dict(spec, validate=False)
+            # update spec
+            dhcore_run.save(update=True)
+
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline_package_path = os.path.join(tmpdir, 'pipeline.yaml')
             write_yaml(pipeline_package_path, workflow)
