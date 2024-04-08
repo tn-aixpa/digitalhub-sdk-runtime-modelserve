@@ -186,6 +186,8 @@ class Run(Entity):
         except Exception as err:
             status = {"state": State.ERROR.value, "message": str(err)}
 
+        # need to consider eventual run execution side effects, and update status only
+        self.refresh()
         self._set_status(status)
         self.save(update=True)
         return self
