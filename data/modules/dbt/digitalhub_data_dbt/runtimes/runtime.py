@@ -45,6 +45,7 @@ class RuntimeDbt(Runtime):
         # Paths
         self.root_dir = Path("/tmp/dbt_run")
         self.model_dir = self.root_dir / "models"
+        self.temp_dir = self.root_dir / "temp"
 
         # UUID for output dataitem and dbt execution
         self.uuid = build_uuid()
@@ -191,7 +192,7 @@ class RuntimeDbt(Runtime):
             Output table name.
         """
         output_table = get_output_table_name(spec.get("outputs", []))
-        query = save_function_source(self.root_dir, spec.get("function_spec", {}).get("source", {}))
+        query = save_function_source(self.temp_dir, spec.get("function_spec", {}).get("source", {}))
 
         # Create directories
         self.model_dir.mkdir(exist_ok=True, parents=True)
@@ -248,4 +249,4 @@ class RuntimeDbt(Runtime):
         -------
         None
         """
-        cleanup(self._versioned_tables)
+        cleanup(self._versioned_tables, self.temp_dir)

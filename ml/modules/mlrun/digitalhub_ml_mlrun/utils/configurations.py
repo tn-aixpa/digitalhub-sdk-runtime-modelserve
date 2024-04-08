@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
-from zipfile import ZipFile
 
-import requests
 from digitalhub_core.entities.functions.crud import get_function
-from digitalhub_core.utils.generic_utils import build_uuid, decode_string
+from digitalhub_core.utils.generic_utils import (
+    build_uuid,
+    clone_repository,
+    decode_string,
+    extract_archive,
+    requests_chunk_download,
+)
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_core.utils.uri_utils import map_uri_scheme
-from git import Repo
 from mlrun import get_or_create_project
 
 if typing.TYPE_CHECKING:
@@ -62,29 +65,115 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     # Prepare path
     path.mkdir(parents=True, exist_ok=True)
 
-    # First check if source is base64
+    # Get relevant information
     base64 = source_spec.get("base64")
+    source = source_spec.get("source")
+    handler = source_spec.get("handler")
+
+    # First check if source is base64
     if base64 is not None:
-        return decode_base64(path, base64)
+        filename = build_uuid().replace("-", "_") + ".py"
+        path = path / filename
+        decode_base64(path, base64)
+        return str(path)
 
     # Second check if source is path
-    source = source_spec.get("source")
-    if source is not None:
-        scheme = map_uri_scheme(source)
+    if not (source is not None and handler is not None):
+        raise RuntimeError("Function source and handler must be defined.")
 
-        # Local paths are not supported
-        if scheme == "local":
-            raise RuntimeError("Local files are not supported at Runtime execution.")
+    scheme = map_uri_scheme(source)
 
-        # Http(s) and remote paths (s3 presigned urls)
-        if scheme == "remote":
-            return get_remote_source(path, source)
+    # Local paths are not supported
+    if scheme == "local":
+        raise RuntimeError("Local files are not supported at Runtime execution.")
 
-        # Git repos
-        if scheme == "git":
-            return get_repository(path, source)
+    # Http(s) and remote paths (s3 presigned urls)
+    if scheme == "remote":
+        filename = path / "archive.zip"
+        get_remote_source(source, filename)
+        extract_archive(path, filename)
+        return str(path / handler)
 
-    raise RuntimeError("Function source not found.")
+    # Git repo
+    if scheme == "git":
+        source = source.replace("git://", "https://")
+        path = path / "repository"
+        get_repository(path, source)
+        return str(path / handler)
+
+    # Unsupported scheme
+    raise RuntimeError(f"Unsupported scheme: {scheme}")
+
+
+def get_remote_source(source: str, filename: Path) -> None:
+    """
+    Get remote source.
+
+    Parameters
+    ----------
+    source : str
+        HTTP(S) or S3 presigned URL.
+    filename : Path
+        Path where to save the function source.
+
+    Returns
+    -------
+    str
+        Function code.
+    """
+    try:
+        requests_chunk_download(source, filename)
+    except Exception:
+        msg = "Some error occurred while downloading function source."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def extract_archive(path: Path, filename: Path) -> None:
+    """
+    Extract an archive.
+
+    Parameters
+    ----------
+    path : Path
+        Path where to extract the archive.
+    filename : Path
+        Path to the archive.
+
+    Returns
+    -------
+    None
+    """
+
+    try:
+        extract_archive(path, filename)
+    except Exception:
+        msg = "Source must be a valid zipfile."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def get_repository(path: Path, source: str) -> str:
+    """
+    Get repository.
+
+    Parameters
+    ----------
+    path : Path
+        Path where to save the function source.
+    source : str
+        Git repository URL in format git://<url>.
+
+    Returns
+    -------
+    None
+    """
+    try:
+        clone_repository(path, source)
+    except Exception:
+        msg = "Some error occurred while downloading function repo source."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
 
 
 def decode_base64(path: Path, base64: str) -> str:
@@ -104,68 +193,9 @@ def decode_base64(path: Path, base64: str) -> str:
         Path to the function source.
     """
     try:
-        filename = build_uuid().replace("-", "_") + ".py"
-        path = path / filename
-        decoded_text = decode_string(base64)
-        path.write_text(decoded_text)
-        return str(path)
+        path.write_text(decode_string(base64))
     except Exception:
-        msg = "Error saving function source."
-        LOGGER.exception(msg)
-        raise RuntimeError(msg)
-
-
-def get_remote_source(path: Path, source: str) -> str:
-    """
-    Get remote source.
-
-    Parameters
-    ----------
-    source : str
-        Source.
-
-    Returns
-    -------
-    str
-        Source.
-    """
-    try:
-        filename = path / "archive.zip"
-        with requests.get(source, stream=True) as r:
-            r.raise_for_status()
-            with filename.open("wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-        with ZipFile(filename, "r") as zip_file:
-            zip_file.extractall(path)
-        return str(path)
-    except Exception:
-        msg = "Source must be a valid zipfile."
-        LOGGER.exception(msg)
-        raise RuntimeError(msg)
-
-
-def get_repository(path: Path, source: str) -> str:
-    """
-    Get repository.
-
-    Parameters
-    ----------
-    source : str
-        Source.
-
-    Returns
-    -------
-    str
-        Repository.
-    """
-    try:
-        source = source.replace("git://", "https://")
-        path = path / "repository"
-        Repo.clone_from(source, path)
-        return str(path)
-    except Exception:
-        msg = "Source must be a valid url."
+        msg = "Some error occurred while decoding function source."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 

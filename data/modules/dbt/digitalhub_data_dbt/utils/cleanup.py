@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import shutil
+from pathlib import Path
+
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data_dbt.utils.env import get_connection
 from psycopg2 import sql
 
 
-def cleanup(tables: list[str]) -> None:
+def cleanup(tables: list[str], tmp_dir: Path) -> None:
     """
     Cleanup environment.
 
@@ -33,3 +36,6 @@ def cleanup(tables: list[str]) -> None:
     finally:
         LOGGER.info("Closing connection to postgres.")
         connection.close()
+
+    LOGGER.info("Removing temporary directory.")
+    shutil.rmtree(tmp_dir, ignore_errors=True)

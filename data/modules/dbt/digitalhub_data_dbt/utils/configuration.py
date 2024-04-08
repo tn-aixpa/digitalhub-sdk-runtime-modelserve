@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from zipfile import ZipFile
 
-import requests
-from digitalhub_core.utils.generic_utils import decode_string
+from digitalhub_core.utils.generic_utils import (
+    clone_repository,
+    decode_string,
+    extract_archive,
+    requests_chunk_download,
+)
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data_dbt.utils.env import (
@@ -15,7 +18,6 @@ from digitalhub_data_dbt.utils.env import (
     POSTGRES_SCHEMA,
     POSTGRES_USER,
 )
-from git import Repo
 
 ####################
 # Templates
@@ -184,60 +186,90 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     Returns
     -------
     path
-        Path to the function source.
+        Function code.
     """
     # Prepare path
     path.mkdir(parents=True, exist_ok=True)
 
-    # First check if source is base64
+    # Get relevant information
     base64 = source_spec.get("base64")
+    source = source_spec.get("source")
+    handler = source_spec.get("handler")
+
+    # First check if source is base64
     if base64 is not None:
         return decode_base64(base64)
 
     # Second check if source is path
-    source = source_spec.get("source")
-    if source is not None:
-        scheme = map_uri_scheme(source)
+    if not (source is not None and handler is not None):
+        raise RuntimeError("Function source and handler must be defined.")
 
-        # Local paths are not supported
-        if scheme == "local":
-            raise RuntimeError("Local files are not supported at Runtime execution.")
+    scheme = map_uri_scheme(source)
 
-        # Http(s) and remote paths (s3 presigned urls)
-        if scheme == "remote":
-            return get_remote_source(path, source)
+    # Local paths are not supported
+    if scheme == "local":
+        raise RuntimeError("Local files are not supported at Runtime execution.")
 
-        # Git repos
-        if scheme == "git":
-            return get_repository(path, source)
+    # Http(s) and remote paths (s3 presigned urls)
+    if scheme == "remote":
+        filename = path / "archive.zip"
+        get_remote_source(source, filename)
+        extract_archive(path, filename)
+        return (path / handler).read_text()
 
-    raise RuntimeError("Function source not found.")
+    # Git repo
+    if scheme == "git":
+        source = source.replace("git://", "https://")
+        path = path / "repository"
+        get_repository(path, source)
+        return (path / handler).read_text()
+
+    # Unsupported scheme
+    raise RuntimeError(f"Unsupported scheme: {scheme}")
 
 
-def get_remote_source(path: Path, source: str) -> str:
+def get_remote_source(source: str, filename: Path) -> None:
     """
     Get remote source.
 
     Parameters
     ----------
     source : str
-        Source.
+        HTTP(S) or S3 presigned URL.
+    filename : Path
+        Path where to save the function source.
 
     Returns
     -------
     str
-        Source.
+        Function code.
     """
     try:
-        filename = path / "archive.zip"
-        with requests.get(source, stream=True) as r:
-            r.raise_for_status()
-            with filename.open("wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-        with ZipFile(filename, "r") as zip_file:
-            zip_file.extractall(path)
-        return str(path)
+        requests_chunk_download(source, filename)
+    except Exception:
+        msg = "Some error occurred while downloading function source."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def extract_archive(path: Path, filename: Path) -> None:
+    """
+    Extract an archive.
+
+    Parameters
+    ----------
+    path : Path
+        Path where to extract the archive.
+    filename : Path
+        Path to the archive.
+
+    Returns
+    -------
+    None
+    """
+
+    try:
+        extract_archive(path, filename)
     except Exception:
         msg = "Source must be a valid zipfile."
         LOGGER.exception(msg)
@@ -250,21 +282,19 @@ def get_repository(path: Path, source: str) -> str:
 
     Parameters
     ----------
+    path : Path
+        Path where to save the function source.
     source : str
-        Source.
+        Git repository URL in format git://<url>.
 
     Returns
     -------
-    str
-        Repository.
+    None
     """
     try:
-        source = source.replace("git://", "https://")
-        path = path / "repository"
-        Repo.clone_from(source, path)
-        return str(path)
+        clone_repository(path, source)
     except Exception:
-        msg = "Source must be a valid url."
+        msg = "Some error occurred while downloading function repo source."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
