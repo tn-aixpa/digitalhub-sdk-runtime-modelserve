@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
 from pydantic import Field
+from digitalhub_data.entities.dataitems.models import TableSchema
 
 
 class DataitemSpec(Spec):
@@ -45,7 +46,7 @@ class DataitemSpecTable(DataitemSpec):
     Dataitem table specifications.
     """
 
-    def __init__(self, path: str, schema: str | None = None) -> None:
+    def __init__(self, path: str, schema: dict | None = None) -> None:
         """
         Constructor.
         """
@@ -58,7 +59,7 @@ class DataitemParamsTable(DataitemParams):
     Dataitem table parameters.
     """
 
-    schema_: dict = Field(default=None, alias="schema")
+    schema_: TableSchema = Field(default=None, alias="schema")
     """The schema of the dataitem in table schema format."""
 
 
