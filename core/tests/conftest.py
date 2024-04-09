@@ -1,4 +1,5 @@
 import pytest
+from digitalhub_core.context.context import Context
 from digitalhub_core.entities.projects.crud import delete_project, get_or_create_project
 
 
@@ -19,3 +20,8 @@ def project():
         delete_project(name="test")
     except Exception:
         pass
+
+
+@pytest.fixture(scope="session")
+def context(project):
+    return Context(project)

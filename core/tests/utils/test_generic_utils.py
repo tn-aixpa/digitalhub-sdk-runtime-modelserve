@@ -42,8 +42,8 @@ def test_encode_string(string, expected):
     "key,expected",
     [
         (
-            "store://project/name:123e4567-e89b-12d3-a456-426614174000",
-            ("project", "name", "123e4567-e89b-12d3-a456-426614174000"),
+            "store://project/type/kind/name:123e4567-e89b-12d3-a456-426614174000",
+            ("project", "type", "kind", "name", "123e4567-e89b-12d3-a456-426614174000"),
         ),
         ("store://project/name", ValueError),
     ],

@@ -23,36 +23,36 @@ def test_api_ctx_create(proj, dto, expected):
 
 
 @pytest.mark.parametrize(
-    "proj,dto,name,uuid,expected",
+    "proj,dto,uuid,expected",
     [
-        ("project1", "dto1", "name1", "uuid1", "/api/v1/-/project1/dto1/name1/uuid1"),
-        ("project2", "dto2", "name2", None, "/api/v1/-/project2/dto2/name2/latest"),
+        ("project1", "dto1", "uuid1", "/api/v1/-/project1/dto1/uuid1"),
+        ("project2", "dto2", "uuid2", "/api/v1/-/project2/dto2/uuid2"),
     ],
 )
-def test_api_ctx_read(proj, dto, name, uuid, expected):
-    assert api_ctx_read(proj, dto, name, uuid) == expected
+def test_api_ctx_read(proj, dto, uuid, expected):
+    assert api_ctx_read(proj, dto, uuid) == expected
 
 
 @pytest.mark.parametrize(
-    "proj,dto,name,uuid,expected",
+    "proj,dto,uuid,expected",
     [
-        ("project1", "dto1", "name1", "uuid1", "/api/v1/-/project1/dto1/name1/uuid1"),
-        ("project2", "dto2", "name2", "uuid2", "/api/v1/-/project2/dto2/name2/uuid2"),
+        ("project1", "dto1", "uuid1", "/api/v1/-/project1/dto1/uuid1"),
+        ("project2", "dto2", "uuid2", "/api/v1/-/project2/dto2/uuid2"),
     ],
 )
-def test_api_ctx_update(proj, dto, name, uuid, expected):
-    assert api_ctx_update(proj, dto, name, uuid) == expected
+def test_api_ctx_update(proj, dto, uuid, expected):
+    assert api_ctx_update(proj, dto, uuid) == expected
 
 
 @pytest.mark.parametrize(
-    "proj,dto,name,uuid,expected",
+    "proj,dto,uuid,expected",
     [
-        ("project1", "dto1", "name1", "uuid1", "/api/v1/-/project1/dto1/name1/uuid1?cascade=true"),
-        ("project2", "dto2", "name2", None, "/api/v1/-/project2/dto2/name2?cascade=true"),
+        ("project1", "dto1", "uuid1", "/api/v1/-/project1/dto1/uuid1"),
+        ("project2", "dto2", "uuid2", "/api/v1/-/project2/dto2/uuid2"),
     ],
 )
-def test_api_ctx_delete(proj, dto, name, uuid, expected):
-    assert api_ctx_delete(proj, dto, name, uuid) == expected
+def test_api_ctx_delete(proj, dto, uuid, expected):
+    assert api_ctx_delete(proj, dto, uuid) == expected
 
 
 @pytest.mark.parametrize(
@@ -67,33 +67,33 @@ def test_api_base_create(dto, expected):
 
 
 @pytest.mark.parametrize(
-    "dto,name,expected",
+    "dto,uuid,expected",
     [
-        ("dto1", "name1", "/api/v1/dto1/name1"),
-        ("dto2", "name2", "/api/v1/dto2/name2"),
+        ("dto1", "uuid1", "/api/v1/dto1/uuid1"),
+        ("dto2", "uuid2", "/api/v1/dto2/uuid2"),
     ],
 )
-def test_api_base_read(dto, name, expected):
-    assert api_base_read(dto, name) == expected
+def test_api_base_read(dto, uuid, expected):
+    assert api_base_read(dto, uuid) == expected
 
 
 @pytest.mark.parametrize(
-    "dto,name,expected",
+    "dto,uuid,expected",
     [
-        ("dto1", "name1", "/api/v1/dto1/name1"),
-        ("dto2", "name2", "/api/v1/dto2/name2"),
+        ("dto1", "uuid1", "/api/v1/dto1/uuid1"),
+        ("dto2", "uuid2", "/api/v1/dto2/uuid2"),
     ],
 )
-def test_api_base_update(dto, name, expected):
-    assert api_base_update(dto, name) == expected
+def test_api_base_update(dto, uuid, expected):
+    assert api_base_update(dto, uuid) == expected
 
 
 @pytest.mark.parametrize(
-    "dto,name,cascade,expected",
+    "dto,uuid,expected",
     [
-        ("dto1", "name1", True, "/api/v1/dto1/name1?cascade=true"),
-        ("dto2", "name2", False, "/api/v1/dto2/name2?cascade=false"),
+        ("dto1", "uuid1", "/api/v1/dto1/uuid1"),
+        ("dto2", "uuid2", "/api/v1/dto2/uuid2"),
     ],
 )
-def test_api_base_delete(dto, name, cascade, expected):
-    assert api_base_delete(dto, name, cascade) == expected
+def test_api_base_delete(dto, uuid, expected):
+    assert api_base_delete(dto, uuid) == expected
