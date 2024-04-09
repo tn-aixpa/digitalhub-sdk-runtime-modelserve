@@ -93,7 +93,7 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     if scheme == "remote":
         filename = path / "archive.zip"
         get_remote_source(source, filename)
-        extract_archive(path, filename)
+        unzip(path, filename)
         return str(path / handler)
 
     # Git repo
@@ -108,7 +108,7 @@ def save_function_source(path: Path, source_spec: dict) -> str:
         filename = path / "archive.zip"
         bucket, key = get_bucket_and_key(source)
         get_s3_source(bucket, key, filename)
-        extract_archive(path, filename)
+        unzip(path, filename)
         return str(path / handler)
 
     # Unsupported scheme
@@ -139,7 +139,7 @@ def get_remote_source(source: str, filename: Path) -> None:
         raise RuntimeError(msg)
 
 
-def extract_archive(path: Path, filename: Path) -> None:
+def unzip(path: Path, filename: Path) -> None:
     """
     Extract an archive.
 

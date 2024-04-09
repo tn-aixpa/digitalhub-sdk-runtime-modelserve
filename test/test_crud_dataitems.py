@@ -1,11 +1,11 @@
-import dotenv
-
-dotenv.load_dotenv()
 from copy import deepcopy
 
+import dotenv
 from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 import digitalhub
+
+dotenv.load_dotenv()
 
 names = ["test1", "test2", "test3", "test4"]
 uuids = [

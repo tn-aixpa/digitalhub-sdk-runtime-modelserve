@@ -1,12 +1,11 @@
-import dotenv
-
-dotenv.load_dotenv()
-
 from copy import deepcopy
 
+import dotenv
 from digitalhub_core.entities.functions.entity import Function
 
 import digitalhub
+
+dotenv.load_dotenv()
 
 
 def add_param(kwargs) -> dict:

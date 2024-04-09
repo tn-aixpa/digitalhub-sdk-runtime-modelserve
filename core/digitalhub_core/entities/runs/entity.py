@@ -85,9 +85,9 @@ class Run(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Run:
         """
-        Save run into backend.
+        Save entity into backend.
 
         Parameters
         ----------
@@ -96,22 +96,22 @@ class Run(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Run from backend.
+        Run
+            Entity saved.
         """
         obj = self.to_dict(include_all_non_private=True)
 
         if not update:
             api = api_ctx_create(self.project, "runs")
             new_obj = self._context().create_object(api, obj)
-            self = self.from_dict(new_obj)
-            return new_obj
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "runs", self.id)
         new_obj = self._context().update_object(api, obj)
-        self = self.from_dict(new_obj)
-        return new_obj
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -267,11 +267,7 @@ class Run(Entity):
         """
         api = api_ctx_read(self.project, "runs", self.id)
         obj = self._context().read_object(api)
-        refreshed_run = self.from_dict(obj, validate=False)
-        self.kind = refreshed_run.kind
-        self.metadata = refreshed_run.metadata
-        self.spec = refreshed_run.spec
-        self.status = refreshed_run.status
+        self._update_attributes(obj)
         return self
 
     def logs(self) -> dict:
@@ -442,6 +438,7 @@ class Run(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
         }
 
 

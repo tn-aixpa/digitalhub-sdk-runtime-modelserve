@@ -78,9 +78,9 @@ class Workflow(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Workflow:
         """
-        Save workflow into backend.
+        Save entity into backend.
 
         Parameters
         ----------
@@ -89,22 +89,22 @@ class Workflow(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Workflow from backend.
+        Workflow
+            Entity saved.
         """
         obj = self.to_dict()
 
         if not update:
             api = api_ctx_create(self.project, "workflows")
             new_obj = self._context().create_object(api, obj)
-            self = self.from_dict(new_obj)
-            return new_obj
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "workflows", self.id)
         new_obj = self._context().update_object(api, obj)
-        self = self.from_dict(new_obj)
-        return new_obj
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """

@@ -21,10 +21,10 @@ class Metadata(ModelObj):
         source: str | None = None,
         labels: list[str] | None = None,
         embedded: bool = True,
-        created: str | None = str,
-        created_by: str | None = str,
-        updated: str | None = str,
-        updated_by: str | None = str,
+        created: str | None = None,
+        created_by: str | None = None,
+        updated: str | None = None,
+        updated_by: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -41,8 +41,12 @@ class Metadata(ModelObj):
             Whether the entity specifications are embedded into a project.
         created : str
             Created date.
+        created_by : str
+            Created by.
         updated : str
             Updated date.
+        updated_by : str
+            Updated by.
         """
         self.name = name
         self.source = source

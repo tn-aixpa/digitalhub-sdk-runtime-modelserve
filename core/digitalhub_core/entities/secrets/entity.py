@@ -78,9 +78,9 @@ class Secret(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Secret:
         """
-        Save secret into backend.
+        Save entity into backend.
 
         Parameters
         ----------
@@ -89,22 +89,22 @@ class Secret(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Secret from backend.
+        Secret
+            Entity saved.
         """
         obj = self.to_dict()
 
         if not update:
             api = api_ctx_create(self.project, "secrets")
             new_obj = self._context().create_object(api, obj)
-            self = self.from_dict(new_obj)
-            return new_obj
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "secrets", self.id)
         new_obj = self._context().update_object(api, obj)
-        self = self.from_dict(new_obj)
-        return new_obj
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """

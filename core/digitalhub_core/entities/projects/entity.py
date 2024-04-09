@@ -121,19 +121,19 @@ class Project(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Project:
         """
-        Save project and context into backend.
+        Save entity into backend.
 
         Parameters
         ----------
-        uuid : bool
-            Ignored, placed for compatibility with other objects.
+        update : bool
+            If True, the object will be updated.
 
         Returns
         -------
-        list
-            Mapping representation of Project from backend.
+        Project
+            Entity saved.
         """
         # Try to refresh project if local client
         if self._client.is_local():
@@ -143,11 +143,15 @@ class Project(Entity):
 
         if not update:
             api = api_base_create("projects")
-            return self._client.create_object(api, obj)
+            new_obj = self._client.create_object(api, obj)
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_base_update("projects", self.id)
-        return self._client.update_object(api, obj)
+        new_obj = self._client.update_object(api, obj)
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """

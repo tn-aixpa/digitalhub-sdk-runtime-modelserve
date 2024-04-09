@@ -1,12 +1,12 @@
-import dotenv
-
-dotenv.load_dotenv()
-
 from copy import deepcopy
 
+import dotenv
 from digitalhub_core.entities.artifacts.entity import Artifact
 
 import digitalhub
+
+dotenv.load_dotenv()
+
 
 names = ["test1", "test2", "test3", "test4"]
 uuids = [
