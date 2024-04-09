@@ -36,6 +36,7 @@ class Secret(Entity):
         metadata: SecretMetadata,
         spec: SecretSpec,
         status: SecretStatus,
+        user: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -56,6 +57,8 @@ class Secret(Entity):
             Specification of the object.
         status : SecretStatus
             Status of the object.
+        user : str
+            Owner of the object.
         """
         super().__init__()
         self.project = project
@@ -66,6 +69,7 @@ class Secret(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+        self.user = user
 
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["project", "name", "id", "key"])
@@ -214,6 +218,7 @@ class Secret(Entity):
             **obj.get("spec", {}),
         )
         status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        user = obj.get("user")
         return {
             "project": project,
             "name": name,
@@ -222,6 +227,7 @@ class Secret(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
         }
 
 

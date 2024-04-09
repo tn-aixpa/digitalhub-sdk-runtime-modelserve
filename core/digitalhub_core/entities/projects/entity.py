@@ -93,6 +93,8 @@ class Project(Entity):
             Specification of the object.
         status : ProjectStatus
             Status of the object.
+        user : str
+            Owner of the object.
         local: bool
             If True, export locally.
         """
@@ -103,6 +105,7 @@ class Project(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+        self.user = user
 
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["name", "key"])
@@ -726,6 +729,7 @@ class Project(Entity):
             **obj.get("spec", {}),
         )
         status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        user = obj.get("user")
         local = obj.get("local", False)
         return {
             "name": name,
@@ -733,6 +737,7 @@ class Project(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
             "local": local,
         }
 

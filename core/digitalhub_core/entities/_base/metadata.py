@@ -22,7 +22,9 @@ class Metadata(ModelObj):
         labels: list[str] | None = None,
         embedded: bool = True,
         created: str | None = str,
+        created_by: str | None = str,
         updated: str | None = str,
+        updated_by: str | None = str,
     ) -> None:
         """
         Constructor.
@@ -47,7 +49,9 @@ class Metadata(ModelObj):
         self.labels = labels
         self.embedded = embedded
         self.created = created
+        self.created_by = created_by
         self.updated = updated
+        self.updated_by = updated_by
 
     @classmethod
     def from_dict(cls, obj: dict) -> "Metadata":
