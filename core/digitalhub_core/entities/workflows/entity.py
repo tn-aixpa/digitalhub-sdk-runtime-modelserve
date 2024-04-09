@@ -18,11 +18,10 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_core.entities.runs.entity import Run
     from digitalhub_core.entities.workflows.metadata import WorkflowMetadata
     from digitalhub_core.entities.workflows.spec import WorkflowSpec
     from digitalhub_core.entities.workflows.status import WorkflowStatus
-    from digitalhub_core.entities.runs.entity import Run
-    from digitalhub_core.entities.functions.entity import Function
 
 
 class Workflow(Entity):
@@ -202,11 +201,12 @@ class Workflow(Entity):
             env=env,
             secrets=secrets,
             schedule=schedule,
-            inputs=inputs, 
-            outputs=outputs, 
-            parameters=parameters, 
-            values=values, 
-            local_execution=local_execution)
+            inputs=inputs,
+            outputs=outputs,
+            parameters=parameters,
+            values=values,
+            local_execution=local_execution,
+        )
 
         return run
 

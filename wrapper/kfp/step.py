@@ -6,15 +6,15 @@ import json
 import os
 import time
 
-# default KFP artifacts and output (ui metadata, metrics etc.)
-# directories to /tmp to allow running with security context
-KFPMETA_DIR = "/tmp"
-KFP_ARTIFACTS_DIR = "/tmp"
-
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.utils.logger import LOGGER
 
 import digitalhub as dh
+
+# default KFP artifacts and output (ui metadata, metrics etc.)
+# directories to /tmp to allow running with security context
+KFPMETA_DIR = "/tmp"
+KFP_ARTIFACTS_DIR = "/tmp"
 
 
 def _is_finished(state: str):
@@ -25,7 +25,9 @@ def _is_complete(state: str):
     return state == "COMPLETED"
 
 
-def execute_step(project, function, function_id, action, jsonprops=None, inputs={}, outputs={}, parameters={}, values=[], args=None):
+def execute_step(
+    project, function, function_id, action, jsonprops=None, inputs={}, outputs={}, parameters={}, values=[], args=None
+):
     """
     Execute a step.
     """
@@ -34,7 +36,9 @@ def execute_step(project, function, function_id, action, jsonprops=None, inputs=
     project = dh.get_project(project)
 
     LOGGER.info("Executing function " + function + " task " + action)
-    function = project.get_function(entity_id=function_id) if function_id is not None else project.get_function(function)
+    function = (
+        project.get_function(entity_id=function_id) if function_id is not None else project.get_function(function)
+    )
 
     if jsonprops is not None:
         props = json.loads(jsonprops)
@@ -182,7 +186,16 @@ def main(args):
             step_args[p[0]] = p[1]
 
     execute_step(
-        args.project, args.function, args.function_id, args.action, args.jsonprops, inputs, outputs, parameters, values, step_args
+        args.project,
+        args.function,
+        args.function_id,
+        args.action,
+        args.jsonprops,
+        inputs,
+        outputs,
+        parameters,
+        values,
+        step_args,
     )
 
 

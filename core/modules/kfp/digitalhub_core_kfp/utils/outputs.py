@@ -131,7 +131,7 @@ def _node_to_graph(id: str, run_detail: ApiRunDetail, node, templates, client: C
             res["inputs"] = _process_params(node["inputs"])
         if "outputs" in node:
             res["outputs"] = _process_params(node["outputs"])
-    except Exception:
+    except Exception as e:
         LOGGER.warning("Could not process values: %s", e)
         pass
 

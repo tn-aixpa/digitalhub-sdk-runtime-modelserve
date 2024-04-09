@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import os
-import time
 import tempfile
+import time
 from typing import Callable
-import yaml
 
 import kfp
-from kfp.compiler import compiler
-
+from digitalhub_core.entities.runs.entity import Run
+from digitalhub_core.utils.io_utils import read_yaml, write_yaml
 from digitalhub_core_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_core_kfp.utils.outputs import build_status
-
-from digitalhub_core.utils.io_utils import read_yaml, write_yaml
-from digitalhub_core.entities.runs.entity import Run
+from kfp.compiler import compiler
 
 import digitalhub as dhcore
+
 
 def build_kfp_pipeline(run: dict, pipeline: Callable) -> any:
     """
@@ -31,16 +29,16 @@ def build_kfp_pipeline(run: dict, pipeline: Callable) -> any:
     """
     pipeline_spec = None
     with tempfile.TemporaryDirectory() as tmpdir:
-        pipeline_package_path = os.path.join(tmpdir, 'pipeline.yaml')
+        pipeline_package_path = os.path.join(tmpdir, "pipeline.yaml")
         # workaround to pass the project implicitly
         set_current_project(run.get("project"))
         compiler.Compiler(kfp.dsl.PipelineExecutionMode.V1_LEGACY).compile(
-            pipeline_func=pipeline,
-            package_path=pipeline_package_path
+            pipeline_func=pipeline, package_path=pipeline_package_path
         )
         unset_current_project()
         pipeline_spec = read_yaml(pipeline_package_path)
     return pipeline_spec
+
 
 def run_kfp_pipeline(run: dict) -> any:
     """
@@ -73,9 +71,8 @@ def run_kfp_pipeline(run: dict) -> any:
             # update spec
             dhcore_run.save(update=True)
 
-
         with tempfile.TemporaryDirectory() as tmpdir:
-            pipeline_package_path = os.path.join(tmpdir, 'pipeline.yaml')
+            pipeline_package_path = os.path.join(tmpdir, "pipeline.yaml")
             write_yaml(pipeline_package_path, workflow)
             result = client.create_run_from_pipeline_package(pipeline_package_path, arguments=function_args)
 

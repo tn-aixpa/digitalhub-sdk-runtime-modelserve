@@ -12,7 +12,7 @@ from digitalhub_core_kfp.utils.configurations import (
     parse_function_specs,
     save_function_source,
 )
-from digitalhub_core_kfp.utils.functions import run_kfp_pipeline, build_kfp_pipeline
+from digitalhub_core_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline
 from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
 
 
@@ -62,7 +62,7 @@ class RuntimeKFP(Runtime):
         if task_kind == "pipeline":
             kfp_function = self._configure_execution(res, task_kind, run.get("project"))
             pipeline_spec = build_kfp_pipeline(run, kfp_function)
-            res[f"{task_kind}_spec"]["workflow"] = pipeline_spec 
+            res[f"{task_kind}_spec"]["workflow"] = pipeline_spec
         return res
 
     def run(self, run: dict) -> dict:

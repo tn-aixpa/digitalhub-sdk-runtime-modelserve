@@ -482,7 +482,7 @@ class Function(Entity):
             Dictionary to parse.
         validate : bool
             Flag to determine if validation must be performed.
-            
+
         Returns
         -------
         dict
