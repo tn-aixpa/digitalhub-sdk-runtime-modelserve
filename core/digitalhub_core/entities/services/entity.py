@@ -36,6 +36,7 @@ class Service(Entity):
         metadata: ServiceMetadata,
         spec: ServiceSpec,
         status: ServiceStatus,
+        user: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -56,6 +57,8 @@ class Service(Entity):
             Specification of the object.
         status : ServiceStatus
             Status of the object.
+        user : str
+            Owner of the object.
         """
         super().__init__()
         self.project = project
@@ -66,6 +69,7 @@ class Service(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+        self.user = user
 
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["project", "name", "id", "key"])
@@ -74,9 +78,9 @@ class Service(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Service:
         """
-        Save service into backend.
+        Save entity into backend.
 
         Parameters
         ----------
@@ -85,18 +89,22 @@ class Service(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Service from backend.
+        Service
+            Entity saved.
         """
         obj = self.to_dict()
 
         if not update:
             api = api_ctx_create(self.project, "services")
-            return self._context().create_object(api, obj)
+            new_obj = self._context().create_object(api, obj)
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "services", self.id)
-        return self._context().update_object(api, obj)
+        new_obj = self._context().update_object(api, obj)
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -167,6 +175,7 @@ class Service(Entity):
             **obj.get("spec", {}),
         )
         status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        user = obj.get("user")
         return {
             "project": project,
             "name": name,
@@ -175,6 +184,7 @@ class Service(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
         }
 
 

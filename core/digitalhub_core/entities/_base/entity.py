@@ -17,13 +17,28 @@ class Entity(ModelObj, metaclass=ABCMeta):
     """
 
     # Attributes to render as dict. Need to be expanded in subclasses.
-    _obj_attr = ["kind", "metadata", "spec", "status"]
+    _obj_attr = ["kind", "metadata", "spec", "status", "user"]
 
     @abstractmethod
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Entity:
         """
         Abstract save method.
         """
+
+    def _update_attributes(self, obj: dict) -> None:
+        """
+        Update attributes.
+
+        Parameters
+        ----------
+        obj : dict
+            Mapping representation of object from backend.
+        """
+        new_obj = self.from_dict(obj, validate=False)
+        self.metadata = new_obj.metadata
+        self.spec = new_obj.spec
+        self.status = new_obj.status
+        self.user = new_obj.user
 
     @abstractmethod
     def export(self, filename: str | None = None) -> None:

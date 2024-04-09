@@ -1,11 +1,9 @@
 import dotenv
-
-dotenv.load_dotenv()
-
-
 from digitalhub_core.entities.tasks.entity import Task
 
 import digitalhub
+
+dotenv.load_dotenv()
 
 
 def add_param(kwargs) -> dict:

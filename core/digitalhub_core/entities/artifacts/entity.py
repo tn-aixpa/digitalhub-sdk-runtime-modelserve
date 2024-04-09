@@ -44,6 +44,7 @@ class Artifact(Entity):
         metadata: ArtifactMetadata,
         spec: ArtifactSpec,
         status: ArtifactStatus,
+        user: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -64,6 +65,8 @@ class Artifact(Entity):
             Specification of the object.
         status : ArtifactStatus
             Status of the object.
+        user : str
+            Owner of the object.
         """
         super().__init__()
         self.project = project
@@ -74,6 +77,7 @@ class Artifact(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+        self.user = user
 
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["project", "name", "id", "key"])
@@ -82,9 +86,9 @@ class Artifact(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Artifact:
         """
-        Save artifact into backend.
+        Save entity into backend.
 
         Parameters
         ----------
@@ -93,18 +97,22 @@ class Artifact(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Artifact from backend.
+        Artifact
+            Entity saved.
         """
         obj = self.to_dict()
 
         if not update:
             api = api_ctx_create(self.project, "artifacts")
-            return self._context().create_object(api, obj)
+            new_obj = self._context().create_object(api, obj)
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "artifacts", self.id)
-        return self._context().update_object(api, obj)
+        new_obj = self._context().update_object(api, obj)
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -380,6 +388,7 @@ class Artifact(Entity):
             **obj.get("spec", {}),
         )
         status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        user = obj.get("user")
         return {
             "project": project,
             "name": name,
@@ -388,6 +397,7 @@ class Artifact(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
         }
 
 

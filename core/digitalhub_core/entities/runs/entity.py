@@ -46,6 +46,7 @@ class Run(Entity):
         metadata: RunMetadata,
         spec: RunSpec,
         status: RunStatus,
+        user: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -64,6 +65,8 @@ class Run(Entity):
             Specification of the object.
         status : RunStatus
             Status of the object.
+        user : str
+            Owner of the object.
         """
         super().__init__()
         self.project = project
@@ -73,6 +76,7 @@ class Run(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+        self.user = user
 
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["project", "id", "key"])
@@ -81,9 +85,9 @@ class Run(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Run:
         """
-        Save run into backend.
+        Save entity into backend.
 
         Parameters
         ----------
@@ -92,18 +96,22 @@ class Run(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Run from backend.
+        Run
+            Entity saved.
         """
         obj = self.to_dict(include_all_non_private=True)
 
         if not update:
             api = api_ctx_create(self.project, "runs")
-            return self._context().create_object(api, obj)
+            new_obj = self._context().create_object(api, obj)
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "runs", self.id)
-        return self._context().update_object(api, obj)
+        new_obj = self._context().update_object(api, obj)
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -261,11 +269,7 @@ class Run(Entity):
         """
         api = api_ctx_read(self.project, "runs", self.id)
         obj = self._context().read_object(api)
-        refreshed_run = self.from_dict(obj, validate=False)
-        self.kind = refreshed_run.kind
-        self.metadata = refreshed_run.metadata
-        self.spec = refreshed_run.spec
-        self.status = refreshed_run.status
+        self._update_attributes(obj)
         return self
 
     def logs(self) -> dict:
@@ -428,6 +432,7 @@ class Run(Entity):
             **obj.get("spec", {}),
         )
         status = build_status(kind, framework_runtime=kind.split("+")[0], **obj.get("status", {}))
+        user = obj.get("user")
         return {
             "project": project,
             "uuid": uuid,
@@ -435,6 +440,7 @@ class Run(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
         }
 
 

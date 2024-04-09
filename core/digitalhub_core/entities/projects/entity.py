@@ -76,6 +76,7 @@ class Project(Entity):
         metadata: ProjectMetadata,
         spec: ProjectSpec,
         status: ProjectStatus,
+        user: str | None = None,
         local: bool = False,
     ) -> None:
         """
@@ -93,6 +94,8 @@ class Project(Entity):
             Specification of the object.
         status : ProjectStatus
             Status of the object.
+        user : str
+            Owner of the object.
         local: bool
             If True, export locally.
         """
@@ -103,6 +106,7 @@ class Project(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+        self.user = user
 
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["name", "key"])
@@ -117,19 +121,19 @@ class Project(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Project:
         """
-        Save project and context into backend.
+        Save entity into backend.
 
         Parameters
         ----------
-        uuid : bool
-            Ignored, placed for compatibility with other objects.
+        update : bool
+            If True, the object will be updated.
 
         Returns
         -------
-        list
-            Mapping representation of Project from backend.
+        Project
+            Entity saved.
         """
         # Try to refresh project if local client
         if self._client.is_local():
@@ -139,11 +143,15 @@ class Project(Entity):
 
         if not update:
             api = api_base_create("projects")
-            return self._client.create_object(api, obj)
+            new_obj = self._client.create_object(api, obj)
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_base_update("projects", self.id)
-        return self._client.update_object(api, obj)
+        new_obj = self._client.update_object(api, obj)
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -726,6 +734,7 @@ class Project(Entity):
             **obj.get("spec", {}),
         )
         status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        user = obj.get("user")
         local = obj.get("local", False)
         return {
             "name": name,
@@ -733,6 +742,7 @@ class Project(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
             "local": local,
         }
 

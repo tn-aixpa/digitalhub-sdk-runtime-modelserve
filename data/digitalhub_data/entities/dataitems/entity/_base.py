@@ -38,6 +38,7 @@ class Dataitem(Entity):
         metadata: DataitemMetadata,
         spec: DataitemSpec,
         status: DataitemStatus,
+        user: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -58,6 +59,8 @@ class Dataitem(Entity):
             Specification of the object.
         status : DataitemStatus
             Status of the object.
+        user : str
+            Owner of the object.
         """
         super().__init__()
         self.project = project
@@ -68,6 +71,7 @@ class Dataitem(Entity):
         self.metadata = metadata
         self.spec = spec
         self.status = status
+        self.user = user
 
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["project", "name", "id", "key"])
@@ -76,9 +80,9 @@ class Dataitem(Entity):
     #  Save / Export
     #############################
 
-    def save(self, update: bool = False) -> dict:
+    def save(self, update: bool = False) -> Dataitem:
         """
-        Save dataitem into backend.
+        Save entity into backend.
 
         Parameters
         ----------
@@ -87,18 +91,22 @@ class Dataitem(Entity):
 
         Returns
         -------
-        dict
-            Mapping representation of Dataitem from backend.
+        Dataitem
+            Entity saved.
         """
         obj = self.to_dict()
 
         if not update:
             api = api_ctx_create(self.project, "dataitems")
-            return self._context().create_object(api, obj)
+            new_obj = self._context().create_object(api, obj)
+            self._update_attributes(new_obj)
+            return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "dataitems", self.id)
-        return self._context().update_object(api, obj)
+        new_obj = self._context().update_object(api, obj)
+        self._update_attributes(new_obj)
+        return self
 
     def export(self, filename: str | None = None) -> None:
         """
@@ -226,6 +234,7 @@ class Dataitem(Entity):
             **obj.get("spec", {}),
         )
         status = build_status(kind, layer_digitalhub="digitalhub_data", **obj.get("status", {}))
+        user = obj.get("user")
         return {
             "project": project,
             "name": name,
@@ -234,4 +243,5 @@ class Dataitem(Entity):
             "metadata": metadata,
             "spec": spec,
             "status": status,
+            "user": user,
         }
