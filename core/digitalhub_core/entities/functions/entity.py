@@ -104,11 +104,15 @@ class Function(Entity):
 
         if not update:
             api = api_ctx_create(self.project, "functions")
-            return self._context().create_object(api, obj)
+            new_obj = self._context().create_object(api, obj)
+            self = self.from_dict(new_obj)
+            return new_obj
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         api = api_ctx_update(self.project, "functions", self.id)
-        return self._context().update_object(api, obj)
+        new_obj = self._context().update_object(api, obj)
+        self = self.from_dict(new_obj)
+        return new_obj
 
     def export(self, filename: str | None = None) -> None:
         """

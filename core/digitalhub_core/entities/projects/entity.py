@@ -76,6 +76,7 @@ class Project(Entity):
         metadata: ProjectMetadata,
         spec: ProjectSpec,
         status: ProjectStatus,
+        user: str | None = None,
         local: bool = False,
     ) -> None:
         """
