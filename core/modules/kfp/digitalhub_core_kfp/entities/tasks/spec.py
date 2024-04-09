@@ -15,7 +15,20 @@ class TaskSpecPipeline(TaskSpec):
         Constructor.
         """
         super().__init__(function)
-        self.k8s = k8s
+        if k8s is None:
+            k8s = {}
+        k8s = K8s(**k8s)
+        self.node_selector = k8s.node_selector
+        self.volumes = k8s.volumes
+        self.resources = k8s.resources
+        self.affinity = k8s.affinity
+        self.tolerations = k8s.tolerations
+        self.labels = k8s.labels
+        self.env = k8s.env
+        self.secrets = k8s.secrets
+        self.backoff_limit = k8s.backoff_limit
+        self.schedule = k8s.schedule
+        self.replicas = k8s.replicas
 
     def to_dict(self) -> dict:
         """
