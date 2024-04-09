@@ -6,6 +6,8 @@ from digitalhub_core.utils.generic_utils import (
     clone_repository,
     decode_string,
     extract_archive,
+    get_bucket_and_key,
+    get_s3_source,
     requests_chunk_download,
 )
 from digitalhub_core.utils.logger import LOGGER
@@ -222,6 +224,14 @@ def save_function_source(path: Path, source_spec: dict) -> str:
         source = source.replace("git://", "https://")
         path = path / "repository"
         get_repository(path, source)
+        return (path / handler).read_text()
+
+    # S3 path
+    if scheme == "s3":
+        filename = path / "archive.zip"
+        bucket, key = get_bucket_and_key(source)
+        get_s3_source(bucket, key, filename)
+        extract_archive(path, filename)
         return (path / handler).read_text()
 
     # Unsupported scheme
