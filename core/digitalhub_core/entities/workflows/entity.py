@@ -11,6 +11,7 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -20,6 +21,8 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflows.metadata import WorkflowMetadata
     from digitalhub_core.entities.workflows.spec import WorkflowSpec
     from digitalhub_core.entities.workflows.status import WorkflowStatus
+    from digitalhub_core.entities.runs.entity import Run
+    from digitalhub_core.entities.functions.entity import Function
 
 
 class Workflow(Entity):
@@ -142,6 +145,72 @@ class Workflow(Entity):
         return get_context(self.project)
 
     #############################
+    #  Workflow Methods
+    #############################
+
+    def run(
+        self,
+        labels: list[dict] | None = None,
+        env: list[dict] | None = None,
+        secrets: list[str] | None = None,
+        schedule: str | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
+        parameters: dict | None = None,
+        values: list | None = None,
+        local_execution: bool = False,
+        **kwargs,
+    ) -> Run:
+        """
+        Run workflow.
+
+        Parameters
+        ----------
+        labels : list[dict]
+            The labels of the task.
+        env : list[dict]
+            The env variables of the task. Task parameter.
+        secrets : list[str]
+            The secrets of the task. Task parameter.
+        schedule : str
+            The schedule of the task. Task parameter.
+        inputs : dict
+            Workflow inputs. Run parameter.
+        outputs : dict
+            Workflow outputs. Run parameter.
+        parameters : dict
+            Workflow parameters. Run parameter.
+        values : list
+            Workflow values. Run parameter.
+        local_execution : bool
+            Flag to determine if object has local execution. Run parameter.
+        **kwargs
+            Keyword arguments passed to Task builder.
+
+        Returns
+        -------
+        Run
+            Run instance.
+        """
+
+        function = get_function(project=self.project, entity_name=self.name)
+
+        # Run function
+        run = function.run(
+            action="pipeline",
+            labels=labels,
+            env=env,
+            secrets=secrets,
+            schedule=schedule,
+            inputs=inputs, 
+            outputs=outputs, 
+            parameters=parameters, 
+            values=values, 
+            local_execution=local_execution)
+
+        return run
+
+    #############################
     #  Static interface methods
     #############################
 
@@ -157,6 +226,8 @@ class Workflow(Entity):
         ----------
         obj : dict
             Dictionary to parse.
+        validate : bool
+            Flag to determine if validation must be performed.
 
         Returns
         -------
@@ -167,14 +238,9 @@ class Workflow(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, layer_digitalhub="digitalhub_core", **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            layer_digitalhub="digitalhub_core",
-            validate=validate,
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        metadata = build_metadata(kind, framework_runtime=kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, framework_runtime=kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, framework_runtime=kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -194,7 +260,7 @@ def workflow_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     **kwargs,
@@ -212,7 +278,7 @@ def workflow_from_parameters(
         Kind of the object.
     uuid : str
         ID of the object in form of UUID.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -229,23 +295,26 @@ def workflow_from_parameters(
         An instance of the created workflow.
     """
     uuid = build_uuid(uuid)
+    spec = build_spec(
+        kind,
+        framework_runtime=kind,
+        **kwargs,
+    )
     metadata = build_metadata(
         kind,
-        layer_digitalhub="digitalhub_core",
+        framework_runtime=kind,
         project=project,
         name=name,
         version=uuid,
         description=description,
-        source=source,
+        source=git_source,
         labels=labels,
         embedded=embedded,
     )
-    spec = build_spec(
+    status = build_status(
         kind,
-        layer_digitalhub="digitalhub_core",
-        **kwargs,
+        framework_runtime=kind,
     )
-    status = build_status(kind, layer_digitalhub="digitalhub_core")
     return Workflow(
         project=project,
         name=name,

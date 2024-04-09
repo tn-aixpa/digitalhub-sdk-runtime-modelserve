@@ -51,6 +51,8 @@ class FunctionSpecKFP(FunctionSpec):
         self.requirements = requirements if requirements is not None else []
 
         self._source_check(source)
+        if "lang" not in source:
+            source["lang"] = "python"
         self.source = SourceCodeStruct(**source)
 
     @staticmethod

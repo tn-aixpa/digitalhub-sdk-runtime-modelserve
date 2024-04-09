@@ -25,7 +25,7 @@ def _is_complete(state: str):
     return state == "COMPLETED"
 
 
-def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={}, parameters={}, values=[], args=None):
+def execute_step(project, function, function_id, action, jsonprops=None, inputs={}, outputs={}, parameters={}, values=[], args=None):
     """
     Execute a step.
     """
@@ -34,7 +34,7 @@ def execute_step(project, function, action, jsonprops=None, inputs={}, outputs={
     project = dh.get_project(project)
 
     LOGGER.info("Executing function " + function + " task " + action)
-    function = project.get_function(function)
+    function = project.get_function(entity_id=function_id) if function_id is not None else project.get_function(function)
 
     if jsonprops is not None:
         props = json.loads(jsonprops)
@@ -132,6 +132,7 @@ def parser():
 
     parser.add_argument("--project", type=str, help="Project reference", required=True)
     parser.add_argument("--function", type=str, help="Function name", required=True)
+    parser.add_argument("--function_id", type=str, help="Function ID", required=False, default=None)
     parser.add_argument("--action", type=str, help="Action type", required=True)
     parser.add_argument("--jsonprops", type=str, help="Function execution properties in JSON format", required=False)
     parser.add_argument("--parameters", type=str, help="Function parameters", required=False)
@@ -181,7 +182,7 @@ def main(args):
             step_args[p[0]] = p[1]
 
     execute_step(
-        args.project, args.function, args.action, args.jsonprops, inputs, outputs, parameters, values, step_args
+        args.project, args.function, args.function_id, args.action, args.jsonprops, inputs, outputs, parameters, values, step_args
     )
 
 

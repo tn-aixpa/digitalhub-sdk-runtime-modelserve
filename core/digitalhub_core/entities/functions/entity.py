@@ -478,11 +478,11 @@ class Function(Entity):
 
         Parameters
         ----------
-        entity : str
-            Entity type.
         obj : dict
             Dictionary to parse.
-
+        validate : bool
+            Flag to determine if validation must be performed.
+            
         Returns
         -------
         dict

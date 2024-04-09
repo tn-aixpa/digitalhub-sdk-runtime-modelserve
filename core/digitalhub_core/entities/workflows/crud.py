@@ -55,6 +55,7 @@ def create_workflow_from_dict(obj: dict) -> Workflow:
 def new_workflow(
     project: str,
     name: str,
+    kind: str,
     uuid: str | None = None,
     description: str | None = None,
     source: str | None = None,
@@ -92,7 +93,7 @@ def new_workflow(
     obj = create_workflow(
         project=project,
         name=name,
-        kind="workflow",
+        kind=kind,
         uuid=uuid,
         description=description,
         source=source,
@@ -157,6 +158,7 @@ def import_workflow(file: str) -> Workflow:
         Object instance.
     """
     obj: dict = read_yaml(file)
+    check_context(obj.get("project"))
     return create_workflow_from_dict(obj)
 
 

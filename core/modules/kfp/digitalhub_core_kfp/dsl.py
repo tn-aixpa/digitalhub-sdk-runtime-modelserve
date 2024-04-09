@@ -113,7 +113,8 @@ class PipelineContext:
         KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
         DIGITALHUB_CORE_ENDPOINT = os.environ.get(
             "DIGITALHUB_CORE_ENDPOINT", "http://localhost:8080/"
-        )  # "http://host.minikube.internal:8080/"
+        )
+        # DIGITALHUB_CORE_ENDPOINT = "http://host.minikube.internal:8080/"
 
         props = {
             "node_selector": node_selector,
@@ -127,6 +128,10 @@ class PipelineContext:
         inputs = [] if inputs is None else inputs
         outputs = [] if outputs is None else outputs
         values = [] if values is None else values
+
+        function_object = dhcore.get_function(self._project.name, entity_name=function)
+        if function_object is None:
+            raise RuntimeError(f"Function {function} not found")
 
         args = {}
         if kwargs is not None:
@@ -145,6 +150,8 @@ class PipelineContext:
             self._project.name,
             "--function",
             function,
+            "--function_id",
+            function_object.id,
             "--action",
             action,
             "--jsonprops",
@@ -187,6 +194,7 @@ class PipelineContext:
         )
         cop.add_pod_label(label_prefix + "project", self._project.name)
         cop.add_pod_label(label_prefix + "function", function)
+        cop.add_pod_label(label_prefix + "function_id", function_object.id)
         cop.add_pod_label(label_prefix + "action", action)
 
         cop.container.add_env_variable(
