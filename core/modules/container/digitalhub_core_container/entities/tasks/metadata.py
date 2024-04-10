@@ -19,3 +19,9 @@ class TaskMetadataServe(TaskMetadata):
     """
     Task Serve metadata.
     """
+
+
+class TaskMetadataBuild(TaskMetadata):
+    """
+    Task Build metadata.
+    """

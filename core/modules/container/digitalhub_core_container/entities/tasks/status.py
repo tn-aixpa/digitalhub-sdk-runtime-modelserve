@@ -19,3 +19,9 @@ class TaskStatusServe(TaskStatus):
     """
     Task Serve status.
     """
+
+
+class TaskStatusBuild(TaskStatus):
+    """
+    Task Build status.
+    """

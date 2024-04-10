@@ -17,7 +17,7 @@ status_registry.register(func_kind, f"{func_root}.status", "FunctionStatusContai
 
 # Tasks
 task_root = "digitalhub_core_container.entities.tasks"
-for i in ["job", "serve", "deploy"]:
+for i in ["job", "serve", "deploy", "build"]:
     task_kind = f"{func_kind}+{i}"
     metadata_registry.register(task_kind, f"{task_root}.metadata", f"TaskMetadata{i.title()}")
     spec_registry.register(task_kind, f"{task_root}.spec", f"TaskSpec{i.title()}", f"TaskParams{i.title()}")
