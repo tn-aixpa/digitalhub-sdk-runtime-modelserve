@@ -83,28 +83,24 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     if not (source is not None and handler is not None):
         raise RuntimeError("Function source and handler must be defined.")
 
-    scheme = map_uri_scheme(source)
+    scheme = source.split("://")[0]
 
-    # Local paths are not supported
-    if scheme == "local":
-        raise RuntimeError("Local files are not supported at Runtime execution.")
-
-    # Http(s) and remote paths (s3 presigned urls)
-    if scheme == "remote":
+    # Http(s) or s3 presigned urls
+    if scheme in ["http", "https"]:
         filename = path / "archive.zip"
         get_remote_source(source, filename)
         unzip(path, filename)
         return str(path / handler)
 
     # Git repo
-    if scheme == "git":
-        source = source.replace("git://", "https://")
+    if scheme == "git+https":
+        source = source.replace("git+", "")
         path = path / "repository"
         get_repository(path, source)
         return str(path / handler)
 
     # S3 path
-    if scheme == "s3":
+    if scheme == "zip+s3":
         filename = path / "archive.zip"
         bucket, key = get_bucket_and_key(source)
         get_s3_source(bucket, key, filename)
