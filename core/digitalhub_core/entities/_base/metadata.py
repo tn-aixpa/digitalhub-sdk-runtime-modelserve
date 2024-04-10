@@ -17,45 +17,60 @@ class Metadata(ModelObj):
 
     def __init__(
         self,
+        project: str | None = None,
         name: str | None = None,
+        version: str | None = None,
+        description: str | None = None,
         source: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
         created: str | None = None,
         created_by: str | None = None,
         updated: str | None = None,
         updated_by: str | None = None,
+        embedded: bool | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
 
         Parameters
         ----------
+        project : str
+            Project name.
         name : str
             Name the object.
+        version : str
+            Version of the object.
+        description : str
+            Description of the entity.
         source : str
             (Remote GIT) Source of the entity.
         labels : list[str]
             A list of labels to associate with the entity.
-        embedded : bool
-            Whether the entity specifications are embedded into a project.
         created : str
             Created date.
-        created_by : str
-            Created by.
         updated : str
             Updated date.
+        created_by : str
+            Created by.
         updated_by : str
             Updated by.
+        embedded : bool
+            Whether the entity specifications are embedded into a project.
         """
+        self.project = project
         self.name = name
+        self.version = version
+        self.description = description
         self.source = source
         self.labels = labels
-        self.embedded = embedded
         self.created = created
-        self.created_by = created_by
         self.updated = updated
+        self.created_by = created_by
         self.updated_by = updated_by
+        self.embedded = embedded
+
+        self._any_setter(**kwargs)
 
     @classmethod
     def from_dict(cls, obj: dict) -> "Metadata":

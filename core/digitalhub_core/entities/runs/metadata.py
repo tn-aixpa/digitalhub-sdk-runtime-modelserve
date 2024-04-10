@@ -10,29 +10,3 @@ class RunMetadata(Metadata):
     """
     A class representing Run metadata.
     """
-
-    def __init__(
-        self,
-        project: str | None = None,
-        name: str | None = None,
-        source: str | None = None,
-        labels: list[str] | None = None,
-        created: str | None = None,
-        updated: str | None = None,
-        embedded: bool = True,
-        **kwargs,
-    ) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        project : str
-            Project name.
-
-        See Also
-        --------
-        Metadata.__init__
-        """
-        super().__init__(name, source, labels, embedded, created, updated)
-        self.project = project

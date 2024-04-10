@@ -794,6 +794,7 @@ def project_from_parameters(
     metadata = build_metadata(
         kind,
         layer_digitalhub="digitalhub_core",
+        project=name,
         name=name,
         description=description,
         labels=labels,
