@@ -66,17 +66,21 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     path.mkdir(parents=True, exist_ok=True)
 
     # Get relevant information
+    code = source_spec.get("code")
     base64 = source_spec.get("base64")
     source = source_spec.get("source")
     handler = source_spec.get("handler")
 
-    # First check if source is base64
+    if code is not None:
+        path = path / "source.py"
+        path.write_text(code)
+        return str(path)
+
     if base64 is not None:
         path = path / "source.py"
         path.write_text(decode_base64(base64))
         return str(path)
 
-    # Second check if source is path
     if not (source is not None and handler is not None):
         raise RuntimeError("Function source and handler must be defined.")
 
