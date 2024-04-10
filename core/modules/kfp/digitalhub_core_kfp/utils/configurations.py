@@ -10,7 +10,14 @@ from pathlib import Path
 from types import ModuleType
 
 from digitalhub_core.entities.functions.crud import get_function
-from digitalhub_core.utils.generic_utils import decode_string
+from digitalhub_core.utils.generic_utils import (
+    clone_repository,
+    decode_string,
+    extract_archive,
+    get_bucket_and_key,
+    get_s3_source,
+    requests_chunk_download,
+)
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
@@ -43,34 +50,169 @@ def get_dhcore_function(function_string: str) -> Function:
         raise RuntimeError(msg)
 
 
-def save_function_source(path: str, spec: FunctionSpecKFP) -> str:
+def save_function_source(path: Path, source_spec: dict) -> str:
     """
     Save function source.
 
     Parameters
     ----------
-    path : str
-        Path to the function source.
-    function : FunctionSpecMlrun
-        DHCore function spec.
+    path : Path
+        Path where to save the function source.
+    source_spec : dict
+        Function source spec.
 
     Returns
     -------
     path
-        Path to the function source.
+        Function code.
     """
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-        path = path / spec.source.source
-        path.parent.mkdir(parents=True, exist_ok=True)
-        if "code" in spec.source.code:
-            code = spec.source.code
-        else:
-            code = decode_string(spec.source.base64)
+    # Prepare path
+    path.mkdir(parents=True, exist_ok=True)
+
+    # Get relevant information
+    code = source_spec.get("code")
+    base64 = source_spec.get("base64")
+    source = source_spec.get("source")
+    handler = source_spec.get("handler")
+
+    # First check if source is code
+    if code is not None:
+        path = path / "source.py"
         path.write_text(code)
         return str(path)
-    except Exception as err:
-        msg = "Error saving function source: " + str(err)
+
+    # Second check if source is base64
+    if base64 is not None:
+        path = path / "source.py"
+        path.write_text(decode_base64(base64))
+        return str(path)
+
+    # Third check if source is path
+    if not (source is not None and handler is not None):
+        raise RuntimeError("Function source and handler must be defined.")
+
+    scheme = source.split("://")[0]
+
+    # Http(s) or s3 presigned urls
+    if scheme in ["http", "https"]:
+        filename = path / "archive.zip"
+        get_remote_source(source, filename)
+        unzip(path, filename)
+        return str(path / handler)
+
+    # Git repo
+    if scheme == "git+https":
+        source = source.replace("git+", "")
+        path = path / "repository"
+        get_repository(path, source)
+        return str(path / handler)
+
+    # S3 path
+    if scheme == "zip+s3":
+        filename = path / "archive.zip"
+        bucket, key = get_bucket_and_key(source)
+        get_s3_source(bucket, key, filename)
+        unzip(path, filename)
+        return str(path / handler)
+
+    # Unsupported scheme
+    raise RuntimeError(f"Unsupported scheme: {scheme}")
+
+
+def get_remote_source(source: str, filename: Path) -> None:
+    """
+    Get remote source.
+
+    Parameters
+    ----------
+    source : str
+        HTTP(S) or S3 presigned URL.
+    filename : Path
+        Path where to save the function source.
+
+    Returns
+    -------
+    str
+        Function code.
+    """
+    try:
+        requests_chunk_download(source, filename)
+    except Exception:
+        msg = "Some error occurred while downloading function source."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def unzip(path: Path, filename: Path) -> None:
+    """
+    Extract an archive.
+
+    Parameters
+    ----------
+    path : Path
+        Path where to extract the archive.
+    filename : Path
+        Path to the archive.
+
+    Returns
+    -------
+    None
+    """
+
+    try:
+        extract_archive(path, filename)
+    except Exception:
+        msg = "Source must be a valid zipfile."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def get_repository(path: Path, source: str) -> str:
+    """
+    Get repository.
+
+    Parameters
+    ----------
+    path : Path
+        Path where to save the function source.
+    source : str
+        Git repository URL in format git://<url>.
+
+    Returns
+    -------
+    None
+    """
+    try:
+        clone_repository(path, source)
+    except Exception:
+        msg = "Some error occurred while downloading function repo source."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def decode_base64(base64: str) -> str:
+    """
+    Decode base64 encoded code.
+
+    Parameters
+    ----------
+    base64 : str
+        The encoded code.
+
+    Returns
+    -------
+    str
+        The decoded code.
+
+    Raises
+    ------
+    RuntimeError
+        Error while decoding code.
+    """
+    try:
+        return decode_string(base64)
+    except Exception:
+        msg = "Some error occurred while decoding function source."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 

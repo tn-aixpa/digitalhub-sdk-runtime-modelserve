@@ -11,7 +11,6 @@ from digitalhub_core.utils.generic_utils import (
     requests_chunk_download,
 )
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data_dbt.utils.env import (
     POSTGRES_DATABASE,
     POSTGRES_HOST,
@@ -307,26 +306,26 @@ def get_repository(path: Path, source: str) -> str:
 
 def decode_base64(base64: str) -> str:
     """
-    Decode sql code.
+    Decode base64 encoded code.
 
     Parameters
     ----------
-    sql : str
-        The sql code.
+    base64 : str
+        The encoded code.
 
     Returns
     -------
     str
-        The decoded sql code.
+        The decoded code.
 
     Raises
     ------
     RuntimeError
-        If sql code is not a valid string.
+        Error while decoding code.
     """
     try:
         return decode_string(base64)
     except Exception:
-        msg = "Sql code must be a valid string."
+        msg = "Some error occurred while decoding function source."
         LOGGER.exception(msg)
         raise RuntimeError(msg)

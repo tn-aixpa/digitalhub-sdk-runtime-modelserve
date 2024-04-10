@@ -5,7 +5,6 @@ from pathlib import Path
 
 from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.utils.generic_utils import (
-    build_uuid,
     clone_repository,
     decode_string,
     extract_archive,
@@ -14,7 +13,6 @@ from digitalhub_core.utils.generic_utils import (
     requests_chunk_download,
 )
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_core.utils.uri_utils import map_uri_scheme
 from mlrun import get_or_create_project
 
 if typing.TYPE_CHECKING:
@@ -74,9 +72,8 @@ def save_function_source(path: Path, source_spec: dict) -> str:
 
     # First check if source is base64
     if base64 is not None:
-        filename = build_uuid().replace("-", "_") + ".py"
-        path = path / filename
-        decode_base64(path, base64)
+        path = path / "source.py"
+        path.write_text(decode_base64(base64))
         return str(path)
 
     # Second check if source is path
@@ -182,24 +179,27 @@ def get_repository(path: Path, source: str) -> str:
         raise RuntimeError(msg)
 
 
-def decode_base64(path: Path, base64: str) -> str:
+def decode_base64(base64: str) -> str:
     """
-    Save function source.
+    Decode base64 encoded code.
 
     Parameters
     ----------
-    path : str
-        Path where to save the function source.
     base64 : str
-        Function source base64.
+        The encoded code.
 
     Returns
     -------
-    path
-        Path to the function source.
+    str
+        The decoded code.
+
+    Raises
+    ------
+    RuntimeError
+        Error while decoding code.
     """
     try:
-        path.write_text(decode_string(base64))
+        return decode_string(base64)
     except Exception:
         msg = "Some error occurred while decoding function source."
         LOGGER.exception(msg)
