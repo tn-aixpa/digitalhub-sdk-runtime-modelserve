@@ -18,7 +18,7 @@ class FunctionSpecKFP(FunctionSpec):
 
     def __init__(
         self,
-        source: str | None = None,
+        source: dict,
         image: str | None = None,
         tag: str | None = None,
         handler: str | None = None,
@@ -51,9 +51,10 @@ class FunctionSpecKFP(FunctionSpec):
         self.command = command
         self.requirements = requirements if requirements is not None else []
 
+        if handler is not None and source is not None and 'handler' not in source:
+            source['handler'] = handler
+
         self._source_check(source)
-        if "lang" not in source:
-            source["lang"] = "python"
         self.source = SourceCodeStruct(**source)
 
     @staticmethod

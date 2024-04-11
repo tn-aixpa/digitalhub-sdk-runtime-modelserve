@@ -36,6 +36,9 @@ class FunctionSpecMlrun(FunctionSpec):
         self.command = command
         self.requirements = requirements if requirements is not None else []
 
+        if handler is not None and source is not None and 'handler' not in source:
+            source['handler'] = handler
+            
         self._source_check(source)
         self.source = SourceCodeStruct(**source)
 
