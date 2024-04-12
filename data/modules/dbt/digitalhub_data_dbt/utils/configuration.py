@@ -204,9 +204,6 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     if base64 is not None:
         return decode_base64(base64)
 
-    if not (source is not None and handler is not None):
-        raise RuntimeError("Function source and handler must be defined.")
-
     scheme = source.split("://")[0]
 
     # Http(s) or s3 presigned urls

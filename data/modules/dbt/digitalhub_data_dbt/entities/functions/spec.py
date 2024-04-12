@@ -48,6 +48,7 @@ class FunctionSpecDbt(FunctionSpec):
         source_path = source.get("source")
         code = source.get("code")
         base64 = source.get("base64")
+        handler = source.get("handler")
 
         if source.get("lang") is None:
             source["lang"] = "sql"
@@ -64,12 +65,13 @@ class FunctionSpecDbt(FunctionSpec):
             source["base64"] = encode_string(code)
             return source
 
-        if (source_path is not None) and (map_uri_scheme(source_path) == "local"):
-            try:
+        if source_path is not None:
+            if map_uri_scheme(source_path) == "local":
                 source["code"] = Path(source_path).read_text()
                 source["base64"] = encode_string(source["code"])
-            except Exception:
-                raise EntityError("Cannot access source code.")
+            else:
+                if handler is None:
+                    raise EntityError("Handler must be provided if source is not local.")
 
         return source
 

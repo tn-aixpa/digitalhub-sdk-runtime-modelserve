@@ -76,8 +76,8 @@ class FunctionSpecMlrun(FunctionSpec):
             source["base64"] = encode_string(code)
             return source
 
-        if (source_path is not None):
-            if (map_uri_scheme(source_path) == "local"):
+        if source_path is not None:
+            if map_uri_scheme(source_path) == "local":
                 if not (Path(source_path).suffix == ".py" and Path(source_path).is_file()):
                     raise EntityError("Source is not a valid python file.")
                 source["base64"] = encode_source(source_path)
