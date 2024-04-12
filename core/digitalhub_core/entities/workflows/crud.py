@@ -12,6 +12,7 @@ from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflows.entity import Workflow
+    from digitalhub_core.entities.functions.spec import FunctionSpec
 
 
 ENTITY_TYPE = "workflows"
@@ -58,7 +59,6 @@ def new_workflow(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     **kwargs,
@@ -76,8 +76,6 @@ def new_workflow(
         ID of the object in form of UUID.
     description : str
         A description of the workflow.
-    source : str
-        Remote git source for object.
     labels : list[str]
         List of labels.
     embedded : bool
@@ -96,7 +94,6 @@ def new_workflow(
         kind=kind,
         uuid=uuid,
         description=description,
-        source=source,
         labels=labels,
         embedded=embedded,
         **kwargs,

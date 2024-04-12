@@ -15,6 +15,13 @@ metadata_registry.register(func_kind, f"{func_root}.metadata", "FunctionMetadata
 spec_registry.register(func_kind, f"{func_root}.spec", "FunctionSpecKFP", "FunctionParamsKFP")
 status_registry.register(func_kind, f"{func_root}.status", "FunctionStatusKFP")
 
+# Workflow
+wf_root = "digitalhub_core_kfp.entities.workflows"
+wf_kind = "kfp-workflow"
+metadata_registry.register(wf_kind, f"{wf_root}.metadata", "WorkflowMetadataKFP")
+spec_registry.register(wf_kind, f"{wf_root}.spec", "WorkflowSpecKFP", "WorkflowParamsKFP")
+status_registry.register(wf_kind, f"{wf_root}.status", "WorkflowStatusKFP")
+
 # Tasks
 task_root = "digitalhub_core_kfp.entities.tasks"
 for i in ["pipeline"]:

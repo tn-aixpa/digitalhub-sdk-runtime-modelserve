@@ -15,6 +15,7 @@ from digitalhub_core.entities.functions.crud import get_function
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
+from digitalhub_core.utils.generic_utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
@@ -192,7 +193,7 @@ class Workflow(Entity):
             Run instance.
         """
 
-        function = get_function(project=self.project, entity_name=self.name)
+        function = get_function(project=self.project, entity_id='fn-'+self.id)
 
         # Run function
         run = function.run(
@@ -238,9 +239,11 @@ class Workflow(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, framework_runtime=kind, **obj.get("metadata", {}))
-        spec = build_spec(kind, framework_runtime=kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, framework_runtime=kind, **obj.get("status", {}))
+        framework_runtime= kind_to_runtime(kind)
+
+        metadata = build_metadata(kind, framework_runtime=framework_runtime, **obj.get("metadata", {}))
+        spec = build_spec(kind, framework_runtime=framework_runtime, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, framework_runtime=framework_runtime, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -294,15 +297,18 @@ def workflow_from_parameters(
     Workflow
         An instance of the created workflow.
     """
+
+    framework_runtime = kind_to_runtime(kind)
+
     uuid = build_uuid(uuid)
     spec = build_spec(
         kind,
-        framework_runtime=kind,
+        framework_runtime=framework_runtime,
         **kwargs,
     )
     metadata = build_metadata(
         kind,
-        framework_runtime=kind,
+        framework_runtime=framework_runtime,
         project=project,
         name=name,
         version=uuid,
@@ -313,7 +319,7 @@ def workflow_from_parameters(
     )
     status = build_status(
         kind,
-        framework_runtime=kind,
+        framework_runtime=framework_runtime,
     )
     return Workflow(
         project=project,
@@ -341,3 +347,21 @@ def workflow_from_dict(obj: dict) -> Workflow:
         Workflow instance.
     """
     return Workflow.from_dict(obj, validate=False)
+
+def kind_to_runtime(kind: str) -> str:
+    """
+    Get the framework runtime from the workflow kind.
+
+    Parameters
+    ----------
+    kind : str
+        Kind of the workflow.
+
+    Returns
+    -------
+    str
+        Framework runtime.
+    """
+    # Extract the framework runtime from the workflow kind
+    # convention: framework runtime for the workflows is extracted from kind that MUST have a form '<framework>-workflow'
+    return kind.split("-")[0]
