@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing_extensions import Literal
 
 
@@ -90,11 +90,12 @@ class ResourceItem(BaseModel):
     Resource item model.
     """
 
-    requests: str = None
+    requests: str = Field(default=None, regex=r"[\d]+|^([0-9])+([a-zA-Z])+$")
     """Resource requests."""
 
-    limits: str = None
+    limits: str = Field(default=None, regex=r"[\d]+|^([0-9])+([a-zA-Z])+$")
     """Resource limits."""
+
 
 class Resource(BaseModel):
     """
