@@ -36,10 +36,7 @@ class FunctionSpecMlrun(FunctionSpec):
         self.command = command
         self.requirements = requirements if requirements is not None else []
 
-        if handler is not None and source is not None and 'handler' not in source:
-            source['handler'] = handler
-            
-        self._source_check(source)
+        source = self._source_check(source)
         self.source = SourceCodeStruct(**source)
 
     @staticmethod
@@ -64,6 +61,7 @@ class FunctionSpecMlrun(FunctionSpec):
         source_path = source.get("source")
         code = source.get("code")
         base64 = source.get("base64")
+        handler = source.get("handler")
 
         if source.get("lang") is None:
             source["lang"] = "python"
@@ -78,10 +76,14 @@ class FunctionSpecMlrun(FunctionSpec):
             source["base64"] = encode_string(code)
             return source
 
-        if (source_path is not None) and (map_uri_scheme(source_path) == "local"):
-            if not (Path(source_path).suffix == ".py" and Path(source_path).is_file()):
-                raise EntityError("Source is not a valid python file.")
-            source["base64"] = encode_source(source_path)
+        if (source_path is not None):
+            if (map_uri_scheme(source_path) == "local"):
+                if not (Path(source_path).suffix == ".py" and Path(source_path).is_file()):
+                    raise EntityError("Source is not a valid python file.")
+                source["base64"] = encode_source(source_path)
+            else:
+                if handler is None:
+                    raise EntityError("Handler must be provided if source is not local.")
 
         return source
 
