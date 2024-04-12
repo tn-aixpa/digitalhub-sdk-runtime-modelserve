@@ -85,55 +85,30 @@ class NodeSelector(BaseModel):
     """Node selector value."""
 
 
+class ResourceItem(BaseModel):
+    """
+    Resource item model.
+    """
+
+    requests: str = None
+    """Resource requests."""
+
+    limits: str = None
+    """Resource limits."""
+
 class Resource(BaseModel):
     """
     Resource model.
     """
 
-    resource_type: Literal["cpu", "memory", "gpu"]
-    """Resource kind (cpu, memory, gpu)."""
+    cpu: ResourceItem = None
+    """CPU resource model."""
 
-    requests: str
-    """Resource requests."""
+    mem: ResourceItem = None
+    """Memory resource model."""
 
-    limits: str
-    """Resource limits."""
-
-
-class CPUResource(BaseModel):
-    """
-    CPU resource model.
-    """
-
-    requests: str
-    """CPU resource requests."""
-
-    limits: str
-    """CPU resource limits."""
-
-
-class MemoryResource(BaseModel):
-    """
-    Memory resource model.
-    """
-
-    requests: str
-    """Memory resource requests."""
-
-    limits: str
-    """Memory resource limits."""
-
-
-class GPUResource(BaseModel):
-    """
-    GPU resource model.
-    """
-
-    requests: str
-    """GPU resource requests."""
-
-    limits: str
-    """GPU resource limits."""
+    gpu: ResourceItem = None
+    """GPU resource model."""
 
 
 class Env(BaseModel):
@@ -270,17 +245,8 @@ class K8s(BaseModel):
     volumes: list[Volume] = None
     """List of volumes."""
 
-    resources: list[Resource] = None
+    resources: Resource = None
     """Resources restrictions."""
-
-    cpu_resource: CPUResource = None
-    """CPU resource."""
-
-    memory_resource: MemoryResource = None
-    """Memory resource."""
-
-    gpu_resource: GPUResource = None
-    """GPU resource."""
 
     affinity: Affinity = None
     """Affinity."""
