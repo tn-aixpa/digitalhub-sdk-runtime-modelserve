@@ -87,4 +87,23 @@ def build_client(local: bool = False, config: dict = None) -> None:
     client_builder.build(local, config)
 
 
+def check_client_exists(local: bool = False) -> bool:
+    """
+    Check if client exists.
+
+    Parameters
+    ----------
+    local : bool
+        Check client existence by local.
+
+    Returns
+    -------
+    bool
+        True if client exists, False otherwise.
+    """
+    if local:
+        return client_builder._local is not None
+    return client_builder._dhcore is not None
+
+
 client_builder = ClientBuilder()

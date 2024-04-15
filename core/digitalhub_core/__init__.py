@@ -45,4 +45,4 @@ from digitalhub_core.entities.workflows.crud import (
     update_workflow,
 )
 from digitalhub_core.stores.builder import set_store
-from digitalhub_core.utils.generic_utils import set_dhub_env
+from digitalhub_core.utils.env_utils import set_dhub_env
