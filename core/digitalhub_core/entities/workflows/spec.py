@@ -11,12 +11,6 @@ class WorkflowSpec(Spec):
     Workflow specifications.
     """
 
-    def __init__(self) -> None:
-        """
-        Constructor.
-        """
-
-
 class WorkflowParams(SpecParams):
     """
     Workflow parameters.

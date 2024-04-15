@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_core_kfp.entities.functions.status import FunctionStatusKFP
+from digitalhub_core.entities.workflows.status import WorkflowStatus
 
 
-class WorkflowStatusKFP(FunctionStatusKFP):
+class WorkflowStatusKFP(WorkflowStatus):
     """
-    Function KFP status.
+    Workflow KFP status.
     """

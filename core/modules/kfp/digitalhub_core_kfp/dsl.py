@@ -18,7 +18,7 @@ label_prefix = "kfp-digitalhub-core-"
 def set_current_project(val: str):
     """Set the current project for the context of the pipeline
 
-    The current project is used implicitly in pipeline functions without
+    The current project is used implicitly in pipeline workflows without
     specifying the project explicitly.
 
     Args:
@@ -112,7 +112,7 @@ class PipelineContext:
         WORKFLOW_IMAGE = os.environ.get("DIGITALHUB_CORE_WORKFLOW_IMAGE")
         KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
         DIGITALHUB_CORE_ENDPOINT = os.environ.get("DIGITALHUB_CORE_ENDPOINT", "http://localhost:8080/")
-        # DIGITALHUB_CORE_ENDPOINT = "http://host.minikube.internal:8080/"
+        # DIGITALHUB_CORE_ENDPOINT = "http://10.30.42.210:8080/"
 
         props = {
             "node_selector": node_selector,

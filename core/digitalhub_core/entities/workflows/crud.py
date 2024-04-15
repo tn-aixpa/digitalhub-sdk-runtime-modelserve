@@ -59,6 +59,7 @@ def new_workflow(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     **kwargs,
@@ -94,6 +95,7 @@ def new_workflow(
         kind=kind,
         uuid=uuid,
         description=description,
+        git_source=git_source,
         labels=labels,
         embedded=embedded,
         **kwargs,
@@ -111,8 +113,10 @@ def get_workflow(project: str, entity_name: str | None = None, entity_id: str | 
 
     project : str
         Project name.
-    name : str
-        The name of the workflow.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
     uuid : str
         ID of the object in form of UUID.
 
@@ -155,8 +159,17 @@ def import_workflow(file: str) -> Workflow:
         Object instance.
     """
     obj: dict = read_yaml(file)
+    if isinstance(obj, list):
+        wf_dict = obj[0]
+        task_dicts = obj[1:]
+    else:
+        wf_dict = obj
+        task_dicts = []
+
     check_context(obj.get("project"))
-    return create_workflow_from_dict(obj)
+    workflow = create_workflow_from_dict(wf_dict)
+    workflow.import_tasks(task_dicts)
+    return workflow
 
 
 def delete_workflow(
