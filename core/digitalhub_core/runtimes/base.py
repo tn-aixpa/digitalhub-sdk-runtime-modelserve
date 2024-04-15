@@ -60,7 +60,7 @@ class Runtime:
 
     def get_entity_type(self) -> str:
         """
-        Get the type of entity that the runtime is managing. Default implementation is "function".    
+        Get the type of entity that the runtime is managing. Default implementation is "function".
         Returns:
             str: _description_
         """

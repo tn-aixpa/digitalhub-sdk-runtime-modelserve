@@ -21,11 +21,10 @@ from digitalhub_core.utils.io_utils import write_yaml
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
     from digitalhub_core.entities.runs.entity import Run
+    from digitalhub_core.entities.tasks.entity import Task
     from digitalhub_core.entities.workflows.metadata import WorkflowMetadata
     from digitalhub_core.entities.workflows.spec import WorkflowSpec
     from digitalhub_core.entities.workflows.status import WorkflowStatus
-    from digitalhub_core.entities.runs.entity import Run
-    from digitalhub_core.entities.tasks.entity import Task
 
 
 class Workflow(Entity):
@@ -269,7 +268,6 @@ class Workflow(Entity):
             Workflow string.
         """
         return f"{self.kind}://{self.project}/{self.name}:{self.id}"
-
 
     #############################
     #  CRUD Methods for Tasks

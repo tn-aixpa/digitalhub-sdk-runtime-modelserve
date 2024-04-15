@@ -26,14 +26,19 @@ def _is_complete(state: str):
 
 
 def execute_step(
-        project, 
-        function, function_id, 
-        workflow, workflow_id, 
-        action, 
-        jsonprops=None, 
-        inputs={}, outputs={}, parameters={}, values=[], 
-        args=None
-    ):
+    project,
+    function,
+    function_id,
+    workflow,
+    workflow_id,
+    action,
+    jsonprops=None,
+    inputs={},
+    outputs={},
+    parameters={},
+    values=[],
+    args=None,
+):
     """
     Execute a step.
     """

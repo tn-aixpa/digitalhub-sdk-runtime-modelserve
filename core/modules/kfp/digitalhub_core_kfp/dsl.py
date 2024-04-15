@@ -130,7 +130,7 @@ class PipelineContext:
         values = [] if values is None else values
 
         if function is None and workflow is None:
-            raise RuntimeError(f"Either function or workflow must be provided.")
+            raise RuntimeError("Either function or workflow must be provided.")
 
         if function is not None:
             function_object = dhcore.get_function(self._project.name, entity_name=function)
@@ -139,9 +139,9 @@ class PipelineContext:
         elif workflow is not None:
             workflow_object = dhcore.get_workflow(self._project.name, entity_name=workflow)
             if workflow_object is None:
-                raise RuntimeError(f"Workflow {workflow} not found") 
+                raise RuntimeError(f"Workflow {workflow} not found")
             if action is None:
-                action = 'pipeline'
+                action = "pipeline"
 
         args = {}
         if kwargs is not None:

@@ -11,7 +11,6 @@ from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.functions.spec import FunctionSpec
     from digitalhub_core.entities.workflows.entity import Workflow
 
 

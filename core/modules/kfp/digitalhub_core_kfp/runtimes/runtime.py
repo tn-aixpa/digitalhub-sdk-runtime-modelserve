@@ -122,7 +122,6 @@ class RuntimeKFP(Runtime):
     def get_entity_type(self) -> str:
         return "workflow"
 
-
     ####################
     # Helpers
     ####################

@@ -11,6 +11,7 @@ class WorkflowSpec(Spec):
     Workflow specifications.
     """
 
+
 class WorkflowParams(SpecParams):
     """
     Workflow parameters.

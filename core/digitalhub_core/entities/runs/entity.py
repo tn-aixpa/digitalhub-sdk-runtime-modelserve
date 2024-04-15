@@ -354,7 +354,7 @@ class Run(Entity):
         entity_type = runtime.get_entity_type()
         api_entity_type = "functions" if entity_type == "function" else "workflows"
         api = api_ctx_read(self.project, api_entity_type, parsed.exec_id)
-        return  self._context().read_object(api)
+        return self._context().read_object(api)
 
     def _get_task(self) -> dict:
         """

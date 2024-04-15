@@ -13,7 +13,6 @@ from zipfile import ZipFile
 
 import boto3
 import requests
-from digitalhub_core.client.builder import get_client
 from digitalhub_core.utils.io_utils import read_text
 
 
