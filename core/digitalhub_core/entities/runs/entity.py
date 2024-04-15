@@ -29,7 +29,7 @@ if typing.TYPE_CHECKING:
 
 TaskString = namedtuple(
     "TaskString",
-    ["function_kind", "task_kind", "function_name", "function_id"],
+    ["exec_kind", "task_kind", "exec_name", "exec_id"],
 )
 
 
@@ -160,10 +160,10 @@ class Run(Entity):
         -------
         None
         """
-        function = self._get_function()
-        task = self._get_task()
         runtime = self._get_runtime()
-        new_spec = runtime.build(function, task, self.to_dict())
+        executable = self._get_executable(runtime)
+        task = self._get_task()
+        new_spec = runtime.build(executable, task, self.to_dict())
         self.spec = build_spec(
             self.kind,
             framework_runtime=self.kind.split("+")[0],
@@ -336,23 +336,25 @@ class Run(Entity):
         -------
         None
         """
-        kinds, func = self.spec.task.split("://")
-        fnc_kind, tsk_kind = kinds.split("+")
-        fnc_name, fnc_id = func.split("/")[1].split(":")
-        return TaskString(fnc_kind, tsk_kind, fnc_name, fnc_id)
+        kinds, exec = self.spec.task.split("://")
+        exec_kind, tsk_kind = kinds.split("+")
+        exec_name, exec_id = exec.split("/")[1].split(":")
+        return TaskString(exec_kind, tsk_kind, exec_name, exec_id)
 
-    def _get_function(self) -> dict:
+    def _get_executable(self, runtime: Runtime) -> dict:
         """
         Get object from backend. Reimplemented to avoid circular imports.
 
         Returns
         -------
         dict
-            Function from backend.
+            Executable (function or workflow) from backend.
         """
         parsed = self._parse_task_string()
-        api = api_ctx_read(self.project, "functions", parsed.function_id)
-        return self._context().read_object(api)
+        entity_type = runtime.get_entity_type()
+        api_entity_type = "functions" if entity_type == "function" else "workflows"
+        api = api_ctx_read(self.project, api_entity_type, parsed.exec_id)
+        return  self._context().read_object(api)
 
     def _get_task(self) -> dict:
         """
@@ -364,20 +366,20 @@ class Run(Entity):
             Task from backend.
         """
         parsed = self._parse_task_string()
-        function_string = f"{parsed.function_kind}://{self.project}/{parsed.function_name}:{parsed.function_id}"
+        exec_string = f"{parsed.exec_kind}://{self.project}/{parsed.exec_name}:{parsed.exec_id}"
 
         # Local backend
         if self._context().local:
             api = api_base_list("tasks")
             tasks = self._context().list_objects(api)
             for i in tasks:
-                if i.get("spec").get("function") == function_string:
+                if i.get("spec").get("function") == exec_string:
                     return i
             raise EntityError("Task not found.")
 
         # Remote backend
         api = api_ctx_list(self.project, "tasks")
-        params = {"function": function_string, "kind": f"{parsed.function_kind}+{parsed.task_kind}"}
+        params = {"function": exec_string, "kind": f"{parsed.exec_kind}+{parsed.task_kind}"}
         obj = self._context().list_objects(api, params=params)
         return obj[0]
 
@@ -394,8 +396,8 @@ class Run(Entity):
         Runtime
             Runtime object.
         """
-        fnc_kind = self._parse_task_string().function_kind
-        return build_runtime(fnc_kind)
+        exec_kind = self._parse_task_string().exec_kind
+        return build_runtime(exec_kind)
 
     #############################
     #  Static interface methods

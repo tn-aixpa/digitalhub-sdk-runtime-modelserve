@@ -18,7 +18,7 @@ label_prefix = "kfp-digitalhub-core-"
 def set_current_project(val: str):
     """Set the current project for the context of the pipeline
 
-    The current project is used implicitly in pipeline functions without
+    The current project is used implicitly in pipeline workflows without
     specifying the project explicitly.
 
     Args:
@@ -70,8 +70,9 @@ class PipelineContext:
     def step(
         self,
         name: str,
-        function: str,
-        action: str,
+        function: str | None = None,
+        workflow: str | None = None,
+        action: str | None = None,
         node_selector: list[dict] | None = None,
         volumes: list[dict] | None = None,
         resources: list[dict] | None = None,
@@ -85,15 +86,16 @@ class PipelineContext:
     ) -> dsl.ContainerOp:
         """Execute a function in Digital Hub Core.
 
-        This function creates a KFP ContainerOp that executes a function in
+        This function creates a KFP ContainerOp that executes a function or another workflow in
         Digital Hub Core. The function is executed in the context of the current
         project, which is retrieved from Digital Hub Core when the pipeline
         context is initialized.
 
         Args:
             name: The name of the step in KFP.
-            function: The name of the function to execute.
-            action: The name of the action to execute.
+            function: The name of the function to execute. Either function or workflow must be provided.
+            workflow: The name of the workflow to execute. Either function or workflow must be provided.
+            action: The name of the action to execute. May be omitted in case of workflow execution (defaulting to 'pipeline').
             node_selector: A list of node selectors for the step.
             volumes: A list of volumes for the step.
             resources: A list of resource requirements for the step.
@@ -112,7 +114,7 @@ class PipelineContext:
         WORKFLOW_IMAGE = os.environ.get("DIGITALHUB_CORE_WORKFLOW_IMAGE")
         KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
         DIGITALHUB_CORE_ENDPOINT = os.environ.get("DIGITALHUB_CORE_ENDPOINT", "http://localhost:8080/")
-        # DIGITALHUB_CORE_ENDPOINT = "http://host.minikube.internal:8080/"
+        # DIGITALHUB_CORE_ENDPOINT = "http://10.30.42.210:8080/"
 
         props = {
             "node_selector": node_selector,
@@ -127,9 +129,19 @@ class PipelineContext:
         outputs = [] if outputs is None else outputs
         values = [] if values is None else values
 
-        function_object = dhcore.get_function(self._project.name, entity_name=function)
-        if function_object is None:
-            raise RuntimeError(f"Function {function} not found")
+        if function is None and workflow is None:
+            raise RuntimeError(f"Either function or workflow must be provided.")
+
+        if function is not None:
+            function_object = dhcore.get_function(self._project.name, entity_name=function)
+            if function_object is None:
+                raise RuntimeError(f"Function {function} not found")
+        elif workflow is not None:
+            workflow_object = dhcore.get_workflow(self._project.name, entity_name=workflow)
+            if workflow_object is None:
+                raise RuntimeError(f"Workflow {workflow} not found") 
+            if action is None:
+                action = 'pipeline'
 
         args = {}
         if kwargs is not None:
@@ -146,10 +158,10 @@ class PipelineContext:
             "step.py",
             "--project",
             self._project.name,
-            "--function",
-            function,
-            "--function_id",
-            function_object.id,
+            "--function" if function is not None else "--workflow",
+            function if function is not None else workflow,
+            "--function_id" if function is not None else "--workflow_id",
+            function_object.id if function is not None else workflow_object.id,
             "--action",
             action,
             "--jsonprops",
@@ -191,8 +203,12 @@ class PipelineContext:
             file_outputs=file_outputs,
         )
         cop.add_pod_label(label_prefix + "project", self._project.name)
-        cop.add_pod_label(label_prefix + "function", function)
-        cop.add_pod_label(label_prefix + "function_id", function_object.id)
+        if function is not None:
+            cop.add_pod_label(label_prefix + "function", function)
+            cop.add_pod_label(label_prefix + "function_id", function_object.id)
+        if workflow is not None:
+            cop.add_pod_label(label_prefix + "workflow", workflow)
+            cop.add_pod_label(label_prefix + "workflow_id", workflow_object.id)
         cop.add_pod_label(label_prefix + "action", action)
 
         cop.container.add_env_variable(

@@ -7,10 +7,10 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_core_kfp.utils.configurations import (
-    get_dhcore_function,
+    get_dhcore_workflow,
     get_kfp_pipeline,
-    parse_function_specs,
-    save_function_source,
+    parse_workflow_specs,
+    save_workflow_source,
 )
 from digitalhub_core_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline
 from digitalhub_core_kfp.utils.inputs import get_inputs_parameters
@@ -34,7 +34,7 @@ class RuntimeKFP(Runtime):
 
         self.root_path.mkdir(parents=True, exist_ok=True)
 
-    def build(self, function: dict, task: dict, run: dict) -> dict:
+    def build(self, workflow: dict, task: dict, run: dict) -> dict:
         """
         Build run spec.
 
@@ -54,20 +54,20 @@ class RuntimeKFP(Runtime):
         """
         task_kind = task.get("kind").split("+")[1]
         res = {
-            "function_spec": function.get("spec", {}),
+            "workflow_spec": workflow.get("spec", {}),
             f"{task_kind}_spec": task.get("spec", {}),
             **run.get("spec", {}),
         }
 
         if task_kind == "pipeline":
-            kfp_function = self._configure_execution(res, task_kind, run.get("project"))
-            pipeline_spec = build_kfp_pipeline(run, kfp_function)
+            kfp_workflow = self._configure_execution(res, task_kind, run.get("project"))
+            pipeline_spec = build_kfp_pipeline(run, kfp_workflow)
             res[f"{task_kind}_spec"]["workflow"] = pipeline_spec
         return res
 
     def run(self, run: dict) -> dict:
         """
-        Run function.
+        Run workflow.
 
         Returns
         -------
@@ -82,14 +82,14 @@ class RuntimeKFP(Runtime):
         spec = run.get("spec")
 
         LOGGER.info("Collecting inputs.")
-        function_args = self._collect_inputs(spec, self.root_path)
+        workflow_args = self._collect_inputs(spec, self.root_path)
 
         project = run.get("project")
         LOGGER.info("Configure execution.")
-        kfp_function = self._configure_execution(spec, action, project)
+        kfp_workflow = self._configure_execution(spec, action, project)
 
-        LOGGER.info("Executing function.")
-        results = self._execute(executable, kfp_function, function_args)
+        LOGGER.info("Executing workflow.")
+        results = self._execute(executable, kfp_workflow, workflow_args)
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results, spec)
@@ -103,7 +103,7 @@ class RuntimeKFP(Runtime):
     @staticmethod
     def _get_executable(action: str, run: dict) -> Callable:
         """
-        Select function according to action.
+        Select workflow according to action.
 
         Parameters
         ----------
@@ -113,11 +113,15 @@ class RuntimeKFP(Runtime):
         Returns
         -------
         Callable
-            Function to execute.
+            Workflow to execute.
         """
         if action == "pipeline":
             return run_kfp_pipeline(run)
         raise NotImplementedError
+
+    def get_entity_type(self) -> str:
+        return "workflow"
+
 
     ####################
     # Helpers
@@ -167,14 +171,14 @@ class RuntimeKFP(Runtime):
         """
 
         # Setup function source and specs
-        LOGGER.info("Getting function source and specs.")
-        dhcore_function = get_dhcore_function(spec.get(f"{action}_spec", {}).get("function"))
-        function_source = save_function_source(self.root_path, dhcore_function.spec.to_dict().get("source"))
-        function_specs = parse_function_specs(dhcore_function.spec)
+        LOGGER.info("Getting workflow source and specs.")
+        dhcore_workflow = get_dhcore_workflow(spec.get(f"{action}_spec", {}).get("function"))
+        workflow_source = save_workflow_source(self.root_path, dhcore_workflow.spec.to_dict().get("source"))
+        workflow_specs = parse_workflow_specs(dhcore_workflow.spec)
 
         # Create Mlrun project
-        LOGGER.info("Creating KFP project and function.")
-        return get_kfp_pipeline(dhcore_function.name, function_source, function_specs)
+        LOGGER.info("Creating KFP project and workflow.")
+        return get_kfp_pipeline(dhcore_workflow.name, workflow_source, workflow_specs)
 
     ####################
     # Outputs

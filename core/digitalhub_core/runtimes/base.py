@@ -19,7 +19,7 @@ class Runtime:
     can translate the representation of a given execution as
     expressed in the run into an actual execution operation performed
     via libraries, code, external tools etc.
-    Runtime types match function types.
+    Runtime types match executable types.
     """
 
     ##################################
@@ -40,7 +40,7 @@ class Runtime:
             )
 
     @abstractmethod
-    def build(self, function: dict, task: dict, run: dict) -> dict:
+    def build(self, executable: dict, task: dict, run: dict) -> dict:
         """
         Build run spec.
         """
@@ -57,6 +57,14 @@ class Runtime:
         """
         Get function from action.
         """
+
+    def get_entity_type(self) -> str:
+        """
+        Get the type of entity that the runtime is managing. Default implementation is "function".    
+        Returns:
+            str: _description_
+        """
+        return "function"
 
     ##################################
     # Private methods

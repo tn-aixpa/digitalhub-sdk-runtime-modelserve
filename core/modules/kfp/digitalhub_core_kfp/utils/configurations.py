@@ -9,62 +9,62 @@ from os import path
 from pathlib import Path
 from types import ModuleType
 
-from digitalhub_core.entities.functions.crud import get_function
+from digitalhub_core.entities.workflows.crud import get_workflow
 from digitalhub_core.utils.generic_utils import (
     decode_string,
     extract_archive,
     get_bucket_and_key,
     get_s3_source,
-    requests_chunk_download,
+    requests_chunk_download
 )
 from digitalhub_core.utils.git_utils import clone_repository
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.functions.entity import Function
-    from digitalhub_core_kfp.entities.functions.spec import FunctionSpecKFP
+    from digitalhub_core.entities.workflows.entity import Workflow
+    from digitalhub_core_kfp.entities.workflows.spec import WorkflowSpecKFP
 
 
-def get_dhcore_function(function_string: str) -> Function:
+def get_dhcore_workflow(workflow_string: str) -> Workflow:
     """
-    Get DHCore function.
+    Get DHCore workflow.
 
     Parameters
     ----------
-    function_string : str
+    workflow_string : str
         Function string.
 
     Returns
     -------
-    Function
-        DHCore function.
+    Workflow
+        DHCore workflow.
     """
-    splitted = function_string.split("://")[1].split("/")
-    function_name, function_version = splitted[1].split(":")
-    LOGGER.info(f"Getting function {function_name}:{function_version}.")
+    splitted = workflow_string.split("://")[1].split("/")
+    workflow_name, workflow_version = splitted[1].split(":")
+    LOGGER.info(f"Getting workflow {workflow_name}:{workflow_version}.")
     try:
-        return get_function(splitted[0], function_name, function_version)
+        return get_workflow(splitted[0], workflow_name, workflow_version)
     except Exception:
-        msg = f"Error getting function {function_name}:{function_version}."
+        msg = f"Error getting workflow {workflow_name}:{workflow_version}."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def save_function_source(path: Path, source_spec: dict) -> str:
+def save_workflow_source(path: Path, source_spec: dict) -> str:
     """
-    Save function source.
+    Save workflow source.
 
     Parameters
     ----------
     path : Path
-        Path where to save the function source.
+        Path where to save the workflow source.
     source_spec : dict
-        Function source spec.
+        Workflow source spec.
 
     Returns
     -------
     path
-        Function code.
+        Workflow code.
     """
     # Prepare path
     path.mkdir(parents=True, exist_ok=True)
@@ -86,7 +86,7 @@ def save_function_source(path: Path, source_spec: dict) -> str:
         return str(path)
 
     if not (source is not None and handler is not None):
-        raise RuntimeError("Function source and handler must be defined.")
+        raise RuntimeError("Workflow source and handler must be defined.")
 
     scheme = source.split("://")[0]
 
@@ -124,12 +124,12 @@ def get_remote_source(source: str, filename: Path) -> None:
     source : str
         HTTP(S) or S3 presigned URL.
     filename : Path
-        Path where to save the function source.
+        Path where to save the workflow source.
 
     Returns
     -------
     str
-        Function code.
+        Workflow code.
     """
     try:
         requests_chunk_download(source, filename)
@@ -170,7 +170,7 @@ def get_repository(path: Path, source: str) -> str:
     Parameters
     ----------
     path : Path
-        Path where to save the function source.
+        Path where to save the workflow source.
     source : str
         Git repository URL in format git://<url>.
 
@@ -181,7 +181,7 @@ def get_repository(path: Path, source: str) -> str:
     try:
         clone_repository(path, source)
     except Exception:
-        msg = "Some error occurred while downloading function repo source."
+        msg = "Some error occurred while downloading workflow repo source."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
@@ -208,24 +208,24 @@ def decode_base64(base64: str) -> str:
     try:
         return decode_string(base64)
     except Exception:
-        msg = "Some error occurred while decoding function source."
+        msg = "Some error occurred while decoding workflow source."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def parse_function_specs(spec: FunctionSpecKFP) -> dict:
+def parse_workflow_specs(spec: WorkflowSpecKFP) -> dict:
     """
-    Parse function specs.
+    Parse workflow specs.
 
     Parameters
     ----------
-    function : FunctionSpecMlrun
-        DHCore function spec.
+    spec : WorkflowSpecKFP
+        DHCore workflow spec.
 
     Returns
     -------
     dict
-        Function specs.
+        Workflow specs.
     """
     try:
         return {
@@ -235,12 +235,12 @@ def parse_function_specs(spec: FunctionSpecKFP) -> dict:
             "requirements": spec.requirements,
         }
     except AttributeError:
-        msg = "Error parsing function specs."
+        msg = "Error parsing workflow specs."
         LOGGER.error(msg)
         raise RuntimeError(msg)
 
 
-def get_kfp_pipeline(name: str, function_source: str, function_specs: dict) -> dict:
+def get_kfp_pipeline(name: str, workflow_source: str, workflow_specs: dict) -> dict:
     """
     Get KFP pipeline.
 
@@ -248,10 +248,10 @@ def get_kfp_pipeline(name: str, function_source: str, function_specs: dict) -> d
     ----------
     name : str
         Name of the KFP pipeline.
-    function_source : str
-        Source of the function.
-    function_specs : dict
-        Specifications of the function.
+    workflow_source : str
+        Source of the workflow.
+    workflow_specs : dict
+        Specifications of the workflow.
 
     Returns
     -------
@@ -259,12 +259,12 @@ def get_kfp_pipeline(name: str, function_source: str, function_specs: dict) -> d
         KFP pipeline.
     """
     try:
-        if not path.isfile(function_source):
-            raise OSError(f"source file {function_source} not found")
-        abspath = path.abspath(function_source)
+        if not path.isfile(workflow_source):
+            raise OSError(f"source file {workflow_source} not found")
+        abspath = path.abspath(workflow_source)
         if abspath not in sys.path:
             sys.path.append(abspath)
-        handler = _load_module(function_source, function_specs.get("handler"))
+        handler = _load_module(workflow_source, workflow_specs.get("handler"))
 
         return handler
     except Exception:
