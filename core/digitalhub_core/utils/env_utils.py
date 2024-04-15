@@ -8,7 +8,6 @@ import typing
 
 from digitalhub_core.client.builder import check_client_exists, get_client
 
-
 if typing.TYPE_CHECKING:
     from digitalhub_core.client.objects.dhcore import ClientDHCore
 
@@ -83,4 +82,3 @@ def update_client_from_env() -> None:
         client._user = username
         client._password = password
         client._auth_type = "basic"
-

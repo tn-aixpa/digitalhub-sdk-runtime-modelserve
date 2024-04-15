@@ -24,9 +24,46 @@ def clone_repository(url: str, path: Path) -> None:
     None
     """
     clean_path(path)
-    url = url.replace("git+", "")
+    checkout_object = get_checkout_object(url)
     url = add_credentials_git_remote_url(url)
-    clone_from_url(url, path)
+    repo = clone_from_url(url, path)
+    if checkout_object != "":
+        repo.git.checkout(checkout_object)
+
+
+def get_checkout_object(url: str) -> str:
+    """
+    Get checkout object.
+
+    Parameters
+    ----------
+    url : str
+        URL of the repository.
+
+    Returns
+    -------
+    str
+        Checkout object (branch, tag, commit).
+    """
+    return urlparse(url).fragment
+
+
+def checkout(repo: Repo, checkout_object: str) -> None:
+    """
+    Checkout object.
+
+    Parameters
+    ----------
+    repo : Repo
+        Repository.
+    checkout_object : str
+        Object to checkout.
+
+    Returns
+    -------
+    None
+    """
+    repo.git.checkout(checkout_object)
 
 
 def clean_path(path: Path) -> None:
@@ -100,19 +137,20 @@ def add_credentials_git_remote_url(url: str) -> str:
     return url
 
 
-def clone_from_url(path: Path, source: str) -> None:
+def clone_from_url(url: str, path: Path) -> Repo:
     """
     Clone repository from url. Wraps git.Repo.clone_from.
 
     Parameters
     ----------
+    url : str
+        HTTP(S) URL of the repository.
     path : Path
         Path where to save the repository.
-    source : str
-        HTTP(S) URL of the repository.
 
     Returns
     -------
-    None
+    Repo
+        Cloned repository.
     """
-    Repo.clone_from(url=source, to_path=path)
+    return Repo.clone_from(url=url, to_path=path)
