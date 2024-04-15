@@ -13,8 +13,8 @@ from zipfile import ZipFile
 
 import boto3
 import requests
+from digitalhub_core.client.builder import get_client
 from digitalhub_core.utils.io_utils import read_text
-from git import Repo
 
 
 def build_uuid(uuid: str | None = None) -> str:
@@ -99,40 +99,6 @@ def encode_source(path: str) -> str:
     return encode_string(read_text(path))
 
 
-def set_dhub_env(
-    endpoint: str | None = None,
-    user: str | None = None,
-    password: str | None = None,
-    token: str | None = None,
-) -> None:
-    """
-    Function to set environment variables for DHub Core config.
-
-    Parameters
-    ----------
-    endpoint : str
-        The endpoint of DHub Core.
-    user : str
-        The user of DHub Core.
-    password : str
-        The password of DHub Core.
-    token : str
-        The token of DHub Core.
-
-    Returns
-    -------
-    None
-    """
-    if endpoint is not None:
-        os.environ["DIGITALHUB_CORE_ENDPOINT"] = endpoint
-    if user is not None:
-        os.environ["DIGITALHUB_CORE_USER"] = user
-    if password is not None:
-        os.environ["DIGITALHUB_CORE_PASSWORD"] = password
-    if token is not None:
-        os.environ["DIGITALHUB_CORE_TOKEN"] = token
-
-
 def parse_entity_key(key: str) -> tuple[str]:
     """
     Parse the entity key.
@@ -163,24 +129,6 @@ def parse_entity_key(key: str) -> tuple[str]:
         return project, entity_type, kind, name, uuid
     except Exception as e:
         raise ValueError("Invalid key format.") from e
-
-
-def clone_repository(path: Path, source: str) -> None:
-    """
-    Clone repository.
-
-    Parameters
-    ----------
-    path : Path
-        Path where to save the repository.
-    source : str
-        HTTP(S) URL of the repository.
-
-    Returns
-    -------
-    None
-    """
-    Repo.clone_from(source, path)
 
 
 def requests_chunk_download(source: str, filename: Path) -> None:

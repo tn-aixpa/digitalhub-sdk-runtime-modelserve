@@ -463,7 +463,7 @@ class Workflow(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        framework_runtime= kind_to_runtime(kind)
+        framework_runtime = kind_to_runtime(kind)
 
         metadata = build_metadata(kind, framework_runtime=framework_runtime, **obj.get("metadata", {}))
         spec = build_spec(kind, framework_runtime=framework_runtime, validate=validate, **obj.get("spec", {}))
@@ -571,6 +571,7 @@ def workflow_from_dict(obj: dict) -> Workflow:
         Workflow instance.
     """
     return Workflow.from_dict(obj, validate=False)
+
 
 def kind_to_runtime(kind: str) -> str:
     """
