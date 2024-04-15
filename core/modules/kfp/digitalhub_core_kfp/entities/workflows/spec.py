@@ -3,7 +3,8 @@ KFP pipeline Workflow specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core_kfp.entities.functions.spec import FunctionSpecKFP, FunctionParamsKFP
+from digitalhub_core_kfp.entities.functions.spec import FunctionParamsKFP, FunctionSpecKFP
+
 
 class WorkflowSpecKFP(FunctionSpecKFP):
     """
@@ -17,7 +18,7 @@ class WorkflowSpecKFP(FunctionSpecKFP):
         tag: str | None = None,
         handler: str | None = None,
         command: str | None = None,
-        requirements: list | None = None
+        requirements: list | None = None,
     ) -> None:
         """
         Constructor.
@@ -38,13 +39,7 @@ class WorkflowSpecKFP(FunctionSpecKFP):
             List of requirements for the Workflow.
         """
         super().__init__(
-            source=source,
-            image=image,
-            tag=tag,
-            handler=handler,
-            command=command,
-            requirements=requirements
-
+            source=source, image=image, tag=tag, handler=handler, command=command, requirements=requirements
         )
 
 

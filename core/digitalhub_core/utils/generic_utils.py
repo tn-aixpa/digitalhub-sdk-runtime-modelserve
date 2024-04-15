@@ -14,7 +14,6 @@ from zipfile import ZipFile
 import boto3
 import requests
 from digitalhub_core.utils.io_utils import read_text
-from git import Repo
 
 
 def build_uuid(uuid: str | None = None) -> str:
@@ -163,24 +162,6 @@ def parse_entity_key(key: str) -> tuple[str]:
         return project, entity_type, kind, name, uuid
     except Exception as e:
         raise ValueError("Invalid key format.") from e
-
-
-def clone_repository(path: Path, source: str) -> None:
-    """
-    Clone repository.
-
-    Parameters
-    ----------
-    path : Path
-        Path where to save the repository.
-    source : str
-        HTTP(S) URL of the repository.
-
-    Returns
-    -------
-    None
-    """
-    Repo.clone_from(source, path)
 
 
 def requests_chunk_download(source: str, filename: Path) -> None:

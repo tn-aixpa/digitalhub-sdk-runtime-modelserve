@@ -3,13 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from digitalhub_core.utils.generic_utils import (
-    clone_repository,
     decode_string,
     extract_archive,
     get_bucket_and_key,
     get_s3_source,
     requests_chunk_download,
 )
+from digitalhub_core.utils.git_utils import clone_repository
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data_dbt.utils.env import (
     POSTGRES_DATABASE,
@@ -215,7 +215,6 @@ def save_function_source(path: Path, source_spec: dict) -> str:
 
     # Git repo
     if scheme == "git+https":
-        source = source.replace("git+", "")
         path = path / "repository"
         get_repository(path, source)
         return (path / handler).read_text()
