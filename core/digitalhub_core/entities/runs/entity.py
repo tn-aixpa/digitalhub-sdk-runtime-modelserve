@@ -161,7 +161,7 @@ class Run(Entity):
         None
         """
         runtime = self._get_runtime()
-        executable = self._get_executable()
+        executable = self._get_executable(runtime)
         task = self._get_task()
         new_spec = runtime.build(executable, task, self.to_dict())
         self.spec = build_spec(
@@ -341,7 +341,7 @@ class Run(Entity):
         exec_name, exec_id = exec.split("/")[1].split(":")
         return TaskString(exec_kind, tsk_kind, exec_name, exec_id)
 
-    def _get_executable(self) -> dict:
+    def _get_executable(self, runtime: Runtime) -> dict:
         """
         Get object from backend. Reimplemented to avoid circular imports.
 
@@ -351,14 +351,10 @@ class Run(Entity):
             Executable (function or workflow) from backend.
         """
         parsed = self._parse_task_string()
-        # TODO !!!! REFACTOR
-        try:
-            api = api_ctx_read(self.project, "functions", parsed.exec_id)
-            exec_obj = self._context().read_object(api)
-        except Exception:
-            api = api_ctx_read(self.project, "workflows", parsed.exec_id)
-            exec_obj = self._context().read_object(api)
-        return exec_obj
+        entity_type = runtime.get_entity_type()
+        api_entity_type = "functions" if entity_type == "function" else "workflows"
+        api = api_ctx_read(self.project, api_entity_type, parsed.exec_id)
+        return  self._context().read_object(api)
 
     def _get_task(self) -> dict:
         """

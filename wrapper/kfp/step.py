@@ -26,19 +26,20 @@ def _is_complete(state: str):
 
 
 def execute_step(
-    project, function, function_id, action, jsonprops=None, inputs={}, outputs={}, parameters={}, values=[], args=None
-):
+        project, 
+        function, function_id, 
+        workflow, workflow_id, 
+        action, 
+        jsonprops=None, 
+        inputs={}, outputs={}, parameters={}, values=[], 
+        args=None
+    ):
     """
     Execute a step.
     """
 
     LOGGER.info("Loading project " + project)
     project = dh.get_project(project)
-
-    LOGGER.info("Executing function " + function + " task " + action)
-    function = (
-        project.get_function(entity_id=function_id) if function_id is not None else project.get_function(function)
-    )
 
     if jsonprops is not None:
         props = json.loads(jsonprops)
@@ -48,19 +49,49 @@ def execute_step(
     if args is None:
         args = {}
 
-    run = function.run(
-        action,
-        node_selector=props.get("node_selector") if "node_selector" in props else None,
-        volumes=props.get("volumes") if "volumes" in props else None,
-        resources=props.get("resources") if "resources" in props else None,
-        env=props.get("env") if "env" in props else None,
-        secrets=props.get("secrets") if "secrets" in props else None,
-        inputs=inputs,
-        outputs=outputs,
-        parameters=parameters,
-        values=values,
-        **args,
-    )
+    if function is not None:
+        LOGGER.info("Executing function " + function + " task " + action)
+        function = (
+            project.get_function(entity_id=function_id) if function_id is not None else project.get_function(function)
+        )
+
+        run = function.run(
+            action,
+            node_selector=props.get("node_selector") if "node_selector" in props else None,
+            volumes=props.get("volumes") if "volumes" in props else None,
+            resources=props.get("resources") if "resources" in props else None,
+            env=props.get("env") if "env" in props else None,
+            secrets=props.get("secrets") if "secrets" in props else None,
+            inputs=inputs,
+            outputs=outputs,
+            parameters=parameters,
+            values=values,
+            **args,
+        )
+    elif workflow is not None:
+        if action is None:
+            action = "pipeline"
+        LOGGER.info("Executing workflow " + workflow + " task " + action)
+        function = (
+            project.get_workflow(entity_id=workflow_id) if workflow_id is not None else project.get_workflow(workflow)
+        )
+
+        run = workflow.run(
+            action,
+            node_selector=props.get("node_selector") if "node_selector" in props else None,
+            volumes=props.get("volumes") if "volumes" in props else None,
+            resources=props.get("resources") if "resources" in props else None,
+            env=props.get("env") if "env" in props else None,
+            secrets=props.get("secrets") if "secrets" in props else None,
+            inputs=inputs,
+            outputs=outputs,
+            parameters=parameters,
+            values=values,
+            **args,
+        )
+    else:
+        LOGGER.info("Step failed: no workflow of function defined ")
+        exit(1)
 
     # Wait for the run to complete
     while not _is_finished(run.status.state):
@@ -135,9 +166,11 @@ def parser():
     parser = argparse.ArgumentParser(description="Step executor")
 
     parser.add_argument("--project", type=str, help="Project reference", required=True)
-    parser.add_argument("--function", type=str, help="Function name", required=True)
+    parser.add_argument("--function", type=str, help="Function name", required=False, default=None)
     parser.add_argument("--function_id", type=str, help="Function ID", required=False, default=None)
-    parser.add_argument("--action", type=str, help="Action type", required=True)
+    parser.add_argument("--workflow", type=str, help="Workflow name", required=False, default=None)
+    parser.add_argument("--workflow_id", type=str, help="Workflow ID", required=False, default=None)
+    parser.add_argument("--action", type=str, help="Action type", required=False, default=None)
     parser.add_argument("--jsonprops", type=str, help="Function execution properties in JSON format", required=False)
     parser.add_argument("--parameters", type=str, help="Function parameters", required=False)
     parser.add_argument("-a", type=str, action="append", help="Function args", required=False)
@@ -189,6 +222,8 @@ def main(args):
         args.project,
         args.function,
         args.function_id,
+        args.workflow,
+        args.workflow_id,
         args.action,
         args.jsonprops,
         inputs,
