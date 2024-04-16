@@ -61,7 +61,7 @@ class Volume(BaseModel):
     Volume model.
     """
 
-    volume_type: Literal["config_map", "secret", "persistent_volume_claim"]
+    volume_type: Literal["config_map", "secret", "persistent_volume_claim", "empty_dir"]
     """Volume type."""
 
     name: str
