@@ -461,11 +461,9 @@ class Workflow(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        framework_runtime = kind_to_runtime(kind)
-
-        metadata = build_metadata(kind, framework_runtime=framework_runtime, **obj.get("metadata", {}))
-        spec = build_spec(kind, framework_runtime=framework_runtime, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, framework_runtime=framework_runtime, **obj.get("status", {}))
+        metadata = build_metadata(kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -519,18 +517,13 @@ def workflow_from_parameters(
     Workflow
         An instance of the created workflow.
     """
-
-    framework_runtime = kind_to_runtime(kind)
-
     uuid = build_uuid(uuid)
     spec = build_spec(
         kind,
-        framework_runtime=framework_runtime,
         **kwargs,
     )
     metadata = build_metadata(
         kind,
-        framework_runtime=framework_runtime,
         project=project,
         name=name,
         version=uuid,
@@ -541,7 +534,6 @@ def workflow_from_parameters(
     )
     status = build_status(
         kind,
-        framework_runtime=framework_runtime,
     )
     return Workflow(
         project=project,

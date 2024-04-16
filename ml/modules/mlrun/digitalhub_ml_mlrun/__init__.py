@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.entity_types import EntityType
+
 from digitalhub_core.registry.registry import registry
 
 root = "digitalhub_ml_mlrun"
