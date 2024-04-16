@@ -380,14 +380,9 @@ class Artifact(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, layer_digitalhub="digitalhub_core", **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            layer_digitalhub="digitalhub_core",
-            validate=validate,
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        metadata = build_metadata(kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -450,7 +445,6 @@ def artifact_from_parameters(
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind,
-        layer_digitalhub="digitalhub_core",
         project=project,
         name=name,
         version=uuid,
@@ -461,12 +455,11 @@ def artifact_from_parameters(
     )
     spec = build_spec(
         kind,
-        layer_digitalhub="digitalhub_core",
         path=path,
         src_path=src_path,
         **kwargs,
     )
-    status = build_status(kind, layer_digitalhub="digitalhub_core")
+    status = build_status(kind)
     return Artifact(
         project=project,
         name=name,

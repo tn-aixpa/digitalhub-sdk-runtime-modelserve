@@ -73,3 +73,15 @@ class ArtifactParams(SpecParams):
 
     file_extension: str = None
     """File extension of the artifact."""
+
+
+class ArtifactSpecArtifact(ArtifactSpec):
+    """
+    Artifact specification.
+    """
+
+
+class ArtifactParamsArtifact(ArtifactParams):
+    """
+    Artifact parameters.
+    """

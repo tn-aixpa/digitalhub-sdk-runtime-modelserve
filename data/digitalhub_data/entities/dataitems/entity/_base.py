@@ -226,14 +226,9 @@ class Dataitem(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, layer_digitalhub="digitalhub_data", **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            layer_digitalhub="digitalhub_data",
-            validate=validate,
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, layer_digitalhub="digitalhub_data", **obj.get("status", {}))
+        metadata = build_metadata(kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,

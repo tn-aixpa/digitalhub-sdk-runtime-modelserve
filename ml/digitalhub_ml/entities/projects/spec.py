@@ -3,10 +3,10 @@ Project base specification module.
 """
 from __future__ import annotations
 
-from digitalhub_ml.entities.projects.spec import ProjectParamsData, ProjectSpecData
+from digitalhub_data.entities.projects.spec import ProjectParamsData, ProjectSpecData
 
 
-class ProjectSpecML(ProjectSpecData):
+class ProjectSpecMl(ProjectSpecData):
     """
     Project specification.
     """
@@ -33,7 +33,7 @@ class ProjectSpecML(ProjectSpecData):
         self.models = models if models is not None else []
 
 
-class ProjectParamsML(ProjectParamsData):
+class ProjectParamsMl(ProjectParamsData):
     """
     Parameters model for project.
     """

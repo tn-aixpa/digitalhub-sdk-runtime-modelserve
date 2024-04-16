@@ -1,21 +1,71 @@
 from __future__ import annotations
 
-from digitalhub_core.entities._base.metadata import MetadataRegistry
-from digitalhub_core.entities._base.spec import SpecRegistry
-from digitalhub_core.entities._base.status import StatusRegistry
+from digitalhub_core.registry.registry import registry
 
-metadata_registry = MetadataRegistry()
-spec_registry = SpecRegistry()
-status_registry = StatusRegistry()
+root = "digitalhub_core.entities"
 
-for i in [
-    "artifact",
-    "project",
-    "secret",
-    "service",
-    "workflow",
-]:
-    root = f"digitalhub_core.entities.{i}s"
-    metadata_registry.register(i, f"{root}.metadata", f"{i.title()}Metadata")
-    spec_registry.register(i, f"{root}.spec", f"{i.title()}Spec", f"{i.title()}Params")
-    status_registry.register(i, f"{root}.status", f"{i.title()}Status")
+# Projects
+project_kind = "project"
+entity_type = "projects"
+project_info = {
+    "entity_type": entity_type,
+    "spec": {
+        "module": f"{root}.{entity_type}.spec",
+        "class_name": "ProjectSpec",
+        "parameters_validator": "ProjectParams",
+    },
+    "status": {
+        "module": f"{root}.{entity_type}.status",
+        "class_name": "ProjectStatus",
+    },
+    "metadata": {
+        "module": f"{root}.{entity_type}.metadata",
+        "class_name": "ProjectMetadata",
+    },
+}
+registry.register(project_kind, project_info)
+
+
+# Secrets
+secret_kind = "secret"
+entity_type = "secrets"
+secret_info = {
+    "entity_type": entity_type,
+    "spec": {
+        "module": f"{root}.{entity_type}.spec",
+        "class_name": "SecretSpec",
+        "parameters_validator": "SecretParams",
+    },
+    "status": {
+        "module": f"{root}.{entity_type}.status",
+        "class_name": "SecretStatus",
+    },
+    "metadata": {
+        "module": f"{root}.{entity_type}.metadata",
+        "class_name": "SecretMetadata",
+    },
+}
+registry.register(secret_kind, secret_info)
+
+
+# Artifacts
+entity_type = "artifacts"
+for i in ["artifact"]:
+    artifact_kind = i
+    artifact_info = {
+        "entity_type": entity_type,
+        "spec": {
+            "module": f"{root}.{entity_type}.spec",
+            "class_name": f"ArtifactSpec{i.title()}",
+            "parameters_validator": f"ArtifactParams{i.title()}",
+        },
+        "status": {
+            "module": f"{root}.{entity_type}.status",
+            "class_name": f"ArtifactStatus{i.title()}",
+        },
+        "metadata": {
+            "module": f"{root}.{entity_type}.metadata",
+            "class_name": f"ArtifactMetadata{i.title()}",
+        },
+    }
+    registry.register(artifact_kind, artifact_info)

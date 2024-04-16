@@ -276,14 +276,9 @@ class Task(Entity):
         kind = obj.get("kind")
 
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, framework_runtime=kind.split("+")[0], **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            validate=validate,
-            framework_runtime=kind.split("+")[0],
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, framework_runtime=kind.split("+")[0], **obj.get("status", {}))
+        metadata = build_metadata(kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -364,13 +359,11 @@ def task_from_parameters(
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind=kind,
-        framework_runtime=kind.split("+")[0],
         project=project,
         name=uuid,
         source=source,
         labels=labels,
     )
-
     k8s = {
         "node_selector": node_selector,
         "volumes": volumes,
@@ -385,16 +378,8 @@ def task_from_parameters(
         "replicas": replicas,
     }
     kwargs["k8s"] = k8s
-    spec = build_spec(
-        kind,
-        framework_runtime=function.split("://")[0],
-        function=function,
-        **kwargs,
-    )
-    status = build_status(
-        kind,
-        framework_runtime=function.split("://")[0],
-    )
+    spec = build_spec(kind, function=function, **kwargs)
+    status = build_status(kind)
     return Task(
         project=project,
         uuid=uuid,

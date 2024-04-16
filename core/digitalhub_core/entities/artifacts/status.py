@@ -10,3 +10,9 @@ class ArtifactStatus(Status):
     """
     Status class for artifact entities.
     """
+
+
+class ArtifactStatusArtifact(ArtifactStatus):
+    """
+    Status class for artifact entities.
+    """

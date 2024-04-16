@@ -23,3 +23,15 @@ class ModelParams(SpecParams):
     """
     Model parameters.
     """
+
+
+class ModelSpecModel(ModelSpec):
+    """
+    Model specifications.
+    """
+
+
+class ModelSpecParams(ModelParams):
+    """
+    Model parameters.
+    """

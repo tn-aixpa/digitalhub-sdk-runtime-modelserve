@@ -1,82 +1,32 @@
 """
-Runtime factory module.
+Runtime factory entity.
 """
 from __future__ import annotations
 
-import importlib
 import typing
 
+from digitalhub_core.registry.import_utils import import_class
+from digitalhub_core.registry.registry import registry
+
 if typing.TYPE_CHECKING:
+    from digitalhub_core.registry.models import RegistryEntry
     from digitalhub_core.runtimes.base import Runtime
-    from digitalhub_core.runtimes.registry import RuntimeRegistry
 
 
 def build_runtime(kind: str) -> Runtime:
     """
-    Runtime factory.
-
-    Returns a runtime instance for the given kind. It looks for the
-    runtime registry, imports the specific runtime module, and finally
-    get the class from the module by its name.
+    Build runtime object.
 
     Parameters
     ----------
     kind : str
-        The runtime kind.
+        The type of runtime to build.
 
     Returns
     -------
     Runtime
-        Runtime instance.
+        Runtime object.
     """
-    try:
-        registry = import_registry(kind)
-        module = importlib.import_module(registry.module)
-        return getattr(module, registry.class_name)()
-    except (ModuleNotFoundError, ImportError):
-        raise ValueError(f"Runtime {kind} not found")
-
-
-def import_registry(kind: str) -> RuntimeRegistry:
-    """
-    Import registry from implemented module.
-
-    Parameters
-    ----------
-    kind : str
-        Module kind. Basically, the kind of the function due to correspondence
-        function-runtime name.
-
-    Returns
-    -------
-    dict
-        Registry.
-    """
-
-    # Cycle over digitalhub layers modules (data, ml, ai).
-    for layer in ["core", "data", "ml", "ai"]:
-        # Try to import module
-        module_name = f"digitalhub_{layer}_{kind}"
-        try:
-            # Check if module is already imported in cache, otherwise import it
-            if module_name not in _modules_cache:
-                _modules_cache[module_name] = importlib.import_module(module_name)
-
-            module = _modules_cache[module_name]
-            # If module is imported succesfully, break, otherwise continue
-            break
-
-        except ModuleNotFoundError:
-            continue
-    # If module is not imported, raise error
-    else:
-        raise ModuleNotFoundError(f"Module not found in digitalhub layers data, ml, ai for runtime {kind}")
-
-    # Get registry with classes string pointers
-    try:
-        return getattr(module, "registry")
-    except AttributeError:
-        raise ValueError(f"Registry not found in module {module_name}")
-
-
-_modules_cache = {}
+    infos: RegistryEntry = getattr(registry, kind)
+    runtime = import_class(infos.runtime.module, infos.runtime.class_name)
+    return runtime()

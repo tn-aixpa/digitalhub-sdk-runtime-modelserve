@@ -168,13 +168,8 @@ class Service(Entity):
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(ServiceMetadata, **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            layer_digitalhub="digitalhub_core",
-            validate=validate,
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -239,15 +234,8 @@ def service_from_parameters(
         labels=labels,
         embedded=embedded,
     )
-    spec = build_spec(
-        kind,
-        layer_digitalhub="digitalhub_core",
-        **kwargs,
-    )
-    status = build_status(
-        kind,
-        layer_digitalhub="digitalhub_core",
-    )
+    spec = build_spec(kind, **kwargs)
+    status = build_status(kind)
     return Service(
         project=project,
         name=name,

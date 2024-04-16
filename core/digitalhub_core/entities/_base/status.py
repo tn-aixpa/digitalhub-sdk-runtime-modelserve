@@ -71,28 +71,3 @@ class Status(ModelObj):
             An entity status object.
         """
         return cls(**obj)
-
-
-class StatusRegistry(dict):
-    """
-    A class representing the registry of entity statuss.
-    """
-
-    def register(self, kind: str, module: str, status_class: str) -> None:
-        """
-        Register an entity status.
-
-        Parameters
-        ----------
-        kind : str
-            The kind of the entity.
-        module : str
-            The module name of the entity status.
-        status_class : str
-            The class name of the entity status.
-
-        Returns
-        -------
-        None
-        """
-        self[kind] = {"module": module, "status_class": status_class}

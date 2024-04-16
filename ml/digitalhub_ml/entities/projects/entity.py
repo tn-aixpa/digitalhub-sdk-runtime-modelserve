@@ -142,14 +142,9 @@ class ProjectMl(ProjectData):
         # Override methods to search in digitalhub_ml
         name = build_uuid(obj.get("name"))
         kind = obj.get("kind")
-        metadata = build_metadata(kind, layer_digitalhub="digitalhub_core", **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            layer_digitalhub="digitalhub_ml",
-            validate=validate,
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, layer_digitalhub="digitalhub_core", **obj.get("status", {}))
+        metadata = build_metadata(kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         local = obj.get("local", False)
         return {
@@ -203,20 +198,18 @@ def project_from_parameters(
     name = build_uuid(name)
     spec = build_spec(
         kind,
-        layer_digitalhub="digitalhub_ml",
         context=context,
         **kwargs,
     )
     metadata = build_metadata(
         kind,
-        layer_digitalhub="digitalhub_core",
         project=name,
         name=name,
         description=description,
         labels=labels,
         source=source,
     )
-    status = build_status(kind, layer_digitalhub="digitalhub_core")
+    status = build_status(kind)
     return ProjectData(
         name=name,
         kind=kind,

@@ -39,30 +39,3 @@ class SpecParams(BaseModel):
     specification and is used to validate the parameters passed
     to the constructor.
     """
-
-
-class SpecRegistry(dict):
-    """
-    A class representing the registry of entity specifications.
-    """
-
-    def register(self, kind: str, module: str, spec_class: str, spec_params: str) -> None:
-        """
-        Register an entity specification.
-
-        Parameters
-        ----------
-        kind : str
-            The kind of the entity.
-        module : str
-            The module name of the entity specification.
-        spec_class : str
-            The class name of the entity specification.
-        spec_params : SpecParams
-            The calss parameters name of the entity specification.
-
-        Returns
-        -------
-        None
-        """
-        self[kind] = {"module": module, "spec_class": spec_class, "spec_params": spec_params}

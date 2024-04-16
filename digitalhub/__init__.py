@@ -40,6 +40,7 @@ from digitalhub_core import (
     update_task,
     update_workflow,
 )
+from digitalhub_core.registry.import_utils import register_layer_entities, register_runtimes_entities
 
 _PROJECT_IMPORTED = False
 
@@ -93,3 +94,8 @@ if not _PROJECT_IMPORTED:
 
 if not _PROJECT_IMPORTED:
     from digitalhub_core import get_or_create_project, get_project, import_project, load_project, new_project
+
+
+# Register entities into registry
+register_layer_entities()
+register_runtimes_entities()

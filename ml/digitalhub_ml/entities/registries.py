@@ -1,19 +1,33 @@
 from __future__ import annotations
 
-from digitalhub_core.entities._base.metadata import MetadataRegistry
-from digitalhub_core.entities._base.spec import SpecRegistry
-from digitalhub_core.entities._base.status import StatusRegistry
+from digitalhub_core.registry.registry import registry
 
-metadata_registry = MetadataRegistry()
-spec_registry = SpecRegistry()
-status_registry = StatusRegistry()
+root = "digitalhub_ml.entities"
 
-spec_registry.register("project", "digitalhub_ml.entities.projects.spec", "ProjectSpecMl", "ProjectParamsMl")
+# Projects
+entity_type = "projects"
+registry.project.spec.module = f"{root}.{entity_type}.spec"
+registry.project.spec.class_name = "ProjectSpecMl"
+registry.project.spec.parameters_validator = "ProjectParamsMl"
 
-for i in [
-    "model",
-]:
-    root = f"digitalhub_ml.entities.{i}s"
-    metadata_registry.register(i, f"{root}.metadata", f"{i.title()}Metadata")
-    spec_registry.register(i, f"{root}.spec", f"{i.title()}Spec", f"{i.title()}Params")
-    status_registry.register(i, f"{root}.status", f"{i.title()}Status")
+# Models
+entity_type = "models"
+for i in ["model"]:
+    model_kind = i
+    model_info = {
+        "entity_type": entity_type,
+        "spec": {
+            "module": f"{root}.{entity_type}.spec",
+            "class_name": f"ModelSpec{i.title()}",
+            "parameters_validator": f"ModelParams{i.title()}",
+        },
+        "status": {
+            "module": f"{root}.{entity_type}.status",
+            "class_name": f"ModelStatus{i.title()}",
+        },
+        "metadata": {
+            "module": f"{root}.{entity_type}.metadata",
+            "class_name": f"ModelMetadata{i.title()}",
+        },
+    }
+    registry.register(model_kind, model_info)

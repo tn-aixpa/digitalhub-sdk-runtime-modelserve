@@ -1,17 +1,33 @@
 from __future__ import annotations
 
-from digitalhub_core.entities._base.metadata import MetadataRegistry
-from digitalhub_core.entities._base.spec import SpecRegistry
-from digitalhub_core.entities._base.status import StatusRegistry
+from digitalhub_core.registry.registry import registry
 
-metadata_registry = MetadataRegistry()
-spec_registry = SpecRegistry()
-status_registry = StatusRegistry()
+root = "digitalhub_data.entities"
 
-spec_registry.register("project", "digitalhub_data.entities.projects.spec", "ProjectSpecData", "ProjectParamsData")
+# Projects
+entity_type = "projects"
+registry.project.spec.module = f"{root}.{entity_type}.spec"
+registry.project.spec.class_name = "ProjectSpecData"
+registry.project.spec.parameters_validator = "ProjectParamsData"
 
+# Dataitems
+entity_type = "dataitems"
 for i in ["dataitem", "table", "iceberg"]:
-    root = "digitalhub_data.entities.dataitems"
-    metadata_registry.register(i, f"{root}.metadata", f"DataitemMetadata{i.title()}")
-    spec_registry.register(i, f"{root}.spec", f"DataitemSpec{i.title()}", f"DataitemParams{i.title()}")
-    status_registry.register(i, f"{root}.status", f"DataitemStatus{i.title()}")
+    dataitem_kind = i
+    dataitem_info = {
+        "entity_type": entity_type,
+        "spec": {
+            "module": f"{root}.{entity_type}.spec",
+            "class_name": f"DataitemSpec{i.title()}",
+            "parameters_validator": f"DataitemParams{i.title()}",
+        },
+        "status": {
+            "module": f"{root}.{entity_type}.status",
+            "class_name": f"DataitemStatus{i.title()}",
+        },
+        "metadata": {
+            "module": f"{root}.{entity_type}.metadata",
+            "class_name": f"DataitemMetadata{i.title()}",
+        },
+    }
+    registry.register(dataitem_kind, dataitem_info)

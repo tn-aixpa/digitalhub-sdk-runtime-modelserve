@@ -102,7 +102,6 @@ def dataitem_from_parameters(
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind,
-        layer_digitalhub="digitalhub_data",
         project=project,
         name=name,
         version=uuid,
@@ -114,11 +113,10 @@ def dataitem_from_parameters(
 
     spec = build_spec(
         kind,
-        layer_digitalhub="digitalhub_data",
         path=path,
         **kwargs,
     )
-    status = build_status(kind, layer_digitalhub="digitalhub_data")
+    status = build_status(kind)
     cls = _choose_dataitem_type(kind)
     return cls(
         project=project,

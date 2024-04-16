@@ -10,3 +10,9 @@ class ArtifactMetadata(Metadata):
     """
     A class representing Artifact metadata.
     """
+
+
+class ArtifactMetadataArtifact(ArtifactMetadata):
+    """
+    A class representing Artifact metadata.
+    """

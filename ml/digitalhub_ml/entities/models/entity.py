@@ -167,14 +167,9 @@ class Model(Entity):
         name = obj.get("name")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, layer_digitalhub="digitalhub_ml", **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            layer_digitalhub="digitalhub_ml",
-            validate=validate,
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, layer_digitalhub="digitalhub_ml", **obj.get("status", {}))
+        metadata = build_metadata(kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -231,7 +226,6 @@ def model_from_parameters(
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind,
-        layer_digitalhub="digitalhub_ml",
         project=project,
         name=name,
         version=uuid,
@@ -240,12 +234,8 @@ def model_from_parameters(
         labels=labels,
         embedded=embedded,
     )
-    spec = build_spec(
-        kind,
-        layer_digitalhub="digitalhub_ml",
-        **kwargs,
-    )
-    status = build_status(kind, layer_digitalhub="digitalhub_ml")
+    spec = build_spec(kind, **kwargs)
+    status = build_status(kind)
     return Model(
         project=project,
         name=name,

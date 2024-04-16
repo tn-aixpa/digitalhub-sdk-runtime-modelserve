@@ -88,28 +88,3 @@ class Metadata(ModelObj):
             An entity metadata object.
         """
         return cls(**obj)
-
-
-class MetadataRegistry(dict):
-    """
-    A class representing the registry of entity metadata.
-    """
-
-    def register(self, kind: str, module: str, metadata_class: str) -> None:
-        """
-        Register an entity metadata.
-
-        Parameters
-        ----------
-        kind : str
-            The kind of the entity.
-        module : str
-            The module name of the entity metadata.
-        metadata_class : str
-            The class name of the entity metadata.
-
-        Returns
-        -------
-        None
-        """
-        self[kind] = {"module": module, "metadata_class": metadata_class}

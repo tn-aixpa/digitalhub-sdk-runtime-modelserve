@@ -10,3 +10,9 @@ class ModelMetadata(Metadata):
     """
     A class representing Model metadata.
     """
+
+
+class ModelMetadataModel(ModelMetadata):
+    """
+    A class representing Model metadata.
+    """

@@ -166,7 +166,6 @@ class Run(Entity):
         new_spec = runtime.build(executable, task, self.to_dict())
         self.spec = build_spec(
             self.kind,
-            framework_runtime=self.kind.split("+")[0],
             **new_spec,
         )
         self._set_status({"state": State.BUILT.value})
@@ -322,7 +321,7 @@ class Run(Entity):
         """
         if not isinstance(status, dict):
             raise EntityError("Status must be a dictionary.")
-        self.status: RunStatus = build_status(self.kind, framework_runtime=self.kind.split("+")[0], **status)
+        self.status: RunStatus = build_status(self.kind, **status)
 
     #############################
     #  Functions and Tasks
@@ -426,14 +425,9 @@ class Run(Entity):
         project = obj.get("project")
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, framework_runtime=kind.split("+")[0], **obj.get("metadata", {}))
-        spec = build_spec(
-            kind,
-            framework_runtime=kind.split("+")[0],
-            validate=validate,
-            **obj.get("spec", {}),
-        )
-        status = build_status(kind, framework_runtime=kind.split("+")[0], **obj.get("status", {}))
+        metadata = build_metadata(kind, **obj.get("metadata", {}))
+        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
+        status = build_status(kind, **obj.get("status", {}))
         user = obj.get("user")
         return {
             "project": project,
@@ -500,7 +494,6 @@ def run_from_parameters(
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind=kind,
-        framework_runtime=task.split("+")[0],
         project=project,
         name=uuid,
         source=source,
@@ -508,7 +501,6 @@ def run_from_parameters(
     )
     spec = build_spec(
         kind,
-        framework_runtime=task.split("+")[0],
         task=task,
         inputs=inputs,
         outputs=outputs,
@@ -517,7 +509,7 @@ def run_from_parameters(
         local_execution=local_execution,
         **kwargs,
     )
-    status = build_status(kind, framework_runtime=task.split("+")[0])
+    status = build_status(kind)
     return Run(
         project=project,
         uuid=uuid,
