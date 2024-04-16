@@ -64,7 +64,7 @@ def new_task(
     resources: list[dict] | None = None,
     affinity: dict | None = None,
     tolerations: list[dict] | None = None,
-    k8s_labels: list[dict] | None = None,
+
     env: list[dict] | None = None,
     secrets: list[str] | None = None,
     backoff_limit: int | None = None,
@@ -99,8 +99,6 @@ def new_task(
         The affinity of the task.
     tolerations : list[Toleration]
         The tolerations of the task.
-    k8s_labels : list[Label]
-        The labels of the task.
     env : list[Env]
         The env variables of the task.
     secrets : list[str]
@@ -131,7 +129,6 @@ def new_task(
         resources=resources,
         affinity=affinity,
         tolerations=tolerations,
-        k8s_labels=k8s_labels,
         env=env,
         secrets=secrets,
         backoff_limit=backoff_limit,

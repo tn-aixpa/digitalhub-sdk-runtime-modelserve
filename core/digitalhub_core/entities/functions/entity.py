@@ -244,7 +244,6 @@ class Function(Entity):
                 resources=resources,
                 affinity=affinity,
                 tolerations=tolerations,
-                labels=labels,
                 env=env,
                 secrets=secrets,
                 backoff_limit=backoff_limit,

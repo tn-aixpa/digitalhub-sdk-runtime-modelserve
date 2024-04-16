@@ -124,21 +124,6 @@ class Env(BaseModel):
     """Env variable value."""
 
 
-class Label(BaseModel):
-    """
-    Label model.
-    """
-
-    name: str
-    """Label name."""
-
-    value: str
-    """Label value."""
-
-
-### Affinity and Tolerations ###
-
-
 class Toleration(BaseModel):
     """
     Toleration model.
@@ -254,9 +239,6 @@ class K8s(BaseModel):
 
     tolerations: list[Toleration] = None
     """Tolerations."""
-
-    labels: list[Label] = None
-    """List of labels."""
 
     env: list[Env] = None
     """Env variables."""

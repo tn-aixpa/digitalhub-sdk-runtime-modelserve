@@ -28,7 +28,6 @@ class TaskSpecContainerBase(TaskSpec):
         self.resources = k8s.resources
         self.affinity = k8s.affinity
         self.tolerations = k8s.tolerations
-        self.labels = k8s.labels
         self.env = k8s.env
         self.secrets = k8s.secrets
         self.backoff_limit = k8s.backoff_limit
