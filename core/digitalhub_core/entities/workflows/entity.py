@@ -165,8 +165,8 @@ class Workflow(Entity):
         env: list[dict] | None = None,
         secrets: list[str] | None = None,
         schedule: str | None = None,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
+        inputs: list | None = None,
+        outputs: list | None = None,
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
@@ -185,9 +185,9 @@ class Workflow(Entity):
             The secrets of the task. Task parameter.
         schedule : str
             The schedule of the task. Task parameter.
-        inputs : dict
+        inputs : list
             Workflow inputs. Run parameter.
-        outputs : dict
+        outputs : list
             Workflow outputs. Run parameter.
         parameters : dict
             Workflow parameters. Run parameter.

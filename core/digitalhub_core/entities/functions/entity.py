@@ -167,14 +167,13 @@ class Function(Entity):
         resources: list[dict] | None = None,
         affinity: dict | None = None,
         tolerations: list[dict] | None = None,
-        labels: list[dict] | None = None,
         env: list[dict] | None = None,
         secrets: list[str] | None = None,
         backoff_limit: int | None = None,
         schedule: str | None = None,
         replicas: int | None = None,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
+        inputs: list | None = None,
+        outputs: list | None = None,
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
@@ -197,8 +196,6 @@ class Function(Entity):
             Kubernetes affinity parameters. Task parameter.
         tolerations : list[dict]
             Kubernetes tolerations parameters. Task parameter.
-        labels : list[dict]
-            The labels of the task.
         env : list[dict]
             The env variables of the task. Task parameter.
         secrets : list[str]
@@ -209,9 +206,9 @@ class Function(Entity):
             The schedule of the task. Task parameter.
         replicas : int
             The replicas of the task. Task parameter.
-        inputs : dict
+        inputs : list
             Function inputs. Run parameter.
-        outputs : dict
+        outputs : list
             Function outputs. Run parameter.
         parameters : dict
             Function parameters. Run parameter.

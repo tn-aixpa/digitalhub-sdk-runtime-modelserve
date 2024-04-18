@@ -25,8 +25,8 @@ class RunSpec(Spec):
     def __init__(
         self,
         task: str,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
+        inputs: list | None = None,
+        outputs: list | None = None,
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,

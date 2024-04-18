@@ -471,7 +471,7 @@ def run_from_parameters(
         Remote git source for object.
     labels : list[str]
         List of labels.
-    inputs : dict
+    inputs : list
         Inputs of the run.
     outputs : list
         Outputs of the run.
