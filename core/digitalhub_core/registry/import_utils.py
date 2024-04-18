@@ -10,7 +10,7 @@ from types import ModuleType
 
 def import_module(package: str) -> ModuleType:
     """
-    Import modules.
+    Import modules from package name.
 
     Parameters
     ----------
@@ -93,14 +93,17 @@ def register_layer_entities() -> None:
     None
     """
     for layer in ["core", "data", "ml", "ai"]:
+
         # Check if package exists
         package = f"digitalhub_{layer}"
         try:
             importlib.metadata.distribution(package)
         except importlib.metadata.PackageNotFoundError:
+            # Return because the layers are pyramidal from
+            # core to ai
             return
 
-        # Import registry module
+        # Import registry from entities.registries module
         try:
             import_module(f"{package}.entities.registries")
         except Exception as e:

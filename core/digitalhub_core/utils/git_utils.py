@@ -33,7 +33,7 @@ def clone_repository(url: str, path: Path) -> None:
 
 def get_checkout_object(url: str) -> str:
     """
-    Get checkout object.
+    Get checkout object from url fragment.
 
     Parameters
     ----------
@@ -48,27 +48,9 @@ def get_checkout_object(url: str) -> str:
     return urlparse(url).fragment
 
 
-def checkout(repo: Repo, checkout_object: str) -> None:
-    """
-    Checkout object.
-
-    Parameters
-    ----------
-    repo : Repo
-        Repository.
-    checkout_object : str
-        Object to checkout.
-
-    Returns
-    -------
-    None
-    """
-    repo.git.checkout(checkout_object)
-
-
 def clean_path(path: Path) -> None:
     """
-    Clean path.
+    Clean path from any files.
 
     Parameters
     ----------
@@ -84,7 +66,12 @@ def clean_path(path: Path) -> None:
 
 def get_git_username_password_from_token(token: str) -> tuple[str, str]:
     """
-    Parse token to get username and password.
+    Parse token to get username and password. The token
+    can be one of the following:
+
+    - GitHub/GitLab personal access token (github_pat_.../glpat...)
+    - GitHub/GitLab access token
+    - Other generic token
 
     Parameters
     ----------
@@ -127,14 +114,14 @@ def add_credentials_git_remote_url(url: str) -> str:
     password = os.getenv("GIT_PASSWORD")
     token = os.getenv("GIT_TOKEN")
 
-    # Get credentials from token
+    # Get credentials from token. Override username and password
     if token is not None:
         username, password = get_git_username_password_from_token(token)
 
+    # Add credentials to url if needed
     if username is not None and password is not None:
         return f"https://{username}:{password}@{url_obj.hostname}{url_obj.path}"
-
-    return url
+    return f"https://{url_obj.hostname}{url_obj.path}"
 
 
 def clone_from_url(url: str, path: Path) -> Repo:

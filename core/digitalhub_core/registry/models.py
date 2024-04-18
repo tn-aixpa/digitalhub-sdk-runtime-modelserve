@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class RuntimeEntry(BaseModel):
     """
     Model for Runtime entry.
+    It specifies the module path and the runtime class name.
     """
 
     module: str
@@ -18,6 +19,8 @@ class RuntimeEntry(BaseModel):
 class SpecEntry(BaseModel):
     """
     Model for Spec entry.
+    It specifies the module path, the spec class name
+    and the spec pydantic class validator.
     """
 
     module: str
@@ -33,6 +36,7 @@ class SpecEntry(BaseModel):
 class StatusEntry(BaseModel):
     """
     Model for Status entry.
+    It specifies the module path and the status class name.
     """
 
     module: str
@@ -45,6 +49,7 @@ class StatusEntry(BaseModel):
 class MetadataEntry(BaseModel):
     """
     Model for Metadata entry.
+    It specifies the module path and the metadata class name.
     """
 
     module: str
@@ -55,6 +60,11 @@ class MetadataEntry(BaseModel):
 
 
 class RegistryEntry(BaseModel):
+    """
+    Basic entry model for every entity.
+    Functions, tasks and runs specify also the runtime field.
+    """
+
     entity_type: str
     """Entity type."""
 

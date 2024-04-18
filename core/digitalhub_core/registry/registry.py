@@ -14,6 +14,15 @@ class GlobalEntityRegistry:
         Register an entity kind.
 
         Parameters
+        ----------
+        entity_kind : str
+            Entity kind to be registered.
+        entry : dict
+            Entry to be registered.
+
+        Returns
+        -------
+        None
 
         """
         if hasattr(self, entity_kind):
@@ -44,7 +53,7 @@ class GlobalEntityRegistry:
 
     def get_entity_type(self, entity_kind: str) -> str:
         """
-        Get entity type.
+        Get entity type from kind.
 
         Parameters
         ----------

@@ -154,7 +154,7 @@ def requests_chunk_download(source: str, filename: Path) -> None:
 
 def extract_archive(path: Path, filename: Path) -> None:
     """
-    Extract an archive.
+    Extract a zip archive.
 
     Parameters
     ----------
