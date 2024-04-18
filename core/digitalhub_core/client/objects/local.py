@@ -36,12 +36,12 @@ class ClientLocal(Client):
 
     def create_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
-        Create an object.
+        Create an object in local.
 
         Parameters
         ----------
         api : str
-            The api to create the object with.
+            Create API.
         obj : dict
             The object to create.
 
@@ -104,17 +104,17 @@ class ClientLocal(Client):
 
     def read_object(self, api: str, **kwargs) -> dict:
         """
-        Get an object.
+        Get an object from local.
 
         Parameters
         ----------
         api : str
-            The api to get the object with.
+            Read API.
 
         Returns
         -------
-        dict or None
-            The object, or None if it doesn't exist.
+        dict
+            The read object.
         """
         entity_type, entity_id, context_api = self._parse_api(api)
         if entity_id is None:
@@ -159,14 +159,14 @@ class ClientLocal(Client):
 
     def update_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
-        Update an object.
+        Update an object in local.
 
         Parameters
         ----------
+        api : str
+            Update API.
         obj : dict
             The object to update.
-        api : str
-            The api to update the object with.
 
         Returns
         -------
@@ -199,17 +199,19 @@ class ClientLocal(Client):
 
     def delete_object(self, api: str, **kwargs) -> dict:
         """
-        Delete an object.
+        Delete an object from local.
 
         Parameters
         ----------
         api : str
-            The api to delete the object with.
+            Delete API.
+        **kwargs
+            Keyword arguments parsed from request.
 
         Returns
         -------
         dict
-            A generic dictionary.
+            Response object.
         """
         entity_type, entity_id, context_api = self._parse_api(api)
         try:
@@ -230,6 +232,9 @@ class ClientLocal(Client):
 
             else:
                 reset_latest = False
+
+                # Name is optional and extracted from kwargs
+                # "params": {"name": <name>}
                 name = kwargs.get("params", {}).get("name")
 
                 # Delete by name
@@ -261,7 +266,9 @@ class ClientLocal(Client):
                         latest_uuid = None
                         latest_date = None
                         for k, v in self._db[entity_type][name].items():
-                            # Accept only ISO format
+
+                            # Get created from metadata. If tzinfo is None, set it to UTC
+                            # If created is not in ISO format, use fallback
                             fallback = datetime.fromtimestamp(0, timezone.utc)
                             try:
                                 current_created = datetime.fromisoformat(v.get("metadata", {}).get("created"))
@@ -270,10 +277,12 @@ class ClientLocal(Client):
                             except ValueError:
                                 current_created = fallback
 
+                            # Update latest date and uuid
                             if latest_date is None or current_created > latest_date:
                                 latest_uuid = k
                                 latest_date = current_created
 
+                        # Set new latest
                         if latest_uuid is not None:
                             self._db[entity_type][name]["latest"] = self._db[entity_type][name][latest_uuid]
 
@@ -289,7 +298,9 @@ class ClientLocal(Client):
         Parameters
         ----------
         api : str
-            The api to list the objects with.
+            List API.
+        **kwargs
+            Keyword arguments parsed from request.
 
         Returns
         -------
@@ -297,28 +308,34 @@ class ClientLocal(Client):
             The list of objects.
         """
         entity_type, _, _ = self._parse_api(api)
+
+        # Name is optional and extracted from kwargs
+        # "params": {"name": <name>}
         name = kwargs.get("params", {}).get("name")
         if name is not None:
             return [self._db[entity_type][name]["latest"]]
+
+        # If no name is provided, return objects by entity_type
         return [v["latest"] for _, v in self._db[entity_type].items()]
 
     ########################
     # Helpers
     ########################
 
-    def _parse_api(self, api: str) -> list[str]:
+    def _parse_api(self, api: str) -> tuple:
         """
-        Parse the given API.
+        Parse the given API to extract the entity_type, entity_id
+        and if its a context API.
 
         Parameters
         ----------
         api : str
-            The API to parse.
+            API to parse.
 
         Returns
         -------
-        list[str]
-            The parsed API elements.
+        tuple
+            Parsed elements.
         """
         # Remove prefix from API
         api = api.removeprefix("/api/v1/")
@@ -343,14 +360,14 @@ class ClientLocal(Client):
         Parameters
         ----------
         api : str
-            The parsed API.
+            Parsed API.
         context_api : bool
             True if the API is a context API.
 
         Returns
         -------
         tuple
-            The parsed elements from the API.
+            Parsed elements from the API.
         """
         # Split API path
         parsed = api.split("/")
@@ -379,9 +396,11 @@ class ClientLocal(Client):
         if len(parsed) == 3 and context_api:
             return parsed[1], parsed[2], context_api
 
+        raise ValueError(f"Invalid API: {api}")
+
     def _get_project_spec(self, obj: dict, name: str) -> dict:
         """
-        Read the project spec.
+        Enrich project object with spec (artifacts, functions, etc.).
 
         Parameters
         ----------

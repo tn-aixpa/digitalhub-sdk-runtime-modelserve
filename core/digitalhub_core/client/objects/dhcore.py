@@ -36,9 +36,16 @@ class ClientDHCore(Client):
     """
     DHCore client.
 
-    The DHCore client is used to communicate with the Digitalhub Core backendAPI via REST.
-    At creation, the client trys to get the endpoint and authentication parameters
-    from the environment variables. In case the endpoint is not set, it raises an exception.
+    The DHCore client is used to communicate with the Digitalhub Core
+    backendAPI via REST. The client supports basic authentication and
+    OAuth2 token authentication.
+    At creation, the client tries to get the endpoint and authentication
+    parameters from the environment variables. In case the user incours
+    into an authentication/endpoint error during the client creation it
+    has the possibility to update the correct endpoint/authentication
+    parameters using the `set_dhub_env` function.
+    If the dhcore client is already initialized, this function will override
+    the configuration, otherwise it simply set the environment variables.
     """
 
     def __init__(self, config: dict = None) -> None:
@@ -58,71 +65,79 @@ class ClientDHCore(Client):
 
     def create_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
-        Create an object.
+        Create an object in DHCore.
 
         Parameters
         ----------
+        api : str
+            Create API.
         obj : dict
             The object to create.
-        api : str
-            The api to create the object with.
+        **kwargs
+            Keyword arguments to pass to the request.
 
         Returns
         -------
         dict
-            The created object.
+            Response object.
         """
         kwargs["json"] = obj
         return self._call("POST", api, **kwargs)
 
     def read_object(self, api: str, **kwargs) -> dict:
         """
-        Get an object.
+        Get an object from DHCore.
 
         Parameters
         ----------
         api : str
-            The api to get the object with.
+            Read API.
+        **kwargs
+            Keyword arguments to pass to the request.
 
         Returns
         -------
         dict
-            The object.
+            Response object.
         """
         return self._call("GET", api, **kwargs)
 
     def update_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
         """
-        Update an object.
+        Update an object in DHCore.
 
         Parameters
         ----------
+        api : str
+            Update API.
         obj : dict
             The object to update.
-        api : str
-            The api to update the object with.
+        **kwargs
+            Keyword arguments to pass to the request.
 
         Returns
         -------
         dict
-            The updated object.
+            Response object.
         """
         kwargs["json"] = obj
         return self._call("PUT", api, **kwargs)
 
     def delete_object(self, api: str, **kwargs) -> dict:
         """
-        Delete an object.
+        Delete an object from DHCore.
 
         Parameters
         ----------
         api : str
-            The api to delete the object with.
+            Delete API.
+        **kwargs
+            Keyword arguments to pass to the request.
 
         Returns
         -------
         dict
-            A generic dictionary.
+            Response object.
         """
         resp = self._call("DELETE", api, **kwargs)
         if isinstance(resp, bool):
@@ -131,19 +146,19 @@ class ClientDHCore(Client):
 
     def list_objects(self, api: str, **kwargs) -> list[dict]:
         """
-        List objects.
+        List objects from DHCore.
 
         Parameters
         ----------
         api : str
-            The api to list the objects with.
-        **kwargs : dict
-
+            List API.
+        **kwargs
+            Keyword arguments to pass to the request.
 
         Returns
         -------
         list[dict]
-            The list of objects.
+            Response objects.
         """
         if kwargs is None:
             kwargs = {}
@@ -170,7 +185,6 @@ class ClientDHCore(Client):
     def _call(self, call_type: str, api: str, **kwargs) -> dict:
         """
         Make a call to the DHCore API.
-        Keyword arguments are passed to the session.request function.
 
         Parameters
         ----------
@@ -179,12 +193,12 @@ class ClientDHCore(Client):
         api : str
             The api to call.
         **kwargs
-            Keyword arguments.
+            Keyword arguments to pass to the request.
 
         Returns
         -------
         dict
-            The response object.
+            Response object.
         """
         url = self._endpoint + api
 
@@ -217,26 +231,25 @@ class ClientDHCore(Client):
 
     def _configure(self, config: dict | None = None) -> None:
         """
-        Function to set environment variables for DHub Core config.
+        Configure the client attributes with config (given or from
+        environment).
+        Regarding authentication parameters, the config parameter
+        takes precedence over the env variables, and the token
+        over the basic auth. Furthermore, the config parameter is
+        validated against the proper pydantic model.
 
         Parameters
         ----------
-        config : ClientConfig
-            The client config.
+        config : dict
+            Configuration dictionary.
 
         Returns
         -------
         None
         """
-
-        # Get endpoint at the beginning
         self._get_endpoint_from_env()
 
-        # Evaluate configuration authentication parameters
         if config is not None:
-            # Validate configuration against pydantic model
-
-            # Try to get user/access_token or user/password
 
             if config.get("access_token") is not None:
                 config = OAuth2TokenAuth(**config)
@@ -252,12 +265,11 @@ class ClientDHCore(Client):
 
             return
 
-        # Otherwise, use environment variables
         self._get_auth_from_env()
 
     def _get_endpoint_from_env(self) -> None:
         """
-        Get DHub Core endpoint environment variables.
+        Get the DHCore endpoint from the env.
 
         Returns
         -------
@@ -284,13 +296,10 @@ class ClientDHCore(Client):
 
         Returns
         -------
-        tuple[str, str], str, None
-            The authentication parameters.
+        None
         """
-        # User for future entity ownership
         self._user = os.getenv("DIGITALHUB_CORE_USER")
 
-        # Prioritize token over user/password
         token = os.getenv("DIGITALHUB_CORE_TOKEN")
         if token is not None:
             self._auth_type = "oauth2"

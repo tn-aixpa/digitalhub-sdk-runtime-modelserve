@@ -16,7 +16,7 @@ class ClientBuilder:
     """
     The client builder class.
 
-    It implements the builder pattern to create a client instance.
+    It implements the builder pattern to create a Singleton client instance.
     The client builder can be used to create a local or non-local client instance.
     """
 
