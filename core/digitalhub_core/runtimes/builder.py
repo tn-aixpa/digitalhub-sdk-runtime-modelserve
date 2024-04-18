@@ -1,5 +1,5 @@
 """
-Runtime factory entity.
+Runtime builder function.
 """
 from __future__ import annotations
 
@@ -15,7 +15,12 @@ if typing.TYPE_CHECKING:
 
 def build_runtime(kind: str) -> Runtime:
     """
-    Build runtime object.
+    Build runtime object. The builder takes in input a kind.
+    This kind can derive from functions, tasks, or runs, and
+    is inserted in the global kind registry where the runtimes
+    pakages are registered.
+    The builder requires the module path where the Runtime
+    subclass is defined and the class name.
 
     Parameters
     ----------

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from digitalhub_core.registry.registry import registry
 
 root = "digitalhub_core_container"

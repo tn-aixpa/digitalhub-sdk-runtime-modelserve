@@ -119,9 +119,6 @@ class RuntimeKFP(Runtime):
             return run_kfp_pipeline(run)
         raise NotImplementedError
 
-    def get_entity_type(self) -> str:
-        return "workflow"
-
     ####################
     # Helpers
     ####################

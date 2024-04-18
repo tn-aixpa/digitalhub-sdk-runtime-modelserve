@@ -303,7 +303,6 @@ def task_from_parameters(
     resources: list[dict] | None = None,
     affinity: dict | None = None,
     tolerations: list[dict] | None = None,
-
     env: list[dict] | None = None,
     secrets: list[str] | None = None,
     backoff_limit: int | None = None,
@@ -368,7 +367,6 @@ def task_from_parameters(
         "resources": resources,
         "affinity": affinity,
         "tolerations": tolerations,
-        "labels": k8s_labels,
         "env": env,
         "secrets": secrets,
         "backoff_limit": backoff_limit,

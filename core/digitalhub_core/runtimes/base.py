@@ -16,10 +16,9 @@ class Runtime:
 
     Runtimes are the entities responsible for the actual execution
     of a given run. They are highly specialized components which
-    can translate the representation of a given execution as
-    expressed in the run into an actual execution operation performed
-    via libraries, code, external tools etc.
-    Runtime types match executable types.
+    can translate the representation of a given execution as expressed
+    in the run into an actual execution operation performed via
+    libraries, code, external tools etc.
     """
 
     ##################################
@@ -55,16 +54,8 @@ class Runtime:
     @abstractmethod
     def _get_executable(action: str) -> Callable:
         """
-        Get function from action.
+        Get executable from action.
         """
-
-    def get_entity_type(self) -> str:
-        """
-        Get the type of entity that the runtime is managing. Default implementation is "function".
-        Returns:
-            str: _description_
-        """
-        return "function"
 
     ##################################
     # Private methods
@@ -102,7 +93,7 @@ class Runtime:
         it is associated with. The task string is derived from the
         function string, and has the following format:
 
-        <function-kind>+<task-action>://<function-name>:<function-id>
+        <function-kind>+<task-action>://<project-name>/<function-name>:<function-id>
 
         Parameters
         ----------
@@ -121,9 +112,9 @@ class Runtime:
 
         Examples
         --------
-        >>> run = {"spec": {"task": dbt+transform://dbt-example-function:some-uuid4}}
+        >>> run = {"spec": {"task": fnckind+action://project/function:uuid4}}
         >>> Runtime._get_action(run)
-        'transform'
+        'action'
         """
         try:
             return run["spec"]["task"].split(":")[0].split("+")[1]

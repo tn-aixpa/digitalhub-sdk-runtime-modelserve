@@ -64,7 +64,6 @@ def new_task(
     resources: list[dict] | None = None,
     affinity: dict | None = None,
     tolerations: list[dict] | None = None,
-
     env: list[dict] | None = None,
     secrets: list[str] | None = None,
     backoff_limit: int | None = None,

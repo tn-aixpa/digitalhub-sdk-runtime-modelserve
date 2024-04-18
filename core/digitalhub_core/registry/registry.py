@@ -42,5 +42,24 @@ class GlobalEntityRegistry:
         else:
             raise ValueError(f"Entity kind {entity_kind} not registered")
 
+    def get_entity_type(self, entity_kind: str) -> str:
+        """
+        Get entity type.
+
+        Parameters
+        ----------
+        entity_kind : str
+            Entity kind.
+
+        Returns
+        -------
+        str
+            Entity type.
+        """
+        if not hasattr(self, entity_kind):
+            raise ValueError(f"Entity kind {entity_kind} not registered")
+        entry: RegistryEntry = getattr(self, entity_kind)
+        return entry.entity_type
+
 
 registry = GlobalEntityRegistry()
