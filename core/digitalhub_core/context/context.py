@@ -11,22 +11,17 @@ if typing.TYPE_CHECKING:
 
 class Context:
     """
-    Context class.
-
-    It contains the project name, client and information about the type of client.
-    It exposes CRUD operations for the entities and act as a layer between the
-    project object and the client.
-    The context is created by the context builder.
+    Context class built forom a `Project` instance. It contains
+    some information about the project, such as the project name,
+    a client instance (local or non-local), the local context
+    project path and information about client locality.
+    It exposes CRUD operations for the entities and act as a layer
+    between the project object and its client.
     """
 
     def __init__(self, project: Project) -> None:
         """
         Constructor.
-
-        Parameters
-        ----------
-        project : Project
-            The project object to create the context from.
         """
         self.name = project.name
         self.client = project._client
@@ -39,31 +34,35 @@ class Context:
 
         Parameters
         ----------
+        api : str
+            Create API.
         obj : dict
             The object to create.
-        api : str
-            The api to create the object with.
+        **kwargs
+            Keyword arguments passed to the request.
 
         Returns
         -------
         dict
-            The created object.
+            Response object.
         """
         return self.client.create_object(api, obj, **kwargs)
 
     def read_object(self, api: str, **kwargs) -> dict:
         """
-        Get an object.
+        Read an object.
 
         Parameters
         ----------
         api : str
-            The api to get the object with.
+            Read API.
+        **kwargs
+            Keyword arguments passed to the request.
 
         Returns
         -------
         dict
-            The read object.
+            Response object.
         """
         return self.client.read_object(api, **kwargs)
 
@@ -73,15 +72,17 @@ class Context:
 
         Parameters
         ----------
+        api : str
+            Update API.
         obj : dict
             The object to update.
-        api : str
-            The api to update the object with.
+        **kwargs
+            Keyword arguments passed to the request.
 
         Returns
         -------
         dict
-            The updated object.
+            Response object.
         """
         return self.client.update_object(api, obj, **kwargs)
 
@@ -92,12 +93,14 @@ class Context:
         Parameters
         ----------
         api : str
-            The api to delete the object with.
+            Delete API.
+        **kwargs
+            Keyword arguments passed to the request.
 
         Returns
         -------
         dict
-            The deleted object.
+            Response object.
         """
         return self.client.delete_object(api, **kwargs)
 
