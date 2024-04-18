@@ -73,7 +73,7 @@ class Metadata(ModelObj):
         self._any_setter(**kwargs)
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Metadata":
+    def from_dict(cls, obj: dict) -> Metadata:
         """
         Return entity metadata object from dictionary.
 

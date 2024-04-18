@@ -32,7 +32,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         Parameters
         ----------
         obj : dict
-            Mapping representation of object from backend.
+            Mapping representation of object.
         """
         new_obj = self.from_dict(obj, validate=False)
         self.metadata = new_obj.metadata
@@ -43,12 +43,12 @@ class Entity(ModelObj, metaclass=ABCMeta):
     @abstractmethod
     def export(self, filename: str | None = None) -> None:
         """
-        Abstract save method.
+        Abstract export method.
         """
 
     def to_dict(
         self,
-        include_all_non_private: bool = False,
+        include_all_non_private: bool = False
     ) -> dict:
         """
         Override default to_dict method to add the possibility to exclude
@@ -75,8 +75,8 @@ class Entity(ModelObj, metaclass=ABCMeta):
     def from_dict(
         cls,
         obj: dict,
-        validate: bool = True,
-    ) -> "Entity":
+        validate: bool = True
+    ) -> Entity:
         """
         Create object instance from a dictionary.
 
@@ -94,7 +94,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         """
         parsed_dict = cls._parse_dict(
             obj,
-            validate=validate,
+            validate=validate
         )
         return cls(**parsed_dict)
 
@@ -102,7 +102,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
     @abstractmethod
     def _parse_dict(
         obj: dict,
-        validate: bool = True,
+        validate: bool = True
     ) -> dict:
         """
         Parse a dictionary to a valid entity dictionary.

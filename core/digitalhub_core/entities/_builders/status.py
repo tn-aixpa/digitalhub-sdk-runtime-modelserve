@@ -16,12 +16,20 @@ if typing.TYPE_CHECKING:
 
 def build_status(kind: str, **kwargs) -> Status:
     """
-    Build entity status object.
+    Build entity status object. The builder takes as input
+    the kind of status's object to build and the keyword
+    arguments to pass to the status's constructor.
+    The specific Status class is searched in the global
+    registry, where lies info about where to find the class.
+    The arguments are parsed, eventually adding default values,
+    and then passed to the constructor.
 
     Parameters
     ----------
     kind : str
-        The type of status to build.
+        Registry entry kind.
+    **kwargs
+        Keyword arguments for the constructor.
 
     Returns
     -------

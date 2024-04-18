@@ -56,7 +56,7 @@ class Status(ModelObj):
         self.message = message
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Status":
+    def from_dict(cls, obj: dict) -> Status:
         """
         Return entity status object from dictionary.
 

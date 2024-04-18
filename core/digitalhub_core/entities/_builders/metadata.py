@@ -16,12 +16,20 @@ if typing.TYPE_CHECKING:
 
 def build_metadata(kind: str, **kwargs) -> Metadata:
     """
-    Build entity metadata object.
+    Build entity metadata object. The builder takes as input
+    the kind of metadata's object to build and the keyword
+    arguments to pass to the metadata's constructor.
+    The specific Metadata class is searched in the global
+    registry, where lies info about where to find the class.
+    The arguments are parsed, eventually adding default values,
+    and then passed to the constructor.
 
     Parameters
     ----------
     kind : str
-        The type of metadata to build.
+        Registry entry kind.
+    **kwargs
+        Keyword arguments for the constructor.
 
     Returns
     -------

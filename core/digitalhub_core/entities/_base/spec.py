@@ -15,7 +15,7 @@ class Spec(ModelObj):
     """
 
     @classmethod
-    def from_dict(cls, obj: dict) -> "Spec":
+    def from_dict(cls, obj: dict) -> Spec:
         """
         Return entity specification object from dictionary.
 
