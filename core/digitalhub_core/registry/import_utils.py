@@ -93,7 +93,6 @@ def register_layer_entities() -> None:
     None
     """
     for layer in ["core", "data", "ml", "ai"]:
-
         # Check if package exists
         package = f"digitalhub_{layer}"
         try:

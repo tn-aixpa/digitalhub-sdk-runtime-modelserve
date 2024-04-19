@@ -8,12 +8,12 @@ from collections import namedtuple
 from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
-from digitalhub_core.registry.registry import registry
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.registry.registry import registry
 from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
@@ -403,10 +403,7 @@ class Run(Entity):
     #############################
 
     @staticmethod
-    def _parse_dict(
-        obj: dict,
-        validate: bool = True,
-    ) -> dict:
+    def _parse_dict(obj: dict, validate: bool = True) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
 

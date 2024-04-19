@@ -27,7 +27,7 @@ class ClientBuilder:
         self._local = None
         self._dhcore = None
 
-    def build(self, local: bool = False, config: dict = None) -> Client:
+    def build(self, local: bool = False, config: dict | None = None) -> Client:
         """
         Method to create a client instance.
 
@@ -68,7 +68,7 @@ def get_client(local: bool = False) -> Client:
     return client_builder.build(local)
 
 
-def build_client(local: bool = False, config: dict = None) -> None:
+def build_client(local: bool = False, config: dict | None = None) -> None:
     """
     Wrapper around ClientBuilder.build.
 

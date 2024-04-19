@@ -162,7 +162,7 @@ class Artifact(Entity):
         Parameters
         ----------
         target : str
-            Target path is the remote path of the artifact where it is stored
+            Target path is the remote path of the artifact where it is stored.
 
         Returns
         -------
@@ -183,15 +183,20 @@ class Artifact(Entity):
 
         return store.download(trg)
 
-    def download(self, target: str | None = None, dst: str | None = None, overwrite: bool = False) -> str:
+    def download(
+        self,
+        target: str | None = None,
+        destination: str | None = None,
+        overwrite: bool = False,
+    ) -> str:
         """
-        Download artifact from backend.
+        Download artifact from remote storage.
 
         Parameters
         ----------
         target : str
             Target path is the remote path of the artifact
-        dst : str
+        destination : str
             Destination path as filename
         overwrite : bool
             Specify if overwrite an existing file
@@ -207,27 +212,27 @@ class Artifact(Entity):
         self._check_remote(trg)
 
         # Check if download destination path is specified and rebuild it if necessary
-        if dst is None:
+        if destination is None:
             filename = urlparse(trg).path.split("/")[-1]
-            dst = f"{self.project}/artifacts/{self.kind}/{filename}"
+            destination = f"{self.project}/artifacts/{self.kind}/{filename}"
 
         # Check if destination path exists for overwrite
-        self._check_overwrite(dst, overwrite)
+        self._check_overwrite(destination, overwrite)
 
         # Download artifact and return path
         store = get_store(trg)
-        return store.download(trg, dst)
+        return store.download(trg, destination)
 
     def upload(self, source: str | None = None, target: str | None = None) -> str:
         """
-        Upload artifact to backend.
+        Upload artifact to remote storage from source path to target destination.
 
         Parameters
         ----------
         source : str
-            Source path is the local path of the artifact
+            Source path is the local path of the artifact.
         target : str
-            Target path is the remote path of the artifact
+            Target path is the remote path of the artifact.
 
         Returns
         -------
@@ -357,10 +362,7 @@ class Artifact(Entity):
     #############################
 
     @staticmethod
-    def _parse_dict(
-        obj: dict,
-        validate: bool = True,
-    ) -> dict:
+    def _parse_dict(obj: dict, validate: bool = True) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
 

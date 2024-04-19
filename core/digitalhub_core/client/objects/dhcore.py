@@ -5,10 +5,11 @@ from __future__ import annotations
 
 import os
 
-import requests
 from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError
 from pydantic import BaseModel
+from requests import request
+from requests.exceptions import RequestException, Timeout
 
 
 class AuthConfig(BaseModel):
@@ -48,18 +49,17 @@ class ClientDHCore(Client):
     the configuration, otherwise it simply set the environment variables.
     """
 
-    def __init__(self, config: dict = None) -> None:
+    def __init__(self, config: dict | None = None) -> None:
         """
         Constructor.
         """
         super().__init__()
 
-        self._endpoint = None
-
-        self._auth_type = None
-        self._user = None
-        self._password = None
-        self._access_token = None
+        self._endpoint: str | None = None
+        self._auth_type: str | None = None
+        self._user: str | None = None
+        self._password: str | None = None
+        self._access_token: str | None = None
 
         self._configure(config)
 
@@ -208,22 +208,22 @@ class ClientDHCore(Client):
         elif self._auth_type == "oauth2":
             kwargs["headers"] = {"Authorization": f"Bearer {self._access_token}"}
 
-        # Call
-        response = None
+        # Call the API
         try:
-            response = requests.request(call_type, url, timeout=60, **kwargs)
+            response = request(call_type, url, timeout=60, **kwargs)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
-            if isinstance(e, requests.exceptions.Timeout):
+        except RequestException as e:
+            if isinstance(e, Timeout):
                 msg = "Request to DHCore backend timed out."
-            elif isinstance(e, requests.exceptions.ConnectionError):
+            elif isinstance(e, ConnectionError):
                 msg = "Unable to connect to DHCore backend."
-            elif isinstance(e, requests.exceptions.JSONDecodeError):
-                return {}
             else:
                 msg = f"Backend error: {e}"
             raise BackendError(msg) from e
+        except Exception as e:
+            msg = f"Some error occurred: {e}"
+            raise RuntimeError(msg) from e
 
     ################################
     # Configuration methods
@@ -250,7 +250,6 @@ class ClientDHCore(Client):
         self._get_endpoint_from_env()
 
         if config is not None:
-
             if config.get("access_token") is not None:
                 config = OAuth2TokenAuth(**config)
                 self._user = config.user

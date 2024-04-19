@@ -266,7 +266,6 @@ class ClientLocal(Client):
                         latest_uuid = None
                         latest_date = None
                         for k, v in self._db[entity_type][name].items():
-
                             # Get created from metadata. If tzinfo is None, set it to UTC
                             # If created is not in ISO format, use fallback
                             fallback = datetime.fromtimestamp(0, timezone.utc)

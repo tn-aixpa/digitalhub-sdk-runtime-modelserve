@@ -180,7 +180,7 @@ class Function(Entity):
         **kwargs,
     ) -> Run:
         """
-        Run function.
+        Run function. This method creates a new run and executes it.
 
         Parameters
         ----------
@@ -258,7 +258,8 @@ class Function(Entity):
                 raise BackendError("Cannot run remote function with local backend.")
             return run
 
-        # If local execution, build and launch run
+        # If local execution, build and launch run.
+        # Detach the run from the main thread
         run.build()
         with ThreadPoolExecutor(max_workers=1) as executor:
             result = executor.submit(run.run)
@@ -465,10 +466,7 @@ class Function(Entity):
     #############################
 
     @staticmethod
-    def _parse_dict(
-        obj: dict,
-        validate: bool = True,
-    ) -> dict:
+    def _parse_dict(obj: dict, validate: bool = True) -> dict:
         """
         Get dictionary and parse it to a valid entity dictionary.
 

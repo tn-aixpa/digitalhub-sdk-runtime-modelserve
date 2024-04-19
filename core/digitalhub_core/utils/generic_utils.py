@@ -11,9 +11,9 @@ from urllib.parse import urlparse
 from uuid import uuid4
 from zipfile import ZipFile
 
-import boto3
-import requests
+from boto3 import client as boto3_client
 from digitalhub_core.utils.io_utils import read_text
+from requests import get as requests_get
 
 
 def build_uuid(uuid: str | None = None) -> str:
@@ -145,7 +145,7 @@ def requests_chunk_download(source: str, filename: Path) -> None:
     -------
     None
     """
-    with requests.get(source, stream=True) as r:
+    with requests_get(source, stream=True) as r:
         r.raise_for_status()
         with filename.open("wb") as f:
             for chunk in r.iter_content(chunk_size=8192):
@@ -188,7 +188,7 @@ def get_s3_source(bucket: str, key: str, filename: Path) -> None:
     -------
     None
     """
-    s3 = boto3.client("s3", endpoint_url=os.getenv("S3_ENDPOINT_URL"))
+    s3 = boto3_client("s3", endpoint_url=os.getenv("S3_ENDPOINT_URL"))
     s3.download_file(bucket, key, filename)
 
 

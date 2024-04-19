@@ -46,10 +46,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         Abstract export method.
         """
 
-    def to_dict(
-        self,
-        include_all_non_private: bool = False
-    ) -> dict:
+    def to_dict(self, include_all_non_private: bool = False) -> dict:
         """
         Override default to_dict method to add the possibility to exclude
         some attributes. This requires to set a list of _obj_attr
@@ -72,11 +69,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         return {k: v for k, v in dict_.items() if k in self._obj_attr}
 
     @classmethod
-    def from_dict(
-        cls,
-        obj: dict,
-        validate: bool = True
-    ) -> Entity:
+    def from_dict(cls, obj: dict, validate: bool = True) -> Entity:
         """
         Create object instance from a dictionary.
 
@@ -92,18 +85,12 @@ class Entity(ModelObj, metaclass=ABCMeta):
         Self
             Self instance.
         """
-        parsed_dict = cls._parse_dict(
-            obj,
-            validate=validate
-        )
+        parsed_dict = cls._parse_dict(obj, validate=validate)
         return cls(**parsed_dict)
 
     @staticmethod
     @abstractmethod
-    def _parse_dict(
-        obj: dict,
-        validate: bool = True
-    ) -> dict:
+    def _parse_dict(obj: dict, validate: bool = True) -> dict:
         """
         Parse a dictionary to a valid entity dictionary.
         """
