@@ -63,7 +63,7 @@ class ClientDHCore(Client):
 
         self._configure(config)
 
-    def create_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
+    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Create an object in DHCore.
 
@@ -102,7 +102,7 @@ class ClientDHCore(Client):
         """
         return self._call("GET", api, **kwargs)
 
-    def update_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
+    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Update an object in DHCore.
 

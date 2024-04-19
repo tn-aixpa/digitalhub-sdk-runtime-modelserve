@@ -34,7 +34,7 @@ class ClientLocal(Client):
     # CRUD
     ########################
 
-    def create_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
+    def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Create an object in local.
 
@@ -157,7 +157,7 @@ class ClientLocal(Client):
             msg = self._format_msg(3, entity_type=entity_type, entity_id=entity_id)
             raise BackendError(msg)
 
-    def update_object(self, api: str, obj: dict | None = None, **kwargs) -> dict:
+    def update_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
         Update an object in local.
 
