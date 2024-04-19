@@ -102,8 +102,8 @@ def register_layer_entities() -> None:
             # core to ai
             return
 
-        # Import registry from entities.registries module
+        # Try ot import registry from entities.registries module
         try:
             import_module(f"{package}.entities.registries")
-        except Exception as e:
-            raise e
+        except Exception:
+            pass
