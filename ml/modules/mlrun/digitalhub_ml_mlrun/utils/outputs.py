@@ -2,15 +2,18 @@ from __future__ import annotations
 
 import typing
 
+from pathlib import Path
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.artifacts.crud import create_artifact
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.utils.data_utils import get_data_preview
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
+    from digitalhub_data.entities.dataitems.entity.table import DataitemTable
     from digitalhub_ml.entities.models.entity import Model
     from mlrun.runtimes.base import RunObject
 
@@ -42,84 +45,108 @@ def map_state(state: str) -> str:
     return mlrun_states.get(state, State.ERROR.value)
 
 
-def parse_mlrun_artifacts(mlrun_outputs: list[dict]) -> list[Artifact]:
+def parse_mlrun_artifacts(mlrun_outputs: list[dict], project: str) -> list[Artifact|Dataitem]:
     """
-    Filter out models and datasets from Mlrun outputs and create DHCore artifacts.
+    Filter out models and datasets from Mlrun outputs and create DHCore entities.
 
     Parameters
     ----------
+    project : str
+        DHCore project name.
     mlrun_outputs : list[dict]
         Mlrun outputs.
 
     Returns
     -------
-    list[Artifact]
-        DHCore artifacts list.
+    list[Artifact|Dataitem]
+        List of artifacts and datasets.
     """
     outputs = []
     for i in mlrun_outputs:
         if i.get("kind") == "model":
             ...
         elif i.get("kind") == "dataset":
-            outputs.append(create_dataitem_(i))
+            outputs.append(_create_dataitem(project, i))
         else:
-            outputs.append(create_artifact(i))
+            outputs.append(_create_artifact(project, i))
     return outputs
 
 
-def create_artifact(mlrun_artifact: dict) -> Artifact:
+def _create_artifact(project: str, mlrun_artifact: dict) -> Artifact:
     """
     New artifact.
 
     Parameters
     ----------
+    project : str
+        DHCore project name.
     mlrun_artifact : dict
         Mlrun artifact.
 
     Returns
     -------
-    dict
-        Artifact info.
+    Artifact
+        Artifact object.
     """
     try:
         kwargs = {}
-        kwargs["project"] = mlrun_artifact.get("metadata", {}).get("project")
+        kwargs["project"] = project
         kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
         kwargs["kind"] = "artifact"
-        kwargs["path"] = mlrun_artifact.get("spec", {}).get("path")
+        kwargs["path"] = mlrun_artifact.get("spec", {}).get("target_path")
         kwargs["size"] = mlrun_artifact.get("spec", {}).get("size")
         kwargs["hash"] = mlrun_artifact.get("spec", {}).get("hash")
-        return new_artifact(**kwargs)
+
+        artifact: Artifact = create_artifact(**kwargs)
+
+        # Upload artifact if Mlrun artifact is local
+        if map_uri_scheme(artifact.spec.path) == "local":
+            filename = Path(artifact.spec.path).name
+            src_path = artifact.spec.path
+            artifact.spec.path = f"s3://datalake/{project}/artifacts/artifact/{filename}"
+            artifact.upload(src=src_path)
+
+        artifact.save()
+        return artifact
+
     except Exception:
         msg = "Something got wrong during artifact creation."
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def create_dataitem_(mlrun_output: dict) -> Dataitem:
+def _create_dataitem(project: str, mlrun_output: dict) -> Dataitem:
     """
     New dataitem.
 
     Parameters
     ----------
+    project : str
+        DHCore project name.
     mlrun_output : dict
         Mlrun output.
 
     Returns
     -------
-    dict
-        Dataitem info.
+    Dataitem
+        Dataitem object.
     """
     try:
         # Create dataitem
         kwargs = {}
-        kwargs["project"] = mlrun_output.get("metadata", {}).get("project")
+        kwargs["project"] = project
         kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
         kwargs["kind"] = "table"
         kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
         kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {})
 
-        dataitem = create_dataitem(**kwargs)
+        dataitem: DataitemTable = create_dataitem(**kwargs)
+
+        # Check on path. If mlrun output is local, write data to minio
+        if map_uri_scheme(dataitem.spec.path) == "local":
+            target_path = f"s3://datalake/{project}/dataitems/table/{dataitem.name}.parquet"
+            new_path = dataitem.write_df(target_path=target_path)
+            dataitem.spec.path = new_path
 
         # Add sample preview
         header = mlrun_output.get("spec", {}).get("header", [])
@@ -184,6 +211,10 @@ def build_status(
     values_list : list
         Values list.
 
+    Returns
+    -------
+    dict
+        Status dict.
     """
     # Map outputs
     outputs = []

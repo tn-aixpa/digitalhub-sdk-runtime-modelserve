@@ -259,7 +259,7 @@ mergedeep==1.3.4
     # via mlrun
 mistune==3.0.2
     # via nbconvert
-mlrun==1.6.0
+mlrun==1.6.2-rc6
     # via digitalhub-ml-mlrun (pyproject.toml)
 multidict==6.0.5
     # via

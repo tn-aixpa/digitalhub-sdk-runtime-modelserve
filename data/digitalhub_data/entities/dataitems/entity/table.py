@@ -40,9 +40,6 @@ class DataitemTable(Dataitem):
         pd.DataFrame
             Pandas DataFrame.
         """
-        if self.spec.path is None:
-            raise EntityError("Path is not specified.")
-
         store = get_store(self.spec.path)
         tmp_path = False
 

@@ -88,7 +88,7 @@ class RuntimeMlrun(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting inputs.")
-        function_args = self._collect_inputs(spec, self.root_path)
+        function_args = self._collect_inputs(spec)
 
         LOGGER.info("Configure execution.")
         mlrun_function = self._configure_execution(spec, action, project)
@@ -97,7 +97,7 @@ class RuntimeMlrun(Runtime):
         results: RunObject = self._execute(executable, mlrun_function, function_args)
 
         LOGGER.info("Collecting outputs.")
-        status = self._collect_outputs(results, spec)
+        status = self._collect_outputs(results, spec, project)
 
         LOGGER.info("Cleanup")
         self._cleanup()
@@ -128,7 +128,7 @@ class RuntimeMlrun(Runtime):
     # Helpers
     ####################
 
-    def _collect_inputs(self, spec: dict, tmp_dir: str) -> dict:
+    def _collect_inputs(self, spec: dict) -> dict:
         """
         Collect inputs.
 
@@ -145,7 +145,8 @@ class RuntimeMlrun(Runtime):
             Parameters.
         """
         LOGGER.info("Getting inputs.")
-        return get_inputs_parameters(spec.get("inputs", []), spec.get("parameters", {}), tmp_dir)
+        self.tmp_path.mkdir(parents=True, exist_ok=True)
+        return get_inputs_parameters(spec.get("inputs", []), spec.get("parameters", {}), self.tmp_path)
 
     ####################
     # Configuration
@@ -185,7 +186,7 @@ class RuntimeMlrun(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: RunObject, spec: dict) -> dict:
+    def _collect_outputs(self, results: RunObject, spec: dict, project: str) -> dict:
         """
         Collect outputs.
 
@@ -193,13 +194,17 @@ class RuntimeMlrun(Runtime):
         ----------
         results : RunObject
             Execution results.
+        spec : dict
+            Run specs.
+        project : str
+            Project name.
 
         Returns
         -------
         dict
             Status of the executed run.
         """
-        execution_outputs = parse_mlrun_artifacts(results.status.artifacts)
+        execution_outputs = parse_mlrun_artifacts(results.status.artifacts, project)
         return build_status(results, execution_outputs, spec.get("outputs", []), spec.get("values", []))
 
     ####################
