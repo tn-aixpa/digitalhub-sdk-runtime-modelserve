@@ -15,7 +15,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
     from digitalhub_data.entities.dataitems.entity.table import DataitemTable
     from digitalhub_ml.entities.models.entity import Model
-    from mlrun.runtimes.base import RunObject
+    from mlrun.runtimes.base import RunObject, BuildStatus
 
 
 def map_state(state: str) -> str:
@@ -247,6 +247,40 @@ def build_status(
         return {
             "state": State.COMPLETED.value,
             "outputs": outputs,
+            "results": results,
+        }
+    except Exception:
+        msg = "Something got wrong during run status building."
+        LOGGER.exception(msg)
+        raise RuntimeError(msg)
+
+
+def build_status_build(
+    execution_results: BuildStatus
+) -> dict:
+    """
+    Collect outputs.
+
+    Parameters
+    ----------
+    execution_results : BuildStatus
+        Build results.
+
+    Returns
+    -------
+    dict
+        Status dict.
+    """
+
+    # Map results and values
+    results = {}
+
+    results["mlrun_result"] = execution_results.to_json()
+    results["target_image"] = execution_results.outputs.image
+
+    try:
+        return {
+            "state": State.COMPLETED.value,
             "results": results,
         }
     except Exception:
