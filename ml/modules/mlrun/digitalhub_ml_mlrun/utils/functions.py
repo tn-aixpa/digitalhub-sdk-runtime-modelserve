@@ -43,4 +43,8 @@ def run_build(function: BaseRuntime, exec_config: dict, function_args: dict) -> 
     dict
         Execution results.
     """
-    return build_function(function, force_build=exec_config.get("force_build", False), commands=exec_config.get("commands", None), image=exec_config.get("target_image", None))
+    return build_function(function, 
+                          force_build=exec_config.get("force_build", False), 
+                          commands=exec_config.get("commands", None), 
+                          image=exec_config.get("target_image", None),
+                          requirements=exec_config.get("requirements", None))

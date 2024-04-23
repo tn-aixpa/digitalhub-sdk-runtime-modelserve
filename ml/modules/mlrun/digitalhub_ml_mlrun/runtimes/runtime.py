@@ -190,9 +190,11 @@ class RuntimeMlrun(Runtime):
             target_image = task_spec.get("target_image")
             commands = task_spec.get("commands")
             force_build = task_spec.get("force_build")
+            reqs = dhcore_function.spec.to_dict().get("requirements")
             if target_image is not None: exec_config["target_image"] = target_image
             if commands is not None: exec_config["commands"] = commands
             if force_build is not None: exec_config["force_build"] = force_build
+            if reqs is not None: exec_config["requirements"] = reqs
         return mlrun_function, exec_config
 
 
