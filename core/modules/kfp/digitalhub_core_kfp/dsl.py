@@ -215,4 +215,17 @@ class PipelineContext:
             k8s_client.V1EnvVar(name="DIGITALHUB_CORE_ENDPOINT", value=DIGITALHUB_CORE_ENDPOINT)
         )
 
+        # Temporary solution for user and password
+        names = ["DIGITALHUB_CORE_USER", "DIGITALHUB_CORE_PASSWORD"]
+        for name in names:
+            cop.container.add_env_variable(
+                k8s_client.V1EnvVar(
+                    name=name,
+                    value_from=k8s_client.V1EnvVarSource(secret_key_ref=k8s_client.V1SecretKeySelector(
+                        name="digitalhub-common-creds",
+                        key=name,
+                        )
+                    )
+                )
+            )
         return cop
