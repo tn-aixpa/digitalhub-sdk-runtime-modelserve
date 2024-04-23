@@ -7,3 +7,8 @@ class TaskMetadataJob(TaskMetadata):
     """
     Task Job metadata.
     """
+
+class TaskMetadataBuild(TaskMetadata):
+    """
+    Task Build metadata.
+    """

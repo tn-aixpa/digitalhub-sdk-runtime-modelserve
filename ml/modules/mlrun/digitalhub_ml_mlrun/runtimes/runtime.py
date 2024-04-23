@@ -17,13 +17,13 @@ from digitalhub_ml_mlrun.utils.configurations import (
     parse_function_specs,
     save_function_source,
 )
-from digitalhub_ml_mlrun.utils.functions import run_job
+from digitalhub_ml_mlrun.utils.functions import run_job, run_build
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
-from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts
+from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts, build_status_build
 
 if typing.TYPE_CHECKING:
     from mlrun.runtimes import BaseRuntime
-    from mlrun.runtimes.base import RunObject
+    from mlrun.runtimes.base import RunObject, BuildStatus
 
 
 class RuntimeMlrun(Runtime):
@@ -31,7 +31,7 @@ class RuntimeMlrun(Runtime):
     Runtime Mlrun class.
     """
 
-    allowed_actions = ["job"]
+    allowed_actions = ["job", "build"]
 
     def __init__(self) -> None:
         """
@@ -91,10 +91,10 @@ class RuntimeMlrun(Runtime):
         function_args = self._collect_inputs(spec)
 
         LOGGER.info("Configure execution.")
-        mlrun_function = self._configure_execution(spec, action, project)
+        mlrun_function, exec_config = self._configure_execution(spec, action, project)
 
         LOGGER.info("Executing function.")
-        results: RunObject = self._execute(executable, mlrun_function, function_args)
+        results = self._execute(executable, mlrun_function, exec_config, function_args)
 
         LOGGER.info("Collecting outputs.")
         status = self._collect_outputs(results, spec, project)
@@ -122,6 +122,8 @@ class RuntimeMlrun(Runtime):
         """
         if action == "job":
             return run_job
+        if action == "build":
+            return run_build
         raise NotImplementedError
 
     ####################
@@ -180,19 +182,31 @@ class RuntimeMlrun(Runtime):
         # Create Mlrun project
         LOGGER.info("Creating Mlrun project and function.")
         mlrun_project = get_mlrun_project(project)
-        return get_mlrun_function(mlrun_project, dhcore_function.name, function_source, function_specs)
+
+        mlrun_function = get_mlrun_function(mlrun_project, dhcore_function.name, function_source, function_specs)
+        exec_config = {}
+        if action == "build":
+            task_spec = spec.get(f"{action}_spec")
+            target_image = task_spec.get("target_image")
+            commands = task_spec.get("commands")
+            force_build = task_spec.get("force_build")
+            if target_image is not None: exec_config["target_image"] = target_image
+            if commands is not None: exec_config["commands"] = commands
+            if force_build is not None: exec_config["force_build"] = force_build
+        return mlrun_function, exec_config
+
 
     ####################
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: RunObject, spec: dict, project: str) -> dict:
+    def _collect_outputs(self, results: RunObject | BuildStatus, spec: dict, project: str) -> dict:
         """
         Collect outputs.
 
         Parameters
         ----------
-        results : RunObject
+        results : RunObject | BuildStatus
             Execution results.
         spec : dict
             Run specs.
@@ -204,8 +218,12 @@ class RuntimeMlrun(Runtime):
         dict
             Status of the executed run.
         """
-        execution_outputs = parse_mlrun_artifacts(results.status.artifacts, project)
-        return build_status(results, execution_outputs, spec.get("outputs", []), spec.get("values", []))
+        if isinstance(results, RunObject):
+            execution_outputs = parse_mlrun_artifacts(results.status.artifacts, project)
+            return build_status(results, execution_outputs, spec.get("outputs", []), spec.get("values", []))
+        elif isinstance(results, BuildStatus):
+            return build_status_build(results)
+        raise NotImplementedError
 
     ####################
     # Cleanup
