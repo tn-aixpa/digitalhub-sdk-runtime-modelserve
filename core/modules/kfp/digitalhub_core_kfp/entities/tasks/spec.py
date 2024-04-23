@@ -17,10 +17,10 @@ class TaskSpecPipeline(TaskSpec):
         super().__init__(function)
         if k8s is None:
             k8s = {}
-        k8s = K8s(**k8s)
-        self.env = k8s.env
-        self.secrets = k8s.secrets
-        self.schedule = k8s.schedule
+        k8s = K8s(**k8s).dict(by_alias=True)
+        self.env = k8s.get("env")
+        self.secrets = k8s.get("secrets")
+        self.schedule = k8s.get("schedule")
 
     def to_dict(self) -> dict:
         """
