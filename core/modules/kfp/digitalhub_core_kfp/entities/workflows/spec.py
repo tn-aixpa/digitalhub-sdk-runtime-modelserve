@@ -23,8 +23,6 @@ class WorkflowSpecKFP(WorkflowSpec):
         image: str | None = None,
         tag: str | None = None,
         handler: str | None = None,
-        command: str | None = None,
-        requirements: list | None = None,
     ) -> None:
         """
         Constructor.
@@ -39,18 +37,12 @@ class WorkflowSpecKFP(WorkflowSpec):
             Workflow source name.
         handler : str
             Workflow handler name.
-        command : str
-            Command to run inside the container.
-        requirements : list
-            List of requirements for the Workflow.
         """
         super().__init__()
 
         self.image = image
         self.tag = tag
         self.handler = handler
-        self.command = command
-        self.requirements = requirements if requirements is not None else []
 
         if handler is not None and source is not None and "handler" not in source:
             source["handler"] = handler
@@ -154,9 +146,3 @@ class WorkflowParamsKFP(WorkflowParams):
 
     handler: str = None
     """Workflow handler name."""
-
-    command: str = None
-    """Command to run inside the container."""
-
-    requirements: list = None
-    """List of requirements for the Workflow."""

@@ -232,7 +232,6 @@ def parse_workflow_specs(spec: WorkflowSpecKFP) -> dict:
             "image": spec.image,
             "tag": spec.tag,
             "handler": spec.handler,
-            "requirements": spec.requirements,
         }
     except AttributeError:
         msg = "Error parsing workflow specs."
