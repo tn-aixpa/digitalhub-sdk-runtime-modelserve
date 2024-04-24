@@ -8,6 +8,7 @@ class TaskStatusJob(TaskStatus):
     Task Job status.
     """
 
+
 class TaskStatusBuild(TaskStatus):
     """
     Task Build status.

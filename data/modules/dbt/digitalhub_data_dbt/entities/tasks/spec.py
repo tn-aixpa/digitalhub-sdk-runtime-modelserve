@@ -13,7 +13,7 @@ class TaskSpecTransform(TaskSpec):
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
     ) -> None:
         """
         Constructor.

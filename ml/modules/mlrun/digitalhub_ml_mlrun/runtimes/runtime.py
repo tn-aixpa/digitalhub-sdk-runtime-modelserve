@@ -17,13 +17,13 @@ from digitalhub_ml_mlrun.utils.configurations import (
     parse_function_specs,
     save_function_source,
 )
-from digitalhub_ml_mlrun.utils.functions import run_job, run_build
+from digitalhub_ml_mlrun.utils.functions import run_build, run_job
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
-from digitalhub_ml_mlrun.utils.outputs import build_status, parse_mlrun_artifacts, build_status_build
+from digitalhub_ml_mlrun.utils.outputs import build_status, build_status_build, parse_mlrun_artifacts
 
 if typing.TYPE_CHECKING:
     from mlrun.runtimes import BaseRuntime
-    from mlrun.runtimes.base import RunObject, BuildStatus
+    from mlrun.runtimes.base import BuildStatus, RunObject
 
 
 class RuntimeMlrun(Runtime):
@@ -191,12 +191,15 @@ class RuntimeMlrun(Runtime):
             commands = task_spec.get("commands")
             force_build = task_spec.get("force_build")
             reqs = dhcore_function.spec.to_dict().get("requirements")
-            if target_image is not None: exec_config["target_image"] = target_image
-            if commands is not None: exec_config["commands"] = commands
-            if force_build is not None: exec_config["force_build"] = force_build
-            if reqs is not None: exec_config["requirements"] = reqs
+            if target_image is not None:
+                exec_config["target_image"] = target_image
+            if commands is not None:
+                exec_config["commands"] = commands
+            if force_build is not None:
+                exec_config["force_build"] = force_build
+            if reqs is not None:
+                exec_config["requirements"] = reqs
         return mlrun_function, exec_config
-
 
     ####################
     # Outputs

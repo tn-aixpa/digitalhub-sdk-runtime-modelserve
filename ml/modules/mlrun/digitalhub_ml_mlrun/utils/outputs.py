@@ -1,21 +1,21 @@
 from __future__ import annotations
 
 import typing
-
 from pathlib import Path
+
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import create_artifact
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.utils.data_utils import get_data_preview
-from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
     from digitalhub_data.entities.dataitems.entity.table import DataitemTable
     from digitalhub_ml.entities.models.entity import Model
-    from mlrun.runtimes.base import RunObject, BuildStatus
+    from mlrun.runtimes.base import BuildStatus, RunObject
 
 
 def map_state(state: str) -> str:
@@ -45,7 +45,7 @@ def map_state(state: str) -> str:
     return mlrun_states.get(state, State.ERROR.value)
 
 
-def parse_mlrun_artifacts(mlrun_outputs: list[dict], project: str) -> list[Artifact|Dataitem]:
+def parse_mlrun_artifacts(mlrun_outputs: list[dict], project: str) -> list[Artifact | Dataitem]:
     """
     Filter out models and datasets from Mlrun outputs and create DHCore entities.
 
@@ -194,8 +194,8 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
 def build_status(
     execution_results: RunObject,
     entity_outputs: list[Artifact | Dataitem | Model],
-    mapped_outputs: dict = None,
-    values_list: list = None,
+    mapped_outputs: dict | None = None,
+    values_list: list | None = None,
 ) -> dict:
     """
     Collect outputs.
@@ -255,9 +255,7 @@ def build_status(
         raise RuntimeError(msg)
 
 
-def build_status_build(
-    execution_results: BuildStatus
-) -> dict:
+def build_status_build(execution_results: BuildStatus) -> dict:
     """
     Collect outputs.
 

@@ -454,8 +454,8 @@ class ClientLocal(Client):
     @staticmethod
     def _format_msg(
         error_code: int,
-        entity_type: str = None,
-        entity_id: str = None,
+        entity_type: str | None = None,
+        entity_id: str | None = None,
     ) -> str:
         """
         Format a message.

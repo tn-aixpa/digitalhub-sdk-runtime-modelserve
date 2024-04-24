@@ -9,15 +9,16 @@ class RunSpecContainer(RunSpec):
     def __init__(
         self,
         task: str,
-        inputs: list = None,
-        outputs: list = None,
-        parameters: dict = None,
-        values: list = None,
+        inputs: list | None = None,
+        outputs: list | None = None,
+        parameters: dict | None = None,
+        values: list | None = None,
         local_execution: bool = False,
-        function_spec: dict = None,
-        job_spec: dict = None,
-        deploy_spec: dict = None,
-        serve_spec: dict = None,
+        function_spec: dict | None = None,
+        job_spec: dict | None = None,
+        deploy_spec: dict | None = None,
+        serve_spec: dict | None = None,
+        build_spec: dict | None = None,
         **kwargs,
     ) -> None:
         """
@@ -28,6 +29,7 @@ class RunSpecContainer(RunSpec):
         self.job_spec = job_spec
         self.deploy_spec = deploy_spec
         self.serve_spec = serve_spec
+        self.build_spec = build_spec
 
 
 class RunParamsContainer(RunParams):
@@ -37,3 +39,4 @@ class RunParamsContainer(RunParams):
     job_spec: dict = None
     deploy_spec: dict = None
     serve_spec: dict = None
+    build_spec: dict = None

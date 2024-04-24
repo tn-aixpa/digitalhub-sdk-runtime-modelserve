@@ -3,8 +3,6 @@ Task Dbt specification module.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 from digitalhub_core.entities.tasks.models import K8s
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 
@@ -19,7 +17,7 @@ class TaskSpecNefertem(TaskSpec):
         exec_args: dict | None = None,
         parallel: bool = False,
         num_worker: int | None = 1,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
     ) -> None:
         """
         Constructor.
@@ -55,16 +53,16 @@ class TaskParamsNefertem(TaskParams):
     framework: str
     """Nefertem framework."""
 
-    exec_args: Optional[dict] = {}
+    exec_args: dict = {}
     """Nefertem execution arguments."""
 
     parallel: bool = False
     """Nefertem parallel execution."""
 
-    num_worker: Optional[int] = 1
+    num_worker: int = 1
     """Nefertem number of workers."""
 
-    k8s: Optional[K8s] = None
+    k8s: K8s = None
     """Kubernetes resources."""
 
 

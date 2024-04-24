@@ -13,7 +13,7 @@ class TaskSpecJob(TaskSpec):
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
     ) -> None:
         """
         Constructor.
@@ -44,16 +44,17 @@ class TaskParamsJob(TaskParams):
     k8s: K8s = None
     """Kubernetes resources."""
 
+
 class TaskSpecBuild(TaskSpec):
     """Task Build specification."""
 
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
         target_image: str | None = None,
         commands: list[str] | None = None,
-        force_build: bool = False
+        force_build: bool = False,
     ) -> None:
         """
         Constructor.
@@ -63,7 +64,6 @@ class TaskSpecBuild(TaskSpec):
         self.target_image = target_image
         self.commands = commands
         self.force_build = force_build
-
 
     def to_dict(self) -> dict:
         """
@@ -81,6 +81,7 @@ class TaskSpecBuild(TaskSpec):
         dict_["commands"] = self.commands
         dict_["force_build"] = self.force_build
         return dict_
+
 
 class TaskParamsBuild(TaskParams):
     """

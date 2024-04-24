@@ -13,7 +13,7 @@ class RuntimeContainer(Runtime):
     Runtime Container class.
     """
 
-    allowed_actions = ["job", "deploy", "serve"]
+    allowed_actions = ["job", "deploy", "serve", "build"]
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """

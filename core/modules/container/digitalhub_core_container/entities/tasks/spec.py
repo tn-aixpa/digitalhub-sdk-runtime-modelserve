@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from digitalhub_core.entities.tasks.models import K8s
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
-from digitalhub_core_container.entities.tasks.models import CorePort
+from digitalhub_core_container.entities.tasks.models import ContextRef, ContextSource, CorePort
 
 
 class TaskSpecContainerBase(TaskSpec):
@@ -14,7 +14,7 @@ class TaskSpecContainerBase(TaskSpec):
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
     ) -> None:
         """
         Constructor.
@@ -41,7 +41,7 @@ class TaskSpecJob(TaskSpecContainerBase):
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
     ) -> None:
         """
         Constructor.
@@ -64,7 +64,7 @@ class TaskSpecDeploy(TaskSpecContainerBase):
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
     ) -> None:
         """
         Constructor.
@@ -87,9 +87,9 @@ class TaskSpecServe(TaskSpecContainerBase):
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
         service_ports: list[CorePort] = None,
-        service_type: str = None,
+        service_type: str | None = None,
     ) -> None:
         """
         Constructor.
@@ -120,12 +120,18 @@ class TaskSpecBuild(TaskSpecContainerBase):
     def __init__(
         self,
         function: str,
-        k8s: K8s | None = None,
+        k8s: dict | None = None,
+        context_refs: list | None = None,
+        context_sources: list | None = None,
+        instructions: list | None = None,
     ) -> None:
         """
         Constructor.
         """
         super().__init__(function, k8s)
+        self.context_refs = context_refs
+        self.context_sources = context_sources
+        self.instructions = instructions
 
 
 class TaskParamsBuild(TaskParams):
@@ -135,3 +141,12 @@ class TaskParamsBuild(TaskParams):
 
     k8s: K8s = None
     """Kubernetes resources."""
+
+    context_refs: list[ContextRef] = None
+    """Context references."""
+
+    context_sources: list[ContextSource] = None
+    """Context sources."""
+
+    instructions: list[str] = None
+    """Build instructions."""

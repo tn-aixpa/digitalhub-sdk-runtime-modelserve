@@ -15,6 +15,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
     from pandas import DataFrame
 
+
 def persist_dataitem(dataitem: Dataitem, tmp_dir: Path) -> str:
     """
     Persist dataitem locally.

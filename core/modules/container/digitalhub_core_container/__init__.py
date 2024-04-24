@@ -35,7 +35,7 @@ registry.register(func_kind, func_info)
 
 # Tasks
 entity_type = "tasks"
-for i in ["transform"]:
+for i in ["job", "deploy", "serve", "build"]:
     task_kind = f"{func_kind}+{i}"
     task_info = {
         "entity_type": entity_type,

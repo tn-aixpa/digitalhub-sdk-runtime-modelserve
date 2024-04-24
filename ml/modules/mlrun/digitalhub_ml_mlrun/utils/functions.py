@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import typing
 
-from mlrun import run_function, build_function
+from mlrun import build_function, run_function
 
 if typing.TYPE_CHECKING:
     from mlrun.runtimes import BaseRuntime
-    from mlrun.runtimes.base import RunObject, BuildStatus
+    from mlrun.runtimes.base import BuildStatus, RunObject
 
 
 def run_job(function: BaseRuntime, exec_config: dict, function_args: dict) -> RunObject:
@@ -43,8 +43,10 @@ def run_build(function: BaseRuntime, exec_config: dict, function_args: dict) -> 
     dict
         Execution results.
     """
-    return build_function(function, 
-                          force_build=exec_config.get("force_build", False), 
-                          commands=exec_config.get("commands", None), 
-                          image=exec_config.get("target_image", None),
-                          requirements=exec_config.get("requirements", None))
+    return build_function(
+        function,
+        force_build=exec_config.get("force_build", False),
+        commands=exec_config.get("commands", None),
+        image=exec_config.get("target_image", None),
+        requirements=exec_config.get("requirements", None),
+    )

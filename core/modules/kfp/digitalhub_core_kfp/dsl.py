@@ -221,11 +221,12 @@ class PipelineContext:
             cop.container.add_env_variable(
                 k8s_client.V1EnvVar(
                     name=name,
-                    value_from=k8s_client.V1EnvVarSource(secret_key_ref=k8s_client.V1SecretKeySelector(
-                        name="digitalhub-common-creds",
-                        key=name,
+                    value_from=k8s_client.V1EnvVarSource(
+                        secret_key_ref=k8s_client.V1SecretKeySelector(
+                            name="digitalhub-common-creds",
+                            key=name,
                         )
-                    )
+                    ),
                 )
             )
         return cop
