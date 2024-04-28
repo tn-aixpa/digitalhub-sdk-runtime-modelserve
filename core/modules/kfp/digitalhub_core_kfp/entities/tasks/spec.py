@@ -10,7 +10,7 @@ from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
 class TaskSpecPipeline(TaskSpec):
     """Task Pipeline specification."""
 
-    def __init__(self, function: str, k8s: K8s | None = None) -> None:
+    def __init__(self, function: str, workflow: str | None = None, k8s: K8s | None = None) -> None:
         """
         Constructor.
         """
@@ -21,6 +21,7 @@ class TaskSpecPipeline(TaskSpec):
         self.env = k8s.get("env")
         self.secrets = k8s.get("secrets")
         self.schedule = k8s.get("schedule")
+        self.workflow = workflow
 
     def to_dict(self) -> dict:
         """
@@ -44,3 +45,6 @@ class TaskParamsPipeline(TaskParams):
 
     k8s: K8s
     """Kubernetes resources."""
+
+    workflow: str = None
+    """KFP workflow specification as YAML string."""

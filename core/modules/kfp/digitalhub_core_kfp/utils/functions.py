@@ -5,9 +5,11 @@ import tempfile
 import time
 from typing import Callable
 
+from pathlib import Path
+
 import kfp
 from digitalhub_core.entities.runs.entity import Run
-from digitalhub_core.utils.io_utils import read_yaml, write_yaml
+from digitalhub_core.utils.io_utils import read_text, read_yaml, write_yaml
 from digitalhub_core_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_core_kfp.utils.outputs import build_status
 from kfp.compiler import compiler
@@ -36,7 +38,7 @@ def build_kfp_pipeline(run: dict, pipeline: Callable) -> any:
             pipeline_func=pipeline, package_path=pipeline_package_path
         )
         unset_current_project()
-        pipeline_spec = read_yaml(pipeline_package_path)
+        pipeline_spec = read_text(pipeline_package_path)
     return pipeline_spec
 
 
@@ -73,7 +75,8 @@ def run_kfp_pipeline(run: dict) -> any:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline_package_path = os.path.join(tmpdir, "pipeline.yaml")
-            write_yaml(pipeline_package_path, workflow)
+            # write_yaml(pipeline_package_path, workflow)
+            Path(pipeline_package_path).write_text(workflow, encoding="utf-8")
             result = client.create_run_from_pipeline_package(pipeline_package_path, arguments=function_args)
 
         status = None
