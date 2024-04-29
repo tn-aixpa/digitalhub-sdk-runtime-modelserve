@@ -9,7 +9,7 @@ from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError
 from pydantic import BaseModel
 from requests import request
-from requests.exceptions import RequestException, Timeout
+from requests.exceptions import RequestException, Timeout, JSONDecodeError
 
 
 class AuthConfig(BaseModel):
@@ -218,6 +218,10 @@ class ClientDHCore(Client):
                 msg = "Request to DHCore backend timed out."
             elif isinstance(e, ConnectionError):
                 msg = "Unable to connect to DHCore backend."
+            elif isinstance(e, JSONDecodeError):
+                if call_type == "DELETE":
+                    return {}
+                msg = "Unable to parse response from DHCore backend."
             else:
                 msg = f"Backend error: {e}"
             raise BackendError(msg) from e
