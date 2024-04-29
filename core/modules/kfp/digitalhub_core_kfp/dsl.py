@@ -215,18 +215,22 @@ class PipelineContext:
             k8s_client.V1EnvVar(name="DIGITALHUB_CORE_ENDPOINT", value=DIGITALHUB_CORE_ENDPOINT)
         )
 
-        # Temporary solution for user and password
-        names = ["DIGITALHUB_CORE_USER", "DIGITALHUB_CORE_PASSWORD"]
-        for name in names:
-            cop.container.add_env_variable(
-                k8s_client.V1EnvVar(
-                    name=name,
-                    value_from=k8s_client.V1EnvVarSource(
-                        secret_key_ref=k8s_client.V1SecretKeySelector(
-                            name="digitalhub-common-creds",
-                            key=name,
-                        )
-                    ),
+        RUN_SECRET_NAME = os.environ.get("DH_RUN_SECRET_NAME")
+
+        if RUN_SECRET_NAME is not None:
+        # user credentials from secret in steps
+            names = ["DIGITALHUB_CORE_TOKEN", "DIGITALHUB_CORE_AUTH_SUB", "DIGITALHUB_CORE_USER", "DIGITALHUB_CORE_PASSWORD"]
+            for name in names:
+                cop.container.add_env_variable(
+                    k8s_client.V1EnvVar(
+                        name=name,
+                        value_from=k8s_client.V1EnvVarSource(
+                            secret_key_ref=k8s_client.V1SecretKeySelector(
+                                name=RUN_SECRET_NAME,
+                                key=name,
+                                optional=True
+                            )
+                        ),
+                    )
                 )
-            )
         return cop
