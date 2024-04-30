@@ -179,6 +179,9 @@ class RuntimeMlrun(Runtime):
         function_source = save_function_source(self.tmp_path, dhcore_function.spec.to_dict().get("source"))
         function_specs = parse_function_specs(dhcore_function.spec.to_dict())
 
+        if action == "job":
+            function_specs["image"] = "mlrun/mlrun"
+
         # Create Mlrun project
         LOGGER.info("Creating Mlrun project and function.")
         mlrun_project = get_mlrun_project(project)
