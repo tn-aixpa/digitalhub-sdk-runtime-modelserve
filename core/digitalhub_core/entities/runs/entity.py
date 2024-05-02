@@ -260,7 +260,7 @@ class Run(Entity):
 
     def refresh(self) -> Run:
         """
-        Get object from backend.
+        Refresh object from backend.
 
         Returns
         -------

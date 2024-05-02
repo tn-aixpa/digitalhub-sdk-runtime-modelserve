@@ -11,7 +11,7 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
@@ -106,6 +106,20 @@ class Dataitem(Entity):
         api = api_ctx_update(self.project, "dataitems", self.id)
         new_obj = self._context().update_object(api, obj)
         self._update_attributes(new_obj)
+        return self
+
+    def refresh(self) -> Dataitem:
+        """
+        Refresh object from backend.
+
+        Returns
+        -------
+        Dataitem
+            Entity refreshed.
+        """
+        api = api_ctx_read(self.project, "dataitems", self.id)
+        obj = self._context().read_object(api)
+        self._update_attributes(obj)
         return self
 
     def export(self, filename: str | None = None) -> None:

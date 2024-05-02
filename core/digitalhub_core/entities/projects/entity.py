@@ -135,11 +135,7 @@ class Project(Entity):
         Project
             Entity saved.
         """
-        # Try to refresh project if local client
-        if self._client.is_local():
-            obj = self._refresh().to_dict()
-        else:
-            obj = self.to_dict()
+        obj = self._refresh_to_dict()
 
         if not update:
             api = api_base_create("projects")
@@ -153,6 +149,20 @@ class Project(Entity):
         new_obj = self._client.update_object(api, obj)
         new_obj["local"] = self._client.is_local()
         self._update_attributes(new_obj)
+        return self
+
+    def refresh(self) -> Project:
+        """
+        Refresh object from backend.
+
+        Returns
+        -------
+        Project
+            Project object.
+        """
+        api = api_base_read("projects", self.name)
+        obj = self._client.read_object(api)
+        self._update_attributes(obj)
         return self
 
     def export(self, filename: str | None = None) -> None:
@@ -169,11 +179,7 @@ class Project(Entity):
         -------
         None
         """
-        # Try to refresh project if local client
-        if self._client.is_local():
-            obj = self._refresh().to_dict()
-        else:
-            obj = self.to_dict()
+        obj = self._refresh_to_dict()
 
         if filename is None:
             filename = f"{self.kind}_{self.name}.yml"
@@ -190,21 +196,19 @@ class Project(Entity):
                 if not ctx_obj.metadata.embedded:
                     ctx_obj.export()
 
-    def _refresh(self) -> "Project":
+    def _refresh_to_dict(self) -> dict:
         """
-        Refresh object from backend.
+        Try to refresh object to collect entities related to project.
 
         Returns
         -------
-        Project
-            Project object.
+        dict
+            Entity object in dictionary format.
         """
         try:
-            api = api_base_read("projects", self.name)
-            obj = self._client.read_object(api)
-            return self.from_dict(obj, validate=False)
+            self.refresh().to_dict()
         except BackendError:
-            return self
+            return self.to_dict()
 
     #############################
     #  Generic operations for objects

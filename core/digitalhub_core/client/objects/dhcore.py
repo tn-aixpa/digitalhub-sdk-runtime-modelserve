@@ -9,7 +9,7 @@ from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError
 from pydantic import BaseModel
 from requests import request
-from requests.exceptions import RequestException, Timeout, JSONDecodeError
+from requests.exceptions import JSONDecodeError, RequestException, Timeout
 
 
 class AuthConfig(BaseModel):

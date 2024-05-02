@@ -3,8 +3,8 @@ Function Conatiner specification module.
 """
 from __future__ import annotations
 
-from pydantic import validator
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
+from pydantic import validator
 
 
 class FunctionSpecContainer(FunctionSpec):

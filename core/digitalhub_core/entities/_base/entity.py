@@ -25,6 +25,17 @@ class Entity(ModelObj, metaclass=ABCMeta):
         Abstract save method.
         """
 
+    @abstractmethod
+    def refresh(self) -> Entity:
+        """
+        Refresh object from backend.
+
+        Returns
+        -------
+        Entity
+            Entity object.
+        """
+
     def _update_attributes(self, obj: dict) -> None:
         """
         Update attributes.

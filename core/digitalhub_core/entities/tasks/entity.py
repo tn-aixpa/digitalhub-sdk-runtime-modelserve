@@ -12,7 +12,7 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.runs.crud import delete_run, get_run, new_run, run_from_parameters
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_update
+from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -102,6 +102,20 @@ class Task(Entity):
         api = api_ctx_update(self.project, "tasks", self.id)
         new_obj = self._context().update_object(api, obj)
         self._update_attributes(new_obj)
+        return self
+
+    def refresh(self) -> Task:
+        """
+        Refresh object from backend.
+
+        Returns
+        -------
+        Task
+            Entity refreshed.
+        """
+        api = api_ctx_read(self.project, "tasks", self.id)
+        obj = self._context().read_object(api)
+        self._update_attributes(obj)
         return self
 
     def export(self, filename: str | None = None) -> None:

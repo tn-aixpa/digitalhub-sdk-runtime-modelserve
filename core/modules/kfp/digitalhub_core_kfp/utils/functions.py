@@ -3,13 +3,12 @@ from __future__ import annotations
 import os
 import tempfile
 import time
-from typing import Callable
-
 from pathlib import Path
+from typing import Callable
 
 import kfp
 from digitalhub_core.entities.runs.entity import Run
-from digitalhub_core.utils.io_utils import read_text, read_yaml, write_yaml
+from digitalhub_core.utils.io_utils import read_text
 from digitalhub_core_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_core_kfp.utils.outputs import build_status
 from kfp.compiler import compiler
