@@ -73,7 +73,7 @@ class Task(Entity):
         self._obj_attr.extend(["project", "id", "key"])
 
     #############################
-    #  Save / Export
+    #  Save / Refresh / Export
     #############################
 
     def save(self, update: bool = False) -> Task:

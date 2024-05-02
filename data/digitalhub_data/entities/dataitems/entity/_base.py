@@ -77,7 +77,7 @@ class Dataitem(Entity):
         self._obj_attr.extend(["project", "name", "id", "key"])
 
     #############################
-    #  Save / Export
+    #  Save / Refresh / Export
     #############################
 
     def save(self, update: bool = False) -> Dataitem:

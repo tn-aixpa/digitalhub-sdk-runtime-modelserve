@@ -83,7 +83,7 @@ class Function(Entity):
         self._tasks: dict[str, Task] = {}
 
     #############################
-    #  Save / Export
+    #  Save / Refresh / Export
     #############################
 
     def save(self, update: bool = False) -> Function:
