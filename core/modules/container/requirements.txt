@@ -21,7 +21,7 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub-core==0.4.0b3
+digitalhub-core==0.4.0b4
     # via digitalhub-core-container (pyproject.toml)
 frozenlist==1.4.1
     # via

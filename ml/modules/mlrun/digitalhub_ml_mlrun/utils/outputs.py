@@ -15,7 +15,8 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
     from digitalhub_data.entities.dataitems.entity.table import DataitemTable
     from digitalhub_ml.entities.models.entity import Model
-    from mlrun.runtimes.base import BuildStatus, RunObject
+    from mlrun.projects.operations import BuildStatus
+    from mlrun.runtimes.base import RunObject
 
 
 def map_state(state: str) -> str:
@@ -109,10 +110,10 @@ def _create_artifact(project: str, mlrun_artifact: dict) -> Artifact:
         artifact.save()
         return artifact
 
-    except Exception:
-        msg = "Something got wrong during artifact creation."
+    except Exception as e:
+        msg = f"Something got wrong during artifact creation. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def _create_dataitem(project: str, mlrun_output: dict) -> Dataitem:
@@ -161,10 +162,10 @@ def _create_dataitem(project: str, mlrun_output: dict) -> Dataitem:
         # Save dataitem in core and return it
         dataitem.save()
         return dataitem
-    except Exception:
-        msg = "Something got wrong during dataitem creation."
+    except Exception as e:
+        msg = f"Something got wrong during dataitem creation. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
@@ -185,10 +186,10 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
     """
     try:
         return get_data_preview(columns, data)
-    except Exception:
-        msg = "Something got wrong during data preview creation."
+    except Exception as e:
+        msg = f"Something got wrong during data preview creation. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def build_status(
@@ -216,43 +217,43 @@ def build_status(
     dict
         Status dict.
     """
-    # Map outputs
-    outputs = []
-
-    execution_outputs_keys = [k for k, _ in execution_results.outputs.items()]
-    if mapped_outputs is not None:
-        for i in mapped_outputs:
-            for k, v in i.items():
-                if k in execution_outputs_keys:
-                    for j in entity_outputs:
-                        if j.name == k:
-                            outputs.append({v: j.key})
-    else:
-        outputs = [{i.name: i.key} for i in entity_outputs]
-
-    # Map results and values
-    results = {}
-
-    if values_list is not None:
-        for i in values_list:
-            if i in execution_outputs_keys:
-                results[i] = [v for k, v in execution_results.outputs.items() if k == i][0]
-    else:
-        for i, j in execution_results.outputs.items():
-            results[i] = j
-
-    results["mlrun_result"] = execution_results.to_json()
-
     try:
+        # Map outputs
+        outputs = []
+
+        execution_outputs_keys = [k for k, _ in execution_results.outputs.items()]
+        if mapped_outputs is not None:
+            for i in mapped_outputs:
+                for k, v in i.items():
+                    if k in execution_outputs_keys:
+                        for j in entity_outputs:
+                            if j.name == k:
+                                outputs.append({v: j.key})
+        else:
+            outputs = [{i.name: i.key} for i in entity_outputs]
+
+        # Map results and values
+        results = {}
+
+        if values_list is not None:
+            for i in values_list:
+                if i in execution_outputs_keys:
+                    results[i] = [v for k, v in execution_results.outputs.items() if k == i][0]
+        else:
+            for i, j in execution_results.outputs.items():
+                results[i] = j
+
+        results["mlrun_result"] = execution_results.to_json()
+
         return {
             "state": State.COMPLETED.value,
             "outputs": outputs,
             "results": results,
         }
-    except Exception:
-        msg = "Something got wrong during run status building."
+    except Exception as e:
+        msg = f"Something got wrong during run status building. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def build_status_build(execution_results: BuildStatus) -> dict:
@@ -269,19 +270,15 @@ def build_status_build(execution_results: BuildStatus) -> dict:
     dict
         Status dict.
     """
-
-    # Map results and values
-    results = {}
-
-    results["mlrun_result"] = execution_results.to_json()
-    results["target_image"] = execution_results.outputs.image
-
     try:
+        results = {}
+        results["mlrun_result"] = execution_results.to_json()
+        results["target_image"] = execution_results.outputs.image
         return {
             "state": State.COMPLETED.value,
             "results": results,
         }
-    except Exception:
-        msg = "Something got wrong during run status building."
+    except Exception as e:
+        msg = f"Something got wrong during run status building. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e

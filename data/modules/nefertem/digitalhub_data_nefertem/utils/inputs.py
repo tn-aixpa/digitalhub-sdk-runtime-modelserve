@@ -40,7 +40,7 @@ def persist_dataitem(dataitem: Dataitem, name: str, output_path: str) -> dict:
         tmp_path = f"{output_path}/tmp/{name}.csv"
         dataitem.as_df().to_csv(tmp_path, sep=",", index=False)
         return {"name": name, "path": tmp_path}
-    except Exception:
-        msg = f"Error during dataitem '{name}' collection."
+    except Exception as e:
+        msg = f"Error during dataitem '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e

@@ -36,7 +36,7 @@ def get_connection() -> psycopg2.extensions.connection:
             user=POSTGRES_USER,
             password=POSTGRES_PASSWORD,
         )
-    except Exception:
-        msg = "Something got wrong during connection to postgres."
+    except Exception as e:
+        msg = f"Something got wrong during connection to postgres. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e

@@ -5,8 +5,9 @@ import typing
 from mlrun import build_function, run_function
 
 if typing.TYPE_CHECKING:
+    from mlrun.projects.operations import BuildStatus
     from mlrun.runtimes import BaseRuntime
-    from mlrun.runtimes.base import BuildStatus, RunObject
+    from mlrun.runtimes.base import RunObject
 
 
 def run_job(function: BaseRuntime, exec_config: dict, function_args: dict) -> RunObject:

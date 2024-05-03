@@ -10,9 +10,6 @@ from nefertem_core.utils.exceptions import StoreError
 if typing.TYPE_CHECKING:
     from nefertem.client.client import Client
 
-if typing.TYPE_CHECKING:
-    from nefertem.client.client import Client
-
 
 ####################
 # Configuration
@@ -42,10 +39,10 @@ def create_client(output_path: str, store: dict) -> Client:
         except StoreError:
             pass
         return client
-    except Exception:
-        msg = "Error. Nefertem client cannot be created."
+    except Exception as e:
+        msg = f"Error. Nefertem client cannot be created. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def create_nt_resources(inputs: list[dict], store: dict) -> list[dict]:
@@ -73,10 +70,10 @@ def create_nt_resources(inputs: list[dict], store: dict) -> list[dict]:
             res["store"] = store["name"]
             resources.append(res)
         return resources
-    except KeyError:
-        msg = "Error. Dataitem path is not given."
+    except KeyError as e:
+        msg = f"Error. Dataitem path is not given. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def create_nt_run_config(action: str, framework: str, exec_args: dict, parallel: bool, num_worker: int) -> dict:

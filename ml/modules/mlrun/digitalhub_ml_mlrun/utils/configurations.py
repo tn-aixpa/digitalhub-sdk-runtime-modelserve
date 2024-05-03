@@ -40,10 +40,10 @@ def get_dhcore_function(function_string: str) -> Function:
     LOGGER.info(f"Getting function {function_name}:{function_version}.")
     try:
         return get_function(splitted[0], function_name, function_version)
-    except Exception:
-        msg = f"Error getting function {function_name}:{function_version}."
+    except Exception as e:
+        msg = f"Error getting function {function_name}:{function_version}. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def save_function_source(path: Path, source_spec: dict) -> str:
@@ -126,10 +126,10 @@ def get_remote_source(source: str, filename: Path) -> None:
     """
     try:
         requests_chunk_download(source, filename)
-    except Exception:
-        msg = "Some error occurred while downloading function source."
+    except Exception as e:
+        msg = f"Some error occurred while downloading function source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def unzip(path: Path, filename: Path) -> None:
@@ -150,10 +150,10 @@ def unzip(path: Path, filename: Path) -> None:
 
     try:
         extract_archive(path, filename)
-    except Exception:
-        msg = "Source must be a valid zipfile."
+    except Exception as e:
+        msg = f"Source must be a valid zipfile. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def get_repository(path: Path, source: str) -> str:
@@ -173,10 +173,10 @@ def get_repository(path: Path, source: str) -> str:
     """
     try:
         clone_repository(path, source)
-    except Exception:
-        msg = "Some error occurred while downloading function repo source."
+    except Exception as e:
+        msg = f"Some error occurred while downloading function repo source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def decode_base64(base64: str) -> str:
@@ -200,10 +200,10 @@ def decode_base64(base64: str) -> str:
     """
     try:
         return decode_string(base64)
-    except Exception:
-        msg = "Some error occurred while decoding function source."
+    except Exception as e:
+        msg = f"Some error occurred while decoding function source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def get_mlrun_project(project_name: str) -> MlrunProject:
@@ -222,10 +222,10 @@ def get_mlrun_project(project_name: str) -> MlrunProject:
     """
     try:
         return get_or_create_project(project_name, "./")
-    except Exception:
-        msg = f"Error getting Mlrun project '{project_name}'."
+    except Exception as e:
+        msg = f"Error getting Mlrun project '{project_name}'. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def get_mlrun_function(
@@ -257,10 +257,10 @@ def get_mlrun_function(
         project.set_function(function_source, name=function_name, **function_specs)
         project.save()
         return project.get_function(function_name)
-    except Exception:
-        msg = f"Error getting Mlrun function '{function_name}'."
+    except Exception as e:
+        msg = f"Error getting Mlrun function '{function_name}'. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def parse_function_specs(spec: dict) -> dict:
@@ -281,10 +281,9 @@ def parse_function_specs(spec: dict) -> dict:
         return {
             "image": spec.get("image"),
             "tag": spec.get("tag"),
-            # "command": spec.get("command"),
             "handler": spec.get("handler"),
         }
-    except AttributeError:
-        msg = "Error parsing function specs."
+    except AttributeError as e:
+        msg = f"Error parsing function specs. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.error(msg)
         raise RuntimeError(msg)

@@ -44,10 +44,10 @@ def get_dhcore_workflow(workflow_string: str) -> Workflow:
     LOGGER.info(f"Getting workflow {workflow_name}:{workflow_version}.")
     try:
         return get_workflow(splitted[0], workflow_name, workflow_version)
-    except Exception:
-        msg = f"Error getting workflow {workflow_name}:{workflow_version}."
+    except Exception as e:
+        msg = f"Error getting workflow {workflow_name}:{workflow_version}. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def save_workflow_source(path: Path, source_spec: dict) -> str:
@@ -133,10 +133,10 @@ def get_remote_source(source: str, filename: Path) -> None:
     """
     try:
         requests_chunk_download(source, filename)
-    except Exception:
-        msg = "Some error occurred while downloading function source."
+    except Exception as e:
+        msg = f"Some error occurred while downloading function source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def unzip(path: Path, filename: Path) -> None:
@@ -157,10 +157,10 @@ def unzip(path: Path, filename: Path) -> None:
 
     try:
         extract_archive(path, filename)
-    except Exception:
-        msg = "Source must be a valid zipfile."
+    except Exception as e:
+        msg = f"Source must be a valid zipfile. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def get_repository(path: Path, source: str) -> str:
@@ -180,10 +180,10 @@ def get_repository(path: Path, source: str) -> str:
     """
     try:
         clone_repository(path, source)
-    except Exception:
-        msg = "Some error occurred while downloading workflow repo source."
+    except Exception as e:
+        msg = f"Some error occurred while downloading workflow repo source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def decode_base64(base64: str) -> str:
@@ -207,10 +207,10 @@ def decode_base64(base64: str) -> str:
     """
     try:
         return decode_string(base64)
-    except Exception:
-        msg = "Some error occurred while decoding workflow source."
+    except Exception as e:
+        msg = f"Some error occurred while decoding workflow source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def parse_workflow_specs(spec: WorkflowSpecKFP) -> dict:
@@ -233,8 +233,8 @@ def parse_workflow_specs(spec: WorkflowSpecKFP) -> dict:
             "tag": spec.tag,
             "handler": spec.handler,
         }
-    except AttributeError:
-        msg = "Error parsing workflow specs."
+    except AttributeError as e:
+        msg = f"Error parsing workflow specs. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.error(msg)
         raise RuntimeError(msg)
 
@@ -266,10 +266,10 @@ def get_kfp_pipeline(name: str, workflow_source: str, workflow_specs: dict) -> d
         handler = _load_module(workflow_source, workflow_specs.get("handler"))
 
         return handler
-    except Exception:
-        msg = "Error getting KFP pipeline."
+    except Exception as e:
+        msg = f"Error getting KFP pipeline. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def _load_module(file_name, handler):
@@ -312,8 +312,8 @@ def _get_handler_extended(handler_path: str, class_args: dict = {}, namespaces=N
     class_object = _get_class(class_path, namespaces)
     try:
         instance = class_object(**class_args)
-    except TypeError as exc:
-        raise TypeError(f"failed to init class {class_path}\n args={class_args}") from exc
+    except TypeError as e:
+        raise TypeError(f"failed to init class {class_path}\n args={class_args}") from e
 
     if not hasattr(instance, handler_path):
         raise ValueError(f"handler ({handler_path}) specified but doesnt exist in class {class_path}")
@@ -350,8 +350,8 @@ def _get_class(class_name, namespace=None):
 
     try:
         class_object = _create_class(class_name)
-    except (ImportError, ValueError) as exc:
-        raise ImportError(f"Failed to import {class_name}") from exc
+    except (ImportError, ValueError) as e:
+        raise ImportError(f"Failed to import {class_name}") from e
     return class_object
 
 
@@ -384,8 +384,8 @@ def _get_function_to_exec(function, namespace):
 
     try:
         function_object = _create_function(function)
-    except (ImportError, ValueError) as exc:
-        raise ImportError(f"state/function init failed, handler '{function}' not found") from exc
+    except (ImportError, ValueError) as e:
+        raise ImportError(f"state/function init failed, handler '{function}' not found") from e
     return function_object
 
 

@@ -48,10 +48,10 @@ def create_artifact(src_path: str, project: str, run_id: str) -> Artifact:
         artifact = new_artifact(**kwargs)
         artifact.spec.src_path = src_path
         return artifact
-    except Exception:
-        msg = f"Error creating artifact '{name}'."
+    except Exception as e:
+        msg = f"Error creating artifact '{name}'. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def upload_artifact(artifact: Artifact) -> None:
@@ -70,10 +70,10 @@ def upload_artifact(artifact: Artifact) -> None:
     try:
         LOGGER.info(f"Uploading artifact '{artifact.name}' to minio.")
         artifact.upload()
-    except Exception:
-        msg = f"Error uploading artifact '{artifact.name}'."
+    except Exception as e:
+        msg = f"Error uploading artifact '{artifact.name}'. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def build_status(results: dict, outputs: list[Artifact]) -> dict:
@@ -92,8 +92,13 @@ def build_status(results: dict, outputs: list[Artifact]) -> dict:
     dict
         Run status.
     """
-    return {
-        "state": State.COMPLETED.value,
-        "outputs": [{i.name: i.key} for i in outputs],
-        "results": {"nefertem_result": results},
-    }
+    try:
+        return {
+            "state": State.COMPLETED.value,
+            "outputs": [{i.name: i.key} for i in outputs],
+            "results": {"nefertem_result": results},
+        }
+    except Exception as e:
+        msg = f"Something got wrong during status creation. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.exception(msg)
+        raise RuntimeError(msg) from e

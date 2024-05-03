@@ -40,10 +40,10 @@ def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
         tmp_path = f"{tmp_dir}/{name}.csv"
         dataitem.as_df().to_csv(tmp_path, sep=",", index=False)
         return tmp_path
-    except Exception:
-        msg = f"Error during dataitem '{name}' collection."
+    except Exception as e:
+        msg = f"Error during dataitem '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
@@ -73,10 +73,10 @@ def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
         LOGGER.info(f"Persisting dataitem '{name}' locally.")
         filename = Path(artifact.spec.path).name
         return artifact.download(dst=f"{tmp_dir}/{filename}")
-    except Exception:
-        msg = f"Error during artifact '{name}' collection."
+    except Exception as e:
+        msg = f"Error during artifact '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict) -> dict:

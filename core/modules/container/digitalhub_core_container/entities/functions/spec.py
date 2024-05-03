@@ -4,7 +4,6 @@ Function Conatiner specification module.
 from __future__ import annotations
 
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
-from pydantic import validator
 
 
 class FunctionSpecContainer(FunctionSpec):
@@ -46,9 +45,3 @@ class FunctionParamsContainer(FunctionParams):
 
     args: list[str] = None
     """Arguments to pass to the entrypoint."""
-
-    @validator("base_image", always=True)
-    def image_validator(cls, v, values):
-        if (values["image"] is None) == (v is None):
-            raise ValueError("Must provide either 'image' or 'base_image'.")
-        return v

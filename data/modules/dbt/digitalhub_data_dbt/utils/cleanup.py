@@ -29,10 +29,10 @@ def cleanup(tables: list[str], tmp_dir: Path) -> None:
                     LOGGER.info(f"Dropping table '{table}'.")
                     query = sql.SQL("DROP TABLE {table}").format(table=sql.Identifier(table))
                     cursor.execute(query)
-    except Exception:
-        msg = "Something got wrong during environment cleanup."
+    except Exception as e:
+        msg = f"Something got wrong during environment cleanup. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
     finally:
         LOGGER.info("Closing connection to postgres.")
         connection.close()

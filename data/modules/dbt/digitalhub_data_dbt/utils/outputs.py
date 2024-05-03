@@ -79,10 +79,10 @@ def parse_results(run_result: dbtRunnerResult, output: str, project: str) -> Par
         path = get_path(result)
         name = result.node.name
         return ParsedResults(name, path)
-    except Exception:
-        msg = "Something got wrong during results parsing."
+    except Exception as e:
+        msg = f"Something got wrong during results parsing. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def validate_results(run_result: dbtRunnerResult, output: str, project: str) -> RunResult:
@@ -111,8 +111,8 @@ def validate_results(run_result: dbtRunnerResult, output: str, project: str) -> 
     try:
         # Take last result, final result of the query
         result: RunResult = run_result.result[-1]
-    except IndexError:
-        msg = "No results found."
+    except IndexError as e:
+        msg = f"No results found. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.error(msg)
         raise RuntimeError(msg)
 
@@ -152,10 +152,10 @@ def get_path(result: RunResult) -> str:
         components = result.node.relation_name.replace('"', "")
         components = "/".join(components.split("."))
         return f"sql://{components}"
-    except Exception:
-        msg = "Something got wrong during path parsing."
+    except Exception as e:
+        msg = f"Something got wrong during path parsing. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem:
@@ -209,10 +209,10 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
         dataitem.save()
         return dataitem
 
-    except Exception:
-        msg = "Something got wrong during dataitem creation."
+    except Exception as e:
+        msg = f"Something got wrong during dataitem creation. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def get_data_sample(table_name: str, uuid: str) -> None:
@@ -243,10 +243,10 @@ def get_data_sample(table_name: str, uuid: str) -> None:
                 cursor.execute(query_count)
                 rows_count = cursor.fetchone()[0]
         return columns, data, rows_count
-    except Exception:
-        msg = "Something got wrong during data fetching."
+    except Exception as e:
+        msg = f"Something got wrong during data fetching. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
     finally:
         LOGGER.info("Closing connection to postgres.")
         connection.close()
@@ -268,10 +268,10 @@ def get_schema(columns: tuple) -> list[dict]:
     """
     try:
         return {"fields": [{"name": c.name, "type": TYPE_MAPPER.get(c.type_code, "any")} for c in columns]}
-    except Exception:
-        msg = "Something got wrong during schema parsing."
+    except Exception as e:
+        msg = f"Something got wrong during schema parsing. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
@@ -293,10 +293,10 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
     try:
         columns = [i.name for i in columns]
         return get_data_preview(columns, data)
-    except Exception:
-        msg = "Something got wrong during data preview creation."
+    except Exception as e:
+        msg = f"Something got wrong during data preview creation. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def build_status(dataitem: Dataitem, results: dbtRunnerResult, output_table: str) -> dict:
@@ -317,8 +317,13 @@ def build_status(dataitem: Dataitem, results: dbtRunnerResult, output_table: str
     dict
         The status.
     """
-    return {
-        "state": State.COMPLETED.value,
-        "outputs": [{output_table: dataitem.key}],
-        "results": {"dbt_result": results.result[-1].to_dict()},
-    }
+    try:
+        return {
+            "state": State.COMPLETED.value,
+            "outputs": [{output_table: dataitem.key}],
+            "results": {"dbt_result": results.result[-1].to_dict()},
+        }
+    except Exception as e:
+        msg = f"Something got wrong during status creation. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.exception(msg)
+        raise RuntimeError(msg) from e

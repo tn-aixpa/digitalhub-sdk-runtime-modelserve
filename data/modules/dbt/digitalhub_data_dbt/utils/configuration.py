@@ -163,14 +163,14 @@ def get_output_table_name(outputs: list[dict]) -> str:
     """
     try:
         return outputs[0]["output_table"]
-    except IndexError:
-        msg = "Outputs must be a list of one dataitem."
+    except IndexError as e:
+        msg = f"Outputs must be a list of one dataitem. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
-    except KeyError:
-        msg = "Must pass reference to 'output_table'."
+        raise RuntimeError(msg) from e
+    except KeyError as e:
+        msg = f"Must pass reference to 'output_table'. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def save_function_source(path: Path, source_spec: dict) -> str:
@@ -249,10 +249,10 @@ def get_remote_source(source: str, filename: Path) -> None:
     """
     try:
         requests_chunk_download(source, filename)
-    except Exception:
-        msg = "Some error occurred while downloading function source."
+    except Exception as e:
+        msg = f"Some error occurred while downloading function source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def unzip(path: Path, filename: Path) -> None:
@@ -273,10 +273,10 @@ def unzip(path: Path, filename: Path) -> None:
 
     try:
         extract_archive(path, filename)
-    except Exception:
-        msg = "Source must be a valid zipfile."
+    except Exception as e:
+        msg = f"Source must be a valid zipfile. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def get_repository(path: Path, source: str) -> str:
@@ -296,10 +296,10 @@ def get_repository(path: Path, source: str) -> str:
     """
     try:
         clone_repository(path, source)
-    except Exception:
-        msg = "Some error occurred while downloading function repo source."
+    except Exception as e:
+        msg = f"Some error occurred while downloading function repo source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def decode_base64(base64: str) -> str:
@@ -323,7 +323,7 @@ def decode_base64(base64: str) -> str:
     """
     try:
         return decode_string(base64)
-    except Exception:
-        msg = "Some error occurred while decoding function source."
+    except Exception as e:
+        msg = f"Some error occurred while decoding function source. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e

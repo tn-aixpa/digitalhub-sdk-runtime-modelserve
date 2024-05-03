@@ -58,10 +58,10 @@ def build_status(execution_results: ApiRunDetail, client: Client) -> dict:
             "state": map_state(execution_results.run.status),
             "results": _convert_run(execution_results, client),
         }
-    except Exception:
-        msg = "Something got wrong during run status building."
+    except Exception as e:
+        msg = f"Something got wrong during run status building. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
@@ -104,10 +104,10 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
             "graph": graph_nodes,
         }
         return result
-    except Exception:
-        msg = "Something got wrong during run conversion."
+    except Exception as e:
+        msg = f"Something got wrong during run conversion. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
 
 
 def _node_to_graph(id: str, run_detail: ApiRunDetail, node, templates, client: Client):

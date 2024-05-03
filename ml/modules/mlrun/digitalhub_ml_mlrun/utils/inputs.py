@@ -44,10 +44,10 @@ def persist_dataitem(dataitem: Dataitem, tmp_dir: Path) -> str:
         dataframe: DataFrame = dataitem.as_df()
         dataframe.to_csv(tmp_path, sep=",", index=False)
         return str(tmp_path)
-    except Exception:
-        msg = f"Error during dataitem '{name}' collection."
+    except Exception as e:
+        msg = f"Error during dataitem '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def persist_artifact(artifact: Artifact, tmp_dir: Path) -> str:
@@ -78,10 +78,10 @@ def persist_artifact(artifact: Artifact, tmp_dir: Path) -> str:
         dst = tmp_dir / filename
         tmp_path = artifact.download(dst=dst)
         return str(tmp_path)
-    except Exception:
-        msg = f"Error during artifact '{name}' collection."
+    except Exception as e:
+        msg = f"Error during artifact '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
 
 
 def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict, tmp_dir: Path) -> dict:

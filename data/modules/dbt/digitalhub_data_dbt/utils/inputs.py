@@ -37,7 +37,7 @@ def materialize_dataitem(dataitem: Dataitem, name: str) -> str:
         target_path = f"sql://{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
         dataitem.write_df(target_path, if_exists="replace")
         return table_name
-    except Exception:
-        msg = f"Something got wrong during dataitem {name} materialization."
+    except Exception as e:
+        msg = f"Something got wrong during dataitem {name} materialization. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg)
+        raise EntityError(msg) from e
