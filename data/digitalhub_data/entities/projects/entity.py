@@ -14,13 +14,16 @@ from digitalhub_data.entities.dataitems.crud import (
     list_dataitems,
     new_dataitem,
 )
+from digitalhub_data.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
-CTX_ENTITIES.append("dataitems")
-FUNC_MAP["dataitems"] = create_dataitem_from_dict
+DATAITEMS = EntityTypes.DATAITEMS.value
+
+CTX_ENTITIES.append(DATAITEMS)
+FUNC_MAP[DATAITEMS] = create_dataitem_from_dict
 
 
 class ProjectData(Project):
@@ -49,7 +52,7 @@ class ProjectData(Project):
         """
         kwargs["project"] = self.name
         obj = new_dataitem(**kwargs)
-        self._add_object(obj, "dataitems")
+        self._add_object(obj, DATAITEMS)
         return obj
 
     def get_dataitem(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Dataitem:
@@ -71,7 +74,7 @@ class ProjectData(Project):
             Instance of Dataitem class.
         """
         obj = get_dataitem(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, "dataitems")
+        self._add_object(obj, DATAITEMS)
         return obj
 
     def delete_dataitem(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
@@ -92,7 +95,7 @@ class ProjectData(Project):
         None
         """
         delete_dataitem(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object("dataitems", entity_name, entity_id)
+        self._delete_object(DATAITEMS, entity_name, entity_id)
 
     def set_dataitem(self, dataitem: Dataitem) -> None:
         """
@@ -107,7 +110,7 @@ class ProjectData(Project):
         -------
         None
         """
-        self._add_object(dataitem, "dataitems")
+        self._add_object(dataitem, DATAITEMS)
 
     def list_dataitems(self, **kwargs) -> list[dict]:
         """

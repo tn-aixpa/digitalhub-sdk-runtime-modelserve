@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.registry.import_utils import import_class
 from digitalhub_core.registry.registry import registry
+from digitalhub_core.registry.utils import import_class
 from digitalhub_core.utils.generic_utils import get_timestamp
 
 if typing.TYPE_CHECKING:

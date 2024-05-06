@@ -7,6 +7,7 @@ import typing
 
 from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
@@ -15,7 +16,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
 
 
-ENTITY_TYPE = "artifacts"
+ENTITY_TYPE = EntityTypes.ARTIFACTS.value
 
 
 def create_artifact(**kwargs) -> Artifact:

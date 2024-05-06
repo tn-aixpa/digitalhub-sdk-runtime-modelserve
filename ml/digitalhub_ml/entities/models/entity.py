@@ -14,6 +14,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
+from digitalhub_ml.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
@@ -26,6 +27,8 @@ class Model(Entity):
     """
     A class representing a model.
     """
+
+    ENTITY_TYPE = EntityTypes.MODELS.value
 
     def __init__(
         self,
@@ -65,7 +68,7 @@ class Model(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
-        self.key = f"store://{project}/models/{kind}/{name}:{uuid}"
+        self.key = f"store://{project}/{self.ENTITY_TYPE}/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
@@ -95,13 +98,13 @@ class Model(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, "models")
+            api = api_ctx_create(self.project, self.ENTITY_TYPE)
             new_obj = self._context().create_object(api, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "models", self.id)
+        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
         new_obj = self._context().update_object(api, obj)
         self._update_attributes(new_obj)
         return self
@@ -115,7 +118,7 @@ class Model(Entity):
         Model
             Entity refreshed.
         """
-        api = api_ctx_read(self.project, "models", self.id)
+        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
         obj = self._context().read_object(api)
         self._update_attributes(obj)
         return self

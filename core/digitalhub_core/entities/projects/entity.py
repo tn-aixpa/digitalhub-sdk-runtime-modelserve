@@ -19,6 +19,7 @@ from digitalhub_core.entities.artifacts.crud import (
     list_artifacts,
     new_artifact,
 )
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.functions.crud import (
     create_function_from_dict,
     delete_function,
@@ -55,12 +56,22 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflows.entity import Workflow
 
 
-CTX_ENTITIES = ["artifacts", "functions", "workflows", "secrets"]
+ARTIFACTS = EntityTypes.ARTIFACTS.value
+FUNCTIONS = EntityTypes.FUNCTIONS.value
+WORKFLOWS = EntityTypes.WORKFLOWS.value
+SECRETS = EntityTypes.SECRETS.value
+
+CTX_ENTITIES = [
+    ARTIFACTS,
+    FUNCTIONS,
+    WORKFLOWS,
+    SECRETS,
+]
 FUNC_MAP = {
-    "artifacts": create_artifact_from_dict,
-    "functions": create_function_from_dict,
-    "workflows": create_workflow_from_dict,
-    "secrets": create_secret_from_dict,
+    ARTIFACTS: create_artifact_from_dict,
+    FUNCTIONS: create_function_from_dict,
+    WORKFLOWS: create_workflow_from_dict,
+    SECRETS: create_secret_from_dict,
 }
 
 
@@ -68,6 +79,8 @@ class Project(Entity):
     """
     A class representing a project.
     """
+
+    ENTITY_TYPE = EntityTypes.PROJECTS.value
 
     def __init__(
         self,
@@ -138,14 +151,14 @@ class Project(Entity):
         obj = self._refresh_to_dict()
 
         if not update:
-            api = api_base_create("projects")
+            api = api_base_create(self.ENTITY_TYPE)
             new_obj = self._client.create_object(api, obj)
             new_obj["local"] = self._client.is_local()
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_base_update("projects", self.id)
+        api = api_base_update(self.ENTITY_TYPE, self.id)
         new_obj = self._client.update_object(api, obj)
         new_obj["local"] = self._client.is_local()
         self._update_attributes(new_obj)
@@ -160,7 +173,7 @@ class Project(Entity):
         Project
             Project object.
         """
-        api = api_base_read("projects", self.name)
+        api = api_base_read(self.ENTITY_TYPE, self.name)
         obj = self._client.read_object(api)
         self._update_attributes(obj)
         return self
@@ -342,7 +355,7 @@ class Project(Entity):
         kwargs["project"] = self.name
         kwargs["kind"] = "artifact"
         obj = new_artifact(**kwargs)
-        self._add_object(obj, "artifacts")
+        self._add_object(obj, ARTIFACTS)
         return obj
 
     def get_artifact(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Artifact:
@@ -364,7 +377,7 @@ class Project(Entity):
             Instance of Artifact class.
         """
         obj = get_artifact(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, "artifacts")
+        self._add_object(obj, ARTIFACTS)
         return obj
 
     def delete_artifact(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
@@ -385,7 +398,7 @@ class Project(Entity):
         None
         """
         delete_artifact(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object("artifacts", entity_name, entity_id)
+        self._delete_object(ARTIFACTS, entity_name, entity_id)
 
     def set_artifact(self, artifact: Artifact) -> None:
         """
@@ -400,7 +413,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(artifact, "artifacts")
+        self._add_object(artifact, ARTIFACTS)
 
     def list_artifacts(self, **kwargs) -> list[dict]:
         """
@@ -438,7 +451,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_function(**kwargs)
-        self._add_object(obj, "functions")
+        self._add_object(obj, FUNCTIONS)
         return obj
 
     def get_function(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Function:
@@ -460,7 +473,7 @@ class Project(Entity):
             Instance of Function class.
         """
         obj = get_function(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, "functions")
+        self._add_object(obj, FUNCTIONS)
         return obj
 
     def delete_function(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
@@ -481,7 +494,7 @@ class Project(Entity):
         None
         """
         delete_function(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object("functions", entity_name, entity_id)
+        self._delete_object(FUNCTIONS, entity_name, entity_id)
 
     def set_function(self, function: Function) -> None:
         """
@@ -496,7 +509,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(function, "functions")
+        self._add_object(function, FUNCTIONS)
 
     def list_functions(self, **kwargs) -> list[dict]:
         """
@@ -534,7 +547,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_workflow(**kwargs)
-        self._add_object(obj, "workflows")
+        self._add_object(obj, WORKFLOWS)
         return obj
 
     def get_workflow(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Workflow:
@@ -556,7 +569,7 @@ class Project(Entity):
             Instance of Workflow class.
         """
         obj = get_workflow(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, "workflows")
+        self._add_object(obj, WORKFLOWS)
         return obj
 
     def delete_workflow(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
@@ -577,7 +590,7 @@ class Project(Entity):
         None
         """
         delete_workflow(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object("workflows", entity_name, entity_id)
+        self._delete_object(WORKFLOWS, entity_name, entity_id)
 
     def set_workflow(self, workflow: Workflow) -> None:
         """
@@ -592,7 +605,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(workflow, "workflows")
+        self._add_object(workflow, WORKFLOWS)
 
     def list_workflows(self, **kwargs) -> list[dict]:
         """
@@ -630,7 +643,7 @@ class Project(Entity):
         """
         kwargs["project"] = self.name
         obj = new_secret(**kwargs)
-        self._add_object(obj, "secrets")
+        self._add_object(obj, SECRETS)
         return obj
 
     def get_secret(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Secret:
@@ -652,7 +665,7 @@ class Project(Entity):
             Instance of Secret class.
         """
         obj = get_secret(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, "secrets")
+        self._add_object(obj, SECRETS)
         return obj
 
     def delete_secret(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
@@ -673,7 +686,7 @@ class Project(Entity):
         None
         """
         delete_secret(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object("secrets", entity_name, entity_id)
+        self._delete_object(SECRETS, entity_name, entity_id)
 
     def set_secret(self, secret: Secret) -> None:
         """
@@ -688,7 +701,7 @@ class Project(Entity):
         -------
         None
         """
-        self._add_object(secret, "secrets")
+        self._add_object(secret, SECRETS)
 
     def list_secrets(self, **kwargs) -> list[dict]:
         """

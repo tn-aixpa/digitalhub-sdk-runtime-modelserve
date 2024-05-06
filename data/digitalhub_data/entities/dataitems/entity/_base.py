@@ -16,6 +16,7 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub_data.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
@@ -28,6 +29,8 @@ class Dataitem(Entity):
     """
     A class representing a dataitem.
     """
+
+    ENTITY_TYPE = EntityTypes.DATAITEMS.value
 
     def __init__(
         self,
@@ -67,7 +70,7 @@ class Dataitem(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
-        self.key = f"store://{project}/dataitems/{kind}/{name}:{uuid}"
+        self.key = f"store://{project}/{self.ENTITY_TYPE}/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status

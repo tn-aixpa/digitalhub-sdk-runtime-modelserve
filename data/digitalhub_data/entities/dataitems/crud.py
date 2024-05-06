@@ -10,12 +10,13 @@ from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_data.entities.dataitems.builder import dataitem_from_dict, dataitem_from_parameters
+from digitalhub_data.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
-ENTITY_TYPE = "dataitems"
+ENTITY_TYPE = EntityTypes.DATAITEMS.value
 
 
 def create_dataitem(**kwargs) -> Dataitem:

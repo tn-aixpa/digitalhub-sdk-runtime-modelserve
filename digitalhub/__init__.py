@@ -40,7 +40,7 @@ from digitalhub_core import (
     update_task,
     update_workflow,
 )
-from digitalhub_core.registry.import_utils import register_layer_entities, register_runtimes_entities
+from digitalhub_core.registry.utils import register_layer_entities, register_runtimes_entities
 
 _PROJECT_IMPORTED = False
 

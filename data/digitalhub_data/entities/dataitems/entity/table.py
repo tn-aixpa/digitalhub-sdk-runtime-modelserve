@@ -83,7 +83,7 @@ class DataitemTable(Dataitem):
             Path to the written dataframe.
         """
         if target_path is None:
-            target_path = f"{self.project}/dataitems/{self.kind}/{self.name}.parquet"
+            target_path = f"{self.project}/{self.ENTITY_TYPE}/{self.kind}/{self.name}.parquet"
             store = get_default_store()
         else:
             store = get_store(target_path)

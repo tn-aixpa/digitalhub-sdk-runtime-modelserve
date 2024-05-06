@@ -12,6 +12,7 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task, new_task
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
@@ -31,6 +32,8 @@ class Function(Entity):
     """
     A class representing a function.
     """
+
+    ENTITY_TYPE = EntityTypes.FUNCTIONS.value
 
     def __init__(
         self,
@@ -70,7 +73,7 @@ class Function(Entity):
         self.name = name
         self.id = uuid
         self.kind = kind
-        self.key = f"store://{project}/functions/{kind}/{name}:{uuid}"
+        self.key = f"store://{project}/{self.ENTITY_TYPE}/{kind}/{name}:{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
@@ -103,13 +106,13 @@ class Function(Entity):
         obj = self.to_dict(include_all_non_private=True)
 
         if not update:
-            api = api_ctx_create(self.project, "functions")
+            api = api_ctx_create(self.project, self.ENTITY_TYPE)
             new_obj = self._context().create_object(api, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "functions", self.id)
+        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
         new_obj = self._context().update_object(api, obj)
         self._update_attributes(new_obj)
         return self
@@ -123,7 +126,7 @@ class Function(Entity):
         Function
             Entity refreshed.
         """
-        api = api_ctx_read(self.project, "functions", self.id)
+        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
         obj = self._context().read_object(api)
         self._update_attributes(obj)
         return self
@@ -293,7 +296,7 @@ class Function(Entity):
         None | Task
             Task if exists, None otherwise.
         """
-        api = api_ctx_list(self.project, "tasks")
+        api = api_ctx_list(self.project, EntityTypes.TASKS.value)
         params = {"function": self._get_function_string(), "kind": f"{self.kind}+{action}"}
         objs = self._context().list_objects(api, params=params)
         for i in objs:

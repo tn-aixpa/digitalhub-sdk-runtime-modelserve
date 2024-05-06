@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.registry.import_utils import import_class
 from digitalhub_core.registry.registry import registry
+from digitalhub_core.registry.utils import import_class
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.registry.models import RegistryEntry

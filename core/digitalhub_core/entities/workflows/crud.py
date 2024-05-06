@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import check_context, get_context
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.workflows.entity import workflow_from_dict, workflow_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
@@ -14,7 +15,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflows.entity import Workflow
 
 
-ENTITY_TYPE = "workflows"
+ENTITY_TYPE = EntityTypes.WORKFLOWS.value
 
 
 def create_workflow(**kwargs) -> Workflow:

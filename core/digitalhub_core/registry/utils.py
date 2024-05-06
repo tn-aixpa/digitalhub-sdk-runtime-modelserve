@@ -107,3 +107,50 @@ def register_layer_entities() -> None:
             import_module(f"{package}.entities.registries")
         except Exception:
             pass
+
+
+def create_info(
+    root: str, entity_type: str, prefix: str, suffix: str | None = "", runtime_info: dict | None = None
+) -> dict:
+    """
+    Create entity info.
+
+    Parameters
+    ----------
+    root : str
+        Root module.
+    entity_type : str
+        Entity type.
+    prefix : str
+        Entity prefix.
+    suffix : str
+        Entity suffix.
+    runtime_info : dict
+        Runtime info.
+
+    Returns
+    -------
+    dict
+        Entity info.
+    """
+    dict_ = {
+        "entity_type": entity_type,
+        "spec": {
+            "module": f"{root}.{entity_type}.spec",
+            "class_name": f"{prefix}Spec{suffix}",
+            "parameters_validator": f"{prefix}Params{suffix}",
+        },
+        "status": {
+            "module": f"{root}.{entity_type}.status",
+            "class_name": f"{prefix}Status{suffix}",
+        },
+        "metadata": {
+            "module": f"{root}.{entity_type}.metadata",
+            "class_name": f"{prefix}Metadata{suffix}",
+        },
+    }
+    # Add runtime only if provided
+    # (in functions, tasks, runs and workflows)
+    if runtime_info is not None:
+        dict_["runtime"] = runtime_info
+    return dict_

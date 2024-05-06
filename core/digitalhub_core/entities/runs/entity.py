@@ -13,6 +13,7 @@ from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.registry.registry import registry
 from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
@@ -38,6 +39,8 @@ class Run(Entity):
     """
     A class representing a run.
     """
+
+    ENTITY_TYPE = EntityTypes.RUNS.value
 
     def __init__(
         self,
@@ -73,7 +76,7 @@ class Run(Entity):
         self.project = project
         self.id = uuid
         self.kind = kind
-        self.key = f"store://{project}/runs/{kind}/{uuid}"
+        self.key = f"store://{project}/{self.ENTITY_TYPE}/{kind}/{uuid}"
         self.metadata = metadata
         self.spec = spec
         self.status = status
@@ -103,13 +106,13 @@ class Run(Entity):
         obj = self.to_dict(include_all_non_private=True)
 
         if not update:
-            api = api_ctx_create(self.project, "runs")
+            api = api_ctx_create(self.project, self.ENTITY_TYPE)
             new_obj = self._context().create_object(api, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "runs", self.id)
+        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
         new_obj = self._context().update_object(api, obj)
         self._update_attributes(new_obj)
         return self
@@ -267,7 +270,7 @@ class Run(Entity):
         Run
             Run object.
         """
-        api = api_ctx_read(self.project, "runs", self.id)
+        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
         obj = self._context().read_object(api)
         self._update_attributes(obj)
         return self
@@ -284,7 +287,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_ctx_read(self.project, "runs", self.id) + "/log"
+        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id) + "/log"
         return self._context().read_object(api)
 
     def stop(self) -> None:
@@ -298,7 +301,7 @@ class Run(Entity):
         # Do nothing if context is local
         if self._context().local:
             return
-        api = api_ctx_create(self.project, "runs") + f"/{self.id}/stop"
+        api = api_ctx_create(self.project, self.ENTITY_TYPE) + f"/{self.id}/stop"
         self._context().create_object(api)
         self.status.state = State.STOPPED.value
 

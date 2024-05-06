@@ -1,33 +1,21 @@
 from __future__ import annotations
 
 from digitalhub_core.registry.registry import registry
+from digitalhub_core.registry.utils import create_info
+from digitalhub_ml.entities.entity_types import EntityTypes
 
 root = "digitalhub_ml.entities"
 
-# Projects
-entity_type = "projects"
+# Projects ovverride
+entity_type = EntityTypes.PROJECTS.value
 registry.project.spec.module = f"{root}.{entity_type}.spec"
 registry.project.spec.class_name = "ProjectSpecMl"
 registry.project.spec.parameters_validator = "ProjectParamsMl"
 
 # Models
-entity_type = "models"
+entity_type = EntityTypes.MODELS.value
 for i in ["model"]:
-    model_kind = i
-    model_info = {
-        "entity_type": entity_type,
-        "spec": {
-            "module": f"{root}.{entity_type}.spec",
-            "class_name": f"ModelSpec{i.title()}",
-            "parameters_validator": f"ModelParams{i.title()}",
-        },
-        "status": {
-            "module": f"{root}.{entity_type}.status",
-            "class_name": f"ModelStatus{i.title()}",
-        },
-        "metadata": {
-            "module": f"{root}.{entity_type}.metadata",
-            "class_name": f"ModelMetadata{i.title()}",
-        },
-    }
-    registry.register(model_kind, model_info)
+    prefix = entity_type.removesuffix("s").capitalize()
+    suffix = i.capitalize()
+    model_info = create_info(root, entity_type, prefix, suffix)
+    registry.register(i, model_info)

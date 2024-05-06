@@ -1,33 +1,21 @@
 from __future__ import annotations
 
 from digitalhub_core.registry.registry import registry
+from digitalhub_core.registry.utils import create_info
+from digitalhub_data.entities.entity_types import EntityTypes
 
 root = "digitalhub_data.entities"
 
-# Projects
-entity_type = "projects"
+# Projects ovverride
+entity_type = EntityTypes.PROJECTS.value
 registry.project.spec.module = f"{root}.{entity_type}.spec"
 registry.project.spec.class_name = "ProjectSpecData"
 registry.project.spec.parameters_validator = "ProjectParamsData"
 
 # Dataitems
-entity_type = "dataitems"
+entity_type = EntityTypes.DATAITEMS.value
 for i in ["dataitem", "table", "iceberg"]:
-    dataitem_kind = i
-    dataitem_info = {
-        "entity_type": entity_type,
-        "spec": {
-            "module": f"{root}.{entity_type}.spec",
-            "class_name": f"DataitemSpec{i.title()}",
-            "parameters_validator": f"DataitemParams{i.title()}",
-        },
-        "status": {
-            "module": f"{root}.{entity_type}.status",
-            "class_name": f"DataitemStatus{i.title()}",
-        },
-        "metadata": {
-            "module": f"{root}.{entity_type}.metadata",
-            "class_name": f"DataitemMetadata{i.title()}",
-        },
-    }
-    registry.register(dataitem_kind, dataitem_info)
+    prefix = entity_type.removesuffix("s").capitalize()
+    suffix = i.capitalize()
+    dataitem_info = create_info(root, entity_type, prefix, suffix)
+    registry.register(i, dataitem_info)

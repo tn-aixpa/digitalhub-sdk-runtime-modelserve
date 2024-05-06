@@ -9,6 +9,7 @@ from pathlib import Path
 
 from digitalhub_core.client.builder import build_client, get_client
 from digitalhub_core.context.builder import delete_context
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.projects.entity import project_from_dict, project_from_parameters
 from digitalhub_core.utils.api import api_base_delete, api_base_read, api_base_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
@@ -18,7 +19,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.projects.entity import Project
 
 
-ENTITY_TYPE = "projects"
+ENTITY_TYPE = EntityTypes.PROJECTS.value
 
 
 def create_project(**kwargs) -> Project:

@@ -7,14 +7,15 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
+from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.models.crud import create_model_from_dict, delete_model, get_model, list_models, new_model
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.models.entity import Model
 
-
-CTX_ENTITIES.append("models")
-FUNC_MAP["models"] = create_model_from_dict
+MODELS = EntityTypes.MODELS.value
+CTX_ENTITIES.append(MODELS)
+FUNC_MAP[MODELS] = create_model_from_dict
 
 
 class ProjectMl(ProjectData):
@@ -43,7 +44,7 @@ class ProjectMl(ProjectData):
         kwargs["project"] = self.name
         kwargs["kind"] = "model"
         obj = new_model(**kwargs)
-        self._add_object(obj, "models")
+        self._add_object(obj, MODELS)
         return obj
 
     def get_model(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Model:
@@ -65,7 +66,7 @@ class ProjectMl(ProjectData):
             Instance of Model class.
         """
         obj = get_model(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, "models")
+        self._add_object(obj, MODELS)
         return obj
 
     def delete_model(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
@@ -86,7 +87,7 @@ class ProjectMl(ProjectData):
         None
         """
         delete_model(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object("models", entity_name, entity_id)
+        self._delete_object(MODELS, entity_name, entity_id)
 
     def set_model(self, model: Model) -> None:
         """
@@ -101,7 +102,7 @@ class ProjectMl(ProjectData):
         -------
         None
         """
-        self._add_object(model, "models")
+        self._add_object(model, MODELS)
 
     def list_models(self, **kwargs) -> list[dict]:
         """

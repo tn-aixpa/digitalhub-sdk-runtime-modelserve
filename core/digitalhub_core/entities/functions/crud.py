@@ -6,6 +6,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import check_context, get_context
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.functions.entity import function_from_dict, function_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.io_utils import read_yaml
@@ -13,7 +14,7 @@ from digitalhub_core.utils.io_utils import read_yaml
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.functions.entity import Function
 
-ENTITY_TYPE = "functions"
+ENTITY_TYPE = EntityTypes.FUNCTIONS.value
 
 
 def create_function(**kwargs) -> Function:
