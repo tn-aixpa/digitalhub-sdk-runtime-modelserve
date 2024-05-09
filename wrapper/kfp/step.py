@@ -191,12 +191,12 @@ def main(args):
     Main function. Get run from backend and execute function.
     """
 
-    inputs = []
+    inputs = {}
     if args.ie is not None:
         for ie in args.ie:
             ie_param = ie[0 : ie.find("=")]
             ie_value = ie[ie.find("=") + 1 :]
-            inputs.append({ie_param: ie_value})
+            inputs[ie_param] = ie_value
 
     parameters = {}
     if args.iv is not None:
@@ -205,12 +205,12 @@ def main(args):
             iv_value = iv[iv.find("=") + 1 :]
             parameters[iv_param] = iv_value
 
-    outputs = []
+    outputs = {}
     if args.oe is not None:
         for oe in args.oe:
             oe_param = oe[0 : oe.find("=")]
             oe_value = oe[oe.find("=") + 1 :]
-            outputs.append({oe_param: oe_value})
+            outputs[oe_param] = oe_value
 
     values = []
     if args.ov is not None:
