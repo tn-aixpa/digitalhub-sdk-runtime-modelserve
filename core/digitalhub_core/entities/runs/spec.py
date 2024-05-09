@@ -25,8 +25,8 @@ class RunSpec(Spec):
     def __init__(
         self,
         task: str,
-        inputs: list | None = None,
-        outputs: list | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
@@ -50,25 +50,24 @@ class RunSpec(Spec):
         list[dict[str, Entity]]
             The inputs.
         """
-        inputs = []
+        inputs = {}
         if self.inputs is None:
             return inputs
 
-        for i in self.inputs:
-            for parameter, item in i.items():
-                parameter_type = self._parse_parameter(parameter)
+        for parameter, item in self.inputs.items():
+            parameter_type = self._parse_parameter(parameter)
 
-                # Get entity from key
-                if parameter_type == "key":
-                    key = self._collect_key(item)
-                    entity = self._collect_entity(key)
-                    if as_dict:
-                        entity = entity.to_dict()
-                    inputs.append({parameter: entity})
+            # Get entity from key
+            if parameter_type == "key":
+                key = self._collect_key(item)
+                entity = self._collect_entity(key)
+                if as_dict:
+                    entity = entity.to_dict()
+                inputs[parameter] = entity
 
-                # Create entity from parameter
-                elif parameter_type == "create":
-                    raise NotImplementedError
+            # Create entity from parameter
+            elif parameter_type == "create":
+                raise NotImplementedError
 
         return inputs
 
@@ -137,10 +136,10 @@ class RunParams(SpecParams):
     task: str = None
     """The task string associated with the run."""
 
-    inputs: list[dict[str, Union[str, dict]]] = None
+    inputs: dict[str, Union[str, dict]] = None
     """Run inputs."""
 
-    outputs: list[dict[str, Union[str, dict]]] = None
+    outputs: dict[str, Union[str, dict]] = None
     """Run outputs."""
 
     parameters: dict = None

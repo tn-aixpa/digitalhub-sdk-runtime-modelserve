@@ -152,10 +152,9 @@ class RuntimeNefertem(Runtime):
         """
         Path(f"{self.output_path}/tmp").mkdir(parents=True, exist_ok=True)
         mapper = []
-        for i in spec.get("inputs", []):
-            for _, di in i.items():
-                di = dataitem_from_dict(di)
-                mapper.append(persist_dataitem(di, di.name, self.output_path))
+        for _, di in spec.get("inputs", {}).items():
+            di = dataitem_from_dict(di)
+            mapper.append(persist_dataitem(di, di.name, self.output_path))
         return mapper
 
     ####################

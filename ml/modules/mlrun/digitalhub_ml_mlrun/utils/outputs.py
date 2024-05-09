@@ -219,18 +219,17 @@ def build_status(
     """
     try:
         # Map outputs
-        outputs = []
+        outputs = {}
 
         execution_outputs_keys = [k for k, _ in execution_results.outputs.items()]
         if mapped_outputs is not None:
-            for i in mapped_outputs:
-                for k, v in i.items():
-                    if k in execution_outputs_keys:
-                        for j in entity_outputs:
-                            if j.name == k:
-                                outputs.append({v: j.key})
+            for k, v in mapped_outputs.items():
+                if k in execution_outputs_keys:
+                    for j in entity_outputs:
+                        if j.name == k:
+                            outputs[v] =  j.key
         else:
-            outputs = [{i.name: i.key} for i in entity_outputs]
+            outputs = {i.name: i.key for i in entity_outputs}
 
         # Map results and values
         results = {}

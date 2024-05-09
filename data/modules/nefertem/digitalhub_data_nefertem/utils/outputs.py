@@ -95,7 +95,7 @@ def build_status(results: dict, outputs: list[Artifact]) -> dict:
     try:
         return {
             "state": State.COMPLETED.value,
-            "outputs": [{i.name: i.key} for i in outputs],
+            "outputs": {i.name: i.key for i in outputs},
             "results": {"nefertem_result": results},
         }
     except Exception as e:

@@ -320,7 +320,7 @@ def build_status(dataitem: Dataitem, results: dbtRunnerResult, output_table: str
     try:
         return {
             "state": State.COMPLETED.value,
-            "outputs": [{output_table: dataitem.key}],
+            "outputs": {output_table: dataitem.key},
             "results": {"dbt_result": results.result[-1].to_dict()},
         }
     except Exception as e:

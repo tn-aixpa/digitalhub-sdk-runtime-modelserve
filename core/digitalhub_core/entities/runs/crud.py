@@ -84,9 +84,9 @@ def new_run(
         Remote git source for object.
     labels : list[str]
         List of labels.
-    inputs : list
+    inputs : dict
         Inputs of the run.
-    outputs : list
+    outputs : dict
         Outputs of the run.
     parameters : dict
         Parameters of the run.

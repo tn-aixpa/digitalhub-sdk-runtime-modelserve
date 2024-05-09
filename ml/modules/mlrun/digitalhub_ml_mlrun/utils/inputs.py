@@ -84,13 +84,13 @@ def persist_artifact(artifact: Artifact, tmp_dir: Path) -> str:
         raise EntityError(msg) from e
 
 
-def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict, tmp_dir: Path) -> dict:
+def get_inputs_parameters(inputs: dict[str, Entity], parameters: dict, tmp_dir: Path) -> dict:
     """
     Set inputs.
 
     Parameters
     ----------
-    inputs : list[dict[str, Entity]]
+    inputs : dict[str, Entity]
         Run inputs.
     parameters : dict
         Run parameters.
@@ -103,14 +103,13 @@ def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict, tmp
         Mlrun inputs.
     """
     inputs_objects = {}
-    for i in inputs:
-        for k, v in i.items():
-            _, entity_type, _, _, _ = parse_entity_key(v.get("key"))
-            if entity_type == "dataitems":
-                v = dataitem_from_dict(v)
-                inputs_objects[k] = persist_dataitem(v, tmp_dir)
-            elif entity_type == "artifacts":
-                v = artifact_from_dict(v)
-                inputs_objects[k] = persist_artifact(v, tmp_dir)
+    for k, v in inputs.items():
+        _, entity_type, _, _, _ = parse_entity_key(v.get("key"))
+        if entity_type == "dataitems":
+            v = dataitem_from_dict(v)
+            inputs_objects[k] = persist_dataitem(v, tmp_dir)
+        elif entity_type == "artifacts":
+            v = artifact_from_dict(v)
+            inputs_objects[k] = persist_artifact(v, tmp_dir)
     input_parameters = parameters.get("inputs", {})
     return {"inputs": {**inputs_objects, **input_parameters}}

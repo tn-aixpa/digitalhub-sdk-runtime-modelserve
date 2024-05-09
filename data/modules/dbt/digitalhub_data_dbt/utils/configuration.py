@@ -162,7 +162,7 @@ def get_output_table_name(outputs: list[dict]) -> str:
         If outputs are not a list of one dataitem.
     """
     try:
-        return outputs[0]["output_table"]
+        return outputs["output_table"]
     except IndexError as e:
         msg = f"Outputs must be a list of one dataitem. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)

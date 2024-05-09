@@ -78,10 +78,10 @@ class PipelineContext:
         resources: list[dict] | None = None,
         env: list[dict] | None = None,
         secrets: list[str] | None = None,
-        inputs: list | None = None,
-        outputs: list | None = None,
-        parameters: list[dict] | None = None,
-        values: list[str] | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
+        parameters: dict | None = None,
+        values: list | None = None,
         **kwargs,
     ) -> dsl.ContainerOp:
         """Execute a function in Digital Hub Core.
@@ -172,25 +172,23 @@ class PipelineContext:
             cmd += ["-a", f"{param}={val}"]
 
         # complex input parameters
-        for dict in inputs:
-            for param, val in dict.items():
-                cmd += ["-ie", f"{param}={val}"]
+        for param, val in inputs.items():
+            cmd += ["-ie", f"{param}={val}"]
 
         # simple input parameters
         for param, val in parameters.items():
             cmd += ["-iv", f"{param}={val}"]
 
         # complex output parameters
-        for dict in outputs:
-            for param, val in dict.items():
-                cmd += ["-oe", f"{param}={val}"]
-                if isinstance(val, dsl.PipelineParam):
-                    raise Exception("Invalid output specification: cannot use pipeline params")
-                else:
-                    oname = str(val)
-                file_outputs[
-                    oname.replace(".", "_")
-                ] = f"/tmp/entity_{oname}"  # not using path.join to avoid windows "\"
+        for param, val in outputs.items():
+            cmd += ["-oe", f"{param}={val}"]
+            if isinstance(val, dsl.PipelineParam):
+                raise Exception("Invalid output specification: cannot use pipeline params")
+            else:
+                oname = str(val)
+            file_outputs[
+                oname.replace(".", "_")
+            ] = f"/tmp/entity_{oname}"  # not using path.join to avoid windows "\"
 
         for param in values:
             cmd += ["-ov", f"{param}"]

@@ -79,13 +79,13 @@ def persist_artifact(artifact: Artifact, name: str, tmp_dir: str) -> str:
         raise EntityError(msg) from e
 
 
-def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict) -> dict:
+def get_inputs_parameters(inputs: dict[str, Entity], parameters: dict) -> dict:
     """
     Set inputs.
 
     Parameters
     ----------
-    inputs : list[dict[str, Entity]]
+    inputs : dict[str, Entity]
         Run inputs.
     parameters : dict
         Run parameters.
@@ -98,8 +98,7 @@ def get_inputs_parameters(inputs: list[dict[str, Entity]], parameters: dict) -> 
         Mlrun inputs.
     """
     inputs_objects = {}
-    for i in inputs:
-        for k, v in i.items():
-            inputs_objects[k] = v
+    for k, v in inputs.items():
+        inputs_objects[k] = v
     input_parameters = parameters if parameters is not None else {}
     return {**inputs_objects, **input_parameters}

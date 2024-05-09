@@ -158,18 +158,18 @@ class RuntimeDbt(Runtime):
         None
         """
         # Collect input dataitems
-        for i in spec.get("inputs", []):
-            for param, di in i.items():
-                di = dataitem_from_dict(di)
+        for param, di in spec.get("inputs", {}).items():
 
-                # Register dataitem in a dict to be used for inputs confs generation
-                self._input_dataitems.append({"name": param, "id": di.id})
+            di = dataitem_from_dict(di)
 
-                # Materialize dataitem in postgres
-                table = materialize_dataitem(di, param)
+            # Register dataitem in a dict to be used for inputs confs generation
+            self._input_dataitems.append({"name": param, "id": di.id})
 
-                # Save versioned table name to be used for cleanup
-                self._versioned_tables.append(table)
+            # Materialize dataitem in postgres
+            table = materialize_dataitem(di, param)
+
+            # Save versioned table name to be used for cleanup
+            self._versioned_tables.append(table)
 
     ####################
     # Configuration

@@ -189,8 +189,8 @@ class Function(Entity):
         backoff_limit: int | None = None,
         schedule: str | None = None,
         replicas: int | None = None,
-        inputs: list | None = None,
-        outputs: list | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
@@ -223,9 +223,9 @@ class Function(Entity):
             The schedule of the task. Task parameter.
         replicas : int
             The replicas of the task. Task parameter.
-        inputs : list
+        inputs : dict
             Function inputs. Run parameter.
-        outputs : list
+        outputs : dict
             Function outputs. Run parameter.
         parameters : dict
             Function parameters. Run parameter.

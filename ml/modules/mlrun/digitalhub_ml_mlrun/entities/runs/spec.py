@@ -9,8 +9,8 @@ class RunSpecMlrun(RunSpecMl):
     def __init__(
         self,
         task: str,
-        inputs: list | None = None,
-        outputs: list | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,

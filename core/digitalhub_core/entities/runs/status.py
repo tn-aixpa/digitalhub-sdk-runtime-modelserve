@@ -63,19 +63,18 @@ class RunStatus(Status):
         list[dict[str, str | dict | Entity]]
             The outputs.
         """
-        outputs = []
+        outputs = {}
         if self.outputs is None:
             return outputs
 
-        for i in self.outputs:
-            for parameter, key in i.items():
-                entity_type = self._get_entity_type(key)
-                entity = ENTITY_FUNC[entity_type](key)
-                if as_key:
-                    entity = entity.key
-                if as_dict:
-                    entity = entity.to_dict()
-                outputs.append({parameter: entity})
+        for parameter, key in self.outputs.items():
+            entity_type = self._get_entity_type(key)
+            entity = ENTITY_FUNC[entity_type](key)
+            if as_key:
+                entity = entity.key
+            if as_dict:
+                entity = entity.to_dict()
+            outputs[parameter] =  entity
 
         return outputs
 

@@ -162,8 +162,8 @@ class Task(Entity):
 
     def run(
         self,
-        inputs: list | None,
-        outputs: list | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
@@ -173,9 +173,9 @@ class Task(Entity):
 
         Parameters
         ----------
-        inputs : list
+        inputs : dict
             The inputs of the run.
-        outputs : list
+        outputs : dict
             The outputs of the run.
         parameters : dict
             The parameters of the run.
