@@ -125,8 +125,8 @@ class PipelineContext:
         }
 
         parameters = {} if parameters is None else parameters
-        inputs = [] if inputs is None else inputs
-        outputs = [] if outputs is None else outputs
+        inputs = {} if inputs is None else inputs
+        outputs = {} if outputs is None else outputs
         values = [] if values is None else values
 
         if function is None and workflow is None:
