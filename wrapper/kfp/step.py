@@ -118,13 +118,12 @@ def execute_step(
         results = {}
 
         # process entities
-        for o in run.status.get_outputs():
-            for prop, val in o.items():
-                # write to file val
-                target_output = f"entity_{prop}"
-                results[target_output] = (
-                    val if isinstance(val, str) else val.key if isinstance(val, Entity) else val["key"]
-                )
+        for prop, val in run.status.get_outputs():
+            # write to file val
+            target_output = f"entity_{prop}"
+            results[target_output] = (
+                val if isinstance(val, str) else val.key if isinstance(val, Entity) else val["key"]
+            )
         # process values
         if values is not None:
             for o in run.status.get_values(values_list=values):
