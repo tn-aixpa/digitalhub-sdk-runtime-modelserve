@@ -118,7 +118,7 @@ def execute_step(
         results = {}
 
         # process entities
-        for prop, val in run.status.get_outputs():
+        for prop, val in run.status.get_outputs().items():
             # write to file val
             target_output = f"entity_{prop}"
             results[target_output] = (
@@ -126,11 +126,10 @@ def execute_step(
             )
         # process values
         if values is not None:
-            for o in run.status.get_values(values_list=values):
-                for prop, val in o.items():
-                    # write to file val
-                    target_output = f"value_{prop}"
-                    results[target_output] = str(val)
+            for prop, val in run.status.get_values(values_list=values).items():
+                # write to file val
+                target_output = f"value_{prop}"
+                results[target_output] = str(val)
 
         for key, value in results.items():
             try:

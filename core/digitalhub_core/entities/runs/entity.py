@@ -248,13 +248,13 @@ class Run(Entity):
         """
         return self.status.get_outputs(as_key=as_key, as_dict=as_dict)
 
-    def values(self) -> list:
+    def values(self) -> dict:
         """
         Get values from runtime execution.
 
         Returns
         -------
-        list
+        dict
             Values from backend.
         """
         value_list = getattr(self.spec, "values", [])

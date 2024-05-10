@@ -47,7 +47,7 @@ class RunStatus(Status):
         """
         return self.results if self.results is not None else {}
 
-    def get_outputs(self, as_key: bool = False, as_dict: bool = False) -> list[dict[str, str | dict | Entity]]:
+    def get_outputs(self, as_key: bool = False, as_dict: bool = False) -> dict[str, str | dict | Entity]:
         """
         Get outputs.
 
@@ -60,7 +60,7 @@ class RunStatus(Status):
 
         Returns
         -------
-        list[dict[str, str | dict | Entity]]
+        dict[str, str | dict | Entity]
             The outputs.
         """
         outputs = {}
@@ -96,7 +96,7 @@ class RunStatus(Status):
         _, entity_type, _, _, _ = parse_entity_key(key)
         return entity_type
 
-    def get_values(self, values_list: list) -> list:
+    def get_values(self, values_list: list) -> dict:
         """
         Get values.
 
@@ -107,7 +107,7 @@ class RunStatus(Status):
 
         Returns
         -------
-        list
+        dict
             The values.
         """
         return {k: v for k, v in self.get_results().items() if k in values_list}
