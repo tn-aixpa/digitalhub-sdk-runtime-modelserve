@@ -239,6 +239,9 @@ class Workflow(Entity):
                 **kwargs,
             )
 
+        # Temporary solution disabling local execution
+        local_execution = False
+
         # Run function from task
         run = task.run(inputs, outputs, parameters, values, local_execution)
 
