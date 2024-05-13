@@ -13,7 +13,7 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task, new_task
+from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
@@ -241,30 +241,21 @@ class Function(Entity):
         Run
             Run instance.
         """
-
-        # Create task if does not exists
-        task = self._tasks.get(action)
-
-        # Check in backend
-        if task is None and not self._context().local:
-            task = self._check_task_in_backend(action)
-
-        # Create new task
-        if task is None:
-            task = self.new_task(
-                kind=f"{self.kind}+{action}",
-                node_selector=node_selector,
-                volumes=volumes,
-                resources=resources,
-                affinity=affinity,
-                tolerations=tolerations,
-                env=env,
-                secrets=secrets,
-                backoff_limit=backoff_limit,
-                schedule=schedule,
-                replicas=replicas,
-                **kwargs,
-            )
+        # Create or update new task
+        task = self.new_task(
+            kind=f"{self.kind}+{action}",
+            node_selector=node_selector,
+            volumes=volumes,
+            resources=resources,
+            affinity=affinity,
+            tolerations=tolerations,
+            env=env,
+            secrets=secrets,
+            backoff_limit=backoff_limit,
+            schedule=schedule,
+            replicas=replicas,
+            **kwargs,
+        )
 
         # Run function from task
         run = task.run(inputs, outputs, parameters, values, local_execution)
@@ -281,27 +272,6 @@ class Function(Entity):
         with ThreadPoolExecutor(max_workers=1) as executor:
             result = executor.submit(run.run)
         return result.result()
-
-    def _check_task_in_backend(self, action: str) -> None | Task:
-        """
-        Check if task exists in backend.
-
-        Parameters
-        ----------
-        action : str
-            Action to check.
-
-        Returns
-        -------
-        None | Task
-            Task if exists, None otherwise.
-        """
-        api = api_ctx_list(self.project, EntityTypes.TASKS.value)
-        params = {"function": self._get_function_string(), "kind": f"{self.kind}+{action}"}
-        objs = self._context().list_objects(api, params=params)
-        for i in objs:
-            self._tasks[action] = create_task_from_dict(i)
-            return self._tasks[action]
 
     def _get_function_string(self) -> str:
         """
@@ -371,10 +341,23 @@ class Function(Entity):
         Task
             New task.
         """
+        # Override kwargs
         kwargs["project"] = self.project
         kwargs["function"] = self._get_function_string()
         kwargs["kind"] = kwargs["kind"]
-        task = new_task(**kwargs)
+
+        # Create object instance
+        task = create_task(**kwargs)
+
+        exists, task_id = self._check_task_in_backend(kwargs["kind"])
+
+        # Save or update task
+        if not exists:
+            task.save()
+        else:
+            task.id = task_id
+            task.save(update=True)
+
         self._tasks[kwargs["kind"]] = task
         return task
 
@@ -454,8 +437,31 @@ class Function(Entity):
             If task is not created.
         """
         self._raise_if_not_exists(kind)
-        delete_task(self.project, self._tasks[kind].name, cascade=cascade)
+        delete_task(self.project, entity_id=self._tasks[kind].id, cascade=cascade)
         self._tasks.pop(kind, None)
+
+    def _check_task_in_backend(self, kind: str) -> tuple[bool, str | None]:
+        """
+        Check if task exists in backend.
+
+        Parameters
+        ----------
+        kind : str
+            Kind of the task.
+
+        Returns
+        -------
+        tuple[bool, str | None]
+            Flag to determine if task exists in backend and ID if exists.
+        """
+        # List tasks from backend filtered by function and kind
+        api = api_ctx_list(self.project, EntityTypes.TASKS.value)
+        params = {"function": self._get_function_string(), "kind": kind}
+        objs = self._context().list_objects(api, params=params)
+        try:
+            return True, objs[0]["id"]
+        except IndexError:
+            return False, None
 
     def _raise_if_not_exists(self, kind: str) -> None:
         """

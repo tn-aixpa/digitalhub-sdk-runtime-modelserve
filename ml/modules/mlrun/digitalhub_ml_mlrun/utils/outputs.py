@@ -227,7 +227,7 @@ def build_status(
                 if k in execution_outputs_keys:
                     for j in entity_outputs:
                         if j.name == k:
-                            outputs[v] =  j.key
+                            outputs[v] = j.key
         else:
             outputs = {i.name: i.key for i in entity_outputs}
 

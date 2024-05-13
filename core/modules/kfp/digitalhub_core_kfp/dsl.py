@@ -186,9 +186,7 @@ class PipelineContext:
                 raise Exception("Invalid output specification: cannot use pipeline params")
             else:
                 oname = str(val)
-            file_outputs[
-                oname.replace(".", "_")
-            ] = f"/tmp/entity_{oname}"  # not using path.join to avoid windows "\"
+            file_outputs[oname.replace(".", "_")] = f"/tmp/entity_{oname}"  # not using path.join to avoid windows "\"
 
         for param in values:
             cmd += ["-ov", f"{param}"]

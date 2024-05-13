@@ -159,7 +159,6 @@ class RuntimeDbt(Runtime):
         """
         # Collect input dataitems
         for param, di in spec.get("inputs", {}).items():
-
             di = dataitem_from_dict(di)
 
             # Register dataitem in a dict to be used for inputs confs generation

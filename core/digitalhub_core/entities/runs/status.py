@@ -74,7 +74,7 @@ class RunStatus(Status):
                 entity = entity.key
             if as_dict:
                 entity = entity.to_dict()
-            outputs[parameter] =  entity
+            outputs[parameter] = entity
 
         return outputs
 

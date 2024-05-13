@@ -314,8 +314,25 @@ class ClientLocal(Client):
         if name is not None:
             return [self._db[entity_type][name]["latest"]]
 
-        # If no name is provided, return objects by entity_type
-        return [v["latest"] for _, v in self._db[entity_type].items()]
+        try:
+            # If no name is provided, get latest objects
+            listed_objects = [v["latest"] for _, v in self._db[entity_type].items()]
+        except KeyError:
+            listed_objects = []
+
+        # If kind is provided, return objects by kind
+        kind = kwargs.get("params", {}).get("kind")
+        if kind is not None:
+            listed_objects = [obj for obj in listed_objects if obj["kind"] == kind]
+
+        # If function is provided, return objects by function
+        spec_params = ["function", "task"]
+        for i in spec_params:
+            p = kwargs.get("params", {}).get(i)
+            if p is not None:
+                listed_objects = [obj for obj in listed_objects if obj["spec"][i] == p]
+
+        return listed_objects
 
     ########################
     # Helpers
