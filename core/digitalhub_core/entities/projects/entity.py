@@ -113,6 +113,7 @@ class Project(Entity):
             If True, export locally.
         """
         super().__init__()
+        self.id = name
         self.name = name
         self.kind = kind
         self.key = f"store://{name}"
@@ -122,7 +123,7 @@ class Project(Entity):
         self.user = user
 
         # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["name", "key"])
+        self._obj_attr.extend(["id", "name", "key"])
 
         # Set client
         self._client = get_client(local)

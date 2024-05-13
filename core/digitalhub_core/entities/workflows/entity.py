@@ -239,10 +239,6 @@ class Workflow(Entity):
                 **kwargs,
             )
 
-        # Temporary solution disabling local execution
-        if local_execution:
-            raise BackendError("Local execution is not supported for workflows.")
-
         # Run function from task
         run = task.run(inputs, outputs, parameters, values, local_execution)
 
