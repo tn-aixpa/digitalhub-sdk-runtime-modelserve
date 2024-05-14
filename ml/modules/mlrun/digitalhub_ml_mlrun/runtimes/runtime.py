@@ -20,10 +20,10 @@ from digitalhub_ml_mlrun.utils.configurations import (
 from digitalhub_ml_mlrun.utils.functions import run_build, run_job
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
 from digitalhub_ml_mlrun.utils.outputs import build_status, build_status_build, parse_mlrun_artifacts
+from mlrun.projects.operations import BuildStatus
 from mlrun.runtimes.base import RunObject
 
 if typing.TYPE_CHECKING:
-    from mlrun.projects.operations import BuildStatus
     from mlrun.runtimes import BaseRuntime
 
 
