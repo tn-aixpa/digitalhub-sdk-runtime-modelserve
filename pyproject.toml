@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub"
-version = "0.4.0b9"
+version = "0.4.0"
 description = "Python SDK for DigitalHub"
 readme = "README.md"
 authors = [
@@ -20,18 +20,18 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub-core~=0.3",
+"digitalhub-core~=0.4",
 ]
 
 [project.optional-dependencies]
 all = [
-    "digitalhub-data~=0.3",
-    "digitalhub-ml~=0.3",
-    "digitalhub-ai~=0.3",
+    "digitalhub-data~=0.4",
+    "digitalhub-ml~=0.4",
+    "digitalhub-ai~=0.4",
 ]
-ml = ["digitalhub-ml~=0.3"]
-ai = ["digitalhub-ai~=0.3"]
-data = ["digitalhub-data~=0.3"]
+ml = ["digitalhub-ml~=0.4"]
+ai = ["digitalhub-ai~=0.4"]
+data = ["digitalhub-data~=0.4"]
 
 [project.urls]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
@@ -52,7 +52,7 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.4.0b9"
+current_version = "0.4.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false
