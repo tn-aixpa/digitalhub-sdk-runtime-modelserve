@@ -271,8 +271,8 @@ def build_status_build(execution_results: BuildStatus) -> dict:
     """
     try:
         results = {}
-        results["mlrun_result"] = execution_results.to_json()
-        results["target_image"] = execution_results.outputs.image
+        results["mlrun_result"] = str(execution_results)
+        results["target_image"] = execution_results.outputs["image"]
         return {
             "state": State.COMPLETED.value,
             "results": results,

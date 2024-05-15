@@ -279,11 +279,48 @@ def parse_function_specs(spec: dict) -> dict:
     """
     try:
         return {
-            "image": spec.get("image"),
+            "image": spec.get("image", "mlrun/mlrun"),
             "tag": spec.get("tag"),
             "handler": spec.get("handler"),
         }
-    except AttributeError as e:
+    except Exception as e:
         msg = f"Error parsing function specs. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.error(msg)
+        raise RuntimeError(msg)
+
+
+def get_exec_config(spec: dict) -> dict:
+    """
+    Get exec config.
+
+    Parameters
+    ----------
+    spec : dict
+        Run spec.
+
+    Returns
+    -------
+    dict
+        Mlrun exec config.
+    """
+    try:
+        exec_config = {}
+        task_spec = spec.get("build_spec", {})
+        target_image = task_spec.get("target_image")
+        commands = task_spec.get("commands")
+        force_build = task_spec.get("force_build")
+        reqs = spec.get("function_spec", {}).get("requirements")
+        if target_image is not None:
+            exec_config["target_image"] = target_image
+        if commands is not None:
+            exec_config["commands"] = commands
+        if force_build is not None:
+            exec_config["force_build"] = force_build
+        if reqs is not None:
+            exec_config["requirements"] = reqs
+        return exec_config
+
+    except Exception as e:
+        msg = f"Error parsing exec args. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.error(msg)
         raise RuntimeError(msg)

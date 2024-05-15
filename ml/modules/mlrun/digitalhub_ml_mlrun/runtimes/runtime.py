@@ -15,7 +15,7 @@ from digitalhub_ml_mlrun.utils.configurations import (
     get_mlrun_function,
     get_mlrun_project,
     parse_function_specs,
-    save_function_source,
+    save_function_source, get_exec_config
 )
 from digitalhub_ml_mlrun.utils.functions import run_build, run_job
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
@@ -180,29 +180,12 @@ class RuntimeMlrun(Runtime):
         function_source = save_function_source(self.tmp_path, dhcore_function.spec.to_dict().get("source"))
         function_specs = parse_function_specs(dhcore_function.spec.to_dict())
 
-        if action == "job":
-            function_specs["image"] = "mlrun/mlrun"
-
         # Create Mlrun project
         LOGGER.info("Creating Mlrun project and function.")
         mlrun_project = get_mlrun_project(project)
-
         mlrun_function = get_mlrun_function(mlrun_project, dhcore_function.name, function_source, function_specs)
-        exec_config = {}
-        if action == "build":
-            task_spec = spec.get(f"{action}_spec")
-            target_image = task_spec.get("target_image")
-            commands = task_spec.get("commands")
-            force_build = task_spec.get("force_build")
-            reqs = dhcore_function.spec.to_dict().get("requirements")
-            if target_image is not None:
-                exec_config["target_image"] = target_image
-            if commands is not None:
-                exec_config["commands"] = commands
-            if force_build is not None:
-                exec_config["force_build"] = force_build
-            if reqs is not None:
-                exec_config["requirements"] = reqs
+        exec_config = get_exec_config(spec)
+
         return mlrun_function, exec_config
 
     ####################
@@ -230,9 +213,8 @@ class RuntimeMlrun(Runtime):
         if isinstance(results, RunObject):
             execution_outputs = parse_mlrun_artifacts(results.status.artifacts, project)
             return build_status(results, execution_outputs, spec.get("outputs", []), spec.get("values", []))
-        elif isinstance(results, BuildStatus):
+        if isinstance(results, BuildStatus):
             return build_status_build(results)
-        raise NotImplementedError
 
     ####################
     # Cleanup
