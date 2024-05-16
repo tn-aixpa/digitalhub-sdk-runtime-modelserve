@@ -22,9 +22,11 @@ certifi==2024.2.2
 charset-normalizer==3.3.2
     # via requests
 digitalhub-core==0.5.0b0
-    # via digitalhub-data
+    # via digitalhub-ml-python (pyproject.toml)
 digitalhub-data==0.5.0b0
-    # via digitalhub-data-dbt (pyproject.toml)
+    # via digitalhub-ml-python (pyproject.toml)
+digitalhub-ml==0.5.0b0
+    # via digitalhub-ml-python (pyproject.toml)
 frozenlist==1.4.1
     # via
     #   aiohttp

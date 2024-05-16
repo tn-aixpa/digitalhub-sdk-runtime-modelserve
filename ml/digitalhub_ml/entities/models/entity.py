@@ -159,6 +159,22 @@ class Model(Entity):
         return get_context(self.project)
 
     #############################
+    #  Model methods
+    #############################
+
+    def upload(self) -> None:
+        """
+        Upload object to storage.
+        """
+        raise NotImplementedError
+
+    def download(self) -> None:
+        """
+        Download object from storage.
+        """
+        raise NotImplementedError
+
+    #############################
     #  Static interface methods
     #############################
 

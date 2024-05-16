@@ -12,10 +12,11 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_ml_mlrun.utils.configurations import (
     get_dhcore_function,
+    get_exec_config,
     get_mlrun_function,
     get_mlrun_project,
     parse_function_specs,
-    save_function_source, get_exec_config
+    save_function_source,
 )
 from digitalhub_ml_mlrun.utils.functions import run_build, run_job
 from digitalhub_ml_mlrun.utils.inputs import get_inputs_parameters
