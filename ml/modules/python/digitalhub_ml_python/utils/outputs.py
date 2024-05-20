@@ -45,10 +45,7 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
 
         if isinstance(item, pd.DataFrame):
             path = f"s3://datalake/{project_name}/dataitems/table/{name}.parquet"
-            di: DataitemTable = new_dataitem(project=project_name,
-                                             name=name,
-                                             kind="table",
-                                             path=path)
+            di: DataitemTable = new_dataitem(project=project_name, name=name, kind="table", path=path)
             di.write_df(df=item)
             objects[name] = di.key
 
@@ -62,10 +59,7 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
             with open(f"{name}.pickle", "wb") as f:
                 f.write(pickle.dumps(item))
 
-            art = new_artifact(project=project_name,
-                               name=name,
-                               kind="artifact",
-                               path=path)
+            art = new_artifact(project=project_name, name=name, kind="artifact", path=path)
             art.upload(source=f"{name}.pickle")
             objects[name] = art.key
 

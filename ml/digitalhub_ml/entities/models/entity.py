@@ -5,15 +5,20 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
+from urllib.parse import urlparse
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities.entity_types import EntityTypes
+from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_ml.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
@@ -162,17 +167,179 @@ class Model(Entity):
     #  Model methods
     #############################
 
-    def upload(self) -> None:
+    def download(
+        self,
+        target: str | None = None,
+        destination: str | None = None,
+        overwrite: bool = False,
+    ) -> str:
         """
-        Upload object to storage.
-        """
-        raise NotImplementedError
+        Download model from remote storage.
 
-    def download(self) -> None:
+        Parameters
+        ----------
+        target : str
+            Target path is the remote path of the model
+        destination : str
+            Destination path as filename
+        overwrite : bool
+            Specify if overwrite an existing file
+
+        Returns
+        -------
+        str
+            Path of the downloaded model.
         """
-        Download object from storage.
+
+        # Check if target path is provided and if it is remote
+        trg = self._parameter_or_default(target, self.spec.path)
+        self._check_remote(trg)
+
+        # Check if download destination path is specified and rebuild it if necessary
+        if destination is None:
+            filename = urlparse(trg).path.split("/")[-1]
+            destination = f"{self.project}/models/{self.kind}/{filename}"
+
+        # Check if destination path exists for overwrite
+        self._check_overwrite(destination, overwrite)
+
+        # Download model and return path
+        store = get_store(trg)
+        return store.download(trg, destination)
+
+    def upload(self, source: str | None = None, target: str | None = None) -> str:
         """
-        raise NotImplementedError
+        Upload model to remote storage from source path to target destination.
+
+        Parameters
+        ----------
+        source : str
+            Source path is the local path of the model.
+        target : str
+            Target path is the remote path of the model.
+
+        Returns
+        -------
+        str
+            Path of the uploaded model.
+        """
+        # Check if target path is provided and if it is remote
+        trg = self._parameter_or_default(target, self.spec.path)
+        self._check_remote(trg)
+
+        # Check if source path is provided and if it is local
+        src = self._parameter_or_default(source, self.spec.src_path)
+        self._check_local(src)
+
+        # Get store
+        store = get_store(trg)
+        if store.is_local():
+            raise EntityError("Cannot target local store for upload.")
+
+        # Upload model and return remote path
+        return store.upload(src, trg)
+
+    #############################
+    #  Private Helpers
+    #############################
+
+    @staticmethod
+    def _parameter_or_default(parameter: str | None = None, default: str | None = None) -> str:
+        """
+        Check whether a parameter is specified or not. If not, return the default value. If also
+        the default value is not specified, raise an exception. If parameter is specified, but
+        default value is not, return the parameter and set the default value to the parameter.
+
+        Parameters
+        ----------
+        parameter : str
+            Parameter to check.
+        default : str
+            Default value.
+
+        Returns
+        -------
+        str
+            Parameter or default value.
+
+        Raises
+        ------
+        EntityError
+            If parameter and default value are not specified.
+        """
+        if parameter is None:
+            if default is None:
+                raise EntityError("Path is not specified.")
+            return default
+        return parameter
+
+    @staticmethod
+    def _check_local(path: str) -> None:
+        """
+        Check through URI scheme if given path is local or not.
+
+        Parameters
+        ----------
+        path : str
+            Path of some source.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If source path is not local.
+        """
+        if map_uri_scheme(path) != "local":
+            raise EntityError("Only local paths are supported for source paths.")
+
+    @staticmethod
+    def _check_remote(path: str) -> None:
+        """
+        Check through URI scheme if given path is remote.
+
+        Parameters
+        ----------
+        path : str
+            Path of some source.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If source path is local.
+        """
+        if map_uri_scheme(path) == "local":
+            raise EntityError("Only remote paths are supported for target paths.")
+
+    @staticmethod
+    def _check_overwrite(dst: str, overwrite: bool) -> None:
+        """
+        Check if destination path exists for overwrite.
+
+        Parameters
+        ----------
+        dst : str
+            Destination path as filename.
+        overwrite : bool
+            Specify if overwrite an existing file.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        Exception
+            If destination path exists and overwrite is False.
+        """
+        if Path(dst).exists() and not overwrite:
+            raise EntityError(f"Resource {dst} already exists.")
 
     #############################
     #  Static interface methods

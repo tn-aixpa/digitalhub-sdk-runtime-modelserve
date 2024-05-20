@@ -3,6 +3,7 @@ from __future__ import annotations
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.registry.registry import registry
 from digitalhub_core.registry.utils import create_info
+from digitalhub_ml_python.utils.utils import handler
 
 root = "digitalhub_ml_python"
 runtime_info = {
