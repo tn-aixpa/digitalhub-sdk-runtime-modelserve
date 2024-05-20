@@ -15,7 +15,7 @@ RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 # Install digitalhub-core
 RUN pip install ./digitalhub-sdk/ --no-deps
 RUN pip install ./digitalhub-sdk/core
-RUN pip install ./digitalhub-sdk/core/modules/kfp
+RUN pip install ./digitalhub-sdk/core/modules/kfp --no-deps
 RUN pip install ./digitalhub-sdk/core/modules/container --no-deps
 # Install digitalhub-data, and modules
 RUN pip install ./digitalhub-sdk/data --no-deps
@@ -23,6 +23,9 @@ RUN pip install ./digitalhub-sdk/data/modules/* --no-deps
 # Install digitalhub-ml, and modules
 RUN pip install ./digitalhub-sdk/ml/ --no-deps
 RUN pip install ./digitalhub-sdk/ml/modules/* --no-deps
+
+# Install kfp
+RUN pip install kfp==1.8.11
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/

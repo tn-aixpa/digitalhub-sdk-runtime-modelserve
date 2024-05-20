@@ -17,7 +17,11 @@ RUN rm $DHUB_VERSION.zip
 RUN pip install digitalhub-sdk/core
 RUN pip install digitalhub-sdk/data \
                 digitalhub-sdk/ --no-deps
-RUN pip install digitalhub-sdk/data/modules/nefertem[local]
+RUN pip install nefertem \
+                nefertem-core \
+                nefertem-inference \
+                nefertem-profiling \
+                nefertem-validation
 
 # Get nefertem
 ARG NEFERTEM_VERSION=2.0.6
