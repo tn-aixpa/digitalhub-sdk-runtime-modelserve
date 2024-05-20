@@ -5,8 +5,9 @@ import typing
 from typing import Any
 
 import pandas as pd
-from digitalhub_data.entities.dataitems.crud import new_dataitem
+from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_data.entities.dataitems.crud import new_dataitem
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity.table import DataitemTable
@@ -69,3 +70,23 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
             objects[name] = art.key
 
     return objects
+
+
+def build_status(outputs: dict) -> dict:
+    """
+    Build status from outputs.
+
+    Parameters
+    ----------
+    outputs : dict
+        Function outputs.
+
+    Returns
+    -------
+    dict
+        Function status.
+    """
+    return {
+        "state": State.COMPLETED.value,
+        "outputs": outputs,
+    }
