@@ -18,7 +18,7 @@ RUN pip install ./digitalhub-sdk/core
 RUN pip install ./digitalhub-sdk/core/modules/kfp --no-deps
 RUN pip install ./digitalhub-sdk/core/modules/container --no-deps
 # Install digitalhub-data, and modules
-RUN pip install ./digitalhub-sdk/data --no-deps
+RUN pip install ./digitalhub-sdk/data[pandas]
 RUN pip install ./digitalhub-sdk/data/modules/* --no-deps
 # Install digitalhub-ml, and modules
 RUN pip install ./digitalhub-sdk/ml/ --no-deps
