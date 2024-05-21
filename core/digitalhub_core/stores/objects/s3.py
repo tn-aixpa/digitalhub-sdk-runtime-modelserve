@@ -14,9 +14,6 @@ from botocore.exceptions import ClientError
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
 
-if typing.TYPE_CHECKING:
-    import pandas as pd
-
 
 # Type aliases
 S3Client = Type["botocore.client.S3"]
@@ -127,31 +124,6 @@ class S3Store(Store):
         """
         key = self._get_key(dst) if dst is not None else self._get_key(src)
         return self._upload_file(src, key)
-
-    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
-        """
-        Write a dataframe to S3 based storage. Kwargs are passed to df.to_parquet().
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            The dataframe.
-        dst : str
-            The destination path on S3 based storage.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        str
-            The path S3 path where the dataframe was saved.
-        """
-        if dst is None or not dst.endswith(".parquet"):
-            raise StoreError("Destination must be a parquet file!")
-        fileobj = BytesIO()
-        df.to_parquet(fileobj, index=False, **kwargs)
-        key = self._get_key(dst)
-        return self._upload_fileobj(fileobj, key)
 
     ############################
     # Private helper methods

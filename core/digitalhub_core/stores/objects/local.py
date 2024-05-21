@@ -9,8 +9,6 @@ from pathlib import Path
 
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 
-if typing.TYPE_CHECKING:
-    import pandas as pd
 
 
 class LocalStoreConfig(StoreConfig):
@@ -123,32 +121,6 @@ class LocalStore(Store):
             dst = str(Path(self.config.path) / Path(src).name)
         self._check_local_dst(dst)
         return shutil.copy(src, dst)
-
-    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
-        """
-        Method to write a dataframe to a file. Kwargs are passed to df.to_parquet().
-        If destination is not provided, the dataframe is written to the default
-        store path with name data.parquet.
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            The dataframe to write.
-        dst : str
-            The destination of the dataframe.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        str
-            Path of written dataframe.
-        """
-        if dst is None or not dst.endswith(".parquet"):
-            dst = str(Path(self.config.path) / "data.parquet")
-        self._check_local_dst(dst)
-        df.to_parquet(dst, index=False, **kwargs)
-        return dst
 
     ############################
     # Store interface methods

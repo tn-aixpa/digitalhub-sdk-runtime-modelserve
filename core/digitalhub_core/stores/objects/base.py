@@ -8,7 +8,6 @@ from pathlib import Path
 from tempfile import mkdtemp
 from typing import Literal
 
-import pandas as pd
 from digitalhub_core.utils.exceptions import StoreError
 from digitalhub_core.utils.uri_utils import map_uri_scheme
 from pydantic import BaseModel
@@ -69,42 +68,6 @@ class Store(metaclass=ABCMeta):
         """
         Method to persist artifact in storage.
         """
-
-    @abstractmethod
-    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
-        """
-        Write pandas DataFrame as parquet or csv.
-        """
-
-    @staticmethod
-    def read_df(path: str, extension: str, **kwargs) -> pd.DataFrame:
-        """
-        Read DataFrame from path.
-
-        Parameters
-        ----------
-        path : str
-            Path to read DataFrame from.
-        extension : str
-            Extension of the file.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        pd.DataFrame
-            Pandas DataFrame.
-
-        Raises
-        ------
-        ValueError
-            If format is not supported.
-        """
-        if extension == "csv":
-            return pd.read_csv(path, **kwargs)
-        if extension == "parquet":
-            return pd.read_parquet(path, **kwargs)
-        raise ValueError(f"Format {extension} not supported.")
 
     ############################
     # Helpers methods

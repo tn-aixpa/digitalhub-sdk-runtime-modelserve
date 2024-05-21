@@ -4,13 +4,16 @@ SQLStore module.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
-import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table, MetaData
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.engine.row import LegacyRow
 
 
 class SQLStoreConfig(StoreConfig):
@@ -117,32 +120,6 @@ class SqlStore(Store):
         """
         raise NotImplementedError("SQL store does not support persist_artifact.")
 
-    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
-        """
-        Write a dataframe to a database. Kwargs are passed to df.to_sql().
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            The dataframe.
-        dst : str
-            The destination table on database.
-        **kwargs
-            Keyword arguments.
-
-        Returns
-        -------
-        str
-            The SQL uri where the dataframe was saved.
-        """
-        if dst is None:
-            schema = str(self.config.pg_schema)
-            table = "table"
-        else:
-            schema = self._get_schema(dst)
-            table = self._get_table_name(dst)
-        return self._upload_table(df, schema, table, **kwargs)
-
     ############################
     # Private helper methods
     ############################
@@ -161,9 +138,14 @@ class SqlStore(Store):
             f"{self.config.host}:{self.config.port}/{self.config.database}"
         )
 
-    def _get_engine(self) -> Engine:
+    def _get_engine(self, schema: str | None = None) -> Engine:
         """
         Create engine from connection string.
+
+        Parameters
+        ----------
+        schema : str
+            The schema.
 
         Returns
         -------
@@ -174,20 +156,27 @@ class SqlStore(Store):
         if not isinstance(connection_string, str):
             raise StoreError("Connection string must be a string.")
         try:
+            if schema is not None:
+                return create_engine(connection_string, connect_args={"options": f"-csearch_path={schema}"})
             return create_engine(connection_string)
         except Exception as ex:
             raise StoreError(f"Something wrong with connection string. Arguments: {str(ex.args)}")
 
-    def _check_factory(self) -> Engine:
+    def _check_factory(self, schema: str | None = None) -> Engine:
         """
         Check if the database is accessible and return the engine.
+
+        Parameters
+        ----------
+        schema : str
+            The schema.
 
         Returns
         -------
         Engine
             The database engine.
         """
-        engine = self._get_engine()
+        engine = self._get_engine(schema)
         self._check_access_to_storage(engine)
         return engine
 
@@ -294,36 +283,50 @@ class SqlStore(Store):
         str
             The destination path.
         """
-        engine = self._check_factory()
+        engine = self._check_factory(schema=schema)
         self._check_local_dst(dst)
-        pd.read_sql_table(table, engine, schema=schema).to_parquet(dst, index=False)
+
+        # Read the table from the database
+        sa_table = Table(table, MetaData(), autoload_with=engine)
+        query = sa_table.select()
+        with engine.begin() as conn:
+            result: list[LegacyRow] = conn.execute(query).fetchall()
+
+        # Parse the result
+        data = self._parse_result(result)
+
+        # Convert the result to a pyarrow table and
+        # write the pyarrow table to a Parquet file
+        arrow_table = pa.Table.from_pydict(data)
+        pq.write_table(arrow_table, dst)
+
         engine.dispose()
+
         return dst
 
-    def _upload_table(self, df: pd.DataFrame, schema: str, table: str, **kwargs) -> str:
+    @staticmethod
+    def _parse_result(result: list[LegacyRow]) -> dict:
         """
-        Upload a table to SQL based storage.
+        Convert a list of list of tuples to a dict.
 
         Parameters
         ----------
-        df : pd.DataFrame
-            The dataframe.
-        schema : str
-            Destination schema.
-        table : str
-            Destination table.
-        **kwargs
-            Keyword arguments.
+        result : list[LegacyRow]
+            The data to convert.
 
         Returns
         -------
-        str
-            The SQL URI where the dataframe was saved.
+        dict
+            The converted data.
         """
-        engine = self._check_factory()
-        df.to_sql(table, engine, schema=schema, index=False, **kwargs)
-        engine.dispose()
-        return f"sql://{engine.url.database}/{schema}/{table}"
+        data_list = [row.items() for row in result]
+        data = {}
+        for row in data_list:
+            for column_name, value in row:
+                if column_name not in data:
+                    data[column_name] = []
+                data[column_name].append(value)
+        return data
 
     ############################
     # Store interface methods

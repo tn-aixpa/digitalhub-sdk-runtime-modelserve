@@ -9,9 +9,6 @@ from pathlib import Path
 import requests
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 
-if typing.TYPE_CHECKING:
-    import pandas as pd
-
 
 class RemoteStoreConfig(StoreConfig):
     """
@@ -109,18 +106,6 @@ class RemoteStore(Store):
             This method is not implemented.
         """
         raise NotImplementedError("Remote store does not support persist_artifact.")
-
-    def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:
-        """
-        Method to write a dataframe to a file. Note that this method is not implemented
-        since the remote store is not meant to write dataframes.
-
-        Raises
-        ------
-        NotImplementedError
-            This method is not implemented.
-        """
-        raise NotImplementedError("Remote store does not support write_df.")
 
     ############################
     # Private helper methods
