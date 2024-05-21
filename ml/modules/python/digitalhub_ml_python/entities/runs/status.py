@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.runs.status import RunStatus
+from digitalhub_ml.entities.runs.status import RunStatusMl
 
 
-class RunStatusPython(RunStatus):
+class RunStatusPython(RunStatusMl):
     """
     Run Python status.
     """

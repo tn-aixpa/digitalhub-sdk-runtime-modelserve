@@ -3,12 +3,10 @@ from __future__ import annotations
 import shutil
 import typing
 from pathlib import Path
+from typing import Any
 
-from digitalhub_core.stores.builder import get_default_store, get_store
+from digitalhub_data.datastores.builder import get_default_datastore, get_datastore
 from digitalhub_data.entities.dataitems.entity._base import Dataitem
-
-if typing.TYPE_CHECKING:
-    import pandas as pd
 
 
 class DataitemTable(Dataitem):
@@ -17,7 +15,7 @@ class DataitemTable(Dataitem):
     Table dataitem.
     """
 
-    def as_df(self, file_format: str | None = None, **kwargs) -> pd.DataFrame:
+    def as_df(self, file_format: str | None = None, **kwargs) -> Any:
         """
         Read dataitem as a pandas DataFrame. If the dataitem is not local, it will be downloaded
         to a temporary folder and deleted after the method is executed. If no file_format is passed,
@@ -36,22 +34,22 @@ class DataitemTable(Dataitem):
 
         Returns
         -------
-        pd.DataFrame
-            Pandas DataFrame.
+        Any
+            DataFrame.
         """
-        store = get_store(self.spec.path)
+        datastore = get_datastore(self.spec.path)
         tmp_path = False
 
         # Download dataitem if not local
         if not self._check_local(self.spec.path):
-            path = store.download(self.spec.path)
+            path = datastore.download(self.spec.path)
             tmp_path = True
         else:
             path = self.spec.path
 
         # Check file format and get dataitem as DataFrame
         extension = self._get_extension(self.spec.path, file_format)
-        df = store.read_df(path, extension, **kwargs)
+        df = datastore.read_df(path, extension, **kwargs)
 
         # Delete tmp folder
         if tmp_path:
@@ -62,7 +60,7 @@ class DataitemTable(Dataitem):
 
         return df
 
-    def write_df(self, target_path: str | None = None, df: pd.DataFrame | None = None, **kwargs) -> str:
+    def write_df(self, target_path: str | None = None, df: Any | None = None, **kwargs) -> str:
         """
         Write pandas DataFrame as parquet.
         If no target_path is passed, the dataitem will be written into the default store.
@@ -72,7 +70,7 @@ class DataitemTable(Dataitem):
         ----------
         target_path : str
             Path to write the dataframe to
-        df : pd.DataFrame
+        df : Any
             DataFrame to write.
         **kwargs
             Keyword arguments.
@@ -84,9 +82,9 @@ class DataitemTable(Dataitem):
         """
         if target_path is None:
             target_path = f"{self.project}/{self.ENTITY_TYPE}/{self.kind}/{self.name}.parquet"
-            store = get_default_store()
+            datastore = get_default_datastore()
         else:
-            store = get_store(target_path)
+            datastore = get_datastore(target_path)
         if df is None:
             df = self.as_df()
-        return store.write_df(df, target_path, **kwargs)
+        return datastore.write_df(df, target_path, **kwargs)

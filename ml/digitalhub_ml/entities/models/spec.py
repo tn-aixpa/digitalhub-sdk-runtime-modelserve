@@ -31,7 +31,11 @@ class ModelSpecModel(ModelSpec):
     """
 
     def __init__(
-        self, base_model: str | None = None, parameters: dict | None = None, metrics: dict | None = None, **kwargs
+        self,
+        base_model: str | None = None,
+        parameters: dict | None = None,
+        metrics: dict | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
