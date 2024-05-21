@@ -36,7 +36,7 @@ def get_function_from_source(path: Path, spec: dict) -> Callable:
         handler = spec.get("handler")
         return import_function(function_code, handler)
     except Exception as e:
-        msg = f"Some error occurred while getting function source. Exception: {e.__class__}. Error: {e.args}"
+        msg = f"Some error occurred while getting function. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
         raise RuntimeError(msg) from e
 
@@ -217,7 +217,12 @@ def import_function(path: Path, handler: str) -> Callable:
     Callable
         Function.
     """
-    spec = imputil.spec_from_file_location(path.stem, path)
-    mod = imputil.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return getattr(mod, handler)
+    try:
+        spec = imputil.spec_from_file_location(path.stem, path)
+        mod = imputil.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return getattr(mod, handler)
+    except Exception as e:
+        msg = f"Some error occurred while importing function. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.exception(msg)
+        raise RuntimeError(msg) from e
