@@ -72,7 +72,10 @@ def validate(**kwargs) -> dict:
     run_config = kwargs.get("run_config")
     run_id = kwargs.get("run_id")
     constraints = kwargs.get("constraints")
-    error_report = kwargs.get("error_report")
+    error_report = kwargs.get("error_report", "partial")
+
+    if constraints is None:
+        raise ValueError("Constraints cannot be None.")
 
     with client.create_run(resources, run_config, run_id=run_id) as nt_run:
         nt_run.validate(constraints=constraints, error_report=error_report)
@@ -100,6 +103,9 @@ def metric(**kwargs) -> dict:
     run_config = kwargs.get("run_config")
     run_id = kwargs.get("run_id")
     metrics = kwargs.get("metrics")
+
+    if metrics is None:
+        raise ValueError("Metrics cannot be None.")
 
     with client.create_run(resources, run_config, run_id=run_id) as nt_run:
         nt_run.metric(metrics=metrics)

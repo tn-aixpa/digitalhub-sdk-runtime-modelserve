@@ -183,8 +183,8 @@ class RuntimeNefertem(Runtime):
         resources = create_nt_resources(inputs, self.store)
 
         # Create run configuration
-        task_spec = spec.get(f"{action}_spec")
-        function_spec = spec.get("function_spec")
+        task_spec = spec.get(f"{action}_spec", {})
+        function_spec = spec.get("function_spec", {})
         framework = task_spec.get("framework")
         exec_args = task_spec.get("exec_args", {})
         parallel = task_spec.get("parallel", False)
