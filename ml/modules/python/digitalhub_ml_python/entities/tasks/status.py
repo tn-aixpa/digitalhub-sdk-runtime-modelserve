@@ -9,18 +9,6 @@ class TaskStatusJob(TaskStatus):
     """
 
 
-class TaskStatusDeploy(TaskStatus):
-    """
-    Task Deploy status.
-    """
-
-
-class TaskStatusServe(TaskStatus):
-    """
-    Task Serve status.
-    """
-
-
 class TaskStatusBuild(TaskStatus):
     """
     Task Build status.

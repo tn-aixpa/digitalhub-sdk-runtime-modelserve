@@ -19,7 +19,6 @@ class FunctionSpecPython(FunctionSpec):
     def __init__(
         self,
         source: dict,
-        handler: str | None = None,
         requirements: list | None = None,
     ) -> None:
         """
@@ -27,7 +26,6 @@ class FunctionSpecPython(FunctionSpec):
         """
         super().__init__()
 
-        self.handler = handler
         self.requirements = requirements
 
         source = self._source_check(source)
@@ -57,6 +55,9 @@ class FunctionSpecPython(FunctionSpec):
         base64 = source.get("base64")
         handler = source.get("handler")
         source["lang"] = "python"
+
+        if handler is None:
+            raise EntityError("Handler must be provided.")
 
         if source_path is None and code is None and base64 is None:
             raise EntityError("Source must be provided.")
@@ -123,9 +124,6 @@ class FunctionParamsPython(FunctionParams):
 
     source: dict
     "Source code"
-
-    handler: str = None
-    "Handler method inside the function"
 
     requirements: list = None
     "Requirements list, as used by the runtime"

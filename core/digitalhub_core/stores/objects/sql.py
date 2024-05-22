@@ -10,10 +10,10 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
-from sqlalchemy import create_engine, Table, MetaData
+from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.engine.row import LegacyRow
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class SQLStoreConfig(StoreConfig):

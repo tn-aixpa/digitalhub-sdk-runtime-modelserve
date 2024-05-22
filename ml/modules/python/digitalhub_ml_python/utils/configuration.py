@@ -61,18 +61,12 @@ def save_function_source(path: Path, source_spec: dict) -> Path:
     path.mkdir(parents=True, exist_ok=True)
 
     # Get relevant information
-    code = source_spec.get("code")
     base64 = source_spec.get("base64")
     source = source_spec.get("source")
     handler = source_spec.get("handler")
 
-    if code is not None:
-        path = path / "source.py"
-        path.write_text(code)
-        return path
-
     if base64 is not None:
-        path = path / "source.py"
+        path = path / "main.py"
         path.write_text(decode_base64(base64))
         return path
 

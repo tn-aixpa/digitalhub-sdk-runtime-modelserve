@@ -47,13 +47,13 @@ class TaskParamsJob(TaskParams):
     """Kubernetes resources."""
 
 
-class TaskSpecNuclio(TaskSpecPythonBase):
-    """Task Nuclio specification."""
+class TaskSpecBuild(TaskSpecPythonBase):
+    """Task Build specification."""
 
 
-class TaskParamsNuclio(TaskParams):
+class TaskParamsBuild(TaskParams):
     """
-    TaskParamsNuclio model.
+    TaskParamsBuild model.
     """
 
     k8s: K8s = None

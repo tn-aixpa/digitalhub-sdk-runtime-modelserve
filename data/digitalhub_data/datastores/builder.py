@@ -1,26 +1,22 @@
 from __future__ import annotations
 
 import typing
-from digitalhub_core.stores.builder import get_store, get_default_store
+
+from digitalhub_core.stores.builder import get_default_store, get_store
+from digitalhub_core.utils.exceptions import StoreError
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data.datastores.objects.local import LocalDatastore
 from digitalhub_data.datastores.objects.remote import RemoteDatastore
 from digitalhub_data.datastores.objects.s3 import S3Datastore
 from digitalhub_data.datastores.objects.sql import SqlDatastore
-from digitalhub_core.utils.exceptions import StoreError
-from digitalhub_core.utils.uri_utils import map_uri_scheme
-
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.datastores.objects.base import Datastore
     from digitalhub_core.stores.objects.base import Store
+    from digitalhub_data.datastores.objects.base import Datastore
 
 
-REGISTRY_DATASTORES = {
-    "local": LocalDatastore,
-    "remote": RemoteDatastore,
-    "s3": S3Datastore,
-    "sql": SqlDatastore
-}
+REGISTRY_DATASTORES = {"local": LocalDatastore, "remote": RemoteDatastore, "s3": S3Datastore, "sql": SqlDatastore}
+
 
 class DatastoreBuilder:
     """
@@ -128,7 +124,6 @@ def get_datastore(uri: str) -> Datastore:
         The datastore instance.
     """
     return builder.get(uri)
-
 
 
 def get_default_datastore() -> Datastore:

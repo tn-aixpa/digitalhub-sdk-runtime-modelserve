@@ -9,7 +9,7 @@ class TaskMetadataJob(TaskMetadata):
     """
 
 
-class TaskMetadataNuclio(TaskMetadata):
+class TaskMetadataBuild(TaskMetadata):
     """
-    Task Nuclio metadata.
+    Task Build metadata.
     """

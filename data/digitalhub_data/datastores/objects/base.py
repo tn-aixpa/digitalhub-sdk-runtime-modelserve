@@ -20,6 +20,7 @@ class Datastore(metaclass=ABCMeta):
     """
     Datastore abstract class.
     """
+
     def __init__(self, store: Store, **kwargs) -> None:
         """
         Constructor.

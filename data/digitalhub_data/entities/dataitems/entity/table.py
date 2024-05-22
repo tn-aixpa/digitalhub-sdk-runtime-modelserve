@@ -5,7 +5,7 @@ import typing
 from pathlib import Path
 from typing import Any
 
-from digitalhub_data.datastores.builder import get_default_datastore, get_datastore
+from digitalhub_data.datastores.builder import get_datastore, get_default_datastore
 from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 

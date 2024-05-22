@@ -14,7 +14,6 @@ from botocore.exceptions import ClientError
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
 
-
 # Type aliases
 S3Client = Type["botocore.client.S3"]
 

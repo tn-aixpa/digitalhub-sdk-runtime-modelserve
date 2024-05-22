@@ -10,7 +10,6 @@ from pathlib import Path
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 
 
-
 class LocalStoreConfig(StoreConfig):
     """
     Local store configuration class.
