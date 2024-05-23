@@ -32,8 +32,8 @@ def get_function_from_source(path: Path, spec: dict) -> Callable:
         Function.
     """
     try:
-        function_code = save_function_source(path, spec.get("source", {}))
-        handler = spec.get("handler")
+        function_code = save_function_source(path, spec["source"])
+        handler = spec["source"]["handler"]
         return import_function(function_code, handler)
     except Exception as e:
         msg = f"Some error occurred while getting function. Exception: {e.__class__}. Error: {e.args}"

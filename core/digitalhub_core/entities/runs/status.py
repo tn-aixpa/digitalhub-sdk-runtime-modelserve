@@ -28,6 +28,7 @@ class RunStatus(Status):
         message: str | None = None,
         outputs: list | None = None,
         results: dict | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
@@ -35,6 +36,8 @@ class RunStatus(Status):
         super().__init__(state, message)
         self.outputs = outputs
         self.results = results
+
+        self._any_setter(**kwargs)
 
     def get_results(self) -> dict:
         """

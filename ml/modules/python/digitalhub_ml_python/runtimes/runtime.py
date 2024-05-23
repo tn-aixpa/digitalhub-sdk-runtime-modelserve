@@ -9,7 +9,7 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_ml_python.utils.configuration import get_function_from_source
-from digitalhub_ml_python.utils.functions import run_python_job, run_python_nuclio
+from digitalhub_ml_python.utils.functions import run_python
 from digitalhub_ml_python.utils.inputs import get_inputs_parameters
 from digitalhub_ml_python.utils.outputs import build_status
 
@@ -26,7 +26,7 @@ class RuntimePython(Runtime):
         Constructor.
         """
         super().__init__()
-        self.root = Path("digitalhub_ml_python")
+        self.root_path = Path("digitalhub_ml_python")
         self.tmp_path = self.root_path / "temp"
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
@@ -78,10 +78,10 @@ class RuntimePython(Runtime):
         fnc = self._configure_execution(spec)
 
         LOGGER.info("Executing run.")
-        results = self._execute(executable, fnc, project, fnc_args)
+        results = self._execute(executable, fnc, project, **fnc_args)
 
         LOGGER.info("Collecting outputs.")
-        status = build_status(results)
+        status = build_status(results, spec.get("outputs", {}), spec.get("values", {}))
 
         # Return run status
         LOGGER.info("Task completed, returning run status.")
@@ -103,9 +103,7 @@ class RuntimePython(Runtime):
             Function to execute.
         """
         if action == "job":
-            return run_python_job
-        if action == "nuclio":
-            return run_python_nuclio
+            return run_python
         raise NotImplementedError
 
     ####################
@@ -150,4 +148,4 @@ class RuntimePython(Runtime):
         Callable
             Function to execute.
         """
-        return get_function_from_source(self.root, spec.get("function_spec"))
+        return get_function_from_source(self.root_path, spec.get("function_spec"))

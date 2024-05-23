@@ -4,15 +4,16 @@ import pickle
 import typing
 from typing import Any
 
-import pandas as pd
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import new_dataitem
+from digitalhub_data.readers.registry import DATAFRAME_TYPES
+
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity.table import DataitemTable
-
+    from digitalhub_core.entities.artifacts.entity import Artifact
 
 def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict:
     """
@@ -39,11 +40,11 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
         except IndexError:
             name = f"output_{idx}"
 
-        if isinstance(item, pd.DataFrame):
-            objects[name] = build_and_load_dataitem(name, project_name, item)
-
-        elif isinstance(item, (str, int, float, bool, bytes)):
+        if isinstance(item, (str, int, float, bool, bytes)):
             objects[name] = item
+
+        elif f"{item.__class__.__module__}.{item.__class__.__name__}" in DATAFRAME_TYPES:
+            objects[name] = build_and_load_dataitem(name, project_name, item)
 
         else:
             objects[name] = build_and_load_artifact(name, project_name, item)
@@ -74,7 +75,7 @@ def listify_results(results: Any) -> list:
     return results
 
 
-def build_and_load_dataitem(name: str, project_name: str, data: Any) -> str:
+def build_and_load_dataitem(name: str, project_name: str, data: Any) -> DataitemTable:
     """
     Build and load dataitem.
 
@@ -96,14 +97,14 @@ def build_and_load_dataitem(name: str, project_name: str, data: Any) -> str:
         path = f"s3://datalake/{project_name}/dataitems/table/{name}.parquet"
         di: DataitemTable = new_dataitem(project=project_name, name=name, kind="table", path=path)
         di.write_df(df=data)
-        return di.key
+        return di
     except Exception as e:
         msg = f"Some error occurred while building and loading dataitem. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def build_and_load_artifact(name: str, project_name: str, data: Any) -> str:
+def build_and_load_artifact(name: str, project_name: str, data: Any) -> Artifact:
     """
     Build and load artifact.
 
@@ -130,7 +131,7 @@ def build_and_load_artifact(name: str, project_name: str, data: Any) -> str:
 
         art = new_artifact(project=project_name, name=name, kind="artifact", path=path)
         art.upload(source=f"{name}.pickle")
-        return art.key
+        return art
 
     except Exception as e:
         msg = f"Some error occurred while building and loading artifact. Exception: {e.__class__}. Error: {e.args}"
@@ -138,26 +139,52 @@ def build_and_load_artifact(name: str, project_name: str, data: Any) -> str:
         raise RuntimeError(msg)
 
 
-def build_status(outputs: dict) -> dict:
+def build_status(
+    parsed_execution: dict,
+    mapped_outputs: dict | None = None,
+    values_list: list | None = None,
+) -> dict:
     """
-    Build status from outputs.
+    Collect outputs.
 
     Parameters
     ----------
-    outputs : dict
-        Function outputs.
+    parsed_execution : dict
+        Parsed execution dict.
+    mapped_outputs : dict
+        Mapped outputs.
+    values_list : list
+        Values list.
 
     Returns
     -------
     dict
-        Function status.
+        Status dict.
     """
+    outputs = {}
+    if mapped_outputs is None:
+        mapped_outputs = {}
+
+    results = {}
+    if values_list is None:
+        values_list = []
+
     try:
+
+        for key, value in mapped_outputs.items():
+            if key in parsed_execution:
+                outputs[key] = parsed_execution[key].key
+
+        for value in values_list:
+            if value in parsed_execution:
+                results[value] = parsed_execution[value]
+
         return {
             "state": State.COMPLETED.value,
             "outputs": outputs,
+            "results": results,
         }
     except Exception as e:
-        msg = f"Some error occurred while building status. Exception: {e.__class__}. Error: {e.args}"
+        msg = f"Something got wrong during run status building. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise RuntimeError(msg)
+        raise RuntimeError(msg) from e
