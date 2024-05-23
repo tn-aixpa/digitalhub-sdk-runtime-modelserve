@@ -3,7 +3,6 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.stores.builder import get_default_store, get_store
-from digitalhub_core.utils.exceptions import StoreError
 from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data.datastores.objects.local import LocalDatastore
 from digitalhub_data.datastores.objects.remote import RemoteDatastore

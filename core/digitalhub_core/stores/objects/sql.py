@@ -4,7 +4,6 @@ SQLStore module.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 import pyarrow as pa
 import pyarrow.parquet as pq

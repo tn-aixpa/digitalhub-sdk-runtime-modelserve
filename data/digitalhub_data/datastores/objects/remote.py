@@ -3,14 +3,9 @@ Remote datastore module.
 """
 from __future__ import annotations
 
-import typing
 from typing import Any
 
-from digitalhub_core.stores.builder import get_store
 from digitalhub_data.datastores.objects.base import Datastore
-
-if typing.TYPE_CHECKING:
-    from digitalhub_core.stores.objects.remote import RemoteStore
 
 
 class RemoteDatastore(Datastore):

@@ -3,7 +3,6 @@ S3Store module.
 """
 from __future__ import annotations
 
-import typing
 from io import BytesIO
 from typing import Type
 from urllib.parse import urlparse

@@ -10,6 +10,7 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_ml_python.utils.configuration import get_function_from_source
 from digitalhub_ml_python.utils.functions import run_python_job, run_python_nuclio
+from digitalhub_ml_python.utils.inputs import get_inputs_parameters
 from digitalhub_ml_python.utils.outputs import build_status
 
 
@@ -26,6 +27,7 @@ class RuntimePython(Runtime):
         """
         super().__init__()
         self.root = Path("digitalhub_ml_python")
+        self.tmp_path = self.root_path / "temp"
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -69,11 +71,14 @@ class RuntimePython(Runtime):
         spec = run.get("spec")
         project = run.get("project")
 
+        LOGGER.info("Collecting inputs.")
+        fnc_args = self._collect_inputs(spec)
+
         LOGGER.info("Configuring execution.")
-        func = self._configure_execution(spec)
+        fnc = self._configure_execution(spec)
 
         LOGGER.info("Executing run.")
-        results = self._execute(executable, func, project)
+        results = self._execute(executable, fnc, project, fnc_args)
 
         LOGGER.info("Collecting outputs.")
         status = build_status(results)
@@ -102,6 +107,30 @@ class RuntimePython(Runtime):
         if action == "nuclio":
             return run_python_nuclio
         raise NotImplementedError
+
+    ####################
+    # Inputs
+    ####################
+
+    def _collect_inputs(self, spec: dict) -> dict:
+        """
+        Collect inputs.
+
+        Parameters
+        ----------
+        spec : dict
+            Run specs.
+        project : str
+            Project name.
+
+        Returns
+        -------
+        dict
+            Parameters.
+        """
+        LOGGER.info("Getting inputs.")
+        self.tmp_path.mkdir(parents=True, exist_ok=True)
+        return get_inputs_parameters(spec.get("inputs", {}), spec.get("parameters", {}), self.tmp_path)
 
     ####################
     # Configuration

@@ -1,9 +1,10 @@
 import os
 import sys
 
-import digitalhub as dh
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.utils.logger import LOGGER
+
+import digitalhub as dh
 
 
 def handler(context, event) -> None:

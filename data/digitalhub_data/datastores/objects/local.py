@@ -3,17 +3,12 @@ Local datastore module.
 """
 from __future__ import annotations
 
-import typing
 from pathlib import Path
 from typing import Any
 
-from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.datastores.objects.base import Datastore
 from digitalhub_data.readers.builder import get_reader_by_object
-
-if typing.TYPE_CHECKING:
-    from digitalhub_core.stores.objects.local import LocalStore
 
 
 class LocalDatastore(Datastore):

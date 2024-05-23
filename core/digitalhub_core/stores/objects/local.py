@@ -4,7 +4,6 @@ Local store module.
 from __future__ import annotations
 
 import shutil
-import typing
 from pathlib import Path
 
 from digitalhub_core.stores.objects.base import Store, StoreConfig

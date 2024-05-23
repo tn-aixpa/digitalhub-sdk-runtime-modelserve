@@ -150,7 +150,7 @@ class RuntimeMlrun(Runtime):
         """
         LOGGER.info("Getting inputs.")
         self.tmp_path.mkdir(parents=True, exist_ok=True)
-        return get_inputs_parameters(spec.get("inputs", []), spec.get("parameters", {}), self.tmp_path)
+        return get_inputs_parameters(spec.get("inputs", {}), spec.get("parameters", {}), self.tmp_path)
 
     ####################
     # Configuration
