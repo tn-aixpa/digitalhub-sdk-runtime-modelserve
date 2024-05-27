@@ -1,9 +1,7 @@
 absl-py==1.4.0
     # via kfp
 aiobotocore==2.5.4
-    # via
-    #   digitalhub-core
-    #   s3fs
+    # via s3fs
 aiohttp==3.9.3
     # via
     #   aiobotocore
@@ -84,12 +82,18 @@ deprecated==1.2.14
     # via
     #   kfp
     #   mlrun
+digitalhub[ml]==0.5.0b3
+    # via
+    #   digitalhub
+    #   digitalhub-ml-mlrun (pyproject.toml)
 digitalhub-core==0.5.0b3
-    # via digitalhub-data
+    # via
+    #   digitalhub
+    #   digitalhub-data
 digitalhub-data==0.5.0b3
     # via digitalhub-ml
 digitalhub-ml==0.5.0b3
-    # via digitalhub-ml-mlrun (pyproject.toml)
+    # via digitalhub
 docstring-parser==0.15
     # via kfp
 entrypoints==0.4
@@ -121,7 +125,9 @@ future==1.0.0
 gitdb==4.0.11
     # via gitpython
 gitpython==3.1.42
-    # via mlrun
+    # via
+    #   digitalhub-core
+    #   mlrun
 google-api-core==2.17.1
     # via
     #   google-api-python-client
@@ -259,7 +265,7 @@ mergedeep==1.3.4
     # via mlrun
 mistune==3.0.2
     # via nbconvert
-mlrun==1.6.2-rc6
+mlrun==1.6.2rc1
     # via digitalhub-ml-mlrun (pyproject.toml)
 multidict==6.0.5
     # via
@@ -316,7 +322,6 @@ packaging==23.2
     #   nbconvert
 pandas==2.1.4
     # via
-    #   digitalhub-core
     #   mlrun
     #   storey
     #   v3io-frames

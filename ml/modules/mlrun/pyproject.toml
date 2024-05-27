@@ -15,12 +15,11 @@ license = { file = "LICENSE.txt" }
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10"
 ]
 keywords = ["data", "dataops", "kubernetes"]
-requires-python = ">=3.9"
+requires-python = "==3.9"
 dependencies = [
-"digitalhub-ml==0.5.0b3",
+"digitalhub[ml]==0.5.0b3",
 ]
 [project.optional-dependencies]
 local = [

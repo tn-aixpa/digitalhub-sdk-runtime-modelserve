@@ -13,15 +13,8 @@ RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 RUN rm $DHUB_VERSION.zip
 
-# Install digitalhub-core, neferetem
-RUN pip install digitalhub-sdk/core digitalhub-sdk/data[pandas]
-RUN pip install digitalhub-sdk/ \
-                digitalhub-sdk/data/modules/nefertem --no-deps
-RUN pip install nefertem \
-                nefertem-core \
-                nefertem-inference \
-                nefertem-profiling \
-                nefertem-validation
+# Install requirements
+RUN pip install -r digitalhub-sdk/data/modules/neferetem/requirements-local.txt
 
 # Get nefertem
 ARG NEFERTEM_VERSION=2.0.6

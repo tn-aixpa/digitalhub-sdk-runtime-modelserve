@@ -20,7 +20,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes", "validation", "profiling", "inference", "nefertem", "digitalhub"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub-data==0.5.0b3",
+"digitalhub[data]==0.5.0b3",
 ]
 [project.optional-dependencies]
 local = [
