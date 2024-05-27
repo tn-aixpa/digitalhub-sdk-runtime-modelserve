@@ -45,6 +45,8 @@ class TaskSpecJob(TaskSpecContainerBase):
         """
         super().__init__(function, k8s)
 
+        k8s = k8s if k8s is not None else {}
+
         self.backoff_limit = k8s.get("backoff_limit")
         self.schedule = k8s.get("schedule")
 
@@ -70,6 +72,8 @@ class TaskSpecDeploy(TaskSpecContainerBase):
         Constructor.
         """
         super().__init__(function, k8s)
+
+        k8s = k8s if k8s is not None else {}
 
         self.replicas = k8s.get("replicas")
 
@@ -97,6 +101,8 @@ class TaskSpecServe(TaskSpecContainerBase):
         Constructor.
         """
         super().__init__(function, k8s)
+
+        k8s = k8s if k8s is not None else {}
         self.replicas = k8s.get("replicas")
         self.service_ports = service_ports
         self.service_type = service_type
@@ -132,6 +138,8 @@ class TaskSpecBuild(TaskSpecContainerBase):
         Constructor.
         """
         super().__init__(function, k8s)
+
+        k8s = k8s if k8s is not None else {}
         self.context_refs = context_refs
         self.context_sources = context_sources
         self.instructions = instructions
