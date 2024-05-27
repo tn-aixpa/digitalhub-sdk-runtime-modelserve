@@ -19,6 +19,8 @@ class FunctionSpecPython(FunctionSpec):
     def __init__(
         self,
         source: dict,
+        image: str | None = None,
+        base_image: str | None = None,
         requirements: list | None = None,
     ) -> None:
         """
@@ -26,6 +28,8 @@ class FunctionSpecPython(FunctionSpec):
         """
         super().__init__()
 
+        self.image = image
+        self.base_image = base_image
         self.requirements = requirements
 
         source = self._source_check(source)
@@ -124,6 +128,12 @@ class FunctionParamsPython(FunctionParams):
 
     source: dict
     "Source code"
+
+    image: str = None
+    "Image"
+
+    base_image: str = None
+    "Base image"
 
     requirements: list = None
     "Requirements list, as used by the runtime"

@@ -8,17 +8,17 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub[ml]==0.5.0b3
+digitalhub[ml]==0.5.0b4
     # via
     #   digitalhub
     #   digitalhub-runtime-mlrun (pyproject.toml)
-digitalhub-core==0.5.0b3
+digitalhub-core==0.5.0b4
     # via
     #   digitalhub
     #   digitalhub-data
-digitalhub-data==0.5.0b3
+digitalhub-data==0.5.0b4
     # via digitalhub-ml
-digitalhub-ml==0.5.0b3
+digitalhub-ml==0.5.0b4
     # via digitalhub
 gitdb==4.0.11
     # via gitpython

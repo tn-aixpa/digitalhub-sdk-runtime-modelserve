@@ -15,7 +15,7 @@ from digitalhub_core.utils.git_utils import clone_repository
 from digitalhub_core.utils.logger import LOGGER
 
 
-def get_function_from_source(path: Path, spec: dict) -> Callable:
+def get_function_from_source(path: Path, source_spec: dict) -> Callable:
     """
     Get function from source.
 
@@ -23,8 +23,8 @@ def get_function_from_source(path: Path, spec: dict) -> Callable:
     ----------
     path : Path
         Path where to save the function source.
-    spec : dict
-        Function spec.
+    source_spec : dict
+        Funcrion source spec.
 
     Returns
     -------
@@ -32,8 +32,8 @@ def get_function_from_source(path: Path, spec: dict) -> Callable:
         Function.
     """
     try:
-        function_code = save_function_source(path, spec["source"])
-        handler = spec["source"]["handler"]
+        function_code = save_function_source(path, source_spec)
+        handler = source_spec["handler"]
         return import_function(function_code, handler)
     except Exception as e:
         msg = f"Some error occurred while getting function. Exception: {e.__class__}. Error: {e.args}"

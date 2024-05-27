@@ -47,10 +47,9 @@ class RuntimePython(Runtime):
         dict
             The run spec.
         """
-        task_kind = task.get("kind").split("+")[1]
         return {
-            "function_spec": function.get("spec", {}),
-            f"{task_kind}_spec": task.get("spec", {}),
+            **function.get("spec", {}),
+            **task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -81,7 +80,11 @@ class RuntimePython(Runtime):
         results = self._execute(executable, fnc, project, **fnc_args)
 
         LOGGER.info("Collecting outputs.")
-        status = build_status(results, spec.get("outputs", {}), spec.get("values", {}))
+        status = build_status(
+            results,
+            spec.get("outputs", {}),
+            spec.get("values", {}),
+        )
 
         # Return run status
         LOGGER.info("Task completed, returning run status.")
@@ -128,7 +131,11 @@ class RuntimePython(Runtime):
         """
         LOGGER.info("Getting inputs.")
         self.tmp_path.mkdir(parents=True, exist_ok=True)
-        return get_inputs_parameters(spec.get("inputs", {}), spec.get("parameters", {}), self.tmp_path)
+        return get_inputs_parameters(
+            spec.get("inputs", {}),
+            spec.get("parameters", {}),
+            self.tmp_path,
+        )
 
     ####################
     # Configuration
@@ -148,4 +155,7 @@ class RuntimePython(Runtime):
         Callable
             Function to execute.
         """
-        return get_function_from_source(self.root_path, spec.get("function_spec"))
+        return get_function_from_source(
+            self.root_path,
+            spec.get("source", {}),
+        )
