@@ -82,17 +82,17 @@ deprecated==1.2.14
     # via
     #   kfp
     #   mlrun
-digitalhub[ml]==0.5.0b4
+digitalhub[ml]~=0.5.0b, <0.6
     # via
     #   digitalhub
     #   digitalhub-runtime-mlrun (pyproject.toml)
-digitalhub-core==0.5.0b4
+digitalhub-core~=0.5.0b, <0.6
     # via
     #   digitalhub
     #   digitalhub-data
-digitalhub-data==0.5.0b4
+digitalhub-data~=0.5.0b, <0.6
     # via digitalhub-ml
-digitalhub-ml==0.5.0b4
+digitalhub-ml~=0.5.0b, <0.6
     # via digitalhub
 docstring-parser==0.15
     # via kfp

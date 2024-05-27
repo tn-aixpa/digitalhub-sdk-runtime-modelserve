@@ -20,7 +20,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub==0.5.0b4",
+"digitalhub~=0.5.0b, <0.6",
 ]
 
 [project.urls]

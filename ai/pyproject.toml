@@ -20,7 +20,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-    "digitalhub-core==0.5.0b4.0b1",
+    "digitalhub-core~=0.5.0b, <0.6.0b1",
 ]
 
 [tool.setuptools.packages.find]
