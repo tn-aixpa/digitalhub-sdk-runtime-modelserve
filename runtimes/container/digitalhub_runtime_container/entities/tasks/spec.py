@@ -28,11 +28,8 @@ class TaskSpecContainerBase(TaskSpec):
         self.resources = k8s.get("resources")
         self.affinity = k8s.get("affinity")
         self.tolerations = k8s.get("tolerations")
-        self.env = k8s.get("env")
+        self.envs = k8s.get("envs")
         self.secrets = k8s.get("secrets")
-        self.backoff_limit = k8s.get("backoff_limit")
-        self.schedule = k8s.get("schedule")
-        self.replicas = k8s.get("replicas")
 
 
 class TaskSpecJob(TaskSpecContainerBase):
@@ -47,6 +44,9 @@ class TaskSpecJob(TaskSpecContainerBase):
         Constructor.
         """
         super().__init__(function, k8s)
+
+        self.backoff_limit = k8s.get("backoff_limit")
+        self.schedule = k8s.get("schedule")
 
 
 class TaskParamsJob(TaskParams):
@@ -70,6 +70,8 @@ class TaskSpecDeploy(TaskSpecContainerBase):
         Constructor.
         """
         super().__init__(function, k8s)
+
+        self.replicas = k8s.get("replicas")
 
 
 class TaskParamsDeploy(TaskParams):
@@ -95,6 +97,7 @@ class TaskSpecServe(TaskSpecContainerBase):
         Constructor.
         """
         super().__init__(function, k8s)
+        self.replicas = k8s.get("replicas")
         self.service_ports = service_ports
         self.service_type = service_type
 

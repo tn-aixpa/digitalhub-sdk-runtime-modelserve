@@ -18,7 +18,7 @@ class TaskSpecPipeline(TaskSpec):
         if k8s is None:
             k8s = {}
         k8s = K8s(**k8s).dict(by_alias=True)
-        self.env = k8s.get("env")
+        self.envs = k8s.get("envs")
         self.secrets = k8s.get("secrets")
         self.schedule = k8s.get("schedule")
         self.workflow = workflow

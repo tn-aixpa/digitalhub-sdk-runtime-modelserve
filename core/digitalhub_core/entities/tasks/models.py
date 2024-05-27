@@ -240,7 +240,7 @@ class K8s(BaseModel):
     tolerations: list[Toleration] = None
     """Tolerations."""
 
-    env: list[Env] = None
+    envs: list[Env] = None
     """Env variables."""
 
     secrets: list[str] = None
