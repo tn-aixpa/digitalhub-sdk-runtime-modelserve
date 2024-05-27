@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from digitalhub_core.entities.tasks.models import K8s
 from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
+from digitalhub_runtime_python.entities.tasks.models import ContextRef, ContextSource
 
 
 class TaskSpecPythonBase(TaskSpec):
@@ -50,6 +51,22 @@ class TaskParamsJob(TaskParams):
 class TaskSpecBuild(TaskSpecPythonBase):
     """Task Build specification."""
 
+    def __init__(
+        self,
+        function: str,
+        k8s: dict | None = None,
+        context_refs: list | None = None,
+        context_sources: list | None = None,
+        instructions: list | None = None,
+    ) -> None:
+        """
+        Constructor.
+        """
+        super().__init__(function, k8s)
+        self.context_refs = context_refs
+        self.context_sources = context_sources
+        self.instructions = instructions
+
 
 class TaskParamsBuild(TaskParams):
     """
@@ -58,3 +75,12 @@ class TaskParamsBuild(TaskParams):
 
     k8s: K8s = None
     """Kubernetes resources."""
+
+    context_refs: list[ContextRef] = None
+    """Context references."""
+
+    context_sources: list[ContextSource] = None
+    """Context sources."""
+
+    instructions: list[str] = None
+    """Build instructions."""

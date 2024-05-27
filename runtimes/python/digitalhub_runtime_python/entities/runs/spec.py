@@ -29,6 +29,9 @@ class RunSpecPython(RunSpecMl):
         backoff_limit: int | None = None,
         schedule: str | None = None,
         replicas: int | None = None,
+        context_refs: list[dict] | None = None,
+        context_sources: list[dict] | None = None,
+        instructions: list[str] | None = None,
     ) -> None:
         """
         Constructor.
@@ -54,6 +57,11 @@ class RunSpecPython(RunSpecMl):
         self.schedule = schedule
         self.replicas = replicas
 
+        # Task build
+        self.context_refs = context_refs
+        self.context_sources = context_sources
+        self.instructions = instructions
+
 
 class RunParamsPython(RunParamsMl):
     """Run Python parameters."""
@@ -76,3 +84,8 @@ class RunParamsPython(RunParamsMl):
     backoff_limit: int = None
     schedule: str = None
     replicas: int = None
+
+    # Task build
+    context_refs: list[dict] = None
+    context_sources: list[dict] = None
+    instructions: list[str] = None
