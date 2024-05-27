@@ -22,6 +22,7 @@ keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
 "digitalhub==0.5.0b4",
+"digitalhub-core[full]==0.5.0b4",
 "kfp==1.8.11",
 ]
 

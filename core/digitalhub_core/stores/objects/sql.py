@@ -133,7 +133,7 @@ class SqlStore(Store):
             The connection string.
         """
         return (
-            f"postgresql+psycopg2://{self.config.user}:{self.config.password}@"
+            f"postgresql://{self.config.user}:{self.config.password}@"
             f"{self.config.host}:{self.config.port}/{self.config.database}"
         )
 

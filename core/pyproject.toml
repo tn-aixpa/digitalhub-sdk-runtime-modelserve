@@ -23,17 +23,19 @@ dependencies = [
     "boto3",
     "pydantic~=1.10, >=1.10.8",
     "sqlalchemy~=1.4",
-    "psycopg2-binary~=2.8",
     "pyarrow>=10.0, <15",
     "requests~=2.31",
     "PyYAML",
-    "GitPython>=3",
 ]
 
 [tool.setuptools.packages.find]
 exclude = ["docs*", "tests*", "modules*"]
 
 [project.optional-dependencies]
+full = [
+    "GitPython>=3",
+    "psycopg2-binary",
+]
 dev = [
     "black",
     "pytest",

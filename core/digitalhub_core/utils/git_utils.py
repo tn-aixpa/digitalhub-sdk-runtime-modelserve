@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import os
 import shutil
+import warnings
 from pathlib import Path
 from urllib.parse import urlparse
 
-from git import Repo
+try:
+    from git import Repo
+except ImportError as e:
+    if "Bad git executable." in e.args[0]:
+        warnings.warn(
+            "git is not installed. Please install git and try again.", RuntimeWarning
+        )
 
 
 def clone_repository(url: str, path: Path) -> None:

@@ -20,6 +20,7 @@ keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
 "digitalhub[ml]==0.5.0b4",
+"digitalhub-core[full]==0.5.0b4",
 ]
 [project.optional-dependencies]
 local = [
