@@ -13,16 +13,9 @@ RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
 # Install digitalhub-core
-RUN pip install ./digitalhub-sdk/ --no-deps
-RUN pip install ./digitalhub-sdk/core
-RUN pip install ./digitalhub-sdk/core/modules/kfp --no-deps
-RUN pip install ./digitalhub-sdk/core/modules/container --no-deps
-# Install digitalhub-data, and modules
-RUN pip install ./digitalhub-sdk/data[pandas]
-RUN pip install ./digitalhub-sdk/data/modules/* --no-deps
-# Install digitalhub-ml, and modules
-RUN pip install ./digitalhub-sdk/ml/ --no-deps
-RUN pip install ./digitalhub-sdk/ml/modules/* --no-deps
+RUN pip install ./digitalhub-sdk/core ./digitalhub-sdk/data[pandas]
+RUN pip install ./digitalhub-sdk/ ./digitalhub-sdk/ml/ --no-deps
+RUN pip install ./digitalhub-sdk/runtimes/* --no-deps
 
 # Install kfp
 RUN pip install kfp==1.8.11

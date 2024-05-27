@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import importlib
 import importlib.metadata
+import pkgutil
 import re
-import subprocess
-import sys
 from types import ModuleType
 
 
@@ -62,12 +61,13 @@ def list_runtimes() -> list[str]:
     list
         List of installed runtimes names.
     """
-    pattern = r"digitalhub-.*-.*"
-
+    pattern = r"digitalhub_runtime_.*"
+    runtimes = []
     try:
-        pip_output = subprocess.check_output([sys.executable, "-m", "pip", "freeze"])
-        installed_packages = [r.decode().split("==")[0] for r in pip_output.split()]
-        return [x.replace("-", "_") for x in installed_packages if re.match(pattern, x)]
+        for _, name, _ in pkgutil.iter_modules():
+            if re.match(pattern, name):
+                runtimes.append(name)
+        return runtimes
     except Exception:
         raise RuntimeError("Error listing installed runtimes.")
 
@@ -110,7 +110,11 @@ def register_layer_entities() -> None:
 
 
 def create_info(
-    root: str, entity_type: str, prefix: str, suffix: str | None = "", runtime_info: dict | None = None
+    root: str,
+    entity_type: str,
+    prefix: str,
+    suffix: str | None = "",
+    runtime_info: dict | None = None,
 ) -> dict:
     """
     Create entity info.

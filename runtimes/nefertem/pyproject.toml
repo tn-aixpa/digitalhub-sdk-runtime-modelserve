@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "digitalhub-core"
+name = "digitalhub-runtime-nefertem"
 version = "0.5.0b3"
-description = "Python SDK for DHCore"
+description = "Nefertem runtime for DHCore"
 readme = "README.md"
 authors = [
     { name = "Fondazione Bruno Kessler", email = "dslab@fbk.eu" },
@@ -17,35 +17,20 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10"
 ]
-keywords = ["data", "dataops", "kubernetes"]
+keywords = ["data", "dataops", "kubernetes", "validation", "profiling", "inference", "nefertem", "digitalhub"]
 requires-python = ">=3.9"
 dependencies = [
-    "boto3",
-    "pydantic~=1.10, >=1.10.8",
-    "sqlalchemy~=1.4",
-    "psycopg2-binary~=2.8",
-    "pyarrow>=10.0, <15",
-    "requests~=2.31",
-    "PyYAML",
-    "GitPython>=3",
+"digitalhub[data]==0.5.0b3",
 ]
-
-[tool.setuptools.packages.find]
-exclude = ["docs*", "tests*", "modules*"]
-
 [project.optional-dependencies]
-dev = [
-    "black",
-    "pytest",
-    "bumpver",
-    "ruff",
-    "moto"
+local = [
+"nefertem~=2.0",
+"nefertem-core~=2.0",
+"nefertem-inference~=2.0",
+"nefertem-profiling~=2.0",
+"nefertem-validation~=2.0",
 ]
-docs = [
-    "Sphinx>=7",
-    "pydata-sphinx-theme>=0.15",
-    "numpydoc>=1.6"
-]
+
 
 [project.urls]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"

@@ -35,7 +35,7 @@ data = ["digitalhub-data==0.5.0b3"]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
 
 [tool.setuptools.packages.find]
-exclude = ["ai*", "wrapper*", "ml*", "core*", "data*"]
+exclude = ["ai*", "wrapper*", "ml*", "core*", "data*", "runtimes*"]
 
 [tool.flake8]
 max-line-length = 120

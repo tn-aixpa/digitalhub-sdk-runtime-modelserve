@@ -13,8 +13,9 @@ RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 RUN rm $DHUB_VERSION.zip
 
-# Install requirements
-RUN pip install -r digitalhub-sdk/data/modules/nefertem/requirements-local.txt
+# Install runtime and requirements
+RUN pip install digitalhub-sdk/runtimes/nefertem --no-deps
+RUN pip install -r digitalhub-sdk/runtimes/nefertem/requirements-local.txt
 
 # Get nefertem
 ARG NEFERTEM_VERSION=2.0.6

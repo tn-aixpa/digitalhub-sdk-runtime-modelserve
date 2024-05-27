@@ -12,8 +12,9 @@ RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/$DHU
 RUN unzip $DHUB_VERSION.zip
 RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
 
-# Install requirements
-RUN pip install -r digitalhub-sdk/ml/modules/mlrun/requirements-local.txt
+# Install runtime and requirements
+RUN pip install digitalhub-sdk/runtimes/mlrun --no-deps
+RUN pip install -r digitalhub-sdk/runtimes/mlrun/requirements-local.txt
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/

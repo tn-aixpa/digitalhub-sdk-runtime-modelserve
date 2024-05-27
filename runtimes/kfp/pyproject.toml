@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "digitalhub-core"
+name = "digitalhub-runtime-kfp"
 version = "0.5.0b3"
-description = "Python SDK for DHCore"
+description = "KFP runtime for DHCore"
 readme = "README.md"
 authors = [
     { name = "Fondazione Bruno Kessler", email = "dslab@fbk.eu" },
@@ -15,36 +15,14 @@ license = { file = "LICENSE.txt" }
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10"
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-    "boto3",
-    "pydantic~=1.10, >=1.10.8",
-    "sqlalchemy~=1.4",
-    "psycopg2-binary~=2.8",
-    "pyarrow>=10.0, <15",
-    "requests~=2.31",
-    "PyYAML",
-    "GitPython>=3",
-]
-
-[tool.setuptools.packages.find]
-exclude = ["docs*", "tests*", "modules*"]
-
-[project.optional-dependencies]
-dev = [
-    "black",
-    "pytest",
-    "bumpver",
-    "ruff",
-    "moto"
-]
-docs = [
-    "Sphinx>=7",
-    "pydata-sphinx-theme>=0.15",
-    "numpydoc>=1.6"
+"digitalhub==0.5.0b3",
+"kfp==1.8.11",
 ]
 
 [project.urls]
