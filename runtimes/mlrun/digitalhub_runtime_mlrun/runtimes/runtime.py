@@ -212,7 +212,7 @@ class RuntimeMlrun(Runtime):
             Status of the executed run.
         """
         if isinstance(results, RunObject):
-            execution_outputs = parse_mlrun_artifacts(results.status.artifacts, project)
+            execution_outputs = parse_mlrun_artifacts(results, project)
             return build_status(results, execution_outputs, spec.get("outputs"), spec.get("values"))
         if isinstance(results, BuildStatus):
             return build_status_build(results)

@@ -47,7 +47,7 @@ def map_state(state: str) -> str:
     return mlrun_states.get(state, State.ERROR.value)
 
 
-def parse_mlrun_artifacts(mlrun_outputs: list[dict], project: str) -> list[Artifact | Dataitem]:
+def parse_mlrun_artifacts(mlrun_result: RunObject, project: str) -> list[Artifact | Dataitem]:
     """
     Filter out models and datasets from Mlrun outputs and create DHCore entities.
 
@@ -63,10 +63,11 @@ def parse_mlrun_artifacts(mlrun_outputs: list[dict], project: str) -> list[Artif
     list[Artifact|Dataitem]
         List of artifacts and datasets.
     """
+    #import pdb; pdb.set_trace()
     outputs = []
-    for i in mlrun_outputs:
+    for i in mlrun_result.status.artifacts:
         if i.get("kind") == "model":
-            outputs.append(_create_model(project, i))
+            outputs.append(_create_model(project, i, parameters=mlrun_result.spec.parameters))
         elif i.get("kind") == "dataset":
             outputs.append(_create_dataitem(project, i))
         else:
@@ -74,7 +75,7 @@ def parse_mlrun_artifacts(mlrun_outputs: list[dict], project: str) -> list[Artif
     return outputs
 
 
-def _create_model(project: str, mlrun_artifact: dict) -> Model:
+def _create_model(project: str, mlrun_artifact: dict, parameters: dict) -> Model:
     """
     New model.
 
@@ -103,7 +104,7 @@ def _create_model(project: str, mlrun_artifact: dict) -> Model:
         kwargs["framework"] = spec.get("framework")
         kwargs["algorithm"] = spec.get("algorithm")
         kwargs["metrics"] = spec.get("metrics")
-        kwargs["parameters"] = spec.get("parameters")
+        kwargs["parameters"] = parameters
 
         model: Model = create_model(**kwargs)
 

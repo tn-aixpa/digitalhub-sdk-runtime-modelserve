@@ -150,5 +150,7 @@ def get_inputs_parameters(inputs: dict[str, Entity], parameters: dict, tmp_dir: 
         elif entity_type == "models":
             v = model_from_dict(v)
             inputs_objects[k] = persist_model(v, tmp_dir)
-    input_parameters = parameters.get("inputs", {})
+    input_parameters = parameters.pop("inputs", {})
+    if parameters:
+        return {"inputs": {**inputs_objects, **input_parameters}, "params": {**parameters}}
     return {"inputs": {**inputs_objects, **input_parameters}}
