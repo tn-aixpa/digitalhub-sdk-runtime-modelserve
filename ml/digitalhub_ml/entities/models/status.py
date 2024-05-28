@@ -10,3 +10,8 @@ class ModelStatus(Status):
     """
     Status class for model entities.
     """
+
+class ModelStatusModel(ModelStatus):
+    """
+    Status class for model entities.
+    """

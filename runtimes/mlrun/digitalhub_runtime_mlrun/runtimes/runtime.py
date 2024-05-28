@@ -213,7 +213,7 @@ class RuntimeMlrun(Runtime):
         """
         if isinstance(results, RunObject):
             execution_outputs = parse_mlrun_artifacts(results.status.artifacts, project)
-            return build_status(results, execution_outputs, spec.get("outputs", []), spec.get("values", []))
+            return build_status(results, execution_outputs, spec.get("outputs"), spec.get("values"))
         if isinstance(results, BuildStatus):
             return build_status_build(results)
 

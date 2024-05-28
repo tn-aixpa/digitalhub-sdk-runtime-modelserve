@@ -227,8 +227,9 @@ class Model(Entity):
         self._check_remote(trg)
 
         # Check if source path is provided and if it is local
-        src = self._parameter_or_default(source, self.spec.src_path)
-        self._check_local(src)
+        if source is None:
+            raise EntityError("Source path is not specified.")
+        self._check_local(source)
 
         # Get store
         store = get_store(trg)
@@ -236,7 +237,7 @@ class Model(Entity):
             raise EntityError("Cannot target local store for upload.")
 
         # Upload model and return remote path
-        return store.upload(src, trg)
+        return store.upload(source, trg)
 
     #############################
     #  Private Helpers

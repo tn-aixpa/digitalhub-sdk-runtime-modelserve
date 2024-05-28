@@ -11,10 +11,17 @@ class ModelSpec(Spec):
     Model specifications.
     """
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, path: str | None = None,
+                 framework: str | None = None,
+                 algorithm: str | None = None,
+                 **kwargs,) -> None:
         """
         Constructor.
         """
+
+        self.path = path
+        self.framework = framework
+        self.algorithm = algorithm
 
         self._any_setter(**kwargs)
 
@@ -23,6 +30,15 @@ class ModelParams(SpecParams):
     """
     Model parameters.
     """
+
+    path: str
+    """Path to the model."""
+
+    framework: str = None
+    """Model framework (e.g. 'pytorch')."""
+
+    algorithm: str = None
+    """Model algorithm (e.g. 'resnet')."""
 
 
 class ModelSpecModel(ModelSpec):
@@ -47,13 +63,13 @@ class ModelSpecModel(ModelSpec):
         self._any_setter(**kwargs)
 
 
-class ModelSpecParams(ModelParams):
+class ModelParamsModel(ModelParams):
     """
     Model parameters.
     """
 
-    base_model: str | None = None
+    base_model: str = None
 
-    parameters: dict | None = None
+    parameters: dict = None
 
-    metrics: dict | None = None
+    metrics: dict = None

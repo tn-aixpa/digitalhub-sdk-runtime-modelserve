@@ -9,6 +9,7 @@ from digitalhub_core.utils.logger import LOGGER
 from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.utils.data_utils import get_data_preview
+from digitalhub_ml.entities.models.crud import create_model
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
@@ -65,12 +66,60 @@ def parse_mlrun_artifacts(mlrun_outputs: list[dict], project: str) -> list[Artif
     outputs = []
     for i in mlrun_outputs:
         if i.get("kind") == "model":
-            ...
+            outputs.append(_create_model(project, i))
         elif i.get("kind") == "dataset":
             outputs.append(_create_dataitem(project, i))
         else:
             outputs.append(_create_artifact(project, i))
     return outputs
+
+
+def _create_model(project: str, mlrun_artifact: dict) -> Model:
+    """
+    New model.
+
+    Parameters
+    ----------
+    project : str
+        DHCore project name.
+    mlrun_artifact : dict
+        Mlrun model.
+
+    Returns
+    -------
+    Model
+        Model object.
+    """
+    try:
+        kwargs = {}
+        kwargs["project"] = project
+        kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
+        kwargs["kind"] = "model"
+
+        spec = mlrun_artifact.get("spec", {})
+        target_path = spec.get("target_path")
+        model_file = spec.get("model_file")
+        kwargs["path"] = f"{target_path}{model_file}"
+        kwargs["framework"] = spec.get("framework")
+        kwargs["algorithm"] = spec.get("algorithm")
+        kwargs["metrics"] = spec.get("metrics")
+        kwargs["parameters"] = spec.get("parameters")
+
+        model: Model = create_model(**kwargs)
+
+        # Upload model if Mlrun model is local
+        if map_uri_scheme(model.spec.path) == "local":
+            src_path = model.spec.path
+            model.spec.path = f"s3://datalake/{project}/models/model/{model_file}"
+            model.upload(source=src_path)
+
+        model.save()
+        return model
+
+    except Exception as e:
+        msg = f"Something got wrong during model creation. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.exception(msg)
+        raise RuntimeError(msg) from e
 
 
 def _create_artifact(project: str, mlrun_artifact: dict) -> Artifact:
@@ -222,7 +271,7 @@ def build_status(
         outputs = {}
 
         execution_outputs_keys = [k for k, _ in execution_results.outputs.items()]
-        if mapped_outputs is not None:
+        if mapped_outputs is not None and mapped_outputs:
             for k, v in mapped_outputs.items():
                 if k in execution_outputs_keys:
                     for j in entity_outputs:
@@ -234,7 +283,7 @@ def build_status(
         # Map results and values
         results = {}
 
-        if values_list is not None:
+        if values_list is not None and values_list:
             for i in values_list:
                 if i in execution_outputs_keys:
                     results[i] = [v for k, v in execution_results.outputs.items() if k == i][0]
