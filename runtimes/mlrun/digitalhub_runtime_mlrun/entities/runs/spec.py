@@ -14,28 +14,42 @@ class RunSpecMlrun(RunSpecMl):
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
-        function_spec: dict | None = None,
-        job_spec: dict | None = None,
-        build_spec: dict | None = None,
         **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(task, inputs, outputs, parameters, values, local_execution, **kwargs)
-        self.function_spec = function_spec
-        self.job_spec = job_spec
-        self.build_spec = build_spec
+        super().__init__(task, inputs, outputs, parameters, values, local_execution)
+
+        self._any_setter(**kwargs)
 
 
 class RunParamsMlrun(RunParamsMl):
     """Run Mlrun parameters."""
 
-    function_spec: dict = None
-    """The function spec."""
+    # Function parameters
+    source: dict = None
+    image: str = None
+    tag: str = None
+    handler: str = None
+    command: str = None
+    requirements: list = None
 
-    job_spec: dict = None
-    """The job task spec."""
+    # Task parameters
+    function: str = None
+    node_selector: list[dict] = None
+    volumes: list[dict] = None
+    resources: list[dict] = None
+    affinity: dict = None
+    tolerations: list[dict] = None
+    env: list[dict] = None
+    secrets: list[str] = None
+    backoff_limit: int = None
+    schedule: str = None
+    replicas: int = None
 
-    build_spec: dict = None
-    """The build task spec."""
+    # Task build
+    target_image: str = None
+    commands: list[str] = None
+    force_build: bool = False
+

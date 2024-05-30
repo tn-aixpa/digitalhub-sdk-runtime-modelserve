@@ -56,10 +56,9 @@ class RuntimeNefertem(Runtime):
         dict
             The run spec.
         """
-        task_kind = task.get("kind").split("+")[1]
         return {
-            "function_spec": function.get("spec", {}),
-            f"{task_kind}_spec": task.get("spec", {}),
+            **function.get("spec", {}),
+            **task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -183,15 +182,10 @@ class RuntimeNefertem(Runtime):
         resources = create_nt_resources(inputs, self.store)
 
         # Create run configuration
-        task_spec = spec.get(f"{action}_spec", {})
-        function_spec = spec.get("function_spec", {})
-        framework = task_spec.get("framework")
-        exec_args = task_spec.get("exec_args", {})
-        parallel = task_spec.get("parallel", False)
-        num_worker = task_spec.get("num_worker", 1)
-        metrics = function_spec.get("metrics")
-        constraints = function_spec.get("constraints")
-        error_report = function_spec.get("error_report")
+        framework = spec.get("framework")
+        exec_args = spec.get("exec_args", {})
+        parallel = spec.get("parallel", False)
+        num_worker = spec.get("num_worker", 1)
         run_config = create_nt_run_config(action, framework, exec_args, parallel, num_worker)
 
         # Create Nefertem client
@@ -203,9 +197,9 @@ class RuntimeNefertem(Runtime):
             "resources": resources,
             "run_config": run_config,
             "run_id": self.nt_id,
-            "metrics": metrics,
-            "constraints": constraints,
-            "error_report": error_report,
+            "metrics": spec.get("metrics"),
+            "constraints": spec.get("constraints"),
+            "error_report": spec.get("error_report"),
         }
 
     ####################

@@ -14,38 +14,37 @@ class RunSpecNefertem(RunSpecData):
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
-        function_spec: dict | None = None,
-        infer_spec: dict | None = None,
-        profile_spec: dict | None = None,
-        validate_spec: dict | None = None,
-        metric_spec: dict | None = None,
         **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(task, inputs, outputs, parameters, values, local_execution, **kwargs)
-        self.function_spec = function_spec
-        self.infer_spec = infer_spec
-        self.profile_spec = profile_spec
-        self.validate_spec = validate_spec
-        self.metric_spec = metric_spec
+        super().__init__(task, inputs, outputs, parameters, values, local_execution)
+
+        self._any_setter(**kwargs)
 
 
 class RunParamsNefertem(RunParamsData):
     """Run Nefertem parameters."""
 
-    function_spec: dict = None
-    """The function spec."""
+    # Function parameters
+    constraints: list[dict] = None
+    error_report: str = None
+    metrics: list[dict] = None
 
-    infer_spec: dict = None
-    """The infer task spec."""
-
-    profile_spec: dict = None
-    """The profile task spec."""
-
-    validate_spec: dict = None
-    """The validate task spec."""
-
-    metric_spec: dict = None
-    """The metric task spec."""
+    # Task parameters
+    function: str = None
+    node_selector: list[dict] = None
+    volumes: list[dict] = None
+    resources: list[dict] = None
+    affinity: dict = None
+    tolerations: list[dict] = None
+    env: list[dict] = None
+    secrets: list[str] = None
+    backoff_limit: int = None
+    schedule: str = None
+    replicas: int = None
+    framework: str = None
+    exec_args: dict = None
+    parallel: bool = None
+    num_worker: int = None

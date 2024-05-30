@@ -54,15 +54,15 @@ class RuntimeKFP(Runtime):
         """
         task_kind = task.get("kind").split("+")[1]
         res = {
-            "workflow_spec": workflow.get("spec", {}),
-            f"{task_kind}_spec": task.get("spec", {}),
+            **workflow.get("spec", {}),
+            **task.get("spec", {}),
             **run.get("spec", {}),
         }
 
         if task_kind == "pipeline":
             kfp_workflow = self._configure_execution(res, task_kind, run.get("project"))
             pipeline_spec = build_kfp_pipeline(run, kfp_workflow)
-            res[f"{task_kind}_spec"]["workflow"] = pipeline_spec
+            res["workflow"] = pipeline_spec
         return res
 
     def run(self, run: dict) -> dict:
@@ -82,17 +82,17 @@ class RuntimeKFP(Runtime):
         spec = run.get("spec")
 
         LOGGER.info("Collecting inputs.")
-        workflow_args = self._collect_inputs(spec, self.root_path)
+        workflow_args = self._collect_inputs(spec)
 
         project = run.get("project")
         LOGGER.info("Configure execution.")
-        kfp_workflow = self._configure_execution(spec, action, project)
+        kfp_workflow = self._configure_execution(spec)
 
         LOGGER.info("Executing workflow.")
         results = self._execute(executable, kfp_workflow, workflow_args)
 
         LOGGER.info("Collecting outputs.")
-        status = self._collect_outputs(results, spec)
+        status = self._collect_outputs(results)
 
         LOGGER.info("Cleanup")
         self._cleanup()
@@ -122,7 +122,7 @@ class RuntimeKFP(Runtime):
     ####################
     # Helpers
     ####################
-    def _collect_inputs(self, spec: dict, tmp_dir: str) -> dict:
+    def _collect_inputs(self, spec: dict) -> dict:
         """
         Collect inputs.
 
@@ -147,7 +147,7 @@ class RuntimeKFP(Runtime):
     # Configuration
     ####################
 
-    def _configure_execution(self, spec: dict, action: str, project: str):
+    def _configure_execution(self, spec: dict):
         """
         Create KFP pipeline and prepare parameters.
 
@@ -168,7 +168,7 @@ class RuntimeKFP(Runtime):
 
         # Setup function source and specs
         LOGGER.info("Getting workflow source and specs.")
-        dhcore_workflow = get_dhcore_workflow(spec.get(f"{action}_spec", {}).get("function"))
+        dhcore_workflow = get_dhcore_workflow(spec.get("function"))
         workflow_source = save_workflow_source(self.root_path, dhcore_workflow.spec.to_dict().get("source"))
         workflow_specs = parse_workflow_specs(dhcore_workflow.spec)
 
@@ -180,7 +180,7 @@ class RuntimeKFP(Runtime):
     # Outputs
     ####################
 
-    def _collect_outputs(self, results: dict, spec: dict) -> dict:
+    def _collect_outputs(self, results: dict) -> dict:
         """
         Collect outputs. Use the produced results directly
 

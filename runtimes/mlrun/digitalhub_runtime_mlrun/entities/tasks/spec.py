@@ -92,16 +92,10 @@ class TaskParamsBuild(TaskParams):
     """Kubernetes resources."""
 
     target_image: str = None
-    """
-    Target image.
-    """
+    """Target image."""
 
     commands: list[str] = None
-    """
-     List of docker build (RUN) commands e.g. ['pip install pandas']
-    """
+    """List of docker build (RUN) commands e.g. ['pip install pandas']"""
 
     force_build: bool = False
-    """
-    Force build even if no changes have been made.
-    """
+    """Force build even if no changes have been made."""

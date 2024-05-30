@@ -72,10 +72,9 @@ class RuntimeDbt(Runtime):
         dict
             The run spec.
         """
-        task_kind = task.get("kind").split("+")[1]
         return {
-            "function_spec": function.get("spec", {}),
-            f"{task_kind}_spec": task.get("spec", {}),
+            **function.get("spec", {}),
+            **task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -191,7 +190,7 @@ class RuntimeDbt(Runtime):
             Output table name.
         """
         output_table = get_output_table_name(spec.get("outputs", []))
-        query = save_function_source(self.temp_dir, spec.get("function_spec", {}).get("source", {}))
+        query = save_function_source(self.temp_dir, spec.get("source", {}))
 
         # Create directories
         self.model_dir.mkdir(exist_ok=True, parents=True)

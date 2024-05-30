@@ -14,8 +14,6 @@ class RunSpecKFP(RunSpecData):
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
-        workflow_spec: dict | None = None,
-        pipeline_spec: dict | None = None,
         **kwargs,
     ) -> None:
         """
@@ -24,16 +22,30 @@ class RunSpecKFP(RunSpecData):
         Parameters
         ----------
         """
-        super().__init__(task, inputs, outputs, parameters, values, local_execution, **kwargs)
-        self.workflow_spec = workflow_spec
-        self.pipeline_spec = pipeline_spec
+        super().__init__(task, inputs, outputs, parameters, values, local_execution)
+
+        self._any_setter(**kwargs)
 
 
 class RunParamsKFP(RunParamsData):
     """Run KFP parameters."""
 
-    workflow_spec: dict = None
-    """The workflow spec."""
+    # Workflow parameters
+    source: dict = None
+    image: str = None
+    tag: str = None
+    handler: str = None
 
-    pipeline_spec: dict = None
-    """The pipeline task spec."""
+    # Task parameters
+    function: str = None
+    node_selector: list[dict] = None
+    volumes: list[dict] = None
+    resources: list[dict] = None
+    affinity: dict = None
+    tolerations: list[dict] = None
+    env: list[dict] = None
+    secrets: list[str] = None
+    backoff_limit: int = None
+    schedule: str = None
+    replicas: int = None
+    workflow: str = None

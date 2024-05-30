@@ -14,23 +14,31 @@ class RunSpecDbt(RunSpecData):
         parameters: dict | None = None,
         values: list | None = None,
         local_execution: bool = False,
-        function_spec: dict | None = None,
-        transform_spec: dict | None = None,
         **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(task, inputs, outputs, parameters, values, local_execution, **kwargs)
-        self.function_spec = function_spec
-        self.transform_spec = transform_spec
+        super().__init__(task, inputs, outputs, parameters, values, local_execution)
+
+        self._any_setter(**kwargs)
 
 
 class RunParamsDbt(RunParamsData):
     """Run Dbt parameters."""
 
-    function_spec: dict = None
-    """The function spec."""
+    # Function parameters
+    source: dict = None
 
-    transform_spec: dict = None
-    """The transform task spec."""
+    # Task parameters
+    function: str = None
+    node_selector: list[dict] = None
+    volumes: list[dict] = None
+    resources: list[dict] = None
+    affinity: dict = None
+    tolerations: list[dict] = None
+    env: list[dict] = None
+    secrets: list[str] = None
+    backoff_limit: int = None
+    schedule: str = None
+    replicas: int = None

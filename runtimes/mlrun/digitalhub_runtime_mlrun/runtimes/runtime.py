@@ -65,10 +65,9 @@ class RuntimeMlrun(Runtime):
         dict
             The run spec.
         """
-        task_kind = task.get("kind").split("+")[1]
         return {
-            "function_spec": function.get("spec", {}),
-            f"{task_kind}_spec": task.get("spec", {}),
+            **function.get("spec", {}),
+            **task.get("spec", {}),
             **run.get("spec", {}),
         }
 
@@ -93,7 +92,7 @@ class RuntimeMlrun(Runtime):
         function_args = self._collect_inputs(spec)
 
         LOGGER.info("Configure execution.")
-        mlrun_function, exec_config = self._configure_execution(spec, action, project)
+        mlrun_function, exec_config = self._configure_execution(spec, project)
 
         LOGGER.info("Executing function.")
         results = self._execute(executable, mlrun_function, exec_config, function_args)
@@ -156,7 +155,7 @@ class RuntimeMlrun(Runtime):
     # Configuration
     ####################
 
-    def _configure_execution(self, spec: dict, action: str, project: str) -> tuple[BaseRuntime, dict]:
+    def _configure_execution(self, spec: dict, project: str) -> tuple[BaseRuntime, dict]:
         """
         Create Mlrun project and function and prepare parameters.
 
@@ -164,8 +163,6 @@ class RuntimeMlrun(Runtime):
         ----------
         spec : dict
             Run specs.
-        action : str
-            Action to execute.
         project : str
             Project name.
 
@@ -177,7 +174,7 @@ class RuntimeMlrun(Runtime):
 
         # Setup function source and specs
         LOGGER.info("Getting function source and specs.")
-        dhcore_function = get_dhcore_function(spec.get(f"{action}_spec", {}).get("function"))
+        dhcore_function = get_dhcore_function(spec.get("function"))
         function_source = save_function_source(self.tmp_path, dhcore_function.spec.to_dict().get("source"))
         function_specs = parse_function_specs(dhcore_function.spec.to_dict())
 

@@ -63,7 +63,6 @@ def parse_mlrun_artifacts(mlrun_result: RunObject, project: str) -> list[Artifac
     list[Artifact|Dataitem]
         List of artifacts and datasets.
     """
-    #import pdb; pdb.set_trace()
     outputs = []
     for i in mlrun_result.status.artifacts:
         if i.get("kind") == "model":

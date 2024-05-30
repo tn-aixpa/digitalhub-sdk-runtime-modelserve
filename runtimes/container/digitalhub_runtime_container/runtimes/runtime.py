@@ -33,10 +33,9 @@ class RuntimeContainer(Runtime):
         dict
             The run spec.
         """
-        task_kind = task.get("kind").split("+")[1]
         return {
-            "function_spec": function.get("spec", {}),
-            f"{task_kind}_spec": task.get("spec", {}),
+            **function.get("spec", {}),
+            **task.get("spec", {}),
             **run.get("spec", {}),
         }
 

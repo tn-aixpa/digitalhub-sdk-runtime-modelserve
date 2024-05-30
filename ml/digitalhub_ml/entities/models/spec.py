@@ -11,10 +11,13 @@ class ModelSpec(Spec):
     Model specifications.
     """
 
-    def __init__(self, path: str | None = None,
-                 framework: str | None = None,
-                 algorithm: str | None = None,
-                 **kwargs,) -> None:
+    def __init__(
+        self,
+        path: str | None = None,
+        framework: str | None = None,
+        algorithm: str | None = None,
+        **kwargs,
+    ) -> None:
         """
         Constructor.
         """
@@ -69,7 +72,10 @@ class ModelParamsModel(ModelParams):
     """
 
     base_model: str = None
+    """Base model."""
 
     parameters: dict = None
+    """Model parameters."""
 
     metrics: dict = None
+    """Model metrics."""

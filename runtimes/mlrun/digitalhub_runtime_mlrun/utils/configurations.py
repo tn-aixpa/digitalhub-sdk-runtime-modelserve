@@ -305,11 +305,10 @@ def get_exec_config(spec: dict) -> dict:
     """
     try:
         exec_config = {}
-        task_spec = spec.get("build_spec", {})
-        target_image = task_spec.get("target_image")
-        commands = task_spec.get("commands")
-        force_build = task_spec.get("force_build")
-        reqs = spec.get("function_spec", {}).get("requirements")
+        target_image = spec.get("target_image")
+        commands = spec.get("commands")
+        force_build = spec.get("force_build")
+        reqs = spec.get("requirements")
         if target_image is not None:
             exec_config["target_image"] = target_image
         if commands is not None:
