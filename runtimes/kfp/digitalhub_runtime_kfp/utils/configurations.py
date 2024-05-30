@@ -85,7 +85,7 @@ def save_workflow_source(path: Path, source_spec: dict) -> str:
         path.write_text(decode_base64(base64))
         return str(path)
 
-    if not (source is not None and handler is not None):
+    if source is None or handler is None:
         raise RuntimeError("Workflow source and handler must be defined.")
 
     scheme = source.split("://")[0]

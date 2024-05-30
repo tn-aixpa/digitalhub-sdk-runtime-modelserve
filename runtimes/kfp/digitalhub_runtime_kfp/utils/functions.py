@@ -61,13 +61,13 @@ def run_kfp_pipeline(run: dict) -> any:
     def _kfp_execution(pipeline: Callable, function_args) -> dict:
         client = kfp.Client(host=os.environ.get("KFP_ENDPOINT"))
         # workaround to pass the project implicitly
-        workflow = run.get("spec", {}).get("pipeline_spec", {}).get("workflow", None)
+        workflow = run.get("spec", {}).get("workflow", None)
         # workflow was not built locally, need to replicate the build
         if workflow is None:
             dhcore_run = dhcore.get_run(run.get("project"), run.get("id"))
             workflow = build_kfp_pipeline(run, pipeline)
             run_dict = dhcore_run.to_dict()
-            run_dict["spec"]["pipeline_spec"]["workflow"] = workflow
+            run_dict["spec"]["workflow"] = workflow
             dhcore_run.spec = Run.from_dict(run_dict, validate=False).spec
             # update spec
             dhcore_run.save(update=True)
