@@ -52,6 +52,34 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
     return objects
 
 
+def parse_outputs(results: Any, run_outputs: list, run_values: list, project_name: str) -> dict:
+    """
+    Parse outputs.
+
+    Parameters
+    ----------
+    results : Any
+        Function outputs.
+    project : Project
+        Project object.
+
+    Returns
+    -------
+    dict
+        Function outputs.
+    """
+    results_list = listify_results(results)
+    out_list = []
+    for idx, item in enumerate(results_list):
+        try:
+            if isinstance(item, (str, int, float, bool, bytes)):
+                out_list.append(run_values.pop(0))
+            else:
+                out_list.append(run_outputs.pop(0))
+        except IndexError:
+            out_list.append(f"output_{idx}")
+    return collect_outputs(results, out_list, project_name)
+
 def listify_results(results: Any) -> list:
     """
     Listify results.

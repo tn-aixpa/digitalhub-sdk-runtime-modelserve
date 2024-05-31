@@ -79,6 +79,21 @@ class ContextBuilder:
         """
         self._instances.pop(project, None)
 
+    def set(self, context: Context) -> None:
+        """
+        Set the context.
+
+        Parameters
+        ----------
+        context : Context
+            The context to set.
+
+        Returns
+        -------
+        None
+        """
+        self._instances[context.name] = context
+
 
 def set_context(project: Project) -> None:
     """
@@ -94,6 +109,22 @@ def set_context(project: Project) -> None:
     None
     """
     context_builder.build(project)
+
+
+def set_context_object(context: Context) -> None:
+    """
+    Wrapper for ContextBuilder.set().
+
+    Parameters
+    ----------
+    project : Project
+        The project object used to set the current context.
+
+    Returns
+    -------
+    None
+    """
+    context_builder.set(context)
 
 
 def get_context(project: str) -> Context:

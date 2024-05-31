@@ -11,7 +11,7 @@ from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_python.utils.configuration import get_function_from_source
 from digitalhub_runtime_python.utils.functions import run_python
 from digitalhub_runtime_python.utils.inputs import get_inputs_parameters
-from digitalhub_runtime_python.utils.outputs import build_status
+from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
 
 class RuntimePython(Runtime):
@@ -63,8 +63,7 @@ class RuntimePython(Runtime):
             Status of the executed run.
         """
         LOGGER.info("Validating task.")
-        action = self._validate_task(run)
-        executable = self._get_executable(action)
+        self._validate_task(run)
 
         LOGGER.info("Starting task.")
         spec = run.get("spec")
@@ -74,16 +73,23 @@ class RuntimePython(Runtime):
         fnc_args = self._collect_inputs(spec)
 
         LOGGER.info("Configuring execution.")
-        fnc = self._configure_execution(spec)
+        fnc, wrapped = self._configure_execution(spec)
 
         LOGGER.info("Executing run.")
-        results = self._execute(executable, fnc, project, **fnc_args)
+        if wrapped:
+            results: dict = self._execute(fnc, project, **fnc_args)
+        else:
+            exec_result = self._execute(fnc, **fnc_args)
+            LOGGER.info("Collecting outputs.")
+            results = parse_outputs(exec_result,
+                                    list(spec.get("outputs", {})),
+                                    list(spec.get("values", [])),
+                                    project)
 
-        LOGGER.info("Collecting outputs.")
         status = build_status(
             results,
-            spec.get("outputs", {}),
-            spec.get("values", {}),
+            spec.get("outputs"),
+            spec.get("values"),
         )
 
         # Return run status
@@ -141,7 +147,7 @@ class RuntimePython(Runtime):
     # Configuration
     ####################
 
-    def _configure_execution(self, spec: dict) -> Callable:
+    def _configure_execution(self, spec: dict) -> tuple[Callable, bool]:
         """
         Configure execution.
 
@@ -155,7 +161,9 @@ class RuntimePython(Runtime):
         Callable
             Function to execute.
         """
-        return get_function_from_source(
+        fnc = get_function_from_source(
             self.root_path,
             spec.get("source", {}),
         )
+        return fnc, hasattr(fnc, '__wrapped__')
+
