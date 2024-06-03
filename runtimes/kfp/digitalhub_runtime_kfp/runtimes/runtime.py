@@ -84,7 +84,6 @@ class RuntimeKFP(Runtime):
         LOGGER.info("Collecting inputs.")
         workflow_args = self._collect_inputs(spec)
 
-        project = run.get("project")
         LOGGER.info("Configure execution.")
         kfp_workflow = self._configure_execution(spec)
 

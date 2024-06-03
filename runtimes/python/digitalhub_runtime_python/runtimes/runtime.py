@@ -9,7 +9,6 @@ from typing import Callable
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_python.utils.configuration import get_function_from_source
-from digitalhub_runtime_python.utils.functions import run_python
 from digitalhub_runtime_python.utils.inputs import get_inputs_parameters
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
@@ -81,16 +80,9 @@ class RuntimePython(Runtime):
         else:
             exec_result = self._execute(fnc, **fnc_args)
             LOGGER.info("Collecting outputs.")
-            results = parse_outputs(exec_result,
-                                    list(spec.get("outputs", {})),
-                                    list(spec.get("values", [])),
-                                    project)
+            results = parse_outputs(exec_result, list(spec.get("outputs", {})), project)
 
-        status = build_status(
-            results,
-            spec.get("outputs"),
-            spec.get("values"),
-        )
+        status = build_status(results, spec.get("outputs"))
 
         # Return run status
         LOGGER.info("Task completed, returning run status.")
@@ -111,8 +103,6 @@ class RuntimePython(Runtime):
         Callable
             Function to execute.
         """
-        if action == "job":
-            return run_python
         raise NotImplementedError
 
     ####################
@@ -165,5 +155,4 @@ class RuntimePython(Runtime):
             self.root_path,
             spec.get("source", {}),
         )
-        return fnc, hasattr(fnc, '__wrapped__')
-
+        return fnc, hasattr(fnc, "__wrapped__")

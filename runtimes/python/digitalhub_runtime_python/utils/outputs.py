@@ -1,18 +1,15 @@
 from __future__ import annotations
 
 import pickle
-import typing
 from typing import Any
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.artifacts.entity import Artifact
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import new_dataitem
+from digitalhub_data.entities.dataitems.entity.table import DataitemTable
 from digitalhub_data.readers.registry import DATAFRAME_TYPES
-
-if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_data.entities.dataitems.entity.table import DataitemTable
 
 
 def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict:
@@ -52,7 +49,7 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
     return objects
 
 
-def parse_outputs(results: Any, run_outputs: list, run_values: list, project_name: str) -> dict:
+def parse_outputs(results: Any, run_outputs: list, project_name: str) -> dict:
     """
     Parse outputs.
 
@@ -70,15 +67,13 @@ def parse_outputs(results: Any, run_outputs: list, run_values: list, project_nam
     """
     results_list = listify_results(results)
     out_list = []
-    for idx, item in enumerate(results_list):
+    for idx, _ in enumerate(results_list):
         try:
-            if isinstance(item, (str, int, float, bool, bytes)):
-                out_list.append(run_values.pop(0))
-            else:
-                out_list.append(run_outputs.pop(0))
+            out_list.append(run_outputs.pop(0))
         except IndexError:
             out_list.append(f"output_{idx}")
     return collect_outputs(results, out_list, project_name)
+
 
 def listify_results(results: Any) -> list:
     """
@@ -170,7 +165,6 @@ def build_and_load_artifact(name: str, project_name: str, data: Any) -> Artifact
 def build_status(
     parsed_execution: dict,
     mapped_outputs: dict | None = None,
-    values_list: list | None = None,
 ) -> dict:
     """
     Collect outputs.
@@ -181,31 +175,24 @@ def build_status(
         Parsed execution dict.
     mapped_outputs : dict
         Mapped outputs.
-    values_list : list
-        Values list.
 
     Returns
     -------
     dict
         Status dict.
     """
+    results = {}
     outputs = {}
     if mapped_outputs is None:
         mapped_outputs = {}
 
-    results = {}
-    if values_list is None:
-        values_list = []
-
     try:
-        for key, value in mapped_outputs.items():
+        for key, _ in mapped_outputs.items():
             if key in parsed_execution:
-                outputs[key] = parsed_execution[key].key
-
-        for value in values_list:
-            if value in parsed_execution:
-                results[value] = parsed_execution[value]
-
+                if isinstance(parsed_execution[key], (DataitemTable, Artifact)):
+                    outputs[key] = parsed_execution[key].key
+                else:
+                    results[key] = parsed_execution[key]
         return {
             "state": State.COMPLETED.value,
             "outputs": outputs,

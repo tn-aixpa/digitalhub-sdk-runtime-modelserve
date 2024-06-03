@@ -52,4 +52,3 @@ class RunParamsMlrun(RunParamsMl):
     target_image: str = None
     commands: list[str] = None
     force_build: bool = False
-
