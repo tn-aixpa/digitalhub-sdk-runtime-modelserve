@@ -13,6 +13,7 @@ from digitalhub_core.utils.generic_utils import (
 )
 from digitalhub_core.utils.git_utils import clone_repository
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 
 def get_function_from_source(path: Path, source_spec: dict) -> Callable:
@@ -63,38 +64,46 @@ def save_function_source(path: Path, source_spec: dict) -> Path:
     # Get relevant information
     base64 = source_spec.get("base64")
     source = source_spec.get("source")
-    handler = source_spec.get("handler")
 
+    scheme = None
+    if source is not None:
+        scheme = map_uri_scheme(source)
+
+    # Base64
     if base64 is not None:
-        path = path / "main.py"
-        path.write_text(decode_base64(base64))
-        return path
 
-    scheme = source.split("://")[0]
+        filename = "main.py"
+        if scheme == "local":
+            filename = Path(source).name
+
+        base64_path = path / filename
+        base64_path.write_text(decode_base64(base64))
+
+        if scheme is None or scheme == "local":
+            return base64_path
+
+    # Git repo
+    if scheme == "git":
+        get_repository(path, source)
 
     # Http(s) or s3 presigned urls
-    if scheme in ["http", "https"]:
+    elif scheme == "remote":
         filename = path / "archive.zip"
         get_remote_source(source, filename)
         unzip(path, filename)
-        return path / handler
-
-    # Git repo
-    if scheme == "git+https":
-        path = path / "repository"
-        get_repository(path, source)
-        return path / handler
 
     # S3 path
-    if scheme == "zip+s3":
+    elif scheme == "s3":
         filename = path / "archive.zip"
         bucket, key = get_bucket_and_key(source)
         get_s3_source(bucket, key, filename)
         unzip(path, filename)
-        return path / handler
 
     # Unsupported scheme
-    raise RuntimeError(f"Unsupported scheme: {scheme}")
+    else:
+        raise RuntimeError(f"Unsupported scheme: {scheme}")
+
+    return path
 
 
 def get_remote_source(source: str, filename: Path) -> None:
