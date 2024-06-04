@@ -16,11 +16,24 @@ class DataframeReader(metaclass=ABCMeta):
         Read DataFrame from path.
         """
 
+    @abstractmethod
+    def write_df(self, df: Any, dst: Any, extension: str | None = None, **kwargs) -> None:
+        """
+        Method to write a dataframe to a file.
+        """
+
+    @staticmethod
+    @abstractmethod
+    def write_csv(df: Any, *args, **kwargs) -> str:
+        """
+        Write DataFrame as csv.
+        """
+
     @staticmethod
     @abstractmethod
     def write_parquet(df: Any, *args, **kwargs) -> str:
         """
-        Write DataFrame as parquet or csv.
+        Write DataFrame as parquet.
         """
 
     @staticmethod

@@ -16,7 +16,7 @@ class S3Datastore(Datastore):
     S3 Datastore class.
     """
 
-    def write_df(self, df: Any, dst: str | None = None, **kwargs) -> str:
+    def write_df(self, df: Any, dst: str | None = None, extension: str | None = None, **kwargs) -> str:
         """
         Write a dataframe to S3 based storage. Kwargs are passed to df.to_parquet().
 

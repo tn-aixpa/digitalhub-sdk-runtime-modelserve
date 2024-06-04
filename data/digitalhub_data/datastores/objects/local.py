@@ -16,7 +16,7 @@ class LocalDatastore(Datastore):
     Local Datastore class.
     """
 
-    def write_df(self, df: Any, dst: str | None = None, **kwargs) -> str:
+    def write_df(self, df: Any, dst: str | None = None, extension: str | None = None, **kwargs) -> str:
         """
         Method to write a dataframe to a file. Kwargs are passed to df.to_parquet().
         If destination is not provided, the dataframe is written to the default
@@ -44,6 +44,6 @@ class LocalDatastore(Datastore):
 
         # Write dataframe
         reader = get_reader_by_object(df)
-        reader.write_parquet(df, dst, **kwargs)
+        reader.write_df(df, dst, extension=extension, **kwargs)
 
         return dst

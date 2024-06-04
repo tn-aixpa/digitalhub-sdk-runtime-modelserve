@@ -13,7 +13,7 @@ class RemoteDatastore(Datastore):
     Remote Datastore class.
     """
 
-    def write_df(self, df: Any, dst: str | None = None, **kwargs) -> str:
+    def write_df(self, df: Any, dst: str | None = None, extension: str | None = None, **kwargs) -> str:
         """
         Method to write a dataframe to a file. Note that this method is not implemented
         since the remote store is not meant to write dataframes.

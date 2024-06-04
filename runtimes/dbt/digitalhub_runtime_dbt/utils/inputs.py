@@ -7,10 +7,10 @@ from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_dbt.utils.env import POSTGRES_DATABASE, POSTGRES_SCHEMA
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.entities.dataitems.entity._base import Dataitem
+    from digitalhub_data.entities.dataitems.entity.table import DataitemTable
 
 
-def materialize_dataitem(dataitem: Dataitem, name: str) -> str:
+def materialize_dataitem(dataitem: DataitemTable, name: str) -> str:
     """
     Materialize dataitem in postgres.
 

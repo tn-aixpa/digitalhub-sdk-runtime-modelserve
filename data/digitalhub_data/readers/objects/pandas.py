@@ -35,6 +35,47 @@ class DataframeReaderPandas(DataframeReader):
             return pd.read_csv(path, **kwargs)
         return pd.read_parquet(path, **kwargs)
 
+    def write_df(self, df: pd.DataFrame, dst: str | BytesIO, extension: str | None = None, **kwargs) -> None:
+        """
+        Write DataFrame as parquet.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe to write.
+        dst : str | BytesIO
+            The destination of the dataframe.
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        None
+        """
+        if extension == "csv":
+            return self.write_csv(df, dst, **kwargs)
+        self.write_parquet(df, dst, **kwargs)
+
+    @staticmethod
+    def write_csv(df: pd.DataFrame, dst: str | BytesIO, **kwargs) -> None:
+        """
+        Write DataFrame as csv.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe to write.
+        dst : str | BytesIO
+            The destination of the dataframe.
+        **kwargs
+            Keyword arguments.
+
+        Returns
+        -------
+        None
+        """
+        df.to_csv(dst, index=False, **kwargs)
+
     @staticmethod
     def write_parquet(df: pd.DataFrame, dst: str | BytesIO, **kwargs) -> None:
         """

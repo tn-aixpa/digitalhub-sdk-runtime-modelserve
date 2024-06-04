@@ -59,7 +59,7 @@ class DataitemTable(Dataitem):
 
         return df
 
-    def write_df(self, target_path: str | None = None, df: Any | None = None, **kwargs) -> str:
+    def write_df(self, target_path: str | None = None, df: Any | None = None, extension: str | None = None, **kwargs) -> str:
         """
         Write pandas DataFrame as parquet.
         If no target_path is passed, the dataitem will be written into the default store.
@@ -71,6 +71,8 @@ class DataitemTable(Dataitem):
             Path to write the dataframe to
         df : Any
             DataFrame to write.
+        extension : str
+            Extension of the file.
         **kwargs
             Keyword arguments.
 
@@ -86,4 +88,4 @@ class DataitemTable(Dataitem):
             datastore = get_datastore(target_path)
         if df is None:
             df = self.as_df()
-        return datastore.write_df(df, target_path, **kwargs)
+        return datastore.write_df(df, target_path, extension=extension, **kwargs)

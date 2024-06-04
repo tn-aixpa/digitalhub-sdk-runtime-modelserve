@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import pandas as pd
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.datastores.objects.base import Datastore
 from digitalhub_data.readers.builder import get_reader_by_object
@@ -16,7 +15,7 @@ class SqlDatastore(Datastore):
     Sql Datastore class.
     """
 
-    def write_df(self, df: Any, dst: str | None = None, **kwargs) -> str:
+    def write_df(self, df: Any, dst: str | None = None, extension: str | None = None, **kwargs) -> str:
         """
         Write a dataframe to a database. Kwargs are passed to df.to_sql().
 
@@ -42,13 +41,13 @@ class SqlDatastore(Datastore):
             table = self.store._get_table_name(dst)
         return self._upload_table(df, schema, table, **kwargs)
 
-    def _upload_table(self, df: pd.DataFrame, schema: str, table: str, **kwargs) -> str:
+    def _upload_table(self, df: Any, schema: str, table: str, **kwargs) -> str:
         """
         Upload a table to SQL based storage.
 
         Parameters
         ----------
-        df : pd.DataFrame
+        df : DataFrame
             The dataframe.
         schema : str
             Destination schema.

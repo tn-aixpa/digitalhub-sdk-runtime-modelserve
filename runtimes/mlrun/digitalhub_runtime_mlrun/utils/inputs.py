@@ -13,18 +13,17 @@ from digitalhub_ml.entities.models.crud import model_from_dict
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
     from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_data.entities.dataitems.entity._base import Dataitem
+    from digitalhub_data.entities.dataitems.entity.table import DataitemTable
     from digitalhub_ml.entities.models.entity import Model
-    from pandas import DataFrame
 
 
-def persist_dataitem(dataitem: Dataitem, tmp_dir: Path) -> str:
+def persist_dataitem(dataitem: DataitemTable, tmp_dir: Path) -> str:
     """
     Persist dataitem locally.
 
     Parameters
     ----------
-    dataitem : Dataitem
+    dataitem : DataitemTable
         The dataitem to persist.
     tmp_dir : Path
         Temporary download directory.
@@ -42,10 +41,9 @@ def persist_dataitem(dataitem: Dataitem, tmp_dir: Path) -> str:
     name = dataitem.name
     try:
         LOGGER.info(f"Persisting dataitem '{name}' locally.")
-        tmp_path = tmp_dir / f"{name}.csv"
-        dataframe: DataFrame = dataitem.as_df()
-        dataframe.to_csv(tmp_path, sep=",", index=False)
-        return str(tmp_path)
+        tmp_path = str(tmp_dir / f"{name}.csv")
+        dataitem.write_df(target_path=tmp_path, extension="csv", sep=",")
+        return tmp_path
     except Exception as e:
         msg = f"Error during dataitem '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
@@ -77,9 +75,8 @@ def persist_artifact(artifact: Artifact, tmp_dir: Path) -> str:
     try:
         LOGGER.info(f"Persisting artifact '{name}' locally.")
         filename = Path(artifact.spec.path).name
-        dst = tmp_dir / filename
-        tmp_path = artifact.download(dst=dst)
-        return str(tmp_path)
+        dst = str(tmp_dir / filename)
+        return artifact.download(dst=dst)
     except Exception as e:
         msg = f"Error during artifact '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
@@ -111,9 +108,8 @@ def persist_model(model: Model, tmp_dir: Path) -> str:
     try:
         LOGGER.info(f"Persisting model '{name}' locally.")
         filename = Path(model.spec.path).name
-        dst = tmp_dir / filename
-        tmp_path = model.download(dst=dst)
-        return str(tmp_path)
+        dst = str(tmp_dir / filename)
+        return model.download(dst=dst)
     except Exception as e:
         msg = f"Error during model '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)

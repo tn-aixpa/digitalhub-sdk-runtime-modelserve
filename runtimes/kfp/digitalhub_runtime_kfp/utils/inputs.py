@@ -9,10 +9,10 @@ from digitalhub_core.utils.logger import LOGGER
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
     from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_data.entities.dataitems.entity._base import Dataitem
+    from digitalhub_data.entities.dataitems.entity.table import DataitemTable
 
 
-def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
+def persist_dataitem(dataitem: DataitemTable, name: str, tmp_dir: str) -> str:
     """
     Persist dataitem locally.
 
@@ -38,7 +38,7 @@ def persist_dataitem(dataitem: Dataitem, name: str, tmp_dir: str) -> str:
     try:
         LOGGER.info(f"Persisting dataitem '{name}' locally.")
         tmp_path = f"{tmp_dir}/{name}.csv"
-        dataitem.as_df().to_csv(tmp_path, sep=",", index=False)
+        dataitem.write_df(tmp_path, extension="csv", sep=",", index=False)
         return tmp_path
     except Exception as e:
         msg = f"Error during dataitem '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
