@@ -35,7 +35,7 @@ def get_function_from_source(path: Path, source_spec: dict) -> Callable:
     try:
         function_code = save_function_source(path, source_spec)
         handler_path, function_name = parse_handler(source_spec["handler"])
-        function_path = function_code / handler_path
+        function_path = (function_code / handler_path).with_suffix(".py")
         return import_function(function_path, function_name)
     except Exception as e:
         msg = f"Some error occurred while getting function. Exception: {e.__class__}. Error: {e.args}"
