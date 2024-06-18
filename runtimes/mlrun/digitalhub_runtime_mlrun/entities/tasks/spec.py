@@ -3,46 +3,17 @@ Task Mlrun specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities.tasks.models import K8s
-from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
+from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpec, TaskSpecK8s
 
 
-class TaskSpecJob(TaskSpec):
+class TaskSpecJob(TaskSpecK8s):
     """Task Job specification."""
 
-    def __init__(
-        self,
-        function: str,
-        k8s: dict | None = None,
-    ) -> None:
-        """
-        Constructor.
-        """
-        super().__init__(function)
-        self.k8s = k8s
 
-    def to_dict(self) -> dict:
-        """
-        Override to_dict to filter k8s None.
-
-        Returns
-        -------
-        dict
-            Dictionary representation of the object.
-        """
-        dict_ = super().to_dict()
-        if self.k8s is not None:
-            dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
-        return dict_
-
-
-class TaskParamsJob(TaskParams):
+class TaskParamsJob(TaskParamsK8s):
     """
     TaskParamsJob model.
     """
-
-    k8s: K8s = None
-    """Kubernetes resources."""
 
 
 class TaskSpecBuild(TaskSpec):
@@ -51,45 +22,24 @@ class TaskSpecBuild(TaskSpec):
     def __init__(
         self,
         function: str,
-        k8s: dict | None = None,
         target_image: str | None = None,
         commands: list[str] | None = None,
         force_build: bool = False,
+        **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(function)
-        self.k8s = k8s
+        super().__init__(function, **kwargs)
         self.target_image = target_image
         self.commands = commands
         self.force_build = force_build
 
-    def to_dict(self) -> dict:
-        """
-        Override to_dict to filter k8s None.
 
-        Returns
-        -------
-        dict
-            Dictionary representation of the object.
-        """
-        dict_ = super().to_dict()
-        if self.k8s is not None:
-            dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
-        dict_["target_image"] = self.target_image
-        dict_["commands"] = self.commands
-        dict_["force_build"] = self.force_build
-        return dict_
-
-
-class TaskParamsBuild(TaskParams):
+class TaskParamsBuild(TaskParamsK8s):
     """
     TaskParamsBuild model.
     """
-
-    k8s: K8s = None
-    """Kubernetes resources."""
 
     target_image: str = None
     """Target image."""

@@ -22,7 +22,7 @@ from digitalhub_ml.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_ml.entities.models.metadata import ModelMetadata
+    from digitalhub_ml.entities.models.metadata import Metadata
     from digitalhub_ml.entities.models.spec import ModelSpec
     from digitalhub_ml.entities.models.status import ModelStatus
 
@@ -40,7 +40,7 @@ class Model(Entity):
         name: str,
         uuid: str,
         kind: str,
-        metadata: ModelMetadata,
+        metadata: Metadata,
         spec: ModelSpec,
         status: ModelStatus,
         user: str | None = None,
@@ -58,7 +58,7 @@ class Model(Entity):
             Version of the object.
         kind : str
             Kind of the object.
-        metadata : ModelMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : ModelSpec
             Specification of the object.
@@ -143,7 +143,7 @@ class Model(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
@@ -458,4 +458,4 @@ def model_from_dict(obj: dict) -> Model:
     Model
         Model instance.
     """
-    return Model.from_dict(obj, validate=False)
+    return Model.from_dict(obj)

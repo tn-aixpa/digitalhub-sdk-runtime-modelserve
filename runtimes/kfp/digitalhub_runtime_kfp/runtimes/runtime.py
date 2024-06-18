@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
+from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_kfp.utils.configurations import (
     get_dhcore_workflow,
@@ -15,13 +16,21 @@ from digitalhub_runtime_kfp.utils.configurations import (
 from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline
 from digitalhub_runtime_kfp.utils.inputs import get_inputs_parameters
 
+data = {
+    "executable": {"kind": "kfp"},
+    "task": [
+        {"kind": "kfp+job", "action": "pipeline"},
+    ],
+    "run": {"kind": "kfp+run"},
+}
+
 
 class RuntimeKFP(Runtime):
     """
     Runtime KFP class.
     """
 
-    allowed_actions = ["pipeline"]
+    kind_registry = KindRegistry(data)
 
     def __init__(self) -> None:
         """
@@ -171,7 +180,7 @@ class RuntimeKFP(Runtime):
         workflow_source = save_workflow_source(self.root_path, dhcore_workflow.spec.to_dict().get("source"))
         workflow_specs = parse_workflow_specs(dhcore_workflow.spec)
 
-        # Create Mlrun project
+        # Create kfp project
         LOGGER.info("Creating KFP project and workflow.")
         return get_kfp_pipeline(dhcore_workflow.name, workflow_source, workflow_specs)
 

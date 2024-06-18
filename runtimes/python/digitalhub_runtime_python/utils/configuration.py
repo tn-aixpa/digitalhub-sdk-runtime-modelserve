@@ -92,7 +92,6 @@ def save_function_source(path: Path, source_spec: dict) -> Path:
 
     # Base64
     if base64 is not None:
-
         filename = "main.py"
         if scheme == "local":
             filename = Path(source).name

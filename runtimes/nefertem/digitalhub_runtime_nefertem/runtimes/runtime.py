@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
+from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
@@ -20,13 +21,23 @@ from digitalhub_runtime_nefertem.utils.outputs import build_status, create_artif
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
 
+data = {
+    "executable": {"kind": "nefertem"},
+    "task": [
+        {"kind": "nefertem+infer", "action": "infer"},
+        {"kind": "nefertem+profile", "action": "profile"},
+        {"kind": "nefertem+validate", "action": "validate"},
+    ],
+    "run": {"kind": "nefertem+run"},
+}
+
 
 class RuntimeNefertem(Runtime):
     """
     Runtime nefertem class.
     """
 
-    allowed_actions = ["validate", "profile", "infer", "metric"]
+    kind_registry = KindRegistry(data)
 
     def __init__(self) -> None:
         """

@@ -145,4 +145,4 @@ def dataitem_from_dict(obj: dict) -> Dataitem:
     """
     kind = obj.get("kind")
     cls = _choose_dataitem_type(kind)
-    return cls.from_dict(obj, validate=False)
+    return cls.from_dict(obj)

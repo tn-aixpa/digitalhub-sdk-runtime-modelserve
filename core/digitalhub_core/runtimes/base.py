@@ -3,11 +3,15 @@ Base Runtime module.
 """
 from __future__ import annotations
 
+import typing
 from abc import abstractmethod
 from typing import Any, Callable
 
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
+
+if typing.TYPE_CHECKING:
+    from digitalhub_core.runtimes.registry import KindRegistry
 
 
 class Runtime:
@@ -21,22 +25,16 @@ class Runtime:
     libraries, code, external tools etc.
     """
 
-    ##################################
-    # Abstract methods
-    ##################################
-
-    # This attribute is a list of allowed actions (tasks)
-    # MUST BE explicitly extended in the subclass.
-    allowed_actions = []
+    # These attributes must be overridden by subclasses
+    kind_registry: KindRegistry = None
 
     def __init__(self) -> None:
         """
         Constructor.
         """
-        if not self.allowed_actions:
-            raise EntityError(
-                "'allowed_actions' attribute must be extended in the subclass with the list of allowed actions."
-            )
+        if self.kind_registry is None:
+            msg = "Kind registry must be defined."
+            raise EntityError(msg)
 
     @abstractmethod
     def build(self, executable: dict, task: dict, run: dict) -> dict:
@@ -77,49 +75,17 @@ class Runtime:
         str
             Action to execute.
         """
-        action = self._get_action(run)
-        if action not in self.allowed_actions:
-            msg = f"Task {action} not allowed for {self.__class__.__name__} runtime."
-            LOGGER.error(msg)
-            raise EntityError(msg)
-        return action
-
-    @staticmethod
-    def _get_action(run: dict) -> str:
-        """
-        Get action to execute from run.
-
-        The run object stores in its spec the identifier of the task
-        it is associated with. The task string is derived from the
-        function string, and has the following format:
-
-        <function-kind>+<task-action>://<project-name>/<function-name>:<function-id>
-
-        Parameters
-        ----------
-        run : dict
-            Run object dictionary.
-
-        Returns
-        -------
-        str
-            Action to execute.
-
-        Raises
-        ------
-        RuntimeError
-            If malformed run spec.
-
-        Examples
-        --------
-        >>> run = {"spec": {"task": fnckind+action://project/function:uuid4}}
-        >>> Runtime._get_action(run)
-        'action'
-        """
         try:
-            return run["spec"]["task"].split(":")[0].split("+")[1]
+            task_kind = run["spec"]["task"].split(":")[0]
         except (KeyError, IndexError):
             msg = "Malformed run spec."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
+
+        try:
+            return self.get_action_from_task_kind(task_kind)
+        except EntityError:
+            msg = f"Task {task_kind} not allowed."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
 
@@ -148,3 +114,66 @@ class Runtime:
             msg = "Something got wrong during function execution."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
+
+    ##################################
+    # Wrapper registry methods
+    ##################################
+
+    def get_executable_kind(self) -> str:
+        """
+        Get executable kind.
+
+        Parameters
+        ----------
+        action : str
+            Action.
+
+        Returns
+        -------
+        str
+            Executable kind.
+        """
+        return self.kind_registry.get_executable_kind()
+
+    def get_task_kind_from_action(self, action: str) -> str:
+        """
+        Get task kind from action.
+
+        Parameters
+        ----------
+        action : str
+            Task action.
+
+        Returns
+        -------
+        str
+            Task kind.
+        """
+        return self.kind_registry.get_task_kind_from_action(action)
+
+    def get_action_from_task_kind(self, kind: str) -> str:
+        """
+        Get action from task.
+
+        Parameters
+        ----------
+        task : str
+            Task kind.
+
+        Returns
+        -------
+        str
+            Action.
+        """
+        return self.kind_registry.get_action_from_task_kind(kind)
+
+    def get_run_kind(self) -> str:
+        """
+        Get run kind.
+
+        Returns
+        -------
+        str
+            Run kind.
+        """
+        return self.kind_registry.get_run_kind()

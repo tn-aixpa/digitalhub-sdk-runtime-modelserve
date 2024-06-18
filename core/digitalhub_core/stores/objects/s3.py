@@ -210,8 +210,8 @@ class S3Store(Store):
         """
         try:
             client.head_bucket(Bucket=bucket)
-        except ClientError as exc:
-            raise StoreError("No access to s3 bucket!") from exc
+        except ClientError as e:
+            raise StoreError("No access to s3 bucket!") from e
 
     def _download_file(self, bucket: str, key: str, dst: str) -> str:
         """

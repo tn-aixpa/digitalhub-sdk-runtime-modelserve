@@ -60,10 +60,6 @@ def new_run(
     uuid: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
-    inputs: dict | None = None,
-    outputs: list | None = None,
-    parameters: dict | None = None,
-    values: list | None = None,
     local_execution: bool = False,
     **kwargs,
 ) -> Run:
@@ -84,14 +80,6 @@ def new_run(
         Remote git source for object.
     labels : list[str]
         List of labels.
-    inputs : dict
-        Inputs of the run.
-    outputs : dict
-        Outputs of the run.
-    parameters : dict
-        Parameters of the run.
-    values : list
-        Values of the run.
     local_execution : bool
         Flag to determine if object has local execution.
     embedded : bool
@@ -111,10 +99,6 @@ def new_run(
         uuid=uuid,
         source=source,
         labels=labels,
-        inputs=inputs,
-        outputs=outputs,
-        parameters=parameters,
-        values=values,
         local_execution=local_execution,
         **kwargs,
     )

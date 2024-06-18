@@ -32,7 +32,7 @@ class Spec(ModelObj):
         return cls(**obj)
 
 
-class SpecParams(BaseModel):
+class SpecParams(BaseModel, extra="ignore"):
     """
     A class representing the parameters of an entity.
     This base class is used to define the parameters of an entity

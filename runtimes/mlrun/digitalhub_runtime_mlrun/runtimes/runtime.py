@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
+from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_mlrun.utils.configurations import (
     get_dhcore_function,
@@ -28,12 +29,22 @@ if typing.TYPE_CHECKING:
     from mlrun.runtimes import BaseRuntime
 
 
+data = {
+    "executable": {"kind": "mlrun"},
+    "task": [
+        {"kind": "mlrun+job", "action": "job"},
+        {"kind": "mlrun+build", "action": "build"},
+    ],
+    "run": {"kind": "mlrun+run"},
+}
+
+
 class RuntimeMlrun(Runtime):
     """
     Runtime Mlrun class.
     """
 
-    allowed_actions = ["job", "build"]
+    kind_registry = KindRegistry(data)
 
     def __init__(self) -> None:
         """

@@ -47,9 +47,9 @@ from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
+    from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.artifacts.entity import Artifact
     from digitalhub_core.entities.functions.entity import Function
-    from digitalhub_core.entities.projects.metadata import ProjectMetadata
     from digitalhub_core.entities.projects.spec import ProjectSpec
     from digitalhub_core.entities.projects.status import ProjectStatus
     from digitalhub_core.entities.secrets.entity import Secret
@@ -86,7 +86,7 @@ class Project(Entity):
         self,
         name: str,
         kind: str,
-        metadata: ProjectMetadata,
+        metadata: Metadata,
         spec: ProjectSpec,
         status: ProjectStatus,
         user: str | None = None,
@@ -101,7 +101,7 @@ class Project(Entity):
             Name of the object.
         kind : str
             Kind of the object.
-        metadata : ProjectMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : ProjectSpec
             Specification of the object.
@@ -835,4 +835,4 @@ def project_from_dict(obj: dict) -> Project:
     Project
         Project object.
     """
-    return Project.from_dict(obj, validate=False)
+    return Project.from_dict(obj)

@@ -4,8 +4,6 @@ Run module.
 from __future__ import annotations
 
 import typing
-from collections import namedtuple
-from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -23,16 +21,10 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.runs.metadata import RunMetadata
+    from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.runs.spec import RunSpec
     from digitalhub_core.entities.runs.status import RunStatus
     from digitalhub_core.runtimes.base import Runtime
-
-
-TaskString = namedtuple(
-    "TaskString",
-    ["exec_kind", "task_kind", "exec_name", "exec_id"],
-)
 
 
 class Run(Entity):
@@ -47,7 +39,7 @@ class Run(Entity):
         project: str,
         uuid: str,
         kind: str,
-        metadata: RunMetadata,
+        metadata: Metadata,
         spec: RunSpec,
         status: RunStatus,
         user: str | None = None,
@@ -63,7 +55,7 @@ class Run(Entity):
             UUID.
         kind : str
             Kind of the object.
-        metadata : RunMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : RunSpec
             Specification of the object.
@@ -133,7 +125,7 @@ class Run(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
@@ -166,13 +158,13 @@ class Run(Entity):
         """
         runtime = self._get_runtime()
         executable = self._get_executable(runtime)
-        task = self._get_task()
+        task = self._get_task(runtime)
         new_spec = runtime.build(executable, task, self.to_dict())
         self.spec = build_spec(
             self.kind,
             **new_spec,
         )
-        self._set_status({"state": State.BUILT.value})
+        self._set_state(State.BUILT.value)
         self.save()
 
     def run(self) -> Run:
@@ -184,26 +176,35 @@ class Run(Entity):
         Run
             Run object.
         """
-        if self.spec.local_execution:
-            if not self.status.state == State.BUILT.value:
-                raise EntityError("Run is not in built state. Build it again.")
-
-        runtime = self._get_runtime()
-        try:
-            self._set_status({"state": State.RUNNING.value})
-            self.spec.inputs = self.inputs(as_dict=True)
-            self.save(update=True)
-            status = runtime.run(self.to_dict(include_all_non_private=True))
-        except Exception as err:
-            status = {"state": State.ERROR.value, "message": str(err)}
-
-        # need to consider eventual run execution side effects, and update status only
         self.refresh()
-        self._set_status(status)
+        if self.spec.local_execution:
+            if not self._is_built():
+                raise EntityError("Run is not in built state. Build it again.")
+            self._set_state(State.RUNNING.value)
+            self.save(update=True)
+
+        # Try to get inputs if they exist
+        try:
+            self.spec.inputs = self.inputs(as_dict=True)
+        except Exception:
+            pass
+
+        try:
+            status = self._get_runtime().run(self.to_dict(include_all_non_private=True))
+        except Exception as e:
+            self.refresh()
+            self._set_state(State.ERROR.value)
+            self._set_message(str(e))
+            self.save(update=True)
+            raise e
+
+        self.refresh()
+        new_status = {**self.status.to_dict(), **status}
+        self._set_status(new_status)
         self.save(update=True)
         return self
 
-    def inputs(self, as_dict: bool = False) -> list[dict[str, Entity]]:
+    def inputs(self, as_dict: bool = False) -> list[dict]:
         """
         Get inputs passed in spec as objects or as dictionaries.
 
@@ -214,10 +215,14 @@ class Run(Entity):
 
         Returns
         -------
-        list
+        list[dict]
             List of input objects.
         """
-        return self.spec.get_inputs(as_dict=as_dict)
+        try:
+            return self.spec.get_inputs(as_dict=as_dict)
+        except AttributeError:
+            msg = f"Run of type {self.kind} has no inputs."
+            raise EntityError(msg)
 
     def results(self) -> dict:
         """
@@ -228,7 +233,11 @@ class Run(Entity):
         dict
             Results from backend.
         """
-        return self.status.get_results()
+        try:
+            return self.status.get_results()
+        except AttributeError:
+            msg = f"Run of type {self.kind} has no results."
+            raise EntityError(msg)
 
     def outputs(self, as_key: bool = False, as_dict: bool = False) -> list:
         """
@@ -246,7 +255,11 @@ class Run(Entity):
         list
             List of output objects.
         """
-        return self.status.get_outputs(as_key=as_key, as_dict=as_dict)
+        try:
+            return self.status.get_outputs(as_key=as_key, as_dict=as_dict)
+        except AttributeError:
+            msg = f"Run of type {self.kind} has no outputs."
+            raise EntityError(msg)
 
     def values(self) -> dict:
         """
@@ -257,9 +270,13 @@ class Run(Entity):
         dict
             Values from backend.
         """
-        value_list = getattr(self.spec, "values", [])
-        value_list = value_list if value_list is not None else []
-        return self.status.get_values(value_list)
+        try:
+            value_list = getattr(self.spec, "values", [])
+            value_list = value_list if value_list is not None else []
+            return self.status.get_values(value_list)
+        except AttributeError:
+            msg = f"Run of type {self.kind} has no values."
+            raise EntityError(msg)
 
     def refresh(self) -> Run:
         """
@@ -305,6 +322,21 @@ class Run(Entity):
         self._context().create_object(api)
         self.status.state = State.STOPPED.value
 
+    #############################
+    #  Helpers
+    #############################
+
+    def _is_built(self) -> bool:
+        """
+        Check if run is in built state.
+
+        Returns
+        -------
+        bool
+            True if run is in built state, False otherwise.
+        """
+        return self.status.state == State.BUILT.value
+
     def _set_status(self, status: dict) -> None:
         """
         Set run status.
@@ -327,48 +359,83 @@ class Run(Entity):
             raise EntityError("Status must be a dictionary.")
         self.status: RunStatus = build_status(self.kind, **status)
 
-    #############################
-    #  Functions and Tasks
-    #############################
-
-    def _parse_task_string(self) -> TaskString:
+    def _set_state(self, state: str) -> None:
         """
-        Parse task string.
+        Update run state.
+
+        Parameters
+        ----------
+        state : str
+            State to set.
 
         Returns
         -------
         None
         """
-        kinds, exec = self.spec.task.split("://")
-        exec_kind, tsk_kind = kinds.split("+")
-        exec_name, exec_id = exec.split("/")[1].split(":")
-        return TaskString(exec_kind, tsk_kind, exec_name, exec_id)
+        self.status.state = state
+
+    def _set_message(self, message: str) -> None:
+        """
+        Update run message.
+
+        Parameters
+        ----------
+        message : str
+            Message to set.
+
+        Returns
+        -------
+        None
+        """
+        self.status.message = message
+
+    def _get_runtime(self) -> Runtime:
+        """
+        Build runtime to build run or execute it.
+
+        Returns
+        -------
+        Runtime
+            Runtime object.
+        """
+        return build_runtime(self.kind)
 
     def _get_executable(self, runtime: Runtime) -> dict:
         """
         Get object from backend. Reimplemented to avoid circular imports.
+
+        Parameters
+        ----------
+        runtime : Runtime
+            Runtime object.
 
         Returns
         -------
         dict
             Executable (function or workflow) from backend.
         """
-        parsed = self._parse_task_string()
-        entity_type = registry.get_entity_type(parsed.exec_kind)
-        api = api_ctx_read(self.project, entity_type, parsed.exec_id)
+        exec_kind = runtime.get_executable_kind()
+        entity_type = registry.get_entity_type(exec_kind)
+        exec_id = self.spec.task.split(":")[-1]
+        api = api_ctx_read(self.project, entity_type, exec_id)
         return self._context().read_object(api)
 
-    def _get_task(self) -> dict:
+    def _get_task(self, runtime: Runtime) -> dict:
         """
         Get object from backend. Reimplemented to avoid circular imports.
+
+        Parameters
+        ----------
+        runtime : Runtime
+            Runtime object.
 
         Returns
         -------
         dict
             Task from backend.
         """
-        parsed = self._parse_task_string()
-        exec_string = f"{parsed.exec_kind}://{self.project}/{parsed.exec_name}:{parsed.exec_id}"
+        executable_kind = runtime.get_executable_kind()
+        exec_string = f"{executable_kind}://{self.spec.task.split('://')[1]}"
 
         # Local backend
         if self._context().local:
@@ -380,26 +447,11 @@ class Run(Entity):
             raise EntityError("Task not found.")
 
         # Remote backend
+        task_kind = self.spec.task.split("://")[0]
         api = api_ctx_list(self.project, "tasks")
-        params = {"function": exec_string, "kind": f"{parsed.exec_kind}+{parsed.task_kind}"}
+        params = {"function": exec_string, "kind": task_kind}
         obj = self._context().list_objects(api, params=params)
         return obj[0]
-
-    #############################
-    # Runtimes
-    #############################
-
-    def _get_runtime(self) -> Runtime:
-        """
-        Build runtime to build run or execute it.
-
-        Returns
-        -------
-        Runtime
-            Runtime object.
-        """
-        exec_kind = self._parse_task_string().exec_kind
-        return build_runtime(exec_kind)
 
     #############################
     #  Static interface methods
@@ -442,16 +494,10 @@ class Run(Entity):
 
 def run_from_parameters(
     project: str,
-    task: str,
     kind: str,
     uuid: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
-    inputs: dict | None = None,
-    outputs: list | None = None,
-    parameters: dict | None = None,
-    values: list | None = None,
-    local_execution: bool = False,
     **kwargs,
 ) -> Run:
     """
@@ -461,8 +507,6 @@ def run_from_parameters(
     ----------
     project : str
         Project name.
-    task : str
-        Name of the task associated with the run.
     kind : str
         Kind of the object.
     uuid : str
@@ -471,16 +515,6 @@ def run_from_parameters(
         Remote git source for object.
     labels : list[str]
         List of labels.
-    inputs : dict
-        Inputs of the run.
-    outputs : dict
-        Outputs of the run.
-    parameters : dict
-        Parameters of the run.
-    values : list
-        Values of the run.
-    local_execution : bool
-        Flag to determine if object has local execution.
     embedded : bool
         Flag to determine if object must be embedded in project.
     **kwargs
@@ -499,16 +533,7 @@ def run_from_parameters(
         source=source,
         labels=labels,
     )
-    spec = build_spec(
-        kind,
-        task=task,
-        inputs=inputs,
-        outputs=outputs,
-        parameters=parameters,
-        values=values,
-        local_execution=local_execution,
-        **kwargs,
-    )
+    spec = build_spec(kind, **kwargs)
     status = build_status(kind)
     return Run(
         project=project,
@@ -534,4 +559,4 @@ def run_from_dict(obj: dict) -> Run:
     Run
         Run object.
     """
-    return Run.from_dict(obj, validate=False)
+    return Run.from_dict(obj)

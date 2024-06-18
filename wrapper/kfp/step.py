@@ -107,8 +107,8 @@ def execute_step(
     # write run_id
     try:
         _write_output("run_id", run.id)
-    except Exception as exc:
-        LOGGER.warning(f"Failed writing run_id to temp file. Ignoring ({repr(exc)})")
+    except Exception as e:
+        LOGGER.warning(f"Failed writing run_id to temp file. Ignoring ({repr(e)})")
         pass
 
     # If the run is complete process outputs
@@ -132,8 +132,8 @@ def execute_step(
         for key, value in results.items():
             try:
                 _write_output(key, value)
-            except Exception as exc:
-                LOGGER.warning(f"Failed writing to temp file. Ignoring ({repr(exc)})")
+            except Exception as e:
+                LOGGER.warning(f"Failed writing to temp file. Ignoring ({repr(e)})")
                 pass
 
         LOGGER.info("Done.")

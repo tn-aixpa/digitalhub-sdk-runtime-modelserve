@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import typing
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -14,6 +13,7 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task
+from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
@@ -21,11 +21,12 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.functions.metadata import FunctionMetadata
+    from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.functions.spec import FunctionSpec
     from digitalhub_core.entities.functions.status import FunctionStatus
     from digitalhub_core.entities.runs.entity import Run
     from digitalhub_core.entities.tasks.entity import Task
+    from digitalhub_core.runtimes.base import Runtime
 
 
 class Function(Entity):
@@ -41,7 +42,7 @@ class Function(Entity):
         name: str,
         uuid: str,
         kind: str,
-        metadata: FunctionMetadata,
+        metadata: Metadata,
         spec: FunctionSpec,
         status: FunctionStatus,
         user: str | None = None,
@@ -59,7 +60,7 @@ class Function(Entity):
             Version of the object.
         kind : str
             Kind of the object.
-        metadata : FunctionMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : FunctionSpec
             Specification of the object.
@@ -148,7 +149,7 @@ class Function(Entity):
 
         if filename is None:
             filename = f"function_{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
 
         # Embed tasks in file
@@ -179,20 +180,6 @@ class Function(Entity):
     def run(
         self,
         action: str,
-        node_selector: list[dict] | None = None,
-        volumes: list[dict] | None = None,
-        resources: list[dict] | None = None,
-        affinity: dict | None = None,
-        tolerations: list[dict] | None = None,
-        env: list[dict] | None = None,
-        secrets: list[str] | None = None,
-        backoff_limit: int | None = None,
-        schedule: str | None = None,
-        replicas: int | None = None,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
-        parameters: dict | None = None,
-        values: list | None = None,
         local_execution: bool = False,
         **kwargs,
     ) -> Run:
@@ -202,63 +189,29 @@ class Function(Entity):
         Parameters
         ----------
         action : str
-            Action to execute. Task parameter.
-        node_selector : list[dict]
-            The node selector of the task. Task parameter.
-        volumes : list[dict]
-            The volumes of the task. Task parameter.
-        resources : list[dict]
-            Kubernetes resources for the task. Task parameter.
-        affinity : Affinity
-            Kubernetes affinity parameters. Task parameter.
-        tolerations : list[dict]
-            Kubernetes tolerations parameters. Task parameter.
-        env : list[dict]
-            The env variables of the task. Task parameter.
-        secrets : list[str]
-            The secrets of the task. Task parameter.
-        backoff_limit : int
-            The backoff limit of the task. Task parameter.
-        schedule : str
-            The schedule of the task. Task parameter.
-        replicas : int
-            The replicas of the task. Task parameter.
-        inputs : dict
-            Function inputs. Run parameter.
-        outputs : dict
-            Function outputs. Run parameter.
-        parameters : dict
-            Function parameters. Run parameter.
-        values : list
-            Function values. Run parameter.
+            Action to execute.
         local_execution : bool
-            Flag to determine if object has local execution. Run parameter.
+            Flag to determine if object has local execution.
         **kwargs
-            Keyword arguments passed to Task builder.
+            Keyword arguments passed to Task and Run builders.
 
         Returns
         -------
         Run
             Run instance.
         """
+        # Get runtime
+        runtime = self._get_runtime()
+
+        # Get task and run kind
+        task_kind = runtime.get_task_kind_from_action(action=action)
+        run_kind = runtime.get_run_kind()
+
         # Create or update new task
-        task = self.new_task(
-            kind=f"{self.kind}+{action}",
-            node_selector=node_selector,
-            volumes=volumes,
-            resources=resources,
-            affinity=affinity,
-            tolerations=tolerations,
-            env=env,
-            secrets=secrets,
-            backoff_limit=backoff_limit,
-            schedule=schedule,
-            replicas=replicas,
-            **kwargs,
-        )
+        task = self.new_task(task_kind, **kwargs)
 
         # Run function from task
-        run = task.run(inputs, outputs, parameters, values, local_execution)
+        run = task.run(run_kind, local_execution, **kwargs)
 
         # If execution is done by DHCore backend, return the object
         if not local_execution:
@@ -273,6 +226,10 @@ class Function(Entity):
             result = executor.submit(run.run)
         return result.result()
 
+    #############################
+    #  Helpers
+    #############################
+
     def _get_function_string(self) -> str:
         """
         Get function string.
@@ -284,9 +241,16 @@ class Function(Entity):
         """
         return f"{self.kind}://{self.project}/{self.name}:{self.id}"
 
-    #############################
-    #  CRUD Methods for Tasks
-    #############################
+    def _get_runtime(self) -> Runtime:
+        """
+        Build runtime to build run or execute it.
+
+        Returns
+        -------
+        Runtime
+            Runtime object.
+        """
+        return build_runtime(self.kind)
 
     def import_tasks(self, tasks: list[dict]) -> None:
         """
@@ -327,12 +291,14 @@ class Function(Entity):
             if task_obj.spec.function == self._get_function_string():
                 self._tasks[task_obj.kind] = task_obj
 
-    def new_task(self, **kwargs) -> Task:
+    def new_task(self, task_kind: str, **kwargs) -> Task:
         """
         Create new task.
 
         Parameters
         ----------
+        task_kind : str
+            Kind of the task.
         **kwargs
             Keyword arguments.
 
@@ -344,12 +310,12 @@ class Function(Entity):
         # Override kwargs
         kwargs["project"] = self.project
         kwargs["function"] = self._get_function_string()
-        kwargs["kind"] = kwargs["kind"]
+        kwargs["kind"] = task_kind
 
         # Create object instance
         task = create_task(**kwargs)
 
-        exists, task_id = self._check_task_in_backend(kwargs["kind"])
+        exists, task_id = self._check_task_in_backend(task_kind)
 
         # Save or update task
         if not exists:
@@ -358,7 +324,7 @@ class Function(Entity):
             task.id = task_id
             task.save(update=True)
 
-        self._tasks[kwargs["kind"]] = task
+        self._tasks[task_kind] = task
         return task
 
     def update_task(self, kind: str, **kwargs) -> None:
@@ -603,4 +569,4 @@ def function_from_dict(obj: dict) -> Function:
     Function
         Function object.
     """
-    return Function.from_dict(obj, validate=False)
+    return Function.from_dict(obj)

@@ -4,7 +4,6 @@ Task module.
 from __future__ import annotations
 
 import typing
-from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -19,8 +18,8 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.runs.entity import Run
-    from digitalhub_core.entities.tasks.metadata import TaskMetadata
     from digitalhub_core.entities.tasks.spec import TaskSpec
     from digitalhub_core.entities.tasks.status import TaskStatus
 
@@ -37,7 +36,7 @@ class Task(Entity):
         project: str,
         uuid: str,
         kind: str,
-        metadata: TaskMetadata,
+        metadata: Metadata,
         spec: TaskSpec,
         status: TaskStatus,
         user: str | None = None,
@@ -53,7 +52,7 @@ class Task(Entity):
             UUID.
         kind : str
             Kind of the object.
-        metadata : TaskMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : TaskSpec
             Specification of the object.
@@ -137,7 +136,7 @@ class Task(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
@@ -162,27 +161,21 @@ class Task(Entity):
 
     def run(
         self,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
-        parameters: dict | None = None,
-        values: list | None = None,
+        run_kind: str,
         local_execution: bool = False,
+        **kwargs,
     ) -> Run:
         """
         Run task.
 
         Parameters
         ----------
-        inputs : dict
-            The inputs of the run.
-        outputs : dict
-            The outputs of the run.
-        parameters : dict
-            The parameters of the run.
-        values : list
-            The values of the run.
+        run_kind : str
+            Kind of the run.
         local_execution : bool
             Flag to indicate if the run will be executed locally.
+        **kwargs
+            Keyword arguments.
 
         Returns
         -------
@@ -192,12 +185,9 @@ class Task(Entity):
         return self.new_run(
             project=self.project,
             task=self._get_task_string(),
-            kind=f"{self.kind.split('+')[0]}+run",
-            inputs=inputs,
-            outputs=outputs,
-            parameters=parameters,
-            values=values,
+            kind=run_kind,
             local_execution=local_execution,
+            **kwargs,
         )
 
     def _get_task_string(self) -> str:
@@ -311,17 +301,6 @@ def task_from_parameters(
     uuid: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
-    function: str | None = "",
-    node_selector: list[dict] | None = None,
-    volumes: list[dict] | None = None,
-    resources: list[dict] | None = None,
-    affinity: dict | None = None,
-    tolerations: list[dict] | None = None,
-    env: list[dict] | None = None,
-    secrets: list[str] | None = None,
-    backoff_limit: int | None = None,
-    schedule: str | None = None,
-    replicas: int | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -339,26 +318,6 @@ def task_from_parameters(
         Remote git source for object.
     labels : list[str]
         List of labels.
-    node_selector : list[NodeSelector]
-        The node selector of the task.
-    volumes : list[Volume]
-        The volumes of the task.
-    resources : list[Resource]
-        Kubernetes resources for the task.
-    affinity : Affinity
-        The affinity of the task.
-    tolerations : list[Toleration]
-        The tolerations of the task.
-    env : list[Env]
-        The env variables of the task.
-    secrets : list[str]
-        The secrets of the task.
-    backoff_limit : int
-        The backoff limit of the task.
-    schedule : str
-        The schedule of the task.
-    replicas : int
-        The replicas of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -375,20 +334,7 @@ def task_from_parameters(
         source=source,
         labels=labels,
     )
-    k8s = {
-        "node_selector": node_selector,
-        "volumes": volumes,
-        "resources": resources,
-        "affinity": affinity,
-        "tolerations": tolerations,
-        "env": env,
-        "secrets": secrets,
-        "backoff_limit": backoff_limit,
-        "schedule": schedule,
-        "replicas": replicas,
-    }
-    kwargs["k8s"] = k8s
-    spec = build_spec(kind, function=function, **kwargs)
+    spec = build_spec(kind, **kwargs)
     status = build_status(kind)
     return Task(
         project=project,
@@ -414,4 +360,4 @@ def task_from_dict(obj: dict) -> Task:
     Task
         Task object.
     """
-    return Task.from_dict(obj, validate=False)
+    return Task.from_dict(obj)

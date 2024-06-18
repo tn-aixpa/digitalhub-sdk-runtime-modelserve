@@ -22,7 +22,7 @@ from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.artifacts.metadata import ArtifactMetadata
+    from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.artifacts.spec import ArtifactSpec
     from digitalhub_core.entities.artifacts.status import ArtifactStatus
 
@@ -44,7 +44,7 @@ class Artifact(Entity):
         name: str,
         uuid: str,
         kind: str,
-        metadata: ArtifactMetadata,
+        metadata: Metadata,
         spec: ArtifactSpec,
         status: ArtifactStatus,
         user: str | None = None,
@@ -62,7 +62,7 @@ class Artifact(Entity):
             Version of the object.
         kind : str
             Kind of the object.
-        metadata : ArtifactMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : ArtifactSpec
             Specification of the object.
@@ -147,7 +147,7 @@ class Artifact(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
@@ -504,4 +504,4 @@ def artifact_from_dict(obj: dict) -> Artifact:
     Artifact
         Artifact object.
     """
-    return Artifact.from_dict(obj, validate=False)
+    return Artifact.from_dict(obj)

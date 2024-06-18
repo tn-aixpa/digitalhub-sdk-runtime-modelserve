@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
+from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
@@ -29,12 +30,19 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
+data = {
+    "executable": {"kind": "dbt"},
+    "task": [{"kind": "dbt+transform", "action": "transform"}],
+    "run": {"kind": "dbt+run"},
+}
+
+
 class RuntimeDbt(Runtime):
     """
     Runtime Dbt class.
     """
 
-    allowed_actions = ["transform"]
+    kind_registry = KindRegistry(data)
 
     def __init__(self) -> None:
         """

@@ -3,118 +3,88 @@ Task Container specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities.tasks.models import K8s
-from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
+from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpecK8s
 from digitalhub_runtime_container.entities.tasks.models import ContextRef, ContextSource, CorePort
 
 
-class TaskSpecContainerBase(TaskSpec):
-    """Task Container specification for Kubernetes."""
-
-    def __init__(
-        self,
-        function: str,
-        k8s: dict | None = None,
-    ) -> None:
-        """
-        Constructor.
-        """
-        super().__init__(function)
-        if k8s is None:
-            k8s = {}
-        k8s = K8s(**k8s).dict(by_alias=True)
-        self.node_selector = k8s.get("node_selector")
-        self.volumes = k8s.get("volumes")
-        self.resources = k8s.get("resources")
-        self.affinity = k8s.get("affinity")
-        self.tolerations = k8s.get("tolerations")
-        self.envs = k8s.get("envs")
-        self.secrets = k8s.get("secrets")
-
-
-class TaskSpecJob(TaskSpecContainerBase):
+class TaskSpecJob(TaskSpecK8s):
     """Task Job specification."""
 
     def __init__(
         self,
         function: str,
-        k8s: dict | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(function, k8s)
-
-        k8s = k8s if k8s is not None else {}
-
-        self.backoff_limit = k8s.get("backoff_limit")
-        self.schedule = k8s.get("schedule")
+        super().__init__(function, **kwargs)
+        self.backoff_limit = kwargs.get("backoff_limit")
+        self.schedule = kwargs.get("schedule")
 
 
-class TaskParamsJob(TaskParams):
+class TaskParamsJob(TaskParamsK8s):
     """
     TaskParamsJob model.
     """
 
-    k8s: K8s = None
-    """Kubernetes resources."""
+    backoff_limit: int = None
+    """Backoff limit."""
+
+    schedule: str = None
+    """Schedule."""
 
 
-class TaskSpecDeploy(TaskSpecContainerBase):
+class TaskSpecDeploy(TaskSpecK8s):
     """Task Deploy specification."""
 
     def __init__(
         self,
         function: str,
-        k8s: dict | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(function, k8s)
-
-        k8s = k8s if k8s is not None else {}
-
-        self.replicas = k8s.get("replicas")
+        super().__init__(function, **kwargs)
+        self.replicas = kwargs.get("replicas")
 
 
-class TaskParamsDeploy(TaskParams):
+class TaskParamsDeploy(TaskParamsK8s):
     """
     TaskParamsDeploy model.
     """
 
-    k8s: K8s = None
-    """Kubernetes resources."""
+    replicas: int = None
+    """Replicas."""
 
 
-class TaskSpecServe(TaskSpecContainerBase):
+class TaskSpecServe(TaskSpecK8s):
     """Task Serve specification."""
 
     def __init__(
         self,
         function: str,
-        k8s: dict | None = None,
-        service_ports: list[CorePort] = None,
+        service_ports: list[CorePort] | None = None,
         service_type: str | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(function, k8s)
-
-        k8s = k8s if k8s is not None else {}
-        self.replicas = k8s.get("replicas")
+        super().__init__(function, **kwargs)
         self.service_ports = service_ports
         self.service_type = service_type
+        self.replicas = kwargs.get("replicas")
 
 
-class TaskParamsServe(TaskParams):
+class TaskParamsServe(TaskParamsK8s):
     """
     TaskParamsServe model.
     """
 
-    k8s: K8s = None
-    """Kubernetes resources."""
+    replicas: int = None
+    """Replicas."""
 
     service_ports: list[CorePort] = None
     """Service ports mapper."""
@@ -123,35 +93,27 @@ class TaskParamsServe(TaskParams):
     """Service type."""
 
 
-class TaskSpecBuild(TaskSpecContainerBase):
+class TaskSpecBuild(TaskSpecK8s):
     """Task Build specification."""
 
     def __init__(
         self,
         function: str,
-        k8s: dict | None = None,
-        context_refs: list | None = None,
-        context_sources: list | None = None,
-        instructions: list | None = None,
+        **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(function, k8s)
-
-        k8s = k8s if k8s is not None else {}
-        self.context_refs = context_refs
-        self.context_sources = context_sources
-        self.instructions = instructions
+        super().__init__(function, **kwargs)
+        self.context_refs = kwargs.get("context_refs")
+        self.context_sources = kwargs.get("context_sources")
+        self.instructions = kwargs.get("instructions")
 
 
-class TaskParamsBuild(TaskParams):
+class TaskParamsBuild(TaskParamsK8s):
     """
     TaskParamsBuild model.
     """
-
-    k8s: K8s = None
-    """Kubernetes resources."""
 
     context_refs: list[ContextRef] = None
     """Context references."""

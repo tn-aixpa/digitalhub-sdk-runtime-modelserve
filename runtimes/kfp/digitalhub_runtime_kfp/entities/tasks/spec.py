@@ -3,48 +3,24 @@ Task KFP specification module.
 """
 from __future__ import annotations
 
-from digitalhub_core.entities.tasks.models import K8s
-from digitalhub_core.entities.tasks.spec import TaskParams, TaskSpec
+from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpecK8s
 
 
-class TaskSpecPipeline(TaskSpec):
+class TaskSpecPipeline(TaskSpecK8s):
     """Task Pipeline specification."""
 
-    def __init__(self, function: str, workflow: str | None = None, k8s: K8s | None = None) -> None:
+    def __init__(self, function: str, workflow: str | None = None, **kwargs) -> None:
         """
         Constructor.
         """
-        super().__init__(function)
-        if k8s is None:
-            k8s = {}
-        k8s = K8s(**k8s).dict(by_alias=True)
-        self.envs = k8s.get("envs")
-        self.secrets = k8s.get("secrets")
-        self.schedule = k8s.get("schedule")
+        super().__init__(function, **kwargs)
         self.workflow = workflow
 
-    def to_dict(self) -> dict:
-        """
-        Override to_dict to filter k8s None.
 
-        Returns
-        -------
-        dict
-            Dictionary representation of the object.
-        """
-        dict_ = super().to_dict()
-        if "k8s" in dict_:
-            dict_["k8s"] = {k: v for k, v in dict_["k8s"].items() if v is not None}
-        return dict_
-
-
-class TaskParamsPipeline(TaskParams):
+class TaskParamsPipeline(TaskParamsK8s):
     """
     TaskParamsPipeline model.
     """
-
-    k8s: K8s
-    """Kubernetes resources."""
 
     workflow: str = None
     """KFP workflow specification as YAML string."""

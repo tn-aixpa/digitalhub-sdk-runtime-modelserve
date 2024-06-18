@@ -51,6 +51,10 @@ class Metadata(ModelObj):
             Created date.
         updated : str
             Updated date.
+        created_by : str
+            Created by user.
+        updated_by : str
+            Updated by user.
         embedded : bool
             Whether the entity specifications are embedded into a project.
         """
@@ -62,6 +66,8 @@ class Metadata(ModelObj):
         self.labels = labels
         self.created = created
         self.updated = updated
+        self.created_by = created_by
+        self.updated_by = updated_by
         self.embedded = embedded
 
         self._any_setter(**kwargs)

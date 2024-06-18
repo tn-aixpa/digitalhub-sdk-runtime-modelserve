@@ -7,10 +7,21 @@ from pathlib import Path
 from typing import Callable
 
 from digitalhub_core.runtimes.base import Runtime
+from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_python.utils.configuration import get_function_from_source
 from digitalhub_runtime_python.utils.inputs import get_inputs_parameters
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
+
+data = {
+    "executable": {"kind": "python"},
+    "task": [
+        {"kind": "python+job", "action": "job"},
+        {"kind": "python+serve", "action": "serve"},
+        {"kind": "python+build", "action": "build"},
+    ],
+    "run": {"kind": "python+run"},
+}
 
 
 class RuntimePython(Runtime):
@@ -18,7 +29,7 @@ class RuntimePython(Runtime):
     Runtime Python class.
     """
 
-    allowed_actions = ["job", "nuclio"]
+    kind_registry = KindRegistry(data)
 
     def __init__(self) -> None:
         """

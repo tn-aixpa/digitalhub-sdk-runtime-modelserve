@@ -120,8 +120,8 @@ class StoreBuilder:
             if cfg.is_default and self._default is not None:
                 raise StoreError("Only one default store!")
             return obj
-        except KeyError as exc:
-            raise NotImplementedError from exc
+        except KeyError as e:
+            raise NotImplementedError from e
 
     @staticmethod
     def _check_config(config: StoreParameters | dict) -> StoreParameters:
@@ -146,10 +146,10 @@ class StoreBuilder:
         if not isinstance(config, StoreParameters):
             try:
                 return StoreParameters(**config)
-            except TypeError as exc:
-                raise StoreError("Invalid store configuration type.") from exc
-            except ValidationError as exc:
-                raise StoreError("Malformed store configuration parameters.") from exc
+            except TypeError as e:
+                raise StoreError("Invalid store configuration type.") from e
+            except ValidationError as e:
+                raise StoreError("Malformed store configuration parameters.") from e
         return config
 
 

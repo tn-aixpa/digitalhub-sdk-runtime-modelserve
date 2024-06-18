@@ -4,6 +4,7 @@ Context module.
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.projects.entity import Project
@@ -26,7 +27,8 @@ class Context:
         self.name = project.name
         self.client = project._client
         self.local = project._client.is_local()
-        self.project_dir = project.spec.context
+        self.project_dir = Path(project.spec.context)
+        self.temp_dir = self.project_dir / "temp"
 
     def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """

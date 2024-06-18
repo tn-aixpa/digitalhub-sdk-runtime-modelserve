@@ -45,7 +45,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
         obj : dict
             Mapping representation of object.
         """
-        new_obj = self.from_dict(obj, validate=False)
+        new_obj = self.from_dict(obj)
         self.metadata = new_obj.metadata
         self.spec = new_obj.spec
         self.status = new_obj.status

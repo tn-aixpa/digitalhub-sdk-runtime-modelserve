@@ -101,8 +101,8 @@ class DatastoreBuilder:
         """
         try:
             return REGISTRY_DATASTORES[store.type](store)
-        except KeyError as exc:
-            raise NotImplementedError from exc
+        except KeyError as e:
+            raise NotImplementedError from e
 
 
 builder = DatastoreBuilder()

@@ -4,8 +4,6 @@ Workflow module.
 from __future__ import annotations
 
 import typing
-from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -13,7 +11,8 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task, new_task
+from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task
+from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
@@ -21,11 +20,12 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
+    from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.runs.entity import Run
     from digitalhub_core.entities.tasks.entity import Task
-    from digitalhub_core.entities.workflows.metadata import WorkflowMetadata
     from digitalhub_core.entities.workflows.spec import WorkflowSpec
     from digitalhub_core.entities.workflows.status import WorkflowStatus
+    from digitalhub_core.runtimes.base import Runtime
 
 
 class Workflow(Entity):
@@ -41,7 +41,7 @@ class Workflow(Entity):
         name: str,
         uuid: str,
         kind: str,
-        metadata: WorkflowMetadata,
+        metadata: Metadata,
         spec: WorkflowSpec,
         status: WorkflowStatus,
         user: str | None = None,
@@ -59,7 +59,7 @@ class Workflow(Entity):
             Version of the object.
         kind : str
             Kind of the object.
-        metadata : WorkflowMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : WorkflowSpec
             Specification of the object.
@@ -147,7 +147,7 @@ class Workflow(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
 
         # Embed tasks in file
@@ -175,45 +175,14 @@ class Workflow(Entity):
     #  Workflow Methods
     #############################
 
-    def run(
-        self,
-        action: str = "pipeline",
-        labels: list[dict] | None = None,
-        env: list[dict] | None = None,
-        secrets: list[str] | None = None,
-        schedule: str | None = None,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
-        parameters: dict | None = None,
-        values: list | None = None,
-        local_execution: bool = False,
-        **kwargs,
-    ) -> Run:
+    def run(self, **kwargs) -> Run:
         """
         Run workflow.
 
         Parameters
         ----------
-        labels : list[dict]
-            The labels of the task.
-        env : list[dict]
-            The env variables of the task. Task parameter.
-        secrets : list[str]
-            The secrets of the task. Task parameter.
-        schedule : str
-            The schedule of the task. Task parameter.
-        inputs : dict
-            Workflow inputs. Run parameter.
-        outputs : dict
-            Workflow outputs. Run parameter.
-        parameters : dict
-            Workflow parameters. Run parameter.
-        values : list
-            Workflow values. Run parameter.
-        local_execution : bool
-            Flag to determine if object has local execution. Run parameter.
         **kwargs
-            Keyword arguments passed to Task builder.
+            Keyword arguments passed to Task and Run builders.
 
         Returns
         -------
@@ -221,62 +190,25 @@ class Workflow(Entity):
             Run instance.
         """
 
-        # Create task if does not exists
-        task = self._tasks.get(action)
+        # Get runtime
+        runtime = self._get_runtime()
 
-        # Check in backend
-        if task is None and not self._context().local:
-            task = self._check_task_in_backend(action)
+        # Get task and run kind
+        task_kind = runtime.get_task_kind_from_action(action="pipeline")
+        run_kind = runtime.get_run_kind()
 
-        # Create new task
-        if task is None:
-            task = self.new_task(
-                kind=f"{self.kind}+{action}",
-                labels=labels,
-                env=env,
-                secrets=secrets,
-                schedule=schedule,
-                **kwargs,
-            )
+        # Create or update new task
+        task = self.new_task(task_kind, **kwargs)
 
-        if local_execution:
-            raise BackendError("Local execution is not supported for workflows.")
+        # Raise error if execution is not done by DHCore backend
+        if self._context().local:
+            raise BackendError("Cannot run workflow with local backend.")
 
-        # Run function from task
-        run = task.run(inputs, outputs, parameters, values, local_execution)
+        return task.run(run_kind, local_execution=False, **kwargs)
 
-        # If execution is done by DHCore backend, return the object
-        if not local_execution:
-            if self._context().local:
-                raise BackendError("Cannot run remote function with local backend.")
-            return run
-
-        # If local execution, build and launch run
-        run.build()
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            result = executor.submit(run.run)
-        return result.result()
-
-    def _check_task_in_backend(self, action: str) -> None | Task:
-        """
-        Check if task exists in backend.
-
-        Parameters
-        ----------
-        action : str
-            Action to check.
-
-        Returns
-        -------
-        None | Task
-            Task if exists, None otherwise.
-        """
-        api = api_ctx_list(self.project, EntityTypes.TASKS.value)
-        params = {"function": self._get_workflow_string(), "kind": f"{self.kind}+{action}"}
-        objs = self._context().list_objects(api, params=params)
-        for i in objs:
-            self._tasks[action] = create_task_from_dict(i)
-            return self._tasks[action]
+    #############################
+    #  Helpers
+    #############################
 
     def _get_workflow_string(self) -> str:
         """
@@ -289,9 +221,16 @@ class Workflow(Entity):
         """
         return f"{self.kind}://{self.project}/{self.name}:{self.id}"
 
-    #############################
-    #  CRUD Methods for Tasks
-    #############################
+    def _get_runtime(self) -> Runtime:
+        """
+        Build runtime to build run or execute it.
+
+        Returns
+        -------
+        Runtime
+            Runtime object.
+        """
+        return build_runtime(self.kind)
 
     def import_tasks(self, tasks: list[dict]) -> None:
         """
@@ -306,7 +245,7 @@ class Workflow(Entity):
         -------
         None
         """
-        # Loop over tasks list, in the case where the workflow
+        # Loop over tasks list, in the case where the function
         # is imported from local file.
         for task in tasks:
             # If task is not a dictionary, skip it
@@ -314,7 +253,7 @@ class Workflow(Entity):
                 continue
 
             # Create the object instance from dictionary,
-            # the form in which tasks are stored in workflow
+            # the form in which tasks are stored in function
             # status
             task_obj = create_task_from_dict(task)
 
@@ -329,15 +268,17 @@ class Workflow(Entity):
 
             # Set task if function is the same. Overwrite
             # status task dict with the new task object
-            if task_obj.spec.function == self._get_worfklow_string():
+            if task_obj.spec.function == self._get_workflow_string():
                 self._tasks[task_obj.kind] = task_obj
 
-    def new_task(self, **kwargs) -> Task:
+    def new_task(self, task_kind: str, **kwargs) -> Task:
         """
         Create new task.
 
         Parameters
         ----------
+        task_kind : str
+            Kind of the task.
         **kwargs
             Keyword arguments.
 
@@ -346,11 +287,24 @@ class Workflow(Entity):
         Task
             New task.
         """
+        # Override kwargs
         kwargs["project"] = self.project
         kwargs["function"] = self._get_workflow_string()
-        kwargs["kind"] = kwargs["kind"]
-        task = new_task(**kwargs)
-        self._tasks[kwargs["kind"]] = task
+        kwargs["kind"] = task_kind
+
+        # Create object instance
+        task = create_task(**kwargs)
+
+        exists, task_id = self._check_task_in_backend(task_kind)
+
+        # Save or update task
+        if not exists:
+            task.save()
+        else:
+            task.id = task_id
+            task.save(update=True)
+
+        self._tasks[task_kind] = task
         return task
 
     def update_task(self, kind: str, **kwargs) -> None:
@@ -429,8 +383,31 @@ class Workflow(Entity):
             If task is not created.
         """
         self._raise_if_not_exists(kind)
-        delete_task(self.project, self._tasks[kind].name, cascade=cascade)
+        delete_task(self.project, entity_id=self._tasks[kind].id, cascade=cascade)
         self._tasks.pop(kind, None)
+
+    def _check_task_in_backend(self, kind: str) -> tuple[bool, str | None]:
+        """
+        Check if task exists in backend.
+
+        Parameters
+        ----------
+        kind : str
+            Kind of the task.
+
+        Returns
+        -------
+        tuple[bool, str | None]
+            Flag to determine if task exists in backend and ID if exists.
+        """
+        # List tasks from backend filtered by function and kind
+        api = api_ctx_list(self.project, EntityTypes.TASKS.value)
+        params = {"function": self._get_workflow_string(), "kind": kind}
+        objs = self._context().list_objects(api, params=params)
+        try:
+            return True, objs[0]["id"]
+        except IndexError:
+            return False, None
 
     def _raise_if_not_exists(self, kind: str) -> None:
         """
@@ -577,7 +554,7 @@ def workflow_from_dict(obj: dict) -> Workflow:
     Workflow
         Workflow instance.
     """
-    return Workflow.from_dict(obj, validate=False)
+    return Workflow.from_dict(obj)
 
 
 def kind_to_runtime(kind: str) -> str:

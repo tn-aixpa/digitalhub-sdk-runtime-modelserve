@@ -245,12 +245,3 @@ class K8s(BaseModel):
 
     secrets: list[str] = None
     """List of secret names."""
-
-    backoff_limit: int = None
-    """Backoff limit."""
-
-    schedule: str = None
-    """Schedule."""
-
-    replicas: int = None
-    """Replicas."""

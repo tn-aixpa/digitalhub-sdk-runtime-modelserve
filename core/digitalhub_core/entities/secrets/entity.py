@@ -4,7 +4,6 @@ Secret module.
 from __future__ import annotations
 
 import typing
-from pathlib import Path
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.entity import Entity
@@ -18,7 +17,7 @@ from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_core.entities.secrets.metadata import SecretMetadata
+    from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.secrets.spec import SecretSpec
     from digitalhub_core.entities.secrets.status import SecretStatus
 
@@ -36,7 +35,7 @@ class Secret(Entity):
         name: str,
         uuid: str,
         kind: str,
-        metadata: SecretMetadata,
+        metadata: Metadata,
         spec: SecretSpec,
         status: SecretStatus,
         user: str | None = None,
@@ -54,7 +53,7 @@ class Secret(Entity):
             Version of the object.
         kind : str
             Kind of the object.
-        metadata : SecretMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : SecretSpec
             Specification of the object.
@@ -139,7 +138,7 @@ class Secret(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
@@ -329,4 +328,4 @@ def secret_from_dict(obj: dict) -> Secret:
     Secret
         Secret instance.
     """
-    return Secret.from_dict(obj, validate=False)
+    return Secret.from_dict(obj)

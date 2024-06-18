@@ -55,21 +55,11 @@ def create_task_from_dict(obj: dict) -> Task:
 
 def new_task(
     project: str,
+    function: str,
     kind: str,
     uuid: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
-    function: str | None = "",
-    node_selector: list[dict] | None = None,
-    volumes: list[dict] | None = None,
-    resources: list[dict] | None = None,
-    affinity: dict | None = None,
-    tolerations: list[dict] | None = None,
-    env: list[dict] | None = None,
-    secrets: list[str] | None = None,
-    backoff_limit: int | None = None,
-    schedule: str | None = None,
-    replicas: int | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -79,6 +69,8 @@ def new_task(
     ----------
     project : str
         Project name.
+    function : str
+        The function string identifying the function.
     kind : str
         Kind of the object.
     uuid : str
@@ -89,26 +81,6 @@ def new_task(
         List of labels.
     function : str
         The function string identifying the function.
-    node_selector : list[NodeSelector]
-        The node selector of the task.
-    volumes : list[Volume]
-        The volumes of the task.
-    resources : list[Resource]
-        Kubernetes resources for the task.
-    affinity : Affinity
-        The affinity of the task.
-    tolerations : list[Toleration]
-        The tolerations of the task.
-    env : list[Env]
-        The env variables of the task.
-    secrets : list[str]
-        The secrets of the task.
-    backoff_limit : int
-        The backoff limit of the task.
-    schedule : str
-        The schedule of the task.
-    replicas : int
-        The replicas of the task.
     **kwargs
         Spec keyword arguments.
 
@@ -119,21 +91,11 @@ def new_task(
     """
     obj = create_task(
         project=project,
+        function=function,
         kind=kind,
         uuid=uuid,
         source=source,
         labels=labels,
-        function=function,
-        node_selector=node_selector,
-        volumes=volumes,
-        resources=resources,
-        affinity=affinity,
-        tolerations=tolerations,
-        env=env,
-        secrets=secrets,
-        backoff_limit=backoff_limit,
-        schedule=schedule,
-        replicas=replicas,
         **kwargs,
     )
     obj.save()

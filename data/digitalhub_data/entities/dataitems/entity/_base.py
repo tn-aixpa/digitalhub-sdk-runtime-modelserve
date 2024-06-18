@@ -20,7 +20,7 @@ from digitalhub_data.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.context.context import Context
-    from digitalhub_data.entities.dataitems.metadata import DataitemMetadata
+    from digitalhub_data.entities.dataitems.metadata import Metadata
     from digitalhub_data.entities.dataitems.spec import DataitemSpec
     from digitalhub_data.entities.dataitems.status import DataitemStatus
 
@@ -38,7 +38,7 @@ class Dataitem(Entity):
         name: str,
         uuid: str,
         kind: str,
-        metadata: DataitemMetadata,
+        metadata: Metadata,
         spec: DataitemSpec,
         status: DataitemStatus,
         user: str | None = None,
@@ -56,7 +56,7 @@ class Dataitem(Entity):
             Version of the object.
         kind : str
             Kind of the object.
-        metadata : DataitemMetadata
+        metadata : Metadata
             Metadata of the object.
         spec : DataitemSpec
             Specification of the object.
@@ -141,7 +141,7 @@ class Dataitem(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = Path(self._context().project_dir) / filename
+        pth = self._context().project_dir / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
