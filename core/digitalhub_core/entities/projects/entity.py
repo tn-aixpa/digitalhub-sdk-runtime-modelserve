@@ -220,7 +220,7 @@ class Project(Entity):
             Entity object in dictionary format.
         """
         try:
-            self.refresh().to_dict()
+            return self.refresh().to_dict()
         except BackendError:
             return self.to_dict()
 
