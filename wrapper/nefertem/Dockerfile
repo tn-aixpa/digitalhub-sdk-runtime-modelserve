@@ -2,20 +2,13 @@ FROM python:3.9
 
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
+ARG DHUB_VERSION=
 
 # Set working dir
 WORKDIR /app/
 
-# Get digitalhub-sdk
-ARG DHUB_VERSION=
-RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/$DHUB_VERSION.zip
-RUN unzip $DHUB_VERSION.zip
-RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
-RUN rm $DHUB_VERSION.zip
-
 # Install runtime and requirements
-RUN pip install digitalhub-sdk/runtimes/nefertem --no-deps
-RUN pip install -r digitalhub-sdk/runtimes/nefertem/requirements-local.txt
+RUN pip install digitalhub_runtime_nefertem[local]==0.5.0b9
 
 # Get nefertem
 ARG NEFERTEM_VERSION=2.0.6
