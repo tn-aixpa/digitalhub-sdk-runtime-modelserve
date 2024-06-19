@@ -8,8 +8,8 @@ import typing
 from pathlib import Path
 from typing import Callable
 
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
@@ -20,16 +20,7 @@ from digitalhub_runtime_nefertem.utils.outputs import build_status, create_artif
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
-
-data = {
-    "executable": {"kind": "nefertem"},
-    "task": [
-        {"kind": "nefertem+infer", "action": "infer"},
-        {"kind": "nefertem+profile", "action": "profile"},
-        {"kind": "nefertem+validate", "action": "validate"},
-    ],
-    "run": {"kind": "nefertem+run"},
-}
+    from digitalhub_core.runtimes.registry import KindRegistry
 
 
 class RuntimeNefertem(Runtime):
@@ -37,15 +28,14 @@ class RuntimeNefertem(Runtime):
     Runtime nefertem class.
     """
 
-    kind_registry = KindRegistry(data)
-
-    def __init__(self) -> None:
+    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         """
         Constructor.
         """
-        super().__init__()
-
-        self.output_path = "./data/nefertem_run"
+        super().__init__(kind_registry, project)
+        ctx = get_context(self.project)
+        ctx.tmp_dir.mkdir(parents=True, exist_ok=True)
+        self.output_path = str(ctx.tmp_dir)
         self.store = {"name": "local", "store_type": "local"}
         self.nt_id = build_uuid()
 

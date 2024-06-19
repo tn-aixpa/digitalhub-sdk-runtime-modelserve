@@ -149,8 +149,8 @@ def create_info(
             "class_name": f"{prefix}Status{suffix}",
         },
         "metadata": {
-            "module": f"digitalhub_core.entities._base.metadata",
-            "class_name": f"Metadata",
+            "module": "digitalhub_core.entities._base.metadata",
+            "class_name": "Metadata",
         },
     }
     # Add runtime only if provided

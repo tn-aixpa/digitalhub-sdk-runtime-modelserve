@@ -189,9 +189,6 @@ def save_function_source(path: Path, source_spec: dict) -> str:
     path
         Function code.
     """
-    # Prepare path
-    path.mkdir(parents=True, exist_ok=True)
-
     # Get relevant information
     code = source_spec.get("code")
     base64 = source_spec.get("base64")

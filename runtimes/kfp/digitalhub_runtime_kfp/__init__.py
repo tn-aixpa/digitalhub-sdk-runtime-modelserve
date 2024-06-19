@@ -6,6 +6,8 @@ root = "digitalhub_runtime_kfp"
 runtime_info = {
     "module": f"{root}.runtimes.runtime",
     "class_name": "RuntimeKFP",
+    "kind_registry_module": f"{root}.runtimes.kind_registry",
+    "kind_registry_class_name": "kind_registry",
 }
 
 root_ent = f"{root}.entities"

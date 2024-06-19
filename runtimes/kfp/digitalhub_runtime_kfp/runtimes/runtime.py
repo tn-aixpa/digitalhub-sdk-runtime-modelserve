@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import shutil
-from pathlib import Path
+import typing
 from typing import Callable
 
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_kfp.utils.configurations import (
     get_dhcore_workflow,
@@ -16,13 +16,8 @@ from digitalhub_runtime_kfp.utils.configurations import (
 from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline
 from digitalhub_runtime_kfp.utils.inputs import get_inputs_parameters
 
-data = {
-    "executable": {"kind": "kfp"},
-    "task": [
-        {"kind": "kfp+job", "action": "pipeline"},
-    ],
-    "run": {"kind": "kfp+run"},
-}
+if typing.TYPE_CHECKING:
+    from digitalhub_core.runtimes.registry import KindRegistry
 
 
 class RuntimeKFP(Runtime):
@@ -30,18 +25,15 @@ class RuntimeKFP(Runtime):
     Runtime KFP class.
     """
 
-    kind_registry = KindRegistry(data)
-
-    def __init__(self) -> None:
+    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         """
         Constructor.
         """
-        super().__init__()
-
-        self.root_path = Path("/tmp/kfp_run")
+        super().__init__(kind_registry, project)
+        ctx = get_context(self.project)
+        self.root = ctx.runtime_dir
+        self.root.mkdir(parents=True, exist_ok=True)
         self.function_source = None
-
-        self.root_path.mkdir(parents=True, exist_ok=True)
 
     def build(self, workflow: dict, task: dict, run: dict) -> dict:
         """
@@ -177,7 +169,7 @@ class RuntimeKFP(Runtime):
         # Setup function source and specs
         LOGGER.info("Getting workflow source and specs.")
         dhcore_workflow = get_dhcore_workflow(spec.get("function"))
-        workflow_source = save_workflow_source(self.root_path, dhcore_workflow.spec.to_dict().get("source"))
+        workflow_source = save_workflow_source(self.root, dhcore_workflow.spec.to_dict().get("source"))
         workflow_specs = parse_workflow_specs(dhcore_workflow.spec)
 
         # Create kfp project
@@ -216,4 +208,4 @@ class RuntimeKFP(Runtime):
         -------
         None
         """
-        shutil.rmtree(self.root_path, ignore_errors=True)
+        shutil.rmtree(self.root, ignore_errors=True)

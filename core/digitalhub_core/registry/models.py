@@ -15,6 +15,12 @@ class RuntimeEntry(BaseModel):
     class_name: str
     """Class name."""
 
+    kind_registry_module: str
+    """Kind registry module path."""
+
+    kind_registry_class_name: str
+    """Kind registry class name."""
+
 
 class SpecEntry(BaseModel):
     """

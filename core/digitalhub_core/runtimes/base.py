@@ -25,16 +25,12 @@ class Runtime:
     libraries, code, external tools etc.
     """
 
-    # These attributes must be overridden by subclasses
-    kind_registry: KindRegistry = None
-
-    def __init__(self) -> None:
+    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         """
         Constructor.
         """
-        if self.kind_registry is None:
-            msg = "Kind registry must be defined."
-            raise EntityError(msg)
+        self.kind_registry = kind_registry
+        self.project = project
 
     @abstractmethod
     def build(self, executable: dict, task: dict, run: dict) -> dict:

@@ -3,25 +3,18 @@ Runtime class for running Python functions.
 """
 from __future__ import annotations
 
-from pathlib import Path
+import typing
 from typing import Callable
 
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_python.utils.configuration import get_function_from_source
 from digitalhub_runtime_python.utils.inputs import get_inputs_parameters
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
-data = {
-    "executable": {"kind": "python"},
-    "task": [
-        {"kind": "python+job", "action": "job"},
-        {"kind": "python+serve", "action": "serve"},
-        {"kind": "python+build", "action": "build"},
-    ],
-    "run": {"kind": "python+run"},
-}
+if typing.TYPE_CHECKING:
+    from digitalhub_core.runtimes.registry import KindRegistry
 
 
 class RuntimePython(Runtime):
@@ -29,15 +22,17 @@ class RuntimePython(Runtime):
     Runtime Python class.
     """
 
-    kind_registry = KindRegistry(data)
-
-    def __init__(self) -> None:
+    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         """
         Constructor.
         """
-        super().__init__()
-        self.root_path = Path("digitalhub_runtime_python")
-        self.tmp_path = self.root_path / "temp"
+        super().__init__(kind_registry, project)
+        ctx = get_context(self.project)
+        self.root = ctx.runtime_dir
+        self.tmp_path = ctx.tmp_dir
+
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.tmp_path.mkdir(parents=True, exist_ok=True)
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -163,7 +158,7 @@ class RuntimePython(Runtime):
             Function to execute.
         """
         fnc = get_function_from_source(
-            self.root_path,
+            self.root,
             spec.get("source", {}),
         )
         return fnc, hasattr(fnc, "__wrapped__")

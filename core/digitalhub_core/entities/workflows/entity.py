@@ -12,7 +12,7 @@ from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task
-from digitalhub_core.runtimes.builder import build_runtime
+from digitalhub_core.runtimes.builder import get_kind_registry
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
@@ -25,7 +25,6 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.tasks.entity import Task
     from digitalhub_core.entities.workflows.spec import WorkflowSpec
     from digitalhub_core.entities.workflows.status import WorkflowStatus
-    from digitalhub_core.runtimes.base import Runtime
 
 
 class Workflow(Entity):
@@ -147,7 +146,7 @@ class Workflow(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = self._context().project_dir / filename
+        pth = self._context().root / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
 
         # Embed tasks in file
@@ -190,12 +189,12 @@ class Workflow(Entity):
             Run instance.
         """
 
-        # Get runtime
-        runtime = self._get_runtime()
+        # Get kind registry
+        kind_reg = get_kind_registry(self.kind)
 
         # Get task and run kind
-        task_kind = runtime.get_task_kind_from_action(action="pipeline")
-        run_kind = runtime.get_run_kind()
+        task_kind = kind_reg.get_task_kind_from_action(action="pipeline")
+        run_kind = kind_reg.get_run_kind()
 
         # Create or update new task
         task = self.new_task(task_kind, **kwargs)
@@ -220,17 +219,6 @@ class Workflow(Entity):
             Workflow string.
         """
         return f"{self.kind}://{self.project}/{self.name}:{self.id}"
-
-    def _get_runtime(self) -> Runtime:
-        """
-        Build runtime to build run or execute it.
-
-        Returns
-        -------
-        Runtime
-            Runtime object.
-        """
-        return build_runtime(self.kind)
 
     def import_tasks(self, tasks: list[dict]) -> None:
         """

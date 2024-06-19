@@ -63,10 +63,10 @@ def test_build_path():
 
 
 def test_build_temp(store):
-    with patch("digitalhub_core.stores.objects.base.mkdtemp", return_value="temp_dir"):
+    with patch("digitalhub_core.stores.objects.base.mkdtemp", return_value="tmp_dir"):
         temp_path = store._build_temp("src_file")
-        assert temp_path == "temp_dir/src_file"
-        assert store._registry["src_file"] == "temp_dir/src_file"
+        assert temp_path == "tmp_dir/src_file"
+        assert store._registry["src_file"] == "tmp_dir/src_file"
 
 
 def test_read_df_csv(tmp_path):

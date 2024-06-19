@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import shutil
 import typing
-from pathlib import Path
 from typing import Callable
 
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_mlrun.utils.configurations import (
     get_dhcore_function,
@@ -26,17 +25,8 @@ from mlrun.projects.operations import BuildStatus
 from mlrun.runtimes.base import RunObject
 
 if typing.TYPE_CHECKING:
+    from digitalhub_core.runtimes.registry import KindRegistry
     from mlrun.runtimes import BaseRuntime
-
-
-data = {
-    "executable": {"kind": "mlrun"},
-    "task": [
-        {"kind": "mlrun+job", "action": "job"},
-        {"kind": "mlrun+build", "action": "build"},
-    ],
-    "run": {"kind": "mlrun+run"},
-}
 
 
 class RuntimeMlrun(Runtime):
@@ -44,19 +34,17 @@ class RuntimeMlrun(Runtime):
     Runtime Mlrun class.
     """
 
-    kind_registry = KindRegistry(data)
-
-    def __init__(self) -> None:
+    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         """
         Constructor.
         """
-        super().__init__()
-
-        self.root_path = Path("/tmp/mlrun_run")
-        self.tmp_path = self.root_path / "temp"
+        super().__init__(kind_registry, project)
+        ctx = get_context(self.project)
+        self.root = ctx.runtime_dir
+        self.tmp_path = ctx.tmp_dir
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.tmp_path.mkdir(parents=True, exist_ok=True)
         self.function_source = None
-
-        self.root_path.mkdir(parents=True, exist_ok=True)
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -237,4 +225,4 @@ class RuntimeMlrun(Runtime):
         -------
         None
         """
-        shutil.rmtree(self.root_path, ignore_errors=True)
+        shutil.rmtree(self.root, ignore_errors=True)

@@ -11,7 +11,6 @@ from pydantic import BaseModel
 from requests import request
 from requests.exceptions import JSONDecodeError, RequestException, Timeout
 
-
 API_LEVEL = 5
 
 

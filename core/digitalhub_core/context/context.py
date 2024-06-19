@@ -27,8 +27,9 @@ class Context:
         self.name = project.name
         self.client = project._client
         self.local = project._client.is_local()
-        self.project_dir = Path(project.spec.context)
-        self.temp_dir = self.project_dir / "temp"
+        self.root = Path(project.spec.context)
+        self.runtime_dir = self.root / "runtime"
+        self.tmp_dir = self.root / "tmp"
 
     def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """

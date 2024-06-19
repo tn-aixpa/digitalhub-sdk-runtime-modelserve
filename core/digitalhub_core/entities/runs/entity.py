@@ -125,7 +125,7 @@ class Run(Entity):
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = self._context().project_dir / filename
+        pth = self._context().root / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
@@ -398,7 +398,7 @@ class Run(Entity):
         Runtime
             Runtime object.
         """
-        return build_runtime(self.kind)
+        return build_runtime(self.kind, self.project)
 
     def _get_executable(self, runtime: Runtime) -> dict:
         """

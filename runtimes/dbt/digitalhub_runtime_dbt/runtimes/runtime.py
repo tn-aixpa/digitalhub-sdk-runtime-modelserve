@@ -4,11 +4,10 @@ Runtime Dbt module.
 from __future__ import annotations
 
 import typing
-from pathlib import Path
 from typing import Callable
 
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.runtimes.registry import KindRegistry
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
@@ -27,14 +26,8 @@ from digitalhub_runtime_dbt.utils.outputs import build_status, create_dataitem_,
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
+    from digitalhub_core.runtimes.registry import KindRegistry
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
-
-
-data = {
-    "executable": {"kind": "dbt"},
-    "task": [{"kind": "dbt+transform", "action": "transform"}],
-    "run": {"kind": "dbt+run"},
-}
 
 
 class RuntimeDbt(Runtime):
@@ -42,18 +35,20 @@ class RuntimeDbt(Runtime):
     Runtime Dbt class.
     """
 
-    kind_registry = KindRegistry(data)
-
-    def __init__(self) -> None:
+    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         """
         Constructor.
         """
-        super().__init__()
+        super().__init__(kind_registry, project)
 
-        # Paths
-        self.root_dir = Path("/tmp/dbt_run")
-        self.model_dir = self.root_dir / "models"
-        self.temp_dir = self.root_dir / "temp"
+        ctx = get_context(self.project)
+        self.root = ctx.runtime_dir
+        self.tmp_dir = ctx.tmp_dir
+        self.model_dir = self.root / "models"
+
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.tmp_dir.mkdir(parents=True, exist_ok=True)
+        self.model_dir.mkdir(parents=True, exist_ok=True)
 
         # UUID for output dataitem and dbt execution
         self.uuid = build_uuid()
@@ -198,10 +193,7 @@ class RuntimeDbt(Runtime):
             Output table name.
         """
         output_table = get_output_table_name(spec.get("outputs", []))
-        query = save_function_source(self.temp_dir, spec.get("source", {}))
-
-        # Create directories
-        self.model_dir.mkdir(exist_ok=True, parents=True)
+        query = save_function_source(self.tmp_dir, spec.get("source", {}))
 
         # Generate profile yaml file
         generate_dbt_profile_yml(self.root_dir)
@@ -255,4 +247,4 @@ class RuntimeDbt(Runtime):
         -------
         None
         """
-        cleanup(self._versioned_tables, self.temp_dir)
+        cleanup(self._versioned_tables, self.tmp_dir)
