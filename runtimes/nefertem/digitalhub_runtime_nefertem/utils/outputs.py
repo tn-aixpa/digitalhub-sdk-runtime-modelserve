@@ -4,7 +4,7 @@ import typing
 from pathlib import Path
 
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities.artifacts.crud import new_artifact
+from digitalhub_core.entities.artifacts.crud import create_artifact
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.file_utils import calculate_blob_hash, get_file_extension, get_file_mime_type, get_file_size
 from digitalhub_core.utils.logger import LOGGER
@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
 
 
-def create_artifact(src_path: str, project: str, run_id: str) -> Artifact:
+def create_artifact_(src_path: str, project: str, run_id: str) -> Artifact:
     """
     Create new artifact in backend.
 
@@ -41,11 +41,12 @@ def create_artifact(src_path: str, project: str, run_id: str) -> Artifact:
         kwargs["name"] = name
         kwargs["kind"] = "artifact"
         kwargs["path"] = f"s3://{S3_BUCKET}/{project}/artifacts/ntruns/{run_id}/{Path(src_path).name}"
-        kwargs["hash"] = calculate_blob_hash(src_path)
-        kwargs["size"] = get_file_size(src_path)
-        kwargs["file_type"] = get_file_mime_type(src_path)
-        kwargs["file_extension"] = get_file_extension(src_path)
-        artifact = new_artifact(**kwargs)
+        artifact = create_artifact(**kwargs)
+        artifact.status.hash = calculate_blob_hash(src_path)
+        artifact.status.size = get_file_size(src_path)
+        artifact.status.content_type = get_file_mime_type(src_path)
+        artifact.status.file_extension = get_file_extension(src_path)
+        artifact.save()
         artifact.spec.src_path = src_path
         return artifact
     except Exception as e:

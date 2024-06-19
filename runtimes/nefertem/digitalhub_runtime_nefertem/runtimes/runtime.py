@@ -16,7 +16,7 @@ from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 from digitalhub_runtime_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config
 from digitalhub_runtime_nefertem.utils.functions import infer, metric, profile, validate
 from digitalhub_runtime_nefertem.utils.inputs import persist_dataitem
-from digitalhub_runtime_nefertem.utils.outputs import build_status, create_artifact, upload_artifact
+from digitalhub_runtime_nefertem.utils.outputs import build_status, create_artifact_, upload_artifact
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
@@ -236,11 +236,12 @@ class RuntimeNefertem(Runtime):
         output_files = results.get("output_files", [])
 
         LOGGER.info("Creating artifacts.")
-        artifacts = [create_artifact(i, project, self.nt_id) for i in output_files]
+        artifacts = [create_artifact_(i, project, self.nt_id) for i in output_files]
 
         LOGGER.info("Uploading artifacts to minio.")
         for i in artifacts:
             upload_artifact(i)
+            i.spec.src_path = None
 
         return artifacts
 
