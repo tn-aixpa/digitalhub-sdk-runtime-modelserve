@@ -12,6 +12,9 @@ from requests import request
 from requests.exceptions import JSONDecodeError, RequestException, Timeout
 
 
+API_LEVEL = 5
+
+
 class AuthConfig(BaseModel):
     """Client configuration model."""
 
@@ -212,6 +215,9 @@ class ClientDHCore(Client):
         try:
             response = request(call_type, url, timeout=60, **kwargs)
             response.raise_for_status()
+            if "X-Api-Level" in response.headers:
+                if not API_LEVEL >= int(response.headers["X-Api-Level"]):
+                    raise BackendError("Backend API level not supported.")
             return response.json()
         except RequestException as e:
             if isinstance(e, Timeout):
