@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import inspect
 import typing
-from typing import Callable
+from typing import Any, Callable
 
-import nuclio_sdk
+from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities.artifacts.crud import artifact_from_dict
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
@@ -12,7 +12,6 @@ from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.models.crud import model_from_dict
 from digitalhub_ml.entities.projects.crud import get_project
-from digitalhub_core.context.builder import get_context
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
@@ -83,8 +82,8 @@ def compose_inputs(
     local_execution: bool,
     func: Callable,
     project: str | Project,
-    context: nuclio_sdk.Context | None = None,
-    event: nuclio_sdk.Event | None = None,
+    context: Any | None = None,
+    event: Any | None = None,
 ) -> dict:
     """
     Compose inputs.
