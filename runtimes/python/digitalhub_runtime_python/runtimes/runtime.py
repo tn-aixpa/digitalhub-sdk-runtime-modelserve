@@ -112,12 +112,6 @@ class RuntimePython(Runtime):
         raise NotImplementedError
 
     ####################
-    # Inputs
-    ####################
-
-
-
-    ####################
     # Configuration
     ####################
 
@@ -161,4 +155,5 @@ class RuntimePython(Runtime):
         """
         inputs = spec.get("inputs", {})
         parameters = spec.get("parameters", {})
-        return compose_inputs(inputs, parameters, func, project)
+        local_execution = spec.get("local_execution")
+        return compose_inputs(inputs, parameters, local_execution, func, project)
