@@ -4,7 +4,7 @@ from pathlib import Path
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 
 
-def transform(output: str, root_dir: Path) -> dbtRunnerResult:
+def transform(output: str, root: Path) -> dbtRunnerResult:
     """
     Execute a dbt project with the specified outputs.
     It initializes a dbt runner, cleans the project and runs it.
@@ -20,7 +20,7 @@ def transform(output: str, root_dir: Path) -> dbtRunnerResult:
         An object representing the result of the dbt execution.
     """
     current_dir = os.getcwd()
-    os.chdir(root_dir)
+    os.chdir(root)
     dbt = dbtRunner()
     dbt.invoke("clean")
     cli_args = ["run", "--select", f"{output}"]

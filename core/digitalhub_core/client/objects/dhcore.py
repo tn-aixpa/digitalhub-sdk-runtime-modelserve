@@ -309,7 +309,7 @@ class ClientDHCore(Client):
         self._user = os.getenv("DIGITALHUB_CORE_USER")
 
         token = os.getenv("DIGITALHUB_CORE_TOKEN")
-        if token is not None:
+        if token is not None and token != "":
             self._auth_type = "oauth2"
             self._access_token = token
             return

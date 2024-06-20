@@ -14,7 +14,7 @@ from digitalhub_runtime_python.utils.inputs import get_inputs_parameters
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.runtimes.registry import KindRegistry
+    from digitalhub_core.runtimes.kind_registry import KindRegistry
 
 
 class RuntimePython(Runtime):

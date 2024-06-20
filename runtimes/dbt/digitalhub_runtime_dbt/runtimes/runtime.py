@@ -26,7 +26,7 @@ from digitalhub_runtime_dbt.utils.outputs import build_status, create_dataitem_,
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_core.runtimes.registry import KindRegistry
+    from digitalhub_core.runtimes.kind_registry import KindRegistry
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
@@ -110,7 +110,7 @@ class RuntimeDbt(Runtime):
         output_table = self._configure_execution(spec, project)
 
         LOGGER.info("Executing run.")
-        results = self._execute(executable, output_table, self.root_dir)
+        results = self._execute(executable, output_table, self.root)
 
         LOGGER.info("Collecting outputs.")
         output = self._collect_outputs(results, output_table, project)
@@ -196,10 +196,10 @@ class RuntimeDbt(Runtime):
         query = save_function_source(self.tmp_dir, spec.get("source", {}))
 
         # Generate profile yaml file
-        generate_dbt_profile_yml(self.root_dir)
+        generate_dbt_profile_yml(self.root)
 
         # Generate project yaml file
-        generate_dbt_project_yml(self.root_dir, self.model_dir, project.replace("-", "_"))
+        generate_dbt_project_yml(self.root, self.model_dir, project.replace("-", "_"))
 
         # Generate outputs confs
         generate_outputs_conf(self.model_dir, query, output_table, self.uuid)

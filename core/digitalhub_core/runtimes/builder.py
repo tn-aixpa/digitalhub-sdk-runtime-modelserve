@@ -11,7 +11,7 @@ from digitalhub_core.registry.utils import import_class
 if typing.TYPE_CHECKING:
     from digitalhub_core.registry.models import RegistryEntry
     from digitalhub_core.runtimes.base import Runtime
-    from digitalhub_core.runtimes.registry import KindRegistry
+    from digitalhub_core.runtimes.kind_registry import KindRegistry
 
 
 def build_runtime(kind: str, project: str) -> Runtime:

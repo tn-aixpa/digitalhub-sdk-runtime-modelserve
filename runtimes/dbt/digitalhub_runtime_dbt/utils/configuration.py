@@ -64,7 +64,7 @@ postgres:
 )
 
 
-def generate_dbt_profile_yml(root_dir: Path) -> None:
+def generate_dbt_profile_yml(root: Path) -> None:
     """
     Create dbt profiles.yml
 
@@ -72,11 +72,11 @@ def generate_dbt_profile_yml(root_dir: Path) -> None:
     -------
     None
     """
-    profiles_path = root_dir / "profiles.yml"
+    profiles_path = root / "profiles.yml"
     profiles_path.write_text(PROFILE_TEMPLATE)
 
 
-def generate_dbt_project_yml(root_dir: Path, model_dir: Path, project: str) -> None:
+def generate_dbt_project_yml(root: Path, model_dir: Path, project: str) -> None:
     """
     Create dbt_project.yml from 'dbt'
 
@@ -89,7 +89,7 @@ def generate_dbt_project_yml(root_dir: Path, model_dir: Path, project: str) -> N
     -------
     None
     """
-    project_path = root_dir / "dbt_project.yml"
+    project_path = root / "dbt_project.yml"
     project_path.write_text(PROJECT_TEMPLATE.format(project, model_dir.name))
 
 

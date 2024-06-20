@@ -17,7 +17,7 @@ from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_p
 from digitalhub_runtime_kfp.utils.inputs import get_inputs_parameters
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.runtimes.registry import KindRegistry
+    from digitalhub_core.runtimes.kind_registry import KindRegistry
 
 
 class RuntimeKFP(Runtime):

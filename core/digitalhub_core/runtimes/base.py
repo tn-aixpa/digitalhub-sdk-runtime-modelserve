@@ -11,7 +11,7 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.runtimes.registry import KindRegistry
+    from digitalhub_core.runtimes.kind_registry import KindRegistry
 
 
 class Runtime:

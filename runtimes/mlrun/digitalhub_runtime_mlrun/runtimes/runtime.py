@@ -25,7 +25,7 @@ from mlrun.projects.operations import BuildStatus
 from mlrun.runtimes.base import RunObject
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.runtimes.registry import KindRegistry
+    from digitalhub_core.runtimes.kind_registry import KindRegistry
     from mlrun.runtimes import BaseRuntime
 
 

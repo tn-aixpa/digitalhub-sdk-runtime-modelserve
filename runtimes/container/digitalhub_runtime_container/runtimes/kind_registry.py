@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_core.runtimes.registry import KindRegistry
+from digitalhub_core.runtimes.kind_registry import KindRegistry
 
 kind_registry = KindRegistry(
     {

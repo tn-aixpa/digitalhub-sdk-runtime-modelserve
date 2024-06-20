@@ -20,7 +20,7 @@ from digitalhub_runtime_nefertem.utils.outputs import build_status, create_artif
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_core.runtimes.registry import KindRegistry
+    from digitalhub_core.runtimes.kind_registry import KindRegistry
 
 
 class RuntimeNefertem(Runtime):
