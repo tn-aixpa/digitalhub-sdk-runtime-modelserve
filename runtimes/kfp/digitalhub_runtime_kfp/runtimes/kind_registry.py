@@ -6,7 +6,7 @@ kind_registry = KindRegistry(
     {
         "executable": {"kind": "kfp"},
         "task": [
-            {"kind": "kfp+job", "action": "pipeline"},
+            {"kind": "kfp+pipeline", "action": "pipeline"},
         ],
         "run": {"kind": "kfp+run"},
     }

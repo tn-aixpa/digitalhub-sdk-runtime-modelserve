@@ -278,6 +278,7 @@ class Workflow(Entity):
         # Override kwargs
         kwargs["project"] = self.project
         kwargs["function"] = self._get_workflow_string()
+        kwargs["workflow"] = self._get_workflow_string()
         kwargs["kind"] = task_kind
 
         # Create object instance
@@ -321,6 +322,7 @@ class Workflow(Entity):
         kwargs["project"] = self.project
         kwargs["kind"] = kind
         kwargs["function"] = self._get_workflow_string()
+        kwargs["workflow"] = self._get_workflow_string()
         kwargs["uuid"] = self._tasks[kind].id
 
         # Update task
