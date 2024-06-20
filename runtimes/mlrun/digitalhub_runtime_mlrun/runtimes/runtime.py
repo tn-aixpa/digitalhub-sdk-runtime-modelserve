@@ -41,9 +41,9 @@ class RuntimeMlrun(Runtime):
         super().__init__(kind_registry, project)
         ctx = get_context(self.project)
         self.root = ctx.runtime_dir
-        self.tmp_path = ctx.tmp_dir
+        self.tmp_dir = ctx.tmp_dir
         self.root.mkdir(parents=True, exist_ok=True)
-        self.tmp_path.mkdir(parents=True, exist_ok=True)
+        self.tmp_dir.mkdir(parents=True, exist_ok=True)
         self.function_source = None
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
@@ -147,8 +147,8 @@ class RuntimeMlrun(Runtime):
             Parameters.
         """
         LOGGER.info("Getting inputs.")
-        self.tmp_path.mkdir(parents=True, exist_ok=True)
-        return get_inputs_parameters(spec.get("inputs", {}), spec.get("parameters", {}), self.tmp_path)
+        self.tmp_dir.mkdir(parents=True, exist_ok=True)
+        return get_inputs_parameters(spec.get("inputs", {}), spec.get("parameters", {}), self.tmp_dir)
 
     ####################
     # Configuration
@@ -174,7 +174,7 @@ class RuntimeMlrun(Runtime):
         # Setup function source and specs
         LOGGER.info("Getting function source and specs.")
         dhcore_function = get_dhcore_function(spec.get("function"))
-        function_source = save_function_source(self.tmp_path, dhcore_function.spec.to_dict().get("source"))
+        function_source = save_function_source(self.tmp_dir, dhcore_function.spec.to_dict().get("source"))
         function_specs = parse_function_specs(dhcore_function.spec.to_dict())
 
         # Create Mlrun project

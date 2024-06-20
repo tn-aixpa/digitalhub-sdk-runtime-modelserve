@@ -1,128 +1,54 @@
 from __future__ import annotations
 
+import inspect
 import typing
-from pathlib import Path
+from typing import Callable
 
+import nuclio_sdk
 from digitalhub_core.entities.artifacts.crud import artifact_from_dict
-from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
+from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.models.crud import model_from_dict
+from digitalhub_ml.entities.projects.crud import get_project
+from digitalhub_core.context.builder import get_context
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
-    from digitalhub_core.entities.artifacts.entity import Artifact
-    from digitalhub_data.entities.dataitems.entity.table import DataitemTable
-    from digitalhub_ml.entities.models.entity import Model
+    from digitalhub_core.entities.projects.entity import Project
 
 
-def persist_dataitem(dataitem: DataitemTable, tmp_dir: Path) -> str:
+def get_project_(project_name: str) -> Project:
     """
-    Persist dataitem locally.
+    Get project.
 
     Parameters
     ----------
-    dataitem : DataitemTable
-        The dataitem to persist.
-    tmp_dir : Path
-        Temporary download directory.
+    project_name : str
+        Project name.
 
     Returns
     -------
-    str
-        Temporary dataitem path.
-
-    Raises
-    ------
-    EntityError
-        If the dataitem cannot be persisted.
+    Project
+        Project.
     """
-    name = dataitem.name
     try:
-        LOGGER.info(f"Persisting dataitem '{name}' locally.")
-        tmp_path = str(tmp_dir / f"{name}.csv")
-        dataitem.write_df(target_path=tmp_path, extension="csv", sep=",")
-        return tmp_path
+        ctx = get_context(project_name)
+        return get_project(project_name, local=ctx.local)
     except Exception as e:
-        msg = f"Error during dataitem '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
+        msg = f"Error during project collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
-        raise EntityError(msg) from e
+        raise RuntimeError(msg)
 
 
-def persist_artifact(artifact: Artifact, tmp_dir: Path) -> str:
-    """
-    Persist artifact locally.
-
-    Parameters
-    ----------
-    artifact : Artifact
-        The artifact object.
-    tmp_dir : Path
-        Temporary directory.
-
-    Returns
-    -------
-    str
-        Temporary artifact path.
-
-    Raises
-    ------
-    EntityError
-        If the artifact cannot be persisted.
-    """
-    name = artifact.name
-    try:
-        LOGGER.info(f"Persisting artifact '{name}' locally.")
-        filename = Path(artifact.spec.path).name
-        dst = str(tmp_dir / filename)
-        return artifact.download(dst=dst)
-    except Exception as e:
-        msg = f"Error during artifact '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
-        LOGGER.exception(msg)
-        raise EntityError(msg) from e
-
-
-def persist_model(model: Model, tmp_dir: Path) -> str:
-    """
-    Persist model locally.
-
-    Parameters
-    ----------
-    model : Model
-        The model object.
-    tmp_dir : Path
-        Temporary directory.
-
-    Returns
-    -------
-    str
-        Temporary model path.
-
-    Raises
-    ------
-    EntityError
-        If the model cannot be persisted.
-    """
-    name = model.name
-    try:
-        LOGGER.info(f"Persisting model '{name}' locally.")
-        filename = Path(model.spec.path).name
-        dst = str(tmp_dir / filename)
-        return model.download(dst=dst)
-    except Exception as e:
-        msg = f"Error during model '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
-        LOGGER.exception(msg)
-        raise EntityError(msg) from e
-
-
-def get_inputs_parameters(inputs: dict[str, Entity], parameters: dict, tmp_dir: Path) -> dict:
+def get_entity_inputs(inputs: dict) -> dict[str, Entity]:
     """
     Set inputs.
 
     Parameters
     ----------
-    inputs : dict[str, Entity]
+    inputs : dict
         Run inputs.
     parameters : dict
         Run parameters.
@@ -134,16 +60,74 @@ def get_inputs_parameters(inputs: dict[str, Entity], parameters: dict, tmp_dir: 
     dict
         Mlrun inputs.
     """
-    inputs_objects = {}
-    for k, v in inputs.items():
-        _, entity_type, _, _, _ = parse_entity_key(v.get("key"))
-        if entity_type == "dataitems":
-            v = dataitem_from_dict(v)
-            inputs_objects[k] = persist_dataitem(v, tmp_dir)
-        elif entity_type == "artifacts":
-            v = artifact_from_dict(v)
-            inputs_objects[k] = persist_artifact(v, tmp_dir)
-        elif entity_type == "models":
-            v = model_from_dict(v)
-            inputs_objects[k] = persist_model(v, tmp_dir)
-    return {**inputs_objects, **parameters}
+    try:
+        inputs_objects = {}
+        for k, v in inputs.items():
+            _, entity_type, _, _, _ = parse_entity_key(v.get("key"))
+            if entity_type == EntityTypes.DATAITEMS.value:
+                inputs_objects[k] = dataitem_from_dict(v)
+            elif entity_type == EntityTypes.ARTIFACTS.value:
+                inputs_objects[k] = artifact_from_dict(v)
+            elif entity_type == EntityTypes.MODELS.value:
+                inputs_objects[k] = model_from_dict(v)
+        return inputs_objects
+    except Exception as e:
+        msg = f"Error during inputs collection. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.exception(msg)
+        raise RuntimeError(msg) from e
+
+
+def compose_inputs(
+    inputs: dict,
+    parameters: dict,
+    func: Callable,
+    project: str | Project,
+    context: nuclio_sdk.Context | None = None,
+    event: nuclio_sdk.Event | None = None,
+) -> dict:
+    """
+    Compose inputs.
+
+    Parameters
+    ----------
+    inputs : dict
+        Run inputs.
+    parameters : dict
+        Run parameters.
+
+    Returns
+    -------
+    dict
+        Function inputs.
+    """
+    try:
+        entity_inputs = get_entity_inputs(inputs)
+        fnc_args = {**parameters, **entity_inputs}
+
+        fnc_parameters = inspect.signature(func).parameters
+        LOGGER.info(f"Function parameters: {'project' in fnc_parameters}")
+
+        _has_project = "project" in fnc_parameters
+        _has_context = "context" in fnc_parameters
+        _has_event = "event" in fnc_parameters
+
+        if _has_project:
+            if _has_context:
+                fnc_args["project"] = context.project
+            elif isinstance(project, str):
+                fnc_args["project"] = get_project_(project)
+            else:
+                fnc_args["project"] = project
+
+        if _has_context:
+            fnc_args["context"] = context
+
+        if _has_event:
+            fnc_args["event"] = event
+
+        return fnc_args
+
+    except Exception as e:
+        msg = f"Error during function arguments compostion. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.exception(msg)
+        raise RuntimeError(msg) from e

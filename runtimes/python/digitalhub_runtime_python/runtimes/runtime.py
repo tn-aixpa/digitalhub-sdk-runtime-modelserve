@@ -10,7 +10,7 @@ from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_python.utils.configuration import get_function_from_source
-from digitalhub_runtime_python.utils.inputs import get_inputs_parameters
+from digitalhub_runtime_python.utils.inputs import compose_inputs
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
 if typing.TYPE_CHECKING:
@@ -29,10 +29,10 @@ class RuntimePython(Runtime):
         super().__init__(kind_registry, project)
         ctx = get_context(self.project)
         self.root = ctx.runtime_dir
-        self.tmp_path = ctx.tmp_dir
+        self.tmp_dir = ctx.tmp_dir
 
         self.root.mkdir(parents=True, exist_ok=True)
-        self.tmp_path.mkdir(parents=True, exist_ok=True)
+        self.tmp_dir.mkdir(parents=True, exist_ok=True)
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -74,11 +74,11 @@ class RuntimePython(Runtime):
         spec = run.get("spec")
         project = run.get("project")
 
-        LOGGER.info("Collecting inputs.")
-        fnc_args = self._collect_inputs(spec)
-
         LOGGER.info("Configuring execution.")
         fnc, wrapped = self._configure_execution(spec)
+
+        LOGGER.info("Composing function arguments.")
+        fnc_args = self._compose_args(fnc, spec, project)
 
         LOGGER.info("Executing run.")
         if wrapped:
@@ -115,29 +115,7 @@ class RuntimePython(Runtime):
     # Inputs
     ####################
 
-    def _collect_inputs(self, spec: dict) -> dict:
-        """
-        Collect inputs.
 
-        Parameters
-        ----------
-        spec : dict
-            Run specs.
-        project : str
-            Project name.
-
-        Returns
-        -------
-        dict
-            Parameters.
-        """
-        LOGGER.info("Getting inputs.")
-        self.tmp_path.mkdir(parents=True, exist_ok=True)
-        return get_inputs_parameters(
-            spec.get("inputs", {}),
-            spec.get("parameters", {}),
-            self.tmp_path,
-        )
 
     ####################
     # Configuration
@@ -162,3 +140,25 @@ class RuntimePython(Runtime):
             spec.get("source", {}),
         )
         return fnc, hasattr(fnc, "__wrapped__")
+
+    def _compose_args(self, func: Callable, spec: dict, project: str) -> dict:
+        """
+        Collect inputs.
+
+        Parameters
+        ----------
+        func : Callable
+            Function to execute.
+        spec : dict
+            Run specs.
+        project : str
+            Project name.
+
+        Returns
+        -------
+        dict
+            Parameters.
+        """
+        inputs = spec.get("inputs", {})
+        parameters = spec.get("parameters", {})
+        return compose_inputs(inputs, parameters, func, project)
