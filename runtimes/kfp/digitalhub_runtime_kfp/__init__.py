@@ -25,7 +25,7 @@ registry.register(wkfl_kind, wkfl_info)
 
 # Tasks
 entity_type = EntityTypes.TASKS.value
-for i in ["job", "build"]:
+for i in ["pipeline"]:
     task_kind = f"{wkfl_kind}+{i}"
     prefix = entity_type.removesuffix("s").capitalize()
     suffix = i.capitalize()
