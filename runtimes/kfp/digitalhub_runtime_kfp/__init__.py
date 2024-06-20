@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from digitalhub_core.registry.registry import registry
+from digitalhub_core.registry.utils import create_info
+from digitalhub_ml.entities.entity_types import EntityTypes
 
 root = "digitalhub_runtime_kfp"
 runtime_info = {
@@ -13,70 +15,28 @@ runtime_info = {
 root_ent = f"{root}.entities"
 
 # Workflow
+entity_type = EntityTypes.WORKFLOWS.value
 wkfl_kind = "kfp"
-entity_type = "workflows"
-wkfl_info = {
-    "entity_type": entity_type,
-    "spec": {
-        "module": f"{root_ent}.{entity_type}.spec",
-        "class_name": f"WorkflowSpec{wkfl_kind.upper()}",
-        "parameters_validator": f"WorkflowParams{wkfl_kind.upper()}",
-    },
-    "status": {
-        "module": f"{root_ent}.{entity_type}.status",
-        "class_name": f"WorkflowStatus{wkfl_kind.upper()}",
-    },
-    "metadata": {
-        "module": f"{root_ent}.{entity_type}.metadata",
-        "class_name": f"WorkflowMetadata{wkfl_kind.upper()}",
-    },
-    "runtime": runtime_info,
-}
+prefix = entity_type.removesuffix("s").capitalize()
+suffix = wkfl_kind.upper()
+wkfl_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
 registry.register(wkfl_kind, wkfl_info)
 
 
 # Tasks
-entity_type = "tasks"
-for i in ["pipeline"]:
+entity_type = EntityTypes.TASKS.value
+for i in ["job", "build"]:
     task_kind = f"{wkfl_kind}+{i}"
-    task_info = {
-        "entity_type": entity_type,
-        "spec": {
-            "module": f"{root_ent}.{entity_type}.spec",
-            "class_name": f"TaskSpec{i.title()}",
-            "parameters_validator": f"TaskParams{i.title()}",
-        },
-        "status": {
-            "module": f"{root_ent}.{entity_type}.status",
-            "class_name": f"TaskStatus{i.title()}",
-        },
-        "metadata": {
-            "module": f"{root_ent}.{entity_type}.metadata",
-            "class_name": f"TaskMetadata{i.title()}",
-        },
-        "runtime": runtime_info,
-    }
+    prefix = entity_type.removesuffix("s").capitalize()
+    suffix = i.capitalize()
+    task_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
     registry.register(task_kind, task_info)
 
 
 # Runs
+entity_type = EntityTypes.RUNS.value
 run_kind = f"{wkfl_kind}+run"
-entity_type = "runs"
-run_info = {
-    "entity_type": entity_type,
-    "spec": {
-        "module": f"{root_ent}.{entity_type}.spec",
-        "class_name": f"RunSpec{wkfl_kind.upper()}",
-        "parameters_validator": f"RunParams{wkfl_kind.upper()}",
-    },
-    "status": {
-        "module": f"{root_ent}.{entity_type}.status",
-        "class_name": f"RunStatus{wkfl_kind.upper()}",
-    },
-    "metadata": {
-        "module": f"{root_ent}.{entity_type}.metadata",
-        "class_name": f"RunMetadata{wkfl_kind.upper()}",
-    },
-    "runtime": runtime_info,
-}
+prefix = entity_type.removesuffix("s").capitalize()
+suffix = wkfl_kind.upper()
+run_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
 registry.register(run_kind, run_info)
