@@ -80,6 +80,7 @@ def get_entity_inputs(inputs: dict) -> dict[str, Entity]:
 def compose_inputs(
     inputs: dict,
     parameters: dict,
+    local: bool,
     func: Callable,
     project: str | Project,
     context: nuclio_sdk.Context | None = None,
@@ -120,10 +121,16 @@ def compose_inputs(
                 fnc_args["project"] = project
 
         if _has_context:
-            fnc_args["context"] = context
+            if context is not None and not local:
+                fnc_args["context"] = context
+            else:
+                raise RuntimeError("Context is not available on local execution.")
 
         if _has_event:
-            fnc_args["event"] = event
+            if event is not None and not local:
+                fnc_args["event"] = event
+            else:
+                raise RuntimeError("Event is not available on local execution.")
 
         return fnc_args
 
