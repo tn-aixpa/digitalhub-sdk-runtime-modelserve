@@ -10,22 +10,3 @@ class CorePort(BaseModel):
 
     port: int
     target_port: int
-
-
-class ContextRef(BaseModel):
-    """
-    ContextRef model.
-    """
-
-    destination: str = None
-    protocol: str = None
-    source: str = None
-
-
-class ContextSource(BaseModel):
-    """
-    ContextSource model.
-    """
-
-    base64: str = None
-    name: str = None

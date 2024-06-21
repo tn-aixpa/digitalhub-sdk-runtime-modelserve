@@ -4,7 +4,7 @@ Task Container specification module.
 from __future__ import annotations
 
 from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpecK8s
-from digitalhub_runtime_container.entities.tasks.models import ContextRef, ContextSource, CorePort
+from digitalhub_runtime_container.entities.tasks.models import CorePort
 
 
 class TaskSpecJob(TaskSpecK8s):
@@ -105,8 +105,6 @@ class TaskSpecBuild(TaskSpecK8s):
         Constructor.
         """
         super().__init__(function, **kwargs)
-        self.context_refs = kwargs.get("context_refs")
-        self.context_sources = kwargs.get("context_sources")
         self.instructions = kwargs.get("instructions")
 
 
@@ -114,12 +112,6 @@ class TaskParamsBuild(TaskParamsK8s):
     """
     TaskParamsBuild model.
     """
-
-    context_refs: list[ContextRef] = None
-    """Context references."""
-
-    context_sources: list[ContextSource] = None
-    """Context sources."""
 
     instructions: list[str] = None
     """Build instructions."""

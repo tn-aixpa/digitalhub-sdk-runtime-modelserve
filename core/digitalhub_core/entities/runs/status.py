@@ -10,7 +10,7 @@ from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
 from digitalhub_core.utils.generic_utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities._base.entity import Entity
+    pass
 
 ENTITY_FUNC = {
     "artifacts": get_artifact_from_key,
@@ -48,9 +48,11 @@ class RunStatus(Status):
         dict
             The results.
         """
-        return self.results if self.results is not None else {}
+        if not hasattr(self, "results") or self.results is None:
+            return {}
+        return self.results
 
-    def get_outputs(self, as_key: bool = False, as_dict: bool = False) -> dict[str, str | dict | Entity]:
+    def get_outputs(self, as_key: bool = False, as_dict: bool = False) -> dict:
         """
         Get outputs.
 
@@ -63,11 +65,11 @@ class RunStatus(Status):
 
         Returns
         -------
-        dict[str, str | dict | Entity]
+        dict
             The outputs.
         """
         outputs = {}
-        if self.outputs is None:
+        if not hasattr(self, "outputs") or self.outputs is None:
             return outputs
 
         for parameter, key in self.outputs.items():
@@ -113,4 +115,6 @@ class RunStatus(Status):
         dict
             The values.
         """
+        if not hasattr(self, "results") or self.results is None:
+            return {}
         return {k: v for k, v in self.get_results().items() if k in values_list}

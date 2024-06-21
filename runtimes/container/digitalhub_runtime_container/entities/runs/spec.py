@@ -9,19 +9,37 @@ class RunSpecContainer(RunSpec):
     def __init__(
         self,
         task: str,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
-        parameters: dict | None = None,
-        values: list | None = None,
         local_execution: bool = False,
         **kwargs,
     ) -> None:
         """
         Constructor.
         """
-        super().__init__(task, inputs, outputs, parameters, values, local_execution)
+        super().__init__(task, local_execution)
 
-        self._any_setter(**kwargs)
+        self.image = kwargs.get("image")
+        self.base_image = kwargs.get("base_image")
+        self.command = kwargs.get("command")
+        self.args = kwargs.get("args")
+
+        self.function = kwargs.get("function")
+        self.node_selector = kwargs.get("node_selector")
+        self.volumes = kwargs.get("volumes")
+        self.resources = kwargs.get("resources")
+        self.affinity = kwargs.get("affinity")
+        self.tolerations = kwargs.get("tolerations")
+        self.env = kwargs.get("env")
+        self.secrets = kwargs.get("secrets")
+
+        self.backoff_limit = kwargs.get("backoff_limit")
+        self.schedule = kwargs.get("schedule")
+
+        self.replicas = kwargs.get("replicas")
+
+        self.service_ports = kwargs.get("service_ports")
+        self.service_type = kwargs.get("service_type")
+
+        self.instructions = kwargs.get("instructions")
 
 
 class RunParamsContainer(RunParams):
@@ -37,13 +55,17 @@ class RunParamsContainer(RunParams):
     function: str = None
     node_selector: list[dict] = None
     volumes: list[dict] = None
-    resources: list[dict] = None
+    resources: dict = None
     affinity: dict = None
     tolerations: list[dict] = None
     env: list[dict] = None
     secrets: list[str] = None
+
+    # Task job
     backoff_limit: int = None
     schedule: str = None
+
+    # Task deploy
     replicas: int = None
 
     # Task serve
@@ -51,6 +73,4 @@ class RunParamsContainer(RunParams):
     service_type: str = None
 
     # Task build
-    context_refs: list[dict] = None
-    context_sources: list[dict] = None
     instructions: list[str] = None

@@ -4,7 +4,6 @@ Run base specification module.
 from __future__ import annotations
 
 import typing
-from typing import Union
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
 from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
@@ -25,33 +24,25 @@ class RunSpec(Spec):
     def __init__(
         self,
         task: str,
-        inputs: dict | None = None,
-        outputs: dict | None = None,
-        parameters: dict | None = None,
-        values: list | None = None,
         local_execution: bool = False,
     ) -> None:
         """
         Constructor.
         """
         self.task = task
-        self.inputs = inputs
-        self.outputs = outputs
-        self.parameters = parameters
-        self.values = values
         self.local_execution = local_execution
 
-    def get_inputs(self, as_dict: bool = False) -> list[dict[str, Entity]]:
+    def get_inputs(self, as_dict: bool = False) -> dict:
         """
         Get inputs.
 
         Returns
         -------
-        list[dict[str, Entity]]
+        dict
             The inputs.
         """
         inputs = {}
-        if self.inputs is None:
+        if not hasattr(self, "inputs") or self.inputs is None:
             return inputs
 
         for parameter, item in self.inputs.items():
@@ -135,18 +126,6 @@ class RunParams(SpecParams):
 
     task: str = None
     """The task string associated with the run."""
-
-    inputs: dict[str, Union[str, dict]] = None
-    """Run inputs."""
-
-    outputs: dict[str, Union[str, dict]] = None
-    """Run outputs."""
-
-    parameters: dict = None
-    """Parameters to be used in the run."""
-
-    values: list = None
-    """Values to be used in the run."""
 
     local_execution: bool = False
     """Flag to indicate if the run will be executed locally."""

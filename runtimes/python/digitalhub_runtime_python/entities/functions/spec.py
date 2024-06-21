@@ -21,6 +21,7 @@ class FunctionSpecPython(FunctionSpec):
         source: dict,
         image: str | None = None,
         base_image: str | None = None,
+        python_version: str | None = None,
         requirements: list | None = None,
     ) -> None:
         """
@@ -30,6 +31,7 @@ class FunctionSpecPython(FunctionSpec):
 
         self.image = image
         self.base_image = base_image
+        self.python_version = python_version
         self.requirements = requirements
 
         source = self._source_check(source)
@@ -134,6 +136,9 @@ class FunctionParamsPython(FunctionParams):
 
     base_image: str = None
     "Base image"
+
+    python_version: str = None
+    "Python version"
 
     requirements: list = None
     "Requirements list, as used by the runtime"

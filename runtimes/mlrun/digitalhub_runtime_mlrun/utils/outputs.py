@@ -144,10 +144,11 @@ def _create_artifact(project: str, mlrun_artifact: dict) -> Artifact:
         kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
         kwargs["kind"] = "artifact"
         kwargs["path"] = mlrun_artifact.get("spec", {}).get("target_path")
-        kwargs["size"] = mlrun_artifact.get("spec", {}).get("size")
-        kwargs["hash"] = mlrun_artifact.get("spec", {}).get("hash")
 
         artifact: Artifact = create_artifact(**kwargs)
+
+        artifact.status.size = mlrun_artifact.get("spec", {}).get("size")
+        artifact.status.hash = mlrun_artifact.get("spec", {}).get("hash")
 
         # Upload artifact if Mlrun artifact is local
         if map_uri_scheme(artifact.spec.path) == "local":
