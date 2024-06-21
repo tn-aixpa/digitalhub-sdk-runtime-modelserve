@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from typing import Any
 
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
@@ -127,6 +128,43 @@ class ProjectData(Project):
             List of objects related to project.
         """
         return list_dataitems(self.name, **kwargs)
+
+    def log_dataitem(self,
+                     name: str,
+                     kind: str,
+                     path: str,
+                     target_path: str | None = None,
+                     df: Any | None = None,
+                     extension: str | None = None,
+                     **kwargs,) -> Dataitem:
+        """
+        Log an dataitem to the project.
+
+        Parameters
+        ----------
+        name : str
+            Name that identifies the object.
+        kind : str
+            Kind of the dataitem.
+        path : str
+            Destination path of the dataitem.
+        target_path : str
+            Target path of the dataitem.
+        df : Any
+            Dataframe to log.
+        extension : str
+            Extension of the dataitem.
+        **kwargs : dict
+            New dataitem parameters.
+
+        Returns
+        -------
+        Dataitem
+            Object instance.
+        """
+        dataitem = new_dataitem(self.name, name, kind, path, **kwargs)
+        if kind == "table":
+            dataitem.write_df(target_path, df, extension)
 
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:

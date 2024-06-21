@@ -120,6 +120,40 @@ class ProjectMl(ProjectData):
         """
         return list_models(self.name, **kwargs)
 
+    def log_model(self,
+                     name: str,
+                     kind: str,
+                     path: str,
+                     source_path: str | None = None,
+                     target_path: str | None = None,
+                     **kwargs,) -> Model:
+        """
+        Log an model to the project.
+
+        Parameters
+        ----------
+        name : str
+            Name that identifies the object.
+        kind : str
+            Kind of the model.
+        path : str
+            Destination path of the model.
+        source_path : str
+            model location on local machine.
+        target_path : str
+            Target path of the model.
+        **kwargs : dict
+            New model parameters.
+
+        Returns
+        -------
+        Model
+            Instance of Model class.
+        """
+        model = new_model(self.name, name, kind, path, **kwargs)
+        model.upload(source_path, target_path)
+        return model
+
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:
         """

@@ -432,6 +432,39 @@ class Project(Entity):
         """
         return list_artifacts(self.name, **kwargs)
 
+    def log_artifact(self,
+                     name: str,
+                     kind: str,
+                     path: str,
+                     source_path: str | None = None,
+                     target_path: str | None = None,
+                     **kwargs,) -> Artifact:
+        """
+        Log an artifact to the project.
+
+        Parameters
+        ----------
+        name : str
+            Name that identifies the object.
+        kind : str
+            Kind of the artifact.
+        path : str
+            Destination path of the artifact.
+        source_path : str
+            Artifact location on local machine.
+        target_path : str
+            Target path of the artifact.
+        **kwargs : dict
+            New artifact parameters.
+
+        Returns
+        -------
+        Artifact
+            Instance of Artifact class.
+        """
+        artifact = new_artifact(self.name, name, kind, path, **kwargs)
+        artifact.upload(source_path, target_path)
+
     #############################
     #  Functions
     #############################
