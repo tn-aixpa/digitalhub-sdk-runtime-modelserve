@@ -22,9 +22,6 @@ def main():
     LOGGER.info("Executing function.")
     run.run()
 
-    if run.status.state == State.ERROR.value:
-        sys.exit(1)
-
     LOGGER.info("Done.")
 
 

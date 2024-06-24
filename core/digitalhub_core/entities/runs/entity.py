@@ -193,12 +193,15 @@ class Run(Entity):
             status = self._get_runtime().run(self.to_dict(include_all_non_private=True))
         except Exception as e:
             self.refresh()
-            self._set_state(State.ERROR.value)
+            if self.spec.local_execution:
+                self._set_state(State.ERROR.value)
             self._set_message(str(e))
             self.save(update=True)
             raise e
 
         self.refresh()
+        if not self.spec.local_execution:
+            status.pop("state")
         new_status = {**self.status.to_dict(), **status}
         self._set_status(new_status)
         self.save(update=True)
