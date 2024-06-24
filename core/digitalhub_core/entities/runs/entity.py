@@ -201,7 +201,7 @@ class Run(Entity):
 
         self.refresh()
         if not self.spec.local_execution:
-            status.pop("state")
+            status.pop("state", None)
         new_status = {**self.status.to_dict(), **status}
         self._set_status(new_status)
         self.save(update=True)
