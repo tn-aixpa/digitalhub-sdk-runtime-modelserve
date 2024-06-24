@@ -217,7 +217,7 @@ class ClientDHCore(Client):
             response.raise_for_status()
             if "X-Api-Level" in response.headers:
                 core_api_level = int(response.headers["X-Api-Level"])
-                if MIN_API_LEVEL <= core_api_level <= MAX_API_LEVEL:
+                if not (MIN_API_LEVEL <= core_api_level <= MAX_API_LEVEL):
                     raise BackendError("Backend API level not supported.")
             return response.json()
         except RequestException as e:

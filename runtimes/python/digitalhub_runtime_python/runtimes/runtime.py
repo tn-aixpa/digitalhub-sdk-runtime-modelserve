@@ -70,6 +70,9 @@ class RuntimePython(Runtime):
         LOGGER.info("Validating task.")
         self._validate_task(run)
 
+        LOGGER.info("Validating run.")
+        self._validate_run(run)
+
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
@@ -110,6 +113,27 @@ class RuntimePython(Runtime):
             Function to execute.
         """
         raise NotImplementedError
+
+    @staticmethod
+    def _validate_run(run: dict) -> None:
+        """
+        Check if run is locally allowed.
+
+        Parameters
+        ----------
+        run : dict
+            Run object dictionary.
+
+        Returns
+        -------
+        None
+        """
+        task_kind = run["spec"]["task"].split(":")[0]
+        local_execution = run["spec"]["local_execution"]
+        if task_kind != "python+job" and local_execution:
+            msg = f"Local execution not allowed for task kind {task_kind}."
+            LOGGER.exception(msg)
+            raise RuntimeError(msg)
 
     ####################
     # Configuration

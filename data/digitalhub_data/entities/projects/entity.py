@@ -134,7 +134,7 @@ class ProjectData(Project):
                      kind: str,
                      path: str,
                      target_path: str | None = None,
-                     df: Any | None = None,
+                     data: Any | None = None,
                      extension: str | None = None,
                      **kwargs,) -> Dataitem:
         """
@@ -164,7 +164,7 @@ class ProjectData(Project):
         """
         dataitem = new_dataitem(self.name, name, kind, path, **kwargs)
         if kind == "table":
-            dataitem.write_df(target_path, df, extension)
+            dataitem.write_df(target_path, data, extension)
 
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:
