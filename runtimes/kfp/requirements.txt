@@ -25,10 +25,13 @@ cloudpickle==2.2.1
     # via kfp
 deprecated==1.2.14
     # via kfp
-digitalhub~=0.6.0b, <0.7
+digitalhub==0.6.0b1
     # via digitalhub-runtime-kfp (pyproject.toml)
-digitalhub-core~=0.6.0b, <0.7
-    # via digitalhub
+digitalhub-core[full]==0.6.0b1
+    # via
+    #   digitalhub
+    #   digitalhub-core
+    #   digitalhub-runtime-kfp (pyproject.toml)
 docstring-parser==0.16
     # via kfp
 fire==0.6.0
@@ -92,7 +95,9 @@ markdown-it-py==3.0.0
 mdurl==0.1.2
     # via markdown-it-py
 numpy==1.26.4
-    # via pyarrow
+    # via
+    #   digitalhub-core
+    #   pyarrow
 oauthlib==3.2.2
     # via requests-oauthlib
 protobuf==3.20.3
