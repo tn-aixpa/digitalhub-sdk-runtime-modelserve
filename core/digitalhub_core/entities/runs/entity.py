@@ -307,7 +307,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id) + "/log"
+        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id) + "/logs"
         return self._context().read_object(api)
 
     def stop(self) -> None:

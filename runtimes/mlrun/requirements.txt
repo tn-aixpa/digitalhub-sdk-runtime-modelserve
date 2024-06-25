@@ -8,17 +8,19 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub[ml]~=0.6.0b, <0.7
+digitalhub[ml]==0.6.0b1
     # via
     #   digitalhub
     #   digitalhub-runtime-mlrun (pyproject.toml)
-digitalhub-core~=0.6.0b, <0.7
+digitalhub-core[full]==0.6.0b1
     # via
     #   digitalhub
+    #   digitalhub-core
     #   digitalhub-data
-digitalhub-data~=0.6.0b, <0.7
+    #   digitalhub-runtime-mlrun (pyproject.toml)
+digitalhub-data==0.6.0b1
     # via digitalhub-ml
-digitalhub-ml~=0.6.0b, <0.7
+digitalhub-ml==0.6.0b1
     # via digitalhub
 gitdb==4.0.11
     # via gitpython
@@ -33,7 +35,9 @@ jmespath==1.0.1
     #   boto3
     #   botocore
 numpy==1.26.4
-    # via pyarrow
+    # via
+    #   digitalhub-core
+    #   pyarrow
 psycopg2-binary==2.9.9
     # via digitalhub-core
 pyarrow==14.0.2

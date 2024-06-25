@@ -1,16 +1,20 @@
-boto3==1.28.64
+boto3==1.34.132
     # via digitalhub-core (pyproject.toml)
-botocore==1.31.64
+botocore==1.34.132
     # via
     #   boto3
     #   s3transfer
-certifi==2024.2.2
+certifi==2024.6.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
+gitdb==4.0.11
+    # via gitpython
+gitpython==3.1.43
+    # via digitalhub-core (pyproject.toml)
 greenlet==3.0.3
     # via sqlalchemy
-idna==3.6
+idna==3.7
     # via requests
 jmespath==1.0.1
     # via
@@ -20,25 +24,29 @@ numpy==1.26.4
     # via
     #   digitalhub-core (pyproject.toml)
     #   pyarrow
+psycopg2-binary==2.9.9
+    # via digitalhub-core (pyproject.toml)
 pyarrow==14.0.2
     # via digitalhub-core (pyproject.toml)
-pydantic==1.10.14
+pydantic==1.10.17
     # via digitalhub-core (pyproject.toml)
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via botocore
 pyyaml==6.0.1
     # via digitalhub-core (pyproject.toml)
-requests==2.31.0
+requests==2.32.3
     # via digitalhub-core (pyproject.toml)
-s3transfer==0.7.0
+s3transfer==0.10.2
     # via boto3
 six==1.16.0
     # via python-dateutil
-sqlalchemy==1.4.51
+smmap==5.0.1
+    # via gitdb
+sqlalchemy==1.4.52
     # via digitalhub-core (pyproject.toml)
-typing-extensions==4.9.0
+typing-extensions==4.12.2
     # via pydantic
-urllib3==1.26.18
+urllib3==1.26.19
     # via
     #   botocore
     #   requests

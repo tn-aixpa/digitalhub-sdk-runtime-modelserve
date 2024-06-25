@@ -82,17 +82,19 @@ deprecated==1.2.14
     # via
     #   kfp
     #   mlrun
-digitalhub[ml]~=0.6.0b, <0.7
+digitalhub[ml]==0.6.0b1
     # via
     #   digitalhub
     #   digitalhub-runtime-mlrun (pyproject.toml)
-digitalhub-core~=0.6.0b, <0.7
+digitalhub-core[full]==0.6.0b1
     # via
     #   digitalhub
+    #   digitalhub-core
     #   digitalhub-data
-digitalhub-data~=0.6.0b, <0.7
+    #   digitalhub-runtime-mlrun (pyproject.toml)
+digitalhub-data==0.6.0b1
     # via digitalhub-ml
-digitalhub-ml~=0.6.0b, <0.7
+digitalhub-ml==0.6.0b1
     # via digitalhub
 docstring-parser==0.15
     # via kfp
@@ -106,7 +108,7 @@ executing==2.0.1
     # via stack-data
 fastjsonschema==2.19.1
     # via nbformat
-fire==0.6.0b0
+fire==0.6.0
     # via kfp
 fqdn==1.5.1
     # via jsonschema
@@ -305,6 +307,7 @@ nuclio-sdk==0.5.9
     # via storey
 numpy==1.26.4
     # via
+    #   digitalhub-core
     #   mlrun
     #   pandas
     #   pyarrow

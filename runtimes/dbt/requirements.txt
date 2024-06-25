@@ -8,16 +8,21 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub[data]~=0.6.0b, <0.7
+digitalhub[data]==0.6.0b1
     # via
     #   digitalhub
     #   digitalhub-runtime-dbt (pyproject.toml)
-digitalhub-core~=0.6.0b, <0.7
+digitalhub-core[full]==0.6.0b1
+    # via
+    #   digitalhub
+    #   digitalhub-core
+    #   digitalhub-data
+    #   digitalhub-runtime-dbt (pyproject.toml)
+digitalhub-data[pandas]==0.6.0b1
     # via
     #   digitalhub
     #   digitalhub-data
-digitalhub-data~=0.6.0b, <0.7
-    # via digitalhub
+    #   digitalhub-runtime-dbt (pyproject.toml)
 gitdb==4.0.11
     # via gitpython
 gitpython==3.1.43
@@ -31,7 +36,12 @@ jmespath==1.0.1
     #   boto3
     #   botocore
 numpy==1.26.4
-    # via pyarrow
+    # via
+    #   digitalhub-core
+    #   pandas
+    #   pyarrow
+pandas==2.1.4
+    # via digitalhub-data
 psycopg2-binary==2.9.9
     # via digitalhub-core
 pyarrow==14.0.2
@@ -39,7 +49,11 @@ pyarrow==14.0.2
 pydantic==1.10.14
     # via digitalhub-core
 python-dateutil==2.8.2
-    # via botocore
+    # via
+    #   botocore
+    #   pandas
+pytz==2024.1
+    # via pandas
 pyyaml==6.0.1
     # via digitalhub-core
 requests==2.31.0
@@ -54,6 +68,8 @@ sqlalchemy==1.4.51
     # via digitalhub-core
 typing-extensions==4.10.0
     # via pydantic
+tzdata==2024.1
+    # via pandas
 urllib3==1.26.18
     # via
     #   botocore

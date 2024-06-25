@@ -8,7 +8,7 @@ ARG DHUB_VERSION=
 WORKDIR /app/
 
 # Install runtime and requirements
-RUN pip install digitalhub_runtime_mlrun[local]==0.6.0b0
+RUN python -m pip install digitalhub_runtime_mlrun[local]==${DHUB_VERSION}
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/

@@ -8,14 +8,10 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub~=0.6.0b, <0.7
+digitalhub==0.6.0b1
     # via digitalhub-runtime-container (pyproject.toml)
-digitalhub-core~=0.6.0b, <0.7
+digitalhub-core==0.6.0b1
     # via digitalhub
-gitdb==4.0.11
-    # via gitpython
-gitpython==3.1.43
-    # via digitalhub-core
 greenlet==3.0.3
     # via sqlalchemy
 idna==3.6
@@ -25,9 +21,9 @@ jmespath==1.0.1
     #   boto3
     #   botocore
 numpy==1.26.4
-    # via pyarrow
-psycopg2-binary==2.9.9
-    # via digitalhub-core
+    # via
+    #   digitalhub-core
+    #   pyarrow
 pyarrow==14.0.2
     # via digitalhub-core
 pydantic==1.10.14
@@ -42,8 +38,6 @@ s3transfer==0.10.0
     # via boto3
 six==1.16.0
     # via python-dateutil
-smmap==5.0.1
-    # via gitdb
 sqlalchemy==1.4.51
     # via digitalhub-core
 typing-extensions==4.10.0

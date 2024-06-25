@@ -7,25 +7,20 @@ ARG DHUB_VERSION=
 # Set working dir
 WORKDIR /app/
 
-# Get digitalhub-sdk
-ARG DHUB_VERSION=
-RUN wget https://github.com/scc-digitalhub/digitalhub-sdk/archive/refs/tags/$DHUB_VERSION.zip
-RUN unzip $DHUB_VERSION.zip
-RUN mv digitalhub-sdk-$DHUB_VERSION digitalhub-sdk
-
 # Install digitalhub-core
-RUN pip install ./digitalhub-sdk/core ./digitalhub-sdk/data[pandas]
-RUN pip install ./digitalhub-sdk/ ./digitalhub-sdk/ml/ --no-deps
-RUN pip install ./digitalhub-sdk/runtimes/*/ --no-deps
-
-# Install kfp
-RUN pip install kfp==1.8.11
+RUN python -m pip install digitalhub-core[full]==${DHUB_VERSION} \
+                          digitalhub-data[pandas]==${DHUB_VERSION} \
+                          digitalhub-runtime-kfp==${DHUB_VERSION} && \
+    python -m pip install digitalhub==${DHUB_VERSION} \
+                          digitalhub-ml==${DHUB_VERSION} \
+                          digitalhub-runtime-python==${DHUB_VERSION} \
+                          digitalhub-runtime-mlrun==${DHUB_VERSION} \
+                          digitalhub-runtime-container==${DHUB_VERSION} \
+                          digitalhub-runtime-dbt==${DHUB_VERSION} \
+                          digitalhub-runtime-nefertem==${DHUB_VERSION} --no-deps
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
 COPY step.py /app/
-
-# Cleanup
-RUN rm -rf digitalhub-sdk $DHUB_VERSION.zip
 
 ENTRYPOINT ["python", "wrapper.py"]

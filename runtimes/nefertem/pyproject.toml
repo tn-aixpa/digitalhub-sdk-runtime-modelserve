@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-runtime-nefertem"
-version = "0.6.0b0"
+version = "0.6.0b1"
 description = "Nefertem runtime for DHCore"
 readme = "README.md"
 authors = [
@@ -20,7 +20,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes", "validation", "profiling", "inference", "nefertem", "digitalhub"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub[data]~=0.6.0b, <0.7",
+"digitalhub[data]>=0.6.0b",
 ]
 [project.optional-dependencies]
 local = [
@@ -29,8 +29,11 @@ local = [
 "nefertem-inference~=2.0",
 "nefertem-profiling~=2.0",
 "nefertem-validation~=2.0",
+"nefertem-profiling-ydata-profiling",
+"nefertem-inference-frictionless",
+"nefertem-profiling-frictionless",
+"nefertem-validation-frictionless",
 ]
-
 
 [project.urls]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
@@ -48,7 +51,7 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.6.0b0"
+current_version = "0.6.0b1"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false
