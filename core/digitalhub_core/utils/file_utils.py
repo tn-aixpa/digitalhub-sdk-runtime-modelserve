@@ -21,6 +21,7 @@ class FileInfo(BaseModel):
     extension: str = None
     size: int = None
     hash: str = None
+    last_modified: str = None
 
 
 def calculate_blob_hash(data_path: str) -> str:
