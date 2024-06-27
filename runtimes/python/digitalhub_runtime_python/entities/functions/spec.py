@@ -3,6 +3,7 @@ Function Conatiner specification module.
 """
 from __future__ import annotations
 
+from typing import Literal
 from pathlib import Path
 
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec, SourceCodeStruct
@@ -137,7 +138,7 @@ class FunctionParamsPython(FunctionParams):
     base_image: str = None
     "Base image"
 
-    python_version: str = None
+    python_version: Literal["PYTHON3_9", "PYTHON3_10"] = None
     "Python version"
 
     requirements: list = None

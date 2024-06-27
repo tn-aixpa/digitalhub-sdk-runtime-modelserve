@@ -27,7 +27,7 @@ registry.register(func_kind, func_info)
 
 # Tasks
 entity_type = EntityTypes.TASKS.value
-for i in ["job", "build"]:
+for i in ["job", "build", "serve"]:
     task_kind = f"{func_kind}+{i}"
     prefix = entity_type.removesuffix("s").capitalize()
     suffix = i.capitalize()
