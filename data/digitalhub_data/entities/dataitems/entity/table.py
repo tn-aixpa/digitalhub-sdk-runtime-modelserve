@@ -16,7 +16,7 @@ class DataitemTable(Dataitem):
 
     def as_df(self, file_format: str | None = None, **kwargs) -> Any:
         """
-        Read dataitem as a pandas DataFrame. If the dataitem is not local, it will be downloaded
+        Read dataitem as a DataFrame. If the dataitem is not local, it will be downloaded
         to a temporary folder and deleted after the method is executed. If no file_format is passed,
         the function will try to infer it from the dataitem.spec.path attribute.
         The path of the dataitem is specified in the spec attribute, and must be a store aware path.
@@ -45,6 +45,8 @@ class DataitemTable(Dataitem):
             tmp_path = True
         else:
             path = self.spec.path
+
+        self._get_file_info(path)
 
         # Check file format and get dataitem as DataFrame
         extension = self._get_extension(self.spec.path, file_format)
@@ -84,7 +86,7 @@ class DataitemTable(Dataitem):
             Path to the written dataframe.
         """
         if target_path is None:
-            target_path = f"{self.project}/{self.ENTITY_TYPE}/{self.kind}/{self.name}.parquet"
+            target_path = f"{self.project}/{self.ENTITY_TYPE}/{self.id}/{self.name}.parquet"
             datastore = get_default_datastore()
         else:
             datastore = get_datastore(target_path)

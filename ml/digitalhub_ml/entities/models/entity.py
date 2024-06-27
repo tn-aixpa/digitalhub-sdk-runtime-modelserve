@@ -15,6 +15,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.file_utils import get_file_info
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import map_uri_scheme
@@ -340,6 +341,22 @@ class Model(Entity):
         """
         if Path(dst).exists() and not overwrite:
             raise EntityError(f"Resource {dst} already exists.")
+
+    def _get_file_info(self, src_path: str) -> None:
+        """
+        Get file info from path.
+
+        Parameters
+        ----------
+        src_path : str
+            Local path of some source.
+
+        Returns
+        -------
+        None
+        """
+        file_info = get_file_info(self.spec.path, src_path)
+        self.status.add_file(file_info)
 
     #############################
     #  Static interface methods

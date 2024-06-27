@@ -11,7 +11,14 @@ class DataitemStatus(Status):
     Status class for dataitem entities.
     """
 
-    def __init__(self, state: str, message: str | None = None, preview: dict | None = None) -> None:
+    def __init__(
+        self,
+        state: str,
+        message: str | None = None,
+        files: list[dict] | None = None,
+        preview: dict | None = None,
+        **kwargs,
+    ) -> None:
         """
         Constructor.
 
@@ -21,7 +28,32 @@ class DataitemStatus(Status):
             Preview of the data.
         """
         super().__init__(state, message)
+        self.files = files
         self.preview = preview
+
+    def add_file(self, file: dict) -> None:
+        """
+        Add a file to the status.
+
+        Parameters
+        ----------
+        file : dict
+            File to add.
+
+        Returns
+        -------
+        None
+        """
+
+        # Add the file to the list
+        if self.files is None:
+            self.files = []
+
+        # Remove the file info if it already exists
+        self.files = [f for f in self.files if f["path"] != file["path"]]
+
+        # Add the new file
+        self.files.append(file)
 
 
 class DataitemStatusDataitem(DataitemStatus):

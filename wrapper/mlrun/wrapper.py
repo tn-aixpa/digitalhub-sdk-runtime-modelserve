@@ -2,9 +2,7 @@
 Wrapper to execute an arbitrary function.
 """
 import os
-import sys
 
-from digitalhub_core.entities._base.status import State
 from digitalhub_core.utils.logger import LOGGER
 
 import digitalhub as dhcore

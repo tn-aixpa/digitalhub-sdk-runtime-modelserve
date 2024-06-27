@@ -16,6 +16,7 @@ from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.file_utils import get_file_info
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import map_uri_scheme
@@ -269,6 +270,10 @@ class Artifact(Entity):
         if store.is_local():
             raise EntityError("Cannot target local store for upload.")
 
+        self.refresh()
+        self._get_file_info(src)
+        self.save(update=True)
+
         # Upload artifact and return remote path
         return store.upload(src, trg)
 
@@ -373,6 +378,22 @@ class Artifact(Entity):
         """
         if Path(dst).is_file() and not overwrite:
             raise EntityError(f"File {dst} already exists.")
+
+    def _get_file_info(self, src_path: str) -> None:
+        """
+        Get file info from path.
+
+        Parameters
+        ----------
+        src_path : str
+            Local path of some source.
+
+        Returns
+        -------
+        None
+        """
+        file_info = get_file_info(self.spec.path, src_path)
+        self.status.add_file(file_info)
 
     #############################
     #  Static interface methods

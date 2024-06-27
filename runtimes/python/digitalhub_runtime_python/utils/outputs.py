@@ -6,10 +6,12 @@ from typing import Any
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.artifacts.entity import Artifact
+from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import new_dataitem
 from digitalhub_data.entities.dataitems.entity.table import DataitemTable
 from digitalhub_data.readers.registry import DATAFRAME_TYPES
+from digitalhub_runtime_python.utils.env import S3_BUCKET
 
 
 def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict:
@@ -117,8 +119,15 @@ def build_and_load_dataitem(name: str, project_name: str, data: Any) -> Dataitem
         Dataitem key.
     """
     try:
-        path = f"s3://datalake/{project_name}/dataitems/table/{name}.parquet"
-        di: DataitemTable = new_dataitem(project=project_name, name=name, kind="table", path=path)
+        kwargs = {}
+        kwargs["project"] = project_name
+        kwargs["name"] = name
+        kwargs["kind"] = "table"
+        new_id = build_uuid()
+        kwargs["uuid"] = new_id
+        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/dataitems/{new_id}/{name}.parquet"
+
+        di: DataitemTable = new_dataitem(**kwargs)
         di.write_df(df=data)
         return di
     except Exception as e:
@@ -146,13 +155,19 @@ def build_and_load_artifact(name: str, project_name: str, data: Any) -> Artifact
         Artifact key.
     """
     try:
-        path = f"s3://datalake/{project_name}/artifacts/artifact/{name}.pickle"
+        kwargs = {}
+        kwargs["project"] = project_name
+        kwargs["name"] = name
+        kwargs["kind"] = "artifact"
+        new_id = build_uuid()
+        kwargs["uuid"] = new_id
+        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/artifacts/{new_id}/{name}.pickle"
 
         # Dump item to pickle
         with open(f"{name}.pickle", "wb") as f:
             f.write(pickle.dumps(data))
 
-        art = new_artifact(project=project_name, name=name, kind="artifact", path=path)
+        art = new_artifact(**kwargs)
         art.upload(source=f"{name}.pickle")
         return art
 

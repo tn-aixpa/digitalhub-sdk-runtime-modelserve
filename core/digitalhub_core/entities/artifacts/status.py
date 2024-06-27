@@ -11,20 +11,11 @@ class ArtifactStatus(Status):
     Status class for artifact entities.
     """
 
-
-class ArtifactStatusArtifact(ArtifactStatus):
-    """
-    Status class for artifact entities.
-    """
-
     def __init__(
         self,
         state: str,
         message: str | None = None,
-        hash: str | None = None,
-        size: int | None = None,
-        content_type: str | None = None,
-        file_extension: str | None = None,
+        files: list[dict] | None = None,
         **kwargs,
     ) -> None:
         """
@@ -36,7 +27,34 @@ class ArtifactStatusArtifact(ArtifactStatus):
             Keywords arguments.
         """
         super().__init__(state, message)
-        self.hash = hash
-        self.size = size
-        self.content_type = content_type
-        self.file_extension = file_extension
+        self.files = files
+
+    def add_file(self, file: dict) -> None:
+        """
+        Add a file to the status.
+
+        Parameters
+        ----------
+        file : dict
+            File to add.
+
+        Returns
+        -------
+        None
+        """
+
+        # Add the file to the list
+        if self.files is None:
+            self.files = []
+
+        # Remove the file info if it already exists
+        self.files = [f for f in self.files if f["path"] != file["path"]]
+
+        # Add the new file
+        self.files.append(file)
+
+
+class ArtifactStatusArtifact(ArtifactStatus):
+    """
+    Status class for artifact entities.
+    """

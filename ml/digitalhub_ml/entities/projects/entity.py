@@ -120,13 +120,15 @@ class ProjectMl(ProjectData):
         """
         return list_models(self.name, **kwargs)
 
-    def log_model(self,
-                     name: str,
-                     kind: str,
-                     path: str,
-                     source_path: str | None = None,
-                     target_path: str | None = None,
-                     **kwargs,) -> Model:
+    def log_model(
+        self,
+        name: str,
+        kind: str,
+        path: str,
+        source_path: str | None = None,
+        target_path: str | None = None,
+        **kwargs,
+    ) -> Model:
         """
         Log an model to the project.
 

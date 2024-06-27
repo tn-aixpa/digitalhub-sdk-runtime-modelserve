@@ -432,13 +432,15 @@ class Project(Entity):
         """
         return list_artifacts(self.name, **kwargs)
 
-    def log_artifact(self,
-                     name: str,
-                     kind: str,
-                     path: str,
-                     source_path: str | None = None,
-                     target_path: str | None = None,
-                     **kwargs,) -> Artifact:
+    def log_artifact(
+        self,
+        name: str,
+        kind: str,
+        path: str,
+        source_path: str | None = None,
+        target_path: str | None = None,
+        **kwargs,
+    ) -> Artifact:
         """
         Log an artifact to the project.
 

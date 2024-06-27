@@ -5,11 +5,13 @@ from pathlib import Path
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities.artifacts.crud import create_artifact
+from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.utils.data_utils import get_data_preview
 from digitalhub_ml.entities.models.crud import create_model
+from digitalhub_runtime_mlrun.utils.env import S3_BUCKET
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifacts.entity import Artifact
@@ -95,6 +97,8 @@ def _create_model(project: str, mlrun_artifact: dict, parameters: dict) -> Model
         kwargs["project"] = project
         kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
         kwargs["kind"] = "model"
+        new_id = build_uuid()
+        kwargs["uuid"] = new_id
 
         spec = mlrun_artifact.get("spec", {})
         target_path = spec.get("target_path")
@@ -110,7 +114,7 @@ def _create_model(project: str, mlrun_artifact: dict, parameters: dict) -> Model
         # Upload model if Mlrun model is local
         if map_uri_scheme(model.spec.path) == "local":
             src_path = model.spec.path
-            model.spec.path = f"s3://datalake/{project}/models/model/{model_file}"
+            model.spec.path = f"s3://{S3_BUCKET}/{project}/models/{new_id}/{model_file}"
             model.upload(source=src_path)
 
         model.save()
@@ -144,17 +148,16 @@ def _create_artifact(project: str, mlrun_artifact: dict) -> Artifact:
         kwargs["name"] = mlrun_artifact.get("metadata", {}).get("key")
         kwargs["kind"] = "artifact"
         kwargs["path"] = mlrun_artifact.get("spec", {}).get("target_path")
+        new_id = build_uuid()
+        kwargs["uuid"] = new_id
 
         artifact: Artifact = create_artifact(**kwargs)
-
-        artifact.status.size = mlrun_artifact.get("spec", {}).get("size")
-        artifact.status.hash = mlrun_artifact.get("spec", {}).get("hash")
 
         # Upload artifact if Mlrun artifact is local
         if map_uri_scheme(artifact.spec.path) == "local":
             filename = Path(artifact.spec.path).name
             src_path = artifact.spec.path
-            artifact.spec.path = f"s3://datalake/{project}/artifacts/artifact/{filename}"
+            artifact.spec.path = f"s3://{S3_BUCKET}/{project}/artifacts/{new_id}/{filename}"
             artifact.upload(src=src_path)
 
         artifact.save()
@@ -188,6 +191,8 @@ def _create_dataitem(project: str, mlrun_output: dict) -> Dataitem:
         kwargs["project"] = project
         kwargs["name"] = mlrun_output.get("metadata", {}).get("key")
         kwargs["kind"] = "table"
+        new_id = build_uuid()
+        kwargs["uuid"] = new_id
         kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
         kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {})
 
@@ -195,7 +200,7 @@ def _create_dataitem(project: str, mlrun_output: dict) -> Dataitem:
 
         # Check on path. If mlrun output is local, write data to minio
         if map_uri_scheme(dataitem.spec.path) == "local":
-            target_path = f"s3://datalake/{project}/dataitems/table/{dataitem.name}.parquet"
+            target_path = f"s3://{S3_BUCKET}/{project}/dataitems/{new_id}/{dataitem.name}.parquet"
             new_path = dataitem.write_df(target_path=target_path)
             dataitem.spec.path = new_path
 

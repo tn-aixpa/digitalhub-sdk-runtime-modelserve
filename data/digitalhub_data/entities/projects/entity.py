@@ -129,14 +129,16 @@ class ProjectData(Project):
         """
         return list_dataitems(self.name, **kwargs)
 
-    def log_dataitem(self,
-                     name: str,
-                     kind: str,
-                     path: str,
-                     target_path: str | None = None,
-                     data: Any | None = None,
-                     extension: str | None = None,
-                     **kwargs,) -> Dataitem:
+    def log_dataitem(
+        self,
+        name: str,
+        kind: str,
+        path: str,
+        target_path: str | None = None,
+        data: Any | None = None,
+        extension: str | None = None,
+        **kwargs,
+    ) -> Dataitem:
         """
         Log an dataitem to the project.
 
@@ -150,7 +152,7 @@ class ProjectData(Project):
             Destination path of the dataitem.
         target_path : str
             Target path of the dataitem.
-        df : Any
+        data : Any
             Dataframe to log.
         extension : str
             Extension of the dataitem.

@@ -3,9 +3,24 @@ General utilities module.
 """
 from __future__ import annotations
 
-from hashlib import sha1
+from hashlib import sha256
 from mimetypes import guess_type
 from pathlib import Path
+
+from pydantic import BaseModel
+
+
+class FileInfo(BaseModel):
+    """
+    File info class.
+    """
+
+    path: str = None
+    name: str = None
+    content_type: str = None
+    extension: str = None
+    size: int = None
+    hash: str = None
 
 
 def calculate_blob_hash(data_path: str) -> str:
@@ -24,7 +39,7 @@ def calculate_blob_hash(data_path: str) -> str:
     """
     with open(data_path, "rb") as f:
         data = f.read()
-        return f"sha1_{sha1(data).hexdigest()}"
+        return f"sha256:{sha256(data).hexdigest()}"
 
 
 def get_file_size(data_path: str) -> int:
@@ -76,3 +91,45 @@ def get_file_extension(data_path: str) -> str:
         The extension of the file.
     """
     return Path(data_path).suffix[1:]
+
+
+def get_file_name(data_path: str) -> str:
+    """
+    Get the name of a file.
+
+    Parameters
+    ----------
+    data_path : str
+        Path to the file.
+
+    Returns
+    -------
+    str
+        The name of the file.
+    """
+    return Path(data_path).name
+
+
+def get_file_info(path: str, src_path: str) -> None | dict:
+    """
+    Get file info from path.
+
+    Parameters
+    ----------
+    path : str
+        Target path of the object
+    src_path : str
+        Local path of some source.
+
+    Returns
+    -------
+    None
+    """
+    return FileInfo(
+        path=path,
+        name=get_file_name(path),
+        content_type=get_file_mime_type(src_path),
+        extension=get_file_extension(src_path),
+        size=get_file_size(src_path),
+        hash=calculate_blob_hash(src_path),
+    ).dict()
