@@ -6,6 +6,7 @@ from __future__ import annotations
 from hashlib import sha256
 from mimetypes import guess_type
 from pathlib import Path
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -111,6 +112,25 @@ def get_file_name(data_path: str) -> str:
     return Path(data_path).name
 
 
+def get_last_modified(data_path: str) -> str:
+    """
+    Get the last modified date of a file.
+
+    Parameters
+    ----------
+    data_path : str
+        Path to the file.
+
+    Returns
+    -------
+    str
+        The last modified date of the file.
+    """
+    path = Path(data_path)
+    timestamp = path.stat().st_mtime
+    return datetime.fromtimestamp(timestamp).astimezone().isoformat()
+
+
 def get_file_info(path: str, src_path: str) -> None | dict:
     """
     Get file info from path.
@@ -133,4 +153,5 @@ def get_file_info(path: str, src_path: str) -> None | dict:
         extension=get_file_extension(src_path),
         size=get_file_size(src_path),
         hash=calculate_blob_hash(src_path),
+        last_modified=get_last_modified(src_path),
     ).dict()

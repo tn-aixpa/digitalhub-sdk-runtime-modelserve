@@ -230,7 +230,7 @@ class ClientDHCore(Client):
                     return {}
                 msg = "Unable to parse response from DHCore backend."
             else:
-                msg = f"Backend error: {e}"
+                msg = f"Backend error. Status code: {e.response.status_code}. Reason: {e.response.text}"
             raise BackendError(msg) from e
         except Exception as e:
             msg = f"Some error occurred: {e}"
