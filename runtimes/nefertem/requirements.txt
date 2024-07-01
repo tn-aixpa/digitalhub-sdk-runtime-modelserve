@@ -8,15 +8,15 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub[data]==0.6.0b1
+digitalhub[data]==0.6.0b2
     # via
     #   digitalhub
     #   digitalhub-runtime-nefertem (pyproject.toml)
-digitalhub-core==0.6.0b1
+digitalhub-core==0.6.0b2
     # via
     #   digitalhub
     #   digitalhub-data
-digitalhub-data==0.6.0b1
+digitalhub-data==0.6.0b2
     # via digitalhub
 greenlet==3.0.3
     # via sqlalchemy
