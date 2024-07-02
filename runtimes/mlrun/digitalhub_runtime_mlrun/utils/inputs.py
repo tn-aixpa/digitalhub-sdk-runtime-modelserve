@@ -9,6 +9,7 @@ from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 from digitalhub_ml.entities.models.crud import model_from_dict
+from digitalhub_data.readers.builder import get_reader_by_object
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
@@ -42,7 +43,8 @@ def persist_dataitem(dataitem: DataitemTable, tmp_dir: Path) -> str:
     try:
         LOGGER.info(f"Persisting dataitem '{name}' locally.")
         tmp_path = str(tmp_dir / f"{name}.csv")
-        dataitem.write_df(target_path=tmp_path, extension="csv", sep=",")
+        df = dataitem.as_df()
+        get_reader_by_object(df).write_csv(df, tmp_path)
         return tmp_path
     except Exception as e:
         msg = f"Error during dataitem '{name}' collection. Exception: {e.__class__}. Error: {e.args}"
