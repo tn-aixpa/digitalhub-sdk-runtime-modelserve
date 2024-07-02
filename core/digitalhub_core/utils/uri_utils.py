@@ -37,3 +37,28 @@ def map_uri_scheme(uri: str) -> str:
     if scheme in ["git", "git+http", "git+https"]:
         return "git"
     raise ValueError(f"Unknown scheme '{scheme}'!")
+
+
+def check_local_path(path: str) -> bool:
+    """
+    Check if path is local.
+
+    Parameters
+    ----------
+    path : str
+        Path of some source.
+
+    Returns
+    -------
+    bool
+        True if path is local.
+
+    Raises
+    ------
+    Exception
+        If the path is not specified.
+    """
+    if path is None:
+        raise Exception("Path is not specified.")
+    scheme = map_uri_scheme(path)
+    return scheme == "local"

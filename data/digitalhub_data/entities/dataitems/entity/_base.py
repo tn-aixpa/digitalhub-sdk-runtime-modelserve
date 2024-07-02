@@ -16,7 +16,7 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.file_utils import get_file_info
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
-from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub_core.utils.uri_utils import check_local_path, map_uri_scheme
 from digitalhub_data.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
@@ -180,7 +180,7 @@ class Dataitem(Entity):
         bool
             True if local, False otherwise.
         """
-        return map_uri_scheme(path) == "local"
+        return check_local_path(path)
 
     @staticmethod
     def _get_extension(path: str, file_format: str | None = None) -> str:

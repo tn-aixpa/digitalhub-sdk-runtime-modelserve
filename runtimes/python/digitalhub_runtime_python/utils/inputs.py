@@ -121,25 +121,23 @@ def compose_inputs(
         _has_context = "context" in fnc_parameters
         _has_event = "event" in fnc_parameters
 
+        # Project is reserved keyword argument
+        # both in local and remote executions
         if _has_project:
-            if _has_context:
+            if _has_context and not local_execution:
                 fnc_args["project"] = context.project
             elif isinstance(project, str):
                 fnc_args["project"] = get_project_(project)
             else:
                 fnc_args["project"] = project
 
-        if _has_context:
-            if context is not None and not local_execution:
+        # Context and event are reserved keyword arguments
+        # only in remote executions
+        if not local_execution:
+            if _has_context:
                 fnc_args["context"] = context
-            else:
-                raise RuntimeError("Context is not available on local execution.")
-
-        if _has_event:
-            if event is not None and not local_execution:
+            if _has_event:
                 fnc_args["event"] = event
-            else:
-                raise RuntimeError("Event is not available on local execution.")
 
         return fnc_args
 

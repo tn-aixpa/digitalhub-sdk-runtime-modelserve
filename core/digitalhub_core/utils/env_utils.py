@@ -82,3 +82,15 @@ def update_client_from_env() -> None:
         client._user = username
         client._password = password
         client._auth_type = "basic"
+
+
+def get_s3_bucket() -> str | None:
+    """
+    Function to get S3 bucket name.
+
+    Returns
+    -------
+    str
+        The S3 bucket name.
+    """
+    return os.getenv("S3_BUCKET_NAME", "datalake")

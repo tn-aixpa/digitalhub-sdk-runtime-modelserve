@@ -5,12 +5,17 @@ from typing import Any
 
 import pandas as pd
 from digitalhub_data.readers.objects.base import DataframeReader
+from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview
 
 
 class DataframeReaderPandas(DataframeReader):
     """
     Pandas reader class.
     """
+
+    ###################################
+    # Read methods
+    ###################################
 
     @staticmethod
     def read_df(path: str, extension: str, **kwargs) -> pd.DataFrame:
@@ -34,6 +39,10 @@ class DataframeReaderPandas(DataframeReader):
         if extension == "csv":
             return pd.read_csv(path, **kwargs)
         return pd.read_parquet(path, **kwargs)
+
+    ###################################
+    # Write methods
+    ###################################
 
     def write_df(self, df: pd.DataFrame, dst: str | BytesIO, extension: str | None = None, **kwargs) -> None:
         """
@@ -119,3 +128,65 @@ class DataframeReaderPandas(DataframeReader):
         None
         """
         df.to_sql(table, engine, schema=schema, index=False, **kwargs)
+
+    ###################################
+    # Utils
+    ###################################
+
+    @staticmethod
+    def get_schema(df: pd.DataFrame) -> Any:
+        """
+        Get schema.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe.
+
+        Returns
+        -------
+        Any
+            The schema.
+        """
+        schema = {"fields": []}
+
+        for column_name, dtype in df.dtypes.items():
+            field = {"name": column_name, "type": ""}
+
+            if pd.api.types.is_integer_dtype(dtype):
+                field["type"] = "integer"
+            elif pd.api.types.is_float_dtype(dtype):
+                field["type"] = "number"
+            elif pd.api.types.is_bool_dtype(dtype):
+                field["type"] = "boolean"
+            elif pd.api.types.is_string_dtype(dtype):
+                field["type"] = "string"
+            elif pd.api.types.is_datetime64_any_dtype(dtype):
+                field["type"] = "datetime"
+            else:
+                field["type"] = "any"
+
+            schema["fields"].append(field)
+
+        return schema
+
+    @staticmethod
+    def get_preview(df: pd.DataFrame) -> Any:
+        """
+        Get preview.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The dataframe.
+
+        Returns
+        -------
+        Any
+            The preview.
+        """
+        columns = df.columns.tolist()
+        head = df.head(10).values.tolist()
+        preview = get_data_preview(columns, head)
+        rows = len(df)
+        return build_data_preview(preview, rows)

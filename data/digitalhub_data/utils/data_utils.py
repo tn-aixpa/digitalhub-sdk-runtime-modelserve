@@ -6,6 +6,30 @@ import numpy as np
 import pandas as pd
 
 
+def build_data_preview(preview: list[dict] | None = None, rows_count: int | None = None) -> dict:
+    """
+    Build data preview.
+
+    Parameters
+    ----------
+    preview : list[dict] | None
+        Preview.
+    rows_count : int | None
+        Row count.
+
+    Returns
+    -------
+    dict
+        Data preview.
+    """
+    dict_ = {}
+    if preview is not None:
+        dict_["cols"] = preview
+    if rows_count is not None:
+        dict_["rows"] = rows_count
+    return dict_
+
+
 def get_data_preview(columns: list, data: list[list]) -> list[dict]:
     """
     Prepare preview.

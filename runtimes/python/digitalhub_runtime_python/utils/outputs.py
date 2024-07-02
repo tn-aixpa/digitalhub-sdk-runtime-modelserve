@@ -8,9 +8,11 @@ from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.artifacts.entity import Artifact
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import new_dataitem
+from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.entities.dataitems.entity.table import DataitemTable
+from digitalhub_data.readers.builder import get_reader_by_object
 from digitalhub_data.readers.registry import DATAFRAME_TYPES
+from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_runtime_python.utils.env import S3_BUCKET
 
 
@@ -125,9 +127,16 @@ def build_and_load_dataitem(name: str, project_name: str, data: Any) -> Dataitem
         kwargs["kind"] = "table"
         new_id = build_uuid()
         kwargs["uuid"] = new_id
-        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/dataitems/{new_id}/{name}.parquet"
+        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/{EntityTypes.DATAITEMS.value}/{new_id}/data.parquet"
 
-        di: DataitemTable = new_dataitem(**kwargs)
+        di: DataitemTable = create_dataitem(**kwargs)
+
+        reader = get_reader_by_object(data)
+        di.spec.schema = reader.get_schema(data)
+        di.status.preview = reader.get_preview(data)
+
+        di.save()
+
         di.write_df(df=data)
         return di
     except Exception as e:
@@ -161,14 +170,15 @@ def build_and_load_artifact(name: str, project_name: str, data: Any) -> Artifact
         kwargs["kind"] = "artifact"
         new_id = build_uuid()
         kwargs["uuid"] = new_id
-        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/artifacts/{new_id}/{name}.pickle"
+        pickle_file = f"{name}.pickle"
+        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/{EntityTypes.ARTIFACTS.value}/{new_id}/{pickle_file}"
 
         # Dump item to pickle
-        with open(f"{name}.pickle", "wb") as f:
+        with open(pickle_file, "wb") as f:
             f.write(pickle.dumps(data))
 
         art = new_artifact(**kwargs)
-        art.upload(source=f"{name}.pickle")
+        art.upload(source=pickle_file)
         return art
 
     except Exception as e:

@@ -58,12 +58,12 @@ def new_dataitem(
     project: str,
     name: str,
     kind: str,
-    path: str,
     uuid: str | None = None,
     description: str | None = None,
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
+    path: str | None = None,
     **kwargs,
 ) -> Dataitem:
     """
@@ -77,8 +77,6 @@ def new_dataitem(
         Name that identifies the object.
     kind : str
         Kind of the object.
-    path : str
-        Path to the dataitem on local file system or remote storage.
     uuid : str
         ID of the object in form of UUID.
     description : str
@@ -89,6 +87,9 @@ def new_dataitem(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
+    path : str
+        Object path on local file system or remote storage.
+        If not provided, it's generated.
     **kwargs
         Spec keyword arguments.
 

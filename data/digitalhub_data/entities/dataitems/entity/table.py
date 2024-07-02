@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from digitalhub_data.datastores.builder import get_datastore, get_default_datastore
+from digitalhub_data.datastores.builder import get_datastore
 from digitalhub_data.entities.dataitems.entity._base import Dataitem
 
 
@@ -62,7 +62,10 @@ class DataitemTable(Dataitem):
         return df
 
     def write_df(
-        self, target_path: str | None = None, df: Any | None = None, extension: str | None = None, **kwargs
+        self,
+        df: Any | None = None,
+        extension: str | None = None,
+        **kwargs,
     ) -> str:
         """
         Write pandas DataFrame as parquet.
@@ -85,11 +88,7 @@ class DataitemTable(Dataitem):
         str
             Path to the written dataframe.
         """
-        if target_path is None:
-            target_path = f"{self.project}/{self.ENTITY_TYPE}/{self.id}/{self.name}.parquet"
-            datastore = get_default_datastore()
-        else:
-            datastore = get_datastore(target_path)
+        datastore = get_datastore(self.spec.path)
         if df is None:
             df = self.as_df()
-        return datastore.write_df(df, target_path, extension=extension, **kwargs)
+        return datastore.write_df(df, self.spec.path, extension=extension, **kwargs)

@@ -3,8 +3,8 @@ Function Conatiner specification module.
 """
 from __future__ import annotations
 
-from typing import Literal
 from pathlib import Path
+from typing import Literal
 
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec, SourceCodeStruct
 from digitalhub_core.utils.exceptions import EntityError

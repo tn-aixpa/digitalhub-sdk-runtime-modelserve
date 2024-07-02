@@ -9,12 +9,20 @@ class DataframeReader(metaclass=ABCMeta):
     Dataframe reader abstract class.
     """
 
+    ###################################
+    # Read methods
+    ###################################
+
     @staticmethod
     @abstractmethod
     def read_df(path: str, extension: str, **kwargs) -> Any:
         """
         Read DataFrame from path.
         """
+
+    ###################################
+    # Write methods
+    ###################################
 
     @abstractmethod
     def write_df(self, df: Any, dst: Any, extension: str | None = None, **kwargs) -> None:
@@ -41,4 +49,22 @@ class DataframeReader(metaclass=ABCMeta):
     def write_table(df: Any, *args, **kwargs) -> str:
         """
         Write DataFrame as table.
+        """
+
+    ###################################
+    # Utils
+    ###################################
+
+    @staticmethod
+    @abstractmethod
+    def get_schema(df: Any) -> Any:
+        """
+        Get schema.
+        """
+
+    @staticmethod
+    @abstractmethod
+    def get_preview(df: Any) -> Any:
+        """
+        Get preview.
         """

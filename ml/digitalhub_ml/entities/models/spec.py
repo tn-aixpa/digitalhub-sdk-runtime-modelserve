@@ -13,20 +13,16 @@ class ModelSpec(Spec):
 
     def __init__(
         self,
-        path: str | None = None,
+        path: str,
         framework: str | None = None,
         algorithm: str | None = None,
-        **kwargs,
     ) -> None:
         """
         Constructor.
         """
-
         self.path = path
         self.framework = framework
         self.algorithm = algorithm
-
-        self._any_setter(**kwargs)
 
 
 class ModelParams(SpecParams):
@@ -51,6 +47,9 @@ class ModelSpecModel(ModelSpec):
 
     def __init__(
         self,
+        path: str,
+        framework: str | None = None,
+        algorithm: str | None = None,
         base_model: str | None = None,
         parameters: dict | None = None,
         metrics: dict | None = None,
@@ -59,11 +58,10 @@ class ModelSpecModel(ModelSpec):
         """
         Constructor.
         """
+        super().__init__(path, framework, algorithm)
         self.base_model = base_model
         self.parameters = parameters
         self.metrics = metrics
-
-        self._any_setter(**kwargs)
 
 
 class ModelParamsModel(ModelParams):

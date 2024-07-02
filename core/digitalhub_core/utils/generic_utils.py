@@ -171,6 +171,30 @@ def extract_archive(path: Path, filename: Path) -> None:
         zip_file.extractall(path)
 
 
+def check_overwrite(dst: str, overwrite: bool) -> None:
+    """
+    Check if destination path exists for overwrite.
+
+    Parameters
+    ----------
+    dst : str
+        Destination path as filename.
+    overwrite : bool
+        Specify if overwrite an existing file.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    Exception
+        If destination path exists and overwrite is False.
+    """
+    if Path(dst).exists() and not overwrite:
+        raise Exception(f"Destination {dst} already exists.")
+
+
 def get_s3_source(bucket: str, key: str, filename: Path) -> None:
     """
     Get S3 source.

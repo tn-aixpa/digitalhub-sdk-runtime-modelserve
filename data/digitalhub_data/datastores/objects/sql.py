@@ -15,7 +15,7 @@ class SqlDatastore(Datastore):
     Sql Datastore class.
     """
 
-    def write_df(self, df: Any, dst: str | None = None, extension: str | None = None, **kwargs) -> str:
+    def write_df(self, df: Any, dst: str, extension: str | None = None, **kwargs) -> str:
         """
         Write a dataframe to a database. Kwargs are passed to df.to_sql().
 

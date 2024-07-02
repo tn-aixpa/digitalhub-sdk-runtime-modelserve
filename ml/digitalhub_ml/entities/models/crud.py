@@ -63,6 +63,7 @@ def new_model(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
+    path: str | None = None,
     **kwargs,
 ) -> Model:
     """
@@ -86,6 +87,9 @@ def new_model(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
+    path : str
+        Object path on local file system or remote storage.
+        If not provided, it's generated.
     **kwargs
         Spec keyword arguments.
 

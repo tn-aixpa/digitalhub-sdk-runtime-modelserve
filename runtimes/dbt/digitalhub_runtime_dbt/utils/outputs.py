@@ -10,7 +10,7 @@ from dbt.cli.main import dbtRunnerResult
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
-from digitalhub_data.utils.data_utils import get_data_preview
+from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub_runtime_dbt.utils.env import get_connection
 from psycopg2 import sql
 
@@ -198,12 +198,7 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
         dataitem = create_dataitem(**kwargs)
 
         # Update dataitem status with preview
-        preview = _get_data_preview(columns, data)
-
-        dataitem.status.preview = {
-            "cols": preview,
-            "rows": rows_count,
-        }
+        dataitem.status.preview = _get_data_preview(columns, data, rows_count)
 
         # Save dataitem in core and return it
         dataitem.save()
@@ -274,7 +269,7 @@ def get_schema(columns: tuple) -> list[dict]:
         raise RuntimeError(msg) from e
 
 
-def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
+def _get_data_preview(columns: tuple, data: list[tuple], rows_count: int) -> list[dict]:
     """
     Get data preview from dbt result.
 
@@ -284,6 +279,8 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
         The columns.
     data : list[tuple]
         The data.
+    rows_count : int
+        The number of rows.
 
     Returns
     -------
@@ -292,7 +289,8 @@ def _get_data_preview(columns: tuple, data: list[tuple]) -> list[dict]:
     """
     try:
         columns = [i.name for i in columns]
-        return get_data_preview(columns, data)
+        preview = get_data_preview(columns, data)
+        return build_data_preview(preview, rows_count)
     except Exception as e:
         msg = f"Something got wrong during data preview creation. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)

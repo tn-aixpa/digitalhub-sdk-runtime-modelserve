@@ -10,4 +10,3 @@ class CorePort(BaseModel):
 
     port: int
     target_port: int
-

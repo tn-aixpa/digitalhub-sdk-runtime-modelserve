@@ -49,7 +49,7 @@ class Datastore(metaclass=ABCMeta):
         return self.store.download(src, dst)
 
     @abstractmethod
-    def write_df(self, df: Any, dst: str | None = None, extension: str | None = None, **kwargs) -> str:
+    def write_df(self, df: Any, dst: str, extension: str | None = None, **kwargs) -> str:
         """
         Write DataFrame as parquet or csv.
         """

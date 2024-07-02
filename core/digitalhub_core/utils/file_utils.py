@@ -3,10 +3,10 @@ General utilities module.
 """
 from __future__ import annotations
 
+from datetime import datetime
 from hashlib import sha256
 from mimetypes import guess_type
 from pathlib import Path
-from datetime import datetime
 
 from pydantic import BaseModel
 

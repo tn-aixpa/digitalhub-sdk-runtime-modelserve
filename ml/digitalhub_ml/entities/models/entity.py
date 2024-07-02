@@ -16,9 +16,9 @@ from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.file_utils import get_file_info
-from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
+from digitalhub_core.utils.generic_utils import build_uuid, check_overwrite, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
-from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub_core.utils.uri_utils import check_local_path
 from digitalhub_ml.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
@@ -167,9 +167,32 @@ class Model(Entity):
     #  Model methods
     #############################
 
+    def as_file(self) -> str:
+        """
+        Get model as file. In the case of a local store, the store returns the current
+        path of the model. In the case of a remote store, the model is downloaded in
+        a temporary directory.
+
+        Returns
+        -------
+        str
+            Path of the model (temporary or not).
+        """
+        # Check if target path is provided and if it is remote
+        trg = self.spec.path
+        self._check_remote(trg)
+
+        # If local store, return local model path
+        # Check if source path is provided and if it is local
+        store = get_store(trg)
+        if store.is_local():
+            self._check_local(self.spec.src_path)
+            return self.spec.src_path
+
+        return store.download(trg)
+
     def download(
         self,
-        target: str | None = None,
         destination: str | None = None,
         overwrite: bool = False,
     ) -> str:
@@ -178,12 +201,10 @@ class Model(Entity):
 
         Parameters
         ----------
-        target : str
-            Target path is the remote path of the model
         destination : str
-            Destination path as filename
+            Destination path as filename.
         overwrite : bool
-            Specify if overwrite an existing file
+            Specify if overwrite an existing file. Default value is False.
 
         Returns
         -------
@@ -191,88 +212,59 @@ class Model(Entity):
             Path of the downloaded model.
         """
 
-        # Check if target path is provided and if it is remote
-        trg = self._parameter_or_default(target, self.spec.path)
-        self._check_remote(trg)
+        # Check if target path is remote
+        path = self.spec.path
+        self._check_remote(path)
 
         # Check if download destination path is specified and rebuild it if necessary
         if destination is None:
-            filename = urlparse(trg).path.split("/")[-1]
-            destination = f"{self.project}/models/{self.kind}/{filename}"
+            filename = Path(urlparse(path).path).name
+            destination = f"{self.project}/{self.ENTITY_TYPE}/{self.id}/{filename}"
+
+        # Check if destination path is local
+        self._check_local(destination)
 
         # Check if destination path exists for overwrite
-        self._check_overwrite(destination, overwrite)
+        check_overwrite(destination, overwrite)
 
         # Download model and return path
-        store = get_store(trg)
-        return store.download(trg, destination)
+        store = get_store(path)
+        return store.download(path, destination)
 
-    def upload(self, source: str | None = None, target: str | None = None) -> str:
+    def upload(self, source: str | None = None) -> str:
         """
-        Upload model to remote storage from source path to target destination.
+        Upload model to remote storage from given local path to
+        spec path destination.
 
         Parameters
         ----------
         source : str
             Source path is the local path of the model.
-        target : str
-            Target path is the remote path of the model.
 
         Returns
         -------
         str
             Path of the uploaded model.
         """
-        # Check if target path is provided and if it is remote
-        trg = self._parameter_or_default(target, self.spec.path)
-        self._check_remote(trg)
+        # Check if target path is remote
+        path = self.spec.path
+        self._check_remote(path)
 
         # Check if source path is provided and if it is local
-        if source is None:
-            raise EntityError("Source path is not specified.")
-        self._check_local(source)
+        src = source if source is not None else self.spec.src_path
+        self._check_local(src)
 
-        # Get store
-        store = get_store(trg)
-        if store.is_local():
-            raise EntityError("Cannot target local store for upload.")
+        self.refresh()
+        self._get_file_info(src)
+        self.save(update=True)
 
-        # Upload model and return remote path
-        return store.upload(source, trg)
+        # Get store and upload model and return remote path
+        store = get_store(path)
+        return store.upload(src, path)
 
     #############################
     #  Private Helpers
     #############################
-
-    @staticmethod
-    def _parameter_or_default(parameter: str | None = None, default: str | None = None) -> str:
-        """
-        Check whether a parameter is specified or not. If not, return the default value. If also
-        the default value is not specified, raise an exception. If parameter is specified, but
-        default value is not, return the parameter and set the default value to the parameter.
-
-        Parameters
-        ----------
-        parameter : str
-            Parameter to check.
-        default : str
-            Default value.
-
-        Returns
-        -------
-        str
-            Parameter or default value.
-
-        Raises
-        ------
-        EntityError
-            If parameter and default value are not specified.
-        """
-        if parameter is None:
-            if default is None:
-                raise EntityError("Path is not specified.")
-            return default
-        return parameter
 
     @staticmethod
     def _check_local(path: str) -> None:
@@ -293,7 +285,7 @@ class Model(Entity):
         EntityError
             If source path is not local.
         """
-        if map_uri_scheme(path) != "local":
+        if not check_local_path(path):
             raise EntityError("Only local paths are supported for source paths.")
 
     @staticmethod
@@ -315,32 +307,8 @@ class Model(Entity):
         EntityError
             If source path is local.
         """
-        if map_uri_scheme(path) == "local":
+        if check_local_path(path):
             raise EntityError("Only remote paths are supported for target paths.")
-
-    @staticmethod
-    def _check_overwrite(dst: str, overwrite: bool) -> None:
-        """
-        Check if destination path exists for overwrite.
-
-        Parameters
-        ----------
-        dst : str
-            Destination path as filename.
-        overwrite : bool
-            Specify if overwrite an existing file.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        Exception
-            If destination path exists and overwrite is False.
-        """
-        if Path(dst).exists() and not overwrite:
-            raise EntityError(f"Resource {dst} already exists.")
 
     def _get_file_info(self, src_path: str) -> None:
         """
@@ -406,6 +374,9 @@ def model_from_parameters(
     source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
+    path: str | None = None,
+    framework: str | None = None,
+    algorithm: str | None = None,
     **kwargs,
 ) -> Model:
     """
@@ -429,6 +400,13 @@ def model_from_parameters(
         A description of the model.
     embedded : bool
         Flag to determine if object must be embedded in project.
+    path : str
+        Object path on local file system or remote storage.
+        If not provided, it's generated.
+    framework : str
+        Model framework (e.g. 'pytorch').
+    algorithm : str
+        Model algorithm (e.g. 'resnet').
     **kwargs
         Spec keyword arguments.
 
@@ -437,6 +415,8 @@ def model_from_parameters(
     Model
         An instance of the created model.
     """
+    if path is None:
+        raise EntityError("Path must be provided.")
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind,
@@ -448,7 +428,13 @@ def model_from_parameters(
         labels=labels,
         embedded=embedded,
     )
-    spec = build_spec(kind, **kwargs)
+    spec = build_spec(
+        kind,
+        path=path,
+        framework=framework,
+        algorithm=algorithm,
+        **kwargs,
+    )
     status = build_status(kind)
     return Model(
         project=project,
