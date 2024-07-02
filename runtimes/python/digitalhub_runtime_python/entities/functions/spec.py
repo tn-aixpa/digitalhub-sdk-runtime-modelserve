@@ -132,14 +132,14 @@ class FunctionParamsPython(FunctionParams):
     source: dict
     "Source code"
 
+    python_version: Literal["PYTHON3_9", "PYTHON3_10"]
+    "Python version"
+
     image: str = None
     "Image"
 
     base_image: str = None
     "Base image"
-
-    python_version: Literal["PYTHON3_9", "PYTHON3_10"] = None
-    "Python version"
 
     requirements: list = None
     "Requirements list, as used by the runtime"
