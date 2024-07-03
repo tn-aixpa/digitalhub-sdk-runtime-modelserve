@@ -8,8 +8,8 @@ from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
-from digitalhub_ml.entities.models.crud import model_from_dict
 from digitalhub_data.readers.builder import get_reader_by_object
+from digitalhub_ml.entities.models.crud import model_from_dict
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
