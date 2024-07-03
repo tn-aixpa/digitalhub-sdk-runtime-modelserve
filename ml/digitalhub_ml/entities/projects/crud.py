@@ -10,7 +10,7 @@ from digitalhub_core.entities.projects.crud import _setup_project
 from digitalhub_core.utils.api import api_base_read
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
-from digitalhub_data.entities.projects.entity import project_from_dict, project_from_parameters
+from digitalhub_ml.entities.projects.entity import project_from_dict, project_from_parameters
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.projects.entity import ProjectMl as Project

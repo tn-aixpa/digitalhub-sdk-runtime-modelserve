@@ -5,6 +5,8 @@ import typing
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.utils.env_utils import get_s3_bucket
+from digitalhub_core.utils.file_utils import get_file_name
 from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
 from digitalhub_ml.entities.entity_types import EntityTypes
@@ -124,9 +126,8 @@ class ProjectMl(ProjectData):
         self,
         name: str,
         kind: str,
-        path: str,
+        path: str | None = None,
         source_path: str | None = None,
-        target_path: str | None = None,
         **kwargs,
     ) -> Model:
         """
@@ -141,9 +142,7 @@ class ProjectMl(ProjectData):
         path : str
             Destination path of the model.
         source_path : str
-            model location on local machine.
-        target_path : str
-            Target path of the model.
+            Model location on local machine.
         **kwargs : dict
             New model parameters.
 
@@ -152,8 +151,18 @@ class ProjectMl(ProjectData):
         Model
             Instance of Model class.
         """
-        model = new_model(self.name, name, kind, path, **kwargs)
-        model.upload(source_path, target_path)
+        if path is None:
+            if source_path is None:
+                raise Exception("Either path or source_path must be provided.")
+
+            # Build path if not provided from source filename
+            filename = get_file_name(source_path)
+            uuid = build_uuid()
+            kwargs["uuid"] = uuid
+            path = f"s3://{get_s3_bucket()}/{self.name}/{EntityTypes.MODELS.value}/{uuid}/{filename}"
+
+        model = new_model(project=self.name, name=name, kind=kind, path=path, **kwargs)
+        model.upload(source_path)
         return model
 
     @staticmethod
@@ -174,7 +183,7 @@ class ProjectMl(ProjectData):
             A dictionary containing the attributes of the entity instance.
         """
         # Override methods to search in digitalhub_ml
-        name = build_uuid(obj.get("name"))
+        name = obj.get("name")
         kind = obj.get("kind")
         metadata = build_metadata(kind, **obj.get("metadata", {}))
         spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
@@ -229,7 +238,6 @@ def project_from_parameters(
     ProjectData
         ProjectData object.
     """
-    name = build_uuid(name)
     spec = build_spec(
         kind,
         context=context,
@@ -244,7 +252,7 @@ def project_from_parameters(
         source=source,
     )
     status = build_status(kind)
-    return ProjectData(
+    return ProjectMl(
         name=name,
         kind=kind,
         metadata=metadata,
@@ -268,4 +276,4 @@ def project_from_dict(obj: dict) -> ProjectData:
     ProjectData
         ProjectData object.
     """
-    return ProjectData.from_dict(obj)
+    return ProjectMl.from_dict(obj)

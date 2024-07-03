@@ -42,7 +42,9 @@ from digitalhub_core.entities.workflows.crud import (
     new_workflow,
 )
 from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
+from digitalhub_core.utils.env_utils import get_s3_bucket
 from digitalhub_core.utils.exceptions import BackendError, EntityError
+from digitalhub_core.utils.file_utils import get_file_name
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
@@ -436,9 +438,8 @@ class Project(Entity):
         self,
         name: str,
         kind: str,
-        path: str,
+        path: str | None = None,
         source_path: str | None = None,
-        target_path: str | None = None,
         **kwargs,
     ) -> Artifact:
         """
@@ -454,8 +455,6 @@ class Project(Entity):
             Destination path of the artifact.
         source_path : str
             Artifact location on local machine.
-        target_path : str
-            Target path of the artifact.
         **kwargs : dict
             New artifact parameters.
 
@@ -464,8 +463,19 @@ class Project(Entity):
         Artifact
             Instance of Artifact class.
         """
-        artifact = new_artifact(self.name, name, kind, path, **kwargs)
-        artifact.upload(source_path, target_path)
+        if path is None:
+            if source_path is None:
+                raise Exception("Either path or source_path must be provided.")
+
+            # Build path if not provided from source filename
+            filename = get_file_name(source_path)
+            uuid = build_uuid()
+            kwargs["uuid"] = uuid
+            path = f"s3://{get_s3_bucket()}/{self.name}/{EntityTypes.ARTIFACTS.value}/{uuid}/{filename}"
+
+        artifact = new_artifact(project=self.name, name=name, kind=kind, path=path, **kwargs)
+        artifact.upload(source_path)
+        return artifact
 
     #############################
     #  Functions
@@ -776,7 +786,7 @@ class Project(Entity):
         dict
             A dictionary containing the attributes of the entity instance.
         """
-        name = build_uuid(obj.get("name"))
+        name = obj.get("name")
         kind = obj.get("kind")
         metadata = build_metadata(kind, **obj.get("metadata", {}))
         spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
@@ -831,7 +841,6 @@ def project_from_parameters(
     Project
         Project object.
     """
-    name = build_uuid(name)
     spec = build_spec(
         kind,
         context=context,

@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
-from uuid import uuid4
+from uuid import UUID, uuid4
 from zipfile import ZipFile
 
 from boto3 import client as boto3_client
@@ -18,7 +18,7 @@ from requests import get as requests_get
 
 def build_uuid(uuid: str | None = None) -> str:
     """
-    Create a uuid if not given
+    Create a uuid if not given. If given, validate it.
 
     Parameters
     ----------
@@ -30,9 +30,17 @@ def build_uuid(uuid: str | None = None) -> str:
     str
         The uuid.
     """
-    if uuid is not None:
-        return uuid
-    return str(uuid4())
+    if uuid is None:
+        return str(uuid4())
+
+    # Validate uuid
+    if not isinstance(uuid, str):
+        raise ValueError("uuid must be a string")
+    try:
+        UUID(uuid, version=4)
+    except ValueError:
+        raise ValueError("uuid must be a valid UUID")
+    return uuid
 
 
 def get_timestamp() -> str:

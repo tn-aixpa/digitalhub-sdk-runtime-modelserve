@@ -78,7 +78,6 @@ def new_artifact(
         Name that identifies the object.
     kind : str
         Kind of the object.
-
     uuid : str
         ID of the object in form of UUID.
     description : str

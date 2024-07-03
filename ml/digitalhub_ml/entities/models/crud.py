@@ -64,6 +64,8 @@ def new_model(
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
+    framework: str | None = None,
+    algorithm: str | None = None,
     **kwargs,
 ) -> Model:
     """
@@ -90,6 +92,10 @@ def new_model(
     path : str
         Object path on local file system or remote storage.
         If not provided, it's generated.
+    framework : str
+        Model framework (e.g. 'pytorch').
+    algorithm : str
+        Model algorithm (e.g. 'resnet').
     **kwargs
         Spec keyword arguments.
 
@@ -107,13 +113,16 @@ def new_model(
         source=source,
         labels=labels,
         embedded=embedded,
+        path=path,
+        framework=framework,
+        algorithm=algorithm,
         **kwargs,
     )
     obj.save()
     return obj
 
 
-def get_model(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Model:
+def get_model(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs,) -> Model:
     """
     Retrieves model details from backend.
 

@@ -7,7 +7,6 @@ from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, Project
-from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.dataitems.crud import (
     create_dataitem_from_dict,
     delete_dataitem,
@@ -133,14 +132,13 @@ class ProjectData(Project):
         self,
         name: str,
         kind: str,
-        path: str,
-        target_path: str | None = None,
+        path: str | None = None,
         data: Any | None = None,
         extension: str | None = None,
         **kwargs,
     ) -> Dataitem:
         """
-        Log an dataitem to the project.
+        Log a dataitem to the project.
 
         Parameters
         ----------
@@ -150,8 +148,6 @@ class ProjectData(Project):
             Kind of the dataitem.
         path : str
             Destination path of the dataitem.
-        target_path : str
-            Target path of the dataitem.
         data : Any
             Dataframe to log.
         extension : str
@@ -164,9 +160,10 @@ class ProjectData(Project):
         Dataitem
             Object instance.
         """
-        dataitem = new_dataitem(self.name, name, kind, path, **kwargs)
+        dataitem = new_dataitem(project=self.name, name=name, kind=kind, path=path, **kwargs)
         if kind == "table":
-            dataitem.write_df(target_path, data, extension)
+            dataitem.write_df(df=data, extension=extension)
+        return dataitem
 
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:
@@ -186,7 +183,7 @@ class ProjectData(Project):
             A dictionary containing the attributes of the entity instance.
         """
         # Override methods to search in digitalhub_data
-        name = build_uuid(obj.get("name"))
+        name = obj.get("name")
         kind = obj.get("kind")
         metadata = build_metadata(kind, **obj.get("metadata", {}))
         spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
@@ -241,7 +238,6 @@ def project_from_parameters(
     ProjectData
         ProjectData object.
     """
-    name = build_uuid(name)
     spec = build_spec(
         kind,
         context=context,
