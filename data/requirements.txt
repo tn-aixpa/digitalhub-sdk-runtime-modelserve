@@ -8,7 +8,7 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-digitalhub-core==0.6.0b2
+digitalhub-core==0.6.0b3
     # via digitalhub-data (pyproject.toml)
 greenlet==3.0.3
     # via sqlalchemy
