@@ -2,9 +2,6 @@ from __future__ import annotations
 
 import json
 
-import numpy as np
-import pandas as pd
-
 
 def build_data_preview(preview: list[dict] | None = None, rows_count: int | None = None) -> dict:
     """
@@ -30,89 +27,46 @@ def build_data_preview(preview: list[dict] | None = None, rows_count: int | None
     return dict_
 
 
-def get_data_preview(columns: list, data: list[list]) -> list[dict]:
+def get_data_preview(columns: list, data: list[list], columnar: bool = False) -> list[dict]:
     """
     Prepare preview.
 
     Parameters
     ----------
     columns : list
-        Columns.
+        Columns names.
     data : list[list]
-        Data.
+        Data to preview.
+    columnar : bool
+        If data are arranged in columns. If False, data are arranged in rows.
 
     Returns
     -------
     list[dict]
         Data preview.
     """
-    # transposed = transpose_data(data)
-    df = pd.DataFrame(data, columns=columns)
-    masked = mask_data(df)
-    columns_to_filter = find_memoryview(masked)
-    filtered_data = masked[columns_to_filter]
-    preview = prepare_preview(filtered_data)
-    return check_preview_size(preview)
+    # Reduce data to 10 rows
+    if not columnar:
+        if len(data) > 10:
+            data = data[:10]
+    else:
+        data = [d[:10] for d in data]
+
+    # Transpose data if needed
+    if not columnar:
+        data = list(map(list, list(zip(*data))))
+
+    # Prepare the preview
+    data_dict = prepare_preview(columns, data)
+
+    # Filter memoryview values
+    filtered_memview = filter_memoryview(data_dict)
+
+    # Check the size of the preview data
+    return check_preview_size(filtered_memview)
 
 
-def mask_data(data: pd.DataFrame) -> pd.DataFrame:
-    """
-    Mask data.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Data.
-
-    Returns
-    -------
-    pd.DataFrame
-        Masked data.
-    """
-    # Filter nan
-    data = data.replace({np.nan: None})
-    return data
-
-
-def find_memoryview(data: pd.DataFrame) -> list[str]:
-    """
-    Find memoryview values.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Data.
-
-    Returns
-    -------
-    list[str]
-        Column to filter out from preview.
-    """
-    return [col for col in data.columns if not any(isinstance(val, memoryview) for val in data[col])]
-
-
-def filter_data(data: pd.DataFrame, columns: list, columns_idx: list[int]) -> tuple[list, pd.DataFrame]:
-    """
-    Filter data.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Data.
-    columns : list
-        Columns.
-    columns_idx : list[int]
-        Column indexes to filter.
-
-    Returns
-    -------
-    tuple[list, pd.DataFrame]
-        Filtered columns and data.
-    """
-    return [columns[idx] for idx in columns_idx], pd.DataFrame([data[idx] for idx in columns_idx])
-
-
-def prepare_preview(data: pd.DataFrame) -> list[dict]:
+def prepare_preview(column_names: list, data: list[list]) -> list[dict]:
     """
     Get preview.
 
@@ -126,7 +80,32 @@ def prepare_preview(data: pd.DataFrame) -> list[dict]:
     list[dict]
         Preview.
     """
-    return [{"name": k, "value": v} for k, v in data.to_dict(orient="list").items()]
+    if len(column_names) != len(data):
+        raise ValueError("Column names and data must have the same length")
+    return [{"name": column, "value": values} for column, values in zip(column_names, data)]
+
+
+def filter_memoryview(data: list[dict]) -> list[dict]:
+    """
+    Find memoryview values.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Data.
+
+    Returns
+    -------
+    list[str]
+        Column to filter out from preview.
+    """
+    key_to_filter = []
+    for i in data:
+        if any(isinstance(v, memoryview) for v in i["value"]):
+            key_to_filter.append(i["name"])
+    for i in key_to_filter:
+        data = [d for d in data if d["name"] != i]
+    return data
 
 
 def check_preview_size(preview: list[dict]) -> list:

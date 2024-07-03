@@ -29,6 +29,7 @@ class SourceCodeStruct:
         handler: str | None = None,
         code: str | None = None,
         base64: str | None = None,
+        init_function: str | None = None,
         lang: str | None = None,
     ) -> None:
         """
@@ -44,6 +45,8 @@ class SourceCodeStruct:
             Source code (plain).
         base64 : str
             Source code (base64 encoded).
+        init_function : str
+            Init function for remote execution.
         lang : str
             Source code language (hint).
         """
@@ -51,6 +54,7 @@ class SourceCodeStruct:
         self.handler = handler
         self.code = code
         self.base64 = base64
+        self.init_function = init_function
         self.lang = lang
 
     def to_dict(self) -> dict:
@@ -69,6 +73,8 @@ class SourceCodeStruct:
             dict_["handler"] = self.handler
         if self.base64 is not None:
             dict_["base64"] = self.base64
+        if self.init_function is not None:
+            dict_["init_function"] = self.init_function
         if self.lang is not None:
             dict_["lang"] = self.lang
 

@@ -188,5 +188,5 @@ class DataframeReaderPandas(DataframeReader):
         columns = df.columns.tolist()
         head = df.head(10).values.tolist()
         preview = get_data_preview(columns, head)
-        rows = len(df)
-        return build_data_preview(preview, rows)
+        len_df = len(df)
+        return build_data_preview(preview, len_df)

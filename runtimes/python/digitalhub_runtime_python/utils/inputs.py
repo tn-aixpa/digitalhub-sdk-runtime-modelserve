@@ -115,7 +115,6 @@ def compose_inputs(
         fnc_args = {**parameters, **entity_inputs}
 
         fnc_parameters = inspect.signature(func).parameters
-        LOGGER.info(f"Function parameters: {'project' in fnc_parameters}")
 
         _has_project = "project" in fnc_parameters
         _has_context = "context" in fnc_parameters
