@@ -1,0 +1,1 @@
+:::digitalhub_core.entities.artifacts.status

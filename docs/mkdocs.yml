@@ -1,0 +1,62 @@
+# mkdocs.yml
+site_name: Digitalhub SDK documentation
+
+theme:
+  name: "material"
+
+plugins:
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+
+nav:
+  - index: index.md
+  - Entities:
+      - Projects:
+          - Entity and methods: entities/projects/entity.md
+          - CRUD: entities/projects/crud.md
+          - Spec: entities/projects/spec.md
+          - Status: entities/projects/status.md
+      - Functions:
+          - Entity and methods: entities/functions/entity.md
+          - CRUD: entities/functions/crud.md
+          - Spec: entities/functions/spec.md
+          - Status: entities/functions/status.md
+      - Workflows:
+          - Entity and methods: entities/workflows/entity.md
+          - CRUD: entities/workflows/crud.md
+          - Spec: entities/workflows/spec.md
+          - Status: entities/workflows/status.md
+      - Tasks:
+          - Entity and methods: entities/tasks/entity.md
+          - CRUD: entities/tasks/crud.md
+          - Spec: entities/tasks/spec.md
+          - Status: entities/tasks/status.md
+      - Runs:
+          - Entity and methods: entities/runs/entity.md
+          - CRUD: entities/runs/crud.md
+          - Spec: entities/runs/spec.md
+          - Status: entities/runs/status.md
+      - Artifacts:
+          - Entity and methods: entities/artifacts/entity.md
+          - CRUD: entities/artifacts/crud.md
+          - Spec: entities/artifacts/spec.md
+          - Status: entities/artifacts/status.md
+      - Secrets:
+          - Entity and methods: entities/secrets/entity.md
+          - CRUD: entities/secrets/crud.md
+          - Spec: entities/secrets/spec.md
+          - Status: entities/secrets/status.md
+      - Dataitems:
+          - Entity and methods: entities/dataitems/entity.md
+          - CRUD: entities/dataitems/crud.md
+          - Spec: entities/dataitems/spec.md
+          - Status: entities/dataitems/status.md
+      - Models:
+          - Entity and methods: entities/models/entity.md
+          - CRUD: entities/models/crud.md
+          - Spec: entities/models/spec.md
+          - Status: entities/models/status.md
