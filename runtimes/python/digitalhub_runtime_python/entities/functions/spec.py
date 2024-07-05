@@ -1,6 +1,3 @@
-"""
-Function Conatiner specification module.
-"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -25,9 +22,6 @@ class FunctionSpecPython(FunctionSpec):
         python_version: str | None = None,
         requirements: list | None = None,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__()
 
         self.image = image

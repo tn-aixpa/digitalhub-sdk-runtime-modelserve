@@ -1,6 +1,3 @@
-"""
-Nefertem Function specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec

@@ -1,6 +1,3 @@
-"""
-Task Transform specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpecK8s

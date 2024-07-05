@@ -12,9 +12,6 @@ class RunSpecNefertem(RunSpecData):
         local_execution: bool = False,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(task, local_execution)
 
         self.constraints = kwargs.get("constraints")

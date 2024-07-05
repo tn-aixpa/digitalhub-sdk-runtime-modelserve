@@ -1,6 +1,3 @@
-"""
-Task Python specification module.
-"""
 from __future__ import annotations
 
 from typing import Literal
@@ -16,9 +13,6 @@ class TaskSpecJob(TaskSpecK8s):
         function: str,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
 
         self.backoff_limit = kwargs.get("backoff_limit")
@@ -42,9 +36,6 @@ class TaskSpecBuild(TaskSpecK8s):
         instructions: list | None = None,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
 
         self.instructions = instructions
@@ -69,9 +60,6 @@ class TaskSpecServe(TaskSpecK8s):
         service_type: str | None = None,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
 
         self.replicas = replicas

@@ -1,6 +1,3 @@
-"""
-Module for performing operations on tasks.
-"""
 from __future__ import annotations
 
 import typing

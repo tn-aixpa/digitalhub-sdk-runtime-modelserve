@@ -1,6 +1,3 @@
-"""
-Runtime Dbt parsing utils module.
-"""
 from __future__ import annotations
 
 import typing

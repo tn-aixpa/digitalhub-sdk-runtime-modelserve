@@ -1,6 +1,3 @@
-"""
-Context module.
-"""
 from __future__ import annotations
 
 import typing
@@ -21,9 +18,6 @@ class Context:
     """
 
     def __init__(self, project: Project) -> None:
-        """
-        Constructor.
-        """
         self.name = project.name
         self.client = project._client
         self.local = project._client.is_local()

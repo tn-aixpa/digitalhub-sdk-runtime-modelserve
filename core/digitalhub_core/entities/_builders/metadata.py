@@ -1,6 +1,3 @@
-"""
-Metadata factory entity.
-"""
 from __future__ import annotations
 
 import typing

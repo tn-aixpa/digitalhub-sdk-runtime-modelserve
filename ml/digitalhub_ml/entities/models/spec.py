@@ -1,6 +1,3 @@
-"""
-Model base specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
@@ -17,9 +14,6 @@ class ModelSpec(Spec):
         framework: str | None = None,
         algorithm: str | None = None,
     ) -> None:
-        """
-        Constructor.
-        """
         self.path = path
         self.framework = framework
         self.algorithm = algorithm
@@ -55,9 +49,6 @@ class ModelSpecModel(ModelSpec):
         metrics: dict | None = None,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(path, framework, algorithm)
         self.base_model = base_model
         self.parameters = parameters

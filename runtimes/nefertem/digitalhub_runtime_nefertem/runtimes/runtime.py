@@ -1,6 +1,3 @@
-"""
-Runtime nefertem module.
-"""
 from __future__ import annotations
 
 import shutil
@@ -29,9 +26,6 @@ class RuntimeNefertem(Runtime):
     """
 
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:
-        """
-        Constructor.
-        """
         super().__init__(kind_registry, project)
         ctx = get_context(self.project)
         ctx.tmp_dir.mkdir(parents=True, exist_ok=True)

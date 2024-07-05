@@ -12,9 +12,6 @@ class RunSpecContainer(RunSpec):
         local_execution: bool = False,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(task, local_execution)
 
         self.image = kwargs.get("image")

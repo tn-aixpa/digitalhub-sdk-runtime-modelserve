@@ -1,6 +1,3 @@
-"""
-RunStatus class module.
-"""
 from __future__ import annotations
 
 import typing
@@ -30,9 +27,6 @@ class RunStatus(Status):
         results: dict | None = None,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(state, message)
         self.outputs = outputs
         self.results = results

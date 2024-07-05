@@ -1,6 +1,3 @@
-"""
-Dataitem specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
@@ -14,9 +11,6 @@ class DataitemSpec(Spec):
     """
 
     def __init__(self, path: str) -> None:
-        """
-        Constructor.
-        """
         self.path = path
 
 
@@ -47,9 +41,6 @@ class DataitemSpecTable(DataitemSpec):
     """
 
     def __init__(self, path: str, schema: dict | None = None) -> None:
-        """
-        Constructor.
-        """
         super().__init__(path)
         self.schema = schema
 

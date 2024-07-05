@@ -25,9 +25,6 @@ class RuntimeKFP(Runtime):
     """
 
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:
-        """
-        Constructor.
-        """
         super().__init__(kind_registry, project)
         ctx = get_context(self.project)
         self.root = ctx.runtime_dir

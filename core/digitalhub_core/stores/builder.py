@@ -1,6 +1,3 @@
-"""
-Store builder module.
-"""
 from __future__ import annotations
 
 import os
@@ -33,9 +30,6 @@ class StoreBuilder:
     """
 
     def __init__(self) -> None:
-        """
-        Constructor.
-        """
         self._instances: dict[str, Store] = {}
         self._default: Store | None = None
         self._def_scheme = "s3"

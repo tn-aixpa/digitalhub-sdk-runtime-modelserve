@@ -1,6 +1,3 @@
-"""
-Datastore module.
-"""
 from __future__ import annotations
 
 import typing
@@ -22,9 +19,6 @@ class Datastore(metaclass=ABCMeta):
     """
 
     def __init__(self, store: Store, **kwargs) -> None:
-        """
-        Constructor.
-        """
         self.store = store
 
     ############################

@@ -1,6 +1,3 @@
-"""
-Local store module.
-"""
 from __future__ import annotations
 
 import shutil

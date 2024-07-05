@@ -1,6 +1,3 @@
-"""
-Task Container specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpecK8s
@@ -15,9 +12,6 @@ class TaskSpecJob(TaskSpecK8s):
         function: str,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
         self.backoff_limit = kwargs.get("backoff_limit")
         self.schedule = kwargs.get("schedule")
@@ -43,9 +37,6 @@ class TaskSpecDeploy(TaskSpecK8s):
         function: str,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
         self.replicas = kwargs.get("replicas")
 
@@ -69,9 +60,6 @@ class TaskSpecServe(TaskSpecK8s):
         service_type: str | None = None,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
         self.service_ports = service_ports
         self.service_type = service_type
@@ -101,9 +89,6 @@ class TaskSpecBuild(TaskSpecK8s):
         function: str,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
         self.instructions = kwargs.get("instructions")
 

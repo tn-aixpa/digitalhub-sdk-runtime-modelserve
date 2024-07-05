@@ -1,6 +1,3 @@
-"""
-Artifact base specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities._base.spec import Spec, SpecParams
@@ -17,9 +14,6 @@ class ArtifactSpec(Spec):
         src_path: str | None = None,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         self.path = path
         self.src_path = src_path
 

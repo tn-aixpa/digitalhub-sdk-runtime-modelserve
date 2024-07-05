@@ -1,6 +1,3 @@
-"""
-Context builder module.
-"""
 from __future__ import annotations
 
 import typing
@@ -20,9 +17,6 @@ class ContextBuilder:
     """
 
     def __init__(self) -> None:
-        """
-        Constructor.
-        """
         self._instances: dict[str, Context] = {}
 
     def build(self, project_object: Project) -> None:

@@ -1,6 +1,3 @@
-"""
-Base Runtime module.
-"""
 from __future__ import annotations
 
 import typing
@@ -26,9 +23,6 @@ class Runtime:
     """
 
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:
-        """
-        Constructor.
-        """
         self.kind_registry = kind_registry
         self.project = project
 

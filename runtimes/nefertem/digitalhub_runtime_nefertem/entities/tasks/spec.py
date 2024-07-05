@@ -1,6 +1,3 @@
-"""
-Task Dbt specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpecK8s
@@ -18,9 +15,6 @@ class TaskSpecNefertem(TaskSpecK8s):
         num_worker: int | None = 1,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
 
         self.framework = framework

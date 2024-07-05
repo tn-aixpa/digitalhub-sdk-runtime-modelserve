@@ -1,6 +1,3 @@
-"""
-Local Client module.
-"""
 from __future__ import annotations
 
 from copy import deepcopy
@@ -24,9 +21,6 @@ class ClientLocal(Client):
     """
 
     def __init__(self) -> None:
-        """
-        Constructor.
-        """
         super().__init__()
         self._db: dict[str, dict[str, dict]] = {}
 

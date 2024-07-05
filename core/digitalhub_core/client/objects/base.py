@@ -1,6 +1,3 @@
-"""
-Client Base module.
-"""
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -10,9 +7,9 @@ class Client:
     """
     Base Client class interface.
 
-    A client handles the lifeciycle of an object during a coding session.
-    It manages the creation, reading, updating and deleting of objects and comes
-    into 2 subclasses: Local and DHCore.
+    The client is an interface that handles the CRUD of an object during
+    a session. It manages the creation, reading, updating, deleting and
+    listing of objects and comes into two subclasses: Local and DHCore.
     """
 
     @abstractmethod

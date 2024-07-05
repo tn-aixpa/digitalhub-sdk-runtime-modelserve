@@ -1,6 +1,3 @@
-"""
-APIs module.
-"""
 from __future__ import annotations
 
 API_BASE = "/api/v1"

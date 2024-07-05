@@ -1,6 +1,3 @@
-"""
-Run base specification module.
-"""
 from __future__ import annotations
 
 import typing
@@ -26,9 +23,6 @@ class RunSpec(Spec):
         task: str,
         local_execution: bool = False,
     ) -> None:
-        """
-        Constructor.
-        """
         self.task = task
         self.local_execution = local_execution
 

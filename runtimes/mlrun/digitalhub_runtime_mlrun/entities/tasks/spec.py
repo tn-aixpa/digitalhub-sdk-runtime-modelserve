@@ -1,6 +1,3 @@
-"""
-Task Mlrun specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.tasks.spec import TaskParamsK8s, TaskSpec, TaskSpecK8s
@@ -27,9 +24,6 @@ class TaskSpecBuild(TaskSpec):
         force_build: bool = False,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__(function, **kwargs)
         self.target_image = target_image
         self.commands = commands

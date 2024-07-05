@@ -1,6 +1,3 @@
-"""
-Client builder module.
-"""
 from __future__ import annotations
 
 import typing
@@ -21,9 +18,6 @@ class ClientBuilder:
     """
 
     def __init__(self) -> None:
-        """
-        Constructor.
-        """
         self._local = None
         self._dhcore = None
 

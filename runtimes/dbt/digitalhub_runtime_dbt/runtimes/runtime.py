@@ -1,6 +1,3 @@
-"""
-Runtime Dbt module.
-"""
 from __future__ import annotations
 
 import typing
@@ -36,9 +33,6 @@ class RuntimeDbt(Runtime):
     """
 
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:
-        """
-        Constructor.
-        """
         super().__init__(kind_registry, project)
 
         ctx = get_context(self.project)

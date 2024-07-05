@@ -1,6 +1,3 @@
-"""
-Run base specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.runs.spec import ENTITY_FUNC, RunParams, RunSpec

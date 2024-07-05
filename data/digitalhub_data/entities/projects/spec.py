@@ -1,6 +1,3 @@
-"""
-Project base specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.projects.spec import ProjectParams, ProjectSpec

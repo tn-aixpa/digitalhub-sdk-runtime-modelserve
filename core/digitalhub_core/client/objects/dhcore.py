@@ -1,6 +1,3 @@
-"""
-DHCore Client module.
-"""
 from __future__ import annotations
 
 import os
@@ -45,17 +42,15 @@ class ClientDHCore(Client):
     OAuth2 token authentication.
     At creation, the client tries to get the endpoint and authentication
     parameters from the environment variables. In case the user incours
-    into an authentication/endpoint error during the client creation it
-    has the possibility to update the correct endpoint/authentication
-    parameters using the `set_dhub_env` function.
-    If the dhcore client is already initialized, this function will override
-    the configuration, otherwise it simply set the environment variables.
+    into an authentication/endpoint error during the client creation,
+    the user has the possibility to update the correct parameters using
+    the `set_dhub_env` function.
+    If the dhcore client is already initialized, this function will
+    override the configuration, otherwise it simply set the environment
+    variables.
     """
 
     def __init__(self, config: dict | None = None) -> None:
-        """
-        Constructor.
-        """
         super().__init__()
 
         self._endpoint: str | None = None

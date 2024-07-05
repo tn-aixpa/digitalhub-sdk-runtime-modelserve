@@ -1,6 +1,3 @@
-"""
-Module for performing operations on Dataitem objects.
-"""
 from __future__ import annotations
 
 import typing

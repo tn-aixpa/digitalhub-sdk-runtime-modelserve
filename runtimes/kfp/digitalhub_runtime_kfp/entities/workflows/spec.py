@@ -1,6 +1,3 @@
-"""
-KFP pipeline Workflow specification module.
-"""
 from __future__ import annotations
 
 from pathlib import Path

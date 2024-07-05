@@ -23,9 +23,6 @@ class DatastoreBuilder:
     """
 
     def __init__(self) -> None:
-        """
-        Constructor.
-        """
         self._instances: dict[str, Datastore] = {}
         self._default: Datastore | None = None
         self._def_scheme = "s3"

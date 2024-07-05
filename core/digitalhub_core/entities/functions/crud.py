@@ -1,6 +1,3 @@
-"""
-Module for performing operations on functions.
-"""
 from __future__ import annotations
 
 import typing

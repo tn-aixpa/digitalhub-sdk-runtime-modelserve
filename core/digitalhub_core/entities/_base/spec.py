@@ -1,6 +1,3 @@
-"""
-Entity specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities._base.base import ModelObj

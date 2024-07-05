@@ -1,6 +1,3 @@
-"""
-Function Conatiner specification module.
-"""
 from __future__ import annotations
 
 from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
@@ -18,9 +15,6 @@ class FunctionSpecContainer(FunctionSpec):
         command: str | None = None,
         args: list[str] | None = None,
     ) -> None:
-        """
-        Constructor.
-        """
         super().__init__()
 
         self.image = image
