@@ -82,8 +82,6 @@ def new_run(
         List of labels.
     local_execution : bool
         Flag to determine if object has local execution.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
     **kwargs : dict
         Spec keyword arguments.
 

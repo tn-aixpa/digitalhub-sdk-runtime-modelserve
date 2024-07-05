@@ -353,7 +353,7 @@ class Project(Entity):
         Returns
         -------
         Artifact
-           Object instance.
+            Object instance.
         """
         kwargs["project"] = self.name
         kwargs["kind"] = "artifact"
@@ -493,7 +493,7 @@ class Project(Entity):
         Returns
         -------
         Function
-           Object instance.
+            Object instance.
         """
         kwargs["project"] = self.name
         obj = new_function(**kwargs)

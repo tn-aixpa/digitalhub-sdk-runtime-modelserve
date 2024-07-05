@@ -31,7 +31,7 @@ class ContextBuilder:
 
         Parameters
         ----------
-        project : Project
+        project_object : Project
             The project to add.
 
         Returns
@@ -117,8 +117,8 @@ def set_context_object(context: Context) -> None:
 
     Parameters
     ----------
-    project : Project
-        The project object used to set the current context.
+    context : Context
+        The context to set.
 
     Returns
     -------

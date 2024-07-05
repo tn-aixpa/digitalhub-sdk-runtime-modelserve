@@ -115,8 +115,8 @@ class Context:
         ----------
         api : str
             The api to list the objects with.
-        filters : dict
-            The filters to list the objects with.
+        **kwargs : dict
+            Keyword arguments passed to the request.
 
         Returns
         -------

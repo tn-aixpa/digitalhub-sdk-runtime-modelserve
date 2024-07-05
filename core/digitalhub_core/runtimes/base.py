@@ -119,11 +119,6 @@ class Runtime:
         """
         Get executable kind.
 
-        Parameters
-        ----------
-        action : str
-            Action.
-
         Returns
         -------
         str
@@ -153,7 +148,7 @@ class Runtime:
 
         Parameters
         ----------
-        task : str
+        kind : str
             Task kind.
 
         Returns

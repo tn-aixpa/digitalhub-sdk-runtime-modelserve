@@ -121,10 +121,12 @@ def get_secret(project: str, entity_name: str | None = None, entity_id: str | No
 
     project : str
         Project name.
-    name : str
-        The name of the secret.
-    uuid : str
-        ID of the object in form of UUID.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------

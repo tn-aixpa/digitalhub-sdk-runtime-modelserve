@@ -518,8 +518,6 @@ def run_from_parameters(
         Remote git source for object.
     labels : list[str]
         List of labels.
-    embedded : bool
-        Flag to determine if object must be embedded in project.
     **kwargs : dict
         Spec keyword arguments.
 

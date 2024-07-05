@@ -167,8 +167,6 @@ class Secret(Entity):
 
         Parameters
         ----------
-        key : str
-            Key of the secret.
         value : str
             Value of the secret.
 
@@ -186,11 +184,6 @@ class Secret(Entity):
     def read_secret_value(self) -> dict:
         """
         Read a secret from backend.
-
-        Parameters
-        ----------
-        key : str
-            Key or list of keys from the secret.
 
         Returns
         -------

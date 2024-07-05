@@ -95,8 +95,8 @@ class Function(Entity):
 
         Parameters
         ----------
-        uuid : str
-            Specify uuid for the function update
+        update : bool
+            Flag to indicate update.
 
         Returns
         -------

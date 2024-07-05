@@ -117,8 +117,8 @@ def get_workflow(project: str, entity_name: str | None = None, entity_id: str | 
         Entity name.
     entity_id : str
         Entity ID.
-    uuid : str
-        ID of the object in form of UUID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------

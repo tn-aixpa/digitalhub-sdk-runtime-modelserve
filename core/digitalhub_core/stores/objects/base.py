@@ -28,8 +28,6 @@ class Store(metaclass=ABCMeta):
             Store name.
         store_type : str
             Store type. Used to choose the right store implementation.
-        uri : str
-            Store URI.
 
         Returns
         -------

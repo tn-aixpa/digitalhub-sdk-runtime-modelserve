@@ -160,10 +160,6 @@ def new_project(
     ----------
     name : str
         Name that identifies the object.
-    kind : str
-        Kind of the object.
-    uuid : str
-        ID of the object in form of UUID.
     description : str
         Description of the object.
     source : str

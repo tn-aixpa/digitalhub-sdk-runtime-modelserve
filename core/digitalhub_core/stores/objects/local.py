@@ -107,8 +107,6 @@ class LocalStore(Store):
             The source location of the artifact.
         dst : str
             The destination of the artifact.
-        src_name : str
-            The name of the artifact.
 
         Returns
         -------

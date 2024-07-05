@@ -125,7 +125,7 @@ class KindRegistry:
 
         Parameters
         ----------
-        task : str
+        kind : str
             Task kind.
 
         Returns
