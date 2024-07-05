@@ -30,7 +30,7 @@ def build_spec(kind: str, validate: bool = True, **kwargs) -> Spec:
         Registry entry kind.
     validate : bool
         Flag to determine if validate kwargs.
-    **kwargs
+    **kwargs : dict
         Keyword arguments for the constructor.
 
     Returns

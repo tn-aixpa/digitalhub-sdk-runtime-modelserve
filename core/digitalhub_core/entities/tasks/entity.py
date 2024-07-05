@@ -174,7 +174,7 @@ class Task(Entity):
             Kind of the run.
         local_execution : bool
             Flag to indicate if the run will be executed locally.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -212,7 +212,7 @@ class Task(Entity):
 
         Parameters
         ----------
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -318,13 +318,13 @@ def task_from_parameters(
         Remote git source for object.
     labels : list[str]
         List of labels.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Task
-       Object instance.
+        Object instance.
     """
     uuid = build_uuid(uuid)
     metadata = build_metadata(

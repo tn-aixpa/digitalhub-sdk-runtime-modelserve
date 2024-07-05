@@ -25,7 +25,7 @@ def create_dataitem(**kwargs) -> Dataitem:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -90,13 +90,13 @@ def new_dataitem(
     path : str
         Object path on local file system or remote storage.
         If not provided, it's generated.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Dataitem
-       Object instance.
+        Object instance.
     """
     obj = create_dataitem(
         project=project,

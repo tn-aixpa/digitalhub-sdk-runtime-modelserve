@@ -25,7 +25,7 @@ class SqlDatastore(Datastore):
             The dataframe to write.
         dst : str
             The destination of the dataframe.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -53,7 +53,7 @@ class SqlDatastore(Datastore):
             Destination schema.
         table : str
             Destination table.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns

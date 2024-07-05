@@ -14,7 +14,6 @@ from digitalhub_runtime_kfp.utils.configurations import (
     save_workflow_source,
 )
 from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline
-from digitalhub_runtime_kfp.utils.inputs import get_inputs_parameters
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.kind_registry import KindRegistry
@@ -141,7 +140,7 @@ class RuntimeKFP(Runtime):
         LOGGER.info("Getting inputs.")
         inputs = spec.get("inputs", {})
         parameters = spec.get("parameters", {})
-        return get_inputs_parameters(inputs, parameters)
+        return {**parameters, **inputs}
 
     ####################
     # Configuration

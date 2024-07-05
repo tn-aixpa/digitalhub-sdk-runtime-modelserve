@@ -37,7 +37,7 @@ class ModelObj:
 
         Parameters
         ----------
-        **kwargs
+        **kwargs : dict
             Keyword arguments to be set as attributes.
 
         Returns

@@ -94,13 +94,13 @@ def dataitem_from_parameters(
     path : str
         Object path on local file system or remote storage.
         If not provided, it's generated.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Dataitem
-       Object instance.
+        Object instance.
     """
     uuid = build_uuid(uuid)
     if path is None:

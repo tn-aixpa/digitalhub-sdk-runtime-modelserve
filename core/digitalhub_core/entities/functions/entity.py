@@ -191,7 +191,7 @@ class Function(Entity):
             Action to execute.
         local_execution : bool
             Flag to determine if object has local execution.
-        **kwargs
+        **kwargs : dict
             Keyword arguments passed to Task and Run builders.
 
         Returns
@@ -287,7 +287,7 @@ class Function(Entity):
         ----------
         task_kind : str
             Kind of the task.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -323,7 +323,7 @@ class Function(Entity):
         ----------
         kind : str
             Kind of the task.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -511,13 +511,13 @@ def function_from_parameters(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Function
-       Object instance.
+        Object instance.
     """
     uuid = build_uuid(uuid)
     spec = build_spec(kind, **kwargs)

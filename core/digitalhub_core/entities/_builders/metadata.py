@@ -28,7 +28,7 @@ def build_metadata(kind: str, **kwargs) -> Metadata:
     ----------
     kind : str
         Registry entry kind.
-    **kwargs
+    **kwargs : dict
         Keyword arguments for the constructor.
 
     Returns
@@ -48,7 +48,7 @@ def parse_arguments(**kwargs) -> dict:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns

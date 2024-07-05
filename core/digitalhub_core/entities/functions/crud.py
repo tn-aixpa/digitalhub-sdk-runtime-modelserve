@@ -23,13 +23,13 @@ def create_function(**kwargs) -> Function:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
     -------
     Function
-       Object instance.
+        Object instance.
     """
     return function_from_parameters(**kwargs)
 
@@ -84,13 +84,53 @@ def new_function(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
+
+    Examples
+    --------
+    Example
+
+    >>> fnc = dh.new_function(project="project_name",
+    >>>                       name="function_name",
+    >>>                       kind="python",
+    >>>                       description="This is my function.",
+    >>>                       source={"source": "func.py",
+    >>>                               "handler": "my_handler"},
+    >>>                       python_vesion="PYTHON3_9")
+    >>> fnc.to_dict()
+    {
+        'project': 'project-python',
+        'name': 'function_name',
+        'id': 'c2cbefc5-2453-4926-9b06-84966590ae9e',
+        'kind': 'python',
+        'key': 'store://project-python/functions/python/function_name:c2cbefc5-2453-4926-9b06-84966590ae9e',
+        'metadata': {
+            'project': 'project-python',
+            'name': 'function_name',
+            'version': 'c2cbefc5-2453-4926-9b06-84966590ae9e',
+            'description': 'This is my function.',
+            'created': '2024-07-04T13:29:31.703Z',
+            'updated': '2024-07-04T13:29:31.703Z',
+            'created_by': 'user',
+            'updated_by': 'user',
+            'embedded': True},
+        'spec': {
+            'python_version': 'PYTHON3_9',
+            'source': {
+                'source': 'func.py',
+                'handler': 'my_handler',
+                'base64': '...',
+                'lang': 'python'}
+            },
+            'status': {'state': 'CREATED'},
+            'user': 'user'
+    }
 
     Returns
     -------
     Function
-       Object instance.
+        Object instance.
     """
     obj = create_function(
         project=project,

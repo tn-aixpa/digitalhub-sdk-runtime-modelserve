@@ -24,7 +24,7 @@ def create_secret(**kwargs) -> Secret:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -85,7 +85,7 @@ def new_secret(
         Flag to determine if object must be embedded in project.
     secret_value : str
         Value of the secret.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

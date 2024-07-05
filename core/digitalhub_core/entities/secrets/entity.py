@@ -275,7 +275,7 @@ def secret_from_parameters(
         A description of the secret.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

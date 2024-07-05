@@ -193,16 +193,22 @@ def _create_dataitem(project: str, mlrun_output: dict) -> Dataitem:
         kwargs["kind"] = "table"
         new_id = build_uuid()
         kwargs["uuid"] = new_id
-        kwargs["path"] = mlrun_output.get("spec", {}).get("target_path")
+
+        path = mlrun_output.get("spec", {}).get("target_path")
+
+        # Check on path. If mlrun output is local, write data to minio
+        if map_uri_scheme(path) == "local":
+            kwargs["path"] = None
+        else:
+            kwargs["path"] = path
+
         kwargs["schema"] = mlrun_output.get("spec", {}).get("schema", {})
 
         dataitem: DataitemTable = create_dataitem(**kwargs)
 
-        # Check on path. If mlrun output is local, write data to minio
-        if map_uri_scheme(dataitem.spec.path) == "local":
-            target_path = f"s3://{S3_BUCKET}/{project}/dataitems/{new_id}/{dataitem.name}.parquet"
-            new_path = dataitem.write_df(target_path=target_path)
-            dataitem.spec.path = new_path
+        # Upload data if Mlrun output is local
+        if kwargs["path"] is None:
+            dataitem.write_file(source_path=path)
 
         # Add sample preview
         header = mlrun_output.get("spec", {}).get("header", [])

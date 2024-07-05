@@ -41,7 +41,7 @@ class Context:
             Create API.
         obj : dict
             The object to create.
-        **kwargs
+        **kwargs : dict
             Keyword arguments passed to the request.
 
         Returns
@@ -59,7 +59,7 @@ class Context:
         ----------
         api : str
             Read API.
-        **kwargs
+        **kwargs : dict
             Keyword arguments passed to the request.
 
         Returns
@@ -79,7 +79,7 @@ class Context:
             Update API.
         obj : dict
             The object to update.
-        **kwargs
+        **kwargs : dict
             Keyword arguments passed to the request.
 
         Returns
@@ -97,7 +97,7 @@ class Context:
         ----------
         api : str
             Delete API.
-        **kwargs
+        **kwargs : dict
             Keyword arguments passed to the request.
 
         Returns

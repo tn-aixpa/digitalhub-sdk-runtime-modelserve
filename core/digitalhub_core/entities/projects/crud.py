@@ -28,7 +28,7 @@ def create_project(**kwargs) -> Project:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -77,7 +77,7 @@ def load_project(
         DHCore env configuration.
     setup_kwargs : dict
         Setup keyword arguments.
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -115,7 +115,7 @@ def get_or_create_project(
         Folder where the project will saves its context locally.
     setup_kwargs : dict
         Setup keyword arguments.
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -178,7 +178,7 @@ def new_project(
         The context of the project.
     setup_kwargs : dict
         Setup keyword arguments.
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns

@@ -42,13 +42,13 @@ class ProjectData(Project):
 
         Parameters
         ----------
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
         -------
         Dataitem
-           Object instance.
+            Object instance.
         """
         kwargs["project"] = self.name
         obj = new_dataitem(**kwargs)
@@ -230,7 +230,7 @@ def project_from_parameters(
         Flag to determine if object will be exported to backend.
     context : str
         The context of the project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

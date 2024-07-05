@@ -25,7 +25,7 @@ class S3Datastore(Datastore):
             The dataframe.
         dst : str
             The destination path on S3 based storage.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns

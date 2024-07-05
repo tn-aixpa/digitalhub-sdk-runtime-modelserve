@@ -23,7 +23,7 @@ class ArtifactStatus(Status):
 
         Parameters
         ----------
-        **kwargs
+        **kwargs : dict
             Keywords arguments.
         """
         super().__init__(state, message)

@@ -180,7 +180,7 @@ class Workflow(Entity):
 
         Parameters
         ----------
-        **kwargs
+        **kwargs : dict
             Keyword arguments passed to Task and Run builders.
 
         Returns
@@ -267,7 +267,7 @@ class Workflow(Entity):
         ----------
         task_kind : str
             Kind of the task.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -303,7 +303,7 @@ class Workflow(Entity):
         ----------
         kind : str
             Kind of the task.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -491,7 +491,7 @@ def workflow_from_parameters(
         A description of the workflow.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

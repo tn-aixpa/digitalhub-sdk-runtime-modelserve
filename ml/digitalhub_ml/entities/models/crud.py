@@ -25,7 +25,7 @@ def create_model(**kwargs) -> Model:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -96,7 +96,7 @@ def new_model(
         Model framework (e.g. 'pytorch').
     algorithm : str
         Model algorithm (e.g. 'resnet').
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns
@@ -122,19 +122,25 @@ def new_model(
     return obj
 
 
-def get_model(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs,) -> Model:
+def get_model(
+    project: str,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    **kwargs,
+) -> Model:
     """
     Retrieves model details from backend.
 
     Parameters
     ----------
-
     project : str
         Project name.
-    name : str
-        The name of the model.
-    uuid : str
-        ID of the object in form of UUID.
+    entity_name : str
+        Entity name.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------

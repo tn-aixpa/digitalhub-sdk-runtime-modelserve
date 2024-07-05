@@ -28,7 +28,7 @@ class DataframeReaderPandas(DataframeReader):
             Path to read DataFrame from.
         extension : str
             Extension of the file.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -54,7 +54,7 @@ class DataframeReaderPandas(DataframeReader):
             The dataframe to write.
         dst : str | BytesIO
             The destination of the dataframe.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -76,7 +76,7 @@ class DataframeReaderPandas(DataframeReader):
             The dataframe to write.
         dst : str | BytesIO
             The destination of the dataframe.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -96,7 +96,7 @@ class DataframeReaderPandas(DataframeReader):
             The dataframe to write.
         dst : str | BytesIO
             The destination of the dataframe.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
@@ -120,7 +120,7 @@ class DataframeReaderPandas(DataframeReader):
             The SQLAlchemy engine.
         schema : str
             The destination schema.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns

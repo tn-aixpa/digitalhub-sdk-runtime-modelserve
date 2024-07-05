@@ -25,7 +25,7 @@ def create_artifact(**kwargs) -> Artifact:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -93,13 +93,13 @@ def new_artifact(
         If not provided, it's generated.
     src_path : str
         Local object path.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Artifact
-       Object instance.
+        Object instance.
     """
     obj = create_artifact(
         project=project,

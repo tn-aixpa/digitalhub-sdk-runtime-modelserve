@@ -35,13 +35,13 @@ class ProjectMl(ProjectData):
 
         Parameters
         ----------
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
         -------
         Model
-           Object instance.
+            Object instance.
         """
         kwargs["project"] = self.name
         kwargs["kind"] = "model"
@@ -230,7 +230,7 @@ def project_from_parameters(
         Flag to determine if object will be exported to backend.
     context : str
         The context of the project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

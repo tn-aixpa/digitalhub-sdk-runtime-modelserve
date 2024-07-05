@@ -24,13 +24,13 @@ def create_task(**kwargs) -> Task:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
     -------
     Task
-       Object instance.
+        Object instance.
     """
     return task_from_parameters(**kwargs)
 
@@ -47,7 +47,7 @@ def create_task_from_dict(obj: dict) -> Task:
     Returns
     -------
     Task
-       Object instance.
+        Object instance.
     """
     check_context(obj.get("project"))
     return task_from_dict(obj)
@@ -81,13 +81,13 @@ def new_task(
         List of labels.
     function : str
         The function string identifying the function.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Task
-       Object instance.
+        Object instance.
     """
     obj = create_task(
         project=project,

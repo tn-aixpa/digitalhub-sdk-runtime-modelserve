@@ -28,7 +28,7 @@ class LocalDatastore(Datastore):
             The dataframe to write.
         dst : str
             The destination of the dataframe.
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns

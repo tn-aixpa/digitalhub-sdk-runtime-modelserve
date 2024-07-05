@@ -40,7 +40,10 @@ def materialize_dataitem(dataitem: DataitemTable, name: str) -> str:
         LOGGER.info(f"Creating new dataitem '{table_name}'.")
         materialized_path = f"sql://{POSTGRES_DATABASE}/{POSTGRES_SCHEMA}/{table_name}"
         materialized_dataitem: DataitemTable = new_dataitem(
-            project=dataitem.project, name=table_name, kind="table", path=materialized_path
+            project=dataitem.project,
+            name=table_name,
+            kind="table",
+            path=materialized_path,
         )
 
         LOGGER.info(f"Writing dataframe to dataitem '{table_name}'.")

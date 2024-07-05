@@ -34,7 +34,7 @@ class ArtifactSpec(Spec):
             The mimetype of the artifact.
         file_extension : str
             The file extension of the artifact.
-        **kwargs
+        **kwargs : dict
             Keywords arguments.
         """
         self.path = path

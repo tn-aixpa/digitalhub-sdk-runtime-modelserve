@@ -76,7 +76,7 @@ class ClientDHCore(Client):
             Create API.
         obj : dict
             The object to create.
-        **kwargs
+        **kwargs : dict
             Keyword arguments to pass to the request.
 
         Returns
@@ -95,7 +95,7 @@ class ClientDHCore(Client):
         ----------
         api : str
             Read API.
-        **kwargs
+        **kwargs : dict
             Keyword arguments to pass to the request.
 
         Returns
@@ -115,7 +115,7 @@ class ClientDHCore(Client):
             Update API.
         obj : dict
             The object to update.
-        **kwargs
+        **kwargs : dict
             Keyword arguments to pass to the request.
 
         Returns
@@ -134,7 +134,7 @@ class ClientDHCore(Client):
         ----------
         api : str
             Delete API.
-        **kwargs
+        **kwargs : dict
             Keyword arguments to pass to the request.
 
         Returns
@@ -155,7 +155,7 @@ class ClientDHCore(Client):
         ----------
         api : str
             List API.
-        **kwargs
+        **kwargs : dict
             Keyword arguments to pass to the request.
 
         Returns
@@ -195,7 +195,7 @@ class ClientDHCore(Client):
             The type of call to make.
         api : str
             The api to call.
-        **kwargs
+        **kwargs : dict
             Keyword arguments to pass to the request.
 
         Returns

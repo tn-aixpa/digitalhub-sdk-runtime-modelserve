@@ -205,7 +205,7 @@ class ClientLocal(Client):
         ----------
         api : str
             Delete API.
-        **kwargs
+        **kwargs : dict
             Keyword arguments parsed from request.
 
         Returns
@@ -298,7 +298,7 @@ class ClientLocal(Client):
         ----------
         api : str
             List API.
-        **kwargs
+        **kwargs : dict
             Keyword arguments parsed from request.
 
         Returns

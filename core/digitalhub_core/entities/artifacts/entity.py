@@ -410,7 +410,7 @@ def artifact_from_parameters(
         If not provided, it's generated.
     src_path : str
         Local object path.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

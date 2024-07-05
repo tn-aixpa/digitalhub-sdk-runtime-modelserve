@@ -90,8 +90,8 @@ class Dataitem(Entity):
 
         Parameters
         ----------
-        uuid : str
-            Specify uuid for the dataitem to update
+        update : bool
+            Flag to indicate update.
 
         Returns
         -------

@@ -24,13 +24,13 @@ def create_run(**kwargs) -> Run:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
     -------
     Run
-       Object instance.
+        Object instance.
     """
     return run_from_parameters(**kwargs)
 
@@ -84,7 +84,7 @@ def new_run(
         Flag to determine if object has local execution.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

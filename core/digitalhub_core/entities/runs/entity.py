@@ -520,7 +520,7 @@ def run_from_parameters(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

@@ -96,7 +96,7 @@ class Runtime:
             Function to execute.
         *args
             Function arguments.
-        **kwargs
+        **kwargs : dict
             Function keyword arguments.
 
         Returns

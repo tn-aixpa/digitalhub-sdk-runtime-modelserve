@@ -407,7 +407,7 @@ def model_from_parameters(
         Model framework (e.g. 'pytorch').
     algorithm : str
         Model algorithm (e.g. 'resnet').
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

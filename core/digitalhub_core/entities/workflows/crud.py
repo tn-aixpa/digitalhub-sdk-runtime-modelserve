@@ -24,7 +24,7 @@ def create_workflow(**kwargs) -> Workflow:
 
     Parameters
     ----------
-    **kwargs
+    **kwargs : dict
         Keyword arguments.
 
     Returns
@@ -81,7 +81,7 @@ def new_workflow(
         List of labels.
     embedded : bool
         Flag to determine if object must be embedded in project.
-    **kwargs
+    **kwargs : dict
         Spec keyword arguments.
 
     Returns

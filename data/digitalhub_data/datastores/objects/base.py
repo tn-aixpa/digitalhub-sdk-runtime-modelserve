@@ -66,7 +66,7 @@ class Datastore(metaclass=ABCMeta):
             Extension of the file.
         engine : str
             Dataframe engine (pandas, polars, etc.).
-        **kwargs
+        **kwargs : dict
             Keyword arguments.
 
         Returns
