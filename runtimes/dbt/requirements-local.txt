@@ -34,17 +34,17 @@ dbt-postgres==1.6.7
     # via digitalhub-runtime-dbt (pyproject.toml)
 dbt-semantic-interfaces==0.2.3
     # via dbt-core
-digitalhub[data]==0.6.0b3
+digitalhub[data]==0.6.0b4
     # via
     #   digitalhub
     #   digitalhub-runtime-dbt (pyproject.toml)
-digitalhub-core[full]==0.6.0b3
+digitalhub-core[full]==0.6.0b4
     # via
     #   digitalhub
     #   digitalhub-core
     #   digitalhub-data
     #   digitalhub-runtime-dbt (pyproject.toml)
-digitalhub-data[pandas]==0.6.0b3
+digitalhub-data[pandas]==0.6.0b4
     # via
     #   digitalhub
     #   digitalhub-data
