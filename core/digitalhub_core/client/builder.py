@@ -11,10 +11,12 @@ if typing.TYPE_CHECKING:
 
 class ClientBuilder:
     """
-    The client builder class.
+    Client builder class.
 
-    It implements the builder pattern to create a Singleton client instance.
-    The client builder can be used to create a local or non-local client instance.
+    This class is used to create two possible client instances:
+    Local and DHCore.
+    It saves the client instances in the class attributes using
+    singleton pattern.
     """
 
     def __init__(self) -> None:

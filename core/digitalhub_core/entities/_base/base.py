@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from digitalhub_core.utils.generic_utils import dict_to_json
 
 class ModelObj:
     """
-    Base class for all entities. It implements the to_dict method to represent
-    the object as a dictionary and a _any_setter method to set attributes
-    coming from a constructor.
+    Base class for all entities.
+    It implements to_dict abd to_json method to represent
+    the object as a dictionary/json and an any_setter method to
+    set generic attributes coming from a constructor.
     """
 
     def to_dict(self) -> dict:
@@ -27,6 +29,18 @@ class ModelObj:
                 else:
                     obj[key] = value
         return obj
+
+    def to_json(self) -> str:
+        """
+        Return object as json with all non private keys.
+
+        Returns
+        -------
+        str
+            A json string containing the attributes of the entity instance.
+        """
+        return dict_to_json(self.to_dict())
+
 
     def _any_setter(self, **kwargs) -> None:
         """

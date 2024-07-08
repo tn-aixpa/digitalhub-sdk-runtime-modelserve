@@ -35,8 +35,6 @@ class ProjectSpec(Spec):
         self.artifacts = artifacts if artifacts is not None else []
         self.workflows = workflows if workflows is not None else []
 
-        self._any_setter(**kwargs)
-
 
 class ProjectParams(SpecParams):
     """

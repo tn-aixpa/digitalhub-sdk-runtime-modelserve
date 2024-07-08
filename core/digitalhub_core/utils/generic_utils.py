@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import base64
+import json
 import os
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 from uuid import UUID, uuid4
 from zipfile import ZipFile
 
+import numpy as np
 from boto3 import client as boto3_client
 from digitalhub_core.utils.io_utils import read_text
 from requests import get as requests_get
@@ -237,3 +240,49 @@ def get_bucket_and_key(path: str) -> tuple[str, str]:
     """
     parsed = urlparse(path)
     return parsed.netloc, parsed.path
+
+class MyEncoder(json.JSONEncoder):
+    """
+    Custom JSON encoder to handle numpy types.
+    """
+    def default(self, obj: Any) -> Any:
+        """
+        Convert numpy types to json.
+
+        Parameters
+        ----------
+        obj : Any
+            The object to convert.
+
+        Returns
+        -------
+        Any
+            The object converted to json.
+        """
+        if isinstance(obj, (int, str, float, list, dict)):
+            return obj
+        elif isinstance(obj, (np.integer, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float64)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return str(obj)
+
+
+def dict_to_json(struct: dict) -> str:
+    """
+    Convert a dict to json.
+
+    Parameters
+    ----------
+    struct : dict
+        The dict to convert.
+
+    Returns
+    -------
+    str
+        The json string.
+    """
+    return json.dumps(struct, cls=MyEncoder)
