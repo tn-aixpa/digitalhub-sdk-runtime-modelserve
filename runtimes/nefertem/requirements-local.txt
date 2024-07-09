@@ -27,15 +27,15 @@ cycler==0.12.1
     # via matplotlib
 dacite==1.8.1
     # via ydata-profiling
-digitalhub[data]==0.6.0b4
+digitalhub[data]==0.6.0b5
     # via
     #   digitalhub
     #   digitalhub-runtime-nefertem (pyproject.toml)
-digitalhub-core==0.6.0b4
+digitalhub-core==0.6.0b5
     # via
     #   digitalhub
     #   digitalhub-data
-digitalhub-data==0.6.0b4
+digitalhub-data==0.6.0b5
     # via digitalhub
 fonttools==4.53.0
     # via matplotlib

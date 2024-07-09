@@ -25,9 +25,9 @@ cloudpickle==2.2.1
     # via kfp
 deprecated==1.2.14
     # via kfp
-digitalhub==0.6.0b4
+digitalhub==0.6.0b5
     # via digitalhub-runtime-kfp (pyproject.toml)
-digitalhub-core[full]==0.6.0b4
+digitalhub-core[full]==0.6.0b5
     # via
     #   digitalhub
     #   digitalhub-core
