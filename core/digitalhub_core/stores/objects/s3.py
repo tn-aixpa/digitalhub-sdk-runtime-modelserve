@@ -9,6 +9,7 @@ import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
+from digitalhub_core.utils.file_utils import get_file_info_from_s3
 
 # Type aliases
 S3Client = Type["botocore.client.S3"]
@@ -119,6 +120,29 @@ class S3Store(Store):
         """
         key = self._get_key(dst) if dst is not None else self._get_key(src)
         return self._upload_file(src, key)
+
+    def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
+        """
+        Method to get file metadata.
+
+        Parameters
+        ----------
+        path : str
+            The path of the file.
+        src_path : str
+            The source path of the file.
+
+        Returns
+        -------
+        dict
+            Returns the metadata of the file.
+        """
+        bucket = self._get_bucket()
+        key = self._get_key(path)
+        client = self._get_client()
+        self._check_access_to_storage(client, bucket)
+        metadata = client.head_object(Bucket=bucket, Key=key)
+        return get_file_info_from_s3(metadata, path)
 
     ############################
     # Private helper methods

@@ -116,6 +116,22 @@ class SqlStore(Store):
         """
         raise NotImplementedError("SQL store does not support persist_artifact.")
 
+    def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
+        """
+        Method to get file metadata.
+
+        Parameters
+        ----------
+        path : str
+            The path of the file.
+        src_path : str
+            The source path of the file.
+
+        Returns
+        -------
+        None
+        """
+
     ############################
     # Private helper methods
     ############################

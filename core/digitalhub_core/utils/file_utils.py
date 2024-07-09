@@ -128,27 +128,60 @@ def get_last_modified(data_path: str) -> str:
     return datetime.fromtimestamp(timestamp).astimezone().isoformat()
 
 
-def get_file_info(path: str, src_path: str) -> None | dict:
+def get_file_info_from_local(path: str, src_path: str) -> None | dict:
     """
     Get file info from path.
 
     Parameters
     ----------
     path : str
-        Target path of the object
+        Target path of the object.
     src_path : str
         Local path of some source.
 
     Returns
     -------
-    None
+    dict
+        File info.
     """
-    return FileInfo(
-        path=path,
-        name=get_file_name(path),
-        content_type=get_file_mime_type(src_path),
-        extension=get_file_extension(src_path),
-        size=get_file_size(src_path),
-        hash=calculate_blob_hash(src_path),
-        last_modified=get_last_modified(src_path),
-    ).dict()
+    try:
+        return FileInfo(
+            path=path,
+            name=get_file_name(path),
+            content_type=get_file_mime_type(src_path),
+            extension=get_file_extension(src_path),
+            size=get_file_size(src_path),
+            hash=calculate_blob_hash(src_path),
+            last_modified=get_last_modified(src_path),
+        ).dict()
+    except Exception:
+        return None
+
+
+def get_file_info_from_s3(metadata: dict, path: str) -> None | dict:
+    """
+    Get file info from path.
+
+    Parameters
+    ----------
+    metadata : dict
+        Metadata of the object from S3.
+    path : str
+        Object key.
+
+    Returns
+    -------
+    dict
+        File info.
+    """
+    try:
+        return FileInfo(
+            path=path,
+            name=get_file_name(path),
+            content_type=metadata["ContentType"],
+            extension=get_file_extension(path),
+            size=metadata["ContentLength"],
+            last_modified=metadata["LastModified"].isoformat(),
+        ).dict()
+    except Exception:
+        return None

@@ -8,9 +8,9 @@ from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.file_utils import get_file_info
 from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import check_local_path, map_uri_scheme
@@ -159,6 +159,40 @@ class Dataitem(Entity):
         return get_context(self.project)
 
     #############################
+    #  Dataitem methods
+    #############################
+
+    def write_file(self, src: str) -> str:
+        """
+        Write file into dataitem path.
+
+        Parameters
+        ----------
+        src : str
+            Local path of the file to write.
+
+        Returns
+        -------
+        str
+            Path to the written file.
+        """
+        path = self.spec.path
+        if not self._check_local(src):
+            raise RuntimeError("Source path must be local.")
+
+        # Get store and upload file and return remote path
+        store = get_store(path)
+        target = store.upload(src, path)
+        file_info = store.get_file_info(target, src)
+
+        if file_info is not None:
+            self.refresh()
+            self.status.add_file(file_info)
+            self.save(update=True)
+
+        return target
+
+    #############################
     #  Helper Methods
     #############################
 
@@ -212,22 +246,6 @@ class Dataitem(Entity):
         if ext is not None:
             return ext
         raise EntityError("Unknown file format. Only csv and parquet are supported.")
-
-    def _get_file_info(self, src_path: str) -> None:
-        """
-        Get file info from path.
-
-        Parameters
-        ----------
-        src_path : str
-            Local path of some source.
-
-        Returns
-        -------
-        None
-        """
-        file_info = get_file_info(self.spec.path, src_path)
-        self.status.add_file(file_info)
 
     #############################
     #  Static interface methods

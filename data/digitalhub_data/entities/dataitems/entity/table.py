@@ -47,7 +47,13 @@ class DataitemTable(Dataitem):
         else:
             path = self.spec.path
 
-        self._get_file_info(path)
+        # Get file info
+        store = get_store(path)
+        file_info = store.get_file_info(self.spec.path, path)
+        if file_info is not None:
+            self.refresh()
+            self.status.add_file(file_info)
+            self.save(update=True)
 
         # Check file format and get dataitem as DataFrame
         extension = self._get_extension(self.spec.path, file_format)
@@ -86,28 +92,14 @@ class DataitemTable(Dataitem):
             Path to the written dataframe.
         """
         datastore = get_datastore(self.spec.path)
-        return datastore.write_df(df, self.spec.path, extension=extension, **kwargs)
+        target = datastore.write_df(df, self.spec.path, extension=extension, **kwargs)
 
-    def write_file(self, source_path: str) -> str:
-        """
-        Write file into dataitem path.
+        # Get file info
+        store = get_store(target)
+        file_info = store.get_file_info(target, self.spec.path)
+        if file_info is not None:
+            self.refresh()
+            self.status.add_file(file_info)
+            self.save(update=True)
 
-        Parameters
-        ----------
-        source_path : str
-            Path to the file to write.
-
-        Returns
-        -------
-        str
-            Path to the written file.
-        """
-        if not self._check_local(source_path):
-            raise RuntimeError("Source path must be local.")
-
-        self._get_file_info(source_path)
-
-        store = get_store(self.spec.path)
-        if store.is_local():
-            return store.persist_artifact(source_path, self.spec.path)
-        return store.upload(source_path, self.spec.path)
+        return target

@@ -64,6 +64,12 @@ class Store(metaclass=ABCMeta):
         Method to persist artifact in storage.
         """
 
+    @abstractmethod
+    def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
+        """
+        Method to get file metadata.
+        """
+
     ############################
     # Helpers methods
     ############################

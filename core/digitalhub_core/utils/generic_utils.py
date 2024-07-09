@@ -241,10 +241,12 @@ def get_bucket_and_key(path: str) -> tuple[str, str]:
     parsed = urlparse(path)
     return parsed.netloc, parsed.path
 
+
 class MyEncoder(json.JSONEncoder):
     """
     Custom JSON encoder to handle numpy types.
     """
+
     def default(self, obj: Any) -> Any:
         """
         Convert numpy types to json.

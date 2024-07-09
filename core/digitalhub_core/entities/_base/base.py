@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from digitalhub_core.utils.generic_utils import dict_to_json
 
+
 class ModelObj:
     """
     Base class for all entities.
@@ -40,7 +41,6 @@ class ModelObj:
             A json string containing the attributes of the entity instance.
         """
         return dict_to_json(self.to_dict())
-
 
     def _any_setter(self, **kwargs) -> None:
         """

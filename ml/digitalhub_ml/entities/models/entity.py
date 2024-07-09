@@ -12,7 +12,6 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.file_utils import get_file_info
 from digitalhub_core.utils.generic_utils import build_uuid, check_overwrite, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import check_local_path
@@ -251,13 +250,17 @@ class Model(Entity):
         src = source if source is not None else self.spec.src_path
         self._check_local(src)
 
-        self.refresh()
-        self._get_file_info(src)
-        self.save(update=True)
-
         # Get store and upload model and return remote path
         store = get_store(path)
-        return store.upload(src, path)
+        target = store.upload(src, path)
+        file_info = store.get_file_info(target, src)
+
+        if file_info is not None:
+            self.refresh()
+            self.status.add_file(file_info)
+            self.save(update=True)
+
+        return target
 
     #############################
     #  Private Helpers
@@ -306,22 +309,6 @@ class Model(Entity):
         """
         if check_local_path(path):
             raise EntityError("Only remote paths are supported for target paths.")
-
-    def _get_file_info(self, src_path: str) -> None:
-        """
-        Get file info from path.
-
-        Parameters
-        ----------
-        src_path : str
-            Local path of some source.
-
-        Returns
-        -------
-        None
-        """
-        file_info = get_file_info(self.spec.path, src_path)
-        self.status.add_file(file_info)
 
     #############################
     #  Static interface methods
