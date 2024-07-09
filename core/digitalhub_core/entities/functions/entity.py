@@ -220,7 +220,8 @@ class Function(Entity):
         run.build()
         with ThreadPoolExecutor(max_workers=1) as executor:
             result = executor.submit(run.run)
-        return result.result()
+            r = result.result()
+        return r
 
     #############################
     #  Helpers
