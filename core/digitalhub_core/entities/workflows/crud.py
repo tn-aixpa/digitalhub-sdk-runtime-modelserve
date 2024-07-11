@@ -74,6 +74,8 @@ def new_workflow(
         ID of the object in form of UUID.
     description : str
         A description of the workflow.
+    git_source : str
+        Remote git source for object.
     labels : list[str]
         List of labels.
     embedded : bool
@@ -107,7 +109,6 @@ def get_workflow(project: str, entity_name: str | None = None, entity_id: str | 
 
     Parameters
     ----------
-
     project : str
         Project name.
     entity_name : str

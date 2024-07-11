@@ -57,7 +57,7 @@ def new_model(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
@@ -80,7 +80,7 @@ def new_model(
         ID of the object in form of UUID.
     description : str
         A description of the model.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -107,7 +107,7 @@ def new_model(
         kind=kind,
         uuid=uuid,
         description=description,
-        source=source,
+        git_source=git_source,
         labels=labels,
         embedded=embedded,
         path=path,

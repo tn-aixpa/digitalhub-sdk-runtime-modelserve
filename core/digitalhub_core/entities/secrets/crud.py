@@ -55,7 +55,7 @@ def new_secret(
     name: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     secret_value: str | None = None,
@@ -74,7 +74,7 @@ def new_secret(
         ID of the object in form of UUID.
     description : str
         A description of the secret.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -99,7 +99,7 @@ def new_secret(
         kind="secret",
         uuid=uuid,
         description=description,
-        source=source,
+        git_source=git_source,
         labels=labels,
         embedded=embedded,
         **kwargs,
@@ -115,7 +115,6 @@ def get_secret(project: str, entity_name: str | None = None, entity_id: str | No
 
     Parameters
     ----------
-
     project : str
         Project name.
     entity_name : str

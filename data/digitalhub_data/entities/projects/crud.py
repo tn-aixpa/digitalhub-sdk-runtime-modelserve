@@ -136,7 +136,7 @@ def get_or_create_project(
 def new_project(
     name: str,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     local: bool = False,
     config: dict | None = None,
@@ -153,7 +153,7 @@ def new_project(
         Name that identifies the object.
     description : str
         Description of the object.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -178,7 +178,7 @@ def new_project(
         name=name,
         kind="project",
         description=description,
-        source=source,
+        git_source=git_source,
         labels=labels,
         local=local,
         context=context,

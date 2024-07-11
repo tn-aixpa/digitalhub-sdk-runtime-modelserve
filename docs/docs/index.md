@@ -1,1 +1,0 @@
-# Digitalhub SDK documentation

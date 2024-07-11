@@ -296,7 +296,7 @@ def task_from_parameters(
     project: str,
     kind: str,
     uuid: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     **kwargs,
 ) -> Task:
@@ -311,7 +311,7 @@ def task_from_parameters(
         Kind of the object.
     uuid : str
         ID of the object in form of UUID.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -328,7 +328,7 @@ def task_from_parameters(
         kind=kind,
         project=project,
         name=uuid,
-        source=source,
+        source=git_source,
         labels=labels,
     )
     spec = build_spec(kind, **kwargs)

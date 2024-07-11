@@ -55,7 +55,7 @@ def new_task(
     function: str,
     kind: str,
     uuid: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     **kwargs,
 ) -> Task:
@@ -72,7 +72,7 @@ def new_task(
         Kind of the object.
     uuid : str
         ID of the object in form of UUID.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -91,7 +91,7 @@ def new_task(
         function=function,
         kind=kind,
         uuid=uuid,
-        source=source,
+        git_source=git_source,
         labels=labels,
         **kwargs,
     )

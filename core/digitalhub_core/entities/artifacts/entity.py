@@ -361,7 +361,7 @@ def artifact_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
@@ -383,7 +383,7 @@ def artifact_from_parameters(
         ID of the object in form of UUID.
     description : str
         Description of the object.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -411,7 +411,7 @@ def artifact_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=source,
+        source=git_source,
         labels=labels,
         embedded=embedded,
     )

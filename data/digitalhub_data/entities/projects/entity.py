@@ -205,7 +205,7 @@ def project_from_parameters(
     name: str,
     kind: str,
     description: str | None = None,
-    source: str | None = None,
+    git_source: str | None = None,
     labels: list[str] | None = None,
     local: bool = False,
     context: str | None = None,
@@ -222,7 +222,7 @@ def project_from_parameters(
         Kind of the object.
     description : str
         Description of the object.
-    source : str
+    git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
@@ -249,7 +249,7 @@ def project_from_parameters(
         name=name,
         description=description,
         labels=labels,
-        source=source,
+        source=git_source,
     )
     status = build_status(kind)
     return ProjectData(

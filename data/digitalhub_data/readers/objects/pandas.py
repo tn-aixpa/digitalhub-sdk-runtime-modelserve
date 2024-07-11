@@ -3,6 +3,7 @@ from __future__ import annotations
 from io import BytesIO
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from digitalhub_data.readers.objects.base import DataframeReader
 from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview
@@ -186,7 +187,9 @@ class DataframeReaderPandas(DataframeReader):
             The preview.
         """
         columns = df.columns.tolist()
-        head = df.head(10).values.tolist()
+        head = df.head(10)
+        head = head.replace({np.nan: None})
+        head = head.values.tolist()
         preview = get_data_preview(columns, head)
         len_df = len(df)
         return build_data_preview(preview, len_df)

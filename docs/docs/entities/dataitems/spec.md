@@ -1,1 +1,0 @@
-:::digitalhub_data.entities.dataitems.spec
