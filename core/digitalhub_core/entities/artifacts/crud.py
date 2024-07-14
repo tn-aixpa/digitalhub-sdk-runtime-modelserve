@@ -115,7 +115,13 @@ def new_artifact(
     return obj
 
 
-def get_artifact(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Artifact:
+def get_artifact(
+    project: str,
+    entity_key: str | None = None,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    **kwargs,
+) -> Artifact:
     """
     Get object from backend.
 
@@ -123,6 +129,8 @@ def get_artifact(project: str, entity_name: str | None = None, entity_id: str | 
     ----------
     project : str
         Project name.
+    entity_key : str
+        Entity key.
     entity_name : str
         Entity name.
     entity_id : str
@@ -135,11 +143,14 @@ def get_artifact(project: str, entity_name: str | None = None, entity_id: str | 
     Artifact
         Object instance.
     """
-    if (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_name or entity_id must be provided.")
+    if (entity_key is None) and (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
     context = get_context(project)
 
+    if entity_key is not None:
+        _, _, _, _, entity_id = parse_entity_key(entity_key)
+        return get_artifact(project, entity_id=entity_id)
     if entity_name is not None:
         params = kwargs.get("params", {})
         if params is None or not params:
@@ -164,8 +175,8 @@ def get_artifact_from_key(key: str) -> Artifact:
         Key of the artifact.
         It's format is store://<project>/artifacts/<kind>/<name>:<uuid>.
     """
-    project, _, _, _, uuid = parse_entity_key(key)
-    return get_artifact(project, entity_id=uuid)
+    project, _, _, _, entity_id = parse_entity_key(key)
+    return get_artifact(project, entity_id=entity_id)
 
 
 def import_artifact(file: str) -> Artifact:
@@ -188,6 +199,7 @@ def import_artifact(file: str) -> Artifact:
 
 def delete_artifact(
     project: str,
+    entity_key: str | None = None,
     entity_name: str | None = None,
     entity_id: str | None = None,
     delete_all_versions: bool = False,
@@ -200,6 +212,8 @@ def delete_artifact(
     ----------
     project : str
         Project name.
+    entity_key : str
+        Entity key.
     entity_name : str
         Entity name.
     entity_id : str
@@ -214,15 +228,21 @@ def delete_artifact(
     dict
         Response from backend.
     """
-    if (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_name or entity_id must be provided.")
+    if (entity_key is None) and (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
     context = get_context(project)
 
     params = kwargs.get("params", {})
     if params is None or not params:
         kwargs["params"] = {}
-
+    if entity_key is not None:
+        _, _, _, _, entity_id = parse_entity_key(entity_key)
+        return delete_artifact(
+            project,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+        )
     if entity_id is not None:
         api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
     else:

@@ -6,6 +6,7 @@ from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.workflows.entity import workflow_from_dict, workflow_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -103,7 +104,13 @@ def new_workflow(
     return obj
 
 
-def get_workflow(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Workflow:
+def get_workflow(
+    project: str,
+    entity_key: str | None = None,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    **kwargs,
+) -> Workflow:
     """
     Retrieves workflow details from backend.
 
@@ -111,6 +118,8 @@ def get_workflow(project: str, entity_name: str | None = None, entity_id: str | 
     ----------
     project : str
         Project name.
+    entity_key : str
+        Entity key.
     entity_name : str
         Entity name.
     entity_id : str
@@ -123,11 +132,14 @@ def get_workflow(project: str, entity_name: str | None = None, entity_id: str | 
     Workflow
         Object instance.
     """
-    if (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_name or entity_id must be provided.")
+    if (entity_key is None) and (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
     context = get_context(project)
 
+    if entity_key is not None:
+        _, _, _, _, entity_id = parse_entity_key(entity_key)
+        return get_workflow(project, entity_id=entity_id)
     if entity_name is not None:
         params = kwargs.get("params", {})
         if params is None or not params:
@@ -140,6 +152,20 @@ def get_workflow(project: str, entity_name: str | None = None, entity_id: str | 
         api = api_ctx_read(project, ENTITY_TYPE, entity_id)
         obj = context.read_object(api, **kwargs)
     return create_workflow_from_dict(obj)
+
+
+def get_workflow_from_key(key: str) -> Workflow:
+    """
+    Get workflow from key.
+
+    Parameters
+    ----------
+    key : str
+        Key of the workflow.
+        It's format is store://<project>/workflows/<kind>/<name>:<uuid>.
+    """
+    project, _, _, _, entity_id = parse_entity_key(key)
+    return get_workflow(project, entity_id=entity_id)
 
 
 def import_workflow(file: str) -> Workflow:
@@ -172,6 +198,7 @@ def import_workflow(file: str) -> Workflow:
 
 def delete_workflow(
     project: str,
+    entity_key: str | None = None,
     entity_name: str | None = None,
     entity_id: str | None = None,
     delete_all_versions: bool = False,
@@ -185,6 +212,8 @@ def delete_workflow(
     ----------
     project : str
         Project name.
+    entity_key : str
+        Entity key.
     entity_name : str
         Entity name.
     entity_id : str
@@ -199,8 +228,8 @@ def delete_workflow(
     dict
         Response from backend.
     """
-    if (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_name or entity_id must be provided.")
+    if (entity_key is None) and (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
     context = get_context(project)
 
@@ -208,7 +237,13 @@ def delete_workflow(
     if params is None or not params:
         kwargs["params"] = {}
         kwargs["params"]["cascade"] = str(cascade).lower()
-
+    if entity_key is not None:
+        _, _, _, _, entity_id = parse_entity_key(entity_key)
+        return delete_workflow(
+            project,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+        )
     if entity_id is not None:
         api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
     else:

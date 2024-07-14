@@ -6,6 +6,7 @@ from digitalhub_core.context.builder import check_context, get_context
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.secrets.entity import secret_from_dict, secret_from_parameters
 from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
+from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -109,7 +110,13 @@ def new_secret(
     return obj
 
 
-def get_secret(project: str, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Secret:
+def get_secret(
+    project: str,
+    entity_key: str | None = None,
+    entity_name: str | None = None,
+    entity_id: str | None = None,
+    **kwargs,
+) -> Secret:
     """
     Retrieves secret details from backend.
 
@@ -117,6 +124,8 @@ def get_secret(project: str, entity_name: str | None = None, entity_id: str | No
     ----------
     project : str
         Project name.
+    entity_key : str
+        Entity key.
     entity_name : str
         Entity name.
     entity_id : str
@@ -129,11 +138,14 @@ def get_secret(project: str, entity_name: str | None = None, entity_id: str | No
     Secret
         Object instance.
     """
-    if (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_name or entity_id must be provided.")
+    if (entity_key is None) and (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
     context = get_context(project)
 
+    if entity_key is not None:
+        _, _, _, _, entity_id = parse_entity_key(entity_key)
+        return get_secret(project, entity_id=entity_id)
     if entity_name is not None:
         params = kwargs.get("params", {})
         if params is None or not params:
@@ -146,6 +158,20 @@ def get_secret(project: str, entity_name: str | None = None, entity_id: str | No
         api = api_ctx_read(project, ENTITY_TYPE, entity_id)
         obj = context.read_object(api, **kwargs)
     return create_secret_from_dict(obj)
+
+
+def get_secret_from_key(key: str) -> Secret:
+    """
+    Get secret from key.
+
+    Parameters
+    ----------
+    key : str
+        Key of the secret.
+        It's format is store://<project>/secrets/<kind>/<name>:<uuid>.
+    """
+    project, _, _, _, entity_id = parse_entity_key(key)
+    return get_secret(project, entity_id=entity_id)
 
 
 def import_secret(file: str) -> Secret:
@@ -168,6 +194,7 @@ def import_secret(file: str) -> Secret:
 
 def delete_secret(
     project: str,
+    entity_key: str | None = None,
     entity_name: str | None = None,
     entity_id: str | None = None,
     delete_all_versions: bool = False,
@@ -180,6 +207,8 @@ def delete_secret(
     ----------
     project : str
         Project name.
+    entity_key : str
+        Entity key.
     entity_name : str
         Entity name.
     entity_id : str
@@ -194,15 +223,21 @@ def delete_secret(
     dict
         Response from backend.
     """
-    if (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_name or entity_id must be provided.")
+    if (entity_key is None) and (entity_id is None) and (entity_name is None):
+        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
     context = get_context(project)
 
     params = kwargs.get("params", {})
     if params is None or not params:
         kwargs["params"] = {}
-
+    if entity_key is not None:
+        _, _, _, _, entity_id = parse_entity_key(entity_key)
+        return delete_secret(
+            project,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+        )
     if entity_id is not None:
         api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
     else:
