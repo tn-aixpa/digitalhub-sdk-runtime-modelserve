@@ -105,7 +105,7 @@ def dataitem_from_parameters(
     if path is None:
         bucket = get_s3_bucket()
         entity_type = EntityTypes.DATAITEMS.value
-        path = f"s3://{bucket}/{project}/{entity_type}/{uuid}/data.parquet"
+        path = f"s3://{bucket}/{project}/{entity_type}/{name}/{uuid}/data.parquet"
     metadata = build_metadata(
         kind,
         project=project,
