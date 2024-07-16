@@ -3,11 +3,12 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.utils.env_utils import get_s3_bucket
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
@@ -42,7 +43,7 @@ def _choose_dataitem_type(kind: str) -> type[Dataitem]:
     Parameters
     ----------
     kind : str
-        Kind of the dataitem.
+        Kind the object.
 
     Returns
     -------
@@ -75,13 +76,13 @@ def dataitem_from_parameters(
     project : str
         Project name.
     name : str
-        Name that identifies the object.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -99,6 +100,7 @@ def dataitem_from_parameters(
     Dataitem
         Object instance.
     """
+    name = build_name(name)
     uuid = build_uuid(uuid)
     if path is None:
         bucket = get_s3_bucket()

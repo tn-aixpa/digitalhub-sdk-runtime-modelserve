@@ -6,9 +6,9 @@ from pathlib import Path
 
 from digitalhub_core.client.builder import build_client, get_client
 from digitalhub_core.context.builder import delete_context
+from digitalhub_core.entities._base.crud import delete_entity_api_base, read_entity_api_base, update_entity_api_base
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.projects.entity import project_from_dict, project_from_parameters
-from digitalhub_core.utils.api import api_base_delete, api_base_read, api_base_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
 
@@ -156,9 +156,9 @@ def new_project(
     Parameters
     ----------
     name : str
-        Name that identifies the object.
+        Object name.
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -223,9 +223,8 @@ def get_project(
         Object instance.
     """
     build_client(local, config)
-    api = api_base_read("projects", name)
     client = get_client(local)
-    obj = client.read_object(api, **kwargs)
+    obj = read_entity_api_base(client, ENTITY_TYPE, name, **kwargs)
     obj["local"] = local
     project = create_project_from_dict(obj)
     return _setup_project(project, setup_kwargs)
@@ -291,18 +290,13 @@ def delete_project(
         Response from backend.
     """
     client = get_client(local)
-    api = api_base_delete("projects", name)
-    params = kwargs.get("params", {})
-    if params is None or not params:
-        kwargs["params"] = {}
-    kwargs["params"]["cascade"] = str(cascade).lower()
-    response = client.delete_object(api, **kwargs)
+    obj = delete_entity_api_base(client, ENTITY_TYPE, name, cascade=cascade, **kwargs)
     if clean_context:
         delete_context(name)
-    return response
+    return obj
 
 
-def update_project(entity: Project, local: bool = False, **kwargs) -> dict:
+def update_project(entity: Project, local: bool = False, **kwargs) -> Project:
     """
     Update object in backend.
 
@@ -317,15 +311,15 @@ def update_project(entity: Project, local: bool = False, **kwargs) -> dict:
 
     Returns
     -------
-    dict
-        Response from backend.
+    Project
+        Object instance.
     """
-    api = api_base_update("projects", entity.name)
     client = get_client(local)
-    return client.update_object(api, entity.to_dict(), **kwargs)
+    obj = update_entity_api_base(client, ENTITY_TYPE, entity.name, entity.to_dict(), **kwargs)
+    return create_project_from_dict(obj)
 
 
-def _setup_project(project: Project, setup_kwargs: dict = None) -> Project:
+def _setup_project(project: Project, setup_kwargs: dict | None = None) -> Project:
     """
     Search for setup_project.py file and launch setup
     hanlder as project hook.
@@ -342,8 +336,7 @@ def _setup_project(project: Project, setup_kwargs: dict = None) -> Project:
     Project
         Set up project.
     """
-    if setup_kwargs is None:
-        setup_kwargs = {}
+    setup_kwargs = setup_kwargs if setup_kwargs is not None else {}
     check_pth = Path(project.spec.context, ".CHECK")
     setup_pth = Path(project.spec.context, "setup_project.py")
     if setup_pth.exists() and not check_pth.exists():

@@ -2,11 +2,18 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import check_context, get_context
+from digitalhub_core.context.builder import check_context
+from digitalhub_core.entities._base.crud import (
+    delete_entity_api_ctx,
+    list_entity_api_ctx,
+    read_entity_api_ctx,
+    update_entity_api_ctx,
+)
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.generic_utils import parse_entity_key
+from digitalhub_core.utils.env_utils import get_s3_bucket
+from digitalhub_core.utils.file_utils import get_file_name
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -72,13 +79,13 @@ def new_artifact(
     project : str
         Project name.
     name : str
-        Name that identifies the object.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -116,9 +123,8 @@ def new_artifact(
 
 
 def get_artifact(
-    project: str,
-    entity_key: str | None = None,
-    entity_name: str | None = None,
+    identifier: str,
+    project: str | None = None,
     entity_id: str | None = None,
     **kwargs,
 ) -> Artifact:
@@ -127,12 +133,10 @@ def get_artifact(
 
     Parameters
     ----------
+    identifier : str
+        Entity key or name.
     project : str
         Project name.
-    entity_key : str
-        Entity key.
-    entity_name : str
-        Entity name.
     entity_id : str
         Entity ID.
     **kwargs : dict
@@ -143,40 +147,15 @@ def get_artifact(
     Artifact
         Object instance.
     """
-    if (entity_key is None) and (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
-    context = get_context(project)
-
-    if entity_key is not None:
-        _, _, _, _, entity_id = parse_entity_key(entity_key)
-        return get_artifact(project, entity_id=entity_id)
-    if entity_name is not None:
-        params = kwargs.get("params", {})
-        if params is None or not params:
-            kwargs["params"] = {}
-
-        api = api_ctx_list(project, ENTITY_TYPE)
-        kwargs["params"]["name"] = entity_name
-        obj = context.list_objects(api, **kwargs)[0]
-    else:
-        api = api_ctx_read(project, ENTITY_TYPE, entity_id)
-        obj = context.read_object(api, **kwargs)
-    return create_artifact_from_dict(obj)
-
-
-def get_artifact_from_key(key: str) -> Artifact:
-    """
-    Get artifact from key.
-
-    Parameters
-    ----------
-    key : str
-        Key of the artifact.
-        It's format is store://<project>/artifacts/<kind>/<name>:<uuid>.
-    """
-    project, _, _, _, entity_id = parse_entity_key(key)
-    return get_artifact(project, entity_id=entity_id)
+    obj = read_entity_api_ctx(
+        identifier,
+        ENTITY_TYPE,
+        project=project,
+        entity_id=entity_id,
+        **kwargs,
+    )
+    return artifact_from_dict(obj)
 
 
 def import_artifact(file: str) -> Artifact:
@@ -198,9 +177,8 @@ def import_artifact(file: str) -> Artifact:
 
 
 def delete_artifact(
-    project: str,
-    entity_key: str | None = None,
-    entity_name: str | None = None,
+    identifier: str,
+    project: str | None = None,
     entity_id: str | None = None,
     delete_all_versions: bool = False,
     **kwargs,
@@ -210,16 +188,15 @@ def delete_artifact(
 
     Parameters
     ----------
+    identifier : str
+        Entity key or name.
     project : str
         Project name.
-    entity_key : str
-        Entity key.
-    entity_name : str
-        Entity name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity. Entity name is required.
+        Delete all versions of the named entity.
+        Use entity name instead of entity key as identifier.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -228,36 +205,17 @@ def delete_artifact(
     dict
         Response from backend.
     """
-    if (entity_key is None) and (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
-
-    context = get_context(project)
-
-    params = kwargs.get("params", {})
-    if params is None or not params:
-        kwargs["params"] = {}
-    if entity_key is not None:
-        _, _, _, _, entity_id = parse_entity_key(entity_key)
-        return delete_artifact(
-            project,
-            entity_id=entity_id,
-            delete_all_versions=delete_all_versions,
-        )
-    if entity_id is not None:
-        api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
-    else:
-        kwargs["params"]["name"] = entity_name
-        api = api_ctx_list(project, ENTITY_TYPE)
-        if delete_all_versions:
-            return context.delete_object(api, **kwargs)
-        obj = context.list_objects(api, **kwargs)[0]
-        entity_id = obj["id"]
-
-    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
-    return context.delete_object(api, **kwargs)
+    return delete_entity_api_ctx(
+        identifier=identifier,
+        entity_type=ENTITY_TYPE,
+        project=project,
+        entity_id=entity_id,
+        delete_all_versions=delete_all_versions,
+        **kwargs,
+    )
 
 
-def update_artifact(entity: Artifact, **kwargs) -> dict:
+def update_artifact(entity: Artifact, **kwargs) -> Artifact:
     """
     Update object in backend.
 
@@ -265,17 +223,25 @@ def update_artifact(entity: Artifact, **kwargs) -> dict:
     ----------
     entity : Artifact
         The object to update.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
-    dict
-        Response from backend.
+    Artifact
+        Entity updated.
     """
-    api = api_ctx_update(entity.project, ENTITY_TYPE, entity_id=entity.id)
-    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
+    obj = update_entity_api_ctx(
+        project=entity.project,
+        entity_type=ENTITY_TYPE,
+        entity_id=entity.id,
+        entity_dict=entity.to_dict(),
+        **kwargs,
+    )
+    return artifact_from_dict(obj)
 
 
-def list_artifacts(project: str, **kwargs) -> list[dict]:
+def list_artifacts(project: str, **kwargs) -> list[Artifact]:
     """
     List all objects from backend.
 
@@ -283,11 +249,63 @@ def list_artifacts(project: str, **kwargs) -> list[dict]:
     ----------
     project : str
         Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
-    list[dict]
-        List of artifacts dict representations.
+    list[Artifact]
+        List of artifacts.
     """
-    api = api_ctx_list(project, ENTITY_TYPE)
-    return get_context(project).list_objects(api, **kwargs)
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    return [artifact_from_dict(obj) for obj in objs]
+
+
+def log_artifact(
+    project: str,
+    name: str,
+    kind: str,
+    path: str | None = None,
+    source_path: str | None = None,
+    **kwargs,
+) -> Artifact:
+    """
+    Create and upload an artifact.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    name : str
+        Object name.
+    kind : str
+        Kind the object.
+    path : str
+        Destination path of the artifact.
+    source_path : str
+        Artifact location on local machine.
+    **kwargs : dict
+        New artifact parameters.
+
+    Returns
+    -------
+    Artifact
+        Instance of Artifact class.
+    """
+    if path is None:
+        if source_path is None:
+            raise Exception("Either path or source_path must be provided.")
+
+        # Build path if not provided from source filename
+        filename = get_file_name(source_path)
+        uuid = build_uuid()
+        kwargs["uuid"] = uuid
+        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}/{filename}"
+
+    obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
+    obj.upload(source_path)
+    return obj

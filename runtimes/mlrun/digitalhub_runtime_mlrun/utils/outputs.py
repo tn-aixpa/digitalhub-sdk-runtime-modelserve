@@ -4,8 +4,8 @@ import typing
 from pathlib import Path
 
 from digitalhub_core.entities._base.status import State
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.artifacts.crud import create_artifact
-from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_data.entities.dataitems.crud import create_dataitem

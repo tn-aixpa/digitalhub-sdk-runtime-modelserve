@@ -3,14 +3,19 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.utils.env_utils import get_s3_bucket
-from digitalhub_core.utils.file_utils import get_file_name
-from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_data.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
 from digitalhub_ml.entities.entity_types import EntityTypes
-from digitalhub_ml.entities.models.crud import create_model_from_dict, delete_model, get_model, list_models, new_model
+from digitalhub_ml.entities.models.crud import (
+    create_model_from_dict,
+    delete_model,
+    get_model,
+    list_models,
+    log_model,
+    new_model,
+)
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.models.entity import Model
@@ -29,34 +34,86 @@ class ProjectMl(ProjectData):
     #  Models
     #############################
 
-    def new_model(self, **kwargs) -> Model:
+    def new_model(
+        self,
+        name: str,
+        kind: str,
+        uuid: str | None = None,
+        description: str | None = None,
+        git_source: str | None = None,
+        labels: list[str] | None = None,
+        embedded: bool = True,
+        path: str | None = None,
+        framework: str | None = None,
+        algorithm: str | None = None,
+        **kwargs,
+    ) -> Model:
         """
-        Create a Model.
+        Create a new Model instance with the specified parameters.
 
         Parameters
         ----------
+        name : str
+            Object name.
+        kind : str
+            Kind the object.
+        uuid : str
+            ID of the object (UUID4).
+        description : str
+            Description of the object (human readable).
+        git_source : str
+            Remote git source for object.
+        labels : list[str]
+            List of labels.
+        embedded : bool
+            Flag to determine if object must be embedded in project.
+        path : str
+            Object path on local file system or remote storage.
+            If not provided, it's generated.
+        framework : str
+            Model framework (e.g. 'pytorch').
+        algorithm : str
+            Model algorithm (e.g. 'resnet').
         **kwargs : dict
-            Keyword arguments.
+            Spec keyword arguments.
 
         Returns
         -------
         Model
-            Object instance.
+            An instance of the created model.
         """
-        kwargs["project"] = self.name
-        kwargs["kind"] = "model"
-        obj = new_model(**kwargs)
-        self._add_object(obj, MODELS)
+        obj = new_model(
+            project=self.name,
+            name=name,
+            kind=kind,
+            uuid=uuid,
+            description=description,
+            git_source=git_source,
+            labels=labels,
+            embedded=embedded,
+            path=path,
+            framework=framework,
+            algorithm=algorithm,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def get_model(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Model:
+    def get_model(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        **kwargs,
+    ) -> Model:
         """
         Get object from backend.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -67,20 +124,36 @@ class ProjectMl(ProjectData):
         Model
             Instance of Model class.
         """
-        obj = get_model(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, MODELS)
+        obj = get_model(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def delete_model(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
+    def delete_model(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        delete_all_versions: bool = False,
+        **kwargs,
+    ) -> None:
         """
         Delete a Model from project.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
+        delete_all_versions : bool
+            Delete all versions of the named entity.
+            Use entity name instead of entity key as identifier.
         **kwargs : dict
             Parameters to pass to the API call.
 
@@ -88,23 +161,14 @@ class ProjectMl(ProjectData):
         -------
         None
         """
-        delete_model(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object(MODELS, entity_name, entity_id)
-
-    def set_model(self, model: Model) -> None:
-        """
-        Set a Model.
-
-        Parameters
-        ----------
-        model : Model
-            Model to set.
-
-        Returns
-        -------
-        None
-        """
-        self._add_object(model, MODELS)
+        delete_model(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+            **kwargs,
+        )
+        self.refresh()
 
     def list_models(self, **kwargs) -> list[dict]:
         """
@@ -113,7 +177,7 @@ class ProjectMl(ProjectData):
         Parameters
         ----------
         **kwargs : dict
-            Filters to apply to the list. Shold be params={"filter": "value"}.
+            Parameters to pass to the API call.
 
         Returns
         -------
@@ -131,14 +195,14 @@ class ProjectMl(ProjectData):
         **kwargs,
     ) -> Model:
         """
-        Log an model to the project.
+        Create and upload an model.
 
         Parameters
         ----------
         name : str
-            Name that identifies the object.
+            Object name.
         kind : str
-            Kind of the model.
+            Kind the object.
         path : str
             Destination path of the model.
         source_path : str
@@ -151,19 +215,16 @@ class ProjectMl(ProjectData):
         Model
             Instance of Model class.
         """
-        if path is None:
-            if source_path is None:
-                raise Exception("Either path or source_path must be provided.")
-
-            # Build path if not provided from source filename
-            filename = get_file_name(source_path)
-            uuid = build_uuid()
-            kwargs["uuid"] = uuid
-            path = f"s3://{get_s3_bucket()}/{self.name}/{EntityTypes.MODELS.value}/{uuid}/{filename}"
-
-        model = new_model(project=self.name, name=name, kind=kind, path=path, **kwargs)
-        model.upload(source_path)
-        return model
+        obj = log_model(
+            project=self.name,
+            name=name,
+            kind=kind,
+            path=path,
+            source_path=source_path,
+            **kwargs,
+        )
+        self.refresh()
+        return obj
 
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:
@@ -183,7 +244,7 @@ class ProjectMl(ProjectData):
             A dictionary containing the attributes of the entity instance.
         """
         # Override methods to search in digitalhub_ml
-        name = obj.get("name")
+        name = build_name(obj.get("name"))
         kind = obj.get("kind")
         metadata = build_metadata(kind, **obj.get("metadata", {}))
         spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
@@ -217,11 +278,11 @@ def project_from_parameters(
     Parameters
     ----------
     name : str
-        Name that identifies the object.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -238,6 +299,7 @@ def project_from_parameters(
     ProjectData
         ProjectData object.
     """
+    name = build_name(name)
     spec = build_spec(
         kind,
         context=context,

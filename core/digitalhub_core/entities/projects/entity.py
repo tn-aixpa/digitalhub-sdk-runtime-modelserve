@@ -5,8 +5,15 @@ from pathlib import Path
 
 from digitalhub_core.client.builder import get_client
 from digitalhub_core.context.builder import set_context
+from digitalhub_core.entities._base.crud import (
+    create_entity_api_base,
+    read_entity_api_base,
+    read_entity_api_ctx,
+    update_entity_api_base,
+)
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.artifacts.crud import (
@@ -14,6 +21,7 @@ from digitalhub_core.entities.artifacts.crud import (
     delete_artifact,
     get_artifact,
     list_artifacts,
+    log_artifact,
     new_artifact,
 )
 from digitalhub_core.entities.entity_types import EntityTypes
@@ -38,11 +46,8 @@ from digitalhub_core.entities.workflows.crud import (
     list_workflows,
     new_workflow,
 )
-from digitalhub_core.utils.api import api_base_create, api_base_read, api_base_update, api_ctx_read
-from digitalhub_core.utils.env_utils import get_s3_bucket
-from digitalhub_core.utils.exceptions import BackendError, EntityError
-from digitalhub_core.utils.file_utils import get_file_name
-from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
+from digitalhub_core.utils.exceptions import BackendError
+from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
@@ -99,7 +104,7 @@ class Project(Entity):
         name : str
             Name of the object.
         kind : str
-            Kind of the object.
+            Kind the object.
         metadata : Metadata
             Metadata of the object.
         spec : ProjectSpec
@@ -151,15 +156,13 @@ class Project(Entity):
         obj = self._refresh_to_dict()
 
         if not update:
-            api = api_base_create(self.ENTITY_TYPE)
-            new_obj = self._client.create_object(api, obj)
+            new_obj = create_entity_api_base(self._client, self.ENTITY_TYPE, obj)
             new_obj["local"] = self._client.is_local()
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_base_update(self.ENTITY_TYPE, self.id)
-        new_obj = self._client.update_object(api, obj)
+        new_obj = update_entity_api_base(self._client, self.ENTITY_TYPE, obj)
         new_obj["local"] = self._client.is_local()
         self._update_attributes(new_obj)
         return self
@@ -173,9 +176,9 @@ class Project(Entity):
         Project
             Project object.
         """
-        api = api_base_read(self.ENTITY_TYPE, self.name)
-        obj = self._client.read_object(api)
-        self._update_attributes(obj)
+        new_obj = read_entity_api_base(self._client, self.ENTITY_TYPE, self.name)
+        new_obj["local"] = self._client.is_local()
+        self._update_attributes(new_obj)
         return self
 
     def export(self, filename: str | None = None) -> None:
@@ -200,14 +203,11 @@ class Project(Entity):
         pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
-        # Export objects related to project if not embedded
         for entity_type in CTX_ENTITIES:
-            for entity in self._get_objects(entity_type):
-                api = api_ctx_read(self.name, entity_type, entity["id"])
-                obj = self._client.read_object(api)
-                ctx_obj = FUNC_MAP[entity_type](obj)
-                if not ctx_obj.metadata.embedded:
-                    ctx_obj.export()
+            entity_list = obj.get("spec", {}).get(entity_type, [])
+            if not entity_list:
+                continue
+            self._export_not_embedded(entity_list, entity_type)
 
     def _refresh_to_dict(self) -> dict:
         """
@@ -223,149 +223,103 @@ class Project(Entity):
         except BackendError:
             return self.to_dict()
 
-    #############################
-    #  Generic operations for objects
-    #############################
-
-    def _add_object(self, obj: Entity, entity_type: str) -> None:
+    def _export_not_embedded(self, entity_list: list, entity_type: str) -> None:
         """
-        Add object to project as specification.
+        Export project objects if not embedded.
 
         Parameters
         ----------
-        obj : Entity
-            Object to be added to project.
-        entity_type : str
-            Type of object to be added to project.
+        entity_list : list
+            Entity list.
 
         Returns
         -------
         None
         """
-        self._check_entity_type(entity_type)
-
-        # Pop spec if not embedded
-        if obj.metadata.embedded:
-            obj_representation = obj.to_dict()
-        else:
-            obj_representation = obj.to_dict()
-            obj_representation.pop("spec")
-
-        # Get list of objects related to project by entity type
-        attr = getattr(self.spec, entity_type, [])
-
-        # If empty, append directly
-        if not attr:
-            attr.append(obj_representation)
-
-        # If not empty, check if object already exists and update if necessary.
-        # Only latest version is stored in project spec.
-        else:
-            for idx, _ in enumerate(attr):
-                if attr[idx]["name"] == obj.name:
-                    attr[idx] = obj_representation
-
-        # Set attribute
-        setattr(self.spec, entity_type, attr)
-
-    def _delete_object(self, entity_type: str, entity_name: str | None = None, entity_id: str | None = None) -> None:
-        """
-        Delete object from project.
-
-        Parameters
-        ----------
-        entity_type : str
-            Type of object to be deleted.
-        entity_name : str
-            Entity name.
-        entity_id : str
-            Entity ID.
-
-        Returns
-        -------
-        None
-        """
-        if entity_id is None:
-            attr_name = "name"
-            var = entity_name
-        else:
-            attr_name = "id"
-            var = entity_id
-        self._check_entity_type(entity_type)
-        spec_list = getattr(self.spec, entity_type, [])
-        setattr(self.spec, entity_type, [i for i in spec_list if i.get(attr_name) != var])
-
-    def _get_objects(self, entity_type: str) -> list[dict]:
-        """
-        Get entity type related to project.
-
-        Parameters
-        ----------
-        entity_type : str
-            Type of object to be retrieved.
-
-        Returns
-        -------
-        list[dict]
-            List of objects related to project.
-        """
-        self._check_entity_type(entity_type)
-        return getattr(self.spec, entity_type, [])
-
-    @staticmethod
-    def _check_entity_type(entity_type: str) -> None:
-        """
-        Check if kind is valid.
-
-        Parameters
-        ----------
-        entity_type : str
-            Type of object to be checked.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        EntityError
-            If type is not valid.
-        """
-        if entity_type not in CTX_ENTITIES:
-            raise EntityError(f"Entity type '{entity_type}' is not valid.")
+        for entity in entity_list:
+            if not entity["metadata"]["embedded"]:
+                obj: dict = read_entity_api_ctx(entity["key"])
+                ent = FUNC_MAP[entity_type](obj)
+                ent.export()
 
     #############################
     #  Artifacts
     #############################
 
-    def new_artifact(self, **kwargs) -> Artifact:
+    def new_artifact(
+        self,
+        name: str,
+        kind: str,
+        uuid: str | None = None,
+        description: str | None = None,
+        git_source: str | None = None,
+        labels: list[str] | None = None,
+        embedded: bool = True,
+        path: str | None = None,
+        src_path: str | None = None,
+        **kwargs,
+    ) -> Artifact:
         """
         Create an instance of the Artifact class with the provided parameters.
 
         Parameters
         ----------
+        name : str
+            Object name.
+        kind : str
+            Kind the object.
+        uuid : str
+            ID of the object (UUID4).
+        description : str
+            Description of the object (human readable).
+        git_source : str
+            Remote git source for object.
+        labels : list[str]
+            List of labels.
+        embedded : bool
+            Flag to determine if object must be embedded in project.
+        path : str
+            Object path on local file system or remote storage.
+            If not provided, it's generated.
+        src_path : str
+            Local object path.
         **kwargs : dict
-            Keyword arguments.
+            Spec keyword arguments.
 
         Returns
         -------
         Artifact
             Object instance.
         """
-        kwargs["project"] = self.name
-        kwargs["kind"] = "artifact"
-        obj = new_artifact(**kwargs)
-        self._add_object(obj, ARTIFACTS)
+        obj = new_artifact(
+            project=self.name,
+            name=name,
+            kind=kind,
+            uuid=uuid,
+            description=description,
+            git_source=git_source,
+            labels=labels,
+            embedded=embedded,
+            path=path,
+            src_path=src_path,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def get_artifact(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Artifact:
+    def get_artifact(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        **kwargs,
+    ) -> Artifact:
         """
         Get object from backend.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -376,18 +330,31 @@ class Project(Entity):
         Artifact
             Instance of Artifact class.
         """
-        obj = get_artifact(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, ARTIFACTS)
+        obj = get_artifact(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def delete_artifact(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
+    def delete_artifact(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        delete_all_versions: bool = False,
+        **kwargs,
+    ) -> None:
         """
         Delete a Artifact from project.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -397,23 +364,14 @@ class Project(Entity):
         -------
         None
         """
-        delete_artifact(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object(ARTIFACTS, entity_name, entity_id)
-
-    def set_artifact(self, artifact: Artifact) -> None:
-        """
-        Set a Artifact.
-
-        Parameters
-        ----------
-        artifact : Artifact
-            Artifact to set.
-
-        Returns
-        -------
-        None
-        """
-        self._add_object(artifact, ARTIFACTS)
+        delete_artifact(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+            **kwargs,
+        )
+        self.refresh()
 
     def list_artifacts(self, **kwargs) -> list[dict]:
         """
@@ -422,7 +380,7 @@ class Project(Entity):
         Parameters
         ----------
         **kwargs : dict
-            Filters to apply to the list. Shold be params={"filter": "value"}.
+            Parameters to pass to the API call.
 
         Returns
         -------
@@ -440,14 +398,14 @@ class Project(Entity):
         **kwargs,
     ) -> Artifact:
         """
-        Log an artifact to the project.
+        Create and upload an artifact.
 
         Parameters
         ----------
         name : str
-            Name that identifies the object.
+            Object name.
         kind : str
-            Kind of the artifact.
+            Kind the object.
         path : str
             Destination path of the artifact.
         source_path : str
@@ -460,51 +418,88 @@ class Project(Entity):
         Artifact
             Instance of Artifact class.
         """
-        if path is None:
-            if source_path is None:
-                raise Exception("Either path or source_path must be provided.")
-
-            # Build path if not provided from source filename
-            filename = get_file_name(source_path)
-            uuid = build_uuid()
-            kwargs["uuid"] = uuid
-            path = f"s3://{get_s3_bucket()}/{self.name}/{EntityTypes.ARTIFACTS.value}/{uuid}/{filename}"
-
-        artifact = new_artifact(project=self.name, name=name, kind=kind, path=path, **kwargs)
-        artifact.upload(source_path)
-        return artifact
+        obj = log_artifact(
+            project=self.name,
+            name=name,
+            kind=kind,
+            path=path,
+            source_path=source_path,
+            **kwargs,
+        )
+        self.refresh()
+        return obj
 
     #############################
     #  Functions
     #############################
 
-    def new_function(self, **kwargs) -> Function:
+    def new_function(
+        self,
+        name: str,
+        kind: str,
+        uuid: str | None = None,
+        description: str | None = None,
+        git_source: str | None = None,
+        labels: list[str] | None = None,
+        embedded: bool = True,
+        **kwargs,
+    ) -> Function:
         """
         Create a Function instance with the given parameters.
 
         Parameters
         ----------
+        name : str
+            Object name.
+        kind : str
+            Kind the object.
+        uuid : str
+            ID of the object (UUID4).
+        description : str
+            Description of the object (human readable).
+        git_source : str
+            Remote git source for object.
+        labels : list[str]
+            List of labels.
+        embedded : bool
+            Flag to determine if object must be embedded in project.
         **kwargs : dict
-            Keyword arguments.
+            Spec keyword arguments.
 
         Returns
         -------
         Function
             Object instance.
         """
-        kwargs["project"] = self.name
-        obj = new_function(**kwargs)
-        self._add_object(obj, FUNCTIONS)
+        obj = new_function(
+            project=self.name,
+            name=name,
+            kind=kind,
+            uuid=uuid,
+            description=description,
+            git_source=git_source,
+            labels=labels,
+            embedded=embedded,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def get_function(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Function:
+    def get_function(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        **kwargs,
+    ) -> Function:
         """
         Get object from backend.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -515,20 +510,39 @@ class Project(Entity):
         Function
             Instance of Function class.
         """
-        obj = get_function(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, FUNCTIONS)
+        obj = get_function(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def delete_function(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
+    def delete_function(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        delete_all_versions: bool = False,
+        cascade: bool = False,
+        **kwargs,
+    ) -> None:
         """
         Delete a Function from project.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
+        delete_all_versions : bool
+            Delete all versions of the named entity.
+            Use entity name instead of entity key as identifier.
+        cascade : bool
+            Cascade delete.
         **kwargs : dict
             Parameters to pass to the API call.
 
@@ -536,23 +550,15 @@ class Project(Entity):
         -------
         None
         """
-        delete_function(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object(FUNCTIONS, entity_name, entity_id)
-
-    def set_function(self, function: Function) -> None:
-        """
-        Set a Function.
-
-        Parameters
-        ----------
-        function : Function
-            Function to set.
-
-        Returns
-        -------
-        None
-        """
-        self._add_object(function, FUNCTIONS)
+        delete_function(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+            cascade=cascade,
+            **kwargs,
+        )
+        self.refresh()
 
     def list_functions(self, **kwargs) -> list[dict]:
         """
@@ -561,7 +567,7 @@ class Project(Entity):
         Parameters
         ----------
         **kwargs : dict
-            Filters to apply to the list. Shold be params={"filter": "value"}.
+            Parameters to pass to the API call.
 
         Returns
         -------
@@ -574,33 +580,73 @@ class Project(Entity):
     #  Workflows
     #############################
 
-    def new_workflow(self, **kwargs) -> Workflow:
+    def new_workflow(
+        self,
+        name: str,
+        kind: str,
+        uuid: str | None = None,
+        description: str | None = None,
+        git_source: str | None = None,
+        labels: list[str] | None = None,
+        embedded: bool = True,
+        **kwargs,
+    ) -> Workflow:
         """
         Create a new Workflow instance with the specified parameters.
 
         Parameters
         ----------
+        project : str
+            Project name.
+        name : str
+            Object name.
+        uuid : str
+            ID of the object (UUID4).
+        description : str
+            Description of the object (human readable).
+        git_source : str
+            Remote git source for object.
+        labels : list[str]
+            List of labels.
+        embedded : bool
+            Flag to determine if object must be embedded in project.
         **kwargs : dict
-            Keyword arguments.
+            Spec keyword arguments.
 
         Returns
         -------
         Workflow
             An instance of the created workflow.
         """
-        kwargs["project"] = self.name
-        obj = new_workflow(**kwargs)
-        self._add_object(obj, WORKFLOWS)
+        obj = new_workflow(
+            project=self.name,
+            name=name,
+            kind=kind,
+            uuid=uuid,
+            description=description,
+            git_source=git_source,
+            labels=labels,
+            embedded=embedded,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def get_workflow(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Workflow:
+    def get_workflow(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        **kwargs,
+    ) -> Workflow:
         """
         Get object from backend.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -611,20 +657,39 @@ class Project(Entity):
         Workflow
             Instance of Workflow class.
         """
-        obj = get_workflow(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, WORKFLOWS)
+        obj = get_workflow(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def delete_workflow(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
+    def delete_workflow(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        delete_all_versions: bool = False,
+        cascade: bool = False,
+        **kwargs,
+    ) -> None:
         """
         Delete a Workflow from project.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
+        delete_all_versions : bool
+            Delete all versions of the named entity.
+            Use entity name instead of entity key as identifier.
+        cascade : bool
+            Cascade delete.
         **kwargs : dict
             Parameters to pass to the API call.
 
@@ -632,23 +697,15 @@ class Project(Entity):
         -------
         None
         """
-        delete_workflow(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object(WORKFLOWS, entity_name, entity_id)
-
-    def set_workflow(self, workflow: Workflow) -> None:
-        """
-        Set a Workflow.
-
-        Parameters
-        ----------
-        workflow : Workflow
-            Workflow to set.
-
-        Returns
-        -------
-        None
-        """
-        self._add_object(workflow, WORKFLOWS)
+        delete_workflow(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+            cascade=cascade,
+            **kwargs,
+        )
+        self.refresh()
 
     def list_workflows(self, **kwargs) -> list[dict]:
         """
@@ -657,7 +714,7 @@ class Project(Entity):
         Parameters
         ----------
         **kwargs : dict
-            Filters to apply to the list. Shold be params={"filter": "value"}.
+            Parameters to pass to the API call.
 
         Returns
         -------
@@ -670,33 +727,74 @@ class Project(Entity):
     #  Secrets
     #############################
 
-    def new_secret(self, **kwargs) -> Secret:
+    def new_secret(
+        self,
+        name: str,
+        uuid: str | None = None,
+        description: str | None = None,
+        git_source: str | None = None,
+        labels: list[str] | None = None,
+        embedded: bool = True,
+        secret_value: str | None = None,
+        **kwargs,
+    ) -> Secret:
         """
         Create a new Secret instance with the specified parameters.
 
         Parameters
         ----------
+        name : str
+            Object name.
+        uuid : str
+            ID of the object (UUID4).
+        description : str
+            Description of the object (human readable).
+        git_source : str
+            Remote git source for object.
+        labels : list[str]
+            List of labels.
+        embedded : bool
+            Flag to determine if object must be embedded in project.
+        secret_value : str
+            Value of the secret.
         **kwargs : dict
-            Keyword arguments.
+            Spec keyword arguments.
 
         Returns
         -------
         Secret
             An instance of the created secret.
         """
-        kwargs["project"] = self.name
-        obj = new_secret(**kwargs)
-        self._add_object(obj, SECRETS)
+        obj = new_secret(
+            project=self.name,
+            name=name,
+            kind="secret",
+            uuid=uuid,
+            description=description,
+            git_source=git_source,
+            labels=labels,
+            embedded=embedded,
+            secret_value=secret_value,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def get_secret(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Secret:
+    def get_secret(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        **kwargs,
+    ) -> Secret:
         """
         Get object from backend.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -707,20 +805,36 @@ class Project(Entity):
         Secret
             Instance of Secret class.
         """
-        obj = get_secret(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, SECRETS)
+        obj = get_secret(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def delete_secret(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
+    def delete_secret(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        delete_all_versions: bool = False,
+        **kwargs,
+    ) -> None:
         """
         Delete a Secret from project.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
+        delete_all_versions : bool
+            Delete all versions of the named entity.
+            Use entity name instead of entity key as identifier.
         **kwargs : dict
             Parameters to pass to the API call.
 
@@ -728,23 +842,14 @@ class Project(Entity):
         -------
         None
         """
-        delete_secret(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object(SECRETS, entity_name, entity_id)
-
-    def set_secret(self, secret: Secret) -> None:
-        """
-        Set a Secret.
-
-        Parameters
-        ----------
-        secret : Secret
-            Secret to set.
-
-        Returns
-        -------
-        None
-        """
-        self._add_object(secret, SECRETS)
+        delete_secret(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+            **kwargs,
+        )
+        self.refresh()
 
     def list_secrets(self, **kwargs) -> list[dict]:
         """
@@ -753,7 +858,7 @@ class Project(Entity):
         Parameters
         ----------
         **kwargs : dict
-            Filters to apply to the list. Shold be params={"filter": "value"}.
+            Parameters to pass to the API call.
 
         Returns
         -------
@@ -783,7 +888,7 @@ class Project(Entity):
         dict
             A dictionary containing the attributes of the entity instance.
         """
-        name = obj.get("name")
+        name = build_name(obj.get("name"))
         kind = obj.get("kind")
         metadata = build_metadata(kind, **obj.get("metadata", {}))
         spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
@@ -817,11 +922,11 @@ def project_from_parameters(
     Parameters
     ----------
     name : str
-        Name that identifies the object.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -838,6 +943,7 @@ def project_from_parameters(
     Project
         Project object.
     """
+    name = build_name(name)
     spec = build_spec(
         kind,
         context=context,

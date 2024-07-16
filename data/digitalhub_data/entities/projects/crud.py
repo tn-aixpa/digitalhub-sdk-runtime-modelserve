@@ -3,8 +3,8 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.client.builder import build_client, get_client
-from digitalhub_core.entities.projects.crud import _setup_project
-from digitalhub_core.utils.api import api_base_read
+from digitalhub_core.entities._base.crud import read_entity_api_base
+from digitalhub_core.entities.projects.crud import ENTITY_TYPE, _setup_project
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_data.entities.projects.entity import project_from_dict, project_from_parameters
@@ -150,9 +150,9 @@ def new_project(
     Parameters
     ----------
     name : str
-        Name that identifies the object.
+        Object name.
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -217,9 +217,8 @@ def get_project(
         Object instance.
     """
     build_client(local, config)
-    api = api_base_read("projects", name)
     client = get_client(local)
-    obj = client.read_object(api, **kwargs)
+    obj = read_entity_api_base(client, ENTITY_TYPE, name, **kwargs)
     obj["local"] = local
     project = create_project_from_dict(obj)
     return _setup_project(project, setup_kwargs)

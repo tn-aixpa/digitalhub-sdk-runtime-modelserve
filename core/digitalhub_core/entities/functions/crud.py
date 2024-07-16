@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import check_context, get_context
+from digitalhub_core.context.builder import check_context
+from digitalhub_core.entities._base.crud import (
+    delete_entity_api_ctx,
+    list_entity_api_ctx,
+    read_entity_api_ctx,
+    update_entity_api_ctx,
+)
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.functions.entity import function_from_dict, function_from_parameters
-from digitalhub_core.utils.api import api_ctx_delete, api_ctx_list, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.generic_utils import parse_entity_key
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -62,20 +66,20 @@ def new_function(
     **kwargs,
 ) -> Function:
     """
-    Create a new Function instance and persist it to the backend.
+    Create a Function instance with the given parameters.
 
     Parameters
     ----------
     project : str
         Project name.
     name : str
-        Name that identifies the object.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -106,9 +110,8 @@ def new_function(
 
 
 def get_function(
-    project: str,
-    entity_key: str | None = None,
-    entity_name: str | None = None,
+    identifier: str,
+    project: str | None = None,
     entity_id: str | None = None,
     **kwargs,
 ) -> Function:
@@ -117,12 +120,10 @@ def get_function(
 
     Parameters
     ----------
+    identifier : str
+        Entity key or name.
     project : str
         Project name.
-    entity_key : str
-        Entity key.
-    entity_name : str
-        Entity name.
     entity_id : str
         Entity ID.
     **kwargs : dict
@@ -133,40 +134,15 @@ def get_function(
     Function
         Object instance.
     """
-    if (entity_key is None) and (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
 
-    context = get_context(project)
-
-    if entity_key is not None:
-        _, _, _, _, entity_id = parse_entity_key(entity_key)
-        return get_function(project, entity_id=entity_id)
-    if entity_name is not None:
-        params = kwargs.get("params", {})
-        if params is None or not params:
-            kwargs["params"] = {}
-
-        api = api_ctx_list(project, ENTITY_TYPE)
-        kwargs["params"]["name"] = entity_name
-        obj = context.list_objects(api, **kwargs)[0]
-    else:
-        api = api_ctx_read(project, ENTITY_TYPE, entity_id)
-        obj = context.read_object(api, **kwargs)
-    return create_function_from_dict(obj)
-
-
-def get_function_from_key(key: str) -> Function:
-    """
-    Get function from key.
-
-    Parameters
-    ----------
-    key : str
-        Key of the function.
-        It's format is store://<project>/functions/<kind>/<name>:<uuid>.
-    """
-    project, _, _, _, entity_id = parse_entity_key(key)
-    return get_function(project, entity_id=entity_id)
+    obj = read_entity_api_ctx(
+        identifier,
+        ENTITY_TYPE,
+        project=project,
+        entity_id=entity_id,
+        **kwargs,
+    )
+    return function_from_dict(obj)
 
 
 def import_function(file: str) -> Function:
@@ -197,9 +173,8 @@ def import_function(file: str) -> Function:
 
 
 def delete_function(
-    project: str,
-    entity_key: str | None = None,
-    entity_name: str | None = None,
+    identifier: str,
+    project: str | None = None,
     entity_id: str | None = None,
     delete_all_versions: bool = False,
     cascade: bool = True,
@@ -210,16 +185,17 @@ def delete_function(
 
     Parameters
     ----------
+    identifier : str
+        Entity key or name.
     project : str
         Project name.
-    entity_key : str
-        Entity key.
-    entity_name : str
-        Entity name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity. Entity name is required.
+        Delete all versions of the named entity.
+        Use entity name instead of entity key as identifier.
+    cascade : bool
+        Cascade delete.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -228,37 +204,18 @@ def delete_function(
     dict
         Response from backend.
     """
-    if (entity_key is None) and (entity_id is None) and (entity_name is None):
-        raise ValueError("Either entity_key, entity_name or entity_id must be provided.")
-
-    context = get_context(project)
-
-    params = kwargs.get("params", {})
-    if params is None or not params:
-        kwargs["params"] = {}
-        kwargs["params"]["cascade"] = str(cascade).lower()
-    if entity_key is not None:
-        _, _, _, _, entity_id = parse_entity_key(entity_key)
-        return delete_function(
-            project,
-            entity_id=entity_id,
-            delete_all_versions=delete_all_versions,
-        )
-    if entity_id is not None:
-        api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
-    else:
-        kwargs["params"]["name"] = entity_name
-        api = api_ctx_list(project, ENTITY_TYPE)
-        if delete_all_versions:
-            return context.delete_object(api, **kwargs)
-        obj = context.list_objects(api, **kwargs)[0]
-        entity_id = obj["id"]
-
-    api = api_ctx_delete(project, ENTITY_TYPE, entity_id)
-    return context.delete_object(api, **kwargs)
+    return delete_entity_api_ctx(
+        identifier=identifier,
+        entity_type=ENTITY_TYPE,
+        project=project,
+        entity_id=entity_id,
+        delete_all_versions=delete_all_versions,
+        cascade=cascade,
+        **kwargs,
+    )
 
 
-def update_function(entity: Function, **kwargs) -> dict:
+def update_function(entity: Function, **kwargs) -> Function:
     """
     Update object in backend.
 
@@ -266,17 +223,25 @@ def update_function(entity: Function, **kwargs) -> dict:
     ----------
     entity : Function
         The object to update.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
-    dict
-        Response from backend.
+    Function
+        Entity updated.
     """
-    api = api_ctx_update(entity.project, ENTITY_TYPE, entity_id=entity.id)
-    return get_context(entity.project).update_object(api, entity.to_dict(), **kwargs)
+    obj = update_entity_api_ctx(
+        project=entity.project,
+        entity_type=ENTITY_TYPE,
+        entity_id=entity.id,
+        entity_dict=entity.to_dict(),
+        **kwargs,
+    )
+    return function_from_dict(obj)
 
 
-def list_functions(project: str, **kwargs) -> list[dict]:
+def list_functions(project: str, **kwargs) -> list[Function]:
     """
     List all objects from backend.
 
@@ -284,11 +249,17 @@ def list_functions(project: str, **kwargs) -> list[dict]:
     ----------
     project : str
         Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
 
     Returns
     -------
-    list[dict]
-        List of functions dict representations.
+    list[Function]
+        List of functions.
     """
-    api = api_ctx_list(project, ENTITY_TYPE)
-    return get_context(project).list_objects(api, **kwargs)
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    return [function_from_dict(obj) for obj in objs]

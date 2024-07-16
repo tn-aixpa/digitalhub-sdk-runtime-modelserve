@@ -3,14 +3,14 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.entities._base.status import Status
-from digitalhub_core.entities.artifacts.crud import get_artifact_from_key
-from digitalhub_core.utils.generic_utils import parse_entity_key
+from digitalhub_core.entities.artifacts.crud import get_artifact
+from digitalhub_core.entities.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
     pass
 
 ENTITY_FUNC = {
-    "artifacts": get_artifact_from_key,
+    "artifacts": get_artifact,
 }
 
 

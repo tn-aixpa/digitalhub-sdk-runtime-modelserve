@@ -4,9 +4,9 @@ import pickle
 from typing import Any
 
 from digitalhub_core.entities._base.status import State
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.artifacts.crud import new_artifact
 from digitalhub_core.entities.artifacts.entity import Artifact
-from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import create_dataitem
 from digitalhub_data.entities.dataitems.entity.table import DataitemTable

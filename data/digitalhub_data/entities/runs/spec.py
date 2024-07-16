@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from digitalhub_core.entities.runs.spec import ENTITY_FUNC, RunParams, RunSpec
-from digitalhub_data.entities.dataitems.crud import get_dataitem_from_key
+from digitalhub_data.entities.dataitems.crud import get_dataitem
 
-ENTITY_FUNC["dataitems"] = get_dataitem_from_key
+ENTITY_FUNC["dataitems"] = get_dataitem
 
 
 class RunSpecData(RunSpec):

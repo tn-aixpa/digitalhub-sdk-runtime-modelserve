@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Callable
 
 from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 from digitalhub_runtime_nefertem.utils.configurations import create_client, create_nt_resources, create_nt_run_config

@@ -1,11 +1,13 @@
 import pytest
-from digitalhub_core.utils.generic_utils import build_uuid, decode_string, encode_string, parse_entity_key
+from digitalhub_core.entities._builders.uuid import build_uuid
+from digitalhub_core.entities.utils import parse_entity_key
+from digitalhub_core.utils.generic_utils import decode_string, encode_string
 
 
 @pytest.mark.parametrize(
     "uuid_input,expected",
     [
-        ("123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174000"),
+        ("b53a00aa-e60b-4351-9551-a8c572c5a3c1", "b53a00aa-e60b-4351-9551-a8c572c5a3c1"),
         (None, None),
     ],
 )

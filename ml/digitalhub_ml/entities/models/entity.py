@@ -5,14 +5,16 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.stores.builder import get_store
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import build_uuid, check_overwrite, get_timestamp
+from digitalhub_core.utils.generic_utils import check_overwrite, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import check_local_path
 from digitalhub_ml.entities.entity_types import EntityTypes
@@ -54,7 +56,7 @@ class Model(Entity):
         uuid : str
             Version of the object.
         kind : str
-            Kind of the object.
+            Kind the object.
         metadata : Metadata
             Metadata of the object.
         spec : ModelSpec
@@ -99,14 +101,12 @@ class Model(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, self.ENTITY_TYPE)
-            new_obj = self._context().create_object(api, obj)
+            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
-        new_obj = self._context().update_object(api, obj)
+        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
         self._update_attributes(new_obj)
         return self
 
@@ -119,9 +119,8 @@ class Model(Entity):
         Model
             Entity refreshed.
         """
-        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
-        obj = self._context().read_object(api)
-        self._update_attributes(obj)
+        new_obj = read_entity_api_ctx(self.key)
+        self._update_attributes(new_obj)
         return self
 
     def export(self, filename: str | None = None) -> None:
@@ -172,20 +171,13 @@ class Model(Entity):
         Returns
         -------
         str
-            Path of the model (temporary or not).
+            Path of the model.
         """
-        # Check if target path is provided and if it is remote
-        trg = self.spec.path
-        self._check_remote(trg)
-
-        # If local store, return local model path
-        # Check if source path is provided and if it is local
-        store = get_store(trg)
+        path = self.spec.path
+        store = get_store(path)
         if store.is_local():
-            self._check_local(self.spec.src_path)
-            return self.spec.src_path
-
-        return store.download(trg)
+            return path
+        return store.download(path)
 
     def download(
         self,
@@ -210,12 +202,14 @@ class Model(Entity):
 
         # Check if target path is remote
         path = self.spec.path
-        self._check_remote(path)
+        store = get_store(path)
+        if store.is_local():
+            raise RuntimeError("Local files cannot be downloaded. Use as_file().")
 
         # Check if download destination path is specified and rebuild it if necessary
         if destination is None:
             filename = Path(urlparse(path).path).name
-            destination = f"{self.project}/{self.ENTITY_TYPE}/{self.id}/{filename}"
+            destination = f"{self.project}/{self.ENTITY_TYPE}/{self.name}/{self.id}/{filename}"
 
         # Check if destination path is local
         self._check_local(destination)
@@ -223,8 +217,7 @@ class Model(Entity):
         # Check if destination path exists for overwrite
         check_overwrite(destination, overwrite)
 
-        # Download model and return path
-        store = get_store(path)
+        # Download dataitem and return path
         return store.download(path, destination)
 
     def upload(self, source: str | None = None) -> str:
@@ -244,14 +237,15 @@ class Model(Entity):
         """
         # Check if target path is remote
         path = self.spec.path
-        self._check_remote(path)
+        store = get_store(path)
+        if store.is_local():
+            raise RuntimeError("Only remote paths are supported for upload.")
 
         # Check if source path is provided and if it is local
         src = source if source is not None else self.spec.src_path
         self._check_local(src)
 
         # Get store and upload model and return remote path
-        store = get_store(path)
         target = store.upload(src, path)
         file_info = store.get_file_info(target, src)
 
@@ -288,28 +282,6 @@ class Model(Entity):
         if not check_local_path(path):
             raise EntityError("Only local paths are supported for source paths.")
 
-    @staticmethod
-    def _check_remote(path: str) -> None:
-        """
-        Check through URI scheme if given path is remote.
-
-        Parameters
-        ----------
-        path : str
-            Path of some source.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        EntityError
-            If source path is local.
-        """
-        if check_local_path(path):
-            raise EntityError("Only remote paths are supported for target paths.")
-
     #############################
     #  Static interface methods
     #############################
@@ -330,7 +302,7 @@ class Model(Entity):
             A dictionary containing the attributes of the entity instance.
         """
         project = obj.get("project")
-        name = obj.get("name")
+        name = build_name(obj.get("name"))
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(kind, **obj.get("metadata", {}))
@@ -369,19 +341,19 @@ def model_from_parameters(
     Parameters
     ----------
     project : str
-        A string representing the project associated with this model.
+        Project name.
     name : str
-        The name of the model.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
     description : str
-        A description of the model.
+        Description of the object (human readable).
     embedded : bool
         Flag to determine if object must be embedded in project.
     path : str
@@ -401,6 +373,7 @@ def model_from_parameters(
     """
     if path is None:
         raise EntityError("Path must be provided.")
+    name = build_name(name)
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind,

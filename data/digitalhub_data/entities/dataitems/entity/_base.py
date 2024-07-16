@@ -2,16 +2,19 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
+from urllib.parse import urlparse
 
 from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.stores.builder import get_store
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
+from digitalhub_core.utils.generic_utils import get_timestamp, check_overwrite
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import check_local_path, map_uri_scheme
 from digitalhub_data.entities.entity_types import EntityTypes
@@ -53,7 +56,7 @@ class Dataitem(Entity):
         uuid : str
             Version of the object.
         kind : str
-            Kind of the object.
+            Kind the object.
         metadata : Metadata
             Metadata of the object.
         spec : DataitemSpec
@@ -98,14 +101,12 @@ class Dataitem(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, "dataitems")
-            new_obj = self._context().create_object(api, obj)
+            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, "dataitems", self.id)
-        new_obj = self._context().update_object(api, obj)
+        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
         self._update_attributes(new_obj)
         return self
 
@@ -118,9 +119,8 @@ class Dataitem(Entity):
         Dataitem
             Entity refreshed.
         """
-        api = api_ctx_read(self.project, "dataitems", self.id)
-        obj = self._context().read_object(api)
-        self._update_attributes(obj)
+        new_obj = read_entity_api_ctx(self.key)
+        self._update_attributes(new_obj)
         return self
 
     def export(self, filename: str | None = None) -> None:
@@ -162,6 +162,64 @@ class Dataitem(Entity):
     #  Dataitem methods
     #############################
 
+    def as_file(self) -> str:
+        """
+        Get dataitem as file. In the case of a local store, the store returns the current
+        path of the dataitem. In the case of a remote store, the dataitem is downloaded in
+        a temporary directory.
+
+        Returns
+        -------
+        str
+            Path of the dataitem.
+        """
+        path = self.spec.path
+        store = get_store(path)
+        if store.is_local():
+            return path
+        return store.download(path)
+
+    def download(
+        self,
+        destination: str | None = None,
+        overwrite: bool = False,
+    ) -> str:
+        """
+        Download dataitem from remote storage.
+
+        Parameters
+        ----------
+        destination : str
+            Destination path as filename.
+        overwrite : bool
+            Specify if overwrite an existing file. Default value is False.
+
+        Returns
+        -------
+        str
+            Path of the downloaded dataitem.
+        """
+
+        # Check if target path is remote
+        path = self.spec.path
+        store = get_store(path)
+        if store.is_local():
+            raise RuntimeError("Local files cannot be downloaded. Use as_file().")
+
+        # Check if download destination path is specified and rebuild it if necessary
+        if destination is None:
+            filename = Path(urlparse(path).path).name
+            destination = f"{self.project}/{self.ENTITY_TYPE}/{self.name}/{self.id}/{filename}"
+
+        # Check if destination path is local
+        self._check_local(destination)
+
+        # Check if destination path exists for overwrite
+        check_overwrite(destination, overwrite)
+
+        # Download dataitem and return path
+        return store.download(path, destination)
+
     def write_file(self, src: str) -> str:
         """
         Write file into dataitem path.
@@ -177,11 +235,11 @@ class Dataitem(Entity):
             Path to the written file.
         """
         path = self.spec.path
-        if not self._check_local(src):
-            raise RuntimeError("Source path must be local.")
+        store = get_store(path)
+        if store.is_local():
+            raise RuntimeError("Only remote paths are supported for upload.")
 
         # Get store and upload file and return remote path
-        store = get_store(path)
         target = store.upload(src, path)
         file_info = store.get_file_info(target, src)
 
@@ -269,7 +327,7 @@ class Dataitem(Entity):
             A dictionary containing the attributes of the entity instance.
         """
         project = obj.get("project")
-        name = obj.get("name")
+        name = build_name(obj.get("name"))
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(kind, **obj.get("metadata", {}))

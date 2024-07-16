@@ -6,7 +6,7 @@ from typing import Any, Callable
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities.artifacts.crud import artifact_from_dict
-from digitalhub_core.utils.generic_utils import parse_entity_key
+from digitalhub_core.entities.utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
 from digitalhub_ml.entities.entity_types import EntityTypes

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from digitalhub_core.utils.generic_utils import build_uuid
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_data.datastores.objects.base import Datastore
 from digitalhub_data.readers.builder import get_reader_by_object
 

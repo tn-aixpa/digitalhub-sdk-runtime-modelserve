@@ -4,6 +4,7 @@ import typing
 from typing import Any
 
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.projects.entity import CTX_ENTITIES, FUNC_MAP, Project
@@ -12,6 +13,7 @@ from digitalhub_data.entities.dataitems.crud import (
     delete_dataitem,
     get_dataitem,
     list_dataitems,
+    log_dataitem,
     new_dataitem,
 )
 from digitalhub_data.entities.entity_types import EntityTypes
@@ -36,33 +38,78 @@ class ProjectData(Project):
     #  Dataitems
     #############################
 
-    def new_dataitem(self, **kwargs) -> Dataitem:
+    def new_dataitem(
+        self,
+        name: str,
+        kind: str,
+        uuid: str | None = None,
+        description: str | None = None,
+        git_source: str | None = None,
+        labels: list[str] | None = None,
+        embedded: bool = True,
+        path: str | None = None,
+        **kwargs,
+    ) -> Dataitem:
         """
-        Create a Dataitem.
+        Create a new object instance.
 
         Parameters
         ----------
+        name : str
+            Object name.
+        kind : str
+            Kind the object.
+        uuid : str
+            ID of the object (UUID4).
+        description : str
+            Description of the object (human readable).
+        git_source : str
+            Remote git source for object.
+        labels : list[str]
+            List of labels.
+        embedded : bool
+            Flag to determine if object must be embedded in project.
+        path : str
+            Object path on local file system or remote storage.
+            If not provided, it's generated.
         **kwargs : dict
-            Keyword arguments.
+            Spec keyword arguments.
 
         Returns
         -------
         Dataitem
             Object instance.
         """
-        kwargs["project"] = self.name
-        obj = new_dataitem(**kwargs)
-        self._add_object(obj, DATAITEMS)
+        obj = new_dataitem(
+            project=self.name,
+            name=name,
+            kind=kind,
+            path=path,
+            uuid=uuid,
+            description=description,
+            git_source=git_source,
+            labels=labels,
+            embedded=embedded,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def get_dataitem(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> Dataitem:
+    def get_dataitem(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        **kwargs,
+    ) -> Dataitem:
         """
         Get object from backend.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -73,20 +120,36 @@ class ProjectData(Project):
         Dataitem
             Instance of Dataitem class.
         """
-        obj = get_dataitem(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._add_object(obj, DATAITEMS)
+        obj = get_dataitem(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            **kwargs,
+        )
+        self.refresh()
         return obj
 
-    def delete_dataitem(self, entity_name: str | None = None, entity_id: str | None = None, **kwargs) -> None:
+    def delete_dataitem(
+        self,
+        identifier: str,
+        entity_id: str | None = None,
+        delete_all_versions: bool = False,
+        **kwargs,
+    ) -> None:
         """
         Delete a Dataitem from project.
 
         Parameters
         ----------
-        entity_name : str
-            Entity name.
+        identifier : str
+            Entity key or name.
+        project : str
+            Project name.
         entity_id : str
             Entity ID.
+        delete_all_versions : bool
+            Delete all versions of the named entity.
+            Use entity name instead of entity key as identifier.
         **kwargs : dict
             Parameters to pass to the API call.
 
@@ -94,23 +157,14 @@ class ProjectData(Project):
         -------
         None
         """
-        delete_dataitem(self.name, entity_name=entity_name, entity_id=entity_id, **kwargs)
-        self._delete_object(DATAITEMS, entity_name, entity_id)
-
-    def set_dataitem(self, dataitem: Dataitem) -> None:
-        """
-        Set a Dataitem.
-
-        Parameters
-        ----------
-        dataitem : Dataitem
-            Dataitem to set.
-
-        Returns
-        -------
-        None
-        """
-        self._add_object(dataitem, DATAITEMS)
+        delete_dataitem(
+            identifier=identifier,
+            project=self.name,
+            entity_id=entity_id,
+            delete_all_versions=delete_all_versions,
+            **kwargs,
+        )
+        self.refresh()
 
     def list_dataitems(self, **kwargs) -> list[dict]:
         """
@@ -119,7 +173,7 @@ class ProjectData(Project):
         Parameters
         ----------
         **kwargs : dict
-            Filters to apply to the list. Shold be params={"filter": "value"}.
+            Parameters to pass to the API call.
 
         Returns
         -------
@@ -143,9 +197,9 @@ class ProjectData(Project):
         Parameters
         ----------
         name : str
-            Name that identifies the object.
+            Object name.
         kind : str
-            Kind of the dataitem.
+            Kind the object.
         path : str
             Destination path of the dataitem.
         data : Any
@@ -160,10 +214,17 @@ class ProjectData(Project):
         Dataitem
             Object instance.
         """
-        dataitem = new_dataitem(project=self.name, name=name, kind=kind, path=path, **kwargs)
-        if kind == "table":
-            dataitem.write_df(df=data, extension=extension)
-        return dataitem
+        obj = log_dataitem(
+            project=self.name,
+            name=name,
+            kind=kind,
+            path=path,
+            data=data,
+            extension=extension,
+            **kwargs,
+        )
+        self.refresh()
+        return obj
 
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:
@@ -183,7 +244,7 @@ class ProjectData(Project):
             A dictionary containing the attributes of the entity instance.
         """
         # Override methods to search in digitalhub_data
-        name = obj.get("name")
+        name = build_name(obj.get("name"))
         kind = obj.get("kind")
         metadata = build_metadata(kind, **obj.get("metadata", {}))
         spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
@@ -217,11 +278,11 @@ def project_from_parameters(
     Parameters
     ----------
     name : str
-        Name that identifies the object.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     description : str
-        Description of the object.
+        Description of the object (human readable).
     git_source : str
         Remote git source for object.
     labels : list[str]
@@ -238,6 +299,7 @@ def project_from_parameters(
     ProjectData
         ProjectData object.
     """
+    name = build_name(name)
     spec = build_spec(
         kind,
         context=context,

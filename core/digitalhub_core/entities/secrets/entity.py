@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub_core.client.api import api_ctx_list
 from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
+from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
@@ -49,7 +52,7 @@ class Secret(Entity):
         uuid : str
             Version of the object.
         kind : str
-            Kind of the object.
+            Kind the object.
         metadata : Metadata
             Metadata of the object.
         spec : SecretSpec
@@ -94,14 +97,12 @@ class Secret(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, self.ENTITY_TYPE)
-            new_obj = self._context().create_object(api, obj)
+            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
-        new_obj = self._context().update_object(api, obj)
+        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
         self._update_attributes(new_obj)
         return self
 
@@ -114,9 +115,8 @@ class Secret(Entity):
         Secret
             Entity refreshed.
         """
-        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
-        obj = self._context().read_object(api)
-        self._update_attributes(obj)
+        new_obj = read_entity_api_ctx(self.key)
+        self._update_attributes(new_obj)
         return self
 
     def export(self, filename: str | None = None) -> None:
@@ -214,7 +214,7 @@ class Secret(Entity):
             A dictionary containing the attributes of the entity instance.
         """
         project = obj.get("project")
-        name = obj.get("name")
+        name = build_name(obj.get("name"))
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(kind, **obj.get("metadata", {}))
@@ -250,19 +250,19 @@ def secret_from_parameters(
     Parameters
     ----------
     project : str
-        A string representing the project associated with this secret.
+        Project name.
     name : str
-        The name of the secret.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
     description : str
-        A description of the secret.
+        Description of the object (human readable).
     embedded : bool
         Flag to determine if object must be embedded in project.
     **kwargs : dict
@@ -273,6 +273,7 @@ def secret_from_parameters(
     Secret
         An instance of the created secret.
     """
+    name = build_name(name)
     uuid = build_uuid(uuid)
     metadata = build_metadata(
         kind,

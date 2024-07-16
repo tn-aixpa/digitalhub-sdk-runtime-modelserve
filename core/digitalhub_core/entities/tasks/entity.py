@@ -3,14 +3,15 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.runs.crud import delete_run, get_run, new_run, run_from_parameters
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_read, api_ctx_update
-from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
+from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
@@ -48,7 +49,7 @@ class Task(Entity):
         uuid : str
             UUID.
         kind : str
-            Kind of the object.
+            Kind the object.
         metadata : Metadata
             Metadata of the object.
         spec : TaskSpec
@@ -92,14 +93,12 @@ class Task(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, self.ENTITY_TYPE)
-            new_obj = self._context().create_object(api, obj)
+            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
-        new_obj = self._context().update_object(api, obj)
+        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
         self._update_attributes(new_obj)
         return self
 
@@ -112,9 +111,8 @@ class Task(Entity):
         Task
             Entity refreshed.
         """
-        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
-        obj = self._context().read_object(api)
-        self._update_attributes(obj)
+        new_obj = read_entity_api_ctx(self.key)
+        self._update_attributes(new_obj)
         return self
 
     def export(self, filename: str | None = None) -> None:
@@ -168,7 +166,7 @@ class Task(Entity):
         Parameters
         ----------
         run_kind : str
-            Kind of the run.
+            Kind the object.
         local_execution : bool
             Flag to indicate if the run will be executed locally.
         **kwargs : dict
@@ -308,9 +306,9 @@ def task_from_parameters(
     project : str
         Project name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     git_source : str
         Remote git source for object.
     labels : list[str]

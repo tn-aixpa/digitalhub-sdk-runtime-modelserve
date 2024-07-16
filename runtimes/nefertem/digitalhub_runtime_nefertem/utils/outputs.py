@@ -4,9 +4,9 @@ import typing
 from pathlib import Path
 
 from digitalhub_core.entities._base.status import State
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.artifacts.crud import create_artifact
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import build_uuid
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_nefertem.utils.env import S3_BUCKET
 

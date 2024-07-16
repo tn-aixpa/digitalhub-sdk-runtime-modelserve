@@ -1,19 +1,22 @@
 from __future__ import annotations
 
 import typing
+from typing import Any
 
+from digitalhub_core.client.api import api_base_list, api_ctx_create, api_ctx_list, api_ctx_read
 from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.registry.registry import registry
 from digitalhub_core.runtimes.builder import build_runtime
-from digitalhub_core.utils.api import api_base_list, api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
+from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
@@ -51,7 +54,7 @@ class Run(Entity):
         uuid : str
             UUID.
         kind : str
-            Kind of the object.
+            Kind the object.
         metadata : Metadata
             Metadata of the object.
         spec : RunSpec
@@ -95,14 +98,25 @@ class Run(Entity):
         obj = self.to_dict(include_all_non_private=True)
 
         if not update:
-            api = api_ctx_create(self.project, self.ENTITY_TYPE)
-            new_obj = self._context().create_object(api, obj)
+            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
-        new_obj = self._context().update_object(api, obj)
+        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
+        self._update_attributes(new_obj)
+        return self
+
+    def refresh(self) -> Run:
+        """
+        Refresh object from backend.
+
+        Returns
+        -------
+        Run
+            Run object.
+        """
+        new_obj = read_entity_api_ctx(self.key)
         self._update_attributes(new_obj)
         return self
 
@@ -183,7 +197,7 @@ class Run(Entity):
         # Try to get inputs if they exist
         try:
             self.spec.inputs = self.inputs(as_dict=True)
-        except Exception:
+        except EntityError:
             pass
 
         try:
@@ -231,7 +245,7 @@ class Run(Entity):
         Returns
         -------
         dict
-            Results from backend.
+            Results.
         """
         try:
             return self.status.get_results()
@@ -239,7 +253,23 @@ class Run(Entity):
             msg = f"Run of type {self.kind} has no results."
             raise EntityError(msg)
 
-    def outputs(self, as_key: bool = False, as_dict: bool = False) -> list:
+    def result(self, key: str) -> Any:
+        """
+        Get result from runtime execution by key.
+
+        Parameters
+        ----------
+        key : str
+            Key of the result.
+
+        Returns
+        -------
+        Any
+            Result.
+        """
+        return self.results().get(key)
+
+    def outputs(self, as_key: bool = False, as_dict: bool = False) -> dict:
         """
         Get run objects results.
 
@@ -252,7 +282,7 @@ class Run(Entity):
 
         Returns
         -------
-        list
+        dict
             List of output objects.
         """
         try:
@@ -260,6 +290,26 @@ class Run(Entity):
         except AttributeError:
             msg = f"Run of type {self.kind} has no outputs."
             raise EntityError(msg)
+
+    def output(self, key: str, as_key: bool = False, as_dict: bool = False) -> Entity | dict | str | None:
+        """
+        Get run object result by key.
+
+        Parameters
+        ----------
+        key : str
+            Key of the result.
+        as_key : bool
+            If True, return result as key.
+        as_dict : bool
+            If True, return result as dictionary.
+
+        Returns
+        -------
+        Entity | dict | str | None
+            Result.
+        """
+        return self.outputs(as_key=as_key, as_dict=as_dict).get(key)
 
     def values(self) -> dict:
         """
@@ -277,20 +327,6 @@ class Run(Entity):
         except AttributeError:
             msg = f"Run of type {self.kind} has no values."
             raise EntityError(msg)
-
-    def refresh(self) -> Run:
-        """
-        Refresh object from backend.
-
-        Returns
-        -------
-        Run
-            Run object.
-        """
-        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
-        obj = self._context().read_object(api)
-        self._update_attributes(obj)
-        return self
 
     def logs(self) -> dict:
         """
@@ -349,14 +385,7 @@ class Run(Entity):
         Returns
         -------
         None
-
-        Raises
-        ------
-        EntityError
-            If status is not a dictionary or a Status object.
         """
-        if not isinstance(status, dict):
-            raise EntityError("Status must be a dictionary.")
         self.status: RunStatus = build_status(self.kind, **status)
 
     def _set_state(self, state: str) -> None:
@@ -508,9 +537,9 @@ def run_from_parameters(
     project : str
         Project name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     git_source : str
         Remote git source for object.
     labels : list[str]

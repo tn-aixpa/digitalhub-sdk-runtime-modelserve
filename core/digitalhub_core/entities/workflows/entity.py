@@ -3,16 +3,23 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._base.crud import (
+    create_entity_api_ctx,
+    list_entity_api_ctx,
+    read_entity_api_ctx,
+    update_entity_api_ctx,
+)
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
+from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.tasks.crud import create_task, create_task_from_dict, delete_task
 from digitalhub_core.runtimes.builder import get_kind_registry
-from digitalhub_core.utils.api import api_ctx_create, api_ctx_list, api_ctx_read, api_ctx_update
 from digitalhub_core.utils.exceptions import BackendError, EntityError
-from digitalhub_core.utils.generic_utils import build_uuid, get_timestamp
+from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
@@ -54,7 +61,7 @@ class Workflow(Entity):
         uuid : str
             Version of the object.
         kind : str
-            Kind of the object.
+            Kind the object.
         metadata : Metadata
             Metadata of the object.
         spec : WorkflowSpec
@@ -102,14 +109,12 @@ class Workflow(Entity):
         obj = self.to_dict()
 
         if not update:
-            api = api_ctx_create(self.project, self.ENTITY_TYPE)
-            new_obj = self._context().create_object(api, obj)
+            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
             self._update_attributes(new_obj)
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        api = api_ctx_update(self.project, self.ENTITY_TYPE, self.id)
-        new_obj = self._context().update_object(api, obj)
+        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
         self._update_attributes(new_obj)
         return self
 
@@ -122,9 +127,8 @@ class Workflow(Entity):
         Workflow
             Entity refreshed.
         """
-        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id)
-        obj = self._context().read_object(api)
-        self._update_attributes(obj)
+        new_obj = read_entity_api_ctx(self.key)
+        self._update_attributes(new_obj)
         return self
 
     def export(self, filename: str | None = None) -> None:
@@ -263,7 +267,7 @@ class Workflow(Entity):
         Parameters
         ----------
         task_kind : str
-            Kind of the task.
+            Kind the object.
         **kwargs : dict
             Keyword arguments.
 
@@ -299,7 +303,7 @@ class Workflow(Entity):
         Parameters
         ----------
         kind : str
-            Kind of the task.
+            Kind the object.
         **kwargs : dict
             Keyword arguments.
 
@@ -332,7 +336,7 @@ class Workflow(Entity):
         Parameters
         ----------
         kind : str
-            Kind of the task.
+            Kind the object.
 
         Returns
         -------
@@ -354,7 +358,7 @@ class Workflow(Entity):
         Parameters
         ----------
         kind : str
-            Kind of the task.
+            Kind the object.
         cascade : bool
             Flag to determine if cascade deletion must be performed.
 
@@ -368,7 +372,7 @@ class Workflow(Entity):
             If task is not created.
         """
         self._raise_if_not_exists(kind)
-        delete_task(self.project, entity_id=self._tasks[kind].id, cascade=cascade)
+        delete_task(self._tasks[kind].key, cascade=cascade)
         self._tasks.pop(kind, None)
 
     def _check_task_in_backend(self, kind: str) -> tuple[bool, str | None]:
@@ -378,7 +382,7 @@ class Workflow(Entity):
         Parameters
         ----------
         kind : str
-            Kind of the task.
+            Kind the object.
 
         Returns
         -------
@@ -386,9 +390,8 @@ class Workflow(Entity):
             Flag to determine if task exists in backend and ID if exists.
         """
         # List tasks from backend filtered by function and kind
-        api = api_ctx_list(self.project, EntityTypes.TASKS.value)
         params = {"function": self._get_workflow_string(), "kind": kind}
-        objs = self._context().list_objects(api, params=params)
+        objs = list_entity_api_ctx(self.project, EntityTypes.TASKS.value, params=params)
         try:
             return True, objs[0]["id"]
         except IndexError:
@@ -401,7 +404,7 @@ class Workflow(Entity):
         Parameters
         ----------
         kind : str
-            Kind of the task.
+            Kind the object.
 
         Returns
         -------
@@ -437,7 +440,7 @@ class Workflow(Entity):
             A dictionary containing the attributes of the entity instance.
         """
         project = obj.get("project")
-        name = obj.get("name")
+        name = build_name(obj.get("name"))
         kind = obj.get("kind")
         uuid = build_uuid(obj.get("id"))
         metadata = build_metadata(kind, **obj.get("metadata", {}))
@@ -473,19 +476,19 @@ def workflow_from_parameters(
     Parameters
     ----------
     project : str
-        A string representing the project associated with this workflow.
+        Project name.
     name : str
-        The name of the workflow.
+        Object name.
     kind : str
-        Kind of the object.
+        Kind the object.
     uuid : str
-        ID of the object in form of UUID.
+        ID of the object (UUID4).
     git_source : str
         Remote git source for object.
     labels : list[str]
         List of labels.
     description : str
-        A description of the workflow.
+        Description of the object (human readable).
     embedded : bool
         Flag to determine if object must be embedded in project.
     **kwargs : dict
@@ -496,6 +499,7 @@ def workflow_from_parameters(
     Workflow
         An instance of the created workflow.
     """
+    name = build_name(name)
     uuid = build_uuid(uuid)
     spec = build_spec(
         kind,
@@ -549,7 +553,7 @@ def kind_to_runtime(kind: str) -> str:
     Parameters
     ----------
     kind : str
-        Kind of the workflow.
+        Kind the object.
 
     Returns
     -------

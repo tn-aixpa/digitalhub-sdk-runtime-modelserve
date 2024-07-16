@@ -7,40 +7,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
-from uuid import UUID, uuid4
 from zipfile import ZipFile
 
 import numpy as np
 from boto3 import client as boto3_client
 from digitalhub_core.utils.io_utils import read_text
 from requests import get as requests_get
-
-
-def build_uuid(uuid: str | None = None) -> str:
-    """
-    Create a uuid if not given. If given, validate it.
-
-    Parameters
-    ----------
-    uuid : str
-        ID of the object in form of UUID. Optional.
-
-    Returns
-    -------
-    str
-        The uuid.
-    """
-    if uuid is None:
-        return str(uuid4())
-
-    # Validate uuid
-    if not isinstance(uuid, str):
-        raise ValueError("uuid must be a string")
-    try:
-        UUID(uuid, version=4)
-    except ValueError:
-        raise ValueError("uuid must be a valid UUID")
-    return uuid
 
 
 def get_timestamp() -> str:
@@ -104,38 +76,6 @@ def encode_source(path: str) -> str:
         The file content encoded in base64.
     """
     return encode_string(read_text(path))
-
-
-def parse_entity_key(key: str) -> tuple[str]:
-    """
-    Parse the entity key.
-
-    Parameters
-    ----------
-    key : str
-        The entity key.
-
-    Returns
-    -------
-    tuple[str]
-        Project, entity type, kind, name and uuid.
-    """
-    try:
-        # Remove "store://" from the key
-        key = key.replace("store://", "")
-        # Split the key into parts
-        parts = key.split("/")
-        # The project is the first part
-        project = parts[0]
-        # The entity type is the second part
-        entity_type = parts[1]
-        # The kind is the third part
-        kind = parts[2]
-        # The name and uuid are separated by a colon in the last part
-        name, uuid = parts[3].split(":")
-        return project, entity_type, kind, name, uuid
-    except Exception as e:
-        raise ValueError("Invalid key format.") from e
 
 
 def requests_chunk_download(source: str, filename: Path) -> None:
