@@ -1,5 +1,5 @@
 import pytest
-from digitalhub_core.client.api import (
+from digitalhub_core.entities._base.api import (
     api_base_create,
     api_base_delete,
     api_base_read,

@@ -3,9 +3,16 @@ from __future__ import annotations
 import typing
 from typing import Any
 
-from digitalhub_core.client.api import api_base_list, api_ctx_create, api_ctx_list, api_ctx_read
 from digitalhub_core.context.builder import get_context
-from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
+from digitalhub_core.entities._base.crud import (
+    create_entity_api_ctx,
+    list_entity_api_base,
+    list_entity_api_ctx,
+    logs_api,
+    read_entity_api_ctx,
+    stop_api,
+    update_entity_api_ctx,
+)
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.entities._builders.metadata import build_metadata
@@ -340,8 +347,7 @@ class Run(Entity):
         """
         if self._context().local:
             return {}
-        api = api_ctx_read(self.project, self.ENTITY_TYPE, self.id) + "/logs"
-        return self._context().read_object(api)
+        return logs_api(self.project, self.ENTITY_TYPE, self.id)
 
     def stop(self) -> None:
         """
@@ -354,9 +360,7 @@ class Run(Entity):
         # Do nothing if context is local
         if self._context().local:
             return
-        api = api_ctx_create(self.project, self.ENTITY_TYPE) + f"/{self.id}/stop"
-        self._context().create_object(api)
-        self.status.state = State.STOPPED.value
+        stop_api(self.project, self.ENTITY_TYPE, self.id)
 
     #############################
     #  Helpers
@@ -445,9 +449,15 @@ class Run(Entity):
         """
         exec_kind = runtime.get_executable_kind()
         entity_type = registry.get_entity_type(exec_kind)
-        exec_id = self.spec.task.split(":")[-1]
-        api = api_ctx_read(self.project, entity_type, exec_id)
-        return self._context().read_object(api)
+        splitted = self.spec.task.split("/")
+        exec_name = splitted[-1].split(":")[0]
+        exec_id = splitted[-1].split(":")[1]
+        return read_entity_api_ctx(
+            exec_name,
+            entity_type=entity_type,
+            project=self.project,
+            entity_id=exec_id,
+        )
 
     def _get_task(self, runtime: Runtime) -> dict:
         """
@@ -468,8 +478,7 @@ class Run(Entity):
 
         # Local backend
         if self._context().local:
-            api = api_base_list("tasks")
-            tasks = self._context().list_objects(api)
+            tasks = list_entity_api_base(self._context().client, EntityTypes.TASKS.value)
             for i in tasks:
                 if i.get("spec").get("function") == exec_string:
                     return i
@@ -477,10 +486,8 @@ class Run(Entity):
 
         # Remote backend
         task_kind = self.spec.task.split("://")[0]
-        api = api_ctx_list(self.project, "tasks")
         params = {"function": exec_string, "kind": task_kind}
-        obj = self._context().list_objects(api, params=params)
-        return obj[0]
+        return list_entity_api_ctx(self.project, EntityTypes.TASKS.value, params=params)[0]
 
     #############################
     #  Static interface methods

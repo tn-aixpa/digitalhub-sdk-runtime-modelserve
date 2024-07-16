@@ -55,7 +55,9 @@ class ContextBuilder:
         """
         ctx = self._instances.get(project)
         if ctx is None:
-            raise ValueError(f"Context '{project}' not found.")
+            raise ValueError(
+                f"Context '{project}' not found. Please get or create a project named '{project}' to access its objects."
+            )
         return ctx
 
     def remove(self, project: str) -> None:

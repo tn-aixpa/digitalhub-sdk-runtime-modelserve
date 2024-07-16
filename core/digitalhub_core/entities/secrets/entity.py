@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.client.api import api_ctx_list
 from digitalhub_core.context.builder import get_context
-from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
+from digitalhub_core.entities._base.crud import (
+    create_entity_api_ctx,
+    get_data_api,
+    read_entity_api_ctx,
+    set_data_api,
+    update_entity_api_ctx,
+)
 from digitalhub_core.entities._base.entity import Entity
 from digitalhub_core.entities._builders.metadata import build_metadata
 from digitalhub_core.entities._builders.name import build_name
@@ -175,8 +180,7 @@ class Secret(Entity):
             raise NotImplementedError("set_secret() is not implemented for local projects.")
 
         obj = {self.name: value}
-        api = api_ctx_list(self.project, self.ENTITY_TYPE) + "/data"
-        self._context().update_object(api, obj)
+        set_data_api(self.project, self.ENTITY_TYPE, obj)
 
     def read_secret_value(self) -> dict:
         """
@@ -191,8 +195,7 @@ class Secret(Entity):
             raise NotImplementedError("read_secret() is not implemented for local projects.")
 
         params = {"keys": self.name}
-        api = api_ctx_list(self.project, self.ENTITY_TYPE) + "/data"
-        return self._context().read_object(api, params=params)
+        return get_data_api(self.project, self.ENTITY_TYPE, params)
 
     #############################
     #  Static interface methods

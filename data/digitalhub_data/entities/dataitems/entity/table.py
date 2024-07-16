@@ -7,7 +7,6 @@ from typing import Any
 from digitalhub_core.stores.builder import get_store
 from digitalhub_data.datastores.builder import get_datastore
 from digitalhub_data.entities.dataitems.entity._base import Dataitem
-from digitalhub_data.readers.builder import get_reader_by_object
 
 
 class DataitemTable(Dataitem):
@@ -92,12 +91,6 @@ class DataitemTable(Dataitem):
         str
             Path to the written dataframe.
         """
-        self.refresh()
-
-        reader = get_reader_by_object(df)
-        self.spec.schema = reader.get_schema(df)
-        self.status.preview = reader.get_preview(df)
-
         datastore = get_datastore(self.spec.path)
         target = datastore.write_df(df, self.spec.path, extension=extension, **kwargs)
 
@@ -106,7 +99,4 @@ class DataitemTable(Dataitem):
         file_info = store.get_file_info(target, self.spec.path)
         if file_info is not None:
             self.status.add_file(file_info)
-
-        self.save(update=True)
-
         return target

@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.client.api import (
+from digitalhub_core.context.builder import get_context
+from digitalhub_core.entities._base.api import (
     api_base_create,
     api_base_delete,
+    api_base_list,
     api_base_read,
     api_base_update,
     api_ctx_create,
@@ -13,7 +15,6 @@ from digitalhub_core.client.api import (
     api_ctx_read,
     api_ctx_update,
 )
-from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
@@ -141,6 +142,32 @@ def delete_entity_api_base(
         kwargs["params"]["cascade"] = str(kwargs["cascade"]).lower()
     api = api_base_delete(entity_type, entity_name)
     return client.delete_object(api, **kwargs)
+
+
+def list_entity_api_base(
+    client: Client,
+    entity_type: str,
+    **kwargs,
+) -> list[dict]:
+    """
+    List objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[dict]
+        List of objects.
+    """
+    api = api_base_list(entity_type)
+    return client.list_objects(api, **kwargs)
 
 
 def create_entity_api_ctx(
@@ -334,3 +361,116 @@ def list_entity_api_ctx(
     """
     api = api_ctx_list(project, entity_type)
     return get_context(project).list_objects(api, **kwargs)
+
+
+def set_data_api(
+    project: str,
+    entity_type: str,
+    data: dict,
+    **kwargs,
+) -> None:
+    """
+    Set data in backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    data : dict
+        Data dictionary.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_list(project, entity_type) + "/data"
+    get_context(project).update_object(api, data, **kwargs)
+
+
+def get_data_api(
+    project: str,
+    entity_type: str,
+    **kwargs,
+) -> dict:
+    """
+    Read data from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_list(project, entity_type) + "/data"
+    return get_context(project).read_object(api, **kwargs)
+
+
+def logs_api(
+    project: str,
+    entity_type: str,
+    entity_id: str,
+    **kwargs,
+) -> dict:
+    """
+    Read logs from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_read(project, entity_type, entity_id) + "/logs"
+    return get_context(project).read_object(api)
+
+
+def stop_api(
+    project: str,
+    entity_type: str,
+    entity_id: str,
+    **kwargs,
+) -> None:
+    """
+    Stop object in backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_create(project, entity_type) + f"/{entity_id}/stop"
+    get_context(project).create_object(api)

@@ -13,6 +13,7 @@ from digitalhub_core.entities._base.crud import (
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_data.entities.dataitems.builder import dataitem_from_dict, dataitem_from_parameters
 from digitalhub_data.entities.entity_types import EntityTypes
+from digitalhub_data.readers.builder import get_reader_by_object
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitems.entity._base import Dataitem
@@ -293,7 +294,11 @@ def log_dataitem(
     Dataitem
         Object instance.
     """
-    dataitem = new_dataitem(project=project, name=name, kind=kind, path=path, **kwargs)
+    dataitem = create_dataitem(project=project, name=name, kind=kind, path=path, **kwargs)
     if kind == "table":
         dataitem.write_df(df=data, extension=extension)
+        reader = get_reader_by_object(data)
+        dataitem.spec.schema = reader.get_schema(data)
+        dataitem.status.preview = reader.get_preview(data)
+    dataitem.save()
     return dataitem
