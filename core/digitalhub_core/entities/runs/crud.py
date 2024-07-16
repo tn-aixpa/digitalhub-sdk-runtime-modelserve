@@ -133,7 +133,7 @@ def get_run(
         Object instance.
     """
     if not identifier.startswith("store://"):
-        raise EntityError("Task has no name. Use key instead.")
+        raise EntityError("Run has no name. Use key instead.")
     obj = read_entity_api_ctx(
         identifier,
         ENTITY_TYPE,

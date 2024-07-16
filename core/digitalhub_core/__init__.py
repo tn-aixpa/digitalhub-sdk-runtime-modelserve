@@ -6,6 +6,7 @@ from digitalhub_core.entities.artifacts.crud import (
     get_artifact,
     import_artifact,
     list_artifacts,
+    log_artifact,
     new_artifact,
     update_artifact,
 )

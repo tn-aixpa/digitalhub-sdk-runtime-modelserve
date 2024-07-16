@@ -57,7 +57,9 @@ def execute_step(
     if function is not None:
         LOGGER.info("Executing function " + function + " task " + action)
         function = (
-            project.get_function(entity_id=function_id) if function_id is not None else project.get_function(function)
+            project.get_function(function, entity_id=function_id)
+            if function_id is not None
+            else project.get_function(function)
         )
 
         run = function.run(
@@ -78,7 +80,9 @@ def execute_step(
             action = "pipeline"
         LOGGER.info("Executing workflow " + workflow + " task " + action)
         function = (
-            project.get_workflow(entity_id=workflow_id) if workflow_id is not None else project.get_workflow(workflow)
+            project.get_workflow(workflow, entity_id=workflow_id)
+            if workflow_id is not None
+            else project.get_workflow(workflow)
         )
 
         run = workflow.run(

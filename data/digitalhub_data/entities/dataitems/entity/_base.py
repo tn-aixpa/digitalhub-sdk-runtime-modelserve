@@ -14,7 +14,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import get_timestamp, check_overwrite
+from digitalhub_core.utils.generic_utils import check_overwrite, get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import check_local_path, map_uri_scheme
 from digitalhub_data.entities.entity_types import EntityTypes

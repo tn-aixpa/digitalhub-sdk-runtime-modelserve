@@ -13,7 +13,7 @@ from digitalhub_runtime_kfp.dsl import set_current_project, unset_current_projec
 from digitalhub_runtime_kfp.utils.outputs import build_status
 from kfp.compiler import compiler
 
-import digitalhub as dhcore
+import digitalhub as dh
 
 
 def build_kfp_pipeline(run: dict, pipeline: Callable) -> any:
@@ -64,7 +64,7 @@ def run_kfp_pipeline(run: dict) -> any:
         workflow = run.get("spec", {}).get("workflow", None)
         # workflow was not built locally, need to replicate the build
         if workflow is None:
-            dhcore_run = dhcore.get_run(run.get("project"), run.get("id"))
+            dhcore_run = dh.get_run(run.get("key"))
             workflow = build_kfp_pipeline(run, pipeline)
             run_dict = dhcore_run.to_dict()
             run_dict["spec"]["workflow"] = workflow
@@ -88,7 +88,7 @@ def run_kfp_pipeline(run: dict) -> any:
                 status = response.run.status
                 run_status = build_status(response, client)
                 # update status
-                dhcore_run = dhcore.get_run(run.get("project"), run.get("id"))
+                dhcore_run = dh.get_run(run.get("key"))
                 dhcore_run._set_status(run_status)
                 dhcore_run.save(update=True)
             except Exception:

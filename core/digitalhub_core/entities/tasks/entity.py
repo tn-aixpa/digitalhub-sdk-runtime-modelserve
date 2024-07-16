@@ -219,36 +219,36 @@ class Task(Entity):
             return run_from_parameters(**kwargs)
         return new_run(**kwargs)
 
-    def get_run(self, entity_id: str) -> Run:
+    def get_run(self, entity_key: str) -> Run:
         """
         Get run.
 
         Parameters
         ----------
-        entity_id : str
-            Entity ID.
+        entity_key : str
+            Entity key.
 
         Returns
         -------
         Run
             Run object.
         """
-        return get_run(self.project, entity_id)
+        return get_run(entity_key)
 
-    def delete_run(self, entity_id: str) -> None:
+    def delete_run(self, entity_key: str) -> None:
         """
         Delete run.
 
         Parameters
         ----------
-        entity_id : str
-            Entity ID.
+        entity_key : str
+            Entity key.
 
         Returns
         -------
         None
         """
-        delete_run(self.project, entity_id)
+        delete_run(entity_key)
 
     #############################
     #  Static interface methods

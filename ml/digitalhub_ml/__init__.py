@@ -3,6 +3,7 @@ from digitalhub_ml.entities.models.crud import (
     get_model,
     import_model,
     list_models,
+    log_model,
     new_model,
     update_model,
 )

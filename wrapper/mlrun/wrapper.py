@@ -5,7 +5,7 @@ import os
 
 from digitalhub_core.utils.logger import LOGGER
 
-import digitalhub as dhcore
+import digitalhub as dh
 
 
 def main():
@@ -14,8 +14,9 @@ def main():
     """
 
     LOGGER.info("Getting run from backend.")
-    project = dhcore.get_project(os.getenv("PROJECT_NAME"))
-    run = dhcore.get_run(project.name, os.getenv("RUN_ID"))
+    project = dh.get_project(os.getenv("PROJECT_NAME"))
+    run_key = f"store://{project.name}/runs/run+mlrun/{os.getenv('RUN_ID')}"
+    run = dh.get_run(run_key)
 
     LOGGER.info("Installing run dependencies.")
     for requirement in run.spec.to_dict().get("requirements", []):

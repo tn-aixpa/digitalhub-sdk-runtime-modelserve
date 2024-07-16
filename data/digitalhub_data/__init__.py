@@ -3,6 +3,7 @@ from digitalhub_data.entities.dataitems.crud import (
     get_dataitem,
     import_dataitem,
     list_dataitems,
+    log_dataitem,
     new_dataitem,
     update_dataitem,
 )

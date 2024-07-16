@@ -5,9 +5,10 @@ import os
 import threading
 from contextlib import contextmanager
 
-import digitalhub_core as dhcore
 from kfp import dsl
 from kubernetes import client as k8s_client
+
+import digitalhub as dh
 
 # Variable to track the current project reference without affecting the code
 current_project = None
@@ -15,14 +16,20 @@ current_project = None
 label_prefix = "kfp-digitalhub-runtime-"
 
 
-def set_current_project(val: str):
-    """Set the current project for the context of the pipeline
-
+def set_current_project(val: str) -> None:
+    """
+    Set the current project for the context of the pipeline.
     The current project is used implicitly in pipeline workflows without
     specifying the project explicitly.
 
-    Args:
-        val (str): The name of the project to set as current
+    Parameters
+    ----------
+    val : str
+        Project name.
+
+    Returns
+    -------
+    None
     """
     global current_project
     current_project = threading.local()
@@ -31,10 +38,14 @@ def set_current_project(val: str):
 
 
 def unset_current_project() -> None:
-    """Remove the current project from the pipeline context
-
+    """
+    Remove the current project from the pipeline context
     This is used to reset the current project to the default (None) for testing
     or other cases where the current project should not be used anymore.
+
+    Returns
+    -------
+    None
     """
     global current_project
     current_project = None
@@ -50,19 +61,22 @@ def pipeline_context():
 
 class PipelineContext:
     def __init__(self) -> None:
-        """Initialize the pipeline context
+        """
+        Initialize the pipeline context
 
         This function initializes the pipeline context by retrieving the project
         from Digital Hub using the currently defined project name. If no project
         is defined, an exception is raised.
 
-        Raises:
-            Exception: If the current project is not defined
+        Raises
+        ------
+        Exception
+            If the current project is not defined.
         """
         global current_project
         if current_project is not None:
             # Retrieve the project object from Digital Hub using the project name
-            self._project = dhcore.get_project(current_project.val)
+            self._project = dh.get_project(current_project.val)
         else:
             # If the current project is not defined, raise an exception
             raise Exception("Current project is not defined")
@@ -84,37 +98,55 @@ class PipelineContext:
         values: list | None = None,
         **kwargs,
     ) -> dsl.ContainerOp:
-        """Execute a function in Digital Hub Core.
+        """
+        Execute a function in Digital Hub Core.
 
-        This function creates a KFP ContainerOp that executes a function or another workflow in
-        Digital Hub Core. The function is executed in the context of the current
-        project, which is retrieved from Digital Hub Core when the pipeline
-        context is initialized.
+        This function creates a KFP ContainerOp that executes a function
+        or another workflow in Digital Hub Core.
+        The function is executed in the context of the current project,
+        which is retrieved from Digital Hub Core when the pipeline context
+        is initialized.
 
-        Args:
-            name: The name of the step in KFP.
-            function: The name of the function to execute. Either function or workflow must be provided.
-            workflow: The name of the workflow to execute. Either function or workflow must be provided.
-            action: The name of the action to execute. May be omitted in case of workflow execution (defaulting to 'pipeline').
-            node_selector: A list of node selectors for the step.
-            volumes: A list of volumes for the step.
-            resources: A list of resource requirements for the step.
-            env: A list of environment variables for the step.
-            secrets: A list of secret names for the step.
-            inputs: A list of complex input parameters.
-            outputs: A list of complex output parameters.
-            parameters: A list of simple input parameters.
-            values: A list of simple output parameters.
-            kwargs: Additional keyword arguments to pass to the step.
+        Parameters
+        ----------
+        name : str
+            The name of the step in KFP.
+        function : str
+            The name of the function to execute. Either function or workflow must be provided.
+        workflow : str
+            The name of the workflow to execute. Either function or workflow must be provided.
+        action : str
+            The name of the action to execute. May be omitted in case of workflow execution (defaulting to 'pipeline').
+        node_selector : list[dict]
+            A list of node selectors for the step.
+        volumes : list[dict]
+            A list of volumes for the step.
+        resources : list[dict]
+            A list of resource requirements for the step.
+        env : list[dict]
+            A list of environment variables for the step.
+        secrets : list[str]
+            A list of secret names for the step.
+        inputs : dict
+            A list of complex input parameters.
+        outputs : dict
+            A list of complex output parameters.
+        parameters : dict
+            A list of simple input parameters.
+        values : list
+            A list of simple output parameters.
+        kwargs : dict
+            Additional keyword arguments to pass to the step.
 
-        Returns:
+        Returns
+        -------
+        dsl.ContainerOp
             A KFP ContainerOp for the step.
         """
 
         WORKFLOW_IMAGE = os.environ.get("DIGITALHUB_CORE_WORKFLOW_IMAGE")
         KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
         DIGITALHUB_CORE_ENDPOINT = os.environ.get("DIGITALHUB_CORE_ENDPOINT", "http://localhost:8080/")
-        # DIGITALHUB_CORE_ENDPOINT = "http://10.30.42.210:8080/"
 
         props = {
             "node_selector": node_selector,
@@ -133,11 +165,11 @@ class PipelineContext:
             raise RuntimeError("Either function or workflow must be provided.")
 
         if function is not None:
-            function_object = dhcore.get_function(self._project.name, entity_name=function)
+            function_object = dh.get_function(function, project=self._project.name)
             if function_object is None:
                 raise RuntimeError(f"Function {function} not found")
         elif workflow is not None:
-            workflow_object = dhcore.get_workflow(self._project.name, entity_name=workflow)
+            workflow_object = dh.get_workflow(workflow, project=self._project.name)
             if workflow_object is None:
                 raise RuntimeError(f"Workflow {workflow} not found")
             if action is None:
