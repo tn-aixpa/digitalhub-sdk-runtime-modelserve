@@ -4,7 +4,7 @@ FROM python:3.9
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 ARG DHUB_VERSION=
 ARG BASE_VER=0.6.0b
-ARG VERSION=0.6.0b5
+ARG VERSION=0.6.0b6
 
 
 # Set working dir
