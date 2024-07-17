@@ -3,7 +3,7 @@ FROM python:3.9
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
 ARG DHUB_VERSION=
-ARG VERSION=0.6.0b5
+ARG VERSION=0.6.0b6
 
 # Set working dir
 WORKDIR /app/
