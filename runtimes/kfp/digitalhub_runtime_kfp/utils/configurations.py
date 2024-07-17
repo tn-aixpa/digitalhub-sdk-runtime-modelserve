@@ -41,12 +41,12 @@ def get_dhcore_workflow(workflow_string: str) -> Workflow:
         DHCore workflow.
     """
     splitted = workflow_string.split("://")[1].split("/")
-    workflow_name, workflow_version = splitted[1].split(":")
-    LOGGER.info(f"Getting workflow {workflow_name}:{workflow_version}.")
+    name, uuid = splitted[1].split(":")
+    LOGGER.info(f"Getting workflow {name}:{uuid}.")
     try:
-        return get_workflow(splitted[0], workflow_name, workflow_version)
+        return get_workflow(name, project=splitted[0], entity_id=uuid)
     except Exception as e:
-        msg = f"Error getting workflow {workflow_name}:{workflow_version}. Exception: {e.__class__}. Error: {e.args}"
+        msg = f"Error getting workflow {name}:{uuid}. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
         raise RuntimeError(msg) from e
 
@@ -304,7 +304,7 @@ def _load_module(file_name: str, handler: str) -> Callable:
 
 
 def _get_handler_extended(
-    handler_path: str, class_args: dict | None = None, namespaces: ModuleType | None = None
+    handler_path: str, class_args: dict | None = None, namespaces: ModuleType | None = None,
 ) -> Callable:
     """
     Get function handler from [class_name::]handler string.
