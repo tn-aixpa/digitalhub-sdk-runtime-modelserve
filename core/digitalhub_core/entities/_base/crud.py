@@ -10,9 +10,12 @@ from digitalhub_core.entities._base.api import (
     api_base_read,
     api_base_update,
     api_ctx_create,
+    api_ctx_data,
     api_ctx_delete,
     api_ctx_list,
+    api_ctx_logs,
     api_ctx_read,
+    api_ctx_stop,
     api_ctx_update,
 )
 from digitalhub_core.entities.utils import parse_entity_key
@@ -248,6 +251,47 @@ def read_entity_api_ctx(
     return get_context(project).read_object(api, **kwargs)
 
 
+def read_entity_api_ctx_versions(
+    identifier: str,
+    entity_type: str | None = None,
+    project: str | None = None,
+    **kwargs,
+) -> list[dict]:
+    """
+    Get all versions object from backend.
+
+    Parameters
+    ----------
+    identifier : str
+        Entity key or name.
+    entity_type : str
+        Entity type.
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[dict]
+        Object instances.
+    """
+    if not identifier.startswith("store://"):
+        if project is None or entity_type is None:
+            raise ValueError("Project and entity type must be specified.")
+        entity_name = identifier
+    else:
+        project, entity_type, _, entity_name, _ = parse_entity_key(identifier)
+
+    if "params" not in kwargs:
+        kwargs["params"] = {}
+    kwargs["params"]["name"] = entity_name
+    kwargs["params"]["versions"] = "all"
+
+    api = api_ctx_list(project, entity_type)
+    return get_context(project).list_objects(api, **kwargs)
+
+
 def update_entity_api_ctx(
     project: str,
     entity_type: str,
@@ -385,10 +429,9 @@ def set_data_api(
 
     Returns
     -------
-    dict
-        Response from backend.
+    None
     """
-    api = api_ctx_list(project, entity_type) + "/data"
+    api = api_ctx_data(project, entity_type)
     get_context(project).update_object(api, data, **kwargs)
 
 
@@ -414,7 +457,7 @@ def get_data_api(
     dict
         Response from backend.
     """
-    api = api_ctx_list(project, entity_type) + "/data"
+    api = api_ctx_data(project, entity_type)
     return get_context(project).read_object(api, **kwargs)
 
 
@@ -443,8 +486,8 @@ def logs_api(
     dict
         Response from backend.
     """
-    api = api_ctx_read(project, entity_type, entity_id) + "/logs"
-    return get_context(project).read_object(api)
+    api = api_ctx_logs(project, entity_type, entity_id)
+    return get_context(project).read_object(api, **kwargs)
 
 
 def stop_api(
@@ -469,8 +512,7 @@ def stop_api(
 
     Returns
     -------
-    dict
-        Response from backend.
+    None
     """
-    api = api_ctx_create(project, entity_type) + f"/{entity_id}/stop"
-    get_context(project).create_object(api)
+    api = api_ctx_stop(project, entity_type, entity_id)
+    get_context(project).create_object(api, **kwargs)

@@ -768,7 +768,6 @@ class Project(Entity):
         obj = new_secret(
             project=self.name,
             name=name,
-            kind="secret",
             uuid=uuid,
             description=description,
             git_source=git_source,

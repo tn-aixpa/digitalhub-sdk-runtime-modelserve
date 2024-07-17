@@ -195,7 +195,7 @@ class Secret(Entity):
             raise NotImplementedError("read_secret() is not implemented for local projects.")
 
         params = {"keys": self.name}
-        return get_data_api(self.project, self.ENTITY_TYPE, params)
+        return get_data_api(self.project, self.ENTITY_TYPE, params=params)
 
     #############################
     #  Static interface methods

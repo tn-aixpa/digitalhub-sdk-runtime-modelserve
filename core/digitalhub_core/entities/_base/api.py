@@ -9,25 +9,6 @@ API_CONTEXT = f"{API_BASE}/-"
 ####################
 
 
-def api_ctx_list(project: str, entity_type: str) -> str:
-    """
-    List context API.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    entity_type : str
-        Entity type.
-
-    Returns
-    -------
-    str
-        The API string formatted.
-    """
-    return f"{API_CONTEXT}/{project}/{entity_type}"
-
-
 def api_ctx_create(
     project: str,
     entity_type: str,
@@ -115,6 +96,86 @@ def api_ctx_delete(project: str, entity_type: str, entity_id: str) -> str:
         The API string formatted.
     """
     return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}"
+
+
+def api_ctx_list(project: str, entity_type: str) -> str:
+    """
+    List context API.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{project}/{entity_type}"
+
+
+def api_ctx_data(project: str, entity_type: str) -> str:
+    """
+    Data context API.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{project}/{entity_type}/data"
+
+
+def api_ctx_logs(project: str, entity_type: str, entity_id: str) -> str:
+    """
+    Logs context API.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}/logs"
+
+
+def api_ctx_stop(project: str, entity_type: str, entity_id: str) -> str:
+    """
+    Stop context API.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}/stop"
 
 
 ####################

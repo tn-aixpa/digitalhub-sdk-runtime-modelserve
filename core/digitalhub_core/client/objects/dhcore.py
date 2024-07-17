@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import os
+import typing
 
 from digitalhub_core.client.objects.base import Client
 from digitalhub_core.utils.exceptions import BackendError
 from pydantic import BaseModel
 from requests import request
 from requests.exceptions import JSONDecodeError, RequestException, Timeout
+
+if typing.TYPE_CHECKING:
+    from requests import Response
 
 MAX_API_LEVEL = 100
 MIN_API_LEVEL = 5
@@ -198,38 +202,122 @@ class ClientDHCore(Client):
         dict
             Response object.
         """
-        url = self._endpoint + api
+        # Set URL
+        url = self._build_url(api)
 
         # Choose auth type
+        kwargs = self._set_auth_header(kwargs)
+
+        # Call the API
+        response = request(call_type, url, timeout=60, **kwargs)
+
+        # Parse the response
+        self._raise_for_error(response)
+        self._check_core_version(response)
+        return self._parse_response(response)
+
+    def _build_url(self, api: str) -> str:
+        """
+        Build the URL for the DHCore API.
+
+        Parameters
+        ----------
+        api : str
+            The api to call.
+
+        Returns
+        -------
+        str
+            The URL for the DHCore API.
+        """
+        return self._endpoint + api
+
+    def _set_auth_header(self, kwargs: dict) -> dict:
+        """
+        Set the authentication header.
+
+        Parameters
+        ----------
+        kwargs : dict
+            Keyword arguments to pass to the request.
+
+        Returns
+        -------
+        dict
+            Keyword arguments with the authentication header.
+        """
         if self._auth_type == "basic":
             kwargs["auth"] = self._user, self._password
         elif self._auth_type == "oauth2":
             kwargs["headers"] = {"Authorization": f"Bearer {self._access_token}"}
 
-        # Call the API
+        return kwargs
+
+    def _raise_for_error(self, response: Response) -> None:
+        """
+        Raise an exception if the response indicates an error.
+
+        Parameters
+        ----------
+        response : Response
+            The response object.
+
+        Returns
+        -------
+        None
+        """
         try:
-            response = request(call_type, url, timeout=60, **kwargs)
             response.raise_for_status()
-            if "X-Api-Level" in response.headers:
-                core_api_level = int(response.headers["X-Api-Level"])
-                if not (MIN_API_LEVEL <= core_api_level <= MAX_API_LEVEL):
-                    raise BackendError("Backend API level not supported.")
-            return response.json()
         except RequestException as e:
             if isinstance(e, Timeout):
                 msg = "Request to DHCore backend timed out."
             elif isinstance(e, ConnectionError):
                 msg = "Unable to connect to DHCore backend."
-            elif isinstance(e, JSONDecodeError):
-                if call_type == "DELETE":
-                    return {}
-                msg = "Unable to parse response from DHCore backend."
             else:
                 msg = f"Backend error. Status code: {e.response.status_code}. Reason: {e.response.text}"
             raise BackendError(msg) from e
         except Exception as e:
             msg = f"Some error occurred: {e}"
             raise RuntimeError(msg) from e
+
+    def _check_core_version(self, response: Response) -> None:
+        """
+        Raise an exception if the response indicates an error.
+
+        Parameters
+        ----------
+        response : Response
+            The response object.
+
+        Returns
+        -------
+        None
+        """
+        if "X-Api-Level" in response.headers:
+            core_api_level = int(response.headers["X-Api-Level"])
+            if not (MIN_API_LEVEL <= core_api_level <= MAX_API_LEVEL):
+                raise BackendError("Backend API level not supported.")
+
+    def _parse_response(self, response: Response) -> dict:
+        """
+        Parse the response object.
+
+        Parameters
+        ----------
+        response : Response
+            The response object.
+
+        Returns
+        -------
+        dict
+            The parsed response object.
+        """
+        try:
+            return response.json()
+        except JSONDecodeError:
+            if response.text == "":
+                return {}
+            raise BackendError("Backend response could not be parsed.")
 
     ################################
     # Configuration methods

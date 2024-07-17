@@ -7,6 +7,7 @@ from digitalhub_core.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
     read_entity_api_ctx,
+    read_entity_api_ctx_versions,
     update_entity_api_ctx,
 )
 from digitalhub_core.entities.entity_types import EntityTypes
@@ -134,7 +135,6 @@ def get_function(
     Function
         Object instance.
     """
-
     obj = read_entity_api_ctx(
         identifier,
         ENTITY_TYPE,
@@ -143,6 +143,37 @@ def get_function(
         **kwargs,
     )
     return function_from_dict(obj)
+
+
+def get_function_versions(
+    identifier: str,
+    project: str | None = None,
+    **kwargs,
+) -> list[Function]:
+    """
+    Get object versions from backend.
+
+    Parameters
+    ----------
+    identifier : str
+        Entity key or name.
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Function]
+        List of object instances.
+    """
+    obj = read_entity_api_ctx_versions(
+        identifier,
+        entity_type=ENTITY_TYPE,
+        project=project,
+        **kwargs,
+    )
+    return [function_from_dict(o) for o in obj]
 
 
 def import_function(file: str) -> Function:

@@ -1,6 +1,7 @@
 from digitalhub_ml.entities.models.crud import (
     delete_model,
     get_model,
+    get_model_versions,
     import_model,
     list_models,
     log_model,

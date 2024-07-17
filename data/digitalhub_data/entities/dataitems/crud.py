@@ -8,6 +8,7 @@ from digitalhub_core.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
     read_entity_api_ctx,
+    read_entity_api_ctx_versions,
     update_entity_api_ctx,
 )
 from digitalhub_core.utils.io_utils import read_yaml
@@ -142,7 +143,6 @@ def get_dataitem(
     Dataitem
         Object instance.
     """
-
     obj = read_entity_api_ctx(
         identifier,
         ENTITY_TYPE,
@@ -151,6 +151,37 @@ def get_dataitem(
         **kwargs,
     )
     return dataitem_from_dict(obj)
+
+
+def get_dataitem_versions(
+    identifier: str,
+    project: str | None = None,
+    **kwargs,
+) -> list[Dataitem]:
+    """
+    Get object versions from backend.
+
+    Parameters
+    ----------
+    identifier : str
+        Entity key or name.
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Dataitem]
+        List of object instances.
+    """
+    obj = read_entity_api_ctx_versions(
+        identifier,
+        entity_type=ENTITY_TYPE,
+        project=project,
+        **kwargs,
+    )
+    return [dataitem_from_dict(o) for o in obj]
 
 
 def import_dataitem(file: str) -> Dataitem:

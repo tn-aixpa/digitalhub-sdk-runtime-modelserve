@@ -1,6 +1,7 @@
 from digitalhub_data.entities.dataitems.crud import (
     delete_dataitem,
     get_dataitem,
+    get_dataitem_versions,
     import_dataitem,
     list_dataitems,
     log_dataitem,
