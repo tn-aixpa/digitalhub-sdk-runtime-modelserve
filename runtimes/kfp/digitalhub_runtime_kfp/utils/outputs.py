@@ -6,6 +6,7 @@ import typing
 from base64 import b64decode
 from datetime import datetime
 from io import BytesIO
+from typing import Any
 
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.utils.logger import LOGGER
@@ -70,10 +71,10 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
 
     Parameters
     ----------
-    run : ApiRun
+    run : ApiRunDetail
         KFP run.
     client: Client
-        reference to the KFP API client
+        reference to the KFP API client.
 
     Returns
     -------
@@ -110,7 +111,28 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
         raise RuntimeError(msg) from e
 
 
-def _node_to_graph(id: str, run_detail: ApiRunDetail, node, templates, client: Client):
+def _node_to_graph(id: str, run_detail: ApiRunDetail, node: dict, templates: list, client: Client) -> dict:
+    """
+    Convert node to graph.
+
+    Parameters
+    ----------
+    id : str
+        Node id.
+    run_detail : ApiRun
+        KFP run.
+    node : dict
+        KFP node.
+    templates : list
+        KFP templates.
+    client: Client
+        reference to the KFP API client.
+
+    Returns
+    -------
+    dict
+        Graph dict.
+    """
     res = {
         "id": id,
         "name": node["name"],
@@ -157,27 +179,53 @@ def _node_to_graph(id: str, run_detail: ApiRunDetail, node, templates, client: C
     return res
 
 
-def _process_params(params):
-    result = []
-    if "parameters" in params:
-        for param in params["parameters"]:
-            result.append({"name": param["name"], "value": param["value"] if "value" in param else ""})
-    return result
+def _process_params(params: dict) -> list:
+    """
+    Process params.
+
+    Parameters
+    ----------
+    params : dict
+        KFP params.
+
+    Returns
+    -------
+    list
+        Processed params.
+    """
+    res = []
+    for param in params.get("parameters", []):
+        res.append({"name": param["name"], "value": param.get("value", "")})
+    return res
 
 
-def _get_artifact_value(indata):
+def _get_artifact_value(indata: Any) -> dict | str:
+    """
+    Get artifact value.
+
+    Parameters
+    ----------
+    indata : str
+        Artifact data.
+
+    Returns
+    -------
+    dict
+        Artifact value.
+    """
     # Artifacts are returned as base64-encoded .tar.gz strings
     data = b64decode(indata)
     io_buffer = BytesIO()
     io_buffer.write(data)
     io_buffer.seek(0)
-    data = None
+
+    # Unpack the tarball
     with tarfile.open(fileobj=io_buffer) as tar:
         member_names = tar.getnames()
         if len(member_names) == 1:
-            data = tar.extractfile(member_names[0]).read().decode("utf-8")
+            members = tar.extractfile(member_names[0]).read().decode("utf-8")
         else:
-            data = {}
+            members = {}
             for member_name in member_names:
-                data[member_name] = tar.extractfile(member_name).read().decode("utf-8")
-    return data
+                members[member_name] = tar.extractfile(member_name).read().decode("utf-8")
+    return members

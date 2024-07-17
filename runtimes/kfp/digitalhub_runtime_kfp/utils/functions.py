@@ -16,7 +16,7 @@ from kfp.compiler import compiler
 import digitalhub as dh
 
 
-def build_kfp_pipeline(run: dict, pipeline: Callable) -> any:
+def build_kfp_pipeline(run: dict, pipeline: Callable) -> str | None:
     """
     Build KFP pipeline.
 
@@ -27,6 +27,10 @@ def build_kfp_pipeline(run: dict, pipeline: Callable) -> any:
     pipeline : Callable
         KFP pipeline function.
 
+    Returns
+    -------
+    str
+        Pipeline spec.
     """
     pipeline_spec = None
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -41,7 +45,7 @@ def build_kfp_pipeline(run: dict, pipeline: Callable) -> any:
     return pipeline_spec
 
 
-def run_kfp_pipeline(run: dict) -> any:
+def run_kfp_pipeline(run: dict) -> dict:
     """
     Run KFP pipeline.
 

@@ -49,15 +49,13 @@ class RuntimeKFP(Runtime):
         dict
             The run spec.
         """
-        task_kind = task.get("kind").split("+")[1]
         res = {
             **workflow.get("spec", {}),
             **task.get("spec", {}),
             **run.get("spec", {}),
         }
-
-        if task_kind == "pipeline":
-            kfp_workflow = self._configure_execution(res, task_kind, run.get("project"))
+        if task.get("kind") == "kfp+pipeline":
+            kfp_workflow = self._configure_execution(res)
             pipeline_spec = build_kfp_pipeline(run, kfp_workflow)
             res["workflow"] = pipeline_spec
         return res

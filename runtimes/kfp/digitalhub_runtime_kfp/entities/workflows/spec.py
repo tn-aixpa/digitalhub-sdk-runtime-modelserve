@@ -21,20 +21,6 @@ class WorkflowSpecKFP(WorkflowSpec):
         tag: str | None = None,
         handler: str | None = None,
     ) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        image : str
-            Name of the Workflow's container image.
-        tag : str
-            Tag of the Workflow's container image.
-        source : Workflow
-            Workflow source name.
-        handler : str
-            Workflow handler name.
-        """
         super().__init__()
 
         self.image = image
