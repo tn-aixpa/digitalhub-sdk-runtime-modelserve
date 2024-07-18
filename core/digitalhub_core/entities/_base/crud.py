@@ -515,4 +515,4 @@ def stop_api(
     None
     """
     api = api_ctx_stop(project, entity_type, entity_id)
-    get_context(project).create_object(api, **kwargs)
+    get_context(project).create_object(api, obj={}, **kwargs)
