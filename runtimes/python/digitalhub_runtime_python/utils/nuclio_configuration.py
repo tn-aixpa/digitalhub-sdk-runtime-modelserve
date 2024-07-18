@@ -90,7 +90,7 @@ def import_function_and_init(source: dict) -> tuple[Callable, Union[Callable, No
     fnc = import_function(function_path, handler_name)
 
     # Get init function
-    init_handler = source.get("init_handler")
+    init_handler = source.get("init_function")
     init_fnc = None
     if init_handler is not None:
         init_fnc = import_function(function_path, init_handler)
