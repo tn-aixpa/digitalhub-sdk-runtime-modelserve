@@ -304,7 +304,9 @@ def _load_module(file_name: str, handler: str) -> Callable:
 
 
 def _get_handler_extended(
-    handler_path: str, class_args: dict | None = None, namespaces: ModuleType | None = None,
+    handler_path: str,
+    class_args: dict | None = None,
+    namespaces: ModuleType | None = None,
 ) -> Callable:
     """
     Get function handler from [class_name::]handler string.

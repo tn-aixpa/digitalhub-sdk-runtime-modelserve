@@ -38,7 +38,8 @@ def build_kfp_pipeline(run: dict, pipeline: Callable) -> str | None:
         # workaround to pass the project implicitly
         set_current_project(run.get("project"))
         compiler.Compiler(kfp.dsl.PipelineExecutionMode.V1_LEGACY).compile(
-            pipeline_func=pipeline, package_path=pipeline_package_path,
+            pipeline_func=pipeline,
+            package_path=pipeline_package_path,
         )
         unset_current_project()
         pipeline_spec = read_text(pipeline_package_path)
