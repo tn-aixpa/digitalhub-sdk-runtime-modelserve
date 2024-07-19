@@ -353,10 +353,11 @@ class Project(Entity):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
+        delete_all_versions : bool
+            Delete all versions of the named entity.
+            Use entity name instead of entity key as identifier.
         **kwargs : dict
             Parameters to pass to the API call.
 
@@ -498,8 +499,6 @@ class Project(Entity):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -534,8 +533,6 @@ class Project(Entity):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         delete_all_versions : bool
@@ -596,8 +593,6 @@ class Project(Entity):
 
         Parameters
         ----------
-        project : str
-            Project name.
         name : str
             Object name.
         uuid : str
@@ -645,8 +640,6 @@ class Project(Entity):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -681,8 +674,6 @@ class Project(Entity):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         delete_all_versions : bool
@@ -792,8 +783,6 @@ class Project(Entity):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -827,8 +816,6 @@ class Project(Entity):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         delete_all_versions : bool

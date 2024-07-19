@@ -108,8 +108,6 @@ class ProjectData(Project):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         **kwargs : dict
@@ -143,8 +141,6 @@ class ProjectData(Project):
         ----------
         identifier : str
             Entity key or name.
-        project : str
-            Project name.
         entity_id : str
             Entity ID.
         delete_all_versions : bool
