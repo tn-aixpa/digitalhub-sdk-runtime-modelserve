@@ -30,11 +30,11 @@ class FunctionSpecMlrun(FunctionSpec):
         self.command = command
         self.requirements = requirements if requirements is not None else []
 
-        source = self._source_check(source)
+        source = self.source_check(source)
         self.source = SourceCodeStruct(**source)
 
     @staticmethod
-    def _source_check(source: dict) -> dict:
+    def source_check(source: dict) -> dict:
         """
         Check source.
 

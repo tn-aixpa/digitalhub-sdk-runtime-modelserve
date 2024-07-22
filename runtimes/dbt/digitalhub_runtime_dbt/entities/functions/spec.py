@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec, SourceCodeStruct
-from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import decode_string, encode_string
-from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
+from digitalhub_runtime_dbt.entities.functions.models import SourceCodeParamsDbt, SourceCodeStructDbt
 
 
 class FunctionSpecDbt(FunctionSpec):
@@ -13,24 +9,36 @@ class FunctionSpecDbt(FunctionSpec):
     Specification for a Function Dbt.
     """
 
-    def __init__(self, source: dict) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        sql : str
-            SQL query to run inside Dbt.
-        """
+    def __init__(
+        self,
+        source: dict | None = None,
+        code_src: str | None = None,
+        handler: str | None = None,
+        code: str | None = None,
+        base64: str | None = None,
+        lang: str | None = None,
+    ) -> None:
         super().__init__()
 
-        source = self._check_source(source)
-        self.source = SourceCodeStruct(**source)
+        # Give source precedence
+        if source is not None:
+            source_dict = source
+        else:
+            source_dict = {
+                "source": code_src,
+                "handler": handler,
+                "code": code,
+                "base64": base64,
+                "lang": lang,
+            }
+
+        source_checked = self.source_check(source_dict)
+        self.source = SourceCodeStructDbt(**source_checked)
 
     @staticmethod
-    def _check_source(source: dict) -> dict:
+    def source_check(source: dict) -> dict:
         """
-        Check source code.
+        Check source.
 
         Parameters
         ----------
@@ -42,35 +50,7 @@ class FunctionSpecDbt(FunctionSpec):
         dict
             Checked source.
         """
-        source_path = source.get("source")
-        code = source.get("code")
-        base64 = source.get("base64")
-        handler = source.get("handler")
-
-        if source.get("lang") is None:
-            source["lang"] = "sql"
-
-        if source_path is None and code is None and base64 is None:
-            raise EntityError("Source must be provided.")
-
-        # Check source code
-
-        if base64 is not None:
-            return source
-
-        if code is not None:
-            source["base64"] = encode_string(code)
-            return source
-
-        if source_path is not None:
-            if map_uri_scheme(source_path) == "local":
-                source["code"] = Path(source_path).read_text()
-                source["base64"] = encode_string(source["code"])
-            else:
-                if handler is None:
-                    raise EntityError("Handler must be provided if source is not local.")
-
-        return source
+        return SourceCodeStructDbt.source_check(source)
 
     def show_source_code(self) -> str:
         """
@@ -81,19 +61,7 @@ class FunctionSpecDbt(FunctionSpec):
         str
             Source code.
         """
-        if self.source.code is not None:
-            return str(self.source.code)
-        if self.source.base64 is not None:
-            try:
-                return decode_string(self.source.base64)
-            except Exception:
-                raise EntityError("Something got wrong during source code decoding.")
-        if (self.source.source is not None) and (map_uri_scheme(self.source.source) == "local"):
-            try:
-                return Path(self.source.source).read_text()
-            except Exception:
-                raise EntityError("Cannot access source code.")
-        return ""
+        return self.source.show_source_code()
 
     def to_dict(self) -> dict:
         """
@@ -109,10 +77,7 @@ class FunctionSpecDbt(FunctionSpec):
         return dict_
 
 
-class FunctionParamsDbt(FunctionParams):
+class FunctionParamsDbt(FunctionParams, SourceCodeParamsDbt):
     """
     Function Dbt parameters model.
     """
-
-    source: dict
-    """Source code."""

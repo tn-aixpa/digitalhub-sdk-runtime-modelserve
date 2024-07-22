@@ -1,12 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-from digitalhub_core.entities.functions.spec import SourceCodeStruct
 from digitalhub_core.entities.workflows.spec import WorkflowParams, WorkflowSpec
-from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import decode_string, encode_source, encode_string
-from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub_runtime_kfp.entities.workflows.models import SourceCodeParamsKfp, SourceCodeStructKfp
 
 
 class WorkflowSpecKFP(WorkflowSpec):
@@ -16,25 +11,37 @@ class WorkflowSpecKFP(WorkflowSpec):
 
     def __init__(
         self,
-        source: dict,
+        source: dict | None = None,
+        code_src: str | None = None,
+        handler: str | None = None,
+        code: str | None = None,
+        base64: str | None = None,
+        lang: str | None = None,
         image: str | None = None,
         tag: str | None = None,
-        handler: str | None = None,
     ) -> None:
         super().__init__()
 
         self.image = image
         self.tag = tag
-        self.handler = handler
 
-        if handler is not None and source is not None and "handler" not in source:
-            source["handler"] = handler
+        # Give source precedence
+        if source is not None:
+            source_dict = source
+        else:
+            source_dict = {
+                "source": code_src,
+                "handler": handler,
+                "code": code,
+                "base64": base64,
+                "lang": lang,
+            }
 
-        self._source_check(source)
-        self.source = SourceCodeStruct(**source)
+        source_checked = self.source_check(source_dict)
+        self.source = SourceCodeStructKfp(**source_checked)
 
     @staticmethod
-    def _source_check(source: dict) -> dict:
+    def source_check(source: dict) -> dict:
         """
         Check source.
 
@@ -48,33 +55,7 @@ class WorkflowSpecKFP(WorkflowSpec):
         dict
             Checked source.
         """
-        if source is None:
-            raise EntityError("Source must be provided.")
-
-        # Source check
-        source_path = source.get("source")
-        code = source.get("code")
-        base64 = source.get("base64")
-
-        if source.get("lang") is None:
-            source["lang"] = "python"
-
-        if source_path is None and code is None and base64 is None:
-            raise EntityError("Source must be provided.")
-
-        if base64 is not None:
-            return source
-
-        if code is not None:
-            source["base64"] = encode_string(code)
-            return source
-
-        if (source_path is not None) and (map_uri_scheme(source_path) == "local"):
-            if not (Path(source_path).suffix == ".py" and Path(source_path).is_file()):
-                raise EntityError("Source is not a valid python file.")
-            source["base64"] = encode_source(source_path)
-
-        return source
+        return SourceCodeStructKfp.source_check(source)
 
     def show_source_code(self) -> str:
         """
@@ -85,19 +66,7 @@ class WorkflowSpecKFP(WorkflowSpec):
         str
             Source code.
         """
-        if self.source.code is not None:
-            return str(self.source.code)
-        if self.source.base64 is not None:
-            try:
-                return decode_string(self.source.base64)
-            except Exception:
-                raise EntityError("Something got wrong during source code decoding.")
-        if (self.source.source is not None) and (map_uri_scheme(self.source.source) == "local"):
-            try:
-                return Path(self.source.source).read_text()
-            except Exception:
-                raise EntityError("Cannot access source code.")
-        return ""
+        return self.source.show_source_code()
 
     def to_dict(self) -> dict:
         """
@@ -113,19 +82,13 @@ class WorkflowSpecKFP(WorkflowSpec):
         return dict_
 
 
-class WorkflowParamsKFP(WorkflowParams):
+class WorkflowParamsKFP(WorkflowParams, SourceCodeParamsKfp):
     """
     Workflow kfp parameters model.
     """
-
-    source: dict
-    "Source code"
 
     image: str = None
     """Name of the Workflow's container image."""
 
     tag: str = None
     """Tag of the Workflow's container image."""
-
-    handler: str = None
-    """Workflow handler name."""

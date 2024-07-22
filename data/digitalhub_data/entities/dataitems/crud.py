@@ -295,8 +295,8 @@ def log_dataitem(
     project: str,
     name: str,
     kind: str,
+    data: Any,
     path: str | None = None,
-    data: Any | None = None,
     extension: str | None = None,
     **kwargs,
 ) -> Dataitem:
@@ -311,10 +311,10 @@ def log_dataitem(
         Object name.
     kind : str
         Kind the object.
-    path : str
-        Destination path of the dataitem.
     data : Any
         Dataframe to log.
+    path : str
+        Destination path of the dataitem.
     extension : str
         Extension of the dataitem.
     **kwargs : dict

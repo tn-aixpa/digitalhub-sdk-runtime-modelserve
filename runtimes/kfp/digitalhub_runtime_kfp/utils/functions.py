@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Callable
 
 import kfp
-from digitalhub_core.entities.runs.entity import Run
 from digitalhub_core.utils.io_utils import read_text
 from digitalhub_runtime_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_runtime_kfp.utils.outputs import build_status
@@ -52,10 +51,8 @@ def run_kfp_pipeline(run: dict) -> dict:
 
     Parameters
     ----------
-    pipeline : BaseRuntime
-        KFP pipeline function.
-    pipeline_args : dict
-        Pipeline arguments.
+    run: dict
+        Run dictionary.
 
     Returns
     -------
@@ -64,40 +61,79 @@ def run_kfp_pipeline(run: dict) -> dict:
     """
 
     def _kfp_execution(pipeline: Callable, function_args) -> dict:
-        client = kfp.Client(host=os.environ.get("KFP_ENDPOINT"))
+        """
+        Run KFP pipeline.
+
+        Parameters
+        ----------
+        pipeline : Callable
+            KFP pipeline function.
+        function_args: dict
+            Function arguments.
+
+        Returns
+        -------
+        dict
+            Execution results.
+        """
+
+        kfp_client = kfp.Client(host=os.environ.get("KFP_ENDPOINT"))
+
         # workaround to pass the project implicitly
         workflow = run.get("spec", {}).get("workflow", None)
+
         # workflow was not built locally, need to replicate the build
         if workflow is None:
             dhcore_run = dh.get_run(run.get("key"))
             workflow = build_kfp_pipeline(run, pipeline)
-            run_dict = dhcore_run.to_dict()
-            run_dict["spec"]["workflow"] = workflow
-            dhcore_run.spec = Run.from_dict(run_dict).spec
-            # update spec
+            dhcore_run.spec.workflow = workflow
+
+            # Check if this actually work in core
             dhcore_run.save(update=True)
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            pipeline_package_path = os.path.join(tmpdir, "pipeline.yaml")
-            # write_yaml(pipeline_package_path, workflow)
-            Path(pipeline_package_path).write_text(workflow, encoding="utf-8")
-            result = client.create_run_from_pipeline_package(pipeline_package_path, arguments=function_args)
+            pipeline_package_path = Path(tmpdir, "pipeline.yaml")
+            pipeline_package_path.write_text(workflow, encoding="utf-8")
+            result = kfp_client.create_run_from_pipeline_package(str(pipeline_package_path), arguments=function_args)
 
         status = None
         response = None
         run_status = None
         while status is None or status.lower() not in ["succeeded", "failed", "skipped", "error"]:
             time.sleep(5)
+
             try:
-                response = client.get_run(run_id=result.run_id)
+                # Get kfp run status
+                response = kfp_client.get_run(run_id=result.run_id)
                 status = response.run.status
-                run_status = build_status(response, client)
-                # update status
-                dhcore_run = dh.get_run(run.get("key"))
-                dhcore_run._set_status(run_status)
-                dhcore_run.save(update=True)
+
+                # Update dhcore status
+                run_status = build_status(response, kfp_client)
+                _update_status(run.get("key"), run_status)
+
             except Exception:
                 pass
         return run_status
 
     return _kfp_execution
+
+
+def _update_status(key: dict, status: dict) -> None:
+    """
+    Update run status.
+
+    Parameters
+    ----------
+    key: dict
+        Run key.
+    status: dict
+        Status dictionary.
+
+    Returns
+    -------
+    None
+    """
+    dhcore_run = dh.get_run(key)
+    new_status = {**status, **dhcore_run.status.to_dict()}
+    dhcore_run._set_status(new_status)
+    dhcore_run.save(update=True)
