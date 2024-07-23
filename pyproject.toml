@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub"
-version = "0.6.0b8"
+version = "0.6.0b10"
 description = "Python SDK for DigitalHub"
 readme = "README.md"
 authors = [
@@ -50,7 +50,7 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.6.0b8"
+current_version = "0.6.0b10"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false
