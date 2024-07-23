@@ -243,8 +243,8 @@ class PipelineContext:
             k8s_client.V1EnvVar(name="DIGITALHUB_CORE_ENDPOINT", value=DIGITALHUB_CORE_ENDPOINT)
         )
 
-        RUN_SECRET_NAME = "digitalhub-common-creds"
-        # RUN_SECRET_NAME = os.environ.get("DH_RUN_SECRET_NAME")
+        # RUN_SECRET_NAME = "digitalhub-common-creds"
+        RUN_SECRET_NAME = os.environ.get("DH_RUN_SECRET_NAME")
 
         if RUN_SECRET_NAME is not None:
             # user credentials from secret in steps
