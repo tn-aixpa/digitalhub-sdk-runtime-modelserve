@@ -242,3 +242,6 @@ class K8s(BaseModel):
 
     secrets: list[str] = None
     """List of secret names."""
+
+    profile: str = None
+    """Profile template."""

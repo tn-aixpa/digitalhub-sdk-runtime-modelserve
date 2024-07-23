@@ -25,6 +25,7 @@ class TaskSpecK8s(TaskSpec):
         self.tolerations = kwargs.get("tolerations")
         self.envs = kwargs.get("envs")
         self.secrets = kwargs.get("secrets")
+        self.profile = kwargs.get("profile")
 
 
 class TaskParams(SpecParams):
