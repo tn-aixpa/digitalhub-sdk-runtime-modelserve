@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-runtime-kfp"
-version = "0.6.0b8"
+version = "0.6.0"
 description = "KFP runtime for DHCore"
 readme = "README.md"
 authors = [
@@ -23,7 +23,10 @@ requires-python = ">=3.9"
 dependencies = [
 "digitalhub>=0.6.0b",
 "digitalhub-core[full]>=0.6.0b",
-"kfp==1.8.11",
+]
+[project.optional-dependencies]
+local = [
+    "kfp==1.8.11",
 ]
 
 [project.urls]
@@ -42,7 +45,7 @@ line-length = 120
 convention = "numpy"
 
 [tool.bumpver]
-current_version = "0.6.0b8"
+current_version = "0.6.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false
