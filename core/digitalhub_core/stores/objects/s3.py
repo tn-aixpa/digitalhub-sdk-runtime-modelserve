@@ -8,7 +8,6 @@ import boto3
 import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 from digitalhub_core.stores.objects.base import Store, StoreConfig
-from digitalhub_core.utils.exceptions import StoreError
 from digitalhub_core.utils.file_utils import get_file_info_from_s3
 
 # Type aliases
@@ -40,18 +39,6 @@ class S3Store(Store):
     """
 
     def __init__(self, name: str, store_type: str, config: S3StoreConfig) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        config : S3StoreConfig
-            S3 store configuration.
-
-        See Also
-        --------
-        Store.__init__
-        """
         super().__init__(name, store_type)
         self.config = config
 
@@ -59,7 +46,7 @@ class S3Store(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None) -> str:
+    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
         """
         Download an artifact from S3 based storage.
 
@@ -67,9 +54,17 @@ class S3Store(Store):
         --------
         fetch_artifact
         """
+        if dst is None:
+            dst = self._build_temp(src)
+        else:
+            self._check_local_dst(dst)
+            self._check_overwrite(dst, overwrite)
+
+        if force:
+            return self.fetch_artifact(src, dst)
         return self._registry.get(src, self.fetch_artifact(src, dst))
 
-    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
+    def fetch_artifact(self, src: str, dst: str) -> str:
         """
         Fetch an artifact from S3 based storage. If the destination is not provided,
         a temporary directory will be created and the artifact will be saved there.
@@ -86,10 +81,11 @@ class S3Store(Store):
         str
             Returns the path of the downloaded artifact.
         """
-        dst = dst if dst is not None else self._build_temp(src)
         bucket = urlparse(src).netloc
         key = self._get_key(src)
-        return self._download_file(bucket, key, dst)
+        path = self._download_file(bucket, key, dst)
+        self._set_path_registry(src, path)
+        return path
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -99,9 +95,14 @@ class S3Store(Store):
         --------
         persist_artifact
         """
-        return self.persist_artifact(src, dst)
+        self._check_local_src(src)
+        if dst is None:
+            key = self._get_key(src)
+        else:
+            key = self._get_key(dst)
+        return self.persist_artifact(src, key)
 
-    def persist_artifact(self, src: str, dst: str | None = None) -> str:
+    def persist_artifact(self, src: str, dst: str) -> str:
         """
         Persist an artifact on S3 based storage. If the destination is not provided,
         the key will be extracted from the source path.
@@ -118,8 +119,7 @@ class S3Store(Store):
         str
             Returns the URI of the artifact on S3 based storage.
         """
-        key = self._get_key(dst) if dst is not None else self._get_key(src)
-        return self._upload_file(src, key)
+        return self._upload_file(src, dst)
 
     def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
         """
@@ -226,13 +226,13 @@ class S3Store(Store):
 
         Raises
         ------
-        StoreError:
+        ClientError:
             If access to the specified bucket is not available.
         """
         try:
             client.head_bucket(Bucket=bucket)
         except ClientError as e:
-            raise StoreError("No access to s3 bucket!") from e
+            raise ClientError("No access to s3 bucket!") from e
 
     def _download_file(self, bucket: str, key: str, dst: str) -> str:
         """
@@ -256,7 +256,6 @@ class S3Store(Store):
         """
         client = self._get_client()
         self._check_access_to_storage(client, bucket)
-        self._check_local_dst(dst)
         client.download_file(bucket, key, dst)
         return dst
 

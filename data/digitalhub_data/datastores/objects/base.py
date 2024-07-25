@@ -25,7 +25,7 @@ class Datastore(metaclass=ABCMeta):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None) -> str:
+    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
         """
         Download file from source to destination. Invokes store's download method.
 
@@ -35,12 +35,16 @@ class Datastore(metaclass=ABCMeta):
             Source path.
         dst : str
             Destination path.
+        force : bool
+            Force download.
+        overwrite : bool
+            Overwrite existing file.
 
         Returns
         -------
         None
         """
-        return self.store.download(src, dst)
+        return self.store.download(src, dst=dst, force=force, overwrite=overwrite)
 
     @abstractmethod
     def write_df(self, df: Any, dst: str, extension: str | None = None, **kwargs) -> str:

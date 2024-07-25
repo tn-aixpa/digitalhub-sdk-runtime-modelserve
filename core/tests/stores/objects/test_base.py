@@ -11,16 +11,16 @@ from digitalhub_core.utils.exceptions import StoreError
 
 
 class TestStore(Store):
-    def download(self, src: str, dst: str | None = None) -> str:
+    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
         ...
 
-    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
+    def fetch_artifact(self, src: str, dst: str) -> str:
         ...
 
     def upload(self, src: str, dst: str | None = None) -> str:
         ...
 
-    def persist_artifact(self, src: str, dst: str | None = None) -> str:
+    def persist_artifact(self, src: str, dst: str) -> str:
         ...
 
     def write_df(self, df: pd.DataFrame, dst: str | None = None, **kwargs) -> str:

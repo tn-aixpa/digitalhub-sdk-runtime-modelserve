@@ -14,7 +14,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import check_overwrite, get_timestamp
+from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import check_local_path
 from digitalhub_ml.entities.entity_types import EntityTypes
@@ -175,22 +175,24 @@ class Model(Entity):
         """
         path = self.spec.path
         store = get_store(path)
-        if store.is_local():
-            return path
         return store.download(path)
 
     def download(
         self,
         destination: str | None = None,
+        force_download: bool = False,
         overwrite: bool = False,
     ) -> str:
         """
-        Download model from remote storage.
+        Download model from storage. If store is local, the model is copied to
+        destination path.
 
         Parameters
         ----------
         destination : str
             Destination path as filename.
+        force_download : bool
+            Force download if a previous download was already done.
         overwrite : bool
             Specify if overwrite an existing file. Default value is False.
 
@@ -203,27 +205,18 @@ class Model(Entity):
         # Check if target path is remote
         path = self.spec.path
         store = get_store(path)
-        if store.is_local():
-            raise RuntimeError("Local files cannot be downloaded. Use as_file().")
 
         # Check if download destination path is specified and rebuild it if necessary
         if destination is None:
             filename = Path(urlparse(path).path).name
             destination = f"{self.project}/{self.ENTITY_TYPE}/{self.name}/{self.id}/{filename}"
 
-        # Check if destination path is local
-        self._check_local(destination)
-
-        # Check if destination path exists for overwrite
-        check_overwrite(destination, overwrite)
-
         # Download dataitem and return path
-        return store.download(path, destination)
+        return store.download(path, dst=destination, force=force_download, overwrite=overwrite)
 
-    def upload(self, source: str | None = None) -> str:
+    def upload(self, source: str) -> str:
         """
-        Upload model to remote storage from given local path to
-        spec path destination.
+        Upload model from given local path to spec path destination.
 
         Parameters
         ----------
@@ -238,16 +231,10 @@ class Model(Entity):
         # Check if target path is remote
         path = self.spec.path
         store = get_store(path)
-        if store.is_local():
-            raise RuntimeError("Only remote paths are supported for upload.")
-
-        # Check if source path is provided and if it is local
-        src = source if source is not None else self.spec.src_path
-        self._check_local(src)
 
         # Get store and upload model and return remote path
-        target = store.upload(src, path)
-        file_info = store.get_file_info(target, src)
+        target = store.upload(source, path)
+        file_info = store.get_file_info(target, source)
 
         if file_info is not None:
             self.refresh()

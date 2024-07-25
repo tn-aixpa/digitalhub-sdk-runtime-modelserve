@@ -40,18 +40,6 @@ class SqlStore(Store):
     """
 
     def __init__(self, name: str, store_type: str, config: SQLStoreConfig) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        config : SQLStoreConfig
-            SQL store configuration.
-
-        See Also
-        --------
-        Store.__init__
-        """
         super().__init__(name, store_type)
         self.config = config
 
@@ -59,7 +47,7 @@ class SqlStore(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None) -> str:
+    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
         """
         Download an artifact from SQL based storage.
 
@@ -67,9 +55,29 @@ class SqlStore(Store):
         --------
         fetch_artifact
         """
+        table_name = self._get_table_name(src) + ".parquet"
+        # Case where dst is not provided
+        if dst is None:
+            dst = str(Path(self._build_temp("sql")) / table_name)
+        else:
+            path = Path(dst)
+
+            # Case where dst is a directory
+            if path.suffix == "":
+                dst = str(path / table_name)
+
+            # Case where dst is a file
+            elif path.suffix != ".parquet":
+                raise StoreError("The destination must be a directory or a parquet file.")
+
+            self._check_local_dst(dst)
+            self._check_overwrite(dst, overwrite)
+
+        if force:
+            return self.fetch_artifact(src, dst)
         return self._registry.get(src, self.fetch_artifact(src, dst))
 
-    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
+    def fetch_artifact(self, src: str, dst: str) -> str:
         """
         Fetch an artifact from SQL based storage. If the destination is not provided,
         a temporary directory will be created and the artifact will be saved there.
@@ -86,11 +94,11 @@ class SqlStore(Store):
         str
             Returns a file path.
         """
-        dst = dst if dst is not None else self._build_temp(src)
-        dst = str(Path(dst) / "data.parquet")
         schema = self._get_schema(src)
         table = self._get_table_name(src)
-        return self._download_table(schema, table, dst)
+        path = self._download_table(schema, table, dst)
+        self._set_path_registry(src, path)
+        return path
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -104,7 +112,7 @@ class SqlStore(Store):
         """
         raise NotImplementedError("SQL store does not support upload.")
 
-    def persist_artifact(self, src: str, dst: str | None = None) -> str:
+    def persist_artifact(self, src: str, dst: str) -> str:
         """
         Method to persist an artifact. Note that this method is not implemented
         since the SQL store is not meant to write artifacts.

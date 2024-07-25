@@ -19,18 +19,6 @@ class RemoteStore(Store):
     """
 
     def __init__(self, name: str, store_type: str, config: RemoteStoreConfig) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        config : RemoteStoreConfig
-            Remote store configuration.
-
-        See Also
-        --------
-        Store.__init__
-        """
         super().__init__(name, store_type)
         self.config = config
 
@@ -38,25 +26,28 @@ class RemoteStore(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None) -> str:
+    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
         """
-        Method to download an artifact from backend.
+        Download an artifact from HTTP(s) storage.
 
-        Parameters
-        ----------
-        src : str
-            The source location of the artifact.
-        dst : str
-            The destination of the artifact.
-
-        Returns
-        -------
-        str
-            The path of the downloaded artifact.
+        See Also
+        --------
+        fetch_artifact
         """
+        if dst is None:
+            dst = self._build_temp("remote")
+        else:
+            self._check_local_dst(dst)
+            self._check_overwrite(dst, overwrite)
+
+        if Path(dst).suffix == "":
+            dst = str(Path(dst) / "temp.file")
+
+        if force:
+            return self.fetch_artifact(src, dst)
         return self._registry.get(src, self.fetch_artifact(src, dst))
 
-    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
+    def fetch_artifact(self, src: str, dst: str) -> str:
         """
         Method to fetch an artifact from the remote storage and to register
         it on the paths registry.
@@ -74,10 +65,9 @@ class RemoteStore(Store):
         str
             Returns the path of the artifact.
         """
-        dst = dst if dst is not None else self._build_temp("remote")
-        if not dst.endswith(".csv") and not dst.endswith(".parquet"):
-            dst = str(Path(dst) / "temp.file")
-        return self._download_file(src, dst)
+        path = self._download_file(src, dst)
+        self._set_path_registry(src, path)
+        return path
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
@@ -91,7 +81,7 @@ class RemoteStore(Store):
         """
         raise NotImplementedError("Remote store does not support upload.")
 
-    def persist_artifact(self, src: str, dst: str | None = None) -> str:
+    def persist_artifact(self, src: str, dst: str) -> str:
         """
         Method to persist an artifact. Note that this method is not implemented
         since the remote store is not meant to write artifacts.

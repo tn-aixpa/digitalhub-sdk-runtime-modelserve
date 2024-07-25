@@ -41,13 +41,13 @@ class Store(metaclass=ABCMeta):
     ############################
 
     @abstractmethod
-    def download(self, src: str, dst: str | None = None) -> str:
+    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
         """
         Method to download artifact from storage.
         """
 
     @abstractmethod
-    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
+    def fetch_artifact(self, src: str, dst: str) -> str:
         """
         Method to fetch artifact from storage.
         """
@@ -59,7 +59,7 @@ class Store(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def persist_artifact(self, src: str, dst: str | None = None) -> str:
+    def persist_artifact(self, src: str, dst: str) -> str:
         """
         Method to persist artifact in storage.
         """
@@ -73,6 +73,27 @@ class Store(metaclass=ABCMeta):
     ############################
     # Helpers methods
     ############################
+
+    def _check_local_src(self, src: str) -> None:
+        """
+        Check if the source path is local.
+
+        Parameters
+        ----------
+        src : str
+            The source path.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        StoreError
+            If the source is not a local path.
+        """
+        if map_uri_scheme(src) != "local":
+            raise StoreError(f"Source '{src}' is not a local path.")
 
     def _check_local_dst(self, dst: str) -> None:
         """
@@ -95,6 +116,29 @@ class Store(metaclass=ABCMeta):
         if map_uri_scheme(dst) != "local":
             raise StoreError(f"Destination '{dst}' is not a local path.")
         self._build_path(dst)
+
+    def _check_overwrite(self, dst: str, overwrite: bool) -> None:
+        """
+        Check if destination path exists for overwrite.
+
+        Parameters
+        ----------
+        dst : str
+            Destination path as filename.
+        overwrite : bool
+            Specify if overwrite an existing file.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        StoreError
+            If destination path exists and overwrite is False.
+        """
+        if Path(dst).exists() and not overwrite:
+            raise StoreError(f"Destination {dst} already exists.")
 
     @staticmethod
     def _build_path(path: str) -> None:
@@ -130,9 +174,24 @@ class Store(metaclass=ABCMeta):
             Temporary path.
         """
         tmpdir = mkdtemp()
-        dst = str(Path(tmpdir) / Path(src).name)
-        self._registry[src] = dst
-        return dst
+        return str(Path(tmpdir) / Path(src).name)
+
+    def _set_path_registry(self, src: str, path: str) -> None:
+        """
+        Set path in registry.
+
+        Parameters
+        ----------
+        src : str
+            Source to reference.
+        path : str
+            Path to set in registry.
+
+        Returns
+        -------
+        None
+        """
+        self._registry[src] = path
 
     @staticmethod
     @abstractmethod

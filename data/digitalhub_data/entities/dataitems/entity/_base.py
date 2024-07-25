@@ -14,7 +14,7 @@ from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import check_overwrite, get_timestamp
+from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.uri_utils import check_local_path, map_uri_scheme
 from digitalhub_data.entities.entity_types import EntityTypes
@@ -175,22 +175,24 @@ class Dataitem(Entity):
         """
         path = self.spec.path
         store = get_store(path)
-        if store.is_local():
-            return path
         return store.download(path)
 
     def download(
         self,
         destination: str | None = None,
+        force_download: bool = False,
         overwrite: bool = False,
     ) -> str:
         """
-        Download dataitem from remote storage.
+        Download dataitem from storage. If store is local, the dataitem is copied to
+        destination path.
 
         Parameters
         ----------
         destination : str
             Destination path as filename.
+        force_download : bool
+            Force download if a previous download was already done.
         overwrite : bool
             Specify if overwrite an existing file. Default value is False.
 
@@ -203,45 +205,36 @@ class Dataitem(Entity):
         # Check if target path is remote
         path = self.spec.path
         store = get_store(path)
-        if store.is_local():
-            raise RuntimeError("Local files cannot be downloaded. Use as_file().")
 
         # Check if download destination path is specified and rebuild it if necessary
         if destination is None:
             filename = Path(urlparse(path).path).name
             destination = f"{self.project}/{self.ENTITY_TYPE}/{self.name}/{self.id}/{filename}"
 
-        # Check if destination path is local
-        self._check_local(destination)
-
-        # Check if destination path exists for overwrite
-        check_overwrite(destination, overwrite)
-
         # Download dataitem and return path
-        return store.download(path, destination)
+        return store.download(path, dst=destination, force=force_download, overwrite=overwrite)
 
-    def write_file(self, src: str) -> str:
+    def upload(self, source: str) -> str:
         """
-        Write file into dataitem path.
+        Upload dataitem from given local path to spec path destination.
 
         Parameters
         ----------
-        src : str
-            Local path of the file to write.
+        source : str
+            Source path is the local path of the dataitem.
 
         Returns
         -------
         str
-            Path to the written file.
+            Path of the uploaded dataitem.
         """
+        # Check if target path is remote
         path = self.spec.path
         store = get_store(path)
-        if store.is_local():
-            raise RuntimeError("Only remote paths are supported for upload.")
 
-        # Get store and upload file and return remote path
-        target = store.upload(src, path)
-        file_info = store.get_file_info(target, src)
+        # Get store and upload dataitem and return remote path
+        target = store.upload(source, path)
+        file_info = store.get_file_info(target, source)
 
         if file_info is not None:
             self.refresh()

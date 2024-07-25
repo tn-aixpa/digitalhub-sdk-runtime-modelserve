@@ -4,7 +4,9 @@ import shutil
 from pathlib import Path
 
 from digitalhub_core.stores.objects.base import Store, StoreConfig
+from digitalhub_core.utils.exceptions import StoreError
 from digitalhub_core.utils.file_utils import get_file_info_from_local
+from digitalhub_core.utils.uri_utils import check_local_path
 
 
 class LocalStoreConfig(StoreConfig):
@@ -23,18 +25,6 @@ class LocalStore(Store):
     """
 
     def __init__(self, name: str, store_type: str, config: LocalStoreConfig) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        config : LocalStoreConfig
-            Local store configuration.
-
-        See Also
-        --------
-        Store.__init__
-        """
         super().__init__(name, store_type)
         self.config = config
 
@@ -42,19 +32,25 @@ class LocalStore(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None) -> str:
+    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
         """
-        Method to download an artifact from backend. Please note that this method is not
-        implemented since the local store is not meant to download artifacts.
+        Download an artifact from local storage.
 
-        Raises
-        ------
-        NotImplementedError
-            This method is not implemented.
+        See Also
+        --------
+        fetch_artifact
         """
-        raise NotImplementedError("Local store does not support download. Use as_file() instead.")
+        if dst is None:
+            return src
 
-    def fetch_artifact(self, src: str, dst: str | None = None) -> str:
+        self._check_local_dst(dst)
+        self._check_overwrite(dst, overwrite)
+
+        if force:
+            return self.fetch_artifact(src, dst)
+        return self._registry.get(src, self.fetch_artifact(src, dst))
+
+    def fetch_artifact(self, src: str, dst: str) -> str:
         """
         Method to fetch an artifact from backend and to register it on the paths registry.
         If destination is not provided, return the source path, otherwise the path of the copied
@@ -72,28 +68,25 @@ class LocalStore(Store):
         str
             Returns the path of the artifact.
         """
-        if dst is None:
-            return src
-        self._check_local_dst(dst)
-        return shutil.copy(src, dst)
+        path = shutil.copy(src, dst)
+        self._set_path_registry(src, path)
+        return path
 
     def upload(self, src: str, dst: str | None = None) -> str:
         """
-        Method to upload an artifact to the backend. Please note that this method is not implemented
-        since the local store is not meant to upload artifacts.
+        Upload an artifact to local storage.
 
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        NotImplementedError
-            This method is not implemented.
+        See Also
+        --------
+        persist_artifact
         """
-        raise NotImplementedError("Local store does not support upload.")
+        self._check_local_src(src)
+        if dst is None:
+            dst = str(Path(self.config.path) / Path(src).name)
+        self._check_local_dst(dst)
+        return self.persist_artifact(src, dst)
 
-    def persist_artifact(self, src: str, dst: str | None = None) -> str:
+    def persist_artifact(self, src: str, dst: str) -> str:
         """
         Method to persist (copy) an artifact on local filesystem.
         If destination is not provided, the artifact is written to the default
@@ -111,9 +104,6 @@ class LocalStore(Store):
         dst
             Returns the URI of the artifact.
         """
-        if dst is None:
-            dst = str(Path(self.config.path) / Path(src).name)
-        self._check_local_dst(dst)
         return shutil.copy(src, dst)
 
     def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
@@ -133,6 +123,31 @@ class LocalStore(Store):
             Returns the metadata of the file.
         """
         return get_file_info_from_local(path, src_path)
+
+    ############################
+    # Private helper methods
+    ############################
+
+    def _check_local(self, path: str) -> None:
+        """
+        Check through URI scheme if given path is local or not.
+
+        Parameters
+        ----------
+        path : str
+            Path of some source.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        StoreError
+            If source path is not local.
+        """
+        if not check_local_path(path):
+            raise StoreError("Only local paths are supported for source paths.")
 
     ############################
     # Store interface methods

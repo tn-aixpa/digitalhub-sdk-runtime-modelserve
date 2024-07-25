@@ -15,20 +15,20 @@ class DataitemTable(Dataitem):
     Table dataitem.
     """
 
-    def as_df(self, file_format: str | None = None, **kwargs) -> Any:
+    def as_df(self, file_format: str | None = None, clean_tmp_path: bool = True, **kwargs,) -> Any:
         """
-        Read dataitem as a DataFrame. If the dataitem is not local, it will be downloaded
-        to a temporary folder and deleted after the method is executed. If no file_format is passed,
-        the function will try to infer it from the dataitem.spec.path attribute.
-        The path of the dataitem is specified in the spec attribute, and must be a store aware path.
-        If the dataitem is stored on s3 bucket, the path must be s3://<bucket>/<path_to_dataitem>.
-        If the dataitem is stored on database (Postgres is the only one supported), the path must
-        be sql://postgres/<database>/<schema>/<table/view>.
+        Read dataitem as a DataFrame from spec.path. If the dataitem is not local,
+        it will be downloaded to a temporary folder. If clean_tmp_path is True,
+        the temporary folder will be deleted after the method is executed.
+        If no file_format is passed, the function will try to infer it from the
+        dataitem.spec.path attribute.
 
         Parameters
         ----------
         file_format : str
             Format of the file. (Supported csv and parquet).
+        clean_tmp_path : bool
+            If True, the temporary folder will be deleted.
         **kwargs : dict
             Keyword arguments passed to the read_df function.
 
@@ -38,14 +38,9 @@ class DataitemTable(Dataitem):
             DataFrame.
         """
         datastore = get_datastore(self.spec.path)
-        tmp_path = False
+        tmp_path = False if datastore.store.is_local() else True
 
-        # Download dataitem if not local
-        if not self._check_local(self.spec.path):
-            path = datastore.download(self.spec.path)
-            tmp_path = True
-        else:
-            path = self.spec.path
+        path = datastore.download(self.spec.path)
 
         # Get file info
         store = get_store(path)
@@ -60,7 +55,7 @@ class DataitemTable(Dataitem):
         df = datastore.read_df(path, extension, **kwargs)
 
         # Delete tmp folder
-        if tmp_path:
+        if tmp_path and clean_tmp_path:
             pth = Path(path)
             if pth.is_file():
                 pth = pth.parent
