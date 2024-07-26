@@ -97,7 +97,7 @@ class Store(metaclass=ABCMeta):
 
     def _check_local_dst(self, dst: str) -> None:
         """
-        Check if the local destination directory exists. Create in case it does not.
+        Check if the local destination directory exists.
 
         Parameters
         ----------
@@ -115,7 +115,8 @@ class Store(metaclass=ABCMeta):
         """
         if map_uri_scheme(dst) != "local":
             raise StoreError(f"Destination '{dst}' is not a local path.")
-        self._build_path(dst)
+        if Path(dst).suffix != "":
+            raise StoreError(f"Destination '{dst}' is not a directory.")
 
     def _check_overwrite(self, dst: str, overwrite: bool) -> None:
         """

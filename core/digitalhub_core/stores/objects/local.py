@@ -68,7 +68,11 @@ class LocalStore(Store):
         str
             Returns the path of the artifact.
         """
-        path = shutil.copy(src, dst)
+        if Path(src).suffix == "":
+            path = shutil.copytree(src, dst)
+        else:
+            self._build_path(dst)
+            path = shutil.copy(src, dst)
         self._set_path_registry(src, path)
         return path
 

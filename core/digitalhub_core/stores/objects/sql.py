@@ -72,6 +72,7 @@ class SqlStore(Store):
 
             self._check_local_dst(dst)
             self._check_overwrite(dst, overwrite)
+            self._build_path(dst)
 
         if force:
             return self.fetch_artifact(src, dst)

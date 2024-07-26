@@ -39,6 +39,7 @@ class RemoteStore(Store):
         else:
             self._check_local_dst(dst)
             self._check_overwrite(dst, overwrite)
+            self._build_path(dst)
 
         if Path(dst).suffix == "":
             dst = str(Path(dst) / "temp.file")
