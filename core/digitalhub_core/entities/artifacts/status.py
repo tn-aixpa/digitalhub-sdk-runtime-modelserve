@@ -26,14 +26,14 @@ class ArtifactStatus(Status):
         super().__init__(state, message)
         self.files = files
 
-    def add_file(self, file: dict) -> None:
+    def add_file(self, files: list) -> None:
         """
         Add a file to the status.
 
         Parameters
         ----------
-        file : dict
-            File to add.
+        files : list
+            Files to add.
 
         Returns
         -------
@@ -44,11 +44,12 @@ class ArtifactStatus(Status):
         if self.files is None:
             self.files = []
 
-        # Remove the file info if it already exists
-        self.files = [f for f in self.files if f["path"] != file["path"]]
+        for file in files:
+            # Remove the file info if it already exists
+            self.files = [f for f in self.files if (f["path"] != file["path"] or f["hash"] != file["hash"])]
 
-        # Add the new file
-        self.files.append(file)
+            # Add the new file
+            self.files.append(file)
 
 
 class ArtifactStatusArtifact(ArtifactStatus):

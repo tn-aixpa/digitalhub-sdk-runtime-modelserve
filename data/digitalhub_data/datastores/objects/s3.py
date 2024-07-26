@@ -35,4 +35,4 @@ class S3Datastore(Datastore):
         reader.write_df(df, fileobj, extension=extension, **kwargs)
 
         key = self.store._get_key(dst)
-        return self.store._upload_fileobj(fileobj, key)
+        return self.store.upload_fileobj(fileobj, key)

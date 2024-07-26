@@ -86,8 +86,9 @@ class LocalStore(Store):
         """
         self._check_local_src(src)
         if dst is None:
-            dst = str(Path(self.config.path) / Path(src).name)
-        self._check_local_dst(dst)
+            dst = self.config.path
+        else:
+            self._check_local_dst(dst)
         return self.persist_artifact(src, dst)
 
     def persist_artifact(self, src: str, dst: str) -> str:
@@ -108,9 +109,11 @@ class LocalStore(Store):
         dst
             Returns the URI of the artifact.
         """
+        if Path(src).suffix == "":
+            return shutil.copytree(src, dst, dirs_exist_ok=True)
         return shutil.copy(src, dst)
 
-    def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
+    def get_file_info(self, path: str, src_path: str | None = None) -> list:
         """
         Method to get file metadata.
 
@@ -123,10 +126,19 @@ class LocalStore(Store):
 
         Returns
         -------
-        dict
-            Returns the metadata of the file.
+        list
+            Returns files metadata.
         """
-        return get_file_info_from_local(path, src_path)
+        if Path(src_path).suffix == "":
+            srcs = [str(i) for i in Path(src_path).rglob("*") if i.is_file()]
+        else:
+            srcs = [src_path]
+
+        infos = []
+        for src in srcs:
+            infos.append(get_file_info_from_local(path, src))
+
+        return infos
 
     ############################
     # Private helper methods

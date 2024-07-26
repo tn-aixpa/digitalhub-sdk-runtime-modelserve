@@ -145,9 +145,22 @@ def get_file_info_from_local(path: str, src_path: str) -> None | dict:
         File info.
     """
     try:
+        # Assumption: we call this method only
+        # when we do "upload" from local to local.
+        # When we call upload from a folder, we
+        # copytree(src, dst) instead of copy(src, dst).
+        if Path(path).suffix == "":
+            parts = Path(src_path).parts
+            if parts[0] == "/":
+                path = str(Path(path) / Path(*parts[2:]))
+            else:
+                path = str(Path(path) / Path(*parts[1:]))
+            name = get_file_name(src_path)
+        else:
+            name = get_file_name(path)
         return FileInfo(
             path=path,
-            name=get_file_name(path),
+            name=name,
             content_type=get_file_mime_type(src_path),
             extension=get_file_extension(src_path),
             size=get_file_size(src_path),

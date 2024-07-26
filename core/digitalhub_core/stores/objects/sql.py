@@ -125,7 +125,7 @@ class SqlStore(Store):
         """
         raise NotImplementedError("SQL store does not support persist_artifact.")
 
-    def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
+    def get_file_info(self, path: str, src_path: str | None = None) -> list:
         """
         Method to get file metadata.
 

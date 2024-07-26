@@ -60,6 +60,8 @@ class S3Store(Store):
             dst = self._build_temp(src)
         else:
             self._check_local_dst(dst)
+            if Path(dst).suffix != "":
+                self._check_overwrite(dst, overwrite)
             self._build_path(dst)
 
         if force:
@@ -151,7 +153,7 @@ class S3Store(Store):
             return self._upload_files(src, dst, client, bucket)
         return self._upload_file(src, dst, client, bucket)
 
-    def get_file_info(self, path: str, src_path: str | None = None) -> dict | None:
+    def get_file_info(self, path: str, src_path: str | None = None) -> list:
         """
         Method to get file metadata.
 
@@ -164,17 +166,28 @@ class S3Store(Store):
 
         Returns
         -------
-        dict
-            Returns the metadata of the file.
+        list
+            Returns files metadata.
         """
-        bucket = self._get_bucket()
+        client, bucket = self._check_factory()
         key = self._get_key(path)
-        if Path(key).suffix == "":
-            return None
-        client = self._get_client()
-        self._check_access_to_storage(client, bucket)
-        metadata = client.head_object(Bucket=bucket, Key=key)
-        return get_file_info_from_s3(metadata, path)
+        if Path(path).suffix == "":
+            try:
+                # check if the key exists (file without extension)
+                client.head_object(Bucket=bucket, Key=key)
+                keys = [key]
+            except ClientError:
+                file_list = client.list_objects_v2(Bucket=bucket, Prefix=key).get("Contents", [])
+                keys = [i["Key"] for i in file_list]
+        else:
+            keys = [key]
+
+        infos = []
+        for key in keys:
+            metadata = client.head_object(Bucket=bucket, Key=key)
+            key = f"s3://{bucket}/{key}"
+            infos.append(get_file_info_from_s3(metadata, key))
+        return infos
 
     ############################
     # Private helper methods

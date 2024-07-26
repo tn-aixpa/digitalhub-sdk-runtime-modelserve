@@ -229,9 +229,14 @@ class Artifact(Entity):
             Path of the uploaded artifact.
         """
         path = self.spec.path
-        store = get_store(path)
+        if path is None:
+            raise EntityError("Destination path is not specified.")
 
         src = source if source is not None else self.spec.src_path
+        if src is None:
+            raise EntityError("Source path is not specified.")
+
+        store = get_store(path)
         target = store.upload(src, path)
         file_info = store.get_file_info(target, src)
 
