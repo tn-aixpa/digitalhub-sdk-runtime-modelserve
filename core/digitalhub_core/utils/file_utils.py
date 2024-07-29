@@ -188,12 +188,18 @@ def get_file_info_from_s3(metadata: dict, path: str) -> None | dict:
         File info.
     """
     try:
+        file_size_limit_multipart = 20 * 1024 * 1024
+        size = metadata["ContentLength"]
+        file_hash = metadata['ETag'][1:-1]
+        if size < file_size_limit_multipart:
+            file_hash = "md5:" + file_hash
         return FileInfo(
             path=path,
             name=get_file_name(path),
             content_type=metadata["ContentType"],
             extension=get_file_extension(path),
-            size=metadata["ContentLength"],
+            size=size,
+            hash=file_hash,
             last_modified=metadata["LastModified"].isoformat(),
         ).dict()
     except Exception:
