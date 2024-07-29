@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import typing
 from pathlib import Path
-from urllib.parse import urlparse
 
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx

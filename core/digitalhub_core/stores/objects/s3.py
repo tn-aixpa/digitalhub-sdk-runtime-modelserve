@@ -4,12 +4,12 @@ from io import BytesIO
 from pathlib import Path
 from typing import Type
 from urllib.parse import urlparse
-import glob
 
 import boto3
 import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 from digitalhub_core.stores.objects.base import Store, StoreConfig
+from digitalhub_core.utils.exceptions import StoreError
 from digitalhub_core.utils.file_utils import get_file_info_from_s3
 
 # Type aliases
@@ -107,10 +107,8 @@ class S3Store(Store):
         """
         self._check_local_src(src)
         if dst is None:
-            key = self._get_key(src)
-        else:
-            key = self._get_key(dst)
-        return self.persist_artifact(src, key)
+            dst = self._get_key(src)
+        return self.persist_artifact(src, dst)
 
     def upload_fileobject(self, src: BytesIO, dst: str) -> str:
         """
@@ -149,8 +147,21 @@ class S3Store(Store):
             Returns the URI of the artifact on S3 based storage.
         """
         client, bucket = self._check_factory()
-        if Path(src).suffix == "":
+
+        dst = self._get_key(dst)
+        path_src = Path(src)
+        path_dst = Path(dst)
+
+        # Case where the source is a directory
+        if path_src.is_dir():
+            if path_dst.suffix != "":
+                raise StoreError("Destination must be a partition if the source is a directory.")
             return self._upload_files(src, dst, client, bucket)
+
+        # Case where the source is a file
+        if path_dst.suffix == "" and path_src.suffix != "":
+            dst = f"{dst}/{self._get_key(src)}"
+
         return self._upload_file(src, dst, client, bucket)
 
     def get_file_info(self, path: str, src_path: str | None = None) -> list:
@@ -235,7 +246,7 @@ class S3Store(Store):
         str
             The key.
         """
-        key = urlparse(path).path
+        key = urlparse(path).path.replace("\\", "/")
         if key.startswith("/"):
             key = key[1:]
         return key
@@ -340,7 +351,7 @@ class S3Store(Store):
         client.download_file(bucket, path, dst_pth)
         return dst_pth
 
-    def _upload_files(self, src: str, key: str, client: S3Client, bucket: str) -> str:
+    def _upload_files(self, src: str, dst: str, client: S3Client, bucket: str) -> str:
         """
         Upload files to S3 based storage. The function checks if the bucket is accessible.
 
@@ -348,8 +359,8 @@ class S3Store(Store):
         ----------
         src : str
             The source path of the files on local filesystem.
-        key : str
-            The key of the files on S3 based storage.
+        dst : str
+            The destination of the files on S3 based storage.
         client : S3Client
             The S3 client object.
         bucket : str
@@ -360,13 +371,15 @@ class S3Store(Store):
         str
             The URI of the uploaded files on S3 based storage.
         """
+        dst = dst.removesuffix("/")
         client, bucket = self._check_factory()
         paths = list(Path(src).rglob("*"))
-        files = [i for i in paths if i.is_file()]
+        files = [str(i) for i in paths if i.is_file()]
         for file in files:
-            built_key = str(Path(key) / Path(file))
-            client.upload_file(Filename=str(file), Bucket=bucket, Key=built_key)
-        return f"s3://{bucket}/{key}"
+            key = self._get_key(file)
+            built_key = f"{dst}/{key}"
+            client.upload_file(Filename=file, Bucket=bucket, Key=built_key)
+        return f"s3://{bucket}/{dst}"
 
     def _upload_file(self, src: str, key: str, client: S3Client, bucket: str) -> str:
         """

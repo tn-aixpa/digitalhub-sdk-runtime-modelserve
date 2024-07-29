@@ -14,7 +14,6 @@ from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.artifacts.entity import artifact_from_dict, artifact_from_parameters
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.utils.env_utils import get_s3_bucket
-from digitalhub_core.utils.file_utils import get_file_name
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:

@@ -190,7 +190,7 @@ def get_file_info_from_s3(metadata: dict, path: str) -> None | dict:
     try:
         file_size_limit_multipart = 20 * 1024 * 1024
         size = metadata["ContentLength"]
-        file_hash = metadata['ETag'][1:-1]
+        file_hash = metadata["ETag"][1:-1]
         if size < file_size_limit_multipart:
             file_hash = "md5:" + file_hash
         return FileInfo(

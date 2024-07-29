@@ -15,7 +15,12 @@ class DataitemTable(Dataitem):
     Table dataitem.
     """
 
-    def as_df(self, file_format: str | None = None, clean_tmp_path: bool = True, **kwargs,) -> Any:
+    def as_df(
+        self,
+        file_format: str | None = None,
+        clean_tmp_path: bool = True,
+        **kwargs,
+    ) -> Any:
         """
         Read dataitem as a DataFrame from spec.path. If the dataitem is not local,
         it will be downloaded to a temporary folder. If clean_tmp_path is True,

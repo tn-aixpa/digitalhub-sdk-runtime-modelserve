@@ -12,7 +12,6 @@ from digitalhub_core.entities._base.crud import (
 )
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.utils.env_utils import get_s3_bucket
-from digitalhub_core.utils.file_utils import get_file_name
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.models.entity import model_from_dict, model_from_parameters
