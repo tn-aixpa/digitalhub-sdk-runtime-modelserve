@@ -175,7 +175,7 @@ class Store(metaclass=ABCMeta):
             Temporary path.
         """
         tmpdir = mkdtemp()
-        return str(Path(tmpdir) / Path(src).name)
+        return tmpdir
 
     def _set_path_registry(self, src: str, path: str) -> None:
         """

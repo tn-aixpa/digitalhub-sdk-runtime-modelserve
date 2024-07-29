@@ -129,7 +129,7 @@ class S3Store(Store):
             Returns the URI of the artifact on S3 based storage.
         """
         client, bucket = self._check_factory()
-        return self._upload_fileobj(src, dst, client, bucket)
+        return self._upload_fileobject(src, dst, client, bucket)
 
     def persist_artifact(self, src: str, dst: str) -> str:
         """
@@ -335,9 +335,10 @@ class S3Store(Store):
         str
             The path of the downloaded file.
         """
-        dst = str(Path(dst) / Path(path))
-        client.download_file(bucket, path, dst)
-        return dst
+        path = path.removeprefix("/")
+        dst_pth = str(Path(dst) / Path(path))
+        client.download_file(bucket, path, dst_pth)
+        return dst_pth
 
     def _upload_files(self, src: str, key: str, client: S3Client, bucket: str) -> str:
         """
@@ -390,7 +391,7 @@ class S3Store(Store):
         client.upload_file(Filename=src, Bucket=bucket, Key=key)
         return f"s3://{bucket}/{key}"
 
-    def _upload_fileobj(self, fileobj: BytesIO, key: str, client: S3Client, bucket: str) -> str:
+    def _upload_fileobject(self, fileobj: BytesIO, key: str, client: S3Client, bucket: str) -> str:
         """
         Upload a fileobject to S3 based storage. The function checks if the bucket is accessible.
 

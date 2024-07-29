@@ -50,9 +50,9 @@ def test_persist_artifact(mock_upload_file, s3_store):
     mock_upload_file.assert_called_once_with("src", "dst")
 
 
-@patch("digitalhub_core.stores.objects.s3.S3Store._upload_fileobj")
-def test_write_df(mock_upload_fileobj, s3_store):
+@patch("digitalhub_core.stores.objects.s3.S3Store._upload_fileobject")
+def test_write_df(mock_upload_fileobject, s3_store):
     df = pd.DataFrame({"A": [1, 2, 3]})
-    mock_upload_fileobj.return_value = "dst.parquet"
+    mock_upload_fileobject.return_value = "dst.parquet"
     assert s3_store.write_df(df, "dst.parquet") == "dst.parquet"
-    mock_upload_fileobj.assert_called_once()
+    mock_upload_fileobject.assert_called_once()

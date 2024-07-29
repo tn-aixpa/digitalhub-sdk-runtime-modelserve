@@ -394,8 +394,8 @@ class Project(Entity):
         self,
         name: str,
         kind: str,
+        source: str,
         path: str | None = None,
-        source_path: str | None = None,
         **kwargs,
     ) -> Artifact:
         """
@@ -407,10 +407,10 @@ class Project(Entity):
             Object name.
         kind : str
             Kind the object.
+        source : str
+            Artifact location on local machine.
         path : str
             Destination path of the artifact.
-        source_path : str
-            Artifact location on local machine.
         **kwargs : dict
             New artifact parameters.
 
@@ -423,8 +423,8 @@ class Project(Entity):
             project=self.name,
             name=name,
             kind=kind,
+            source=source,
             path=path,
-            source_path=source_path,
             **kwargs,
         )
         self.refresh()

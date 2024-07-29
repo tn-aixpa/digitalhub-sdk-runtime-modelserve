@@ -208,8 +208,7 @@ class Dataitem(Entity):
 
         # Check if download destination path is specified and rebuild it if necessary
         if destination is None:
-            filename = Path(urlparse(path).path).name
-            destination = f"{self.project}/{self.ENTITY_TYPE}/{self.name}/{self.id}/{filename}"
+            destination = f"{self.project}/{self.ENTITY_TYPE}/{self.name}/{self.id}"
 
         # Download dataitem and return path
         return store.download(path, dst=destination, force=force_download, overwrite=overwrite)

@@ -186,8 +186,8 @@ class ProjectMl(ProjectData):
         self,
         name: str,
         kind: str,
+        source: str,
         path: str | None = None,
-        source_path: str | None = None,
         **kwargs,
     ) -> Model:
         """
@@ -199,10 +199,10 @@ class ProjectMl(ProjectData):
             Object name.
         kind : str
             Kind the object.
+        source : str
+            Model location on local machine.
         path : str
             Destination path of the model.
-        source_path : str
-            Model location on local machine.
         **kwargs : dict
             New model parameters.
 
@@ -215,8 +215,8 @@ class ProjectMl(ProjectData):
             project=self.name,
             name=name,
             kind=kind,
+            source=source,
             path=path,
-            source_path=source_path,
             **kwargs,
         )
         self.refresh()

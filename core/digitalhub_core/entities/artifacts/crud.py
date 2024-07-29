@@ -300,8 +300,8 @@ def log_artifact(
     project: str,
     name: str,
     kind: str,
+    source: str,
     path: str | None = None,
-    source_path: str | None = None,
     **kwargs,
 ) -> Artifact:
     """
@@ -315,10 +315,10 @@ def log_artifact(
         Object name.
     kind : str
         Kind the object.
+    source : str
+        Artifact location on local machine.
     path : str
         Destination path of the artifact.
-    source_path : str
-        Artifact location on local machine.
     **kwargs : dict
         New artifact parameters.
 
@@ -328,15 +328,10 @@ def log_artifact(
         Instance of Artifact class.
     """
     if path is None:
-        if source_path is None:
-            raise Exception("Either path or source_path must be provided.")
-
-        # Build path if not provided from source filename
-        filename = get_file_name(source_path)
         uuid = build_uuid()
         kwargs["uuid"] = uuid
-        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}/{filename}"
+        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
 
     obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
-    obj.upload(source_path)
+    obj.upload(source)
     return obj
