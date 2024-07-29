@@ -56,3 +56,21 @@ class ModelStatusModel(ModelStatus):
     """
     Status class for model entities.
     """
+
+
+class ModelStatusMlflow(ModelStatus):
+    """
+    Status class for model entities.
+    """
+
+
+class ModelStatusPickle(ModelStatus):
+    """
+    Status class for model entities.
+    """
+
+
+class ModelStatusHuggingFace(ModelStatus):
+    """
+    Status class for model entities.
+    """

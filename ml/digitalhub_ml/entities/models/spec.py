@@ -68,3 +68,39 @@ class ModelParamsModel(ModelParams):
 
     metrics: dict = None
     """Model metrics."""
+
+
+class ModelSpecMlflow(ModelSpecModel):
+    """
+    Mlflow model specifications.
+    """
+
+
+class ModelParamsMlflow(ModelParamsModel):
+    """
+    Mlflow model parameters.
+    """
+
+
+class ModelSpecPickle(ModelSpecModel):
+    """
+    Pickle model specifications.
+    """
+
+
+class ModelParamsPickle(ModelParamsModel):
+    """
+    Pickle model parameters.
+    """
+
+
+class ModelSpecHuggingface(ModelSpecModel):
+    """
+    Huggingface model specifications.
+    """
+
+
+class ModelParamsHuggingface(ModelParamsModel):
+    """
+    Huggingface model parameters.
+    """
