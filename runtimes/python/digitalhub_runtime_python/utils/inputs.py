@@ -5,17 +5,17 @@ import typing
 from typing import Any, Callable
 
 from digitalhub_core.context.builder import get_context
-from digitalhub_core.entities.artifacts.crud import artifact_from_dict
+from digitalhub_core.entities.artifact.crud import artifact_from_dict
 from digitalhub_core.entities.utils import parse_entity_key
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import dataitem_from_dict
+from digitalhub_data.entities.dataitem.crud import dataitem_from_dict
 from digitalhub_ml.entities.entity_types import EntityTypes
-from digitalhub_ml.entities.models.crud import model_from_dict
-from digitalhub_ml.entities.projects.crud import get_project
+from digitalhub_ml.entities.model.crud import model_from_dict
+from digitalhub_ml.entities.project.crud import get_project
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity import Entity
-    from digitalhub_core.entities.projects.entity import Project
+    from digitalhub_core.entities.project.entity import Project
 
 
 def get_project_(project_name: str) -> Project:

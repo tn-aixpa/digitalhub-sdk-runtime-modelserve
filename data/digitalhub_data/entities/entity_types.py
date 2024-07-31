@@ -11,12 +11,11 @@ class EntityTypes(Enum):
     # Must redefine all entity types, no
     # inheritance on enums
 
-    PROJECTS = "projects"
-    ARTIFACTS = "artifacts"
-    SECRETS = "secrets"
-    SERVICES = "services"
-    FUNCTIONS = "functions"
-    WORKFLOWS = "workflows"
-    TASKS = "tasks"
-    RUNS = "runs"
-    DATAITEMS = "dataitems"
+    PROJECTS = "project"
+    ARTIFACTS = "artifact"
+    SECRETS = "secret"
+    FUNCTIONS = "function"
+    WORKFLOWS = "workflow"
+    TASKS = "task"
+    RUNS = "run"
+    DATAITEMS = "dataitem"

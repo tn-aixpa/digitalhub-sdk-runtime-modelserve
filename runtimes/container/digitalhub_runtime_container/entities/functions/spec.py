@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.functions.spec import FunctionParams, FunctionSpec
-from digitalhub_runtime_container.entities.functions.models import SourceCodeParamsContainer, SourceCodeStructContainer
+from digitalhub_core.entities.function.spec import FunctionParams, FunctionSpec
+from digitalhub_runtime_container.entities.function.models import SourceCodeParamsContainer, SourceCodeStructContainer
 
 
 class FunctionSpecContainer(FunctionSpec):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_ml.entities.runs.status import RunStatusMl
+from digitalhub_ml.entities.run.status import RunStatusMl
 
 
 class RunStatusPython(RunStatusMl):

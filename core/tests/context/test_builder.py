@@ -1,7 +1,7 @@
 import pytest
 from digitalhub_core.context.builder import ContextBuilder, delete_context, get_context, set_context
 from digitalhub_core.context.context import Context
-from digitalhub_core.entities.projects.crud import get_or_create_project
+from digitalhub_core.entities.project.crud import get_or_create_project
 
 
 @pytest.fixture(autouse=True, scope="session")

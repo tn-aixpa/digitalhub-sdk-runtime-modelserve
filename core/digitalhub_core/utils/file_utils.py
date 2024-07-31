@@ -14,9 +14,9 @@ class FileInfo(BaseModel):
     """
 
     path: str = None
+    src_path: str = None
     name: str = None
     content_type: str = None
-    extension: str = None
     size: int = None
     hash: str = None
     last_modified: str = None
@@ -75,24 +75,7 @@ def get_file_mime_type(data_path: str) -> str:
     return guess_type(data_path)[0]
 
 
-def get_file_extension(data_path: str) -> str:
-    """
-    Get the extension of a file.
-
-    Parameters
-    ----------
-    data_path : str
-        Path to the file.
-
-    Returns
-    -------
-    str
-        The extension of the file.
-    """
-    return Path(data_path).suffix[1:]
-
-
-def get_file_name(data_path: str) -> str:
+def get_path_name(data_path: str) -> str:
     """
     Get the name of a file.
 
@@ -128,6 +111,23 @@ def get_last_modified(data_path: str) -> str:
     return datetime.fromtimestamp(timestamp).astimezone().isoformat()
 
 
+def get_s3_path(src_path: str) -> str:
+    """
+    Get the S3 path of a file.
+
+    Parameters
+    ----------
+    src_path : str
+        Path to the file.
+
+    Returns
+    -------
+    str
+        The S3 path of the file.
+    """
+    return Path(src_path).as_uri()
+
+
 def get_file_info_from_local(path: str, src_path: str) -> None | dict:
     """
     Get file info from path.
@@ -145,33 +145,26 @@ def get_file_info_from_local(path: str, src_path: str) -> None | dict:
         File info.
     """
     try:
-        # Assumption: we call this method only
-        # when we do "upload" from local to local.
-        # When we call upload from a folder, we
-        # copytree(src, dst) instead of copy(src, dst).
-        if Path(path).suffix == "":
-            parts = Path(src_path).parts
-            if parts[0] == "/":
-                path = str(Path(path) / Path(*parts[2:]))
-            else:
-                path = str(Path(path) / Path(*parts[1:]))
-            name = get_file_name(src_path)
-        else:
-            name = get_file_name(path)
+        name = get_path_name(path)
+        content_type = get_file_mime_type(path)
+        size = get_file_size(path)
+        hash = calculate_blob_hash(path)
+        last_modified = get_last_modified(path)
+
         return FileInfo(
             path=path,
+            src_path=src_path,
             name=name,
-            content_type=get_file_mime_type(src_path),
-            extension=get_file_extension(src_path),
-            size=get_file_size(src_path),
-            hash=calculate_blob_hash(src_path),
-            last_modified=get_last_modified(src_path),
+            content_type=content_type,
+            size=size,
+            hash=hash,
+            last_modified=last_modified,
         ).dict()
     except Exception:
         return None
 
 
-def get_file_info_from_s3(metadata: dict, path: str) -> None | dict:
+def get_file_info_from_s3(s3_path: str, src_path: str, metadata: dict) -> None | dict:
     """
     Get file info from path.
 
@@ -188,19 +181,27 @@ def get_file_info_from_s3(metadata: dict, path: str) -> None | dict:
         File info.
     """
     try:
-        file_size_limit_multipart = 20 * 1024 * 1024
         size = metadata["ContentLength"]
         file_hash = metadata["ETag"][1:-1]
+
+        file_size_limit_multipart = 20 * 1024 * 1024
         if size < file_size_limit_multipart:
             file_hash = "md5:" + file_hash
+        else:
+            file_hash = "LiteralETag:" + file_hash
+
+        name = get_path_name(s3_path)
+        content_type = metadata["ContentType"]
+        last_modified = metadata["LastModified"].isoformat()
+
         return FileInfo(
-            path=path,
-            name=get_file_name(path),
-            content_type=metadata["ContentType"],
-            extension=get_file_extension(path),
+            path=s3_path,
+            src_path=src_path,
+            name=name,
+            content_type=content_type,
             size=size,
             hash=file_hash,
-            last_modified=metadata["LastModified"].isoformat(),
+            last_modified=last_modified,
         ).dict()
     except Exception:
         return None

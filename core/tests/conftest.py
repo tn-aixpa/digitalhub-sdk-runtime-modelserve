@@ -1,6 +1,6 @@
 import pytest
 from digitalhub_core.context.context import Context
-from digitalhub_core.entities.projects.crud import delete_project, get_or_create_project
+from digitalhub_core.entities.project.crud import delete_project, get_or_create_project
 
 
 @pytest.fixture

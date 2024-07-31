@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_ml.entities.runs.spec import RunParamsMl, RunSpecMl
+from digitalhub_ml.entities.run.spec import RunParamsMl, RunSpecMl
 
 
 class RunSpecPython(RunSpecMl):

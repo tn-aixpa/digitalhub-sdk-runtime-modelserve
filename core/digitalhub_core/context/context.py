@@ -4,7 +4,7 @@ import typing
 from pathlib import Path
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.projects.entity import Project
+    from digitalhub_core.entities.project.entity import Project
 
 
 class Context:

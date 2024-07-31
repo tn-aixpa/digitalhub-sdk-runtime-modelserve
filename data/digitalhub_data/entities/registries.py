@@ -15,7 +15,7 @@ registry.project.spec.parameters_validator = "ProjectParamsData"
 # Dataitems
 entity_type = EntityTypes.DATAITEMS.value
 for i in ["dataitem", "table", "iceberg"]:
-    prefix = entity_type.removesuffix("s").capitalize()
+    prefix = entity_type.capitalize()
     suffix = i.capitalize()
     dataitem_info = create_info(root, entity_type, prefix, suffix)
     registry.register(i, dataitem_info)

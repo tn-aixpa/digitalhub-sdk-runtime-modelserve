@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_data.entities.runs.status import RunStatusData
+from digitalhub_data.entities.run.status import RunStatusData
 
 
 class RunStatusDbt(RunStatusData):

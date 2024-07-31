@@ -101,7 +101,7 @@ class SqlStore(Store):
         self._set_path_registry(src, path)
         return path
 
-    def upload(self, src: str, dst: str | None = None) -> str:
+    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         """
         Method to upload an artifact to the backend. Please note that this method is not implemented
         since the SQL store is not meant to upload artifacts.
@@ -125,7 +125,7 @@ class SqlStore(Store):
         """
         raise NotImplementedError("SQL store does not support persist_artifact.")
 
-    def get_file_info(self, path: str, src_path: str | None = None) -> list:
+    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
         """
         Method to get file metadata.
 

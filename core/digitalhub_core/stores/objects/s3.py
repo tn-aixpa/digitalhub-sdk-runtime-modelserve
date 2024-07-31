@@ -97,18 +97,51 @@ class S3Store(Store):
         self._set_path_registry(src, path)
         return path
 
-    def upload(self, src: str, dst: str | None = None) -> str:
+    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         """
-        Upload an artifact to S3 based storage.
+        Upload an artifact to storage.
 
-        See Also
-        --------
-        persist_artifact
+        Parameters
+        ----------
+        src : str
+            The source location of the artifact on local filesystem.
+        dst : str
+            The destination of the artifact on storage.
+
+        Returns
+        -------
+        list[str]
+            Returns the list of source and destination paths of the
+            uploaded artifacts.
         """
-        self._check_local_src(src)
+        # Destination handling
+
+        # If no destination is provided, build key from source
+        # Otherwise build key from destination
         if dst is None:
             dst = self._get_key(src)
-        return self.persist_artifact(src, dst)
+        else:
+            dst = self._get_key(dst)
+
+        # Source handling
+
+        self._check_local_src(src)
+        src_is_dir = Path(src).is_dir()
+
+        # If source is a directory, destination must be a partition
+        if src_is_dir and not dst.endswith("/"):
+            raise StoreError("Destination must be a partition if the source is a directory.")
+
+        # If source is a file and destination is a partition,
+        # build key from source
+        if not src_is_dir and dst.endswith("/"):
+            dst = f"{dst}{self._get_key(src)}"
+
+        client, bucket = self._check_factory()
+
+        if src_is_dir:
+            return self._upload_files(src, dst, client, bucket)
+        return [self._upload_file(src, dst, client, bucket)]
 
     def upload_fileobject(self, src: BytesIO, dst: str) -> str:
         """
@@ -129,76 +162,178 @@ class S3Store(Store):
         client, bucket = self._check_factory()
         return self._upload_fileobject(src, dst, client, bucket)
 
-    def persist_artifact(self, src: str, dst: str) -> str:
-        """
-        Persist an artifact on S3 based storage. If the destination is not provided,
-        the key will be extracted from the source path.
-
-        Parameters
-        ----------
-        src : Any
-            The source object to be persisted.
-        dst : str
-            The destination partition for the artifact.
-
-        Returns
-        -------
-        str
-            Returns the URI of the artifact on S3 based storage.
-        """
-        client, bucket = self._check_factory()
-
-        dst = self._get_key(dst)
-        path_src = Path(src)
-        path_dst = Path(dst)
-
-        # Case where the source is a directory
-        if path_src.is_dir():
-            if path_dst.suffix != "":
-                raise StoreError("Destination must be a partition if the source is a directory.")
-            return self._upload_files(src, dst, client, bucket)
-
-        # Case where the source is a file
-        if path_dst.suffix == "" and path_src.suffix != "":
-            dst = f"{dst}/{self._get_key(src)}"
-
-        return self._upload_file(src, dst, client, bucket)
-
-    def get_file_info(self, path: str, src_path: str | None = None) -> list:
+    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
         """
         Method to get file metadata.
 
         Parameters
         ----------
-        path : str
-            The path of the file.
-        src_path : str
-            The source path of the file.
+        paths : list
+            The list of destination and source paths.
 
         Returns
         -------
-        list
+        list[dict]
             Returns files metadata.
         """
         client, bucket = self._check_factory()
-        key = self._get_key(path)
-        if Path(path).suffix == "":
-            try:
-                # check if the key exists (file without extension)
-                client.head_object(Bucket=bucket, Key=key)
-                keys = [key]
-            except ClientError:
-                file_list = client.list_objects_v2(Bucket=bucket, Prefix=key).get("Contents", [])
-                keys = [i["Key"] for i in file_list]
-        else:
-            keys = [key]
 
         infos = []
-        for key in keys:
+        for i in paths:
+            s3_path, src_path = i
+
+            # Get metadata
+            key = self._get_key(s3_path)
             metadata = client.head_object(Bucket=bucket, Key=key)
-            key = f"s3://{bucket}/{key}"
-            infos.append(get_file_info_from_s3(metadata, key))
+
+            # Get file info
+            info = get_file_info_from_s3(s3_path, src_path, metadata)
+            infos.append(info)
+
         return infos
+
+    ############################
+    # Private I/O methods
+    ############################
+
+    def _download_files(self, path: str, dst: str, client: S3Client, bucket: str) -> str:
+        """
+        Download files from S3 based storage. The function checks if the bucket is accessible
+        and if the destination directory exists. If the destination directory does not exist,
+        it will be created.
+
+        Parameters
+        ----------
+        path : str
+            The path of the files on S3 based storage.
+        dst : str
+            The destination of the files on local filesystem.
+        client : S3Client
+            The S3 client object.
+        bucket : str
+            The name of the S3 bucket.
+
+        Returns
+        -------
+        str
+            The path of the downloaded files.
+        """
+        path = path.removeprefix("/")
+        file_list = client.list_objects_v2(Bucket=bucket, Prefix=path).get("Contents", [])
+        for file in file_list:
+            dst_pth = Path(dst) / Path(file["Key"])
+            dst_pth.parent.mkdir(parents=True, exist_ok=True)
+            self._download_file(file["Key"], str(dst_pth), client, bucket)
+        return dst
+
+    @staticmethod
+    def _download_file(path: str, dst: str, client: S3Client, bucket: str) -> str:
+        """
+        Download a file from S3 based storage. The function checks if the bucket is accessible
+        and if the destination directory exists. If the destination directory does not exist,
+        it will be created.
+
+        Parameters
+        ----------
+        key : str
+            The key of the file on S3 based storage.
+        dst : str
+            The destination of the file on local filesystem.
+        client : S3Client
+            The S3 client object.
+        bucket : str
+            The name of the S3 bucket.
+
+        Returns
+        -------
+        str
+            The path of the downloaded file.
+        """
+        path = path.removeprefix("/")
+        dst_pth = str(Path(dst) / Path(path))
+        client.download_file(bucket, path, dst_pth)
+        return dst_pth
+
+    def _upload_files(self, src: str, dst: str, client: S3Client, bucket: str) -> list[tuple[str, str]]:
+        """
+        Upload files to S3 based storage. The function checks if the bucket is accessible.
+
+        Parameters
+        ----------
+        src : str
+            The source path of the files on local filesystem.
+        dst : str
+            The destination of the files on S3 based storage.
+        client : S3Client
+            The S3 client object.
+        bucket : str
+            The name of the S3 bucket.
+
+        Returns
+        -------
+        list[tuple[str, str]]
+            A list of tuples containing the path of the uploaded files
+            and the path of the original files.
+        """
+        paths = []
+        files = [str(i) for i in Path(src).rglob("*") if i.is_file()]
+
+        for file in files:
+            key = self._get_key(file)
+            built_key = f"{dst}{key}"
+            paths.append(self._upload_file(file, built_key, client, bucket))
+
+        return paths
+
+    @staticmethod
+    def _upload_file(src: str, key: str, client: S3Client, bucket: str) -> tuple[str, str]:
+        """
+        Upload a file to S3 based storage. The function checks if the
+        bucket is accessible.
+
+        Parameters
+        ----------
+        src : str
+            The source path of the file on local filesystem.
+        key : str
+            The key of the file on S3 based storage.
+        client : S3Client
+            The S3 client object.
+        bucket : str
+            The name of the S3 bucket.
+
+        Returns
+        -------
+        tuple[str, str]
+            A tuple containing the URI of the uploaded file
+            and the path of the original file.
+        """
+        client.upload_file(Filename=src, Bucket=bucket, Key=key)
+        return f"s3://{bucket}/{key}", src
+
+    @staticmethod
+    def _upload_fileobject(fileobj: BytesIO, key: str, client: S3Client, bucket: str) -> str:
+        """
+        Upload a fileobject to S3 based storage. The function checks if the bucket is accessible.
+
+        Parameters
+        ----------
+        fileobj : BytesIO
+            The fileobject to be uploaded.
+        key : str
+            The key of the file on S3 based storage.
+        client : S3Client
+            The S3 client object.
+        bucket : str
+            The name of the S3 bucket.
+
+        Returns
+        -------
+        str
+            The URI of the uploaded fileobject on S3 based storage.
+        """
+        client.put_object(Bucket=bucket, Key=key, Body=fileobj.getvalue())
+        return f"s3://{bucket}/{key}"
 
     ############################
     # Private helper methods
@@ -289,143 +424,6 @@ class S3Store(Store):
             client.head_bucket(Bucket=bucket)
         except ClientError as e:
             raise ClientError("No access to s3 bucket!") from e
-
-    ############################
-    # Private I/O methods
-    ############################
-
-    def _download_files(self, path: str, dst: str, client: S3Client, bucket: str) -> str:
-        """
-        Download files from S3 based storage. The function checks if the bucket is accessible
-        and if the destination directory exists. If the destination directory does not exist,
-        it will be created.
-
-        Parameters
-        ----------
-        path : str
-            The path of the files on S3 based storage.
-        dst : str
-            The destination of the files on local filesystem.
-        client : S3Client
-            The S3 client object.
-        bucket : str
-            The name of the S3 bucket.
-
-        Returns
-        -------
-        str
-            The path of the downloaded files.
-        """
-        path = path.removeprefix("/")
-        file_list = client.list_objects_v2(Bucket=bucket, Prefix=path).get("Contents", [])
-        for file in file_list:
-            dst_pth = Path(dst) / Path(file["Key"])
-            dst_pth.parent.mkdir(parents=True, exist_ok=True)
-            client.download_file(bucket, file["Key"], str(dst_pth))
-        return dst
-
-    def _download_file(self, path: str, dst: str, client: S3Client, bucket: str) -> str:
-        """
-        Download a file from S3 based storage. The function checks if the bucket is accessible
-        and if the destination directory exists. If the destination directory does not exist,
-        it will be created.
-
-        Parameters
-        ----------
-        key : str
-            The key of the file on S3 based storage.
-        dst : str
-            The destination of the file on local filesystem.
-        client : S3Client
-            The S3 client object.
-        bucket : str
-            The name of the S3 bucket.
-
-        Returns
-        -------
-        str
-            The path of the downloaded file.
-        """
-        path = path.removeprefix("/")
-        dst_pth = str(Path(dst) / Path(path))
-        client.download_file(bucket, path, dst_pth)
-        return dst_pth
-
-    def _upload_files(self, src: str, dst: str, client: S3Client, bucket: str) -> str:
-        """
-        Upload files to S3 based storage. The function checks if the bucket is accessible.
-
-        Parameters
-        ----------
-        src : str
-            The source path of the files on local filesystem.
-        dst : str
-            The destination of the files on S3 based storage.
-        client : S3Client
-            The S3 client object.
-        bucket : str
-            The name of the S3 bucket.
-
-        Returns
-        -------
-        str
-            The URI of the uploaded files on S3 based storage.
-        """
-        dst = dst.removesuffix("/")
-        client, bucket = self._check_factory()
-        paths = list(Path(src).rglob("*"))
-        files = [str(i) for i in paths if i.is_file()]
-        for file in files:
-            key = self._get_key(file)
-            built_key = f"{dst}/{key}"
-            client.upload_file(Filename=file, Bucket=bucket, Key=built_key)
-        return f"s3://{bucket}/{dst}"
-
-    def _upload_file(self, src: str, key: str, client: S3Client, bucket: str) -> str:
-        """
-        Upload a file to S3 based storage. The function checks if the bucket is accessible.
-
-        Parameters
-        ----------
-        src : str
-            The source path of the file on local filesystem.
-        key : str
-            The key of the file on S3 based storage.
-        client : S3Client
-            The S3 client object.
-        bucket : str
-            The name of the S3 bucket.
-
-        Returns
-        -------
-        str
-            The URI of the uploaded file on S3 based storage.
-        """
-        client.upload_file(Filename=src, Bucket=bucket, Key=key)
-        return f"s3://{bucket}/{key}"
-
-    def _upload_fileobject(self, fileobj: BytesIO, key: str, client: S3Client, bucket: str) -> str:
-        """
-        Upload a fileobject to S3 based storage. The function checks if the bucket is accessible.
-
-        Parameters
-        ----------
-        fileobj : BytesIO
-            The fileobject to be uploaded.
-        key : str
-            The key of the file on S3 based storage.
-        client : S3Client
-            The S3 client object.
-        bucket : str
-            The name of the S3 bucket.
-
-        Returns
-        -------
-        str
-            The URI of the uploaded fileobject on S3 based storage.
-        """
-        client.put_object(Bucket=bucket, Key=key, Body=fileobj.getvalue())
-        return f"s3://{bucket}/{key}"
 
     ############################
     # Store interface methods

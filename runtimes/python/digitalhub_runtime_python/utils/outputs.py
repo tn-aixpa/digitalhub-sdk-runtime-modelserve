@@ -4,16 +4,12 @@ import pickle
 from typing import Any
 
 from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities._builders.uuid import build_uuid
-from digitalhub_core.entities.artifacts.crud import new_artifact
-from digitalhub_core.entities.artifacts.entity import Artifact
+from digitalhub_core.entities.artifact.crud import log_artifact
+from digitalhub_core.entities.artifact.entity._base import Artifact
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import create_dataitem
-from digitalhub_data.entities.dataitems.entity.table import DataitemTable
-from digitalhub_data.readers.builder import get_reader_by_object
+from digitalhub_data.entities.dataitem.crud import log_dataitem
+from digitalhub_data.entities.dataitem.entity.table import DataitemTable
 from digitalhub_data.readers.registry import DATAFRAME_TYPES
-from digitalhub_ml.entities.entity_types import EntityTypes
-from digitalhub_runtime_python.utils.env import S3_BUCKET
 
 
 def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict:
@@ -45,10 +41,10 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
             objects[name] = item
 
         elif f"{item.__class__.__module__}.{item.__class__.__name__}" in DATAFRAME_TYPES:
-            objects[name] = build_and_load_dataitem(name, project_name, item)
+            objects[name] = _log_dataitem(name, project_name, item)
 
         else:
-            objects[name] = build_and_load_artifact(name, project_name, item)
+            objects[name] = _log_artifact(name, project_name, item)
 
     return objects
 
@@ -102,9 +98,9 @@ def listify_results(results: Any) -> list:
     return results
 
 
-def build_and_load_dataitem(name: str, project_name: str, data: Any) -> DataitemTable:
+def _log_dataitem(name: str, project_name: str, data: Any) -> DataitemTable:
     """
-    Build and load dataitem.
+    Log dataitem.
 
     Parameters
     ----------
@@ -113,7 +109,7 @@ def build_and_load_dataitem(name: str, project_name: str, data: Any) -> Dataitem
     project_name : str
         Project name.
     data : Any
-        Data.
+        Dataframe.
 
     Returns
     -------
@@ -121,33 +117,21 @@ def build_and_load_dataitem(name: str, project_name: str, data: Any) -> Dataitem
         Dataitem key.
     """
     try:
-        kwargs = {}
-        kwargs["project"] = project_name
-        kwargs["name"] = name
-        kwargs["kind"] = "table"
-        new_id = build_uuid()
-        kwargs["uuid"] = new_id
-        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/{EntityTypes.DATAITEMS.value}/{new_id}/data.parquet"
-
-        di: DataitemTable = create_dataitem(**kwargs)
-
-        reader = get_reader_by_object(data)
-        di.spec.schema = reader.get_schema(data)
-        di.status.preview = reader.get_preview(data)
-
-        di.save()
-
-        di.write_df(df=data)
-        return di
+        return log_dataitem(
+            project=project_name,
+            name=name,
+            kind="table",
+            data=data,
+        )
     except Exception as e:
-        msg = f"Some error occurred while building and loading dataitem. Exception: {e.__class__}. Error: {e.args}"
+        msg = f"Some error occurred while logging dataitem. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 
 
-def build_and_load_artifact(name: str, project_name: str, data: Any) -> Artifact:
+def _log_artifact(name: str, project_name: str, data: Any) -> Artifact:
     """
-    Build and load artifact.
+    Log artifact.
 
     Parameters
     ----------
@@ -164,25 +148,19 @@ def build_and_load_artifact(name: str, project_name: str, data: Any) -> Artifact
         Artifact key.
     """
     try:
-        kwargs = {}
-        kwargs["project"] = project_name
-        kwargs["name"] = name
-        kwargs["kind"] = "artifact"
-        new_id = build_uuid()
-        kwargs["uuid"] = new_id
-        pickle_file = f"{name}.pickle"
-        kwargs["path"] = f"s3://{S3_BUCKET}/{project_name}/{EntityTypes.ARTIFACTS.value}/{new_id}/{pickle_file}"
-
         # Dump item to pickle
+        pickle_file = f"{name}.pickle"
         with open(pickle_file, "wb") as f:
             f.write(pickle.dumps(data))
-
-        art = new_artifact(**kwargs)
-        art.upload(source=pickle_file)
-        return art
+        return log_artifact(
+            project=project_name,
+            name=name,
+            kind="artifact",
+            source=pickle_file,
+        )
 
     except Exception as e:
-        msg = f"Some error occurred while building and loading artifact. Exception: {e.__class__}. Error: {e.args}"
+        msg = f"Some error occurred while logging artifact. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)
         raise RuntimeError(msg)
 

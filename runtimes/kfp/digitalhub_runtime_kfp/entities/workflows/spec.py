@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.workflows.spec import WorkflowParams, WorkflowSpec
-from digitalhub_runtime_kfp.entities.workflows.models import SourceCodeParamsKfp, SourceCodeStructKfp
+from digitalhub_core.entities.workflow.spec import WorkflowParams, WorkflowSpec
+from digitalhub_runtime_kfp.entities.workflow.models import SourceCodeParamsKfp, SourceCodeStructKfp
 
 
 class WorkflowSpecKFP(WorkflowSpec):

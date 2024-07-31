@@ -6,7 +6,6 @@ from pathlib import Path
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
 from digitalhub_core.utils.file_utils import get_file_info_from_local
-from digitalhub_core.utils.uri_utils import check_local_path
 
 
 class LocalStoreConfig(StoreConfig):
@@ -32,7 +31,13 @@ class LocalStore(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
+    def download(
+        self,
+        src: str,
+        dst: str | None = None,
+        force: bool = False,
+        overwrite: bool = False,
+    ) -> str:
         """
         Download an artifact from local storage.
 
@@ -76,94 +81,116 @@ class LocalStore(Store):
         self._set_path_registry(src, path)
         return path
 
-    def upload(self, src: str, dst: str | None = None) -> str:
+    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         """
-        Upload an artifact to local storage.
-
-        See Also
-        --------
-        persist_artifact
-        """
-        self._check_local_src(src)
-        if dst is None:
-            dst = self.config.path
-        else:
-            self._check_local_dst(dst)
-        return self.persist_artifact(src, dst)
-
-    def persist_artifact(self, src: str, dst: str) -> str:
-        """
-        Method to persist (copy) an artifact on local filesystem.
-        If destination is not provided, the artifact is written to the default
-        store path with source name.
+        Upload an artifact to storage.
 
         Parameters
         ----------
         src : str
-            The source location of the artifact.
+            The source location of the artifact on local filesystem.
         dst : str
-            The destination of the artifact.
+            The destination of the artifact on storage.
 
         Returns
         -------
-        dst
-            Returns the URI of the artifact.
+        list[tuple[str, str]]
+            Returns the list of source and destination paths of the
+            uploaded artifacts.
         """
-        if Path(src).suffix == "":
-            return shutil.copytree(src, dst, dirs_exist_ok=True)
-        return shutil.copy(src, dst)
+        # Destination handling
 
-    def get_file_info(self, path: str, src_path: str | None = None) -> list:
+        # If no destination is provided use store path,
+        # otherwise check if destination is local or not
+        if dst is None:
+            dst = self.config.path
+            Path(dst).mkdir(parents=True, exist_ok=True)
+        else:
+            self._check_local_dst(dst)
+
+        # Create destination directory if it doesn't exist
+        dst_pth = Path(dst)
+        if dst_pth.suffix == "":
+            dst_pth.mkdir(parents=True, exist_ok=True)
+        else:
+            dst_pth.parent.mkdir(parents=True, exist_ok=True)
+
+        # Source handling
+        self._check_local_src(src)
+        src_pth = Path(src)
+
+        if src_pth.is_dir():
+            if not dst_pth.is_dir():
+                raise StoreError("Destination must be a directory if the source is a directory.")
+            return self._copy_files(src_pth, dst_pth)
+        return self._copy_file(src_pth, dst_pth)
+
+    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
         """
         Method to get file metadata.
 
         Parameters
         ----------
-        path : str
-            The path of the file.
-        src_path : str
-            The source path of the file.
+        paths : list
+            The list of destination and source paths.
 
         Returns
         -------
-        list
+        list[dict]
             Returns files metadata.
         """
-        if Path(src_path).suffix == "":
-            srcs = [str(i) for i in Path(src_path).rglob("*") if i.is_file()]
-        else:
-            srcs = [src_path]
-
-        infos = []
-        for src in srcs:
-            infos.append(get_file_info_from_local(path, src))
-
-        return infos
+        return [get_file_info_from_local(*p) for p in paths]
 
     ############################
-    # Private helper methods
+    # Private I/O methods
     ############################
 
-    def _check_local(self, path: str) -> None:
+    def _copy_files(self, src: Path, dst: Path) -> list[tuple[str, str]]:
         """
-        Check through URI scheme if given path is local or not.
+        Copy files from source to destination.
 
         Parameters
         ----------
-        path : str
-            Path of some source.
+        src : Path
+            The source path.
+        dst : Path
+            The destination path.
 
         Returns
         -------
-        None
-
-        Raises
-        ------
-        StoreError
-            If source path is not local.
+        list[tuple[str, str]]
+            Returns the list of destination and source paths of the
+            copied files.
         """
-        if not check_local_path(path):
-            raise StoreError("Only local paths are supported for source paths.")
+        paths = []
+        files = [i for i in src.rglob("*") if i.is_file()]
+        for f in files:
+            if f.is_absolute():
+                f = Path(*f.parts[1:])
+            dst = dst / f
+            paths.append(self._copy_file(f, dst))
+        return paths
+
+    def _copy_file(self, src: Path, dst: Path) -> tuple[str, str]:
+        """
+        Copy file from source to destination.
+
+        Parameters
+        ----------
+        src : Path
+            The source path.
+        dst : Path
+            The destination path.
+
+        Returns
+        -------
+        tuple[str, str]
+            Returns the destination and source paths of the
+            copied file.
+        """
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src, dst)
+        return str(dst), str(src)
 
     ############################
     # Store interface methods

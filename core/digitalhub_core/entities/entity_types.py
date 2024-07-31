@@ -8,11 +8,10 @@ class EntityTypes(Enum):
     Entity types.
     """
 
-    PROJECTS = "projects"
-    ARTIFACTS = "artifacts"
-    SECRETS = "secrets"
-    SERVICES = "services"
-    FUNCTIONS = "functions"
-    WORKFLOWS = "workflows"
-    TASKS = "tasks"
-    RUNS = "runs"
+    PROJECTS = "project"
+    ARTIFACTS = "artifact"
+    SECRETS = "secret"
+    FUNCTIONS = "function"
+    WORKFLOWS = "workflow"
+    TASKS = "task"
+    RUNS = "run"

@@ -6,14 +6,14 @@ from dataclasses import dataclass
 from dbt.cli.main import dbtRunnerResult
 from digitalhub_core.entities._base.status import State
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import create_dataitem
+from digitalhub_data.entities.dataitem.crud import create_dataitem
 from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub_runtime_dbt.utils.env import get_connection
 from psycopg2 import sql
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_data.entities.dataitems.entity._base import Dataitem
+    from digitalhub_data.entities.dataitem.entity._base import Dataitem
 
 
 # Postgres type mapper to frictionless types.

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_data.entities.runs.spec import RunParamsData, RunSpecData
+from digitalhub_data.entities.run.spec import RunParamsData, RunSpecData
 
 
 class RunSpecKFP(RunSpecData):

@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import dotenv
-from digitalhub_core.entities.functions.entity import Function
+from digitalhub_core.entities.function.entity import Function
 
 import digitalhub
 

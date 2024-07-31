@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import dotenv
-from digitalhub_core.entities.artifacts.entity import Artifact
+from digitalhub_core.entities.artifact.entity._base import Artifact
 
 import digitalhub
 

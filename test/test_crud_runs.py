@@ -1,5 +1,5 @@
 import dotenv
-from digitalhub_core.entities.runs.entity import Run
+from digitalhub_core.entities.run.entity import Run
 
 import digitalhub
 

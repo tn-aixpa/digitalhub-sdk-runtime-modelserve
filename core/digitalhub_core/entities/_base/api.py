@@ -28,7 +28,7 @@ def api_ctx_create(
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}"
+    return f"{API_CONTEXT}/{project}/{entity_type}s"
 
 
 def api_ctx_read(project: str, entity_type: str, entity_id: str) -> str:
@@ -49,7 +49,7 @@ def api_ctx_read(project: str, entity_type: str, entity_id: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}"
+    return f"{API_CONTEXT}/{project}/{entity_type}s/{entity_id}"
 
 
 def api_ctx_update(
@@ -74,7 +74,7 @@ def api_ctx_update(
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}"
+    return f"{API_CONTEXT}/{project}/{entity_type}s/{entity_id}"
 
 
 def api_ctx_delete(project: str, entity_type: str, entity_id: str) -> str:
@@ -95,7 +95,7 @@ def api_ctx_delete(project: str, entity_type: str, entity_id: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}"
+    return f"{API_CONTEXT}/{project}/{entity_type}s/{entity_id}"
 
 
 def api_ctx_list(project: str, entity_type: str) -> str:
@@ -114,7 +114,7 @@ def api_ctx_list(project: str, entity_type: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}"
+    return f"{API_CONTEXT}/{project}/{entity_type}s"
 
 
 def api_ctx_data(project: str, entity_type: str) -> str:
@@ -133,7 +133,7 @@ def api_ctx_data(project: str, entity_type: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}/data"
+    return f"{API_CONTEXT}/{project}/{entity_type}s/data"
 
 
 def api_ctx_logs(project: str, entity_type: str, entity_id: str) -> str:
@@ -154,7 +154,7 @@ def api_ctx_logs(project: str, entity_type: str, entity_id: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}/logs"
+    return f"{API_CONTEXT}/{project}/{entity_type}s/{entity_id}/logs"
 
 
 def api_ctx_stop(project: str, entity_type: str, entity_id: str) -> str:
@@ -175,7 +175,7 @@ def api_ctx_stop(project: str, entity_type: str, entity_id: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}/stop"
+    return f"{API_CONTEXT}/{project}/{entity_type}s/{entity_id}/stop"
 
 
 ####################
@@ -197,7 +197,7 @@ def api_base_list(entity_type: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{entity_type}"
+    return f"{API_BASE}/{entity_type}s"
 
 
 def api_base_create(entity_type: str) -> str:
@@ -214,7 +214,7 @@ def api_base_create(entity_type: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{entity_type}"
+    return f"{API_BASE}/{entity_type}s"
 
 
 def api_base_read(entity_type: str, entity_id: str) -> str:
@@ -233,7 +233,7 @@ def api_base_read(entity_type: str, entity_id: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{entity_type}/{entity_id}"
+    return f"{API_BASE}/{entity_type}s/{entity_id}"
 
 
 def api_base_update(entity_type: str, entity_id: str) -> str:
@@ -252,7 +252,7 @@ def api_base_update(entity_type: str, entity_id: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{entity_type}/{entity_id}"
+    return f"{API_BASE}/{entity_type}s/{entity_id}"
 
 
 def api_base_delete(entity_type: str, entity_id: str) -> str:
@@ -271,4 +271,4 @@ def api_base_delete(entity_type: str, entity_id: str) -> str:
     str
         The API string formatted.
     """
-    return f"{API_BASE}/{entity_type}/{entity_id}"
+    return f"{API_BASE}/{entity_type}s/{entity_id}"

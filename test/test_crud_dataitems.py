@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import dotenv
-from digitalhub_data.entities.dataitems.entity._base import Dataitem
+from digitalhub_data.entities.dataitem.entity._base import Dataitem
 
 import digitalhub
 

@@ -1,4 +1,4 @@
-from digitalhub_ml.entities.models.crud import (
+from digitalhub_ml.entities.model.crud import (
     delete_model,
     get_model,
     get_model_versions,
@@ -8,7 +8,7 @@ from digitalhub_ml.entities.models.crud import (
     new_model,
     update_model,
 )
-from digitalhub_ml.entities.projects.crud import (
+from digitalhub_ml.entities.project.crud import (
     get_or_create_project,
     get_project,
     import_project,

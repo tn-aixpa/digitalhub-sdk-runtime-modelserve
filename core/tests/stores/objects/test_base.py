@@ -17,7 +17,7 @@ class TestStore(Store):
     def fetch_artifact(self, src: str, dst: str) -> str:
         ...
 
-    def upload(self, src: str, dst: str | None = None) -> str:
+    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         ...
 
     def persist_artifact(self, src: str, dst: str) -> str:

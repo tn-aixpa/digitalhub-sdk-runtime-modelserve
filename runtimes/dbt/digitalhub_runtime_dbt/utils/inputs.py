@@ -4,11 +4,11 @@ import typing
 
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitems.crud import new_dataitem
+from digitalhub_data.entities.dataitem.crud import new_dataitem
 from digitalhub_runtime_dbt.utils.env import POSTGRES_DATABASE, POSTGRES_SCHEMA
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.entities.dataitems.entity.table import DataitemTable
+    from digitalhub_data.entities.dataitem.entity.table import DataitemTable
 
 
 def materialize_dataitem(dataitem: DataitemTable, name: str) -> str:

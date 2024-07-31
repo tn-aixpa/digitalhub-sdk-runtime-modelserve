@@ -1,5 +1,5 @@
 import dotenv
-from digitalhub_core.entities.tasks.entity import Task
+from digitalhub_core.entities.task.entity import Task
 
 import digitalhub
 
