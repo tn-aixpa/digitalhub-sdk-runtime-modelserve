@@ -179,7 +179,6 @@ class Dataitem(Entity):
     def download(
         self,
         destination: str | None = None,
-        force_download: bool = False,
         overwrite: bool = False,
     ) -> str:
         """
@@ -190,8 +189,6 @@ class Dataitem(Entity):
         ----------
         destination : str
             Destination path as filename.
-        force_download : bool
-            Force download if a previous download was already done.
         overwrite : bool
             Specify if overwrite an existing file. Default value is False.
 

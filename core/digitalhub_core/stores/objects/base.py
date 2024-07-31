@@ -41,15 +41,14 @@ class Store(metaclass=ABCMeta):
     ############################
 
     @abstractmethod
-    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
+    def download(
+        self,
+        src: str,
+        dst: str | None = None,
+        overwrite: bool = False,
+    ) -> list[str]:
         """
         Method to download artifact from storage.
-        """
-
-    @abstractmethod
-    def fetch_artifact(self, src: str, dst: str) -> str:
-        """
-        Method to fetch artifact from storage.
         """
 
     @abstractmethod
@@ -91,12 +90,12 @@ class Store(metaclass=ABCMeta):
 
     def _check_local_dst(self, dst: str) -> None:
         """
-        Check if the local destination directory exists.
+        Check if the destination path is local.
 
         Parameters
         ----------
         dst : str
-            The destination directory.
+            The destination path.
 
         Returns
         -------
@@ -109,8 +108,6 @@ class Store(metaclass=ABCMeta):
         """
         if map_uri_scheme(dst) != "local":
             raise StoreError(f"Destination '{dst}' is not a local path.")
-        if Path(dst).suffix != "":
-            raise StoreError(f"Destination '{dst}' is not a directory.")
 
     def _check_overwrite(self, dst: str, overwrite: bool) -> None:
         """
@@ -154,14 +151,10 @@ class Store(metaclass=ABCMeta):
             pth = pth.parent
         pth.mkdir(parents=True, exist_ok=True)
 
-    def _build_temp(self, src: str) -> str:
+    @staticmethod
+    def _build_temp() -> str:
         """
         Build a temporary path.
-
-        Parameters
-        ----------
-        src : str
-            Source filename.
 
         Returns
         -------

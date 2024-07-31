@@ -183,7 +183,6 @@ class Artifact(Entity):
     def download(
         self,
         destination: str | None = None,
-        force_download: bool = False,
         overwrite: bool = False,
     ) -> str:
         """
@@ -194,8 +193,6 @@ class Artifact(Entity):
         ----------
         destination : str
             Destination path as filename.
-        force_download : bool
-            Force download if a previous download was already done.
         overwrite : bool
             Specify if overwrite an existing file. Default value is False.
 
@@ -204,14 +201,19 @@ class Artifact(Entity):
         str
             Path of the downloaded artifact.
         """
-        path = self.spec.path
-        store = get_store(path)
+        store = get_store(self.spec.path)
+
+        # Try to download from file infos in status
+        paths = self.status.get_file_paths()
+
+        # Fallback to spec path
+        if not paths:
+            paths = [(self.spec.path, None)]
 
         if destination is None:
-            filename = Path(urlparse(path).path).name
-            destination = f"{self.project}/{self.ENTITY_TYPE}/{self.name}/{self.id}/{filename}"
+            destination = str(self._context().root / self.ENTITY_TYPE / self.name)
 
-        return store.download(path, dst=destination, force=force_download, overwrite=overwrite)
+        return store.download(paths, dst=destination, overwrite=overwrite)
 
     def upload(self, source: str | None = None) -> None:
         """

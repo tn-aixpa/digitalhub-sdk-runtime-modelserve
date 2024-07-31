@@ -51,6 +51,21 @@ class ArtifactStatus(Status):
             # Add the new file
             self.files.append(file)
 
+    def get_file_paths(self) -> list[str]:
+        """
+        Get the paths of the files in the status.
+
+        Returns
+        -------
+        list[str]
+            Paths of the files in the status.
+        """
+
+        if self.files is None:
+            return []
+
+        return [f["path"] for f in self.files]
+
 
 class ArtifactStatusArtifact(ArtifactStatus):
     """

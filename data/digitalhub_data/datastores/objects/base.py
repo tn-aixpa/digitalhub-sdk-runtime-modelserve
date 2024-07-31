@@ -25,7 +25,12 @@ class Datastore(metaclass=ABCMeta):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
+    def download(
+        self,
+        src: str,
+        dst: str | None = None,
+        overwrite: bool = False,
+    ) -> list[str]:
         """
         Download file from source to destination. Invokes store's download method.
 

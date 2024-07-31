@@ -11,7 +11,12 @@ from digitalhub_core.utils.exceptions import StoreError
 
 
 class TestStore(Store):
-    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
+    def download(
+        self,
+        src: str,
+        dst: str | None = None,
+        overwrite: bool = False,
+    ) -> list[str]:
         ...
 
     def fetch_artifact(self, src: str, dst: str) -> str:

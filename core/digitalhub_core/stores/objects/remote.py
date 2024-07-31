@@ -26,7 +26,12 @@ class RemoteStore(Store):
     # IO methods
     ############################
 
-    def download(self, src: str, dst: str | None = None, force: bool = False, overwrite: bool = False) -> str:
+    def download(
+        self,
+        src: str,
+        dst: str | None = None,
+        overwrite: bool = False,
+    ) -> list[str]:
         """
         Download an artifact from HTTP(s) storage.
 

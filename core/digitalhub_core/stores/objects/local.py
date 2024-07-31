@@ -35,9 +35,8 @@ class LocalStore(Store):
         self,
         src: str,
         dst: str | None = None,
-        force: bool = False,
         overwrite: bool = False,
-    ) -> str:
+    ) -> list[str]:
         """
         Download an artifact from local storage.
 
