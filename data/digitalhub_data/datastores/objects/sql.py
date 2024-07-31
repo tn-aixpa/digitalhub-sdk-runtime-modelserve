@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_data.datastores.objects.base import Datastore
 from digitalhub_data.readers.builder import get_reader_by_object
 
@@ -30,12 +29,8 @@ class SqlDatastore(Datastore):
         str
             Path of written dataframe.
         """
-        if dst is None:
-            schema = str(self.store.config.pg_schema)
-            table = build_uuid()
-        else:
-            schema = self.store._get_schema(dst)
-            table = self.store._get_table_name(dst)
+        schema = self.store._get_schema(dst)
+        table = self.store._get_table_name(dst)
         return self._upload_table(df, schema, table, **kwargs)
 
     def _upload_table(self, df: Any, schema: str, table: str, **kwargs) -> str:

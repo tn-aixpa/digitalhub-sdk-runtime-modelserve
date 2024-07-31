@@ -55,7 +55,5 @@ def check_local_path(path: str) -> bool:
     Exception
         If the path is not specified.
     """
-    if path is None:
-        raise Exception("Path is not specified.")
     scheme = map_uri_scheme(path)
     return scheme == "local"

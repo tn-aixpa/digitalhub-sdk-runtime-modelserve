@@ -191,19 +191,3 @@ class LocalStore(Store):
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(src, dst)
         return str(dst), str(src)
-
-    ############################
-    # Store interface methods
-    ############################
-
-    @staticmethod
-    def is_local() -> bool:
-        """
-        Check if the store is local.
-
-        Returns
-        -------
-        bool
-            True
-        """
-        return True

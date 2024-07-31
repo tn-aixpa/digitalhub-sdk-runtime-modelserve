@@ -188,13 +188,6 @@ class Store(metaclass=ABCMeta):
         """
         self._registry[src] = path
 
-    @staticmethod
-    @abstractmethod
-    def is_local() -> bool:
-        """
-        Method to check if store is local.
-        """
-
 
 class StoreConfig(BaseModel):
     """

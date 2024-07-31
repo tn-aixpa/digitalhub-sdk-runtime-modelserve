@@ -72,8 +72,7 @@ class RemoteStore(Store):
 
     def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         """
-        Method to upload an artifact to the backend. Please note that this method is not implemented
-        since the remote store is not meant to upload artifacts.
+        Upload an artifact to HTTP(s) storage.
 
         Raises
         ------
@@ -82,33 +81,16 @@ class RemoteStore(Store):
         """
         raise NotImplementedError("Remote store does not support upload.")
 
-    def persist_artifact(self, src: str, dst: str) -> str:
+    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
         """
-        Method to persist an artifact. Note that this method is not implemented
-        since the remote store is not meant to write artifacts.
+        Get file information from HTTP(s) storage.
 
         Raises
         ------
         NotImplementedError
             This method is not implemented.
         """
-        raise NotImplementedError("Remote store does not support persist_artifact.")
-
-    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
-        """
-        Method to get file metadata.
-
-        Parameters
-        ----------
-        path : str
-            The path of the file.
-        src_path : str
-            The source path of the file.
-
-        Returns
-        -------
-        None
-        """
+        raise NotImplementedError("Remote store does not support get_file_info.")
 
     ############################
     # Private helper methods
@@ -160,19 +142,3 @@ class RemoteStore(Store):
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
         return dst
-
-    ############################
-    # Store interface methods
-    ############################
-
-    @staticmethod
-    def is_local() -> bool:
-        """
-        Check if the store is local.
-
-        Returns
-        -------
-        bool
-            False
-        """
-        return False

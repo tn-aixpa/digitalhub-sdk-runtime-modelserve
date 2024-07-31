@@ -424,19 +424,3 @@ class S3Store(Store):
             client.head_bucket(Bucket=bucket)
         except ClientError as e:
             raise ClientError("No access to s3 bucket!") from e
-
-    ############################
-    # Store interface methods
-    ############################
-
-    @staticmethod
-    def is_local() -> bool:
-        """
-        Check if the store is local.
-
-        Returns
-        -------
-        bool
-            False
-        """
-        return False
