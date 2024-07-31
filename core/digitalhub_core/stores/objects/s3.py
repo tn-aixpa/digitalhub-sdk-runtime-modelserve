@@ -50,10 +50,29 @@ class S3Store(Store):
 
     def download(
         self,
-        src: list[tuple],
+        src: list[tuple[str, str | None]],
         dst: str | None = None,
         overwrite: bool = False,
     ) -> list[str]:
+        """
+        Download artifacts from S3 storage.
+
+        Parameters
+        ----------
+        src : list[tuple[str, str | None]]
+            The source location of the artifact on s3 and eventual origin tree path.
+        dst : str
+            The destination of the artifact on local filesystem.
+        overwrite : bool
+            Specify if overwrite an existing file. Default value is False.
+
+        Returns
+        -------
+        list[str]
+            List of paths of the downloaded artifacts.
+        """
+        client, bucket = self._check_factory()
+
         # Handle destination
 
         # If destination is not specified, build destination
@@ -68,25 +87,17 @@ class S3Store(Store):
 
         paths = []
         for s in src:
-            paths.extend(self.download_src(s, dst_path, overwrite))
+
+            key = self._get_key(s[0])
+            tree_path = s[1]
+
+            if key.endswith("/"):
+                p = self._download_files(key, tree_path, dst_path, client, bucket, overwrite)
+            else:
+                p = [self._download_file(key, tree_path, dst_path, client, bucket, overwrite)]
+            paths.extend(p)
+
         return paths
-
-    def download_src(
-        self,
-        src: tuple[str, str | None],
-        dst: Path,
-        overwrite: bool,
-    ) -> list[str]:
-
-        # Handle source
-        key: str = self._get_key(src[0])
-        tree_path: str | None = src[1]
-
-        client, bucket = self._check_factory()
-
-        if key.endswith("/"):
-            return self._download_files(key, tree_path, dst, client, bucket, overwrite)
-        return [self._download_file(key, tree_path, dst, client, bucket, overwrite)]
 
     def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         """
