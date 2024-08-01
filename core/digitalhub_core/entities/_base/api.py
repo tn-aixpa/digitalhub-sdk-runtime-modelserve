@@ -178,6 +178,27 @@ def api_ctx_stop(project: str, entity_type: str, entity_id: str) -> str:
     return f"{API_CONTEXT}/{project}/{entity_type}s/{entity_id}/stop"
 
 
+def api_ctx_files(project: str, entity_type: str, entity_id: str) -> str:
+    """
+    Files context API.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{project}/{entity_type}s/{entity_id}/files"
+
+
 ####################
 # Base APIs
 ####################
