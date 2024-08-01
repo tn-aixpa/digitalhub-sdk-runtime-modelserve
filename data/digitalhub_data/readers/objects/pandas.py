@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from digitalhub_data.readers.objects.base import DataframeReader
 from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview
+from pandas.errors import ParserError
 
 
 class DataframeReaderPandas(DataframeReader):
@@ -18,15 +19,14 @@ class DataframeReaderPandas(DataframeReader):
     # Read methods
     ###################################
 
-    @staticmethod
-    def read_df(path: str, extension: str, **kwargs) -> pd.DataFrame:
+    def read_df(self, path: str | list[str], extension: str, **kwargs) -> pd.DataFrame:
         """
         Read DataFrame from path.
 
         Parameters
         ----------
-        path : str
-            Path to read DataFrame from.
+        path : str | list[str]
+            Path(s) to read DataFrame from.
         extension : str
             Extension of the file.
         **kwargs : dict
@@ -38,8 +38,19 @@ class DataframeReaderPandas(DataframeReader):
             Pandas DataFrame.
         """
         if extension == "csv":
-            return pd.read_csv(path, **kwargs)
-        return pd.read_parquet(path, **kwargs)
+            method = pd.read_csv
+        elif extension == "parquet":
+            method = pd.read_parquet
+        elif extension == "file":
+            try:
+                return self.read_df(path, "csv", **kwargs)
+            except ParserError:
+                raise ValueError(f"Unable to read from {path}.")
+
+        if isinstance(path, list):
+            dfs = [method(p, **kwargs) for p in path]
+            return pd.concat(dfs)
+        return method(path, **kwargs)
 
     ###################################
     # Write methods

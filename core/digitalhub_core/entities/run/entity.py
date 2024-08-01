@@ -4,44 +4,37 @@ import time
 import typing
 from typing import Any
 
-from digitalhub_core.context.builder import get_context
 from digitalhub_core.entities._base.crud import (
-    create_entity_api_ctx,
     list_entity_api_base,
     list_entity_api_ctx,
     logs_api,
     read_entity_api_ctx,
     stop_api,
-    update_entity_api_ctx,
 )
-from digitalhub_core.entities._base.entity import Entity
-from digitalhub_core.entities._base.status import State
-from digitalhub_core.entities._builders.metadata import build_metadata
+from digitalhub_core.entities._base.entity.unversioned import UnversionedEntity
+from digitalhub_core.entities._base.state import State
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.registry.registry import registry
 from digitalhub_core.runtimes.builder import build_runtime
 from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import get_timestamp
-from digitalhub_core.utils.io_utils import write_yaml
 from digitalhub_core.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.context.context import Context
+    from digitalhub_core.entities._base.entity.material import MaterialEntity
     from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.run.spec import RunSpec
     from digitalhub_core.entities.run.status import RunStatus
     from digitalhub_core.runtimes.base import Runtime
 
 
-class Run(Entity):
+class Run(UnversionedEntity):
     """
     A class representing a run.
     """
 
-    ENTITY_TYPE = EntityTypes.RUNS.value
+    ENTITY_TYPE = EntityTypes.RUN.value
 
     def __init__(
         self,
@@ -53,116 +46,10 @@ class Run(Entity):
         status: RunStatus,
         user: str | None = None,
     ) -> None:
-        """
-        Constructor.
+        super().__init__(project, uuid, kind, metadata, spec, status, user)
 
-        Parameters
-        ----------
-        project : str
-            Project name.
-        uuid : str
-            UUID.
-        kind : str
-            Kind the object.
-        metadata : Metadata
-            Metadata of the object.
-        spec : RunSpec
-            Specification of the object.
-        status : RunStatus
-            Status of the object.
-        user : str
-            Owner of the object.
-        """
-        super().__init__()
-        self.project = project
-        self.id = uuid
-        self.kind = kind
-        self.key = f"store://{project}/{self.ENTITY_TYPE}/{kind}/{uuid}"
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
-        self.user = user
-
-        # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "id", "key"])
-
-    #############################
-    #  Save / Refresh / Export
-    #############################
-
-    def save(self, update: bool = False) -> Run:
-        """
-        Save entity into backend.
-
-        Parameters
-        ----------
-        update : bool
-            If True, the object will be updated.
-
-        Returns
-        -------
-        Run
-            Entity saved.
-        """
-        obj = self.to_dict(include_all_non_private=True)
-
-        if not update:
-            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
-            self._update_attributes(new_obj)
-            return self
-
-        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
-        self._update_attributes(new_obj)
-        return self
-
-    def refresh(self) -> Run:
-        """
-        Refresh object from backend.
-
-        Returns
-        -------
-        Run
-            Run object.
-        """
-        new_obj = read_entity_api_ctx(self.key)
-        self._update_attributes(new_obj)
-        return self
-
-    def export(self, filename: str | None = None) -> None:
-        """
-        Export object as a YAML file.
-
-        Parameters
-        ----------
-        filename : str
-            Name of the export YAML file. If not specified, the default value is used.
-
-        Returns
-        -------
-        None
-        """
-        obj = self.to_dict()
-        if filename is None:
-            filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = self._context().root / filename
-        pth.parent.mkdir(parents=True, exist_ok=True)
-        write_yaml(pth, obj)
-
-    #############################
-    #  Context
-    #############################
-
-    def _context(self) -> Context:
-        """
-        Get context.
-
-        Returns
-        -------
-        Context
-            Context.
-        """
-        return get_context(self.project)
+        self.spec: RunSpec
+        self.status: RunStatus
 
     #############################
     #  Run Methods
@@ -330,7 +217,7 @@ class Run(Entity):
             msg = f"Run of type {self.kind} has no outputs."
             raise EntityError(msg)
 
-    def output(self, key: str, as_key: bool = False, as_dict: bool = False) -> Entity | dict | str | None:
+    def output(self, key: str, as_key: bool = False, as_dict: bool = False) -> MaterialEntity | dict | str | None:
         """
         Get run object result by key.
 
@@ -510,7 +397,7 @@ class Run(Entity):
 
         # Local backend
         if self._context().local:
-            tasks = list_entity_api_base(self._context().client, EntityTypes.TASKS.value)
+            tasks = list_entity_api_base(self._context().client, EntityTypes.TASK.value)
             for i in tasks:
                 if i.get("spec").get("function") == exec_string:
                     return i
@@ -519,110 +406,4 @@ class Run(Entity):
         # Remote backend
         task_kind = self.spec.task.split("://")[0]
         params = {"function": exec_string, "kind": task_kind}
-        return list_entity_api_ctx(self.project, EntityTypes.TASKS.value, params=params)[0]
-
-    #############################
-    #  Static interface methods
-    #############################
-
-    @staticmethod
-    def _parse_dict(obj: dict, validate: bool = True) -> dict:
-        """
-        Get dictionary and parse it to a valid entity dictionary.
-
-        Parameters
-        ----------
-        entity : str
-            Entity type.
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-        """
-        project = obj.get("project")
-        kind = obj.get("kind")
-        uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, **obj.get("metadata", {}))
-        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, **obj.get("status", {}))
-        user = obj.get("user")
-        return {
-            "project": project,
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-            "user": user,
-        }
-
-
-def run_from_parameters(
-    project: str,
-    kind: str,
-    uuid: str | None = None,
-    git_source: str | None = None,
-    labels: list[str] | None = None,
-    **kwargs,
-) -> Run:
-    """
-    Create run.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    kind : str
-        Kind the object.
-    uuid : str
-        ID of the object (UUID4).
-    git_source : str
-        Remote git source for object.
-    labels : list[str]
-        List of labels.
-    **kwargs : dict
-        Spec keyword arguments.
-
-    Returns
-    -------
-    Run
-        Run object.
-    """
-    uuid = build_uuid(uuid)
-    metadata = build_metadata(
-        kind=kind,
-        project=project,
-        name=uuid,
-        source=git_source,
-        labels=labels,
-    )
-    spec = build_spec(kind, **kwargs)
-    status = build_status(kind)
-    return Run(
-        project=project,
-        uuid=uuid,
-        kind=kind,
-        metadata=metadata,
-        spec=spec,
-        status=status,
-    )
-
-
-def run_from_dict(obj: dict) -> Run:
-    """
-    Create run from dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Run
-        Run object.
-    """
-    return Run.from_dict(obj)
+        return list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)[0]

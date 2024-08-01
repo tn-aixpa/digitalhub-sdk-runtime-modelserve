@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities._base.status import State
+from digitalhub_core.entities._base.state import State
 from digitalhub_core.registry.registry import registry
 from digitalhub_core.registry.utils import import_class
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities._base.status import Status
+    from digitalhub_core.entities._base.status.base import Status
     from digitalhub_core.registry.models import RegistryEntry
 
 

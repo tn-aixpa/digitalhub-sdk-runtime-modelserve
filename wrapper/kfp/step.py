@@ -6,7 +6,7 @@ import json
 import os
 import time
 
-from digitalhub_core.entities._base.entity import Entity
+from digitalhub_core.entities._base.entity.base import Entity
 from digitalhub_core.utils.logger import LOGGER
 
 import digitalhub as dh

@@ -32,7 +32,7 @@ class LocalDatastore(Datastore):
         str
             Path of written dataframe.
         """
-        self._check_local_dst(dst)
+        self.store._check_local_dst(dst)
         self._validate_extension(Path(dst).suffix.removeprefix("."))
 
         # Write dataframe

@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+import typing
 from abc import ABCMeta, abstractmethod
 
 from digitalhub_core.entities._base.base import ModelObj
+
+if typing.TYPE_CHECKING:
+    from digitalhub_core.entities._base.metadata import Metadata
+    from digitalhub_core.entities._base.spec.base import Spec
+    from digitalhub_core.entities._base.status.base import Status
 
 
 class Entity(ModelObj, metaclass=ABCMeta):
@@ -13,8 +19,25 @@ class Entity(ModelObj, metaclass=ABCMeta):
     representing a variety of objects handled by DigitalHub.
     """
 
+    ENTITY_TYPE = None
+
     # Attributes to render as dict. Need to be expanded in subclasses.
-    _obj_attr = ["kind", "metadata", "spec", "status", "user"]
+    _obj_attr = ["kind", "metadata", "spec", "status", "user", "key"]
+
+    def __init__(
+        self,
+        kind: str,
+        metadata: Metadata,
+        spec: Spec,
+        status: Status,
+        user: str | None = None,
+    ) -> None:
+        self.key: str = None
+        self.kind = kind
+        self.metadata = metadata
+        self.spec = spec
+        self.status = status
+        self.user = user
 
     @abstractmethod
     def save(self, update: bool = False) -> Entity:

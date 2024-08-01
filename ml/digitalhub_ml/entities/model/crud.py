@@ -21,7 +21,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.model.entity import Model
 
 
-ENTITY_TYPE = EntityTypes.MODELS.value
+ENTITY_TYPE = EntityTypes.MODEL.value
 
 
 def create_model(**kwargs) -> Model:

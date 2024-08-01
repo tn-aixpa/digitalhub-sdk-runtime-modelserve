@@ -7,13 +7,13 @@ from digitalhub_data.entities.entity_types import EntityTypes
 root = "digitalhub_data.entities"
 
 # Projects ovverride
-entity_type = EntityTypes.PROJECTS.value
+entity_type = EntityTypes.PROJECT.value
 registry.project.spec.module = f"{root}.{entity_type}.spec"
 registry.project.spec.class_name = "ProjectSpecData"
 registry.project.spec.parameters_validator = "ProjectParamsData"
 
 # Dataitems
-entity_type = EntityTypes.DATAITEMS.value
+entity_type = EntityTypes.DATAITEM.value
 for i in ["dataitem", "table", "iceberg"]:
     prefix = entity_type.capitalize()
     suffix = i.capitalize()

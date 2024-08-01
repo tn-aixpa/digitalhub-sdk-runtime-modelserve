@@ -22,7 +22,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitem.entity._base import Dataitem
 
 
-ENTITY_TYPE = EntityTypes.DATAITEMS.value
+ENTITY_TYPE = EntityTypes.DATAITEM.value
 
 
 def create_dataitem(**kwargs) -> Dataitem:

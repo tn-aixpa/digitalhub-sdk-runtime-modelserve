@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities._base.status import Status
+from digitalhub_core.entities._base.status.base import Status
 from digitalhub_core.entities.artifact.crud import get_artifact
 from digitalhub_core.entities.utils import parse_entity_key
 

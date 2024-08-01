@@ -1,26 +1,20 @@
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec, SpecParams
+from digitalhub_core.entities._base.spec.material import MaterialParams, MaterialSpec
 from digitalhub_data.entities.dataitem.models import TableSchema
 from pydantic import Field
 
 
-class DataitemSpec(Spec):
+class DataitemSpec(MaterialSpec):
     """
     Dataitem specifications.
     """
 
-    def __init__(self, path: str) -> None:
-        self.path = path
 
-
-class DataitemParams(SpecParams):
+class DataitemParams(MaterialParams):
     """
     Dataitem parameters.
     """
-
-    path: str
-    "The path of the dataitem."
 
 
 class DataitemSpecDataitem(DataitemSpec):

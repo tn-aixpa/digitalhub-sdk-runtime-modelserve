@@ -11,13 +11,13 @@ from digitalhub_core.entities._base.crud import (
     update_entity_api_ctx,
 )
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.function.entity import function_from_dict, function_from_parameters
+from digitalhub_core.entities.function.builder import function_from_dict, function_from_parameters
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.function.entity import Function
 
-ENTITY_TYPE = EntityTypes.FUNCTIONS.value
+ENTITY_TYPE = EntityTypes.FUNCTION.value
 
 
 def create_function(**kwargs) -> Function:

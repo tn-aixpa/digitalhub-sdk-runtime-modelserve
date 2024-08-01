@@ -8,15 +8,15 @@ from digitalhub_core.client.builder import build_client, get_client
 from digitalhub_core.context.builder import delete_context
 from digitalhub_core.entities._base.crud import delete_entity_api_base, read_entity_api_base, update_entity_api_base
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.project.entity import project_from_dict, project_from_parameters
+from digitalhub_core.entities.project.builder import project_from_dict, project_from_parameters
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.project.entity import Project
+    from digitalhub_core.entities.project.base import Project
 
 
-ENTITY_TYPE = EntityTypes.PROJECTS.value
+ENTITY_TYPE = EntityTypes.PROJECT.value
 
 
 def create_project(**kwargs) -> Project:
@@ -180,6 +180,8 @@ def new_project(
         Project object.
     """
     build_client(local, config)
+    if context is None:
+        context = name
     obj = create_project(
         name=name,
         kind="project",

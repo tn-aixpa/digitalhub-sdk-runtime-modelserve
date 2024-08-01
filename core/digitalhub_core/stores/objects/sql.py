@@ -84,7 +84,6 @@ class SqlStore(Store):
             elif path.suffix != ".parquet":
                 raise StoreError("The destination path must be a directory or a parquet file.")
 
-
             self._check_overwrite(str(dst), overwrite)
             self._build_path(dst)
 

@@ -14,8 +14,8 @@ from digitalhub_ml.entities.model.crud import model_from_dict
 from digitalhub_ml.entities.project.crud import get_project
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities._base.entity import Entity
-    from digitalhub_core.entities.project.entity import Project
+    from digitalhub_core.entities._base.entity.base import Entity
+    from digitalhub_core.entities.project.base import Project
 
 
 def get_project_(project_name: str) -> Project:
@@ -63,11 +63,11 @@ def get_entity_inputs(inputs: dict) -> dict[str, Entity]:
         inputs_objects = {}
         for k, v in inputs.items():
             _, entity_type, _, _, _ = parse_entity_key(v.get("key"))
-            if entity_type == EntityTypes.DATAITEMS.value:
+            if entity_type == EntityTypes.DATAITEM.value:
                 inputs_objects[k] = dataitem_from_dict(v)
-            elif entity_type == EntityTypes.ARTIFACTS.value:
+            elif entity_type == EntityTypes.ARTIFACT.value:
                 inputs_objects[k] = artifact_from_dict(v)
-            elif entity_type == EntityTypes.MODELS.value:
+            elif entity_type == EntityTypes.MODEL.value:
                 inputs_objects[k] = model_from_dict(v)
         return inputs_objects
     except Exception as e:

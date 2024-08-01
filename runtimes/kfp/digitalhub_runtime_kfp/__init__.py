@@ -15,7 +15,7 @@ runtime_info = {
 root_ent = f"{root}.entities"
 
 # Workflow
-entity_type = EntityTypes.WORKFLOWS.value
+entity_type = EntityTypes.WORKFLOW.value
 wkfl_kind = "kfp"
 prefix = entity_type.capitalize()
 suffix = wkfl_kind.upper()
@@ -24,7 +24,7 @@ registry.register(wkfl_kind, wkfl_info)
 
 
 # Tasks
-entity_type = EntityTypes.TASKS.value
+entity_type = EntityTypes.TASK.value
 for i in ["pipeline"]:
     task_kind = f"{wkfl_kind}+{i}"
     prefix = entity_type.capitalize()
@@ -34,7 +34,7 @@ for i in ["pipeline"]:
 
 
 # Runs
-entity_type = EntityTypes.RUNS.value
+entity_type = EntityTypes.RUN.value
 run_kind = f"{wkfl_kind}+run"
 prefix = entity_type.capitalize()
 suffix = wkfl_kind.upper()

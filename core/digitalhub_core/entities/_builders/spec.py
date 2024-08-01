@@ -6,7 +6,7 @@ from digitalhub_core.registry.registry import registry
 from digitalhub_core.registry.utils import import_class
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities._base.spec import Spec
+    from digitalhub_core.entities._base.spec.base import Spec
     from digitalhub_core.registry.models import RegistryEntry
 
 

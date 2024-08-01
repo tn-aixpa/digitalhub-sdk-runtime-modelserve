@@ -36,3 +36,22 @@ class SpecParams(BaseModel, extra="ignore"):
     specification and is used to validate the parameters passed
     to the constructor.
     """
+
+
+class MaterialSpec(SpecParams):
+    """
+    Material specification class.
+    """
+
+    def __init__(self, path: str, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.path = path
+
+
+class MaterialParams(SpecParams):
+    """
+    Material parameters class.
+    """
+
+    path: str
+    """Target path to file(s)"""

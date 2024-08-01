@@ -64,7 +64,7 @@ class S3Store(Store):
         dst : str
             The destination of the artifact on local filesystem.
         overwrite : bool
-            Specify if overwrite an existing file. Default value is False.
+            Specify if overwrite existing file(s).
 
         Returns
         -------
@@ -87,7 +87,6 @@ class S3Store(Store):
 
         paths = []
         for s in src:
-
             # Retrieve from cache
             cached = self._cache.get(s[0])
             if cached is not None and not overwrite:

@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities._base.spec import Spec, SpecParams
+from digitalhub_core.entities._base.spec.base import Spec, SpecParams
 from digitalhub_core.entities.artifact.crud import get_artifact
+from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities._base.entity import Entity
+    from digitalhub_core.entities._base.entity.base import Entity
 
 
 ENTITY_FUNC = {
-    "artifacts": get_artifact,
+    EntityTypes.ARTIFACT.value: get_artifact,
 }
 
 

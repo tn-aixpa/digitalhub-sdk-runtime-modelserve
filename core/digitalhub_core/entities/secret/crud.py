@@ -11,14 +11,14 @@ from digitalhub_core.entities._base.crud import (
     update_entity_api_ctx,
 )
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.secret.entity import secret_from_dict, secret_from_parameters
+from digitalhub_core.entities.secret.builder import secret_from_dict, secret_from_parameters
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.secret.entity import Secret
 
 
-ENTITY_TYPE = EntityTypes.SECRETS.value
+ENTITY_TYPE = EntityTypes.SECRET.value
 
 
 def create_secret(**kwargs) -> Secret:

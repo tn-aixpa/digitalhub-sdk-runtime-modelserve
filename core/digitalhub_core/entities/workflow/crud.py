@@ -11,14 +11,14 @@ from digitalhub_core.entities._base.crud import (
     update_entity_api_ctx,
 )
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.workflow.entity import workflow_from_dict, workflow_from_parameters
+from digitalhub_core.entities.workflow.builder import workflow_from_dict, workflow_from_parameters
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflow.entity import Workflow
 
 
-ENTITY_TYPE = EntityTypes.WORKFLOWS.value
+ENTITY_TYPE = EntityTypes.WORKFLOW.value
 
 
 def create_workflow(**kwargs) -> Workflow:

@@ -16,7 +16,7 @@ root_ent = f"{root}.entities"
 
 
 # Function
-entity_type = EntityTypes.FUNCTIONS.value
+entity_type = EntityTypes.FUNCTION.value
 func_kind = "container"
 prefix = entity_type.capitalize()
 suffix = func_kind.capitalize()
@@ -25,7 +25,7 @@ registry.register(func_kind, func_info)
 
 
 # Tasks
-entity_type = EntityTypes.TASKS.value
+entity_type = EntityTypes.TASK.value
 for i in ["job", "deploy", "serve", "build"]:
     task_kind = f"{func_kind}+{i}"
     prefix = entity_type.capitalize()
@@ -35,7 +35,7 @@ for i in ["job", "deploy", "serve", "build"]:
 
 
 # Runs
-entity_type = EntityTypes.RUNS.value
+entity_type = EntityTypes.RUN.value
 run_kind = f"{func_kind}+run"
 prefix = entity_type.capitalize()
 suffix = func_kind.capitalize()

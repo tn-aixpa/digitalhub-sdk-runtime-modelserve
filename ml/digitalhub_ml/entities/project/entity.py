@@ -20,7 +20,7 @@ from digitalhub_ml.entities.model.crud import (
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.model.entity import Model
 
-MODELS = EntityTypes.MODELS.value
+MODELS = EntityTypes.MODEL.value
 CTX_ENTITIES.append(MODELS)
 FUNC_MAP[MODELS] = create_model_from_dict
 

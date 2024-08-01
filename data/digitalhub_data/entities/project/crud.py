@@ -7,7 +7,7 @@ from digitalhub_core.entities._base.crud import read_entity_api_base
 from digitalhub_core.entities.project.crud import ENTITY_TYPE, _setup_project
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
-from digitalhub_data.entities.project.entity import project_from_dict, project_from_parameters
+from digitalhub_data.entities.project.builder import project_from_dict, project_from_parameters
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.project.entity import ProjectData as Project
@@ -174,6 +174,8 @@ def new_project(
         Project object.
     """
     build_client(local, config)
+    if context is None:
+        context = name
     obj = create_project(
         name=name,
         kind="project",

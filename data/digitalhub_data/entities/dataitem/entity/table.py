@@ -26,8 +26,6 @@ class DataitemTable(Dataitem):
         Read dataitem as a DataFrame from spec.path. If the dataitem is not local,
         it will be downloaded to a temporary folder. If clean_tmp_path is True,
         the temporary folder will be deleted after the method is executed.
-        If no file_format is passed, the function will try to infer it from the
-        dataitem.spec.path attribute.
 
         Parameters
         ----------
@@ -43,30 +41,31 @@ class DataitemTable(Dataitem):
         Any
             DataFrame.
         """
-        tmp_path = False if check_local_path(self.spec.path) else True
-        datastore = get_datastore(self.spec.path)
-        path = datastore.download(self.spec.path)
+        try:
+            if check_local_path(self.spec.path):
+                tmp_dir = None
+            else:
+                tmp_dir = self._context().tmp_dir / "data"
 
-        # Get file info
-        store = get_store(path)
-        file_info = store.get_file_info(self.spec.path, path)
-        if file_info is not None:
-            self.refresh()
-            self.status.add_file(file_info)
-            self.save(update=True)
+            # Check file format and get dataitem as DataFrame
+            store = get_store(self.spec.path)
+            paths = self._get_paths()
+            download_paths = store.download(paths, dst=str(tmp_dir), overwrite=True)
 
-        # Check file format and get dataitem as DataFrame
-        extension = self._get_extension(self.spec.path, file_format)
-        df = datastore.read_df(path, extension, **kwargs)
+            if not download_paths:
+                raise RuntimeError(f"No file found in {self.spec.path}.")
 
-        # Delete tmp folder
-        if tmp_path and clean_tmp_path:
-            pth = Path(path)
-            if pth.is_file():
-                pth = pth.parent
-            shutil.rmtree(pth)
+            path = download_paths[0]
+            extension = self._get_extension(path, file_format)
+            datastore = get_datastore(path)
+            return datastore.read_df(download_paths, extension, **kwargs)
 
-        return df
+        except Exception as e:
+            raise e
+
+        finally:
+            # Delete tmp folder
+            self._clean_tmp_path(tmp_dir, clean_tmp_path)
 
     def write_df(
         self,
@@ -92,11 +91,23 @@ class DataitemTable(Dataitem):
             Path to the written dataframe.
         """
         datastore = get_datastore(self.spec.path)
-        target = datastore.write_df(df, self.spec.path, extension=extension, **kwargs)
+        return datastore.write_df(df, self.spec.path, extension=extension, **kwargs)
 
-        # Get file info
-        store = get_store(target)
-        file_info = store.get_file_info(target, self.spec.path)
-        if file_info is not None:
-            self.status.add_file(file_info)
-        return target
+    @staticmethod
+    def _clean_tmp_path(pth: Path | None, clean: bool) -> None:
+        """
+        Clean temporary path.
+
+        Parameters
+        ----------
+        pth : Path | None
+            Path to clean.
+        clean : bool
+            If True, the path will be cleaned.
+
+        Returns
+        -------
+        None
+        """
+        if pth is not None and clean:
+            shutil.rmtree(pth)

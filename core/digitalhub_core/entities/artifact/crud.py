@@ -21,7 +21,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifact.entity._base import Artifact
 
 
-ENTITY_TYPE = EntityTypes.ARTIFACTS.value
+ENTITY_TYPE = EntityTypes.ARTIFACT.value
 
 
 def create_artifact(**kwargs) -> Artifact:

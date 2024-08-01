@@ -4,7 +4,7 @@ import typing
 from pathlib import Path
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.project.entity import Project
+    from digitalhub_core.entities.project.base import Project
 
 
 class Context:
@@ -22,6 +22,9 @@ class Context:
         self.client = project._client
         self.local = project._client.is_local()
         self.root = Path(project.spec.context)
+
+        self.root.mkdir(parents=True, exist_ok=True)
+
         self.runtime_dir = self.root / "runtime"
         self.tmp_dir = self.root / "tmp"
 

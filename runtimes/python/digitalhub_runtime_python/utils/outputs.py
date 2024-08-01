@@ -3,7 +3,7 @@ from __future__ import annotations
 import pickle
 from typing import Any
 
-from digitalhub_core.entities._base.status import State
+from digitalhub_core.entities._base.state import State
 from digitalhub_core.entities.artifact.crud import log_artifact
 from digitalhub_core.entities.artifact.entity._base import Artifact
 from digitalhub_core.utils.logger import LOGGER

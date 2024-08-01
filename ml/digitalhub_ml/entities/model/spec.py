@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec, SpecParams
+from digitalhub_core.entities._base.spec.material import MaterialParams, MaterialSpec
 
 
-class ModelSpec(Spec):
+class ModelSpec(MaterialSpec):
     """
     Model specifications.
     """
@@ -25,7 +25,7 @@ class ModelSpec(Spec):
         self.metrics = metrics
 
 
-class ModelParams(SpecParams):
+class ModelParams(MaterialParams):
     """
     Model parameters.
     """

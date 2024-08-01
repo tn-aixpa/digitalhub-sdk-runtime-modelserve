@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_core.entities._base.spec import Spec, SpecParams
+from digitalhub_core.entities._base.spec.base import Spec, SpecParams
 
 
 class ProjectSpec(Spec):

@@ -1,34 +1,6 @@
 from __future__ import annotations
 
-from enum import Enum
-
 from digitalhub_core.entities._base.base import ModelObj
-
-
-class State(Enum):
-    """
-    State enumeration.
-    """
-
-    BUILT = "BUILT"
-    CANCELLED = "CANCELLED"
-    COMPLETED = "COMPLETED"
-    CREATED = "CREATED"
-    CREATING = "CREATING"
-    DELETED = "DELETED"
-    ERROR = "ERROR"
-    FSM_ERROR = "FSM_ERROR"
-    IDLE = "IDLE"
-    NONE = "NONE"
-    ONLINE = "ONLINE"
-    PENDING = "PENDING"
-    READY = "READY"
-    RUN_ERROR = "RUN_ERROR"
-    RUNNING = "RUNNING"
-    STOP = "STOP"
-    STOPPED = "STOPPED"
-    SUCCESS = "SUCCESS"
-    UNKNOWN = "UNKNOWN"
 
 
 class Status(ModelObj):
@@ -39,16 +11,6 @@ class Status(ModelObj):
     """
 
     def __init__(self, state: str, message: str | None = None) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        state : str
-            The state of the entity.
-        message : str
-            Error message.
-        """
         self.state = state
         self.message = message
 

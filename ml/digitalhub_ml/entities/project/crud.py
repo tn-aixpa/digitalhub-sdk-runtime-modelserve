@@ -174,6 +174,8 @@ def new_project(
         Project object.
     """
     build_client(local, config)
+    if context is None:
+        context = name
     obj = create_project(
         name=name,
         kind="project",

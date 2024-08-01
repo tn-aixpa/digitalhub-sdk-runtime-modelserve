@@ -4,7 +4,7 @@ import typing
 from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
-from digitalhub_core.entities._base.status import State
+from digitalhub_core.entities._base.state import State
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_data.entities.dataitem.crud import create_dataitem
 from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview

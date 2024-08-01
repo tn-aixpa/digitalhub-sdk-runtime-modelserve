@@ -34,7 +34,7 @@ def parse_entity_key(key: str) -> tuple[str]:
         kind = parts[2]
 
         # Tasks and runs have no name and uuid
-        if entity_type in (EntityTypes.TASKS.value, EntityTypes.RUNS.value):
+        if entity_type in (EntityTypes.TASK.value, EntityTypes.RUN.value):
             name = None
             uuid = parts[3]
 

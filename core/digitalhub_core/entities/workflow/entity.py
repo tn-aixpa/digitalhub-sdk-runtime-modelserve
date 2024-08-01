@@ -2,28 +2,14 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.context.builder import get_context
-from digitalhub_core.entities._base.crud import (
-    create_entity_api_ctx,
-    list_entity_api_ctx,
-    read_entity_api_ctx,
-    update_entity_api_ctx,
-)
-from digitalhub_core.entities._base.entity import Entity
-from digitalhub_core.entities._builders.metadata import build_metadata
-from digitalhub_core.entities._builders.name import build_name
-from digitalhub_core.entities._builders.spec import build_spec
-from digitalhub_core.entities._builders.status import build_status
-from digitalhub_core.entities._builders.uuid import build_uuid
+from digitalhub_core.entities._base.crud import list_entity_api_ctx
+from digitalhub_core.entities._base.entity.executable import ExecutableEntity
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.task.crud import create_task, create_task_from_dict, delete_task
 from digitalhub_core.runtimes.builder import get_kind_registry
 from digitalhub_core.utils.exceptions import BackendError, EntityError
-from digitalhub_core.utils.generic_utils import get_timestamp
-from digitalhub_core.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.context.context import Context
     from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities.run.entity import Run
     from digitalhub_core.entities.task.entity import Task
@@ -31,12 +17,12 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflow.status import WorkflowStatus
 
 
-class Workflow(Entity):
+class Workflow(ExecutableEntity):
     """
     A class representing a workflow.
     """
 
-    ENTITY_TYPE = EntityTypes.WORKFLOWS.value
+    ENTITY_TYPE = EntityTypes.WORKFLOW.value
 
     def __init__(
         self,
@@ -49,127 +35,10 @@ class Workflow(Entity):
         status: WorkflowStatus,
         user: str | None = None,
     ) -> None:
-        """
-        Constructor.
+        super().__init__(project, name, uuid, kind, metadata, spec, status, user)
 
-        Parameters
-        ----------
-        project : str
-            Project name.
-        name : str
-            Name of the object.
-        uuid : str
-            Version of the object.
-        kind : str
-            Kind the object.
-        metadata : Metadata
-            Metadata of the object.
-        spec : WorkflowSpec
-            Specification of the object.
-        status : WorkflowStatus
-            Status of the object.
-        user : str
-            Owner of the object.
-        """
-        super().__init__()
-        self.project = project
-        self.name = name
-        self.id = uuid
-        self.kind = kind
-        self.key = f"store://{project}/{self.ENTITY_TYPE}/{kind}/{name}:{uuid}"
-        self.metadata = metadata
-        self.spec = spec
-        self.status = status
-        self.user = user
-
-        # Add attributes to be used in the to_dict method
-        self._obj_attr.extend(["project", "name", "id", "key"])
-
-        # Initialize tasks
-        self._tasks: dict[str, Task] = {}
-
-    #############################
-    #  Save / Refresh / Export
-    #############################
-
-    def save(self, update: bool = False) -> Workflow:
-        """
-        Save entity into backend.
-
-        Parameters
-        ----------
-        update : bool
-            Flag to indicate update.
-
-        Returns
-        -------
-        Workflow
-            Entity saved.
-        """
-        obj = self.to_dict()
-
-        if not update:
-            new_obj = create_entity_api_ctx(self.project, self.ENTITY_TYPE, obj)
-            self._update_attributes(new_obj)
-            return self
-
-        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
-        self._update_attributes(new_obj)
-        return self
-
-    def refresh(self) -> Workflow:
-        """
-        Refresh object from backend.
-
-        Returns
-        -------
-        Workflow
-            Entity refreshed.
-        """
-        new_obj = read_entity_api_ctx(self.key)
-        self._update_attributes(new_obj)
-        return self
-
-    def export(self, filename: str | None = None) -> None:
-        """
-        Export object as a YAML file.
-
-        Parameters
-        ----------
-        filename : str
-            Name of the export YAML file. If not specified, the default value is used.
-
-        Returns
-        -------
-        None
-        """
-        obj = self.to_dict()
-        if filename is None:
-            filename = f"{self.kind}_{self.name}_{self.id}.yml"
-        pth = self._context().root / filename
-        pth.parent.mkdir(parents=True, exist_ok=True)
-
-        # Embed tasks in file
-        if self._tasks:
-            obj = [obj] + [v.to_dict() for _, v in self._tasks.items()]
-
-        write_yaml(pth, obj)
-
-    #############################
-    #  Context
-    #############################
-
-    def _context(self) -> Context:
-        """
-        Get context.
-
-        Returns
-        -------
-        Context
-            Context.
-        """
-        return get_context(self.project)
+        self.spec: WorkflowSpec
+        self.status: WorkflowStatus
 
     #############################
     #  Workflow Methods
@@ -206,10 +75,6 @@ class Workflow(Entity):
 
         return task.run(run_kind, local_execution=False, **kwargs)
 
-    #############################
-    #  Helpers
-    #############################
-
     def _get_workflow_string(self) -> str:
         """
         Get workflow string.
@@ -219,7 +84,7 @@ class Workflow(Entity):
         str
             Workflow string.
         """
-        return f"{self.kind}://{self.project}/{self.name}:{self.id}"
+        return super()._get_executable_string()
 
     def import_tasks(self, tasks: list[dict]) -> None:
         """
@@ -391,7 +256,7 @@ class Workflow(Entity):
         """
         # List tasks from backend filtered by function and kind
         params = {"function": self._get_workflow_string(), "kind": kind}
-        objs = list_entity_api_ctx(self.project, EntityTypes.TASKS.value, params=params)
+        objs = list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)
         try:
             return True, objs[0]["id"]
         except IndexError:
@@ -417,149 +282,3 @@ class Workflow(Entity):
         """
         if self._tasks.get(kind) is None:
             raise EntityError("Task does not exist.")
-
-    #############################
-    #  Static interface methods
-    #############################
-
-    @staticmethod
-    def _parse_dict(obj: dict, validate: bool = True) -> dict:
-        """
-        Get dictionary and parse it to a valid entity dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to parse.
-        validate : bool
-            Flag to determine if validation must be performed.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-        """
-        project = obj.get("project")
-        name = build_name(obj.get("name"))
-        kind = obj.get("kind")
-        uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, **obj.get("metadata", {}))
-        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, **obj.get("status", {}))
-        user = obj.get("user")
-        return {
-            "project": project,
-            "name": name,
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-            "user": user,
-        }
-
-
-def workflow_from_parameters(
-    project: str,
-    name: str,
-    kind: str,
-    uuid: str | None = None,
-    description: str | None = None,
-    git_source: str | None = None,
-    labels: list[str] | None = None,
-    embedded: bool = True,
-    **kwargs,
-) -> Workflow:
-    """
-    Create a new Workflow instance with the specified parameters.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    name : str
-        Object name.
-    kind : str
-        Kind the object.
-    uuid : str
-        ID of the object (UUID4).
-    git_source : str
-        Remote git source for object.
-    labels : list[str]
-        List of labels.
-    description : str
-        Description of the object (human readable).
-    embedded : bool
-        Flag to determine if object must be embedded in project.
-    **kwargs : dict
-        Spec keyword arguments.
-
-    Returns
-    -------
-    Workflow
-        An instance of the created workflow.
-    """
-    name = build_name(name)
-    uuid = build_uuid(uuid)
-    spec = build_spec(
-        kind,
-        **kwargs,
-    )
-    metadata = build_metadata(
-        kind,
-        project=project,
-        name=name,
-        version=uuid,
-        description=description,
-        source=git_source,
-        labels=labels,
-        embedded=embedded,
-    )
-    status = build_status(
-        kind,
-    )
-    return Workflow(
-        project=project,
-        name=name,
-        uuid=uuid,
-        kind=kind,
-        metadata=metadata,
-        spec=spec,
-        status=status,
-    )
-
-
-def workflow_from_dict(obj: dict) -> Workflow:
-    """
-    Create Workflow instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Workflow
-        Workflow instance.
-    """
-    return Workflow.from_dict(obj)
-
-
-def kind_to_runtime(kind: str) -> str:
-    """
-    Get the framework runtime from the workflow kind.
-
-    Parameters
-    ----------
-    kind : str
-        Kind the object.
-
-    Returns
-    -------
-    str
-        Framework runtime.
-    """
-    # Extract the framework runtime from the workflow kind
-    # Currently the assumption is htat kind is equal to framework
-    return kind

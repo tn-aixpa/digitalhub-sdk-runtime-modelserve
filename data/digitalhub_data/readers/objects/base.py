@@ -15,7 +15,7 @@ class DataframeReader(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def read_df(path: str, extension: str, **kwargs) -> Any:
+    def read_df(path: str | list[str], extension: str, **kwargs) -> Any:
         """
         Read DataFrame from path.
         """

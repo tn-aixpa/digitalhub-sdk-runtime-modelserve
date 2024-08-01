@@ -10,7 +10,7 @@ from digitalhub_core.entities._base.crud import (
     update_entity_api_ctx,
 )
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.task.entity import task_from_dict, task_from_parameters
+from digitalhub_core.entities.task.builder import task_from_dict, task_from_parameters
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.io_utils import read_yaml
 
@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.task.entity import Task
 
 
-ENTITY_TYPE = EntityTypes.TASKS.value
+ENTITY_TYPE = EntityTypes.TASK.value
 
 
 def create_task(**kwargs) -> Task:

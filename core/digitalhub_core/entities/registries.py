@@ -8,21 +8,21 @@ from digitalhub_core.registry.utils import create_info
 root = "digitalhub_core.entities"
 
 # Projects
-entity_type = EntityTypes.PROJECTS.value
+entity_type = EntityTypes.PROJECT.value
 prefix = entity_type.capitalize()
 project_info = create_info(root, entity_type, prefix)
 registry.register("project", project_info)
 
 
 # Secrets
-entity_type = EntityTypes.SECRETS.value
+entity_type = EntityTypes.SECRET.value
 prefix = entity_type.capitalize()
 secret_info = create_info(root, entity_type, prefix)
 registry.register("secret", secret_info)
 
 
 # Artifacts
-entity_type = EntityTypes.ARTIFACTS.value
+entity_type = EntityTypes.ARTIFACT.value
 for i in ["artifact"]:
     prefix = entity_type.capitalize()
     suffix = i.capitalize()

@@ -10,7 +10,7 @@ from digitalhub_core.entities._base.crud import (
     update_entity_api_ctx,
 )
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.run.entity import run_from_dict, run_from_parameters
+from digitalhub_core.entities.run.builder import run_from_dict, run_from_parameters
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.io_utils import read_yaml
 
@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.run.entity import Run
 
 
-ENTITY_TYPE = EntityTypes.RUNS.value
+ENTITY_TYPE = EntityTypes.RUN.value
 
 
 def create_run(**kwargs) -> Run:

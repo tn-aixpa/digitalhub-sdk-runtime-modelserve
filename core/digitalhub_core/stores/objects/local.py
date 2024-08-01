@@ -68,7 +68,6 @@ class LocalStore(Store):
 
         # Handle src
         for s in src:
-
             # Retrieve from cache
             cached = self._cache.get(s[0])
             if cached is not None and not overwrite:
@@ -251,4 +250,3 @@ class LocalStore(Store):
             dst = dst / src
         self._build_path(dst)
         return dst
-
