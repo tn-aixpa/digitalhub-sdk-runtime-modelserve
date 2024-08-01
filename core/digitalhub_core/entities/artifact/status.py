@@ -25,6 +25,8 @@ class ArtifactStatus(Status):
         """
         super().__init__(state, message)
         self.files = files
+        if self.files is None:
+            self.files = []
 
     def add_file(self, files: list) -> None:
         """
@@ -39,11 +41,6 @@ class ArtifactStatus(Status):
         -------
         None
         """
-
-        # Add the file to the list
-        if self.files is None:
-            self.files = []
-
         for file in files:
             # Remove the file info if it already exists
             self.files = [f for f in self.files if (f["path"] != file["path"] or f["hash"] != file["hash"])]
@@ -51,20 +48,16 @@ class ArtifactStatus(Status):
             # Add the new file
             self.files.append(file)
 
-    def get_file_paths(self) -> list[str]:
+    def get_file_paths(self) -> list[tuple[str, str]]:
         """
         Get the paths of the files in the status.
 
         Returns
         -------
-        list[str]
+        list[tuple[str, str]]
             Paths of the files in the status.
         """
-
-        if self.files is None:
-            return []
-
-        return [f["path"] for f in self.files]
+        return [(f["path"], f["src_path"]) for f in self.files]
 
 
 class ArtifactStatusArtifact(ArtifactStatus):

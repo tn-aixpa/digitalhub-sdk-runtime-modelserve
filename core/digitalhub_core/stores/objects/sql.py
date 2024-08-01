@@ -49,7 +49,7 @@ class SqlStore(Store):
 
     def download(
         self,
-        src: str,
+        src: list[tuple[str, str | None]],
         dst: str | None = None,
         overwrite: bool = False,
     ) -> list[str]:
@@ -60,50 +60,39 @@ class SqlStore(Store):
         --------
         fetch_artifact
         """
+        # Handle source
+        src: str = src[0][0]
+
+        # Retrieve from cache
+        cached = self._cache.get(src)
+        if cached is not None and not overwrite:
+            return cached
+
         table_name = self._get_table_name(src) + ".parquet"
         # Case where dst is not provided
         if dst is None:
-            dst = str(Path(self._build_temp("sql")) / table_name)
+            dst = Path(self._build_temp("sql")) / table_name
         else:
+            self._check_local_dst(dst)
             path = Path(dst)
 
             # Case where dst is a directory
             if path.suffix == "":
-                dst = str(path / table_name)
+                dst = path / table_name
 
             # Case where dst is a file
             elif path.suffix != ".parquet":
-                raise StoreError("The destination must be a directory or a parquet file.")
+                raise StoreError("The destination path must be a directory or a parquet file.")
 
-            self._check_local_dst(dst)
-            self._check_overwrite(dst, overwrite)
+
+            self._check_overwrite(str(dst), overwrite)
             self._build_path(dst)
 
-        if force:
-            return self.fetch_artifact(src, dst)
-        return self._registry.get(src, self.fetch_artifact(src, dst))
-
-    def fetch_artifact(self, src: str, dst: str) -> str:
-        """
-        Fetch an artifact from SQL based storage. If the destination is not provided,
-        a temporary directory will be created and the artifact will be saved there.
-
-        Parameters
-        ----------
-        src : str
-            Table name.
-        dst : str
-            The destination of the artifact on local filesystem.
-
-        Returns
-        -------
-        str
-            Returns a file path.
-        """
         schema = self._get_schema(src)
         table = self._get_table_name(src)
-        path = self._download_table(schema, table, dst)
-        self._set_path_registry(src, path)
+        path = [self._download_table(schema, table, str(dst))]
+
+        self._cache[src] = path
         return path
 
     def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
@@ -292,7 +281,6 @@ class SqlStore(Store):
             The destination path.
         """
         engine = self._check_factory(schema=schema)
-        self._check_local_dst(dst)
 
         # Read the table from the database
         sa_table = Table(table, MetaData(), autoload_with=engine)

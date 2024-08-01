@@ -13,7 +13,7 @@ from digitalhub_core.utils.exceptions import StoreError
 class TestStore(Store):
     def download(
         self,
-        src: str,
+        src: list[tuple[str, str | None]],
         dst: str | None = None,
         overwrite: bool = False,
     ) -> list[str]:

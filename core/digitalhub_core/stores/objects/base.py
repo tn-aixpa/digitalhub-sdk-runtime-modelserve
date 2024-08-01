@@ -33,8 +33,8 @@ class Store(metaclass=ABCMeta):
         self.name = name
         self.type = store_type
 
-        # Private attributes
-        self._registry: dict[str, str] = {}
+        # Registry to cache downloaded paths
+        self._cache = {}
 
     ############################
     # IO methods
@@ -43,7 +43,7 @@ class Store(metaclass=ABCMeta):
     @abstractmethod
     def download(
         self,
-        src: str,
+        src: list[tuple[str, str | None]],
         dst: str | None = None,
         overwrite: bool = False,
     ) -> list[str]:
@@ -133,7 +133,7 @@ class Store(metaclass=ABCMeta):
             raise StoreError(f"Destination {dst} already exists.")
 
     @staticmethod
-    def _build_path(path: str) -> None:
+    def _build_path(path: str | Path) -> None:
         """
         Get path from store path and path.
 
@@ -146,10 +146,11 @@ class Store(metaclass=ABCMeta):
         -------
         None
         """
-        pth = Path(path)
-        if pth.suffix != "":
-            pth = pth.parent
-        pth.mkdir(parents=True, exist_ok=True)
+        if not isinstance(path, Path):
+            path = Path(path)
+        if path.suffix != "":
+            path = path.parent
+        path.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def _build_temp() -> str:
@@ -163,23 +164,6 @@ class Store(metaclass=ABCMeta):
         """
         tmpdir = mkdtemp()
         return tmpdir
-
-    def _set_path_registry(self, src: str, path: str) -> None:
-        """
-        Set path in registry.
-
-        Parameters
-        ----------
-        src : str
-            Source to reference.
-        path : str
-            Path to set in registry.
-
-        Returns
-        -------
-        None
-        """
-        self._registry[src] = path
 
 
 class StoreConfig(BaseModel):

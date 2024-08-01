@@ -33,52 +33,69 @@ class LocalStore(Store):
 
     def download(
         self,
-        src: str,
+        src: list[tuple[str, str | None]],
         dst: str | None = None,
         overwrite: bool = False,
     ) -> list[str]:
         """
         Download an artifact from local storage.
 
-        See Also
-        --------
-        fetch_artifact
-        """
-        if dst is None:
-            return src
-
-        self._check_local_dst(dst)
-        self._check_overwrite(dst, overwrite)
-
-        if force:
-            return self.fetch_artifact(src, dst)
-        return self._registry.get(src, self.fetch_artifact(src, dst))
-
-    def fetch_artifact(self, src: str, dst: str) -> str:
-        """
-        Method to fetch an artifact from backend and to register it on the paths registry.
-        If destination is not provided, return the source path, otherwise the path of the copied
-        file.
-
         Parameters
         ----------
-        src : str
-            The source location of the artifact.
-        dst : str
-            The destination of the artifact.
-
-        Returns
-        -------
-        str
-            Returns the path of the artifact.
         """
-        if Path(src).suffix == "":
-            path = shutil.copytree(src, dst)
+        paths = []
+
+        # Handle destination
+
+        # If destination is not specified, return the source path
+        if dst is None:
+            for i in src:
+                self._check_local_src(i[0])
+                p = Path(i[0])
+                if p.is_file():
+                    paths.append(str(p))
+                elif p.is_dir():
+                    files = [str(i) for i in p.rglob("*") if i.is_file()]
+                    paths.extend(files)
+            return paths
+
+        # Otherwise, check if the destination is local,
         else:
-            self._build_path(dst)
-            path = shutil.copy(src, dst)
-        self._set_path_registry(src, path)
-        return path
+            self._check_local_dst(dst)
+
+        dst_pth = Path(dst)
+        self._build_path(dst_pth)
+
+        # Handle src
+        for s in src:
+
+            # Retrieve from cache
+            cached = self._cache.get(s[0])
+            if cached is not None and not overwrite:
+                paths.extend(cached)
+                continue
+
+            self._check_local_src(s[0])
+            src_pth = Path(s[0])
+
+            # If an original source path is specified
+            # try to reconstruct the path under the
+            # new destination
+            if s[1] is not None:
+                self._check_local_src(s[1])
+                tree_path = Path(s[1])
+                dst_pth = self._rebuild_path(dst_pth, tree_path)
+
+            # If source is a directory, copy recursively
+            if src_pth.is_dir():
+                p = self._copy_dir(src_pth, dst_pth, overwrite)
+            else:
+                p = [self._copy_file(src_pth, dst_pth, overwrite)]
+
+            paths.extend(p)
+            self._cache[s[0]] = p
+
+        return paths
 
     def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         """
@@ -99,20 +116,13 @@ class LocalStore(Store):
         """
         # Destination handling
 
-        # If no destination is provided use store path,
-        # otherwise check if destination is local or not
+        # If no destination is provided use store path
         if dst is None:
             dst = self.config.path
-            Path(dst).mkdir(parents=True, exist_ok=True)
-        else:
-            self._check_local_dst(dst)
 
-        # Create destination directory if it doesn't exist
+        self._check_local_dst(dst)
         dst_pth = Path(dst)
-        if dst_pth.suffix == "":
-            dst_pth.mkdir(parents=True, exist_ok=True)
-        else:
-            dst_pth.parent.mkdir(parents=True, exist_ok=True)
+        self._build_path(dst_pth)
 
         # Source handling
         self._check_local_src(src)
@@ -121,8 +131,8 @@ class LocalStore(Store):
         if src_pth.is_dir():
             if not dst_pth.is_dir():
                 raise StoreError("Destination must be a directory if the source is a directory.")
-            return self._copy_files(src_pth, dst_pth)
-        return self._copy_file(src_pth, dst_pth)
+            return self._get_src_dst_files(src_pth, dst_pth)
+        return [self._get_src_dst_file(src_pth, dst_pth)]
 
     def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
         """
@@ -144,7 +154,7 @@ class LocalStore(Store):
     # Private I/O methods
     ############################
 
-    def _copy_files(self, src: Path, dst: Path) -> list[tuple[str, str]]:
+    def _get_src_dst_files(self, src: Path, dst: Path) -> list[tuple[str, str]]:
         """
         Copy files from source to destination.
 
@@ -161,16 +171,9 @@ class LocalStore(Store):
             Returns the list of destination and source paths of the
             copied files.
         """
-        paths = []
-        files = [i for i in src.rglob("*") if i.is_file()]
-        for f in files:
-            if f.is_absolute():
-                f = Path(*f.parts[1:])
-            dst = dst / f
-            paths.append(self._copy_file(f, dst))
-        return paths
+        return [self._get_src_dst_file(i, dst) for i in src.rglob("*") if i.is_file()]
 
-    def _copy_file(self, src: Path, dst: Path) -> tuple[str, str]:
+    def _get_src_dst_file(self, src: Path, dst: Path) -> str:
         """
         Copy file from source to destination.
 
@@ -183,10 +186,69 @@ class LocalStore(Store):
 
         Returns
         -------
-        tuple[str, str]
-            Returns the destination and source paths of the
-            copied file.
+        str
         """
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(src, dst)
-        return str(dst), str(src)
+        dst_pth = self._copy_file(src, dst, True)
+        return str(dst_pth), str(src)
+
+    def _copy_dir(self, src: Path, dst: Path, overwrite: bool) -> list[str]:
+        """
+        Download file from source to destination.
+
+        Parameters
+        ----------
+        src : Path
+            The source path.
+        dst : Path
+            The destination path.
+
+        Returns
+        -------
+        list[str]
+        """
+        dst = self._rebuild_path(dst, src)
+        shutil.copytree(src, dst, dirs_exist_ok=overwrite)
+        return [str(i) for i in dst.rglob("*") if i.is_file()]
+
+    def _copy_file(self, src: Path, dst: Path, overwrite: bool) -> str:
+        """
+        Copy file from source to destination.
+
+        Parameters
+        ----------
+        src : Path
+            The source path.
+        dst : Path
+            The destination path.
+
+        Returns
+        -------
+        str
+        """
+        dst = self._rebuild_path(dst, src)
+        self._check_overwrite(dst, overwrite)
+        return str(shutil.copy2(src, dst))
+
+    def _rebuild_path(self, dst: Path, src: Path) -> Path:
+        """
+        Rebuild path.
+
+        Parameters
+        ----------
+        dst : Path
+            The destination path.
+        src : Path
+            The source path.
+
+        Returns
+        -------
+        Path
+            The rebuilt path.
+        """
+        if dst.is_dir():
+            if src.is_absolute():
+                src = Path(*src.parts[1:])
+            dst = dst / src
+        self._build_path(dst)
+        return dst
+

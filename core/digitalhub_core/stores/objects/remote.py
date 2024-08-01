@@ -28,7 +28,7 @@ class RemoteStore(Store):
 
     def download(
         self,
-        src: str,
+        src: list[tuple[str, str | None]],
         dst: str | None = None,
         overwrite: bool = False,
     ) -> list[str]:
@@ -39,41 +39,31 @@ class RemoteStore(Store):
         --------
         fetch_artifact
         """
+        # Handle source
+        src: str = src[0][0]
+
+        # Retrieve from cache
+        cached = self._cache.get(src)
+        if cached is not None and not overwrite:
+            return cached
+
+        # Handle destination
         if dst is None:
-            dst = self._build_temp("remote")
+            dst = self._build_temp()
         else:
             self._check_local_dst(dst)
-            self._check_overwrite(dst, overwrite)
-            self._build_path(dst)
 
-        if Path(dst).suffix == "":
-            dst = str(Path(dst) / "temp.file")
+        dst: Path = Path(dst)
+        if dst.suffix == "":
+            dst = dst / "data.file"
 
-        if force:
-            return self.fetch_artifact(src, dst)
-        return self._registry.get(src, self.fetch_artifact(src, dst))
+        self._check_overwrite(str(dst), overwrite)
+        self._build_path(dst)
 
-    def fetch_artifact(self, src: str, dst: str) -> str:
-        """
-        Method to fetch an artifact from the remote storage and to register
-        it on the paths registry.
-        If the destination is not provided, a temporary folder will be created.
+        paths = [self._download_file(src, dst, overwrite)]
 
-        Parameters
-        ----------
-        src : str
-            The source location of the artifact.
-        dst : str
-            The destination of the artifact.
-
-        Returns
-        -------
-        str
-            Returns the path of the artifact.
-        """
-        path = self._download_file(src, dst)
-        self._set_path_registry(src, path)
-        return path
+        self._cache[src] = paths
+        return paths
 
     def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
         """
@@ -123,7 +113,7 @@ class RemoteStore(Store):
         r = requests.head(src, timeout=60)
         r.raise_for_status()
 
-    def _download_file(self, url: str, dst: str) -> str:
+    def _download_file(self, url: str, dst: Path, overwrite: bool) -> str:
         """
         Method to download a file from a given url.
 
@@ -131,8 +121,10 @@ class RemoteStore(Store):
         ----------
         url : str
             The url of the file to download.
-        dst : str
+        dst : Path
             The destination of the file.
+        overwrite : bool
+            Whether to overwrite existing files.
 
         Returns
         -------
@@ -140,10 +132,9 @@ class RemoteStore(Store):
             The path of the downloaded file.
         """
         self._check_head(url)
-        self._check_local_dst(dst)
         with requests.get(url, stream=True, timeout=60) as r:
             r.raise_for_status()
             with open(dst, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
-        return dst
+        return str(dst)

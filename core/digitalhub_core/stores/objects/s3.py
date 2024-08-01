@@ -88,14 +88,22 @@ class S3Store(Store):
         paths = []
         for s in src:
 
+            # Retrieve from cache
+            cached = self._cache.get(s[0])
+            if cached is not None and not overwrite:
+                paths.extend(cached)
+                continue
+
+            # Cycle over keys and original tree paths
             key = self._get_key(s[0])
             tree_path = s[1]
-
             if key.endswith("/"):
                 p = self._download_files(key, tree_path, dst_path, client, bucket, overwrite)
             else:
                 p = [self._download_file(key, tree_path, dst_path, client, bucket, overwrite)]
             paths.extend(p)
+
+            self._cache[s[0]] = p
 
         return paths
 
@@ -248,7 +256,7 @@ class S3Store(Store):
                 dst_pth = Path(dst, tree_path)
 
             # Build destination path
-            dst_pth.parent.mkdir(parents=True, exist_ok=True)
+            self._build_path(dst_pth)
 
             # Check if destination path already exists
             dst_pth = str(dst_pth)
@@ -304,7 +312,7 @@ class S3Store(Store):
         else:
             dst_pth = Path(dst)
 
-        dst_pth.parent.mkdir(parents=True, exist_ok=True)
+        self._build_path(dst_pth)
 
         # Check if destination path already exists
         dst_pth = str(dst_pth)
