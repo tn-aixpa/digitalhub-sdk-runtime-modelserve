@@ -92,7 +92,7 @@ class MaterialEntity(VersionedEntity):
         paths = store.upload(source, self.spec.path)
 
         # Update file infos
-        file_infos = store.get_file_info(paths, source)
+        file_infos = store.get_file_info(paths)
         self._update_file_infos(file_infos)
 
     #############################
