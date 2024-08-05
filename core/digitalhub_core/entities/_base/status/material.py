@@ -15,29 +15,24 @@ class MaterialStatus(Status):
         files: list[dict] | None = None,
     ) -> None:
         super().__init__(state, message)
-        self.files = files
+        self.files: list[dict] = files
         if self.files is None:
             self.files = []
 
-    def add_file(self, files: list) -> None:
+    def add_file(self, files: list[dict]) -> None:
         """
         Add a file to the status.
 
         Parameters
         ----------
-        files : list
+        files : list[dict]
             Files to add.
 
         Returns
         -------
         None
         """
-        for file in files:
-            # Remove the file info if it already exists
-            self.files = [f for f in self.files if (f["path"] != file["path"] or f["hash"] != file["hash"])]
-
-            # Add the new file
-            self.files.append(file)
+        self.files = files
 
     def get_file_paths(self) -> list[tuple[str, str]]:
         """

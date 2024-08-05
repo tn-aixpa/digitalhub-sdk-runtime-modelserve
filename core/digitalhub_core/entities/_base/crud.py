@@ -12,6 +12,7 @@ from digitalhub_core.entities._base.api import (
     api_ctx_create,
     api_ctx_data,
     api_ctx_delete,
+    api_ctx_files,
     api_ctx_list,
     api_ctx_logs,
     api_ctx_read,
@@ -516,3 +517,63 @@ def stop_api(
     """
     api = api_ctx_stop(project, entity_type, entity_id)
     get_context(project).create_object(api, obj={}, **kwargs)
+
+
+def files_info_get_api(
+    project: str,
+    entity_type: str,
+    entity_id: str,
+    **kwargs,
+) -> dict:
+    """
+    Get files info from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_files(project, entity_type, entity_id)
+    return get_context(project).read_object(api, **kwargs)
+
+
+def files_info_put_api(
+    project: str,
+    entity_type: str,
+    entity_id: str,
+    entity_list: list[dict],
+    **kwargs,
+) -> None:
+    """
+    Get files info from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    entity_id : str
+        Entity ID.
+    entity_list : list[dict]
+        Entity list.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    None
+    """
+    api = api_ctx_files(project, entity_type, entity_id)
+    get_context(project).update_object(api, entity_list, **kwargs)

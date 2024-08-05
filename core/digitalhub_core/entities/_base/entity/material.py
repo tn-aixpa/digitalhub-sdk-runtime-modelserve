@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub_core.entities._base.crud import files_info_put_api
 from digitalhub_core.entities._base.entity.versioned import VersionedEntity
 from digitalhub_core.stores.builder import get_store
 
@@ -31,6 +32,42 @@ class MaterialEntity(VersionedEntity):
         super().__init__(project, name, uuid, kind, metadata, spec, status, user)
         self.spec: MaterialSpec
         self.status: MaterialStatus
+
+    def save(self, update: bool = False) -> MaterialEntity:
+        """
+        Save entity into backend.
+
+        Parameters
+        ----------
+        update : bool
+            Flag to indicate update.
+
+        Returns
+        -------
+        MaterialEntity
+            Entity saved.
+        """
+        obj = self.to_dict()
+
+        files = None
+        if len(self.status.files) > 5 and not self._context().local:
+            files = obj["status"].pop("files")
+
+        if not update:
+            new_obj: MaterialEntity = self._save(obj)
+        else:
+            new_obj: MaterialEntity = self._update(obj)
+
+        # Handle file infos
+        if files is not None:
+            files_info_put_api(self.project, self.ENTITY_TYPE, self.id, files)
+            new_obj.status.files = files
+
+        return new_obj
+
+    #############################
+    # I/O Methods
+    #############################
 
     def as_file(self) -> list[str]:
         """
