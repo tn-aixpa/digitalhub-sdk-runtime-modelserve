@@ -9,7 +9,6 @@ from digitalhub_core.entities._base.crud import (
     list_entity_api_ctx,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
-    update_entity_api_ctx,
 )
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.utils.env_utils import get_s3_bucket
@@ -18,7 +17,7 @@ from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.model.builder import model_from_dict, model_from_parameters
 
 if typing.TYPE_CHECKING:
-    from digitalhub_ml.entities.model.entity import Model
+    from digitalhub_ml.entities.model.entity._base import Model
 
 
 ENTITY_TYPE = EntityTypes.MODEL.value
@@ -159,7 +158,9 @@ def get_model(
         entity_id=entity_id,
         **kwargs,
     )
-    return model_from_dict(obj)
+    entity = model_from_dict(obj)
+    entity._get_files_info()
+    return entity
 
 
 def get_model_versions(
@@ -184,13 +185,18 @@ def get_model_versions(
     list[Model]
         List of object instances.
     """
-    obj = read_entity_api_ctx_versions(
+    objs = read_entity_api_ctx_versions(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
         **kwargs,
     )
-    return [model_from_dict(o) for o in obj]
+    objects = []
+    for o in objs:
+        entity = model_from_dict(o)
+        entity._get_files_info()
+        objects.append(entity)
+    return objects
 
 
 def import_model(file: str) -> Model:
@@ -250,7 +256,7 @@ def delete_model(
     )
 
 
-def update_model(entity: Model, **kwargs) -> Model:
+def update_model(entity: Model) -> Model:
     """
     Update object in backend.
 
@@ -258,22 +264,13 @@ def update_model(entity: Model, **kwargs) -> Model:
     ----------
     entity : Model
         The object to update.
-    **kwargs : dict
-        Parameters to pass to the API call.
 
     Returns
     -------
     Model
         Entity updated.
     """
-    obj = update_entity_api_ctx(
-        project=entity.project,
-        entity_type=ENTITY_TYPE,
-        entity_id=entity.id,
-        entity_dict=entity.to_dict(),
-        **kwargs,
-    )
-    return model_from_dict(obj)
+    return entity.save(update=True)
 
 
 def list_models(project: str, **kwargs) -> list[Model]:
@@ -297,7 +294,12 @@ def list_models(project: str, **kwargs) -> list[Model]:
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [model_from_dict(obj) for obj in objs]
+    objects = []
+    for o in objs:
+        entity = model_from_dict(o)
+        entity._get_files_info()
+        objects.append(entity)
+    return objects
 
 
 def log_model(

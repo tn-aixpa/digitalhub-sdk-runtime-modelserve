@@ -207,7 +207,7 @@ def delete_run(
     )
 
 
-def update_run(entity: Run, **kwargs) -> Run:
+def update_run(entity: Run) -> Run:
     """
     Update object in backend.
 
@@ -215,22 +215,13 @@ def update_run(entity: Run, **kwargs) -> Run:
     ----------
     entity : Run
         The object to update.
-    **kwargs : dict
-        Parameters to pass to the API call.
 
     Returns
     -------
     Run
         Entity updated.
     """
-    obj = update_entity_api_ctx(
-        project=entity.project,
-        entity_type=ENTITY_TYPE,
-        entity_id=entity.id,
-        entity_dict=entity.to_dict(include_all_non_private=True),
-        **kwargs,
-    )
-    return run_from_dict(obj)
+    return entity.save(update=True)
 
 
 def list_runs(project: str, **kwargs) -> list[Run]:

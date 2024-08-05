@@ -97,7 +97,7 @@ class Run(UnversionedEntity):
             pass
 
         try:
-            status = self._get_runtime().run(self.to_dict(include_all_non_private=True))
+            status = self._get_runtime().run(self.to_dict())
         except Exception as e:
             self.refresh()
             if self.spec.local_execution:

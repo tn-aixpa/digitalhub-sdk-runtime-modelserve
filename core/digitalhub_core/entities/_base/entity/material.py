@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities._base.crud import files_info_put_api
+from digitalhub_core.entities._base.crud import files_info_get_api, files_info_put_api
 from digitalhub_core.entities._base.entity.versioned import VersionedEntity
 from digitalhub_core.stores.builder import get_store
 
@@ -50,7 +50,7 @@ class MaterialEntity(VersionedEntity):
         obj = self.to_dict()
 
         files = None
-        if len(self.status.files) > 5 and not self._context().local:
+        if self.status.files is not None and len(self.status.files) > 5 and not self._context().local:
             files = obj["status"].pop("files")
 
         if not update:
@@ -58,10 +58,10 @@ class MaterialEntity(VersionedEntity):
         else:
             new_obj: MaterialEntity = self._update(obj)
 
-        # Handle file infos
+        # Handle files info
         if files is not None:
             files_info_put_api(self.project, self.ENTITY_TYPE, self.id, files)
-            new_obj.status.files = files
+            self.status.add_files_info(files)
 
         return new_obj
 
@@ -128,9 +128,9 @@ class MaterialEntity(VersionedEntity):
         store = get_store(self.spec.path)
         paths = store.upload(source, self.spec.path)
 
-        # Update file infos
-        file_infos = store.get_file_info(paths)
-        self._update_file_infos(file_infos)
+        # Update files info
+        files_info = store.get_file_info(paths)
+        self._update_files_info(files_info)
 
     #############################
     #  Private Helpers
@@ -145,7 +145,7 @@ class MaterialEntity(VersionedEntity):
         list[tuple[str, str | None]]
             List of paths.
         """
-        # Try to download from file infos in status
+        # Try to download from files info in status
         paths = self.status.get_file_paths()
 
         # Fallback to spec path
@@ -154,21 +154,37 @@ class MaterialEntity(VersionedEntity):
 
         return paths
 
-    def _update_file_infos(self, file_infos: list[dict] | None = None) -> None:
+    def _update_files_info(self, files_info: list[dict] | None = None) -> None:
         """
-        Update file infos.
+        Update files info.
 
         Parameters
         ----------
-        file_infos : list[dict] | None
-            File infos.
+        files_info : list[dict] | None
+            Files info.
 
         Returns
         -------
         None
         """
-        if file_infos is None:
+        if files_info is None:
             return
         self.refresh()
-        self.status.add_file(file_infos)
+        self.status.add_files_info(files_info)
         self.save(update=True)
+
+    def _get_files_info(self) -> None:
+        """
+        Get files info from backend.
+
+        Returns
+        -------
+        None
+        """
+        if not self._context().local and (not self.status.files or self.status.files is None):
+            files = files_info_get_api(
+                project=self.project,
+                entity_type=self.ENTITY_TYPE,
+                entity_id=self.id,
+            )
+            self.status.add_files_info(files)

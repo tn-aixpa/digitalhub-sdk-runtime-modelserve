@@ -246,7 +246,7 @@ def delete_function(
     )
 
 
-def update_function(entity: Function, **kwargs) -> Function:
+def update_function(entity: Function) -> Function:
     """
     Update object in backend.
 
@@ -254,22 +254,13 @@ def update_function(entity: Function, **kwargs) -> Function:
     ----------
     entity : Function
         The object to update.
-    **kwargs : dict
-        Parameters to pass to the API call.
 
     Returns
     -------
     Function
         Entity updated.
     """
-    obj = update_entity_api_ctx(
-        project=entity.project,
-        entity_type=ENTITY_TYPE,
-        entity_id=entity.id,
-        entity_dict=entity.to_dict(),
-        **kwargs,
-    )
-    return function_from_dict(obj)
+    return entity.save(update=True)
 
 
 def list_functions(project: str, **kwargs) -> list[Function]:

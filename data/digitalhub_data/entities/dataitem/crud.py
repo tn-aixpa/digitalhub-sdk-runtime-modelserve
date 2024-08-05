@@ -9,7 +9,6 @@ from digitalhub_core.entities._base.crud import (
     list_entity_api_ctx,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
-    update_entity_api_ctx,
 )
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.utils.env_utils import get_s3_bucket
@@ -152,7 +151,9 @@ def get_dataitem(
         entity_id=entity_id,
         **kwargs,
     )
-    return dataitem_from_dict(obj)
+    entity = dataitem_from_dict(obj)
+    entity._get_files_info()
+    return entity
 
 
 def get_dataitem_versions(
@@ -177,18 +178,23 @@ def get_dataitem_versions(
     list[Dataitem]
         List of object instances.
     """
-    obj = read_entity_api_ctx_versions(
+    objs = read_entity_api_ctx_versions(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
         **kwargs,
     )
-    return [dataitem_from_dict(o) for o in obj]
+    objects = []
+    for o in objs:
+        entity = dataitem_from_dict(o)
+        entity._get_files_info()
+        objects.append(entity)
+    return objects
 
 
 def import_dataitem(file: str) -> Dataitem:
     """
-    Get object from file.
+    Import an Dataitem object from a file using the specified file path.
 
     Parameters
     ----------
@@ -243,7 +249,7 @@ def delete_dataitem(
     )
 
 
-def update_dataitem(entity: Dataitem, **kwargs) -> Dataitem:
+def update_dataitem(entity: Dataitem) -> Dataitem:
     """
     Update object in backend.
 
@@ -251,22 +257,13 @@ def update_dataitem(entity: Dataitem, **kwargs) -> Dataitem:
     ----------
     entity : Dataitem
         The object to update.
-    **kwargs : dict
-        Parameters to pass to the API call.
 
     Returns
     -------
     Dataitem
         Entity updated.
     """
-    obj = update_entity_api_ctx(
-        project=entity.project,
-        entity_type=ENTITY_TYPE,
-        entity_id=entity.id,
-        entity_dict=entity.to_dict(),
-        **kwargs,
-    )
-    return dataitem_from_dict(obj)
+    return entity.save(update=True)
 
 
 def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
@@ -290,7 +287,12 @@ def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [dataitem_from_dict(obj) for obj in objs]
+    objects = []
+    for o in objs:
+        entity = dataitem_from_dict(o)
+        entity._get_files_info()
+        objects.append(entity)
+    return objects
 
 
 def log_dataitem(

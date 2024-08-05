@@ -238,7 +238,7 @@ def delete_secret(
     )
 
 
-def update_secret(entity: Secret, **kwargs) -> Secret:
+def update_secret(entity: Secret) -> Secret:
     """
     Update object in backend.
 
@@ -246,22 +246,13 @@ def update_secret(entity: Secret, **kwargs) -> Secret:
     ----------
     entity : Secret
         The object to update.
-    **kwargs : dict
-        Parameters to pass to the API call.
 
     Returns
     -------
     Secret
         Entity updated.
     """
-    obj = update_entity_api_ctx(
-        project=entity.project,
-        entity_type=ENTITY_TYPE,
-        entity_id=entity.id,
-        entity_dict=entity.to_dict(),
-        **kwargs,
-    )
-    return secret_from_dict(obj)
+    return entity.save(update=True)
 
 
 def list_secrets(project: str, **kwargs) -> list[Secret]:

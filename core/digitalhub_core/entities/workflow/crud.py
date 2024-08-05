@@ -246,7 +246,7 @@ def delete_workflow(
     )
 
 
-def update_workflow(entity: Workflow, **kwargs) -> Workflow:
+def update_workflow(entity: Workflow) -> Workflow:
     """
     Update object in backend.
 
@@ -254,22 +254,13 @@ def update_workflow(entity: Workflow, **kwargs) -> Workflow:
     ----------
     entity : Workflow
         The object to update.
-    **kwargs : dict
-        Parameters to pass to the API call.
 
     Returns
     -------
     Workflow
         Entity updated.
     """
-    obj = update_entity_api_ctx(
-        project=entity.project,
-        entity_type=ENTITY_TYPE,
-        entity_id=entity.id,
-        entity_dict=entity.to_dict(),
-        **kwargs,
-    )
-    return workflow_from_dict(obj)
+    return entity.save(update=True)
 
 
 def list_workflows(project: str, **kwargs) -> list[Workflow]:

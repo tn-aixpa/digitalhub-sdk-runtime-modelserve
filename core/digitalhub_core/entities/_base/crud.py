@@ -524,7 +524,7 @@ def files_info_get_api(
     entity_type: str,
     entity_id: str,
     **kwargs,
-) -> dict:
+) -> list[dict]:
     """
     Get files info from backend.
 
@@ -541,7 +541,7 @@ def files_info_get_api(
 
     Returns
     -------
-    dict
+    list[dict]
         Response from backend.
     """
     api = api_ctx_files(project, entity_type, entity_id)

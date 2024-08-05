@@ -205,7 +205,7 @@ def delete_task(
     )
 
 
-def update_task(entity: Task, **kwargs) -> Task:
+def update_task(entity: Task) -> Task:
     """
     Update object in backend.
 
@@ -213,22 +213,13 @@ def update_task(entity: Task, **kwargs) -> Task:
     ----------
     entity : Task
         The object to update.
-    **kwargs : dict
-        Parameters to pass to the API call.
 
     Returns
     -------
     Task
         Entity updated.
     """
-    obj = update_entity_api_ctx(
-        project=entity.project,
-        entity_type=ENTITY_TYPE,
-        entity_id=entity.id,
-        entity_dict=entity.to_dict(),
-        **kwargs,
-    )
-    return task_from_dict(obj)
+    return entity.save(update=True)
 
 
 def list_tasks(project: str, **kwargs) -> list[Task]:

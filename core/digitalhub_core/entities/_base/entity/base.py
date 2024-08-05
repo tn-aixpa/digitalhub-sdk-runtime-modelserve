@@ -19,7 +19,9 @@ class Entity(ModelObj, metaclass=ABCMeta):
     representing a variety of objects handled by DigitalHub.
     """
 
-    ENTITY_TYPE = None
+    # Entity type
+    # Need to be set in subclasses
+    ENTITY_TYPE: str
 
     # Attributes to render as dict. Need to be expanded in subclasses.
     _obj_attr = ["kind", "metadata", "spec", "status", "user", "key"]
@@ -32,12 +34,14 @@ class Entity(ModelObj, metaclass=ABCMeta):
         status: Status,
         user: str | None = None,
     ) -> None:
-        self.key: str = None
         self.kind = kind
         self.metadata = metadata
         self.spec = spec
         self.status = status
         self.user = user
+
+        # Need to be set in subclasses
+        self.key: str
 
     @abstractmethod
     def save(self, update: bool = False) -> Entity:
@@ -77,27 +81,18 @@ class Entity(ModelObj, metaclass=ABCMeta):
         Abstract export method.
         """
 
-    def to_dict(self, include_all_non_private: bool = False) -> dict:
+    def to_dict(self) -> dict:
         """
         Override default to_dict method to add the possibility to exclude
         some attributes. This requires to set a list of _obj_attr
         attributes in the subclass.
-
-        Parameters
-        ----------
-        include_all_non_private : bool
-            Whether to include all non-private attributes. If False, only
-            attributes in the _obj_attr list will be included.
 
         Returns
         -------
         dict
             A dictionary containing the attributes of the entity instance.
         """
-        dict_ = super().to_dict()
-        if include_all_non_private:
-            return dict_
-        return {k: v for k, v in dict_.items() if k in self._obj_attr}
+        return {k: v for k, v in super().to_dict().items() if k in self._obj_attr}
 
     @classmethod
     def from_dict(cls, obj: dict, validate: bool = True) -> Entity:
@@ -135,4 +130,4 @@ class Entity(ModelObj, metaclass=ABCMeta):
         str
             A string representing the entity instance.
         """
-        return str(self.to_dict(include_all_non_private=True))
+        return str(self.to_dict())
