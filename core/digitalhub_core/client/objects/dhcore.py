@@ -410,20 +410,18 @@ class ClientDHCore(Client):
     def _write_env(self) -> None:
         """
         Write the env variables to the .dhcore file.
+        It will overwrite any existing env variables.
 
         Returns
         -------
         None
         """
-        keys = {
-            "DHCORE_USER": self._user,
-            "DHCORE_PASSWORD": self._password,
-            "DHCORE_ACCESS_TOKEN": self._access_token,
-            "DHCORE_REFRESH_TOKEN": self._refresh_token,
-            "DHCORE_CLIENT_ID": self._client_id,
-            "DHCORE_ISSUER": self._endpoint_issuer,
-            "DHCORE_ENDPOINT": self._endpoint_core,
-        }
+        keys = {}
+        if self._access_token is not None:
+            keys["DHCORE_ACCESS_TOKEN"] = self._access_token
+        if self._refresh_token is not None:
+            keys["DHCORE_REFRESH_TOKEN"] = self._refresh_token
+
         for k, v in keys.items():
             set_key(dotenv_path=ENV_FILE, key_to_set=k, value_to_set=v)
 
@@ -464,16 +462,6 @@ class ClientDHCore(Client):
         endpoint = endpoint.strip()
         return endpoint.removesuffix("/")
 
-    def _sanitize_variables(self, variable: str) -> str:
-        """
-        Sanitize the env variables.
-
-        Returns
-        -------
-        None
-        """
-        return variable.strip()
-
     def _get_auth_from_env(self) -> None:
         """
         Get authentication parameters from the env.
@@ -486,7 +474,7 @@ class ClientDHCore(Client):
         self._refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
         self._client_id = os.getenv("DHCORE_CLIENT_ID")
 
-        token = os.getenv("DHCORE_TOKEN")
+        token = os.getenv("DHCORE_ACCESS_TOKEN")
         if token is not None and token != "":
             self._auth_type = "oauth2"
             self._access_token = token
@@ -506,8 +494,37 @@ class ClientDHCore(Client):
         -------
         None
         """
+        # Call issuer and get endpoint for
+        # refreshing access token
+        url = self._get_refresh_endpoint()
 
-        raise NotImplementedError
+        # Send request to get new access token
+        payload = {
+            "grant_type": "client_credentials",
+            "client_id": self._client_id,
+            "refresh_token": self._refresh_token,
+        }
+        r = request("POST", url, data=payload, timeout=60)
+        r.raise_for_status()
+        self._access_token = r.json().get("access_token")
+        self._refresh_token = r.json().get("refresh_token")
+        self._write_env()
+
+    def _get_refresh_endpoint(self) -> str:
+        """
+        Get the refresh endpoint.
+
+        Returns
+        -------
+        str
+            Refresh endpoint.
+        """
+        url = self._endpoint_issuer
+        if url is None:
+            raise BackendError("Issuer endpoint not set.")
+        r = request("GET", url, timeout=60)
+        r.raise_for_status()
+        return r.json().get("endpoint")
 
     ##############################
     # Static methods

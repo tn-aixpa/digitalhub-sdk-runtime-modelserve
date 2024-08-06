@@ -27,6 +27,7 @@ dependencies = [
     "numpy<2",
     "requests~=2.31",
     "PyYAML",
+    "python-dotenv",
 ]
 
 [tool.setuptools.packages.find]
