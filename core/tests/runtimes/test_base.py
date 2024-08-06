@@ -1,5 +1,5 @@
 import pytest
-from digitalhub_core.runtimes.base import Runtime
+from oltreai_core.runtimes.base import Runtime
 
 
 class MockRuntime(Runtime):

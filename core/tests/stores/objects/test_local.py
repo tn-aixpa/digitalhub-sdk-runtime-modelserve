@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
-from digitalhub_core.stores.objects.local import LocalStore, LocalStoreConfig
+from oltreai_core.stores.objects.local import LocalStore, LocalStoreConfig
 
 
 @pytest.fixture

@@ -3,9 +3,9 @@ Wrapper to execute an arbitrary function.
 """
 import os
 
-from digitalhub_core.utils.logger import LOGGER
+from oltreai_core.utils.logger import LOGGER
 
-import digitalhub as dh
+import oltreai as dh
 
 
 def main():

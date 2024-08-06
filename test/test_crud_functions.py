@@ -1,9 +1,9 @@
 from copy import deepcopy
 
 import dotenv
-from digitalhub_core.entities.function.entity import Function
+from oltreai_core.entities.function.entity import Function
 
-import digitalhub
+import oltreai
 
 dotenv.load_dotenv()
 
@@ -38,72 +38,72 @@ for i in range(len(names)):
     dicts.append({"name": names[i], "uuid": uuids[i], "kind": kind[i]})
 
 
-digitalhub.delete_project("test")
+oltreai.delete_project("test")
 
-p = digitalhub.get_or_create_project("test")
+p = oltreai.get_or_create_project("test")
 
 # Create and delete functions
 for i in dicts:
     i = add_param(i)
-    d = digitalhub.new_function(p.name, **i)
-    digitalhub.delete_function(p.name, entity_id=d.id)
-    d = digitalhub.new_function(p.name, **i)
-    digitalhub.delete_function(p.name, entity_name=d.name)
+    d = oltreai.new_function(p.name, **i)
+    oltreai.delete_function(p.name, entity_id=d.id)
+    d = oltreai.new_function(p.name, **i)
+    oltreai.delete_function(p.name, entity_name=d.name)
     d = p.new_function(**i)
     p.delete_function(entity_id=d.id)
 
 # Create multiple functions
 for i in dicts:
     i = add_param(i)
-    digitalhub.new_function(p.name, **i)
+    oltreai.new_function(p.name, **i)
 
     c = deepcopy(i)
     c.pop("uuid")
-    digitalhub.new_function(p.name, **c)
-    digitalhub.new_function(p.name, **c)
-    digitalhub.new_function(p.name, **c)
-    digitalhub.new_function(p.name, **c)
+    oltreai.new_function(p.name, **c)
+    oltreai.new_function(p.name, **c)
+    oltreai.new_function(p.name, **c)
+    oltreai.new_function(p.name, **c)
 
 
 # List functions
-l_obj = digitalhub.list_functions(p.name)
+l_obj = oltreai.list_functions(p.name)
 assert isinstance(l_obj, list)
 assert len(l_obj) == 4
 for i in l_obj:
     assert isinstance(i, dict)
 
 for uuid in uuids:
-    digitalhub.delete_function(p.name, entity_id=uuid)
+    oltreai.delete_function(p.name, entity_id=uuid)
 
 # Get functions test
 for i in dicts:
     i = add_param(i)
-    o1 = digitalhub.new_function(p.name, **i)
+    o1 = oltreai.new_function(p.name, **i)
     assert isinstance(o1, Function)
 
     # Get by id
-    o2 = digitalhub.get_function(p.name, entity_id=o1.id)
+    o2 = oltreai.get_function(p.name, entity_id=o1.id)
     assert isinstance(o2, Function)
     assert o1.id == o2.id
 
     # Get by name
-    o3 = digitalhub.get_function(p.name, entity_name=o1.name)
+    o3 = oltreai.get_function(p.name, entity_name=o1.name)
     assert isinstance(o3, Function)
     assert o1.id == o3.id
 
     # Get by name as latest
     c = deepcopy(i)
     c.pop("uuid")
-    o4 = digitalhub.new_function(p.name, **c)
-    o5 = digitalhub.get_function(p.name, entity_name=o1.name)
+    o4 = oltreai.new_function(p.name, **c)
+    o5 = oltreai.get_function(p.name, entity_name=o1.name)
     assert isinstance(o5, Function)
     assert (o5.id != o1.id) and (o5.name == o1.name) and (o5.id == o4.id)
 
 
 # Delete functions, all versions
 for n in names:
-    digitalhub.delete_function(p.name, entity_name=n, delete_all_versions=True)
-l_obj = digitalhub.list_functions(p.name)
+    oltreai.delete_function(p.name, entity_name=n, delete_all_versions=True)
+l_obj = oltreai.list_functions(p.name)
 assert not l_obj
 
-digitalhub.delete_project("test")
+oltreai.delete_project("test")

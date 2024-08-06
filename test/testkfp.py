@@ -1,15 +1,15 @@
 import os
 import time
 
-import digitalhub as dh
+import oltreai as dh
 
 
 def _is_finished(state: str):
     return state == "COMPLETED" or state == "ERROR" or state == "STOPPED"
 
 
-os.environ["DIGITALHUB_CORE_ENDPOINT"] = "http://localhost:8080/"
-os.environ["DIGITALHUB_CORE_WORKFLOW_IMAGE"] = "localhost:5000/dhcoreworkflow9:latest"
+os.environ["DHCORE_ENDPOINT"] = "http://localhost:8080/"
+os.environ["DHCORE_WORKFLOW_IMAGE"] = "localhost:5000/dhcoreworkflow9:latest"
 os.environ["KFP_ENDPOINT"] = "http://localhost:8888/"
 
 # Get or create project

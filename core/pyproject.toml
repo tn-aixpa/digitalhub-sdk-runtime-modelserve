@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "digitalhub-core"
+name = "oltreai-core"
 version = "0.7.0b0"
-description = "Python SDK for DHCore"
+description = "Python SDK for DHCore core layer"
 readme = "README.md"
 authors = [
     { name = "Fondazione Bruno Kessler", email = "dslab@fbk.eu" },
@@ -51,7 +51,7 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
+Homepage = "https://github.com/scc-oltreai/oltreai-sdk"
 
 [tool.flake8]
 max-line-length = 120

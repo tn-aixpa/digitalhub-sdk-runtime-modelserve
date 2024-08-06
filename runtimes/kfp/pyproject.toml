@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "digitalhub-runtime-kfp"
+name = "oltreai-runtime-kfp"
 version = "0.7.0b0"
 description = "KFP runtime for DHCore"
 readme = "README.md"
@@ -21,8 +21,8 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"digitalhub>=0.7.0b",
-"digitalhub-core[full]>=0.7.0b",
+"oltreai>=0.7.0b",
+"oltreai-core[full]>=0.7.0b",
 ]
 [project.optional-dependencies]
 local = [
@@ -30,7 +30,7 @@ local = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
+Homepage = "https://github.com/scc-oltreai/oltreai-sdk"
 
 [tool.flake8]
 max-line-length = 120

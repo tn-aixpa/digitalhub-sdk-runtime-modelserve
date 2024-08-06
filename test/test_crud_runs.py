@@ -1,7 +1,7 @@
 import dotenv
-from digitalhub_core.entities.run.entity import Run
+from oltreai_core.entities.run.entity import Run
 
-import digitalhub
+import oltreai
 
 dotenv.load_dotenv()
 
@@ -37,9 +37,9 @@ dicts = []
 for i in range(len(names)):
     dicts.append({"name": names[i], "uuid": uuids[i], "kind": kind[i]})
 
-digitalhub.delete_project("test")
+oltreai.delete_project("test")
 
-p = digitalhub.get_or_create_project("test")
+p = oltreai.get_or_create_project("test")
 
 f1 = p.new_function(name="t1", kind="mlrun", source={"code": "test"})
 t1 = f1.new_task(kind="mlrun+job")
@@ -54,33 +54,33 @@ t4 = f4.new_task(kind="nefertem+infer", framework="test")
 # Create and delete runs
 for i in dicts:
     i = add_param(i)
-    d = digitalhub.new_run(p.name, **i)
-    digitalhub.delete_run(p.name, entity_id=d.id)
+    d = oltreai.new_run(p.name, **i)
+    oltreai.delete_run(p.name, entity_id=d.id)
 
 # Create multiple runs
 for i in dicts:
     i = add_param(i)
-    digitalhub.new_run(p.name, **i)
+    oltreai.new_run(p.name, **i)
 
 # List runs
-l_obj = digitalhub.list_runs(p.name)
+l_obj = oltreai.list_runs(p.name)
 assert isinstance(l_obj, list)
 assert len(l_obj) == 4
 for i in l_obj:
     assert isinstance(i, dict)
 
 for uuid in uuids:
-    digitalhub.delete_run(p.name, entity_id=uuid)
+    oltreai.delete_run(p.name, entity_id=uuid)
 
 # Get runs test
 for i in dicts:
     i = add_param(i)
-    o1 = digitalhub.new_run(p.name, **i)
+    o1 = oltreai.new_run(p.name, **i)
     assert isinstance(o1, Run)
 
     # Get by id
-    o2 = digitalhub.get_run(p.name, entity_id=o1.id)
+    o2 = oltreai.get_run(p.name, entity_id=o1.id)
     assert isinstance(o2, Run)
     assert o1.id == o2.id
 
-digitalhub.delete_project("test")
+oltreai.delete_project("test")

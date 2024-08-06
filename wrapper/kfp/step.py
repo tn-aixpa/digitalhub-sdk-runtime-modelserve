@@ -6,10 +6,10 @@ import json
 import os
 import time
 
-from digitalhub_core.entities._base.entity.base import Entity
-from digitalhub_core.utils.logger import LOGGER
+from oltreai_core.entities._base.entity.base import Entity
+from oltreai_core.utils.logger import LOGGER
 
-import digitalhub as dh
+import oltreai as dh
 
 # default KFP artifacts and output (ui metadata, metrics etc.)
 # directories to /tmp to allow running with security context

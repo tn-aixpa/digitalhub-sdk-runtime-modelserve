@@ -1,7 +1,7 @@
 FROM python:3.9
 
 # Repo info
-LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-core
+LABEL org.opencontainers.image.source=https://github.com/scc-oltreai/oltreai-core
 ARG DHUB_VERSION=
 ARG VERSION=0.6.0b
 
@@ -9,18 +9,18 @@ ARG VERSION=0.6.0b
 # Set working dir
 WORKDIR /app/
 
-# Install digitalhub-core
-RUN python -m pip install "digitalhub-core[full]>=${VERSION}" \
-                          "digitalhub-data[pandas]>=${VERSION}" \
-                          "digitalhub-runtime-kfp>=${VERSION}" && \
+# Install oltreai-core
+RUN python -m pip install "oltreai-core[full]>=${VERSION}" \
+                          "oltreai-data[pandas]>=${VERSION}" \
+                          "oltreai-runtime-kfp>=${VERSION}" && \
     python -m pip install "kfp==1.8.11" && \
-    python -m pip install "digitalhub>=${VERSION}" \
-                          "digitalhub-ml>=${VERSION}" \
-                          "digitalhub-runtime-python>=${VERSION}" \
-                          "digitalhub-runtime-mlrun>=${VERSION}" \
-                          "digitalhub-runtime-container>=${VERSION}" \
-                          "digitalhub-runtime-dbt>=${VERSION}" \
-                          "digitalhub-runtime-nefertem>=${VERSION}" --no-deps
+    python -m pip install "oltreai>=${VERSION}" \
+                          "oltreai-ml>=${VERSION}" \
+                          "oltreai-runtime-python>=${VERSION}" \
+                          "oltreai-runtime-mlrun>=${VERSION}" \
+                          "oltreai-runtime-container>=${VERSION}" \
+                          "oltreai-runtime-dbt>=${VERSION}" \
+                          "oltreai-runtime-nefertem>=${VERSION}" --no-deps
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/

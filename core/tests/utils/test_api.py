@@ -1,5 +1,5 @@
 import pytest
-from digitalhub_core.entities._base.api import (
+from oltreai_core.entities._base.api import (
     api_base_create,
     api_base_delete,
     api_base_read,

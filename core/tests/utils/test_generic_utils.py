@@ -1,7 +1,7 @@
 import pytest
-from digitalhub_core.entities._builders.uuid import build_uuid
-from digitalhub_core.entities.utils import parse_entity_key
-from digitalhub_core.utils.generic_utils import decode_string, encode_string
+from oltreai_core.entities._builders.uuid import build_uuid
+from oltreai_core.entities.utils import parse_entity_key
+from oltreai_core.utils.generic_utils import decode_string, encode_string
 
 
 @pytest.mark.parametrize(

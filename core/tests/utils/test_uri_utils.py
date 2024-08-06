@@ -1,5 +1,5 @@
 import pytest
-from digitalhub_core.utils.uri_utils import map_uri_scheme
+from oltreai_core.utils.uri_utils import map_uri_scheme
 
 
 @pytest.mark.parametrize(

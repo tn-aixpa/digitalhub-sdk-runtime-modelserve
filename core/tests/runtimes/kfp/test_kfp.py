@@ -1,4 +1,4 @@
-import digitalhub as dh
+import oltreai as dh
 
 
 def test_kfp_runtime():

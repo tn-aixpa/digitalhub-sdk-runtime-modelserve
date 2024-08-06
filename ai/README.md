@@ -1,3 +1,3 @@
-# Digitalhub-ai Library
+# Oltreai-ai Library
 
 Python package to handle AI functions and tasks.
