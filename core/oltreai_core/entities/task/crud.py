@@ -3,12 +3,7 @@ from __future__ import annotations
 import typing
 
 from oltreai_core.context.builder import check_context
-from oltreai_core.entities._base.crud import (
-    delete_entity_api_ctx,
-    list_entity_api_ctx,
-    read_entity_api_ctx,
-    update_entity_api_ctx,
-)
+from oltreai_core.entities._base.crud import delete_entity_api_ctx, list_entity_api_ctx, read_entity_api_ctx
 from oltreai_core.entities.entity_types import EntityTypes
 from oltreai_core.entities.task.builder import task_from_dict, task_from_parameters
 from oltreai_core.utils.exceptions import EntityError

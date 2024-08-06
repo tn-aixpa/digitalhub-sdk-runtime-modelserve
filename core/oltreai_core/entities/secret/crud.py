@@ -8,7 +8,6 @@ from oltreai_core.entities._base.crud import (
     list_entity_api_ctx,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
-    update_entity_api_ctx,
 )
 from oltreai_core.entities.entity_types import EntityTypes
 from oltreai_core.entities.secret.builder import secret_from_dict, secret_from_parameters

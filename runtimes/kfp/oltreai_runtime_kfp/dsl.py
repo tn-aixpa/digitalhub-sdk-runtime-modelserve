@@ -239,9 +239,7 @@ class PipelineContext:
             cop.add_pod_label(label_prefix + "workflow_id", workflow_object.id)
         cop.add_pod_label(label_prefix + "action", action)
 
-        cop.container.add_env_variable(
-            k8s_client.V1EnvVar(name="DHCORE_ENDPOINT", value=DHCORE_ENDPOINT)
-        )
+        cop.container.add_env_variable(k8s_client.V1EnvVar(name="DHCORE_ENDPOINT", value=DHCORE_ENDPOINT))
 
         # RUN_SECRET_NAME = "oltreai-common-creds"
         RUN_SECRET_NAME = os.environ.get("DH_RUN_SECRET_NAME")

@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Callable
 
 import kfp
+from kfp.compiler import compiler
 from oltreai_core.utils.io_utils import read_text
 from oltreai_runtime_kfp.dsl import set_current_project, unset_current_project
 from oltreai_runtime_kfp.utils.outputs import build_status
-from kfp.compiler import compiler
 
 import oltreai as dh
 
