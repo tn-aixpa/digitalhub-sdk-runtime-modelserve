@@ -533,7 +533,7 @@ class ClientDHCore(Client):
             raise BackendError("Issuer endpoint not set.")
         r = request("GET", url, timeout=60)
         r.raise_for_status()
-        return r.json().get("refresh_endpoint")
+        return r.json().get("token_endpoint")
 
     ##############################
     # Static methods
