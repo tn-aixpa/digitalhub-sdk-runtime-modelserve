@@ -326,7 +326,8 @@ class ClientDHCore(Client):
             elif isinstance(e, ConnectionError):
                 msg = "Unable to connect to DHCore backend."
             else:
-                raise e
+                msg = f"Request to DHCore backend failed. Exception: {e.__class__}. Error: {e.args}"
+                raise BackendError(msg) from e
         except Exception as e:
             msg = f"Some error occurred: {e}"
             raise RuntimeError(msg) from e
@@ -500,14 +501,21 @@ class ClientDHCore(Client):
 
         # Send request to get new access token
         payload = {
-            "grant_type": "client_credentials",
+            "grant_type": "refresh_token",
             "client_id": self._client_id,
             "refresh_token": self._refresh_token,
         }
-        r = request("POST", url, data=payload, timeout=60)
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded"
+            }
+        r = request("POST", url, data=payload, headers=headers, timeout=60)
         r.raise_for_status()
+
+        # Read new access token and refresh token
         self._access_token = r.json().get("access_token")
         self._refresh_token = r.json().get("refresh_token")
+
+        # Propagate new access token to env
         self._write_env()
 
     def _get_refresh_endpoint(self) -> str:
@@ -519,12 +527,13 @@ class ClientDHCore(Client):
         str
             Refresh endpoint.
         """
+        # Call the issuer to receive the refresh endpoint
         url = self._endpoint_issuer
         if url is None:
             raise BackendError("Issuer endpoint not set.")
         r = request("GET", url, timeout=60)
         r.raise_for_status()
-        return r.json().get("endpoint")
+        return r.json().get("refresh_endpoint")
 
     ##############################
     # Static methods
