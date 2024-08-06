@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "oltreai"
+name = "digitalhub"
 version = "0.7.0b0"
-description = "Python SDK for Oltreai"
+description = "Python SDK for Digitalhub"
 readme = "README.md"
 authors = [
     { name = "Fondazione Bruno Kessler", email = "dslab@fbk.eu" },
@@ -20,19 +20,19 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"oltreai-core>=0.7.0b",
+"digitalhub-core>=0.7.0b",
 ]
 
 [project.optional-dependencies]
 all = [
-    "oltreai-data>=0.7.0b",
-    "oltreai-ml>=0.7.0b",
+    "digitalhub-data>=0.7.0b",
+    "digitalhub-ml>=0.7.0b",
 ]
-ml = ["oltreai-ml>=0.7.0b"]
-data = ["oltreai-data>=0.7.0b"]
+ml = ["digitalhub-ml>=0.7.0b"]
+data = ["digitalhub-data>=0.7.0b"]
 
 [project.urls]
-Homepage = "https://github.com/scc-oltreai/oltreai-sdk"
+Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
 
 [tool.setuptools.packages.find]
 exclude = ["ai*", "wrapper*", "ml*", "core*", "data*", "runtimes*"]

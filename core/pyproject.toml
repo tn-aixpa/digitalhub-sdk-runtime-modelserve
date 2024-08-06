@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "oltreai-core"
+name = "digitalhub-core"
 version = "0.7.0b0"
 description = "Python SDK for DHCore core layer"
 readme = "README.md"
@@ -51,7 +51,7 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/scc-oltreai/oltreai-sdk"
+Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
 
 [tool.flake8]
 max-line-length = 120

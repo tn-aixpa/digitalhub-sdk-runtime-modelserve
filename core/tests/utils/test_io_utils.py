@@ -1,4 +1,4 @@
-from oltreai_core.utils.io_utils import read_text, read_yaml, write_yaml
+from digitalhub_core.utils.io_utils import read_text, read_yaml, write_yaml
 
 
 def test_write_read_yaml(tmp_path):

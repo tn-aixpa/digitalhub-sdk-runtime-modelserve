@@ -1,7 +1,7 @@
 import dotenv
-from oltreai_core.entities.task.entity import Task
+from digitalhub_core.entities.task.entity import Task
 
-import oltreai
+import digitalhub
 
 dotenv.load_dotenv()
 
@@ -36,9 +36,9 @@ dicts = []
 for i in range(len(names)):
     dicts.append({"name": names[i], "uuid": uuids[i], "kind": kind[i]})
 
-oltreai.delete_project("test")
+digitalhub.delete_project("test")
 
-p = oltreai.get_or_create_project("test")
+p = digitalhub.get_or_create_project("test")
 
 f1 = p.new_function(name="t1", kind="mlrun", source={"code": "test"})
 f2 = p.new_function(name="t2", kind="dbt", source={"code": "test"})
@@ -49,33 +49,33 @@ f4 = p.new_function(name="t4", kind="nefertem")
 # Create and delete tasks
 for i in dicts:
     i = add_param(i)
-    d = oltreai.new_task(p.name, **i)
-    oltreai.delete_task(p.name, entity_id=d.id)
+    d = digitalhub.new_task(p.name, **i)
+    digitalhub.delete_task(p.name, entity_id=d.id)
 
 # Create multiple tasks
 for i in dicts:
     i = add_param(i)
-    oltreai.new_task(p.name, **i)
+    digitalhub.new_task(p.name, **i)
 
 # List tasks
-l_obj = oltreai.list_tasks(p.name)
+l_obj = digitalhub.list_tasks(p.name)
 assert isinstance(l_obj, list)
 assert len(l_obj) == 4
 for i in l_obj:
     assert isinstance(i, dict)
 
 for uuid in uuids:
-    oltreai.delete_task(p.name, entity_id=uuid)
+    digitalhub.delete_task(p.name, entity_id=uuid)
 
 # Get tasks test
 for i in dicts:
     i = add_param(i)
-    o1 = oltreai.new_task(p.name, **i)
+    o1 = digitalhub.new_task(p.name, **i)
     assert isinstance(o1, Task)
 
     # Get by id
-    o2 = oltreai.get_task(p.name, entity_id=o1.id)
+    o2 = digitalhub.get_task(p.name, entity_id=o1.id)
     assert isinstance(o2, Task)
     assert o1.id == o2.id
 
-oltreai.delete_project("test")
+digitalhub.delete_project("test")

@@ -1,7 +1,7 @@
 import os
 from unittest import mock
 
-from oltreai_core.client.builder import ClientBuilder, ClientDHCore, ClientLocal, client_builder, get_client
+from digitalhub_core.client.builder import ClientBuilder, ClientDHCore, ClientLocal, client_builder, get_client
 
 
 @mock.patch.dict(os.environ, {"DHCORE_ENDPOINT": "http://localhost:8000"})

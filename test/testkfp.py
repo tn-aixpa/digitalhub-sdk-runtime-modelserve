@@ -1,7 +1,7 @@
 import os
 import time
 
-import oltreai as dh
+import digitalhub as dh
 
 
 def _is_finished(state: str):

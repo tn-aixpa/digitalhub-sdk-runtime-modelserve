@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
-from oltreai_core.stores.objects.base import Store
-from oltreai_core.utils.exceptions import StoreError
+from digitalhub_core.stores.objects.base import Store
+from digitalhub_core.utils.exceptions import StoreError
 
 
 class TestStore(Store):
@@ -47,15 +47,15 @@ def test_init(store):
 
 
 def test_check_local_dst(store):
-    with patch("oltreai_core.stores.objects.base.map_uri_scheme", return_value="local"), patch(
-        "oltreai_core.stores.objects.base.Store._build_path"
+    with patch("digitalhub_core.stores.objects.base.map_uri_scheme", return_value="local"), patch(
+        "digitalhub_core.stores.objects.base.Store._build_path"
     ) as mock_build_path:
         store._check_local_dst("local_path")
         mock_build_path.assert_called_once_with("local_path")
 
 
 def test_check_local_dst_not_local(store):
-    with patch("oltreai_core.stores.objects.base.map_uri_scheme", return_value="not_local"):
+    with patch("digitalhub_core.stores.objects.base.map_uri_scheme", return_value="not_local"):
         with pytest.raises(StoreError, match="Destination 'not_local_path' is not a local path."):
             store._check_local_dst("not_local_path")
 
@@ -68,7 +68,7 @@ def test_build_path():
 
 
 def test_build_temp(store):
-    with patch("oltreai_core.stores.objects.base.mkdtemp", return_value="tmp_dir"):
+    with patch("digitalhub_core.stores.objects.base.mkdtemp", return_value="tmp_dir"):
         temp_path = store._build_temp("src_file")
         assert temp_path == "tmp_dir/src_file"
         assert store._registry["src_file"] == "tmp_dir/src_file"

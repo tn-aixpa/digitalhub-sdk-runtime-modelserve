@@ -1,15 +1,15 @@
 from unittest.mock import patch
 
 import pytest
-from oltreai_core.stores.builder import (
+from digitalhub_core.stores.builder import (
     LocalStoreConfig,
     S3StoreConfig,
     StoreBuilder,
     StoreParameters,
     get_env_store_config,
 )
-from oltreai_core.stores.objects.base import Store
-from oltreai_core.utils.exceptions import StoreError
+from digitalhub_core.stores.objects.base import Store
+from digitalhub_core.utils.exceptions import StoreError
 
 
 @pytest.fixture

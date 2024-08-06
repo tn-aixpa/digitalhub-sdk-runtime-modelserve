@@ -1,3 +1,3 @@
-# Dbt module for oltreai-core
+# Dbt module for digitalhub-core
 
-Oltreai Dbt runtime to execute functions for Dbt.
+Digitalhub Dbt runtime to execute functions for Dbt.

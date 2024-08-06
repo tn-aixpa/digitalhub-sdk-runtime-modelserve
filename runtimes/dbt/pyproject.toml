@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "oltreai-runtime-dbt"
+name = "digitalhub-runtime-dbt"
 version = "0.7.0b0"
 description = "Dbt runtime for DHCore"
 readme = "README.md"
@@ -20,9 +20,9 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-"oltreai[data]>=0.7.0b",
-"oltreai-core[full]>=0.7.0b",
-"oltreai-data[pandas]>=0.7.0b",
+"digitalhub[data]>=0.7.0b",
+"digitalhub-core[full]>=0.7.0b",
+"digitalhub-data[pandas]>=0.7.0b",
 ]
 [project.optional-dependencies]
 local = [
@@ -30,7 +30,7 @@ local = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/scc-oltreai/oltreai-sdk"
+Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
 
 [tool.flake8]
 max-line-length = 120

@@ -1,4 +1,4 @@
-from oltreai_runtime_kfp.dsl import pipeline_context
+from digitalhub_runtime_kfp.dsl import pipeline_context
 
 
 def myhandler(ref):

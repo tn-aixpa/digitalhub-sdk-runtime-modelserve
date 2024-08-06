@@ -1,4 +1,4 @@
-import oltreai
+import digitalhub
 
 METHODS = [
     "new_artifact",
@@ -63,4 +63,4 @@ METHODS = [
 
 def test_imports():
     for i in METHODS:
-        assert hasattr(oltreai, i)
+        assert hasattr(digitalhub, i)
