@@ -65,7 +65,7 @@ class PipelineContext:
         Initialize the pipeline context
 
         This function initializes the pipeline context by retrieving the project
-        from Digital Hub using the currently defined project name. If no project
+        from DHCore using the currently defined project name. If no project
         is defined, an exception is raised.
 
         Raises
@@ -75,7 +75,7 @@ class PipelineContext:
         """
         global current_project
         if current_project is not None:
-            # Retrieve the project object from Digital Hub using the project name
+            # Retrieve the project object from DHCore using the project name
             self._project = dh.get_project(current_project.val)
         else:
             # If the current project is not defined, raise an exception
@@ -99,12 +99,12 @@ class PipelineContext:
         **kwargs,
     ) -> dsl.ContainerOp:
         """
-        Execute a function in Digital Hub Core.
+        Execute a function in DHCore.
 
         This function creates a KFP ContainerOp that executes a function
-        or another workflow in Digital Hub Core.
+        or another workflow in DHCore.
         The function is executed in the context of the current project,
-        which is retrieved from Digital Hub Core when the pipeline context
+        which is retrieved from DHCore when the pipeline context
         is initialized.
 
         Parameters

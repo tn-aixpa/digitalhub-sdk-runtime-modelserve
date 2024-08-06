@@ -1,9 +1,8 @@
 FROM python:3.9
 
 # Repo info
-LABEL org.opencontainers.image.source=https://github.com/scc-oltreai/oltreai-core
-ARG DHUB_VERSION=
-ARG VERSION=0.6.0b
+LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/oltreai-sdk
+ARG VERSION=0.7.0b
 
 
 # Set working dir
