@@ -117,7 +117,7 @@ class ModelParamsMlflow(ModelParams):
     signature: Signature = None
 
 
-class ModelSpecSKLearn(ModelSpec):
+class ModelSpecSklearn(ModelSpec):
     """
     SKLearn model specifications.
     """
@@ -134,7 +134,7 @@ class ModelSpecSKLearn(ModelSpec):
         super().__init__(path, framework, algorithm, base_model, parameters, metrics)
         self.runtime_version = runtime_version
 
-class ModelParamsSKLearn(ModelParams):
+class ModelParamsSklearn(ModelParams):
     """
     SKLearn model parameters.
     """

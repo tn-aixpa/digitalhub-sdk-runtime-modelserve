@@ -21,13 +21,13 @@ class ModelStatusMlflow(ModelStatus):
     """
 
 
-class ModelStatusPickle(ModelStatus):
+class ModelStatusSklearn(ModelStatus):
     """
     Status class for model entities.
     """
 
 
-class ModelStatusHuggingFace(ModelStatus):
+class ModelStatusHuggingface(ModelStatus):
     """
     Status class for model entities.
     """
