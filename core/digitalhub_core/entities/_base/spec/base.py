@@ -38,7 +38,7 @@ class SpecParams(BaseModel, extra="ignore"):
     """
 
 
-class MaterialSpec(SpecParams):
+class MaterialSpec(Spec):
     """
     Material specification class.
     """
