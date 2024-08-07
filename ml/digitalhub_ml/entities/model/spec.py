@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from pydantic import Field, BaseModel
+
+from digitalhub_core.entities._base.base import ModelObj
+from digitalhub_core.entities._base.spec.base import Spec, SpecParams
 from digitalhub_core.entities._base.spec.material import MaterialParams, MaterialSpec
 
 
@@ -11,11 +15,11 @@ class ModelSpec(MaterialSpec):
     def __init__(
         self,
         path: str,
-        framework: str | None = None,
-        algorithm: str | None = None,
-        base_model: str | None = None,
-        parameters: dict | None = None,
-        metrics: dict | None = None,
+        framework: str = None,
+        algorithm: str = None,
+        base_model: str = None,
+        parameters: dict = None,
+        metrics: dict = None,
     ) -> None:
         self.path = path
         self.framework = framework
@@ -61,28 +65,81 @@ class ModelParamsModel(ModelParams):
     """
 
 
+class Signature(BaseModel):
+    inputs: str = None
+    outputs: str = None
+    params: str = None
+
+    
+class Dataset(BaseModel):
+    name: str = None
+    digest: str = None
+    profile: str = None
+    schema_: str = Field(default=None, alias="schema")
+    source: str = None
+    source_type: str = None
+
+
 class ModelSpecMlflow(ModelSpec):
     """
     Mlflow model specifications.
     """
+
+    def __init__(
+        self,
+        path: str,
+        framework: str = None,
+        algorithm: str = None,
+        base_model: str = None,
+        parameters: dict = None,
+        metrics: dict = None,
+        flavor: str = None,
+        model_config: dict = None,
+        input_datasets: list[Dataset] = None,
+        signature: Signature = None) -> None:
+        super().__init__(path, framework, algorithm, base_model, parameters, metrics)
+        self.flavor = flavor
+        self.model_config = model_config
+        self.input_datasets = input_datasets
+        self.signature = signature
 
 
 class ModelParamsMlflow(ModelParams):
     """
     Mlflow model parameters.
     """
+    flavor: str = None
+    """Mlflow model flavor."""
+    model_config: dict = None
+    """Mlflow model config."""
+    input_datasets: list[Dataset] = None
+    """Mlflow input datasets."""
+    signature: Signature = None
 
 
-class ModelSpecPickle(ModelSpec):
+class ModelSpecSKLearn(ModelSpec):
     """
-    Pickle model specifications.
+    SKLearn model specifications.
     """
 
+    def __init__(
+        self,
+        path: str,
+        framework: str = None,
+        algorithm: str = None,
+        base_model: str = None,
+        parameters: dict = None,
+        metrics: dict = None,
+        runtime_version: str = None) -> None:
+        super().__init__(path, framework, algorithm, base_model, parameters, metrics)
+        self.runtime_version = runtime_version
 
-class ModelParamsPickle(ModelParams):
+class ModelParamsSKLearn(ModelParams):
     """
-    Pickle model parameters.
+    SKLearn model parameters.
     """
+    runtime_version: str = None
+    """SKLearn runtime version."""
 
 
 class ModelSpecHuggingface(ModelSpec):
@@ -90,8 +147,26 @@ class ModelSpecHuggingface(ModelSpec):
     Huggingface model specifications.
     """
 
+    def __init__(
+        self,
+        path: str,
+        framework: str = None,
+        algorithm: str = None,
+        base_model: str = None,
+        parameters: dict = None,
+        metrics: dict = None,
+        model_id: str = None,
+        model_revision: str = None) -> None:
+        super().__init__(path, framework, algorithm, base_model, parameters, metrics)
+        self.model_id = model_id
+        self.model_revision = model_revision
+
 
 class ModelParamsHuggingface(ModelParams):
     """
     Huggingface model parameters.
     """
+    model_id: str = None
+    """Huggingface model id. Optional. If not specified, the model is loaded from the model path"""
+    model_revision: str = None
+    """Huggingface model revision. Optional."""
