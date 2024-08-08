@@ -29,9 +29,9 @@ try:
 except ImportError:
     ...
 try:
-    from digitalhub_ml.entities.model.entity.pickle import ModelPickle
+    from digitalhub_ml.entities.model.entity.sklearn import ModelSklearn
 
-    cls_mapper["pickle"] = ModelPickle
+    cls_mapper["sklearn"] = ModelSklearn
 except ImportError:
     ...
 try:
