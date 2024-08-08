@@ -381,8 +381,6 @@ class ClientDHCore(Client):
         -------
         None
         """
-        self._load_env()
-
         self._get_endpoints_from_env()
 
         if config is not None:
@@ -404,34 +402,6 @@ class ClientDHCore(Client):
 
         self._get_auth_from_env()
 
-    def _load_env(self) -> None:
-        """
-        Load the env variables from the .dhcore file.
-
-        Returns
-        -------
-        None
-        """
-        load_dotenv(dotenv_path=ENV_FILE, override=True)
-
-    def _write_env(self) -> None:
-        """
-        Write the env variables to the .dhcore file.
-        It will overwrite any existing env variables.
-
-        Returns
-        -------
-        None
-        """
-        keys = {}
-        if self._access_token is not None:
-            keys["DHCORE_ACCESS_TOKEN"] = self._access_token
-        if self._refresh_token is not None:
-            keys["DHCORE_REFRESH_TOKEN"] = self._refresh_token
-
-        for k, v in keys.items():
-            set_key(dotenv_path=ENV_FILE, key_to_set=k, value_to_set=v)
-
     def _get_endpoints_from_env(self) -> None:
         """
         Get the DHCore endpoint and token issuer endpoint from env.
@@ -445,6 +415,8 @@ class ClientDHCore(Client):
         Exception
             If the endpoint of DHCore is not set in the env variables.
         """
+        self._load_env()
+
         core_endpt = os.getenv("DHCORE_ENDPOINT")
         if core_endpt is None:
             raise BackendError("Endpoint not set as environment variables.")
@@ -561,8 +533,37 @@ class ClientDHCore(Client):
         r.raise_for_status()
         return r.json()
 
+    @staticmethod
+    def _load_env() -> None:
+        """
+        Load the env variables from the .dhcore file.
+
+        Returns
+        -------
+        None
+        """
+        load_dotenv(dotenv_path=ENV_FILE, override=True)
+
+    def _write_env(self) -> None:
+        """
+        Write the env variables to the .dhcore file.
+        It will overwrite any existing env variables.
+
+        Returns
+        -------
+        None
+        """
+        keys = {}
+        if self._access_token is not None:
+            keys["DHCORE_ACCESS_TOKEN"] = self._access_token
+        if self._refresh_token is not None:
+            keys["DHCORE_REFRESH_TOKEN"] = self._refresh_token
+
+        for k, v in keys.items():
+            set_key(dotenv_path=ENV_FILE, key_to_set=k, value_to_set=v)
+
     ##############################
-    # Static methods
+    # Interface methods
     ##############################
 
     @staticmethod

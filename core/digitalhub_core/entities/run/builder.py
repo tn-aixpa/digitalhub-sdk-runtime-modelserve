@@ -11,7 +11,6 @@ def run_from_parameters(
     project: str,
     kind: str,
     uuid: str | None = None,
-    git_source: str | None = None,
     labels: list[str] | None = None,
     **kwargs,
 ) -> Run:
@@ -26,8 +25,6 @@ def run_from_parameters(
         Kind the object.
     uuid : str
         ID of the object (UUID4).
-    git_source : str
-        Remote git source for object.
     labels : list[str]
         List of labels.
     **kwargs : dict
@@ -43,7 +40,6 @@ def run_from_parameters(
         kind=kind,
         project=project,
         name=uuid,
-        source=git_source,
         labels=labels,
     )
     spec = build_spec(kind, **kwargs)
