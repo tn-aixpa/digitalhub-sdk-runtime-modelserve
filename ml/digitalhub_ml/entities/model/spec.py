@@ -129,18 +129,13 @@ class ModelSpecSklearn(ModelSpec):
         algorithm: str = None,
         base_model: str = None,
         parameters: dict = None,
-        metrics: dict = None,
-        runtime_version: str = None) -> None:
+        metrics: dict = None) -> None:
         super().__init__(path, framework, algorithm, base_model, parameters, metrics)
-        self.runtime_version = runtime_version
 
 class ModelParamsSklearn(ModelParams):
     """
     SKLearn model parameters.
     """
-    runtime_version: str = None
-    """SKLearn runtime version."""
-
 
 class ModelSpecHuggingface(ModelSpec):
     """
