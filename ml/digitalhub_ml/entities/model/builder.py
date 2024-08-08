@@ -68,7 +68,6 @@ def model_from_parameters(
     kind: str,
     uuid: str | None = None,
     description: str | None = None,
-    git_source: str | None = None,
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
@@ -89,8 +88,6 @@ def model_from_parameters(
         Kind the object.
     uuid : str
         ID of the object (UUID4).
-    git_source : str
-        Remote git source for object.
     labels : list[str]
         List of labels.
     description : str
@@ -122,7 +119,6 @@ def model_from_parameters(
         name=name,
         version=uuid,
         description=description,
-        source=git_source,
         labels=labels,
         embedded=embedded,
     )

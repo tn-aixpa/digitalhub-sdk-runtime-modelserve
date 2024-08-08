@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from pydantic import Field, BaseModel
-
-from digitalhub_core.entities._base.base import ModelObj
-from digitalhub_core.entities._base.spec.base import Spec, SpecParams
 from digitalhub_core.entities._base.spec.material import MaterialParams, MaterialSpec
+from digitalhub_ml.entities.model.models import Dataset, Signature
 
 
 class ModelSpec(MaterialSpec):
@@ -15,11 +12,11 @@ class ModelSpec(MaterialSpec):
     def __init__(
         self,
         path: str,
-        framework: str = None,
-        algorithm: str = None,
-        base_model: str = None,
-        parameters: dict = None,
-        metrics: dict = None,
+        framework: str | None = None,
+        algorithm: str | None = None,
+        base_model: str | None = None,
+        parameters: dict | None = None,
+        metrics: dict | None = None,
     ) -> None:
         self.path = path
         self.framework = framework
@@ -65,21 +62,6 @@ class ModelParamsModel(ModelParams):
     """
 
 
-class Signature(BaseModel):
-    inputs: str = None
-    outputs: str = None
-    params: str = None
-
-    
-class Dataset(BaseModel):
-    name: str = None
-    digest: str = None
-    profile: str = None
-    schema_: str = Field(default=None, alias="schema")
-    source: str = None
-    source_type: str = None
-
-
 class ModelSpecMlflow(ModelSpec):
     """
     Mlflow model specifications.
@@ -88,15 +70,16 @@ class ModelSpecMlflow(ModelSpec):
     def __init__(
         self,
         path: str,
-        framework: str = None,
-        algorithm: str = None,
-        base_model: str = None,
-        parameters: dict = None,
-        metrics: dict = None,
-        flavor: str = None,
-        model_config: dict = None,
-        input_datasets: list[Dataset] = None,
-        signature: Signature = None) -> None:
+        framework: str | None = None,
+        algorithm: str | None = None,
+        base_model: str | None = None,
+        parameters: dict | None = None,
+        metrics: dict | None = None,
+        flavor: str | None = None,
+        model_config: dict | None = None,
+        input_datasets: list[Dataset] | None = None,
+        signature: Signature = None,
+    ) -> None:
         super().__init__(path, framework, algorithm, base_model, parameters, metrics)
         self.flavor = flavor
         self.model_config = model_config
@@ -108,6 +91,7 @@ class ModelParamsMlflow(ModelParams):
     """
     Mlflow model parameters.
     """
+
     flavor: str = None
     """Mlflow model flavor."""
     model_config: dict = None
@@ -115,6 +99,7 @@ class ModelParamsMlflow(ModelParams):
     input_datasets: list[Dataset] = None
     """Mlflow input datasets."""
     signature: Signature = None
+    """Mlflow model signature."""
 
 
 class ModelSpecSklearn(ModelSpec):
@@ -125,12 +110,14 @@ class ModelSpecSklearn(ModelSpec):
     def __init__(
         self,
         path: str,
-        framework: str = None,
-        algorithm: str = None,
-        base_model: str = None,
-        parameters: dict = None,
-        metrics: dict = None) -> None:
+        framework: str | None = None,
+        algorithm: str | None = None,
+        base_model: str | None = None,
+        parameters: dict | None = None,
+        metrics: dict | None = None
+    ) -> None:
         super().__init__(path, framework, algorithm, base_model, parameters, metrics)
+
 
 class ModelParamsSklearn(ModelParams):
     """
@@ -145,13 +132,14 @@ class ModelSpecHuggingface(ModelSpec):
     def __init__(
         self,
         path: str,
-        framework: str = None,
-        algorithm: str = None,
-        base_model: str = None,
-        parameters: dict = None,
-        metrics: dict = None,
-        model_id: str = None,
-        model_revision: str = None) -> None:
+        framework: str | None = None,
+        algorithm: str | None = None,
+        base_model: str | None = None,
+        parameters: dict | None = None,
+        metrics: dict | None = None,
+        model_id: str | None = None,
+        model_revision: str = None,
+    ) -> None:
         super().__init__(path, framework, algorithm, base_model, parameters, metrics)
         self.model_id = model_id
         self.model_revision = model_revision
@@ -161,6 +149,7 @@ class ModelParamsHuggingface(ModelParams):
     """
     Huggingface model parameters.
     """
+
     model_id: str = None
     """Huggingface model id. Optional. If not specified, the model is loaded from the model path"""
     model_revision: str = None

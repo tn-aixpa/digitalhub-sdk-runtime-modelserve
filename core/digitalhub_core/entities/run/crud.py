@@ -56,7 +56,6 @@ def new_run(
     task: str,
     kind: str,
     uuid: str | None = None,
-    git_source: str | None = None,
     labels: list[str] | None = None,
     local_execution: bool = False,
     **kwargs,
@@ -74,8 +73,6 @@ def new_run(
         Kind the object.
     uuid : str
         ID of the object (UUID4).
-    git_source : str
-        Remote git source for object.
     labels : list[str]
         List of labels.
     local_execution : bool
@@ -93,7 +90,6 @@ def new_run(
         task=task,
         kind=kind,
         uuid=uuid,
-        git_source=git_source,
         labels=labels,
         local_execution=local_execution,
         **kwargs,

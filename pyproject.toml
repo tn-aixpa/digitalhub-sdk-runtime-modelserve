@@ -30,6 +30,11 @@ all = [
 ]
 ml = ["digitalhub-ml>=0.7.0b"]
 data = ["digitalhub-data>=0.7.0b"]
+full = [
+"digitalhub-core[full]>=0.7.0b",
+"digitalhub-data[pandas]>=0.7.0b",
+"digitalhub-ml>=0.7.0b",
+]
 
 [project.urls]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"

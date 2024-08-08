@@ -18,7 +18,6 @@ class Metadata(ModelObj):
         name: str | None = None,
         version: str | None = None,
         description: str | None = None,
-        source: str | None = None,
         labels: list[str] | None = None,
         created: str | None = None,
         created_by: str | None = None,
@@ -27,39 +26,10 @@ class Metadata(ModelObj):
         embedded: bool | None = None,
         **kwargs,
     ) -> None:
-        """
-        Constructor.
-
-        Parameters
-        ----------
-        project : str
-            Project name.
-        name : str
-            Name the object.
-        version : str
-            Version of the object.
-        description : str
-            Description of the entity.
-        source : str
-            (Remote GIT) Source of the entity.
-        labels : list[str]
-            A list of labels to associate with the entity.
-        created : str
-            Created date.
-        updated : str
-            Updated date.
-        created_by : str
-            Created by user.
-        updated_by : str
-            Updated by user.
-        embedded : bool
-            Whether the entity specifications are embedded into a project.
-        """
         self.project = project
         self.name = name
         self.version = version
         self.description = description
-        self.source = source
         self.labels = labels
         self.created = created
         self.updated = updated

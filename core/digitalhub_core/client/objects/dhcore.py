@@ -15,6 +15,11 @@ if typing.TYPE_CHECKING:
     from requests import Response
 
 
+try:
+    FALLBACK_USER = os.getlogin()
+except Exception:
+    FALLBACK_USER = None
+
 ENV_FILE = ".dhcore"
 
 MAX_API_LEVEL = 100
@@ -24,7 +29,7 @@ MIN_API_LEVEL = 5
 class AuthConfig(BaseModel):
     """Client configuration model."""
 
-    user: str = os.getlogin()
+    user: str = FALLBACK_USER
     """Username."""
 
 
@@ -280,8 +285,9 @@ class ClientDHCore(Client):
         self._check_core_version(response)
 
         # Handle token refresh
-        if response.status_code == 401 and refresh_token:
+        if response.status_code in [401] and refresh_token:
             self._get_new_access_token()
+            kwargs = self._set_auth_header(kwargs)
             return self._make_call(call_type, url, refresh_token=False, **kwargs)
 
         self._raise_for_error(response)
@@ -375,8 +381,6 @@ class ClientDHCore(Client):
         -------
         None
         """
-        self._load_env()
-
         self._get_endpoints_from_env()
 
         if config is not None:
@@ -398,34 +402,6 @@ class ClientDHCore(Client):
 
         self._get_auth_from_env()
 
-    def _load_env(self) -> None:
-        """
-        Load the env variables from the .dhcore file.
-
-        Returns
-        -------
-        None
-        """
-        load_dotenv(dotenv_path=ENV_FILE, override=True)
-
-    def _write_env(self) -> None:
-        """
-        Write the env variables to the .dhcore file.
-        It will overwrite any existing env variables.
-
-        Returns
-        -------
-        None
-        """
-        keys = {}
-        if self._access_token is not None:
-            keys["DHCORE_ACCESS_TOKEN"] = self._access_token
-        if self._refresh_token is not None:
-            keys["DHCORE_REFRESH_TOKEN"] = self._refresh_token
-
-        for k, v in keys.items():
-            set_key(dotenv_path=ENV_FILE, key_to_set=k, value_to_set=v)
-
     def _get_endpoints_from_env(self) -> None:
         """
         Get the DHCore endpoint and token issuer endpoint from env.
@@ -439,6 +415,8 @@ class ClientDHCore(Client):
         Exception
             If the endpoint of DHCore is not set in the env variables.
         """
+        self._load_env()
+
         core_endpt = os.getenv("DHCORE_ENDPOINT")
         if core_endpt is None:
             raise BackendError("Endpoint not set as environment variables.")
@@ -471,7 +449,7 @@ class ClientDHCore(Client):
         -------
         None
         """
-        self._user = os.getenv("DHCORE_USER", os.getlogin())
+        self._user = os.getenv("DHCORE_USER", FALLBACK_USER)
         self._refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
         self._client_id = os.getenv("DHCORE_CLIENT_ID")
 
@@ -499,21 +477,12 @@ class ClientDHCore(Client):
         # refreshing access token
         url = self._get_refresh_endpoint()
 
-        # Send request to get new access token
-        payload = {
-            "grant_type": "refresh_token",
-            "client_id": self._client_id,
-            "refresh_token": self._refresh_token,
-        }
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded"
-            }
-        r = request("POST", url, data=payload, headers=headers, timeout=60)
-        r.raise_for_status()
+        # Call refresh token endpoint
+        response = self._call_refresh_token_endpoint(url)
 
         # Read new access token and refresh token
-        self._access_token = r.json().get("access_token")
-        self._refresh_token = r.json().get("refresh_token")
+        self._access_token = response["access_token"]
+        self._refresh_token = response["refresh_token"]
 
         # Propagate new access token to env
         self._write_env()
@@ -527,16 +496,74 @@ class ClientDHCore(Client):
         str
             Refresh endpoint.
         """
-        # Call the issuer to receive the refresh endpoint
-        url = self._endpoint_issuer
-        if url is None:
+        # Get issuer endpoint
+        if self._endpoint_issuer is None:
             raise BackendError("Issuer endpoint not set.")
+
+        # Standard issuer endpoint path
+        url = self._endpoint_issuer + "/.well-known/openid-configuration"
+
+        # Call
         r = request("GET", url, timeout=60)
         r.raise_for_status()
         return r.json().get("token_endpoint")
 
+    def _call_refresh_token_endpoint(self, url: str) -> dict:
+        """
+        Call the refresh token endpoint.
+
+        Parameters
+        ----------
+        url : str
+            Refresh token endpoint.
+
+        Returns
+        -------
+        dict
+            Response object.
+        """
+        # Send request to get new access token
+        payload = {
+            "grant_type": "refresh_token",
+            "client_id": self._client_id,
+            "refresh_token": self._refresh_token,
+        }
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        r = request("POST", url, data=payload, headers=headers, timeout=60)
+        r.raise_for_status()
+        return r.json()
+
+    @staticmethod
+    def _load_env() -> None:
+        """
+        Load the env variables from the .dhcore file.
+
+        Returns
+        -------
+        None
+        """
+        load_dotenv(dotenv_path=ENV_FILE, override=True)
+
+    def _write_env(self) -> None:
+        """
+        Write the env variables to the .dhcore file.
+        It will overwrite any existing env variables.
+
+        Returns
+        -------
+        None
+        """
+        keys = {}
+        if self._access_token is not None:
+            keys["DHCORE_ACCESS_TOKEN"] = self._access_token
+        if self._refresh_token is not None:
+            keys["DHCORE_REFRESH_TOKEN"] = self._refresh_token
+
+        for k, v in keys.items():
+            set_key(dotenv_path=ENV_FILE, key_to_set=k, value_to_set=v)
+
     ##############################
-    # Static methods
+    # Interface methods
     ##############################
 
     @staticmethod
