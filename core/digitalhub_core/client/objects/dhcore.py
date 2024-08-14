@@ -15,15 +15,23 @@ if typing.TYPE_CHECKING:
     from requests import Response
 
 
+# Use env user as fallback in the API calls
 try:
     FALLBACK_USER = os.getlogin()
 except Exception:
     FALLBACK_USER = None
 
+# File where to write DHCORE_ACCESS_TOKEN and DHCORE_REFRESH_TOKEN
+# It's used because we inject the variables in jupyter env,
+# but refresh token is only available once. Is it's used, we cannot
+# overwrite it with coder, so we need to store the new one in a file,
+# preserved for jupyter restart
 ENV_FILE = ".dhcore"
 
+
+# API levels that are supported
 MAX_API_LEVEL = 100
-MIN_API_LEVEL = 5
+MIN_API_LEVEL = 6
 
 
 class AuthConfig(BaseModel):
@@ -59,15 +67,14 @@ class ClientDHCore(Client):
 
     The DHCore client is used to communicate with the Digitalhub Core
     backendAPI via REST. The client supports basic authentication and
-    OAuth2 token authentication.
+    OAuth2 token authentication with token refresh.
     At creation, the client tries to get the endpoint and authentication
-    parameters from the environment variables. In case the user incours
-    into an authentication/endpoint error during the client creation,
-    the user has the possibility to update the correct parameters using
-    the `set_dhub_env` function.
-    If the dhcore client is already initialized, this function will
-    override the configuration, otherwise it simply set the environment
-    variables.
+    parameters from the .dhcore file and the environment variables. In
+    case the user incours into an authentication/endpoint error during
+    the client creation, the user has the possibility to update the
+    correct parameters using the `set_dhcore_env` function. If the DHCore
+    client is already initialized, this function will override the
+    configuration, otherwise it simply set the environment variables.
     """
 
     def __init__(self, config: dict | None = None) -> None:

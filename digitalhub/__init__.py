@@ -35,7 +35,7 @@ from digitalhub_core import (
     new_secret,
     new_task,
     new_workflow,
-    set_dhub_env,
+    set_dhcore_env,
     set_store,
     update_artifact,
     update_function,

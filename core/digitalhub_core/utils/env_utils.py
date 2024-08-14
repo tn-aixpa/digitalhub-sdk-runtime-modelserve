@@ -9,27 +9,34 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.client.objects.dhcore import ClientDHCore
 
 
-def set_dhub_env(
+def set_dhcore_env(
     endpoint: str | None = None,
     user: str | None = None,
     password: str | None = None,
-    token: str | None = None,
+    access_token: str | None = None,
+    refresh_token: str | None = None,
+    client_id: str | None = None,
 ) -> None:
     """
-    Function to set environment variables for DHub Core config.
-    Note that if the environment variable is already set, it will be overwritten.
-    It also ovverides the remote client config.
+    Function to set environment variables for DHCore config.
+    Note that if the environment variable is already set, it
+    will be overwritten. It also ovverides the remote client
+    configuration.
 
     Parameters
     ----------
     endpoint : str
-        The endpoint of DHub Core.
+        The endpoint of DHCore.
     user : str
-        The user of DHub Core.
+        The user of DHCore.
     password : str
-        The password of DHub Core.
-    token : str
-        The token of DHub Core.
+        The password of DHCore.
+    access_token : str
+        The access token of DHCore.
+    refresh_token : str
+        The refresh token of DHCore.
+    client_id : str
+        The client id of DHCore.
 
     Returns
     -------
@@ -41,8 +48,12 @@ def set_dhub_env(
         os.environ["DHCORE_USER"] = user
     if password is not None:
         os.environ["DHCORE_PASSWORD"] = password
-    if token is not None:
-        os.environ["DHCORE_TOKEN"] = token
+    if access_token is not None:
+        os.environ["DHCORE_ACCESS_TOKEN"] = access_token
+    if refresh_token is not None:
+        os.environ["DHCORE_REFRESH_TOKEN"] = refresh_token
+    if client_id is not None:
+        os.environ["DHCORE_CLIENT_ID"] = client_id
 
     if check_client_exists(local=False):
         update_client_from_env()
@@ -66,9 +77,16 @@ def update_client_from_env() -> None:
     # Update auth
 
     # If token is set, it will override the other auth options
-    token = os.getenv("DHCORE_TOKEN")
-    if token is not None:
-        client._access_token = token
+    access_token = os.getenv("DHCORE_ACCESS_TOKEN")
+    refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
+    client_id = os.getenv("DHCORE_CLIENT_ID")
+
+    if access_token is not None:
+        if refresh_token is not None:
+            client._refresh_token = refresh_token
+        if client_id is not None:
+            client._client_id = client_id
+        client._access_token = access_token
         client._auth_type = "oauth2"
         return
 
