@@ -107,22 +107,12 @@ class ModelSpecSklearn(ModelSpec):
     SKLearn model specifications.
     """
 
-    def __init__(
-        self,
-        path: str,
-        framework: str | None = None,
-        algorithm: str | None = None,
-        base_model: str | None = None,
-        parameters: dict | None = None,
-        metrics: dict | None = None
-    ) -> None:
-        super().__init__(path, framework, algorithm, base_model, parameters, metrics)
-
 
 class ModelParamsSklearn(ModelParams):
     """
     SKLearn model parameters.
     """
+
 
 class ModelSpecHuggingface(ModelSpec):
     """
