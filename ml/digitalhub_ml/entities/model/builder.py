@@ -73,6 +73,9 @@ def model_from_parameters(
     path: str | None = None,
     framework: str | None = None,
     algorithm: str | None = None,
+    base_model: str | None = None,
+    parameters: dict | None = None,
+    metrics: dict | None = None,
     **kwargs,
 ) -> Model:
     """
@@ -101,6 +104,12 @@ def model_from_parameters(
         Model framework (e.g. 'pytorch').
     algorithm : str
         Model algorithm (e.g. 'resnet').
+    base_model : str
+        Base model.
+    parameters : dict
+        Model parameters.
+    metrics : dict
+        Model metrics.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -127,6 +136,9 @@ def model_from_parameters(
         path=path,
         framework=framework,
         algorithm=algorithm,
+        base_model=base_model,
+        parameters=parameters,
+        metrics=metrics,
         **kwargs,
     )
     status = build_status(kind)
