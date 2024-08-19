@@ -18,7 +18,7 @@ from digitalhub_core.entities.function.crud import (
     list_functions,
     new_function,
 )
-from digitalhub_core.entities.project.entity.base import CTX_ENTITIES, FUNC_MAP, Project
+from digitalhub_core.entities.project.entity._base import CTX_ENTITIES, FUNC_MAP, Project
 from digitalhub_core.entities.secret.crud import (
     create_secret_from_dict,
     delete_secret,

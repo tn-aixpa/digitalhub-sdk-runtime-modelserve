@@ -15,7 +15,7 @@ from digitalhub_ml.entities.project.crud import get_project
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.entity.base import Entity
-    from digitalhub_core.entities.project.entity.base import Project
+    from digitalhub_core.entities.project.entity._base import Project
 
 
 def get_project_(project_name: str) -> Project:
