@@ -15,3 +15,8 @@ from digitalhub_ml.entities.project.crud import (
     load_project,
     new_project,
 )
+
+try:
+    from digitalhub_ml.entities.utils.mlflow import from_mlflow_run
+except ImportError:
+    ...
