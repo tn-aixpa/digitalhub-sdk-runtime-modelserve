@@ -91,7 +91,6 @@ def new_artifact(
         Flag to determine if object must be embedded in project.
     path : str
         Object path on local file system or remote storage.
-        If not provided, it's generated.
     src_path : str
         Local object path.
     **kwargs : dict
@@ -316,7 +315,7 @@ def log_artifact(
     source : str
         Artifact location on local machine.
     path : str
-        Destination path of the artifact.
+        Destination path of the artifact. If not provided, it's generated.
     **kwargs : dict
         New artifact parameters.
 

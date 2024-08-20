@@ -94,7 +94,7 @@ class ContextEntity(Entity):
 
         Returns
         -------
-        Task
+        ContextEntity
             Entity refreshed.
         """
         new_obj = read_entity_api_ctx(self.key)

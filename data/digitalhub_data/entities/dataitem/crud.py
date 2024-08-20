@@ -91,7 +91,6 @@ def new_dataitem(
         Flag to determine if object must be embedded in project.
     path : str
         Object path on local file system or remote storage.
-        If not provided, it's generated.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -314,7 +313,7 @@ def log_dataitem(
     data : Any
         Dataframe to log.
     path : str
-        Destination path of the dataitem.
+        Destination path of the dataitem. If not provided, it's generated.
     extension : str
         Extension of the dataitem.
     **kwargs : dict

@@ -158,8 +158,6 @@ def list_entity_api_base(
 
     Parameters
     ----------
-    project : str
-        Project name.
     entity_type : str
         Entity type.
     **kwargs : dict
