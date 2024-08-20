@@ -8,7 +8,6 @@ root = "digitalhub_runtime_modelserve"
 root_ent = f"{root}.entities"
 
 for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
-
     func_kind = m
     suffix = func_kind.capitalize()
 

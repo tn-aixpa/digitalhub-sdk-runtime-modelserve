@@ -20,6 +20,7 @@ class TaskSpecServe(TaskSpecK8s):
         self.replicas = replicas
         self.service_type = service_type
 
+
 class TaskParamsServe(TaskParamsK8s):
     """
     TaskParamsServe model.
@@ -28,30 +29,36 @@ class TaskParamsServe(TaskParamsK8s):
     replicas: int = None
     service_type: Literal["ClusterIP", "NodePort", "LoadBalancer"] = "NodePort"
 
+
 class TaskSpecSklearnserveServe(TaskSpecServe):
     """
     TaskSpecSklearnserveServe model.
     """
+
 
 class TaskParamsSklearnserveServe(TaskParamsServe):
     """
     TaskParamsSklearnserveServe model.
     """
 
+
 class TaskSpecMlflowserveServe(TaskSpecServe):
     """
     TaskSpecMlflowserveServe model.
     """
+
 
 class TaskParamsMlflowserveServe(TaskParamsServe):
     """
     TaskParamsMlflowserveServe model.
     """
 
+
 class TaskSpecHuggingfaceserveServe(TaskSpecServe):
     """
     TaskSpecHuggingfaceserveServe model.
     """
+
     def __init__(
         self,
         function: str,
@@ -82,12 +89,15 @@ class TaskSpecHuggingfaceserveServe(TaskSpecServe):
         self.return_token_type_ids = return_token_type_ids
         self.return_probabilities = return_probabilities
 
+
 class TaskParamsHuggingfaceserveServe(TaskParamsServe):
     """
     TaskParamsHuggingfaceserveServe model.
     """
 
-    huggingface_task_name: Literal["SEQUENCE_CLASSIFICATION", "TOKEN_CLASSIFICATION", "FILL_MASK", "TEXT_GENERATION", "TEXT2TEXT_GENERATION"] = None
+    huggingface_task_name: Literal[
+        "SEQUENCE_CLASSIFICATION", "TOKEN_CLASSIFICATION", "FILL_MASK", "TEXT_GENERATION", "TEXT2TEXT_GENERATION"
+    ] = None
     """
     Huggingface task name.
     """
@@ -140,6 +150,3 @@ class TaskParamsHuggingfaceserveServe(TaskParamsServe):
     """
     Max number of prompt characters or prompt
     """
-
-
-

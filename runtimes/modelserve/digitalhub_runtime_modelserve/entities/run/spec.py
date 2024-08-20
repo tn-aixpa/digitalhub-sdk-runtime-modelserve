@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from digitalhub_ml.entities.run.spec import RunParamsMl, RunSpecMl
 
+
 class RunSpecModelserve(RunSpecMl):
     """Run model serving specification."""
 
@@ -24,6 +25,7 @@ class RunSpecModelserve(RunSpecMl):
         self.service_type = kwargs.get("service_type")
         self.replicas = kwargs.get("replicas")
 
+
 class RunParamsModelserve(RunParamsMl):
     """Run Model serving parameters."""
 
@@ -44,21 +46,26 @@ class RunParamsModelserve(RunParamsMl):
     service_type: str = None
     replicas: int = None
 
+
 class RunSpecSklearnserve(RunSpecModelserve):
     """Run SKLearn model serving specification."""
+
 
 class RunSpecMlflowserve(RunSpecModelserve):
     """Run MLFLow model serving specification."""
 
+
 class RunSpecHuggingfaceserve(RunSpecModelserve):
     """Run Huggingface model serving specification."""
+
 
 class RunParamsSklearnserve(RunParamsModelserve):
     """Run SKLearn model serving parameters."""
 
+
 class RunParamsMlflowserve(RunParamsModelserve):
     """Run MLFLow model serving parameters."""
 
+
 class RunParamsHuggingfaceserve(RunParamsModelserve):
     """Run Huggingface model serving parameters."""
-

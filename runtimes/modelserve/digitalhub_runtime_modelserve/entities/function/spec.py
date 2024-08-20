@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Literal
-
 from digitalhub_core.entities.function.spec import FunctionParams, FunctionSpec
 
 
@@ -10,12 +8,7 @@ class FunctionSpecModelserve(FunctionSpec):
     Specification for a Function for model serving.
     """
 
-    def __init__(
-        self,
-        path: str | None = None,
-        model_name: str | None = None,
-        image: str | None = None
-    ) -> None:
+    def __init__(self, path: str | None = None, model_name: str | None = None, image: str | None = None) -> None:
         super().__init__()
 
         self.path = path
@@ -37,32 +30,38 @@ class FunctionParamsModelserve(FunctionParams):
     image: str = None
     "Image where the function will be executed"
 
+
 class FunctionSpecSklearnserve(FunctionSpecModelserve):
     """
     Specification for a Function for SKLearn model serving.
     """
+
 
 class FunctionSpecMlflowserve(FunctionSpecModelserve):
     """
     Specification for a Function for MLFlow model serving.
     """
 
+
 class FunctionSpecHuggingfaceserve(FunctionSpecModelserve):
     """
     Specification for a Function for HuggingFace model serving.
     """
+
 
 class FunctionParamsSklearnserve(FunctionParamsModelserve):
     """
     Function SKLearn model serving parameters model.
     """
 
+
 class FunctionParamsMlflowserve(FunctionParamsModelserve):
     """
     Function MLFlow model serving parameters model.
     """
 
+
 class FunctionParamsHuggingfaceserve(FunctionParamsModelserve):
     """
     Function HuggingFace model serving parameters model.
-    """ 
+    """

@@ -58,7 +58,7 @@ class RuntimeModelserve(Runtime):
         dict
             Status of the executed run.
         """
-        msg = f"Local execution not allowed."
+        msg = "Local execution not allowed."
         LOGGER.exception(msg)
         raise NotImplementedError(msg)
 
@@ -78,17 +78,19 @@ class RuntimeModelserve(Runtime):
             Function to execute.
         """
         raise NotImplementedError
-        
+
 
 class RuntimeSklearnserve(RuntimeModelserve):
     """
     Runtime Sklearn Serve class.
     """
 
+
 class RuntimeMlflowserve(RuntimeModelserve):
     """
     Runtime Mlflow Serve class.
     """
+
 
 class RuntimeHuggingfaceserve(RuntimeModelserve):
     """

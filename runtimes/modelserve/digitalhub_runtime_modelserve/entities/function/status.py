@@ -8,15 +8,18 @@ class FunctionStatusModelserve(FunctionStatus):
     Function Model serve status.
     """
 
+
 class FunctionStatusSklearnserve(FunctionStatusModelserve):
     """
     Function SKLearn Model serve status.
     """
 
+
 class FunctionStatusHuggingfaceserve(FunctionStatusModelserve):
     """
     Function HuggingFace Model serve status.
     """
+
 
 class FunctionStatusMlflowserve(FunctionStatusModelserve):
     """

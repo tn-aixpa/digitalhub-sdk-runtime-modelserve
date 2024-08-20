@@ -8,15 +8,18 @@ class RunStatusModelserve(RunStatusMl):
     Run Model serve status.
     """
 
+
 class RunStatusSklearnserve(RunStatusMl):
     """
     Run SKLearn Model serve status.
     """
 
+
 class RunStatusMlflowserve(RunStatusMl):
     """
     Run Mlflow Model serve status.
     """
+
 
 class RunStatusHuggingfaceserve(RunStatusMl):
     """
