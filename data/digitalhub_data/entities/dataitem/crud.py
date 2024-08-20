@@ -103,11 +103,11 @@ def new_dataitem(
         project=project,
         name=name,
         kind=kind,
-        path=path,
         uuid=uuid,
         description=description,
         labels=labels,
         embedded=embedded,
+        path=path,
         **kwargs,
     )
     obj.save()

@@ -71,11 +71,6 @@ def model_from_parameters(
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
-    framework: str | None = None,
-    algorithm: str | None = None,
-    base_model: str | None = None,
-    parameters: dict | None = None,
-    metrics: dict | None = None,
     **kwargs,
 ) -> Model:
     """
@@ -99,17 +94,6 @@ def model_from_parameters(
         Flag to determine if object must be embedded in project.
     path : str
         Object path on local file system or remote storage.
-        If not provided, it's generated.
-    framework : str
-        Model framework (e.g. 'pytorch').
-    algorithm : str
-        Model algorithm (e.g. 'resnet').
-    base_model : str
-        Base model.
-    parameters : dict
-        Model parameters.
-    metrics : dict
-        Model metrics.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -134,11 +118,6 @@ def model_from_parameters(
     spec = build_spec(
         kind,
         path=path,
-        framework=framework,
-        algorithm=algorithm,
-        base_model=base_model,
-        parameters=parameters,
-        metrics=metrics,
         **kwargs,
     )
     status = build_status(kind)

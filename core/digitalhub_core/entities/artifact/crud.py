@@ -67,7 +67,6 @@ def new_artifact(
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
-    src_path: str | None = None,
     **kwargs,
 ) -> Artifact:
     """
@@ -91,8 +90,6 @@ def new_artifact(
         Flag to determine if object must be embedded in project.
     path : str
         Object path on local file system or remote storage.
-    src_path : str
-        Local object path.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -110,7 +107,6 @@ def new_artifact(
         labels=labels,
         embedded=embedded,
         path=path,
-        src_path=src_path,
         **kwargs,
     )
     obj.save()

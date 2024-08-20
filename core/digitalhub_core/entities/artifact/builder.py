@@ -52,7 +52,6 @@ def artifact_from_parameters(
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
-    src_path: str | None = None,
     **kwargs,
 ) -> Artifact:
     """
@@ -76,9 +75,6 @@ def artifact_from_parameters(
         Flag to determine if object must be embedded in project.
     path : str
         Object path on local file system or remote storage.
-        If not provided, it's generated.
-    src_path : str
-        Local object path.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -103,7 +99,6 @@ def artifact_from_parameters(
     spec = build_spec(
         kind,
         path=path,
-        src_path=src_path,
         **kwargs,
     )
     status = build_status(kind)

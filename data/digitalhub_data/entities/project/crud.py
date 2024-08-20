@@ -13,40 +13,6 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.project.entity import ProjectData as Project
 
 
-def create_project(**kwargs) -> Project:
-    """
-    Create a new project.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Project
-        A Project instance.
-    """
-    return project_from_parameters(**kwargs)
-
-
-def create_project_from_dict(obj: dict) -> Project:
-    """
-    Create a new Project instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Project
-        Project object.
-    """
-    return project_from_dict(obj)
-
-
 def load_project(
     name: str | None = None,
     filename: str | None = None,
@@ -173,7 +139,7 @@ def new_project(
     build_client(local, config)
     if context is None:
         context = name
-    obj = create_project(
+    obj = project_from_parameters(
         name=name,
         kind="project",
         description=description,
@@ -218,7 +184,7 @@ def get_project(
     client = get_client(local)
     obj = read_entity_api_base(client, ENTITY_TYPE, name, **kwargs)
     obj["local"] = local
-    project = create_project_from_dict(obj)
+    project = project_from_dict(obj)
     return _setup_project(project, setup_kwargs)
 
 
@@ -248,5 +214,5 @@ def import_project(
     build_client(local, config)
     obj: dict = read_yaml(file)
     obj["local"] = local
-    project = create_project_from_dict(obj)
+    project = project_from_dict(obj)
     return _setup_project(project, setup_kwargs)

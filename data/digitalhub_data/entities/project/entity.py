@@ -3,10 +3,6 @@ from __future__ import annotations
 import typing
 from typing import Any
 
-from digitalhub_core.entities._builders.metadata import build_metadata
-from digitalhub_core.entities._builders.name import build_name
-from digitalhub_core.entities._builders.spec import build_spec
-from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.project.entity.core import CTX_ENTITIES, FUNC_MAP, ProjectCore
 from digitalhub_data.entities.dataitem.crud import (
     create_dataitem_from_dict,
@@ -68,7 +64,6 @@ class ProjectData(ProjectCore):
             Flag to determine if object must be embedded in project.
         path : str
             Object path on local file system or remote storage.
-            If not provided, it's generated.
         **kwargs : dict
             Spec keyword arguments.
 
@@ -81,11 +76,11 @@ class ProjectData(ProjectCore):
             project=self.name,
             name=name,
             kind=kind,
-            path=path,
             uuid=uuid,
             description=description,
             labels=labels,
             embedded=embedded,
+            path=path,
             **kwargs,
         )
         self.refresh()
@@ -193,7 +188,7 @@ class ProjectData(ProjectCore):
         kind : str
             Kind the object.
         path : str
-            Destination path of the dataitem.
+            Destination path of the dataitem. If not provided, it's generated.
         data : Any
             Dataframe to log.
         extension : str
@@ -217,38 +212,3 @@ class ProjectData(ProjectCore):
         )
         self.refresh()
         return obj
-
-    @staticmethod
-    def _parse_dict(obj: dict, validate: bool = True) -> dict:
-        """
-        Get dictionary and parse it to a valid entity dictionary.
-
-        Parameters
-        ----------
-        entity : str
-            Entity type.
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-        """
-        # Override methods to search in digitalhub_data
-        name = build_name(obj.get("name"))
-        kind = obj.get("kind")
-        metadata = build_metadata(kind, **obj.get("metadata", {}))
-        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, **obj.get("status", {}))
-        user = obj.get("user")
-        local = obj.get("local", False)
-        return {
-            "name": name,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-            "user": user,
-            "local": local,
-        }

@@ -7,44 +7,10 @@ from digitalhub_core.entities._base.crud import read_entity_api_base
 from digitalhub_core.entities.project.crud import ENTITY_TYPE, _setup_project
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
-from digitalhub_ml.entities.project.entity import project_from_dict, project_from_parameters
+from digitalhub_ml.entities.project.builder import project_from_dict, project_from_parameters
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.project.entity import ProjectMl as Project
-
-
-def create_project(**kwargs) -> Project:
-    """
-    Create a new project.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Project
-        A Project instance.
-    """
-    return project_from_parameters(**kwargs)
-
-
-def create_project_from_dict(obj: dict) -> Project:
-    """
-    Create a new Project instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Project
-        Project object.
-    """
-    return project_from_dict(obj)
 
 
 def load_project(
@@ -173,7 +139,7 @@ def new_project(
     build_client(local, config)
     if context is None:
         context = name
-    obj = create_project(
+    obj = project_from_parameters(
         name=name,
         kind="project",
         description=description,
@@ -218,7 +184,7 @@ def get_project(
     client = get_client(local)
     obj = read_entity_api_base(client, ENTITY_TYPE, name, **kwargs)
     obj["local"] = local
-    project = create_project_from_dict(obj)
+    project = project_from_dict(obj)
     return _setup_project(project, setup_kwargs)
 
 
@@ -248,5 +214,5 @@ def import_project(
     build_client(local, config)
     obj: dict = read_yaml(file)
     obj["local"] = local
-    project = create_project_from_dict(obj)
+    project = project_from_dict(obj)
     return _setup_project(project, setup_kwargs)

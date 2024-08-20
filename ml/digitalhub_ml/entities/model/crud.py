@@ -67,11 +67,6 @@ def new_model(
     labels: list[str] | None = None,
     embedded: bool = True,
     path: str | None = None,
-    framework: str | None = None,
-    algorithm: str | None = None,
-    base_model: str | None = None,
-    parameters: dict | None = None,
-    metrics: dict | None = None,
     **kwargs,
 ) -> Model:
     """
@@ -95,16 +90,6 @@ def new_model(
         Flag to determine if object must be embedded in project.
     path : str
         Object path on local file system or remote storage.
-    framework : str
-        Model framework (e.g. 'pytorch').
-    algorithm : str
-        Model algorithm (e.g. 'resnet').
-    base_model : str
-        Base model.
-    parameters : dict
-        Model parameters.
-    metrics : dict
-        Model metrics.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -122,8 +107,6 @@ def new_model(
         labels=labels,
         embedded=embedded,
         path=path,
-        framework=framework,
-        algorithm=algorithm,
         **kwargs,
     )
     obj.save()

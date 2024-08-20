@@ -8,6 +8,18 @@ class ArtifactSpec(MaterialSpec):
     Artifact specification.
     """
 
+
+class ArtifactParams(MaterialParams):
+    """
+    Artifact base parameters.
+    """
+
+
+class ArtifactSpecArtifact(ArtifactSpec):
+    """
+    Artifact specification.
+    """
+
     def __init__(
         self,
         path: str,
@@ -18,22 +30,10 @@ class ArtifactSpec(MaterialSpec):
         self.src_path = src_path
 
 
-class ArtifactParams(MaterialParams):
-    """
-    Artifact base parameters.
-    """
-
-    src_path: str = None
-    """Source path of the artifact."""
-
-
-class ArtifactSpecArtifact(ArtifactSpec):
-    """
-    Artifact specification.
-    """
-
-
 class ArtifactParamsArtifact(ArtifactParams):
     """
     Artifact parameters.
     """
+
+    src_path: str = None
+    """Source path of the artifact."""

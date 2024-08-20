@@ -74,7 +74,6 @@ class ProjectCore(Project):
         labels: list[str] | None = None,
         embedded: bool = True,
         path: str | None = None,
-        src_path: str | None = None,
         **kwargs,
     ) -> Artifact:
         """
@@ -96,9 +95,6 @@ class ProjectCore(Project):
             Flag to determine if object must be embedded in project.
         path : str
             Object path on local file system or remote storage.
-            If not provided, it's generated.
-        src_path : str
-            Local object path.
         **kwargs : dict
             Spec keyword arguments.
 
@@ -116,7 +112,6 @@ class ProjectCore(Project):
             labels=labels,
             embedded=embedded,
             path=path,
-            src_path=src_path,
             **kwargs,
         )
         self.refresh()
@@ -225,7 +220,7 @@ class ProjectCore(Project):
         source : str
             Artifact location on local machine.
         path : str
-            Destination path of the artifact.
+            Destination path of the artifact. If not provided, it's generated.
         **kwargs : dict
             New artifact parameters.
 

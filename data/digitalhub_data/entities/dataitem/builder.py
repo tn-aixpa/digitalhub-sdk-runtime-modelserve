@@ -86,7 +86,6 @@ def dataitem_from_parameters(
         Flag to determine if object must be embedded in project.
     path : str
         Object path on local file system or remote storage.
-        If not provided, it's generated.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -95,6 +94,8 @@ def dataitem_from_parameters(
     Dataitem
         Object instance.
     """
+    if path is None:
+        raise EntityError("Dataitem path must be provided")
     name = build_name(name)
     uuid = build_uuid(uuid)
     metadata = build_metadata(

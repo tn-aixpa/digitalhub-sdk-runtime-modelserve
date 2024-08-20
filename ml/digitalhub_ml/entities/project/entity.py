@@ -2,10 +2,6 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_core.entities._builders.metadata import build_metadata
-from digitalhub_core.entities._builders.name import build_name
-from digitalhub_core.entities._builders.spec import build_spec
-from digitalhub_core.entities._builders.status import build_status
 from digitalhub_data.entities.project.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.model.crud import (
@@ -43,8 +39,6 @@ class ProjectMl(ProjectData):
         labels: list[str] | None = None,
         embedded: bool = True,
         path: str | None = None,
-        framework: str | None = None,
-        algorithm: str | None = None,
         **kwargs,
     ) -> Model:
         """
@@ -66,11 +60,6 @@ class ProjectMl(ProjectData):
             Flag to determine if object must be embedded in project.
         path : str
             Object path on local file system or remote storage.
-            If not provided, it's generated.
-        framework : str
-            Model framework (e.g. 'pytorch').
-        algorithm : str
-            Model algorithm (e.g. 'resnet').
         **kwargs : dict
             Spec keyword arguments.
 
@@ -88,8 +77,6 @@ class ProjectMl(ProjectData):
             labels=labels,
             embedded=embedded,
             path=path,
-            framework=framework,
-            algorithm=algorithm,
             **kwargs,
         )
         self.refresh()
@@ -198,7 +185,7 @@ class ProjectMl(ProjectData):
         source : str
             Model location on local machine.
         path : str
-            Destination path of the model.
+            Destination path of the model. If not provided, it's generated.
         **kwargs : dict
             New model parameters.
 
@@ -217,113 +204,3 @@ class ProjectMl(ProjectData):
         )
         self.refresh()
         return obj
-
-    @staticmethod
-    def _parse_dict(obj: dict, validate: bool = True) -> dict:
-        """
-        Get dictionary and parse it to a valid entity dictionary.
-
-        Parameters
-        ----------
-        entity : str
-            Entity type.
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-        """
-        # Override methods to search in digitalhub_ml
-        name = build_name(obj.get("name"))
-        kind = obj.get("kind")
-        metadata = build_metadata(kind, **obj.get("metadata", {}))
-        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, **obj.get("status", {}))
-        user = obj.get("user")
-        local = obj.get("local", False)
-        return {
-            "name": name,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-            "user": user,
-            "local": local,
-        }
-
-
-def project_from_parameters(
-    name: str,
-    kind: str,
-    description: str | None = None,
-    labels: list[str] | None = None,
-    local: bool = False,
-    context: str | None = None,
-    **kwargs,
-) -> ProjectData:
-    """
-    Create project.
-
-    Parameters
-    ----------
-    name : str
-        Object name.
-    kind : str
-        Kind the object.
-    description : str
-        Description of the object (human readable).
-    labels : list[str]
-        List of labels.
-    local : bool
-        Flag to determine if object will be exported to backend.
-    context : str
-        The context of the project.
-    **kwargs : dict
-        Spec keyword arguments.
-
-    Returns
-    -------
-    ProjectData
-        ProjectData object.
-    """
-    name = build_name(name)
-    spec = build_spec(
-        kind,
-        context=context,
-        **kwargs,
-    )
-    metadata = build_metadata(
-        kind,
-        project=name,
-        name=name,
-        description=description,
-        labels=labels,
-    )
-    status = build_status(kind)
-    return ProjectMl(
-        name=name,
-        kind=kind,
-        metadata=metadata,
-        spec=spec,
-        status=status,
-        local=local,
-    )
-
-
-def project_from_dict(obj: dict) -> ProjectData:
-    """
-    Create project from dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    ProjectData
-        ProjectData object.
-    """
-    return ProjectMl.from_dict(obj)
