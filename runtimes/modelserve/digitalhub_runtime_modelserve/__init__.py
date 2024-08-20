@@ -31,7 +31,7 @@ for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
     for i in ["serve"]:
         task_kind = f"{func_kind}+{i}"
         prefix = entity_type.capitalize()
-        suffix = i.capitalize()
+        suffix = func_kind.capitalize() + i.capitalize()
         task_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
         registry.register(task_kind, task_info)
 

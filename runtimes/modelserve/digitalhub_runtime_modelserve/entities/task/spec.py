@@ -87,12 +87,12 @@ class TaskParamsHuggingfaceserveServe(TaskParamsServe):
     TaskParamsHuggingfaceserveServe model.
     """
 
-    huggingface_task_name: Literal["sequence-classification", "token-classification", "fill-mask", "text-generation", "text2text-generation"] = None
+    huggingface_task_name: Literal["SEQUENCE_CLASSIFICATION", "TOKEN_CLASSIFICATION", "FILL_MASK", "TEXT_GENERATION", "TEXT2TEXT_GENERATION"] = None
     """
     Huggingface task name.
     """
 
-    backend: Literal["auto", "vllm", "huggingface"] = None
+    backend: Literal["AUTO", "VLLM", "HUGGINGFACE"] = None
     """
     Backend type.
     """
@@ -112,7 +112,7 @@ class TaskParamsHuggingfaceserveServe(TaskParamsServe):
     """
     The sequences will not be encoded with the special tokens relative to their model
     """
-    dtype: Literal["auto", "float32", "float16", "bfloat16", "float", "half"] = None
+    dtype: Literal["AUTO", "FLOAT32", "FLOAT16", "BFLOAT16", "FLOAT", "HALF"] = None
     """
     Data type to load the weights in.
     """
