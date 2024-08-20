@@ -5,7 +5,7 @@ import typing
 from digitalhub_core.entities._base.crud import list_entity_api_ctx
 from digitalhub_core.entities._base.entity.executable import ExecutableEntity
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.entities.task.crud import create_task, create_task_from_dict, delete_task
+from digitalhub_core.entities.task.crud import delete_task, task_from_dict, task_from_parameters
 from digitalhub_core.runtimes.builder import get_kind_registry
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 
@@ -109,7 +109,7 @@ class Workflow(ExecutableEntity):
             # Create the object instance from dictionary,
             # the form in which tasks are stored in function
             # status
-            task_obj = create_task_from_dict(task)
+            task_obj = task_from_dict(task)
 
             # Try to save it in backend to been able to use
             # it for launching runs. In fact, tasks must be
@@ -147,7 +147,7 @@ class Workflow(ExecutableEntity):
         kwargs["kind"] = task_kind
 
         # Create object instance
-        task = create_task(**kwargs)
+        task = task_from_parameters(**kwargs)
 
         exists, task_id = self._check_task_in_backend(task_kind)
 
@@ -190,7 +190,7 @@ class Workflow(ExecutableEntity):
         kwargs["uuid"] = self._tasks[kind].id
 
         # Update task
-        task = create_task(**kwargs)
+        task = task_from_parameters(**kwargs)
         task.save(update=True)
         self._tasks[kind] = task
 

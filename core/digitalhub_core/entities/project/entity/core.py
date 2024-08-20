@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub_core.entities.artifact.crud import (
-    create_artifact_from_dict,
+    artifact_from_dict,
     delete_artifact,
     get_artifact,
     list_artifacts,
@@ -12,26 +12,20 @@ from digitalhub_core.entities.artifact.crud import (
 )
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.function.crud import (
-    create_function_from_dict,
     delete_function,
+    function_from_dict,
     get_function,
     list_functions,
     new_function,
 )
 from digitalhub_core.entities.project.entity._base import CTX_ENTITIES, FUNC_MAP, Project
-from digitalhub_core.entities.secret.crud import (
-    create_secret_from_dict,
-    delete_secret,
-    get_secret,
-    list_secrets,
-    new_secret,
-)
+from digitalhub_core.entities.secret.crud import delete_secret, get_secret, list_secrets, new_secret, secret_from_dict
 from digitalhub_core.entities.workflow.crud import (
-    create_workflow_from_dict,
     delete_workflow,
     get_workflow,
     list_workflows,
     new_workflow,
+    workflow_from_dict,
 )
 
 if typing.TYPE_CHECKING:
@@ -54,10 +48,10 @@ CTX_ENTITIES.extend(
         SECRETS,
     ]
 )
-FUNC_MAP[ARTIFACTS] = create_artifact_from_dict
-FUNC_MAP[FUNCTIONS] = create_function_from_dict
-FUNC_MAP[WORKFLOWS] = create_workflow_from_dict
-FUNC_MAP[SECRETS] = create_secret_from_dict
+FUNC_MAP[ARTIFACTS] = artifact_from_dict
+FUNC_MAP[FUNCTIONS] = function_from_dict
+FUNC_MAP[WORKFLOWS] = workflow_from_dict
+FUNC_MAP[SECRETS] = secret_from_dict
 
 
 class ProjectCore(Project):

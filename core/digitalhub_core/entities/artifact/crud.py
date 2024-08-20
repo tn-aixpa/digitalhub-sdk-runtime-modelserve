@@ -23,41 +23,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.ARTIFACT.value
 
 
-def create_artifact(**kwargs) -> Artifact:
-    """
-    Create a new artifact with the provided parameters.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Artifact
-        Object instance.
-    """
-    return artifact_from_parameters(**kwargs)
-
-
-def create_artifact_from_dict(obj: dict) -> Artifact:
-    """
-    Create a new Artifact instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Artifact
-        Artifact object.
-    """
-    check_context(obj.get("project"))
-    return artifact_from_dict(obj)
-
-
 def new_artifact(
     project: str,
     name: str,
@@ -98,7 +63,8 @@ def new_artifact(
     Artifact
         Object instance.
     """
-    obj = create_artifact(
+    check_context(project)
+    obj = artifact_from_parameters(
         project=project,
         name=name,
         kind=kind,
@@ -201,7 +167,7 @@ def import_artifact(file: str) -> Artifact:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    return create_artifact_from_dict(obj)
+    return artifact_from_dict(obj)
 
 
 def delete_artifact(

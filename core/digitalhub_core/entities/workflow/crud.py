@@ -20,41 +20,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.WORKFLOW.value
 
 
-def create_workflow(**kwargs) -> Workflow:
-    """
-    Create a new Workflow instance with the specified parameters.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Workflow
-        An instance of the created workflow.
-    """
-    return workflow_from_parameters(**kwargs)
-
-
-def create_workflow_from_dict(obj: dict) -> Workflow:
-    """
-    Create a new Workflow instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Workflow
-        Workflow object.
-    """
-    check_context(obj.get("project"))
-    return workflow_from_dict(obj)
-
-
 def new_workflow(
     project: str,
     name: str,
@@ -90,7 +55,8 @@ def new_workflow(
     Workflow
         An instance of the created workflow.
     """
-    obj = create_workflow(
+    check_context(project)
+    obj = workflow_from_parameters(
         project=project,
         name=name,
         kind=kind,
@@ -193,7 +159,7 @@ def import_workflow(file: str) -> Workflow:
         task_dicts = []
 
     check_context(obj.get("project"))
-    workflow = create_workflow_from_dict(wf_dict)
+    workflow = workflow_from_dict(wf_dict)
     workflow.import_tasks(task_dicts)
     return workflow
 

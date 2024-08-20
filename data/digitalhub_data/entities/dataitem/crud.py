@@ -24,41 +24,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.DATAITEM.value
 
 
-def create_dataitem(**kwargs) -> Dataitem:
-    """
-    Create a new data item with the provided parameters.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Dataitem
-        Object instance.
-    """
-    return dataitem_from_parameters(**kwargs)
-
-
-def create_dataitem_from_dict(obj: dict) -> Dataitem:
-    """
-    Create a new Dataitem instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Dataitem
-        Dataitem object.
-    """
-    check_context(obj.get("project"))
-    return dataitem_from_dict(obj)
-
-
 def new_dataitem(
     project: str,
     name: str,
@@ -99,7 +64,8 @@ def new_dataitem(
     Dataitem
         Object instance.
     """
-    obj = create_dataitem(
+    check_context(project)
+    obj = dataitem_from_parameters(
         project=project,
         name=name,
         kind=kind,
@@ -202,7 +168,7 @@ def import_dataitem(file: str) -> Dataitem:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    return create_dataitem_from_dict(obj)
+    return dataitem_from_dict(obj)
 
 
 def delete_dataitem(
@@ -329,7 +295,7 @@ def log_dataitem(
         kwargs["uuid"] = uuid
         path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}/data.parquet"
 
-    dataitem = create_dataitem(project=project, name=name, kind=kind, path=path, **kwargs)
+    dataitem = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)
     if kind == "table":
         dataitem.write_df(df=data, extension=extension)
         reader = get_reader_by_object(data)

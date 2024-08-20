@@ -16,41 +16,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.RUN.value
 
 
-def create_run(**kwargs) -> Run:
-    """
-    Create a new object instance.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Run
-        Object instance.
-    """
-    return run_from_parameters(**kwargs)
-
-
-def create_run_from_dict(obj: dict) -> Run:
-    """
-    Create a new Run instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Run
-        Run object.
-    """
-    check_context(obj.get("project"))
-    return run_from_dict(obj)
-
-
 def new_run(
     project: str,
     task: str,
@@ -85,7 +50,8 @@ def new_run(
     Run
         Run object.
     """
-    obj = create_run(
+    check_context(project)
+    obj = run_from_parameters(
         project=project,
         task=task,
         kind=kind,
@@ -150,7 +116,7 @@ def import_run(file: str) -> Run:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    return create_run_from_dict(obj)
+    return run_from_dict(obj)
 
 
 def delete_run(

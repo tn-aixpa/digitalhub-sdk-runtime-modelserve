@@ -23,41 +23,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.MODEL.value
 
 
-def create_model(**kwargs) -> Model:
-    """
-    Create a new Model instance with the specified parameters.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Model
-        An instance of the created model.
-    """
-    return model_from_parameters(**kwargs)
-
-
-def create_model_from_dict(obj: dict) -> Model:
-    """
-    Create a new Model instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Model
-        Model object.
-    """
-    check_context(obj.get("project"))
-    return model_from_dict(obj)
-
-
 def new_model(
     project: str,
     name: str,
@@ -98,7 +63,8 @@ def new_model(
     Model
         An instance of the created model.
     """
-    obj = create_model(
+    check_context(project)
+    obj = model_from_parameters(
         project=project,
         name=name,
         kind=kind,
@@ -201,7 +167,7 @@ def import_model(file: str) -> Model:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    return create_model_from_dict(obj)
+    return model_from_dict(obj)
 
 
 def delete_model(

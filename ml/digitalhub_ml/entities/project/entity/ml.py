@@ -5,11 +5,11 @@ import typing
 from digitalhub_data.entities.project.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.model.crud import (
-    create_model_from_dict,
     delete_model,
     get_model,
     list_models,
     log_model,
+    model_from_dict,
     new_model,
 )
 
@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
 
 MODELS = EntityTypes.MODEL.value
 CTX_ENTITIES.append(MODELS)
-FUNC_MAP[MODELS] = create_model_from_dict
+FUNC_MAP[MODELS] = model_from_dict
 
 
 class ProjectMl(ProjectData):

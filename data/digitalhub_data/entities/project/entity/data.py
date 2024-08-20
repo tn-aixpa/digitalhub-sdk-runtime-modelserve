@@ -5,7 +5,7 @@ from typing import Any
 
 from digitalhub_core.entities.project.entity.core import CTX_ENTITIES, FUNC_MAP, ProjectCore
 from digitalhub_data.entities.dataitem.crud import (
-    create_dataitem_from_dict,
+    dataitem_from_dict,
     delete_dataitem,
     get_dataitem,
     list_dataitems,
@@ -21,7 +21,7 @@ if typing.TYPE_CHECKING:
 DATAITEMS = EntityTypes.DATAITEM.value
 
 CTX_ENTITIES.append(DATAITEMS)
-FUNC_MAP[DATAITEMS] = create_dataitem_from_dict
+FUNC_MAP[DATAITEMS] = dataitem_from_dict
 
 
 class ProjectData(ProjectCore):

@@ -10,7 +10,7 @@ from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_data.entities.project.builder import project_from_dict, project_from_parameters
 
 if typing.TYPE_CHECKING:
-    from digitalhub_data.entities.project.entity import ProjectData as Project
+    from digitalhub_data.entities.project.entity.data import ProjectData as Project
 
 
 def load_project(

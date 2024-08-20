@@ -19,41 +19,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.FUNCTION.value
 
 
-def create_function(**kwargs) -> Function:
-    """
-    Create a new object instance.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Function
-        Object instance.
-    """
-    return function_from_parameters(**kwargs)
-
-
-def create_function_from_dict(obj: dict) -> Function:
-    """
-    Create a new Function instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create the Function from.
-
-    Returns
-    -------
-    Function
-        Function object.
-    """
-    check_context(obj.get("project"))
-    return function_from_dict(obj)
-
-
 def new_function(
     project: str,
     name: str,
@@ -91,7 +56,8 @@ def new_function(
     Function
         Object instance.
     """
-    obj = create_function(
+    check_context(project)
+    obj = function_from_parameters(
         project=project,
         name=name,
         kind=kind,
@@ -193,7 +159,7 @@ def import_function(file: str) -> Function:
         func_dict = obj
         task_dicts = []
     check_context(func_dict.get("project"))
-    func = create_function_from_dict(func_dict)
+    func = function_from_dict(func_dict)
     func.import_tasks(task_dicts)
     return func
 

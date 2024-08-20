@@ -20,41 +20,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.SECRET.value
 
 
-def create_secret(**kwargs) -> Secret:
-    """
-    Create a new Secret instance with the specified parameters.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Secret
-        An instance of the created secret.
-    """
-    return secret_from_parameters(**kwargs)
-
-
-def create_secret_from_dict(obj: dict) -> Secret:
-    """
-    Create a new Secret instance from a dictionary.
-
-    Parameters
-    ----------
-    obj : dict
-        Dictionary to create object from.
-
-    Returns
-    -------
-    Secret
-        Secret object.
-    """
-    check_context(obj.get("project"))
-    return secret_from_dict(obj)
-
-
 def new_secret(
     project: str,
     name: str,
@@ -92,10 +57,12 @@ def new_secret(
     Secret
         An instance of the created secret.
     """
+    check_context(project)
+
     if secret_value is None:
         raise ValueError("secret_value must be provided.")
 
-    obj = create_secret(
+    obj = secret_from_parameters(
         project=project,
         name=name,
         kind="secret",
@@ -191,7 +158,7 @@ def import_secret(file: str) -> Secret:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    return create_secret_from_dict(obj)
+    return secret_from_dict(obj)
 
 
 def delete_secret(

@@ -16,41 +16,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.TASK.value
 
 
-def create_task(**kwargs) -> Task:
-    """
-    Create a new object instance.
-
-    Parameters
-    ----------
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Task
-        Object instance.
-    """
-    return task_from_parameters(**kwargs)
-
-
-def create_task_from_dict(obj: dict) -> Task:
-    """
-    Create a new object instance.
-
-    Parameters
-    ----------
-    obj : dict
-        Object dictionary.
-
-    Returns
-    -------
-    Task
-        Object instance.
-    """
-    check_context(obj.get("project"))
-    return task_from_dict(obj)
-
-
 def new_task(
     project: str,
     task: str,
@@ -84,7 +49,8 @@ def new_task(
     Task
         Object instance.
     """
-    obj = create_task(
+    check_context(project)
+    obj = task_from_parameters(
         project=project,
         task=task,
         kind=kind,
@@ -148,7 +114,7 @@ def import_task(file: str) -> Task:
         Object instance.
     """
     obj: dict = read_yaml(file)
-    return create_task_from_dict(obj)
+    return task_from_dict(obj)
 
 
 def delete_task(

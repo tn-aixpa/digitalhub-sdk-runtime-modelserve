@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from dbt.cli.main import dbtRunnerResult
 from digitalhub_core.entities._base.state import State
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitem.crud import create_dataitem
+from digitalhub_data.entities.dataitem.crud import dataitem_from_parameters
 from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub_runtime_dbt.utils.env import get_connection
 from psycopg2 import sql
@@ -192,7 +192,7 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
         kwargs["schema"] = get_schema(columns)
 
         # Create dataitem
-        dataitem = create_dataitem(**kwargs)
+        dataitem = dataitem_from_parameters(**kwargs)
 
         # Update dataitem status with preview
         dataitem.status.preview = _get_data_preview(columns, data, rows_count)
