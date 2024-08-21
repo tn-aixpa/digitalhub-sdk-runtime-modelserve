@@ -10,7 +10,7 @@ import botocore.client  # pylint: disable=unused-import
 from botocore.exceptions import ClientError
 from digitalhub_core.stores.objects.base import Store, StoreConfig
 from digitalhub_core.utils.exceptions import StoreError
-from digitalhub_core.utils.file_utils import get_file_info_from_s3
+from digitalhub_core.utils.file_utils import get_file_info_from_s3, get_file_mime_type
 
 # Type aliases
 S3Client = Type["botocore.client.S3"]
@@ -376,7 +376,11 @@ class S3Store(Store):
             A tuple containing the URI of the uploaded file
             and the path of the original file.
         """
-        client.upload_file(Filename=src, Bucket=bucket, Key=key)
+        extra_args = {}
+        mime_type = get_file_mime_type(src)
+        if mime_type is not None:
+            extra_args["ContentType"] = mime_type
+        client.upload_file(Filename=src, Bucket=bucket, Key=key, ExtraArgs=extra_args)
         return f"s3://{bucket}/{key}", src
 
     @staticmethod

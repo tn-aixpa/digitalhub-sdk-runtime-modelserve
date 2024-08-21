@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_data.entities.project.entity import CTX_ENTITIES, FUNC_MAP, ProjectData
+from digitalhub_data.entities.project.entity.data import CTX_ENTITIES, FUNC_MAP, ProjectData
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.model.crud import (
     delete_model,
