@@ -347,10 +347,9 @@ class S3Store(Store):
         files = [i for i in path_src.rglob("*") if i.is_file()]
 
         for file in files:
-            file = str(file.relative_to(path_src))
-            key = self._get_key(file)
+            key = self._get_key(str(file.relative_to(path_src)))
             built_key = f"{dst}{key}"
-            paths.append(self._upload_file(file, built_key, client, bucket))
+            paths.append(self._upload_file(str(file), built_key, client, bucket))
 
         return paths
 
