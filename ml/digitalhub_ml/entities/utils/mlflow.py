@@ -66,7 +66,7 @@ def from_mlflow_run(run_id: str) -> dict:
     model_params = {}
 
     # source path
-    model_params["path"] = source_path
+    model_params["source"] = source_path
 
     # common properties
     model_params["framework"] = flavor

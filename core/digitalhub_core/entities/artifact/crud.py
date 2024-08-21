@@ -290,8 +290,14 @@ def log_artifact(
         uuid = build_uuid()
         kwargs["uuid"] = uuid
         path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
-        if Path(source).is_dir():
+
+        pth_src = Path(source)
+        if pth_src.is_dir():
             path = f"{path}/"
+        elif pth_src.is_file():
+            path = f"{path}/{pth_src.name}"
+        else:
+            raise ValueError(f"Invalid source path: {source}")
 
     obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
     obj.upload(source)

@@ -347,9 +347,10 @@ class S3Store(Store):
         files = [i for i in path_src.rglob("*") if i.is_file()]
 
         for file in files:
-            key = self._get_key(str(file.relative_to(path_src)))
+            file = str(file.relative_to(path_src))
+            key = self._get_key(file)
             built_key = f"{dst}{key}"
-            paths.append(self._upload_file(str(file), built_key, client, bucket))
+            paths.append(self._upload_file(file, built_key, client, bucket))
 
         return paths
 
@@ -380,6 +381,7 @@ class S3Store(Store):
         mime_type = get_file_mime_type(src)
         if mime_type is not None:
             extra_args["ContentType"] = mime_type
+
         client.upload_file(Filename=src, Bucket=bucket, Key=key, ExtraArgs=extra_args)
         return f"s3://{bucket}/{key}", src
 
