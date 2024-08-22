@@ -15,10 +15,8 @@ RUN python -m pip install "digitalhub-core[full]>=${VERSION}" \
     python -m pip install "digitalhub>=${VERSION}" \
                           "digitalhub-ml>=${VERSION}" \
                           "digitalhub-runtime-python>=${VERSION}" \
-                          "digitalhub-runtime-mlrun>=${VERSION}" \
                           "digitalhub-runtime-container>=${VERSION}" \
-                          "digitalhub-runtime-dbt>=${VERSION}" \
-                          "digitalhub-runtime-nefertem>=${VERSION}" --no-deps
+                          "digitalhub-runtime-dbt>=${VERSION}" --no-deps
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
