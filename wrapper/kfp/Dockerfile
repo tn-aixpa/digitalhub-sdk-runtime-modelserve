@@ -11,8 +11,7 @@ WORKDIR /app/
 # Install digitalhub-core
 RUN python -m pip install "digitalhub-core[full]>=${VERSION}" \
                           "digitalhub-data[pandas]>=${VERSION}" \
-                          "digitalhub-runtime-kfp>=${VERSION}" && \
-    python -m pip install "kfp==1.8.11" && \
+                          "digitalhub-runtime-kfp[local]>=${VERSION}" && \
     python -m pip install "digitalhub>=${VERSION}" \
                           "digitalhub-ml>=${VERSION}" \
                           "digitalhub-runtime-python>=${VERSION}" \
