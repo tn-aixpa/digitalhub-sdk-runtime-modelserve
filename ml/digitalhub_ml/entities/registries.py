@@ -14,7 +14,7 @@ registry.project.spec.parameters_validator = "ProjectParamsMl"
 
 # Models
 entity_type = EntityTypes.MODEL.value
-for i in ["mlflow", "sklearn", "huggingface"]:
+for i in ["model", "mlflow", "sklearn", "huggingface"]:
     prefix = entity_type.capitalize()
     suffix = i.capitalize()
     model_info = create_info(root, entity_type, prefix, suffix)
