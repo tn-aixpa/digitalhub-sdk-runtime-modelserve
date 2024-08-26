@@ -45,4 +45,4 @@ class MaterialStatus(Status):
         """
         if self.files is None:
             return []
-        return [(f["path"], f["src_path"]) for f in self.files]
+        return [(f.get("path"), f.get("src_path")) for f in self.files]
