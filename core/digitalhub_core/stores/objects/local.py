@@ -246,7 +246,7 @@ class LocalStore(Store):
         """
         if dst.is_dir():
             if src.is_absolute():
-                src = Path(*src.parts[1:])
+                raise StoreError("Source must be a relative path if the destination is a directory.")
             dst = dst / src
         self._build_path(dst)
         return dst
