@@ -24,6 +24,7 @@ class RunSpecDbt(RunSpecData):
         self.tolerations = kwargs.get("tolerations")
         self.env = kwargs.get("env")
         self.secrets = kwargs.get("secrets")
+        self.profile = kwargs.get("profile")
         self.backoff_limit = kwargs.get("backoff_limit")
         self.schedule = kwargs.get("schedule")
         self.replicas = kwargs.get("replicas")
@@ -48,6 +49,7 @@ class RunParamsDbt(RunParamsData):
     tolerations: list[dict] = None
     env: list[dict] = None
     secrets: list[str] = None
+    profile: str = None
 
     # Run parameters
     inputs: dict = None

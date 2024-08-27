@@ -23,9 +23,11 @@ def map_uri_scheme(uri: str) -> str:
         If the scheme is unknown.
     """
     scheme = urlparse(uri).scheme
-    if scheme in ["", "file", "local"]:
+    if scheme in [""]:
         return "local"
-    if scheme in ["http", "https", "remote"]:
+    if scheme in ["file", "local"]:
+        raise ValueError(f"For local path, do not use any scheme")
+    if scheme in ["http", "https"]:
         return "remote"
     if scheme in ["s3", "s3a", "s3n", "zip+s3"]:
         return "s3"

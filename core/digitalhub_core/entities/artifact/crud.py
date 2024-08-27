@@ -15,6 +15,7 @@ from digitalhub_core.entities.artifact.builder import artifact_from_dict, artifa
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.utils.env_utils import get_s3_bucket
 from digitalhub_core.utils.io_utils import read_yaml
+from digitalhub_core.utils.uri_utils import check_local_path
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifact.entity._base import Artifact
@@ -124,7 +125,11 @@ def log_artifact(
     >>>                    kind="artifact",
     >>>                    source="./local-path")
     """
-    if path is None:
+    source_is_local = check_local_path(source)
+    if path is not None and not source_is_local:
+        raise ValueError("If you provide a path, you must use a local path as source.")
+
+    if path is None and source_is_local:
         uuid = build_uuid()
         kwargs["uuid"] = uuid
         path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
@@ -137,8 +142,13 @@ def log_artifact(
         else:
             raise ValueError(f"Invalid source path: {source}")
 
+    if path is None and not source_is_local:
+        path = source
+
     obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
-    obj.upload(source)
+
+    if source_is_local:
+        obj.upload(source)
     return obj
 
 

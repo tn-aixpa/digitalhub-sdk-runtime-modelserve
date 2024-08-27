@@ -28,6 +28,7 @@ class RunSpecPython(RunSpecMl):
         self.tolerations = kwargs.get("tolerations")
         self.env = kwargs.get("env")
         self.secrets = kwargs.get("secrets")
+        self.profile = kwargs.get("profile")
         self.backoff_limit = kwargs.get("backoff_limit")
         self.schedule = kwargs.get("schedule")
         self.replicas = kwargs.get("replicas")
@@ -56,11 +57,12 @@ class RunParamsPython(RunParamsMl):
     function: str = None
     node_selector: list[dict] = None
     volumes: list[dict] = None
-    resources: list[dict] = None
+    resources: dict = None
     affinity: dict = None
     tolerations: list[dict] = None
     env: list[dict] = None
     secrets: list[str] = None
+    profile: str = None
 
     # Task job
     backoff_limit: int = None
