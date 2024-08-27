@@ -20,12 +20,12 @@ def build_uuid(uuid: str | None = None) -> str:
     Parameters
     ----------
     uuid : str
-        ID of the object (UUID4). Optional.
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
 
     Returns
     -------
     str
-        The uuid.
+        Validated UUID4.
     """
     if uuid is not None:
         UUIDValidator(uuid=uuid)

@@ -73,7 +73,7 @@ def build_client(local: bool = False, config: dict | None = None) -> None:
     local : bool
         Whether to create a local client or not.
     config : dict
-        DHCore env configuration.
+        DHCore environment configuration.
 
     Returns
     -------

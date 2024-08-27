@@ -48,7 +48,6 @@ class UnversionedEntity(ContextEntity):
         if filename is None:
             filename = f"{self.ENTITY_TYPE}-{self.id}.yml"
         pth = self._context().root / filename
-        pth.parent.mkdir(parents=True, exist_ok=True)
         write_yaml(pth, obj)
 
     @staticmethod

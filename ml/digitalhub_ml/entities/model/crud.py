@@ -35,7 +35,7 @@ def new_model(
     **kwargs,
 ) -> Model:
     """
-    Create a new Model instance with the specified parameters.
+    Create a new object.
 
     Parameters
     ----------
@@ -46,22 +46,29 @@ def new_model(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     description : str
         Description of the object (human readable).
     labels : list[str]
         List of labels.
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     path : str
-        Object path on local file system or remote storage.
+        Object path on local file system or remote storage. It is also the destination path of upload() method.
     **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Model
-        An instance of the created model.
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = new_model(project="my-project",
+    >>>                    name="my-model",
+    >>>                    kind="model",
+    >>>                    path="s3://my-bucket/my-key")
     """
     check_context(project)
     obj = model_from_parameters(
@@ -79,6 +86,62 @@ def new_model(
     return obj
 
 
+def log_model(
+    project: str,
+    name: str,
+    kind: str,
+    source: str,
+    path: str | None = None,
+    **kwargs,
+) -> Model:
+    """
+    Create and upload an object.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    name : str
+        Object name.
+    kind : str
+        Kind the object.
+    source : str
+        Model location on local path.
+    path : str
+        Destination path of the model. If not provided, it's generated.
+    **kwargs : dict
+        New model spec parameters.
+
+    Returns
+    -------
+    Model
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = log_model(project="my-project",
+    >>>                 name="my-model",
+    >>>                 kind="model",
+    >>>                 source="./local-path")
+    """
+    if path is None:
+        uuid = build_uuid()
+        kwargs["uuid"] = uuid
+        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
+
+        pth_src = Path(source)
+        if pth_src.is_dir():
+            path = f"{path}/"
+        elif pth_src.is_file():
+            path = f"{path}/{pth_src.name}"
+        else:
+            raise ValueError(f"Invalid source path: {source}")
+
+    obj = new_model(project=project, name=name, kind=kind, path=path, **kwargs)
+    obj.upload(source)
+    return obj
+
+
 def get_model(
     identifier: str,
     project: str | None = None,
@@ -91,7 +154,7 @@ def get_model(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
@@ -103,6 +166,16 @@ def get_model(
     -------
     Model
         Object instance.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_model("store://my-model-key")
+
+    Using entity name:
+    >>> obj = get_model("my-model-name"
+    >>>                 project="my-project",
+    >>>                 entity_id="my-model-id")
     """
     obj = read_entity_api_ctx(
         identifier,
@@ -127,7 +200,7 @@ def get_model_versions(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     **kwargs : dict
@@ -137,6 +210,15 @@ def get_model_versions(
     -------
     list[Model]
         List of object instances.
+
+    Examples
+    --------
+    Using entity key:
+    >>> objs = get_model_versions("store://my-model-key")
+
+    Using entity name:
+    >>> objs = get_model_versions("my-model-name",
+    >>>                           project="my-project")
     """
     objs = read_entity_api_ctx_versions(
         identifier,
@@ -152,22 +234,80 @@ def get_model_versions(
     return objects
 
 
+def list_models(project: str, **kwargs) -> list[Model]:
+    """
+    List all latest version objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Model]
+        List of object instances.
+
+    Examples
+    --------
+    >>> objs = list_models(project="my-project")
+    """
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    objects = []
+    for o in objs:
+        entity = model_from_dict(o)
+        entity._get_files_info()
+        objects.append(entity)
+    return objects
+
+
 def import_model(file: str) -> Model:
     """
-    Import an Model object from a file using the specified file path.
+    Import object from a YAML file.
 
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
 
     Returns
     -------
     Model
         Object instance.
+
+    Examples
+    --------
+    >>> obj = import_model("my-model.yaml")
     """
     obj: dict = read_yaml(file)
     return model_from_dict(obj)
+
+
+def update_model(entity: Model) -> Model:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Model
+        Object to update.
+
+    Returns
+    -------
+    Model
+        Entity updated.
+
+    Examples
+    --------
+    >>> obj = get_model("store://my-model-key")
+    """
+    return entity.save(update=True)
 
 
 def delete_model(
@@ -183,14 +323,13 @@ def delete_model(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity.
-        Use entity name instead of entity key as identifier.
+        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -198,6 +337,16 @@ def delete_model(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    If delete_all_versions is False:
+    >>> obj = delete_model("store://my-model-key")
+
+    Otherwise:
+    >>> obj = delete_model("my-model-name",
+    >>>                    project="my-project",
+    >>>                    delete_all_versions=True)
     """
     return delete_entity_api_ctx(
         identifier=identifier,
@@ -207,98 +356,3 @@ def delete_model(
         delete_all_versions=delete_all_versions,
         **kwargs,
     )
-
-
-def update_model(entity: Model) -> Model:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Model
-        The object to update.
-
-    Returns
-    -------
-    Model
-        Entity updated.
-    """
-    return entity.save(update=True)
-
-
-def list_models(project: str, **kwargs) -> list[Model]:
-    """
-    List all objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[Model]
-        List of models.
-    """
-    objs = list_entity_api_ctx(
-        project=project,
-        entity_type=ENTITY_TYPE,
-        **kwargs,
-    )
-    objects = []
-    for o in objs:
-        entity = model_from_dict(o)
-        entity._get_files_info()
-        objects.append(entity)
-    return objects
-
-
-def log_model(
-    project: str,
-    name: str,
-    kind: str,
-    source: str,
-    path: str | None = None,
-    **kwargs,
-) -> Model:
-    """
-    Create and upload an model.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    name : str
-        Object name.
-    kind : str
-        Kind the object.
-    source : str
-        Model location on local machine.
-    path : str
-        Destination path of the model. If not provided, it's generated.
-    **kwargs : dict
-        New model parameters.
-
-    Returns
-    -------
-    Model
-        Instance of Model class.
-    """
-    if path is None:
-        uuid = build_uuid()
-        kwargs["uuid"] = uuid
-        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
-
-        pth_src = Path(source)
-        if pth_src.is_dir():
-            path = f"{path}/"
-        elif pth_src.is_file():
-            path = f"{path}/{pth_src.name}"
-        else:
-            raise ValueError(f"Invalid source path: {source}")
-
-    obj = new_model(project=project, name=name, kind=kind, path=path, **kwargs)
-    obj.upload(source)
-    return obj

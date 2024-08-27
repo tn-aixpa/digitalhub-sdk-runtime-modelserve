@@ -22,11 +22,11 @@ class Context:
         self.client = project._client
         self.local = project._client.is_local()
         self.root = Path(project.spec.context)
-
-        self.root.mkdir(parents=True, exist_ok=True)
-
         self.runtime_dir = self.root / "runtime"
         self.tmp_dir = self.root / "tmp"
+
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
+        self.tmp_dir.mkdir(parents=True, exist_ok=True)
 
     def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """
@@ -37,7 +37,7 @@ class Context:
         api : str
             Create API.
         obj : dict
-            The object to create.
+            Object to create.
         **kwargs : dict
             Keyword arguments passed to the request.
 
@@ -75,7 +75,7 @@ class Context:
         api : str
             Update API.
         obj : dict
-            The object to update.
+            Object to update.
         **kwargs : dict
             Keyword arguments passed to the request.
 

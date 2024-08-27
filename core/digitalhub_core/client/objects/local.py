@@ -37,7 +37,7 @@ class ClientLocal(Client):
         api : str
             Create API.
         obj : dict
-            The object to create.
+            Object to create.
 
         Returns
         -------
@@ -160,7 +160,7 @@ class ClientLocal(Client):
         api : str
             Update API.
         obj : dict
-            The object to update.
+            Object to update.
 
         Returns
         -------

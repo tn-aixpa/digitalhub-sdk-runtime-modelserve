@@ -18,29 +18,27 @@ ENTITY_TYPE = EntityTypes.TASK.value
 
 def new_task(
     project: str,
-    task: str,
     kind: str,
     uuid: str | None = None,
     labels: list[str] | None = None,
+    function: str | None = None,
     **kwargs,
 ) -> Task:
     """
-    Create a new object instance.
+    Create a new object.
 
     Parameters
     ----------
     project : str
         Project name.
-    task : str
-        The task string identifying the task.
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     labels : list[str]
         List of labels.
-    task : str
-        The task string identifying the task.
+    function : str
+        Name of the executable associated with the task.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -48,14 +46,21 @@ def new_task(
     -------
     Task
         Object instance.
+
+    Examples
+    --------
+    >>> obj = new_function(project="my-project",
+    >>>                    name="my-function",
+    >>>                    kind="python+task",
+    >>>                    task="task-string"
     """
     check_context(project)
     obj = task_from_parameters(
         project=project,
-        task=task,
         kind=kind,
         uuid=uuid,
         labels=labels,
+        function=function,
         **kwargs,
     )
     obj.save()
@@ -65,7 +70,6 @@ def new_task(
 def get_task(
     identifier: str,
     project: str | None = None,
-    entity_id: str | None = None,
     **kwargs,
 ) -> Task:
     """
@@ -74,11 +78,9 @@ def get_task(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity ID.
     project : str
         Project name.
-    entity_id : str
-        Entity ID.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -86,6 +88,15 @@ def get_task(
     -------
     Task
         Object instance.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_task("store://my-task-key")
+
+    Using entity ID:
+    >>> obj = get_task("my-task-id"
+    >>>               project="my-project")
     """
     if not identifier.startswith("store://"):
         raise EntityError("Task has no name. Use key instead.")
@@ -93,10 +104,38 @@ def get_task(
         identifier,
         ENTITY_TYPE,
         project=project,
-        entity_id=entity_id,
+        entity_id=identifier,
         **kwargs,
     )
     return task_from_dict(obj)
+
+
+def list_tasks(project: str, **kwargs) -> list[Task]:
+    """
+    List all latest version objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Task]
+        List of object instances.
+
+    Examples
+    --------
+    >>> objs = list_tasks(project="my-project")
+    """
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    return [task_from_dict(obj) for obj in objs]
 
 
 def import_task(file: str) -> Task:
@@ -106,15 +145,40 @@ def import_task(file: str) -> Task:
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
 
     Returns
     -------
     Task
         Object instance.
+
+    Example
+    -------
+    >>> obj = import_task("my-task.yaml")
     """
     obj: dict = read_yaml(file)
     return task_from_dict(obj)
+
+
+def update_task(entity: Task) -> Task:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Task
+        Object to update.
+
+    Returns
+    -------
+    Task
+        Entity updated.
+
+    Examples
+    --------
+    >>> obj = update_task(obj)
+    """
+    return entity.save(update=True)
 
 
 def delete_task(
@@ -131,14 +195,13 @@ def delete_task(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity.
-        Use entity name instead of entity key as identifier.
+        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
     cascade : bool
         Cascade delete.
     **kwargs : dict
@@ -148,6 +211,16 @@ def delete_task(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    If delete_all_versions is False:
+    >>> obj = delete_task("store://my-task-key")
+
+    Otherwise:
+    >>> obj = delete_task("task-name",
+    >>>                  project="my-project",
+    >>>                  delete_all_versions=True)
     """
     if not identifier.startswith("store://"):
         raise EntityError("Task has no name. Use key instead.")
@@ -160,44 +233,3 @@ def delete_task(
         cascade=cascade,
         **kwargs,
     )
-
-
-def update_task(entity: Task) -> Task:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Task
-        The object to update.
-
-    Returns
-    -------
-    Task
-        Entity updated.
-    """
-    return entity.save(update=True)
-
-
-def list_tasks(project: str, **kwargs) -> list[Task]:
-    """
-    List all objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[Task]
-        List of tasks.
-    """
-    objs = list_entity_api_ctx(
-        project=project,
-        entity_type=ENTITY_TYPE,
-        **kwargs,
-    )
-    return [task_from_dict(obj) for obj in objs]

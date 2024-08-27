@@ -31,7 +31,7 @@ def new_workflow(
     **kwargs,
 ) -> Workflow:
     """
-    Create a new Workflow instance with the specified parameters.
+    Create a new object.
 
     Parameters
     ----------
@@ -40,20 +40,28 @@ def new_workflow(
     name : str
         Object name.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     description : str
         Description of the object (human readable).
     labels : list[str]
         List of labels.
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Workflow
-        An instance of the created workflow.
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = new_function(project="my-project",
+    >>>                    name="my-function",
+    >>>                    kind="kfp",
+    >>>                    code_src="pipeline.py",
+    >>>                    handler="pipeline-handler")
     """
     check_context(project)
     obj = workflow_from_parameters(
@@ -82,7 +90,7 @@ def get_workflow(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
@@ -94,6 +102,16 @@ def get_workflow(
     -------
     Workflow
         Object instance.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_workflow("store://my-workflow-key")
+
+    Using entity name:
+    >>> obj = get_workflow("my-workflow-name"
+    >>>                    project="my-project",
+    >>>                    entity_id="my-workflow-id")
     """
     obj = read_entity_api_ctx(
         identifier,
@@ -116,7 +134,7 @@ def get_workflow_versions(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     **kwargs : dict
@@ -126,6 +144,15 @@ def get_workflow_versions(
     -------
     list[Workflow]
         List of object instances.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_workflow_versions("store://my-workflow-key")
+
+    Using entity name:
+    >>> obj = get_workflow_versions("my-workflow-name"
+    >>>                             project="my-project")
     """
     obj = read_entity_api_ctx_versions(
         identifier,
@@ -136,19 +163,51 @@ def get_workflow_versions(
     return [workflow_from_dict(o) for o in obj]
 
 
+def list_workflows(project: str, **kwargs) -> list[Workflow]:
+    """
+    List all latest version objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Workflow]
+        List of object instances.
+
+    Examples
+    --------
+    >>> objs = list_workflows(project="my-project")
+    """
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    return [workflow_from_dict(obj) for obj in objs]
+
+
 def import_workflow(file: str) -> Workflow:
     """
-    Import an Workflow object from a file using the specified file path.
+    Import object from a YAML file.
 
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
 
     Returns
     -------
     Workflow
         Object instance.
+
+    Examples
+    --------
+    >>> obj = import_workflow("my-workflow.yaml")
     """
     obj: dict = read_yaml(file)
     if isinstance(obj, list):
@@ -162,6 +221,27 @@ def import_workflow(file: str) -> Workflow:
     workflow = workflow_from_dict(wf_dict)
     workflow.import_tasks(task_dicts)
     return workflow
+
+
+def update_workflow(entity: Workflow) -> Workflow:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Workflow
+        Object to update.
+
+    Returns
+    -------
+    Workflow
+        Entity updated.
+
+    Examples
+    --------
+    >>> obj = update_workflow(obj)
+    """
+    return entity.save(update=True)
 
 
 def delete_workflow(
@@ -178,14 +258,13 @@ def delete_workflow(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity.
-        Use entity name instead of entity key as identifier.
+        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
     cascade : bool
         Cascade delete.
     **kwargs : dict
@@ -195,6 +274,16 @@ def delete_workflow(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    If delete_all_versions is False:
+    >>> obj = delete_workflow("store://my-workflow-key")
+
+    Otherwise:
+    >>> obj = delete_workflow("workflow-name",
+    >>>                       project="my-project",
+    >>>                       delete_all_versions=True)
     """
     return delete_entity_api_ctx(
         identifier=identifier,
@@ -205,44 +294,3 @@ def delete_workflow(
         cascade=cascade,
         **kwargs,
     )
-
-
-def update_workflow(entity: Workflow) -> Workflow:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Workflow
-        The object to update.
-
-    Returns
-    -------
-    Workflow
-        Entity updated.
-    """
-    return entity.save(update=True)
-
-
-def list_workflows(project: str, **kwargs) -> list[Workflow]:
-    """
-    List all objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[Workflow]
-        List of workflows.
-    """
-    objs = list_entity_api_ctx(
-        project=project,
-        entity_type=ENTITY_TYPE,
-        **kwargs,
-    )
-    return [workflow_from_dict(obj) for obj in objs]

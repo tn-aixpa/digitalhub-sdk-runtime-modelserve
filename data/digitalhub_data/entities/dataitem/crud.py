@@ -36,7 +36,7 @@ def new_dataitem(
     **kwargs,
 ) -> Dataitem:
     """
-    Create a new object instance.
+    Create a new object.
 
     Parameters
     ----------
@@ -47,15 +47,15 @@ def new_dataitem(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     description : str
         Description of the object (human readable).
     labels : list[str]
         List of labels.
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     path : str
-        Object path on local file system or remote storage.
+        Object path on local file system or remote storage. It is also the destination path of upload() method.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -63,6 +63,13 @@ def new_dataitem(
     -------
     Dataitem
         Object instance.
+
+    Examples
+    --------
+    >>> obj = new_dataitem(project="my-project",
+    >>>                    name="my-dataitem",
+    >>>                    kind="dataitem",
+    >>>                    path="s3://my-bucket/my-key")
     """
     check_context(project)
     obj = dataitem_from_parameters(
@@ -80,6 +87,65 @@ def new_dataitem(
     return obj
 
 
+def log_dataitem(
+    project: str,
+    name: str,
+    kind: str,
+    source: str | None = None,
+    data: Any | None = None,
+    extension: str | None = None,
+    path: str | None = None,
+    **kwargs,
+) -> Dataitem:
+    """
+    Log a dataitem to the project.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    name : str
+        Object name.
+    kind : str
+        Kind the object.
+    source : str
+        Dataitem location on local path.
+    data : Any
+        Dataframe to log. Alternative to source.
+    extension : str
+        Extension of the output dataframe.
+    path : str
+        Destination path of the dataitem. If not provided, it's generated.
+    **kwargs : dict
+        New dataitem spec parameters.
+
+    Returns
+    -------
+    Dataitem
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = log_dataitem(project="my-project",
+    >>>                    name="my-dataitem",
+    >>>                    kind="table",
+    >>>                    data=df)
+    """
+    if path is None:
+        uuid = build_uuid()
+        kwargs["uuid"] = uuid
+        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}/data.parquet"
+
+    dataitem = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)
+    if kind == "table":
+        dataitem.write_df(df=data, extension=extension)
+        reader = get_reader_by_object(data)
+        dataitem.spec.schema = reader.get_schema(data)
+        dataitem.status.preview = reader.get_preview(data)
+    dataitem.save()
+    return dataitem
+
+
 def get_dataitem(
     identifier: str,
     project: str | None = None,
@@ -92,7 +158,7 @@ def get_dataitem(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
@@ -104,6 +170,16 @@ def get_dataitem(
     -------
     Dataitem
         Object instance.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_dataitem("store://my-dataitem-key")
+
+    Using entity name:
+    >>> obj = get_dataitem("my-dataitem-name"
+    >>>                    project="my-project",
+    >>>                    entity_id="my-dataitem-id")
     """
     obj = read_entity_api_ctx(
         identifier,
@@ -128,7 +204,7 @@ def get_dataitem_versions(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     **kwargs : dict
@@ -138,6 +214,15 @@ def get_dataitem_versions(
     -------
     list[Dataitem]
         List of object instances.
+
+    Examples
+    --------
+    Using entity key:
+    >>> objs = get_dataitem_versions("store://my-dataitem-key")
+
+    Using entity name:
+    >>> objs = get_dataitem_versions("my-dataitem-name",
+    >>>                              project="my-project")
     """
     objs = read_entity_api_ctx_versions(
         identifier,
@@ -153,22 +238,80 @@ def get_dataitem_versions(
     return objects
 
 
+def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
+    """
+    List all latest version objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Dataitem]
+        List of object instances.
+
+    Examples
+    --------
+    >>> objs = list_dataitems(project="my-project")
+    """
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    objects = []
+    for o in objs:
+        entity = dataitem_from_dict(o)
+        entity._get_files_info()
+        objects.append(entity)
+    return objects
+
+
 def import_dataitem(file: str) -> Dataitem:
     """
-    Import an Dataitem object from a file using the specified file path.
+    Import object from a YAML file.
 
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
 
     Returns
     -------
     Dataitem
         Object instance.
+
+    Examples
+    --------
+    >>> obj = import_dataitem("my-dataitem.yaml")
     """
     obj: dict = read_yaml(file)
     return dataitem_from_dict(obj)
+
+
+def update_dataitem(entity: Dataitem) -> Dataitem:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Dataitem
+        Object to update.
+
+    Returns
+    -------
+    Dataitem
+        Entity updated.
+
+    Examples
+    --------
+    >>> obj = update_dataitem(obj)
+    """
+    return entity.save(update=True)
 
 
 def delete_dataitem(
@@ -184,14 +327,13 @@ def delete_dataitem(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity.
-        Use entity name instead of entity key as identifier.
+        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -199,6 +341,16 @@ def delete_dataitem(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    If delete_all_versions is False:
+    >>> obj = delete_dataitem("store://my-dataitem-key")
+
+    Otherwise:
+    >>> obj = delete_dataitem("my-dataitem-name",
+    >>>                       project="my-project",
+    >>>                       delete_all_versions=True)
     """
     return delete_entity_api_ctx(
         identifier=identifier,
@@ -208,98 +360,3 @@ def delete_dataitem(
         delete_all_versions=delete_all_versions,
         **kwargs,
     )
-
-
-def update_dataitem(entity: Dataitem) -> Dataitem:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Dataitem
-        The object to update.
-
-    Returns
-    -------
-    Dataitem
-        Entity updated.
-    """
-    return entity.save(update=True)
-
-
-def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
-    """
-    List all objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[Dataitem]
-        List of dataitems.
-    """
-    objs = list_entity_api_ctx(
-        project=project,
-        entity_type=ENTITY_TYPE,
-        **kwargs,
-    )
-    objects = []
-    for o in objs:
-        entity = dataitem_from_dict(o)
-        entity._get_files_info()
-        objects.append(entity)
-    return objects
-
-
-def log_dataitem(
-    project: str,
-    name: str,
-    kind: str,
-    data: Any,
-    path: str | None = None,
-    extension: str | None = None,
-    **kwargs,
-) -> Dataitem:
-    """
-    Log a dataitem to the project.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    name : str
-        Object name.
-    kind : str
-        Kind the object.
-    data : Any
-        Dataframe to log.
-    path : str
-        Destination path of the dataitem. If not provided, it's generated.
-    extension : str
-        Extension of the dataitem.
-    **kwargs : dict
-        New dataitem parameters.
-
-    Returns
-    -------
-    Dataitem
-        Object instance.
-    """
-    if path is None:
-        uuid = build_uuid()
-        kwargs["uuid"] = uuid
-        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}/data.parquet"
-
-    dataitem = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)
-    if kind == "table":
-        dataitem.write_df(df=data, extension=extension)
-        reader = get_reader_by_object(data)
-        dataitem.spec.schema = reader.get_schema(data)
-        dataitem.status.preview = reader.get_preview(data)
-    dataitem.save()
-    return dataitem

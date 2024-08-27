@@ -17,7 +17,7 @@ def project_from_parameters(
     **kwargs,
 ) -> Project:
     """
-    Create project.
+    Create a new object.
 
     Parameters
     ----------
@@ -30,16 +30,16 @@ def project_from_parameters(
     labels : list[str]
         List of labels.
     local : bool
-        Flag to determine if object will be exported to backend.
+        If True, use local backend, if False use DHCore backend. Default to False.
     context : str
-        The context of the project.
+        The context local folder of the project.
     **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Project
-        Project object.
+        Object instance.
     """
     name = build_name(name)
     spec = build_spec(
@@ -67,7 +67,7 @@ def project_from_parameters(
 
 def project_from_dict(obj: dict) -> Project:
     """
-    Create project from dictionary.
+    Create a new object from dictionary.
 
     Parameters
     ----------
@@ -77,6 +77,6 @@ def project_from_dict(obj: dict) -> Project:
     Returns
     -------
     Project
-        Project object.
+        Object instance.
     """
     return Project.from_dict(obj)

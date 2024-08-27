@@ -31,7 +31,7 @@ def new_secret(
     **kwargs,
 ) -> Secret:
     """
-    Create a new Secret instance with the specified parameters.
+    Create a new object.
 
     Parameters
     ----------
@@ -40,13 +40,13 @@ def new_secret(
     name : str
         Object name.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     description : str
         Description of the object (human readable).
     labels : list[str]
         List of labels.
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     secret_value : str
         Value of the secret.
     **kwargs : dict
@@ -55,7 +55,13 @@ def new_secret(
     Returns
     -------
     Secret
-        An instance of the created secret.
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = new_secret(project="my-project",
+    >>>                  name="my-secret",
+    >>>                  secret_value="my-secret-value")
     """
     check_context(project)
 
@@ -89,7 +95,7 @@ def get_secret(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
@@ -101,6 +107,16 @@ def get_secret(
     -------
     Secret
         Object instance.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_secret("store://my-secret-key")
+
+    Using entity name:
+    >>> obj = get_secret("my-secret-name"
+    >>>                  project="my-project",
+    >>>                  entity_id="my-secret-id")
     """
     obj = read_entity_api_ctx(
         identifier,
@@ -123,7 +139,7 @@ def get_secret_versions(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     **kwargs : dict
@@ -133,6 +149,15 @@ def get_secret_versions(
     -------
     list[Secret]
         List of object instances.
+
+    Examples
+    --------
+    Using entity key:
+    >>> objs = get_secret_versions("store://my-secret-key")
+
+    Using entity name:
+    >>> objs = get_secret_versions("my-secret-name",
+    >>>                            project="my-project")
     """
     obj = read_entity_api_ctx_versions(
         identifier,
@@ -143,22 +168,75 @@ def get_secret_versions(
     return [secret_from_dict(o) for o in obj]
 
 
+def list_secrets(project: str, **kwargs) -> list[Secret]:
+    """
+    List all latest version objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Secret]
+        List of object instances.
+
+    Examples
+    --------
+    >>> objs = list_secrets(project="my-project")
+    """
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    return [secret_from_dict(obj) for obj in objs]
+
+
 def import_secret(file: str) -> Secret:
     """
-    Import an Secret object from a file using the specified file path.
+    Import object from a YAML file.
 
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
 
     Returns
     -------
     Secret
         Object instance.
+
+    Examples
+    --------
+    >>> obj = import_secret("my-secret.yaml")
     """
     obj: dict = read_yaml(file)
     return secret_from_dict(obj)
+
+
+def update_secret(entity: Secret) -> Secret:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Secret
+        Object to update.
+
+    Returns
+    -------
+    Secret
+        Entity updated.
+
+    Examples
+    --------
+    >>> obj = update_secret(obj)
+    """
+    return entity.save(update=True)
 
 
 def delete_secret(
@@ -174,14 +252,13 @@ def delete_secret(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity.
-        Use entity name instead of entity key as identifier.
+        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -189,6 +266,16 @@ def delete_secret(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    If delete_all_versions is False:
+    >>> obj = delete_secret("store://my-secret-key")
+
+    Otherwise:
+    >>> obj = delete_secret("my-secret-name"
+    >>>                     project="my-project",
+    >>>                     delete_all_versions=True)
     """
     return delete_entity_api_ctx(
         identifier=identifier,
@@ -198,44 +285,3 @@ def delete_secret(
         delete_all_versions=delete_all_versions,
         **kwargs,
     )
-
-
-def update_secret(entity: Secret) -> Secret:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Secret
-        The object to update.
-
-    Returns
-    -------
-    Secret
-        Entity updated.
-    """
-    return entity.save(update=True)
-
-
-def list_secrets(project: str, **kwargs) -> list[Secret]:
-    """
-    List all objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[Secret]
-        List of secrets.
-    """
-    objs = list_entity_api_ctx(
-        project=project,
-        entity_type=ENTITY_TYPE,
-        **kwargs,
-    )
-    return [secret_from_dict(obj) for obj in objs]

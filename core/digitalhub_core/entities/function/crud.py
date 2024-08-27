@@ -41,13 +41,13 @@ def new_function(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     description : str
         Description of the object (human readable).
     labels : list[str]
         List of labels.
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -55,6 +55,14 @@ def new_function(
     -------
     Function
         Object instance.
+
+    Examples
+    --------
+    >>> obj = new_function(project="my-project",
+    >>>                    name="my-function",
+    >>>                    kind="python",
+    >>>                    code_src="function.py",
+    >>>                    handler="function-handler")
     """
     check_context(project)
     obj = function_from_parameters(
@@ -83,7 +91,7 @@ def get_function(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
@@ -95,6 +103,16 @@ def get_function(
     -------
     Function
         Object instance.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_function("store://my-function-key")
+
+    Using entity name:
+    >>> obj = get_function("my-function-name"
+    >>>                    project="my-project",
+    >>>                    entity_id="my-function-id")
     """
     obj = read_entity_api_ctx(
         identifier,
@@ -117,7 +135,7 @@ def get_function_versions(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     **kwargs : dict
@@ -127,6 +145,15 @@ def get_function_versions(
     -------
     list[Function]
         List of object instances.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_function_versions("store://my-function-key")
+
+    Using entity name:
+    >>> obj = get_function_versions("my-function-name"
+    >>>                             project="my-project")
     """
     obj = read_entity_api_ctx_versions(
         identifier,
@@ -137,6 +164,34 @@ def get_function_versions(
     return [function_from_dict(o) for o in obj]
 
 
+def list_functions(project: str, **kwargs) -> list[Function]:
+    """
+    List all latest version objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Function]
+        List of object instances.
+
+    Examples
+    --------
+    >>> objs = list_functions(project="my-project")
+    """
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    return [function_from_dict(obj) for obj in objs]
+
+
 def import_function(file: str) -> Function:
     """
     Get object from file.
@@ -144,12 +199,16 @@ def import_function(file: str) -> Function:
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
 
     Returns
     -------
     Function
         Object instance.
+
+    Examples
+    --------
+    >>> obj = import_function("my-function.yaml")
     """
     obj = read_yaml(file)
     if isinstance(obj, list):
@@ -162,6 +221,27 @@ def import_function(file: str) -> Function:
     func = function_from_dict(func_dict)
     func.import_tasks(task_dicts)
     return func
+
+
+def update_function(entity: Function) -> Function:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Function
+        Object to update.
+
+    Returns
+    -------
+    Function
+        Entity updated.
+
+    Examples
+    --------
+    >>> obj = update_function(obj)
+    """
+    return entity.save(update=True)
 
 
 def delete_function(
@@ -178,14 +258,13 @@ def delete_function(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity.
-        Use entity name instead of entity key as identifier.
+        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
     cascade : bool
         Cascade delete.
     **kwargs : dict
@@ -195,6 +274,16 @@ def delete_function(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    If delete_all_versions is False:
+    >>> obj = delete_function("store://my-function-key")
+
+    Otherwise:
+    >>> obj = delete_function("function-name",
+    >>>                       project="my-project",
+    >>>                       delete_all_versions=True)
     """
     return delete_entity_api_ctx(
         identifier=identifier,
@@ -205,44 +294,3 @@ def delete_function(
         cascade=cascade,
         **kwargs,
     )
-
-
-def update_function(entity: Function) -> Function:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Function
-        The object to update.
-
-    Returns
-    -------
-    Function
-        Entity updated.
-    """
-    return entity.save(update=True)
-
-
-def list_functions(project: str, **kwargs) -> list[Function]:
-    """
-    List all objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[Function]
-        List of functions.
-    """
-    objs = list_entity_api_ctx(
-        project=project,
-        entity_type=ENTITY_TYPE,
-        **kwargs,
-    )
-    return [function_from_dict(obj) for obj in objs]

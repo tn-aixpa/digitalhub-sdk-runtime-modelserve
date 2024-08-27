@@ -106,7 +106,7 @@ class Workflow(ExecutableEntity):
             if not isinstance(task, dict):
                 continue
 
-            # Create the object instance from dictionary,
+            # Create a new object from dictionary.
             # the form in which tasks are stored in function
             # status
             task_obj = task_from_dict(task)

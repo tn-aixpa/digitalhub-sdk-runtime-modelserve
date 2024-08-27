@@ -30,13 +30,13 @@ def function_from_parameters(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     description : str
         Description of the object (human readable).
     labels : list[str]
         List of labels.
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -71,7 +71,7 @@ def function_from_parameters(
 
 def function_from_dict(obj: dict) -> Function:
     """
-    Create function from dictionary.
+    Create a new object from dictionary.
 
     Parameters
     ----------

@@ -12,10 +12,11 @@ def task_from_parameters(
     kind: str,
     uuid: str | None = None,
     labels: list[str] | None = None,
+    function: str | None = None,
     **kwargs,
 ) -> Task:
     """
-    Create a new object instance.
+    Create a new object.
 
     Parameters
     ----------
@@ -24,9 +25,11 @@ def task_from_parameters(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     labels : list[str]
         List of labels.
+    function : str
+        Name of the executable associated with the task.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -42,7 +45,7 @@ def task_from_parameters(
         name=uuid,
         labels=labels,
     )
-    spec = build_spec(kind, **kwargs)
+    spec = build_spec(kind, function=function, **kwargs)
     status = build_status(kind)
     return Task(
         project=project,
@@ -56,7 +59,7 @@ def task_from_parameters(
 
 def task_from_dict(obj: dict) -> Task:
     """
-    Create Task object from dictionary.
+    Create a new object from dictionary.
 
     Parameters
     ----------
@@ -66,6 +69,6 @@ def task_from_dict(obj: dict) -> Task:
     Returns
     -------
     Task
-        Task object.
+        Object instance.
     """
     return Task.from_dict(obj)

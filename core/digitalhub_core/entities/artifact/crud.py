@@ -35,7 +35,7 @@ def new_artifact(
     **kwargs,
 ) -> Artifact:
     """
-    Create an instance of the Artifact class with the provided parameters.
+    Create a new object.
 
     Parameters
     ----------
@@ -46,15 +46,15 @@ def new_artifact(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     description : str
         Description of the object (human readable).
     labels : list[str]
         List of labels.
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     path : str
-        Object path on local file system or remote storage.
+        Object path on local file system or remote storage. It is also the destination path of upload() method.
     **kwargs : dict
         Spec keyword arguments.
 
@@ -62,6 +62,13 @@ def new_artifact(
     -------
     Artifact
         Object instance.
+
+    Examples
+    --------
+    >>> obj = new_artifact(project="my-project",
+    >>>                    name="my-artifact",
+    >>>                    kind="artifact",
+    >>>                    path="s3://my-bucket/my-key")
     """
     check_context(project)
     obj = artifact_from_parameters(
@@ -79,6 +86,62 @@ def new_artifact(
     return obj
 
 
+def log_artifact(
+    project: str,
+    name: str,
+    kind: str,
+    source: str,
+    path: str | None = None,
+    **kwargs,
+) -> Artifact:
+    """
+    Create and upload an object.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    name : str
+        Object name.
+    kind : str
+        Kind the object.
+    source : str
+        Artifact location on local path.
+    path : str
+        Destination path of the artifact. If not provided, it's generated.
+    **kwargs : dict
+        New artifact spec parameters.
+
+    Returns
+    -------
+    Artifact
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = log_artifact(project="my-project",
+    >>>                    name="my-artifact",
+    >>>                    kind="artifact",
+    >>>                    source="./local-path")
+    """
+    if path is None:
+        uuid = build_uuid()
+        kwargs["uuid"] = uuid
+        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
+
+        pth_src = Path(source)
+        if pth_src.is_dir():
+            path = f"{path}/"
+        elif pth_src.is_file():
+            path = f"{path}/{pth_src.name}"
+        else:
+            raise ValueError(f"Invalid source path: {source}")
+
+    obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
+    obj.upload(source)
+    return obj
+
+
 def get_artifact(
     identifier: str,
     project: str | None = None,
@@ -91,7 +154,7 @@ def get_artifact(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
@@ -103,6 +166,16 @@ def get_artifact(
     -------
     Artifact
         Object instance.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_artifact("store://my-artifact-key")
+
+    Using entity name:
+    >>> obj = get_artifact("my-artifact-name"
+    >>>                    project="my-project",
+    >>>                    entity_id="my-artifact-id")
     """
     obj = read_entity_api_ctx(
         identifier,
@@ -127,7 +200,7 @@ def get_artifact_versions(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     **kwargs : dict
@@ -137,6 +210,15 @@ def get_artifact_versions(
     -------
     list[Artifact]
         List of object instances.
+
+    Examples
+    --------
+    Using entity key:
+    >>> obj = get_artifact_versions("store://my-artifact-key")
+
+    Using entity name:
+    >>> obj = get_artifact_versions("my-artifact-name"
+    >>>                             project="my-project")
     """
     objs = read_entity_api_ctx_versions(
         identifier,
@@ -152,22 +234,80 @@ def get_artifact_versions(
     return objects
 
 
+def list_artifacts(project: str, **kwargs) -> list[Artifact]:
+    """
+    List all latest version objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[Artifact]
+        List of object instances.
+
+    Examples
+    --------
+    >>> objs = list_artifacts(project="my-project")
+    """
+    objs = list_entity_api_ctx(
+        project=project,
+        entity_type=ENTITY_TYPE,
+        **kwargs,
+    )
+    objects = []
+    for o in objs:
+        entity = artifact_from_dict(o)
+        entity._get_files_info()
+        objects.append(entity)
+    return objects
+
+
 def import_artifact(file: str) -> Artifact:
     """
-    Import an Artifact object from a file using the specified file path.
+    Import object from a YAML file.
 
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
 
     Returns
     -------
     Artifact
         Object instance.
+
+    Examples
+    --------
+    >>> obj = import_artifact("my-artifact.yaml")
     """
     obj: dict = read_yaml(file)
     return artifact_from_dict(obj)
+
+
+def update_artifact(entity: Artifact) -> Artifact:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Artifact
+        Object to update.
+
+    Returns
+    -------
+    Artifact
+        Entity updated.
+
+    Examples
+    --------
+    >>> obj = update_artifact(obj)
+    """
+    return entity.save(update=True)
 
 
 def delete_artifact(
@@ -183,14 +323,13 @@ def delete_artifact(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     project : str
         Project name.
     entity_id : str
         Entity ID.
     delete_all_versions : bool
-        Delete all versions of the named entity.
-        Use entity name instead of entity key as identifier.
+        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -198,6 +337,16 @@ def delete_artifact(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    If delete_all_versions is False:
+    >>> delete_artifact("store://my-artifact-key")
+
+    Otherwise:
+    >>> delete_artifact("my-artifact-name",
+    >>>                  project="my-project",
+    >>>                  delete_all_versions=True)
     """
     return delete_entity_api_ctx(
         identifier=identifier,
@@ -207,98 +356,3 @@ def delete_artifact(
         delete_all_versions=delete_all_versions,
         **kwargs,
     )
-
-
-def update_artifact(entity: Artifact) -> Artifact:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Artifact
-        The object to update.
-
-    Returns
-    -------
-    Artifact
-        Entity updated.
-    """
-    return entity.save(update=True)
-
-
-def list_artifacts(project: str, **kwargs) -> list[Artifact]:
-    """
-    List all objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[Artifact]
-        List of artifacts.
-    """
-    objs = list_entity_api_ctx(
-        project=project,
-        entity_type=ENTITY_TYPE,
-        **kwargs,
-    )
-    objects = []
-    for o in objs:
-        entity = artifact_from_dict(o)
-        entity._get_files_info()
-        objects.append(entity)
-    return objects
-
-
-def log_artifact(
-    project: str,
-    name: str,
-    kind: str,
-    source: str,
-    path: str | None = None,
-    **kwargs,
-) -> Artifact:
-    """
-    Create and upload an artifact.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    name : str
-        Object name.
-    kind : str
-        Kind the object.
-    source : str
-        Artifact location on local machine.
-    path : str
-        Destination path of the artifact. If not provided, it's generated.
-    **kwargs : dict
-        New artifact parameters.
-
-    Returns
-    -------
-    Artifact
-        Instance of Artifact class.
-    """
-    if path is None:
-        uuid = build_uuid()
-        kwargs["uuid"] = uuid
-        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
-
-        pth_src = Path(source)
-        if pth_src.is_dir():
-            path = f"{path}/"
-        elif pth_src.is_file():
-            path = f"{path}/{pth_src.name}"
-        else:
-            raise ValueError(f"Invalid source path: {source}")
-
-    obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
-    obj.upload(source)
-    return obj

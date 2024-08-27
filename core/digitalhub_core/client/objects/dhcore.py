@@ -110,7 +110,7 @@ class ClientDHCore(Client):
         api : str
             Create API.
         obj : dict
-            The object to create.
+            Object to create.
         **kwargs : dict
             Keyword arguments to pass to the request.
 
@@ -149,7 +149,7 @@ class ClientDHCore(Client):
         api : str
             Update API.
         obj : dict
-            The object to update.
+            Object to update.
         **kwargs : dict
             Keyword arguments to pass to the request.
 

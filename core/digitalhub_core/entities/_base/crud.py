@@ -91,7 +91,7 @@ def update_entity_api_base(
     **kwargs,
 ) -> dict:
     """
-    Update object in backend.
+    Update object. Note that object spec are immutable.
 
     Parameters
     ----------
@@ -214,7 +214,7 @@ def read_entity_api_ctx(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     entity_type : str
         Entity type.
     project : str
@@ -262,7 +262,7 @@ def read_entity_api_ctx_versions(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     entity_type : str
         Entity type.
     project : str
@@ -299,7 +299,7 @@ def update_entity_api_ctx(
     **kwargs,
 ) -> dict:
     """
-    Update object in backend.
+    Update object. Note that object spec are immutable.
 
     Parameters
     ----------
@@ -336,7 +336,7 @@ def delete_entity_api_ctx(
     Parameters
     ----------
     identifier : str
-        Entity key or name.
+        Entity key (store://...) or entity name.
     entity_type : str
         Entity type.
     project : str

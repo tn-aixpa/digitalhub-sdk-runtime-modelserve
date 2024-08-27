@@ -74,7 +74,7 @@ def model_from_parameters(
     **kwargs,
 ) -> Model:
     """
-    Create a new Model instance with the specified parameters.
+    Create a new object.
 
     Parameters
     ----------
@@ -85,22 +85,22 @@ def model_from_parameters(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     labels : list[str]
         List of labels.
     description : str
         Description of the object (human readable).
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     path : str
-        Object path on local file system or remote storage.
+        Object path on local file system or remote storage. It is also the destination path of upload() method.
     **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Model
-        An instance of the created model.
+        Object instance.
     """
     if path is None:
         raise EntityError("Path must be provided.")
@@ -135,7 +135,7 @@ def model_from_parameters(
 
 def model_from_dict(obj: dict) -> Model:
     """
-    Create Model instance from a dictionary.
+    Create a new object from dictionary.
 
     Parameters
     ----------
@@ -145,7 +145,7 @@ def model_from_dict(obj: dict) -> Model:
     Returns
     -------
     Model
-        Model instance.
+        Object instance.
     """
     kind = obj.get("kind")
     cls = _choose_model_type(kind)

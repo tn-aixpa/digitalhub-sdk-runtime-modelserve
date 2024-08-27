@@ -19,7 +19,7 @@ def secret_from_parameters(
     **kwargs,
 ) -> Secret:
     """
-    Create a new Secret instance with the specified parameters.
+    Create a new object.
 
     Parameters
     ----------
@@ -30,20 +30,20 @@ def secret_from_parameters(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     labels : list[str]
         List of labels.
     description : str
         Description of the object (human readable).
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Secret
-        An instance of the created secret.
+        Object instance.
     """
     name = build_name(name)
     uuid = build_uuid(uuid)
@@ -78,7 +78,7 @@ def secret_from_parameters(
 
 def secret_from_dict(obj: dict) -> Secret:
     """
-    Create Secret instance from a dictionary.
+    Create a new object from dictionary.
 
     Parameters
     ----------
@@ -88,6 +88,6 @@ def secret_from_dict(obj: dict) -> Secret:
     Returns
     -------
     Secret
-        Secret instance.
+        Object instance.
     """
     return Secret.from_dict(obj)

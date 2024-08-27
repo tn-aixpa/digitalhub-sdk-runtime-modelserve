@@ -19,92 +19,6 @@ if typing.TYPE_CHECKING:
 ENTITY_TYPE = EntityTypes.PROJECT.value
 
 
-def load_project(
-    name: str | None = None,
-    filename: str | None = None,
-    local: bool = False,
-    config: dict | None = None,
-    setup_kwargs: dict | None = None,
-    **kwargs,
-) -> Project:
-    """
-    Load project and context from backend or file.
-
-    Parameters
-    ----------
-    name : str
-        Project name.
-    local : bool
-        Flag to determine if backend is local.
-    config : dict
-        DHCore env configuration.
-    setup_kwargs : dict
-        Setup keyword arguments.
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Project
-        A Project instance with setted context.
-    """
-    if name is not None:
-        return get_project(name=name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
-    if filename is not None:
-        return import_project(filename, local=local, config=config, setup_kwargs=setup_kwargs)
-    raise EntityError("Either name or filename must be provided.")
-
-
-def get_or_create_project(
-    name: str,
-    local: bool = False,
-    config: dict | None = None,
-    context: str | None = None,
-    setup_kwargs: dict | None = None,
-    **kwargs,
-) -> Project:
-    """
-    Get or create a project.
-
-    Parameters
-    ----------
-    name : str
-        Project name.
-    local : bool
-        Flag to determine if backend is local.
-    config : dict
-        DHCore env configuration.
-    context : str
-        Folder where the project will saves its context locally.
-    setup_kwargs : dict
-        Setup keyword arguments.
-    **kwargs : dict
-        Keyword arguments.
-
-    Returns
-    -------
-    Project
-        A Project instance.
-    """
-    try:
-        return get_project(
-            name,
-            local=local,
-            config=config,
-            setup_kwargs=setup_kwargs,
-            **kwargs,
-        )
-    except BackendError:
-        return new_project(
-            name,
-            local=local,
-            config=config,
-            setup_kwargs=setup_kwargs,
-            context=context,
-            **kwargs,
-        )
-
-
 def new_project(
     name: str,
     description: str | None = None,
@@ -116,7 +30,7 @@ def new_project(
     **kwargs,
 ) -> Project:
     """
-    Create project.
+    Create a new object.
 
     Parameters
     ----------
@@ -127,20 +41,24 @@ def new_project(
     labels : list[str]
         List of labels.
     local : bool
-        Flag to determine if object will be exported to backend.
+        If True, use local backend, if False use DHCore backend. Default to False.
     config : dict
-        DHCore env configuration.
+        DHCore environment configuration.
     context : str
-        The context of the project.
+        The context local folder of the project.
     setup_kwargs : dict
-        Setup keyword arguments.
+        Setup keyword arguments passed to setup_project() function.
     **kwargs : dict
         Keyword arguments.
 
     Returns
     -------
     Project
-        Project object.
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = new_project("my-project")
     """
     build_client(local, config)
     if context is None:
@@ -175,9 +93,9 @@ def get_project(
     local : bool
         Flag to determine if backend is local.
     config : dict
-        DHCore env configuration.
+        DHCore environment configuration.
     setup_kwargs : dict
-        Setup keyword arguments.
+        Setup keyword arguments passed to setup_project() function.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -185,6 +103,10 @@ def get_project(
     -------
     Project
         Object instance.
+
+    Examples
+    --------
+    >>> obj = get_project("my-project")
     """
     build_client(local, config)
     client = get_client(local)
@@ -201,27 +123,157 @@ def import_project(
     setup_kwargs: dict | None = None,
 ) -> Project:
     """
-    Import an Project object from a file using the specified file path.
+    Import object from a YAML file.
 
     Parameters
     ----------
     file : str
-        Path to the file.
+        Path to YAML file.
     local : bool
         Flag to determine if backend is local.
     config : dict
-        DHCore env configuration.
+        DHCore environment configuration.
+    setup_kwargs : dict
+        Setup keyword arguments passed to setup_project() function.
 
     Returns
     -------
     Project
         Object instance.
+
+    Examples
+    --------
+    >>> obj = import_project("my-project.yaml")
     """
     build_client(local, config)
     obj: dict = read_yaml(file)
     obj["local"] = local
     project = project_from_dict(obj)
     return _setup_project(project, setup_kwargs)
+
+
+def load_project(
+    name: str | None = None,
+    filename: str | None = None,
+    local: bool = False,
+    config: dict | None = None,
+    setup_kwargs: dict | None = None,
+    **kwargs,
+) -> Project:
+    """
+    Load project and context from backend or file. Name or
+    filename must be provided. Name takes precedence over filename.
+
+    Parameters
+    ----------
+    name : str
+        Project name.
+    filename : str
+        Path to YAML file.
+    local : bool
+        Flag to determine if backend is local.
+    config : dict
+        DHCore environment configuration.
+    setup_kwargs : dict
+        Setup keyword arguments passed to setup_project() function.
+    **kwargs : dict
+        Keyword arguments.
+
+    Returns
+    -------
+    Project
+        Object instance.
+
+    Examples
+    --------
+    If name is provided, load project from backend.
+    >>> obj = load_project(name="my-project")
+
+    If filename is provided, load project from file.
+    >>> obj = load_project(filename="my-project.yaml")
+    """
+    if name is not None:
+        return get_project(name=name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
+    if filename is not None:
+        return import_project(filename, local=local, config=config, setup_kwargs=setup_kwargs)
+    raise EntityError("Either name or filename must be provided.")
+
+
+def get_or_create_project(
+    name: str,
+    local: bool = False,
+    config: dict | None = None,
+    context: str | None = None,
+    setup_kwargs: dict | None = None,
+    **kwargs,
+) -> Project:
+    """
+    Try to get project. If not exists, create it.
+
+    Parameters
+    ----------
+    name : str
+        Project name.
+    local : bool
+        Flag to determine if backend is local.
+    config : dict
+        DHCore environment configuration.
+    context : str
+        Folder where the project will saves its context locally.
+    setup_kwargs : dict
+        Setup keyword arguments passed to setup_project() function.
+    **kwargs : dict
+        Keyword arguments.
+
+    Returns
+    -------
+    Project
+        Object instance.
+    """
+    try:
+        return get_project(
+            name,
+            local=local,
+            config=config,
+            setup_kwargs=setup_kwargs,
+            **kwargs,
+        )
+    except BackendError:
+        return new_project(
+            name,
+            local=local,
+            config=config,
+            setup_kwargs=setup_kwargs,
+            context=context,
+            **kwargs,
+        )
+
+
+def update_project(entity: Project, local: bool = False, **kwargs) -> Project:
+    """
+    Update object. Note that object spec are immutable.
+
+    Parameters
+    ----------
+    entity : Project
+        Object to update.
+    local : bool
+        Flag to determine if backend is local.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    Project
+        The updated object.
+
+    Examples
+    --------
+    >>> obj = update_project(obj)
+    """
+    client = get_client(local)
+    obj = update_entity_api_base(client, ENTITY_TYPE, entity.name, entity.to_dict(), **kwargs)
+    return project_from_dict(obj)
 
 
 def delete_project(
@@ -252,6 +304,10 @@ def delete_project(
     -------
     dict
         Response from backend.
+
+    Examples
+    --------
+    >>> delete_project("my-project")
     """
     client = get_client(local)
     obj = delete_entity_api_base(client, ENTITY_TYPE, name, cascade=cascade, **kwargs)
@@ -260,33 +316,9 @@ def delete_project(
     return obj
 
 
-def update_project(entity: Project, local: bool = False, **kwargs) -> Project:
-    """
-    Update object in backend.
-
-    Parameters
-    ----------
-    entity : Project
-        The object to update.
-    local : bool
-        Flag to determine if backend is local.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    Project
-        Object instance.
-    """
-    client = get_client(local)
-    obj = update_entity_api_base(client, ENTITY_TYPE, entity.name, entity.to_dict(), **kwargs)
-    return project_from_dict(obj)
-
-
 def _setup_project(project: Project, setup_kwargs: dict | None = None) -> Project:
     """
-    Search for setup_project.py file and launch setup
-    hanlder as project hook.
+    Search for setup_project.py file and launch setup hanlder as project hook.
 
     Parameters
     ----------

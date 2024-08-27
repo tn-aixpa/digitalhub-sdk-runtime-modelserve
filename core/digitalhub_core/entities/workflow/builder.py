@@ -19,7 +19,7 @@ def workflow_from_parameters(
     **kwargs,
 ) -> Workflow:
     """
-    Create a new Workflow instance with the specified parameters.
+    Create a new object.
 
     Parameters
     ----------
@@ -30,20 +30,20 @@ def workflow_from_parameters(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4).
+        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
     labels : list[str]
         List of labels.
     description : str
         Description of the object (human readable).
     embedded : bool
-        Flag to determine if object must be embedded in project.
+        Flag to determine if object spec must be embedded in project spec.
     **kwargs : dict
         Spec keyword arguments.
 
     Returns
     -------
     Workflow
-        An instance of the created workflow.
+        Object instance.
     """
     name = build_name(name)
     uuid = build_uuid(uuid)
@@ -76,7 +76,7 @@ def workflow_from_parameters(
 
 def workflow_from_dict(obj: dict) -> Workflow:
     """
-    Create Workflow instance from a dictionary.
+    Create a new object from dictionary.
 
     Parameters
     ----------
@@ -86,6 +86,6 @@ def workflow_from_dict(obj: dict) -> Workflow:
     Returns
     -------
     Workflow
-        Workflow instance.
+        Object instance.
     """
     return Workflow.from_dict(obj)

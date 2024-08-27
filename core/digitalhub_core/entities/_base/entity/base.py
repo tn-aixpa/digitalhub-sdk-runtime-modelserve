@@ -97,7 +97,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
     @classmethod
     def from_dict(cls, obj: dict, validate: bool = True) -> Entity:
         """
-        Create object instance from a dictionary.
+        Create a new object from dictionary.
 
         Parameters
         ----------
