@@ -28,7 +28,7 @@ class RunSpecKFP(RunSpecData):
         self.env = kwargs.get("env")
         self.secrets = kwargs.get("secrets")
         self.profile = kwargs.get("profile")
-        self.backoff_limit = kwargs.get("backoff_limit")
+
         self.schedule = kwargs.get("schedule")
         self.replicas = kwargs.get("replicas")
         self.workflow = kwargs.get("workflow")
