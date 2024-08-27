@@ -16,6 +16,7 @@ RUN python -m pip install "digitalhub-core[full]>=${VERSION}" \
                           "digitalhub-ml>=${VERSION}" \
                           "digitalhub-runtime-python>=${VERSION}" \
                           "digitalhub-runtime-container>=${VERSION}" \
+                          "digitalhub-runtime-modelserve>=${VERSION}" \
                           "digitalhub-runtime-dbt>=${VERSION}" --no-deps
 
 # Copy wrapper and set entry point
