@@ -143,6 +143,8 @@ def delete_entity_api_base(
     if "params" not in kwargs:
         kwargs["params"] = {}
     if "cascade" in kwargs["params"]:
+        kwargs["params"]["cascade"] = str(kwargs["cascade"]).lower()
+    if "cascade" in kwargs:
         kwargs["params"]["cascade"] = str(kwargs.pop("cascade")).lower()
     api = api_base_delete(entity_type, entity_name)
     return client.delete_object(api, **kwargs)
@@ -354,6 +356,8 @@ def delete_entity_api_ctx(
     if "params" not in kwargs:
         kwargs["params"] = {}
     if "cascade" in kwargs["params"]:
+        kwargs["params"]["cascade"] = str(kwargs["cascade"]).lower()
+    if "cascade" in kwargs:
         kwargs["params"]["cascade"] = str(kwargs.pop("cascade")).lower()
 
     delete_all_versions: bool = kwargs.pop("delete_all_versions", False)

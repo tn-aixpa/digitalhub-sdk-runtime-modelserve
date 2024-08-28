@@ -247,7 +247,7 @@ class PipelineContext:
         if RUN_SECRET_NAME is not None:
             # user credentials from secret in steps
             names = [
-                "DHCORE_TOKEN",
+                "DHCORE_ACCESS_TOKEN",
                 "DHCORE_AUTH_SUB",
                 "DHCORE_USER",
                 "DHCORE_PASSWORD",
