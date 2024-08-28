@@ -147,6 +147,7 @@ class PipelineContext:
         WORKFLOW_IMAGE = os.environ.get("DHCORE_WORKFLOW_IMAGE")
         KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
         DHCORE_ENDPOINT = os.environ.get("DHCORE_ENDPOINT", "http://localhost:8080/")
+        DHCORE_ISSUER = os.environ.get("DHCORE_ISSUER", "http://localhost:8080/")
 
         props = {
             "node_selector": node_selector,
@@ -240,6 +241,7 @@ class PipelineContext:
         cop.add_pod_label(label_prefix + "action", action)
 
         cop.container.add_env_variable(k8s_client.V1EnvVar(name="DHCORE_ENDPOINT", value=DHCORE_ENDPOINT))
+        cop.container.add_env_variable(k8s_client.V1EnvVar(name="DHCORE_ISSUER", value=DHCORE_ISSUER))
 
         # RUN_SECRET_NAME = "digitalhub-common-creds"
         RUN_SECRET_NAME = os.environ.get("DH_RUN_SECRET_NAME")
@@ -248,6 +250,8 @@ class PipelineContext:
             # user credentials from secret in steps
             names = [
                 "DHCORE_ACCESS_TOKEN",
+                "DHCORE_REFRESH_TOKEN",
+                "DHCORE_CLIENT_ID",
                 "DHCORE_AUTH_SUB",
                 "DHCORE_USER",
                 "DHCORE_PASSWORD",
