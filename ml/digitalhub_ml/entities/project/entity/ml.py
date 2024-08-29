@@ -17,7 +17,7 @@ from digitalhub_ml.entities.model.crud import (
 )
 
 if typing.TYPE_CHECKING:
-    from digitalhub_ml.entities.model.entity import Model
+    from digitalhub_ml.entities.model.entity._base import Model
 
 MODELS = EntityTypes.MODEL.value
 CTX_ENTITIES.append(MODELS)

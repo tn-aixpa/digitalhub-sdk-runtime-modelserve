@@ -1,10 +1,10 @@
+import shutil
 from copy import deepcopy
 
 import dotenv
 from digitalhub_data.entities.dataitem.entity._base import Dataitem
 
 import digitalhub as dh
-import shutil
 
 dotenv.load_dotenv()
 
@@ -24,7 +24,6 @@ def main():
     dicts = []
     for i in range(len(names)):
         dicts.append({"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]})
-
 
     dh.delete_project("test")
 
@@ -51,7 +50,6 @@ def main():
         dh.new_dataitem(p.name, **c)
         dh.new_dataitem(p.name, **c)
         dh.new_dataitem(p.name, **c)
-
 
     # List dataitems
     l_obj = dh.list_dataitems(p.name)
@@ -80,12 +78,11 @@ def main():
         assert isinstance(o3, Dataitem)
         assert o1.id == o3.id
 
-
     print("Done 3")
 
     # Delete dataitems, all versions
     for n in names:
-        dh.delete_dataitem(n, project=p.name,  delete_all_versions=True)
+        dh.delete_dataitem(n, project=p.name, delete_all_versions=True)
     l_obj = dh.list_dataitems(p.name)
     assert not l_obj
 
@@ -93,6 +90,7 @@ def main():
     shutil.rmtree(ctx)
 
     print("Done 4")
+
 
 if __name__ == "__main__":
     main()

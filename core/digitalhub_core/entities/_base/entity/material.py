@@ -86,7 +86,7 @@ class MaterialEntity(VersionedEntity):
         self,
         destination: str | None = None,
         overwrite: bool = False,
-    ) -> str:
+    ) -> list[str]:
         """
         Download object from storage into given local path.
 

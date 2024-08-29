@@ -1,10 +1,10 @@
+import shutil
 from copy import deepcopy
 
 import dotenv
 from digitalhub_core.entities.artifact.entity._base import Artifact
 
 import digitalhub as dh
-import shutil
 
 dotenv.load_dotenv()
 
@@ -24,7 +24,6 @@ def main():
     dicts = []
     for i in range(len(names)):
         dicts.append({"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]})
-
 
     dh.delete_project("test")
 
@@ -51,7 +50,6 @@ def main():
         dh.new_artifact(p.name, **c)
         dh.new_artifact(p.name, **c)
         dh.new_artifact(p.name, **c)
-
 
     # List artifacts
     l_obj = dh.list_artifacts(p.name)
@@ -80,12 +78,11 @@ def main():
         assert isinstance(o3, Artifact)
         assert o1.id == o3.id
 
-
     print("Done 3")
 
     # Delete artifacts, all versions
     for n in names:
-        dh.delete_artifact(n, project=p.name,  delete_all_versions=True)
+        dh.delete_artifact(n, project=p.name, delete_all_versions=True)
     l_obj = dh.list_artifacts(p.name)
     assert not l_obj
 
@@ -93,6 +90,7 @@ def main():
     shutil.rmtree(ctx)
 
     print("Done 4")
+
 
 if __name__ == "__main__":
     main()

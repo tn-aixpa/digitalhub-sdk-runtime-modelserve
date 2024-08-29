@@ -13,7 +13,12 @@ class RunSpecModelserve(RunSpecMl):
         **kwargs,
     ) -> None:
         super().__init__(task, local_execution)
+
         self.image = kwargs.get("image")
+        self.path = kwargs.get("path")
+        self.model_name = kwargs.get("model_name")
+        self.model_key = kwargs.get("model_key")
+
         self.function = kwargs.get("function")
         self.node_selector = kwargs.get("node_selector")
         self.volumes = kwargs.get("volumes")
@@ -32,6 +37,9 @@ class RunParamsModelserve(RunParamsMl):
 
     # Function parameters
     image: str = None
+    path: str = None
+    model_name: str = None
+    model_key: str = None
 
     # Task parameters
     function: str = None

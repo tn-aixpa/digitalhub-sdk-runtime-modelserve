@@ -8,6 +8,18 @@ class RunStatusModelserve(RunStatusMl):
     Run Model serve status.
     """
 
+    def __init__(
+        self,
+        state: str,
+        message: str | None = None,
+        outputs: list | None = None,
+        results: dict | None = None,
+        endpoint: str | None = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(state, message, outputs, results, **kwargs)
+        self.endpoint = endpoint
+
 
 class RunStatusSklearnserve(RunStatusMl):
     """

@@ -8,12 +8,18 @@ class FunctionSpecModelserve(FunctionSpec):
     Specification for a Function for model serving.
     """
 
-    def __init__(self, path: str | None = None, model_name: str | None = None, image: str | None = None) -> None:
+    def __init__(
+        self,
+        path: str | None = None,
+        model_name: str | None = None,
+        image: str | None = None,
+        model_key: str | None = None,
+    ) -> None:
         super().__init__()
-
         self.path = path
         self.model_name = model_name
         self.image = image
+        self.model_key = model_key
 
 
 class FunctionParamsModelserve(FunctionParams):
@@ -29,6 +35,9 @@ class FunctionParamsModelserve(FunctionParams):
 
     image: str = None
     "Image where the function will be executed"
+
+    model_key: str = None
+    "Key of the model"
 
 
 class FunctionSpecSklearnserve(FunctionSpecModelserve):

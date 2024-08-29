@@ -6,6 +6,7 @@ from typing import Callable
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_runtime_modelserve.utils.function import get_serve_function
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.kind_registry import KindRegistry
@@ -58,9 +59,19 @@ class RuntimeModelserve(Runtime):
         dict
             Status of the executed run.
         """
-        msg = "Local execution not allowed."
-        LOGGER.exception(msg)
-        raise NotImplementedError(msg)
+        LOGGER.info("Validating task.")
+        action = self._validate_task(run)
+        executable = self._get_executable(action)
+
+        LOGGER.info("Starting task.")
+        spec = run.get("spec")
+        project = run.get("project")
+
+        LOGGER.info("Collecting model's files.")
+        model = self._get_model(spec.get("model_key"), project)
+
+        LOGGER.info("Serve model.")
+        endpoint = self._serve_model(spec.get("model_name"), model)
 
     @staticmethod
     def _get_executable(action: str) -> Callable:
@@ -77,7 +88,7 @@ class RuntimeModelserve(Runtime):
         Callable
             Function to execute.
         """
-        raise NotImplementedError
+        return get_serve_function(action)
 
 
 class RuntimeSklearnserve(RuntimeModelserve):

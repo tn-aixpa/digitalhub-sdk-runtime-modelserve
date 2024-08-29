@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import typing
-from typing import Any
 from pathlib import Path
+from typing import Any
 
 from digitalhub_core.context.builder import check_context
 from digitalhub_core.entities._base.crud import (
@@ -14,10 +14,10 @@ from digitalhub_core.entities._base.crud import (
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.utils.env_utils import get_s3_bucket
 from digitalhub_core.utils.io_utils import read_yaml
+from digitalhub_core.utils.uri_utils import check_local_path
 from digitalhub_data.entities.dataitem.builder import dataitem_from_dict, dataitem_from_parameters
 from digitalhub_data.entities.entity_types import EntityTypes
 from digitalhub_data.readers.builder import get_reader_by_object
-from digitalhub_core.utils.uri_utils import check_local_path
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitem.entity._base import Dataitem
@@ -138,7 +138,6 @@ def log_dataitem(
 
     # Case where source is provided
     if source is not None:
-
         source_is_local = check_local_path(source)
         if path is not None:
             if not source_is_local:

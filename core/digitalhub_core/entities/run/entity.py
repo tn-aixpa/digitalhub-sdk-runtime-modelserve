@@ -4,6 +4,7 @@ import time
 import typing
 from typing import Any
 
+import requests
 from digitalhub_core.entities._base.crud import (
     list_entity_api_base,
     list_entity_api_ctx,
@@ -280,6 +281,31 @@ class Run(UnversionedEntity):
         if self._context().local:
             return
         stop_api(self.project, self.ENTITY_TYPE, self.id)
+
+    def invoke(self, **kwargs) -> requests.Response:
+        """
+        Invoke run.
+
+        Parameters
+        ----------
+        kwargs
+            Keyword arguments to pass to the request.
+
+        Returns
+        -------
+        requests.Response
+            Response from service.
+        """
+        try:
+            if kwargs is None:
+                kwargs = {}
+
+            url = self.status.endpoint
+            kwargs["url"] = url
+            return requests.request(**kwargs)
+        except AttributeError:
+            msg = f"Run of type {self.kind} has no endpoint."
+            raise EntityError(msg)
 
     ##############################
     #  Helpers

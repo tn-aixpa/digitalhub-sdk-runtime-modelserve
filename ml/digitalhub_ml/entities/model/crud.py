@@ -13,10 +13,9 @@ from digitalhub_core.entities._base.crud import (
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.utils.env_utils import get_s3_bucket
 from digitalhub_core.utils.io_utils import read_yaml
+from digitalhub_core.utils.uri_utils import check_local_path
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.model.builder import model_from_dict, model_from_parameters
-from digitalhub_core.utils.uri_utils import check_local_path
-
 
 if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.model.entity._base import Model
