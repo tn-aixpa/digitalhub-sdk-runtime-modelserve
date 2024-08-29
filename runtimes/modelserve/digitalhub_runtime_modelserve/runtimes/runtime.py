@@ -7,6 +7,8 @@ from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_modelserve.utils.function import get_serve_function
+from digitalhub_runtime_modelserve.utils.inputs import get_model_files
+from digitalhub_runtime_modelserve.utils.configuration import get_function_args
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.kind_registry import KindRegistry
@@ -68,10 +70,16 @@ class RuntimeModelserve(Runtime):
         project = run.get("project")
 
         LOGGER.info("Collecting model's files.")
-        model = self._get_model(spec.get("model_key"), project)
+        model_path = self._get_model(spec.get("model_key"), project)
+
+        LOGGER.info("Configure execution.")
+        exec_args = self._configure_execution(action, spec, model_path)
 
         LOGGER.info("Serve model.")
-        endpoint = self._serve_model(spec.get("model_name"), model)
+        endpoint = self._execute(executable, exec_args)
+
+        LOGGER.info("Task completed, returning run status.")
+        return {"endpoint": endpoint}
 
     @staticmethod
     def _get_executable(action: str) -> Callable:
@@ -89,6 +97,44 @@ class RuntimeModelserve(Runtime):
             Function to execute.
         """
         return get_serve_function(action)
+
+    def _get_model(self, model_key: str, project: str) -> Callable:
+        """
+        Get model.
+
+        Parameters
+        ----------
+        model_key : str
+            The model key.
+        project : str
+            The project.
+
+        Returns
+        -------
+        str
+            The model path.
+        """
+        return get_model_files(model_key, project)
+
+    def _configure_execution(self, action: str, spec: dict, model_path: str) -> dict:
+        """
+        Configure execution.
+
+        Parameters
+        ----------
+        action : str
+            The action.
+        spec : dict
+            The run spec.
+        model_path : str
+            The model path.
+
+        Returns
+        -------
+        dict
+            Serve model function arguments.
+        """
+        return get_function_args(action, spec, model_path)
 
 
 class RuntimeSklearnserve(RuntimeModelserve):

@@ -113,7 +113,6 @@ class RuntimeDbt(Runtime):
         LOGGER.info("Clean up environment.")
         self._cleanup()
 
-        # Return run status
         LOGGER.info("Task completed, returning run status.")
         return status
 
