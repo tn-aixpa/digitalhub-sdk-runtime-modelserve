@@ -152,9 +152,10 @@ class SqlStore(Store):
         if not isinstance(connection_string, str):
             raise StoreError("Connection string must be a string.")
         try:
+            connect_args = {"connect_timeout": 30}
             if schema is not None:
-                return create_engine(connection_string, connect_args={"options": f"-csearch_path={schema}"})
-            return create_engine(connection_string)
+                connect_args["options"] = f"-csearch_path={schema}"
+            return create_engine(connection_string, connect_args=connect_args)
         except Exception as ex:
             raise StoreError(f"Something wrong with connection string. Arguments: {str(ex.args)}")
 

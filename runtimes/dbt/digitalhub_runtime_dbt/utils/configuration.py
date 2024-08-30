@@ -52,12 +52,12 @@ postgres:
     outputs:
         dev:
             type: postgres
-            host: {POSTGRES_HOST}
-            user: {POSTGRES_USER}
-            pass: {POSTGRES_PASSWORD}
+            host: "{POSTGRES_HOST}"
+            user: "{POSTGRES_USER}"
+            pass: "{POSTGRES_PASSWORD}"
             port: {POSTGRES_PORT}
-            dbname: {POSTGRES_DATABASE}
-            schema: {POSTGRES_SCHEMA}
+            dbname: "{POSTGRES_DATABASE}"
+            schema: "{POSTGRES_SCHEMA}"
     target: dev
 """.lstrip(
     "\n"
