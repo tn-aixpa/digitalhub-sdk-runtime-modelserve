@@ -6,10 +6,21 @@ from pathlib import Path
 
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_runtime_modelserve.utils.frameworks.utils import FILENAME, TEMPLATE
 
 MLFLOW_RUNTIME = "mlserver_mlflow.MLflowRuntime"
 ENDPOINT = "http://localhost:8080/v2/models/model/infer"
+FILENAME = "model-settings.json"
+TEMPLATE = """
+{{
+    "name": "model",
+    "implementation": "{}",
+    "parameters": {{
+        "uri": "{}"
+    }}
+}}
+""".lstrip(
+    "\n"
+)
 
 
 def serve_mlflow(root: Path) -> tuple:

@@ -1,35 +1,72 @@
 from __future__ import annotations
 
+import os
+import subprocess
+from pathlib import Path
 
-def serve_sklearn(**kwargs) -> str:
+from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.logger import LOGGER
+
+SKLEARN_RUNTIME = "mlserver_sklearn.SKLearnModel"
+ENDPOINT = "http://localhost:8080/v2/models/model/infer"
+FILENAME = "model-settings.json"
+TEMPLATE = """
+{{
+    "name": "model",
+    "implementation": "{}",
+    "parameters": {{
+        "uri": "{}"
+    }}
+}}
+""".lstrip(
+    "\n"
+)
+
+
+def serve_sklearn(root: Path) -> tuple:
     """
     Serve sklearn function.
 
     Parameters
     ----------
-    **kwargs
-        The serve arguments.
+    root : Path
+        The root path where config file is.
 
     Returns
     -------
-    str
-        The endpoint where the model is served.
+    tuple
+        Process ID and serving endpoint.
     """
-    return "sklearn"
+    try:
+        current_dir = os.getcwd()
+        os.chdir(root)
+        proc = subprocess.Popen(["mlserver", "start", "."])
+        pid = proc.pid
+        os.chdir(current_dir)
+        return pid, ENDPOINT
+    except Exception as e:
+        msg = f"Something got wrong during sklearn serving. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.exception(msg)
+        raise EntityError(msg) from e
 
 
-def config_sklearn(**kwargs) -> dict:
+def config_sklearn(root: Path, paths: list) -> None:
     """
     Configure sklearn function.
 
     Parameters
     ----------
-    **kwargs
-        The configure arguments.
+    root : Path
+        The root path where config file is.
+    paths : list
+        List of paths.
 
     Returns
     -------
-    dict
-        The function configuration.
+    None
     """
-    return {}
+    if not paths:
+        raise Exception("Sklearn model not found")
+    model_path = paths[0].removeprefix(str(root) + "/")
+    serving_json = TEMPLATE.format(SKLEARN_RUNTIME, model_path)
+    (root / FILENAME).write_text(serving_json)

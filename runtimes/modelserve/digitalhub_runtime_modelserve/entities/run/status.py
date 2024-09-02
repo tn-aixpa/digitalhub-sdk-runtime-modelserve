@@ -3,6 +3,7 @@ from __future__ import annotations
 import psutil
 import requests
 from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.logger import LOGGER
 from digitalhub_ml.entities.run.status import RunStatusMl
 
 
@@ -44,9 +45,10 @@ class RunStatusModelserve(RunStatusMl):
         """
         pid = self.results.get("pid")
         if self.results is None or pid is None:
-            return
+            raise EntityError("No running process to stop.")
         p = psutil.Process(pid)
         p.kill()
+        LOGGER.info(f"Process {pid} stopped.")
 
 
 class RunStatusSklearnserve(RunStatusModelserve):
