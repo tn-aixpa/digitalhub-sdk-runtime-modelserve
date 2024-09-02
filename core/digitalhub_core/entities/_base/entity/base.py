@@ -68,6 +68,10 @@ class Entity(ModelObj, metaclass=ABCMeta):
         ----------
         obj : dict
             Mapping representation of object.
+
+        Returns
+        -------
+        None
         """
         new_obj = self.from_dict(obj)
         self.metadata = new_obj.metadata

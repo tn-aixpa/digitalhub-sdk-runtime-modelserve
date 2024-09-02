@@ -96,6 +96,7 @@ class S3Store(Store):
             # Cycle over keys and original tree paths
             key = self._get_key(s[0])
             tree_path = s[1]
+
             if key.endswith("/"):
                 p = self._download_files(key, tree_path, dst_path, client, bucket, overwrite)
             else:
@@ -255,7 +256,7 @@ class S3Store(Store):
                 dst_pth = Path(dst, tree_path)
 
             # Build destination path
-            self._build_path(dst_pth)
+            self._build_path(dst_pth.parent)
 
             # Check if destination path already exists
             dst_pth = str(dst_pth)
@@ -306,12 +307,12 @@ class S3Store(Store):
             tree_path = key
 
         # Build destination path
-        if dst.suffix == "":
+        if dst.suffix == "" and not Path(tree_path).is_absolute():
             dst_pth = Path(dst, tree_path)
         else:
-            dst_pth = Path(dst)
+            dst_pth = Path(dst, key)
 
-        self._build_path(dst_pth)
+        self._build_path(dst_pth.parent)
 
         # Check if destination path already exists
         dst_pth = str(dst_pth)

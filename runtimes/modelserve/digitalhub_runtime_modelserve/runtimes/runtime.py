@@ -6,9 +6,9 @@ from typing import Callable
 from digitalhub_core.context.builder import get_context
 from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
+from digitalhub_runtime_modelserve.utils.configuration import get_function_args
 from digitalhub_runtime_modelserve.utils.function import get_serve_function
 from digitalhub_runtime_modelserve.utils.inputs import get_model_files
-from digitalhub_runtime_modelserve.utils.configuration import get_function_args
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.kind_registry import KindRegistry
@@ -62,24 +62,27 @@ class RuntimeModelserve(Runtime):
             Status of the executed run.
         """
         LOGGER.info("Validating task.")
-        action = self._validate_task(run)
-        executable = self._get_executable(action)
+        self._validate_task(run)
+
+        task_kind = run["spec"]["task"].split(":")[0]
+        LOGGER.info(f"Get executable for {task_kind}.")
+        executable = self._get_executable(task_kind)
 
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
 
         LOGGER.info("Collecting model's files.")
-        model_path = self._get_model(spec.get("model_key"), project)
+        model_paths = self._get_model(spec.get("model_name"), project, str(self.root))
 
         LOGGER.info("Configure execution.")
-        exec_args = self._configure_execution(action, spec, model_path)
+        self._configure_execution(task_kind, self.root, model_paths)
 
         LOGGER.info("Serve model.")
-        endpoint = self._execute(executable, exec_args)
+        pid, endpoint = self._execute(executable, self.root)
 
         LOGGER.info("Task completed, returning run status.")
-        return {"endpoint": endpoint}
+        return {"results": {"endpoint": endpoint, "pid": pid}}
 
     @staticmethod
     def _get_executable(action: str) -> Callable:
@@ -98,7 +101,7 @@ class RuntimeModelserve(Runtime):
         """
         return get_serve_function(action)
 
-    def _get_model(self, model_key: str, project: str) -> Callable:
+    def _get_model(self, model_key: str, project: str, download_path: str) -> Callable:
         """
         Get model.
 
@@ -108,15 +111,17 @@ class RuntimeModelserve(Runtime):
             The model key.
         project : str
             The project.
+        download_path : str
+            The download path.
 
         Returns
         -------
         str
             The model path.
         """
-        return get_model_files(model_key, project)
+        return get_model_files(model_key, project, download_path)
 
-    def _configure_execution(self, action: str, spec: dict, model_path: str) -> dict:
+    def _configure_execution(self, action: str, root: str, model_path: str) -> dict:
         """
         Configure execution.
 
@@ -124,8 +129,8 @@ class RuntimeModelserve(Runtime):
         ----------
         action : str
             The action.
-        spec : dict
-            The run spec.
+        root : str
+            Root path.
         model_path : str
             The model path.
 
@@ -134,7 +139,7 @@ class RuntimeModelserve(Runtime):
         dict
             Serve model function arguments.
         """
-        return get_function_args(action, spec, model_path)
+        return get_function_args(action, root, model_path)
 
 
 class RuntimeSklearnserve(RuntimeModelserve):

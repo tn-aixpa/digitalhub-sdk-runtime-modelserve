@@ -83,7 +83,8 @@ class ContextEntity(Entity):
         ContextEntity
             Entity updated.
         """
-        self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
+        if self._context().local:
+            self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
         new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
         self._update_attributes(new_obj)
         return self

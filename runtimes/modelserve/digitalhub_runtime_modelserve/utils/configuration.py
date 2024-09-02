@@ -3,7 +3,7 @@ from __future__ import annotations
 from digitalhub_runtime_modelserve.utils.frameworks.registry import config_function_registry
 
 
-def get_function_args(action: str, spec: dict, model_path: str) -> dict:
+def get_function_args(action: str, root: str, model_path: str) -> None:
     """
     Get function arguments.
 
@@ -11,12 +11,13 @@ def get_function_args(action: str, spec: dict, model_path: str) -> dict:
     ----------
     action : str
         The action.
-    spec : dict
-        The run spec.
+    root : str
+        Root path.
+    model_path : str
+        The model path.
 
     Returns
     -------
-    dict
-        The function arguments.
+    None
     """
-    return config_function_registry[action](spec, model_path)
+    config_function_registry[action](root, model_path)

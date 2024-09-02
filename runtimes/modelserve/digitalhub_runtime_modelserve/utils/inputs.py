@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_ml.entities.project.entity.ml import ProjectMl
 
 
-def get_model_files(model_key: str, project: str) -> str:
+def get_model_files(model_key: str, project: str, download_path: str) -> list[str]:
     """
     Get model files.
 
@@ -22,11 +22,13 @@ def get_model_files(model_key: str, project: str) -> str:
         The model key.
     project : str
         The project.
+    download_path : str
+        The download path.
 
     Returns
     -------
-    str
-        The model files.
+    list[str]
+        Downloaded file paths.
     """
     try:
         ctx = get_context(project)
@@ -37,8 +39,8 @@ def get_model_files(model_key: str, project: str) -> str:
     try:
         proj: ProjectMl = dh.get_project(project, local=local)
         model = proj.get_model(model_key)
-        paths = model.download()
-        return paths[0]
+        paths = model.download(download_path, overwrite=True)
+        return paths
     except Exception as e:
         msg = f"Something got wrong during model files collection. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)

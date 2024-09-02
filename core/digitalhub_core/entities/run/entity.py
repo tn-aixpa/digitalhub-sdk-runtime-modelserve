@@ -269,7 +269,7 @@ class Run(UnversionedEntity):
             return {}
         return logs_api(self.project, self.ENTITY_TYPE, self.id)
 
-    def stop(self) -> None:
+    def stop(self, local_execution: bool = False) -> None:
         """
         Stop run.
 
@@ -277,10 +277,12 @@ class Run(UnversionedEntity):
         -------
         None
         """
-        # Do nothing if context is local
-        if self._context().local:
+        if not self._context().local and not local_execution:
+            return stop_api(self.project, self.ENTITY_TYPE, self.id)
+        try:
+            self.status.stop()
+        except AttributeError:
             return
-        stop_api(self.project, self.ENTITY_TYPE, self.id)
 
     def invoke(self, **kwargs) -> requests.Response:
         """
@@ -299,12 +301,9 @@ class Run(UnversionedEntity):
         try:
             if kwargs is None:
                 kwargs = {}
-
-            url = self.status.endpoint
-            kwargs["url"] = url
-            return requests.request(**kwargs)
+            return self.status.invoke(**kwargs)
         except AttributeError:
-            msg = f"Run of type {self.kind} has no endpoint."
+            msg = f"Run of type {self.kind} has no invoke operation."
             raise EntityError(msg)
 
     ##############################
