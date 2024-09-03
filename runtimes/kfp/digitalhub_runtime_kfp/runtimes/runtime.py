@@ -27,8 +27,8 @@ class RuntimeKFP(Runtime):
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         super().__init__(kind_registry, project)
         ctx = get_context(self.project)
-        self.root = ctx.runtime_dir
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.runtime_dir = ctx.root / "runtime_kfp"
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
         self.function_source = None
 
     def build(self, workflow: dict, task: dict, run: dict) -> dict:
@@ -163,7 +163,7 @@ class RuntimeKFP(Runtime):
         # Setup function source and specs
         LOGGER.info("Getting workflow source and specs.")
         dhcore_workflow = get_dhcore_workflow(spec.get("function"))
-        workflow_source = save_workflow_source(self.root, dhcore_workflow.spec.to_dict().get("source"))
+        workflow_source = save_workflow_source(self.runtime_dir, dhcore_workflow.spec.to_dict().get("source"))
         workflow_specs = parse_workflow_specs(dhcore_workflow.spec)
 
         # Create kfp project
@@ -202,4 +202,4 @@ class RuntimeKFP(Runtime):
         -------
         None
         """
-        shutil.rmtree(self.root, ignore_errors=True)
+        shutil.rmtree(self.runtime_dir, ignore_errors=True)

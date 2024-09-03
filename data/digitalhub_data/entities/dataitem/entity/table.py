@@ -45,7 +45,7 @@ class DataitemTable(Dataitem):
             if check_local_path(self.spec.path):
                 tmp_dir = None
             else:
-                tmp_dir = self._context().tmp_dir / "data"
+                tmp_dir = self._context().root / "tmp_data"
                 tmp_dir.mkdir(parents=True, exist_ok=True)
 
             # Check file format and get dataitem as DataFrame

@@ -36,13 +36,11 @@ class RuntimeDbt(Runtime):
         super().__init__(kind_registry, project)
 
         ctx = get_context(self.project)
-        self.root = ctx.runtime_dir
-        self.tmp_dir = ctx.tmp_dir
-        self.model_dir = self.root / "models"
+        self.runtime_dir = ctx.root / "runtime_dbt"
+        self.tmp_dir = ctx.root / "tmp"
 
-        self.root.mkdir(parents=True, exist_ok=True)
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
         self.tmp_dir.mkdir(parents=True, exist_ok=True)
-        self.model_dir.mkdir(parents=True, exist_ok=True)
 
         # UUID for output dataitem and dbt execution
         self.uuid = build_uuid()
@@ -104,7 +102,7 @@ class RuntimeDbt(Runtime):
         output_table = self._configure_execution(spec, project)
 
         LOGGER.info("Executing run.")
-        results = self._execute(executable, output_table, self.root)
+        results = self._execute(executable, output_table, self.runtime_dir)
 
         LOGGER.info("Collecting outputs.")
         output = self._collect_outputs(results, output_table, project)
@@ -185,21 +183,24 @@ class RuntimeDbt(Runtime):
         str
             Output table name.
         """
+        model_dir = self.runtime_dir / "models"
+        model_dir.mkdir(parents=True, exist_ok=True)
+
         output_table = get_output_table_name(spec.get("outputs", []))
         query = save_function_source(self.tmp_dir, spec.get("source", {}))
 
         # Generate profile yaml file
-        generate_dbt_profile_yml(self.root)
+        generate_dbt_profile_yml(self.runtime_dir)
 
         # Generate project yaml file
-        generate_dbt_project_yml(self.root, self.model_dir, project.replace("-", "_"))
+        generate_dbt_project_yml(self.runtime_dir, model_dir, project.replace("-", "_"))
 
         # Generate outputs confs
-        generate_outputs_conf(self.model_dir, query, output_table, self.uuid)
+        generate_outputs_conf(model_dir, query, output_table, self.uuid)
 
         # Generate inputs confs for every dataitem
         for di in self._input_dataitems:
-            generate_inputs_conf(self.model_dir, di["name"], di["id"])
+            generate_inputs_conf(model_dir, di["name"], di["id"])
 
         return output_table
 

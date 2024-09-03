@@ -13,7 +13,7 @@ for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
 
     runtime_info = {
         "module": f"{root}.runtimes.runtime",
-        "class_name": f"Runtime{suffix}",
+        "class_name": "RuntimeModelserve",
         "kind_registry_module": f"{root}.runtimes.kind_registry",
         "kind_registry_class_name": f"{m}_kind_registry",
     }

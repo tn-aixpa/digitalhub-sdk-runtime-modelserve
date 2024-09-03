@@ -4,7 +4,7 @@ from typing import Callable
 
 from digitalhub_core.utils.exceptions import EntityError
 from digitalhub_core.utils.logger import LOGGER
-from digitalhub_runtime_modelserve.utils.frameworks.registry import serve_function_registry
+from digitalhub_runtime_modelserve.utils._registry import serve_function_registry
 
 
 def get_serve_function(action: str) -> Callable:

@@ -21,11 +21,7 @@ class RuntimeModelserve(Runtime):
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         super().__init__(kind_registry, project)
         ctx = get_context(self.project)
-        self.root = ctx.runtime_dir
-        self.tmp_dir = ctx.tmp_dir
-
-        self.root.mkdir(parents=True, exist_ok=True)
-        self.tmp_dir.mkdir(parents=True, exist_ok=True)
+        self.root = ctx.root
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -63,12 +59,12 @@ class RuntimeModelserve(Runtime):
         LOGGER.info("Validating task.")
         self._validate_task(run)
 
+        LOGGER.info("Starting task.")
+        spec = run.get("spec")
+
         task_kind = run["spec"]["task"].split(":")[0]
         LOGGER.info(f"Get executable for {task_kind}.")
         executable = self._get_executable(task_kind)
-
-        LOGGER.info("Starting task.")
-        spec = run.get("spec")
 
         LOGGER.info("Configure execution.")
         self._configure_execution(task_kind, self.root, spec.get("path"))
@@ -96,7 +92,8 @@ class RuntimeModelserve(Runtime):
         """
         return get_serve_function(action)
 
-    def _configure_execution(self, action: str, root: str, model_path: str) -> dict:
+    @staticmethod
+    def _configure_execution(action: str, root: str, model_path: str) -> None:
         """
         Configure execution.
 
@@ -111,25 +108,6 @@ class RuntimeModelserve(Runtime):
 
         Returns
         -------
-        dict
-            Serve model function arguments.
+        None
         """
         return get_function_args(action, root, model_path)
-
-
-class RuntimeSklearnserve(RuntimeModelserve):
-    """
-    Runtime Sklearn Serve class.
-    """
-
-
-class RuntimeMlflowserve(RuntimeModelserve):
-    """
-    Runtime Mlflow Serve class.
-    """
-
-
-class RuntimeHuggingfaceserve(RuntimeModelserve):
-    """
-    Runtime Huggingface Serve class.
-    """

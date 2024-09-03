@@ -106,7 +106,7 @@ class MaterialEntity(VersionedEntity):
         paths = self._get_paths()
 
         if destination is None:
-            destination = str(self._context().runtime_dir / self.ENTITY_TYPE)
+            destination = str(self._context().root / self.ENTITY_TYPE)
 
         return store.download(paths, dst=destination, overwrite=overwrite)
 

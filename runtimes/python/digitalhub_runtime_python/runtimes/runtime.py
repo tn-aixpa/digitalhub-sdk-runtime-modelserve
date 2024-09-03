@@ -22,11 +22,8 @@ class RuntimePython(Runtime):
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:
         super().__init__(kind_registry, project)
         ctx = get_context(self.project)
-        self.root = ctx.runtime_dir
-        self.tmp_dir = ctx.tmp_dir
-
-        self.root.mkdir(parents=True, exist_ok=True)
-        self.tmp_dir.mkdir(parents=True, exist_ok=True)
+        self.runtime_dir = ctx.root / "runtime_python"
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
 
     def build(self, function: dict, task: dict, run: dict) -> dict:
         """
@@ -148,7 +145,7 @@ class RuntimePython(Runtime):
             Function to execute.
         """
         fnc = get_function_from_source(
-            self.root,
+            self.runtime_dir,
             spec.get("source", {}),
         )
         return fnc, hasattr(fnc, "__wrapped__")

@@ -65,5 +65,7 @@ def config_mlflow(root: Path, model_path: str) -> None:
     -------
     None
     """
+    if model_path.endswith("MLmodel"):
+        model_path = model_path.removesuffix("MLmodel")
     serving_json = TEMPLATE.format(MLFLOW_RUNTIME, model_path)
     (root / FILENAME).write_text(serving_json)
