@@ -269,7 +269,7 @@ class Run(UnversionedEntity):
             return {}
         return logs_api(self.project, self.ENTITY_TYPE, self.id)
 
-    def stop(self, local_execution: bool = False) -> None:
+    def stop(self) -> None:
         """
         Stop run.
 
@@ -277,7 +277,7 @@ class Run(UnversionedEntity):
         -------
         None
         """
-        if not self._context().local and not local_execution:
+        if not self._context().local and not self.spec.local_execution:
             return stop_api(self.project, self.ENTITY_TYPE, self.id)
         try:
             self.status.stop()
@@ -299,9 +299,13 @@ class Run(UnversionedEntity):
             Response from service.
         """
         try:
+            if not self._context().local and not self.spec.local_execution:
+                local = False
+            else:
+                local = True
             if kwargs is None:
                 kwargs = {}
-            return self.status.invoke(**kwargs)
+            return self.status.invoke(local, **kwargs)
         except AttributeError:
             msg = f"Run of type {self.kind} has no invoke operation."
             raise EntityError(msg)

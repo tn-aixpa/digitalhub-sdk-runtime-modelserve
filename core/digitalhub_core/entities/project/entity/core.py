@@ -863,7 +863,6 @@ class ProjectCore(Project):
     def new_secret(
         self,
         name: str,
-        kind: str,
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
@@ -878,8 +877,6 @@ class ProjectCore(Project):
         ----------
         name : str
             Object name.
-        kind : str
-            Kind the object.
         uuid : str
             ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
         description : str
@@ -901,13 +898,11 @@ class ProjectCore(Project):
         Examples
         --------
         >>> obj = project.new_secret(name="my-secret",
-        >>>                          kind="python",
         >>>                          secret_value="my-secret-value")
         """
         obj = new_secret(
             project=self.name,
             name=name,
-            kind=kind,
             uuid=uuid,
             description=description,
             labels=labels,

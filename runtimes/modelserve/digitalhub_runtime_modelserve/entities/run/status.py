@@ -12,7 +12,7 @@ class RunStatusModelserve(RunStatusMl):
     Run Model serve status.
     """
 
-    def invoke(self, **kwargs) -> dict:
+    def invoke(self, local: bool, **kwargs) -> dict:
         """
         Invoke running process.
 
@@ -26,9 +26,13 @@ class RunStatusModelserve(RunStatusMl):
         None
         """
         try:
-            url = self.results.get("endpoint")
-            kwargs["url"] = url
-            response = requests.request(**kwargs)
+            if local:
+                endpoint = self.results.get("endpoint")
+            else:
+                url = self.service.get("url")
+                endpoint = f"http://{url}/v2/models/model/infer"
+            kwargs["url"] = endpoint
+            response = requests.post(**kwargs)
             response.raise_for_status()
             return response.json()
         except Exception as e:
