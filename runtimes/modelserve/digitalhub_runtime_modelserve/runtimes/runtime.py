@@ -8,7 +8,6 @@ from digitalhub_core.runtimes.base import Runtime
 from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_modelserve.utils.configuration import get_function_args
 from digitalhub_runtime_modelserve.utils.function import get_serve_function
-from digitalhub_runtime_modelserve.utils.inputs import get_model_files
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.kind_registry import KindRegistry

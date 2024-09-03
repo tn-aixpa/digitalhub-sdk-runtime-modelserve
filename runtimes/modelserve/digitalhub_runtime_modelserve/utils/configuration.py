@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from digitalhub_core.utils.logger import LOGGER
 from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_modelserve.utils.frameworks.registry import config_function_registry
 
 
