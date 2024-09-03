@@ -93,15 +93,18 @@ def _convert_run(run_detail: ApiRunDetail, client: Client) -> dict:
             "labels": manifest["metadata"]["labels"],
             "annotations": manifest["metadata"]["annotations"],
         }
-        nodes = manifest["status"]["nodes"] or {}
+        try:
+            nodes = manifest["status"]["nodes"]
+        except KeyError:
+            nodes = {}
         graph_nodes = []
         for id, node in nodes.items():
             graph_nodes.append(_node_to_graph(id, run_detail, node, manifest["spec"]["templates"], client))
         result["status"] = {
-            "start_time": manifest["status"]["startedAt"],
-            "end_time": manifest["status"]["finishedAt"],
+            "start_time": manifest["status"].get("startedAt"),
+            "end_time": manifest["status"].get("finishedAt"),
             "last_update": datetime.now().isoformat(),
-            "progress": manifest["status"]["progress"],
+            "progress": manifest["status"].get("progress"),
             "graph": graph_nodes,
         }
         return result
