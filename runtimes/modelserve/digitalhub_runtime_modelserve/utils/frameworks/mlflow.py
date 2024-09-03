@@ -50,7 +50,7 @@ def serve_mlflow(root: Path) -> tuple:
         raise EntityError(msg) from e
 
 
-def config_mlflow(root: Path, paths: list) -> None:
+def config_mlflow(root: Path, model_path: str) -> None:
     """
     Configure mlflow function.
 
@@ -58,24 +58,12 @@ def config_mlflow(root: Path, paths: list) -> None:
     ----------
     root : Path
         The root path where config file is.
-    paths : list
-        List of paths.
+    model_path : str
+        The model path.
 
     Returns
     -------
     None
     """
-    model_path = None
-    for p in paths:
-        p = p.removeprefix(str(root) + "/")
-        if "best_estimator/MLmodel" in p:
-            model_path = p.removesuffix("MLmodel")
-            break
-        elif "model/MLmodel" in p:
-            model_path = p.removesuffix("MLmodel")
-            break
-    if model_path is None:
-        raise Exception("MLflow model not found")
-
     serving_json = TEMPLATE.format(MLFLOW_RUNTIME, model_path)
     (root / FILENAME).write_text(serving_json)

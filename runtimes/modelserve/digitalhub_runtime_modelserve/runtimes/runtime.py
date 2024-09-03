@@ -70,13 +70,9 @@ class RuntimeModelserve(Runtime):
 
         LOGGER.info("Starting task.")
         spec = run.get("spec")
-        project = run.get("project")
-
-        LOGGER.info("Collecting model's files.")
-        model_paths = self._get_model(spec.get("model_name"), project, str(self.root))
 
         LOGGER.info("Configure execution.")
-        self._configure_execution(task_kind, self.root, model_paths)
+        self._configure_execution(task_kind, self.root, spec.get("path"))
 
         LOGGER.info("Serve model.")
         pid, endpoint = self._execute(executable, self.root)
@@ -100,26 +96,6 @@ class RuntimeModelserve(Runtime):
             Function to execute.
         """
         return get_serve_function(action)
-
-    def _get_model(self, model_key: str, project: str, download_path: str) -> Callable:
-        """
-        Get model.
-
-        Parameters
-        ----------
-        model_key : str
-            The model key.
-        project : str
-            The project.
-        download_path : str
-            The download path.
-
-        Returns
-        -------
-        str
-            The model path.
-        """
-        return get_model_files(model_key, project, download_path)
 
     def _configure_execution(self, action: str, root: str, model_path: str) -> dict:
         """

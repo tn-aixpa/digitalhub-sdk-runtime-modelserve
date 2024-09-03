@@ -79,6 +79,7 @@ class S3Store(Store):
         # as a temporary directory
         if dst is None:
             dst = self._build_temp()
+
         # Otherwise, check if the destination is local,
         else:
             self._check_local_dst(dst)
@@ -248,8 +249,7 @@ class S3Store(Store):
 
         paths = []
         for k in keys:
-            # If original source is not specified,
-            # use the key as path
+            # If original source is not specified, use the key as path
             if tree_path is None:
                 dst_pth = Path(dst, k)
             else:

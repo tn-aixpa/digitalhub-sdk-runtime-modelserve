@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Callable
 
+from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_modelserve.utils.frameworks.registry import serve_function_registry
 
 
@@ -19,4 +21,13 @@ def get_serve_function(action: str) -> Callable:
     Callable
         The serve function.
     """
-    return serve_function_registry[action]
+    try:
+        return serve_function_registry[action]
+    except KeyError as e:
+        msg = f"Unsupported action {action} for local serving."
+        LOGGER.error(msg)
+        raise EntityError(msg) from e
+    except Exception as e:
+        msg = f"Something got wrong during function collection. Exception: {e.__class__}. Error: {e.args}"
+        LOGGER.error(msg)
+        raise EntityError(msg) from e

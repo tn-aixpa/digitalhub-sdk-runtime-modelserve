@@ -50,7 +50,7 @@ def serve_sklearn(root: Path) -> tuple:
         raise EntityError(msg) from e
 
 
-def config_sklearn(root: Path, paths: list) -> None:
+def config_sklearn(root: Path, model_path: str) -> None:
     """
     Configure sklearn function.
 
@@ -58,15 +58,12 @@ def config_sklearn(root: Path, paths: list) -> None:
     ----------
     root : Path
         The root path where config file is.
-    paths : list
-        List of paths.
+    model_path : str
+        The model path.
 
     Returns
     -------
     None
     """
-    if not paths:
-        raise Exception("Sklearn model not found")
-    model_path = paths[0].removeprefix(str(root) + "/")
     serving_json = TEMPLATE.format(SKLEARN_RUNTIME, model_path)
     (root / FILENAME).write_text(serving_json)

@@ -18,11 +18,3 @@ try:
     config_function_registry["mlflowserve+serve"] = config_mlflow
 except ImportError:
     ...
-
-try:
-    from digitalhub_runtime_modelserve.utils.frameworks.huggingface import config_huggingface, serve_huggingface
-
-    serve_function_registry["huggingfaceserve+serve"] = serve_huggingface
-    config_function_registry["huggingfaceserve+serve"] = config_huggingface
-except ImportError:
-    ...
