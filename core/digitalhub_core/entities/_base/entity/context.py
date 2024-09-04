@@ -34,7 +34,7 @@ class ContextEntity(Entity):
 
     def save(self, update: bool = False) -> ContextEntity:
         """
-        Save entity into backend.
+        Save or update the entity into the backend.
 
         Parameters
         ----------
@@ -113,6 +113,6 @@ class ContextEntity(Entity):
         Returns
         -------
         Context
-            Context.
+            Context object.
         """
         return get_context(self.project)

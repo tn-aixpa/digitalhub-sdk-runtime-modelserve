@@ -71,7 +71,8 @@ class MaterialEntity(VersionedEntity):
 
     def as_file(self) -> list[str]:
         """
-        Get object as file(s).
+        Get object as file(s). It downloads the object from storage in
+        a temporary folder and returns the list of downloaded files paths.
 
         Returns
         -------
@@ -88,19 +89,41 @@ class MaterialEntity(VersionedEntity):
         overwrite: bool = False,
     ) -> list[str]:
         """
-        Download object from storage into given local path.
+        Download file(s) from specified storage.
+        This function looks into object's status files attribute. If it finds
+        a list of files descriptors, it will download them according to the
+        specified path. In case the object does not have files info in status,
+        it will fallback on spec path.
+        If destination is provided, it will download to that path, otherwise,
+        it will download into the root project path, inside a directory named
+        after the entity type.
 
         Parameters
         ----------
         destination : str
             Destination path as filename or directory.
         overwrite : bool
-            Specify if overwrite existing file(s).
+            Specify if overwrite existing file(s). If file(s) already
+            exist and overwrite is False, it will raise an error.
 
         Returns
         -------
         list[str]
             List of downloaded file paths.
+
+        Examples
+        --------
+        Download a single file:
+
+        >>> entity.status.files[0]
+        {
+            "path ": "s3://bucket/data.csv",
+            "name ": "data.csv",
+            "content_type ": "text/csv;charset=utf-8 "
+        }
+        >>> paths = entity.download()
+        >>> print(paths[0])
+        dataitem/data.csv
         """
         store = get_store(self.spec.path)
         paths = self._get_paths()
@@ -112,19 +135,32 @@ class MaterialEntity(VersionedEntity):
 
     def upload(self, source: str) -> None:
         """
-        Upload dataitem from given local path to spec path destination.
+        Upload object from given local path to spec path destination.
+        Source must be a local path. If the path is a folder, destination
+        path (object's spec path) must be a folder or a partition ending
+        with '/' (s3).
 
         Parameters
         ----------
         source : str
-            Source path is the local path of the dataitem.
+            Source path is the local path of the object.
 
         Returns
         -------
-        str
-            Path of the uploaded dataitem.
+        None
+
+        Examples
+        --------
+        Upload a single file:
+
+        >>> entity.spec.path = 's3://bucket/data.csv'
+        >>> entity.upload('./data.csv')
+
+        Upload a folder:
+        >>> entity.spec.path = 's3://bucket/data/'
+        >>> entity.upload('./data')
         """
-        # Get store and upload dataitem
+        # Get store and upload object
         store = get_store(self.spec.path)
         paths = store.upload(source, self.spec.path)
 

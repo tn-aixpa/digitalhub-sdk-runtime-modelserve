@@ -33,9 +33,6 @@ class Store(metaclass=ABCMeta):
         self.name = name
         self.type = store_type
 
-        # Registry to cache downloaded paths
-        self._cache = {}
-
     ##############################
     # IO methods
     ##############################

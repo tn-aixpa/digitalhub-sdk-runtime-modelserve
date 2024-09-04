@@ -68,18 +68,13 @@ class LocalStore(Store):
 
         # Handle src
         for s in src:
-            # Retrieve from cache
-            cached = self._cache.get(s[0])
-            if cached is not None and not overwrite:
-                paths.extend(cached)
-                continue
 
+            # Check if source is local
             self._check_local_src(s[0])
             src_pth = Path(s[0])
 
-            # If an original source path is specified
-            # try to reconstruct the path under the
-            # new destination
+            # If an original source path is specified try to reconstruct
+            # the path under the new destination
             if s[1] is not None:
                 self._check_local_src(s[1])
                 tree_path = Path(s[1])
@@ -92,7 +87,6 @@ class LocalStore(Store):
                 p = [self._copy_file(src_pth, dst_pth, overwrite)]
 
             paths.extend(p)
-            self._cache[s[0]] = p
 
         return paths
 

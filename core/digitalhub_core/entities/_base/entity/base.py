@@ -52,12 +52,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
     @abstractmethod
     def refresh(self) -> Entity:
         """
-        Refresh object from backend.
-
-        Returns
-        -------
-        Entity
-            Entity object.
+        Abstract refresh method.
         """
 
     def _update_attributes(self, obj: dict) -> None:
@@ -122,7 +117,7 @@ class Entity(ModelObj, metaclass=ABCMeta):
     @abstractmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:
         """
-        Parse a dictionary to a valid entity dictionary.
+        Abstract method to parse dictionary.
         """
 
     def __repr__(self) -> str:

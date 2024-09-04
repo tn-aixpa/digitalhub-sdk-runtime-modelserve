@@ -88,11 +88,6 @@ class S3Store(Store):
 
         paths = []
         for s in src:
-            # Retrieve from cache
-            cached = self._cache.get(s[0])
-            if cached is not None and not overwrite:
-                paths.extend(cached)
-                continue
 
             # Cycle over keys and original tree paths
             key = self._get_key(s[0])
@@ -103,8 +98,6 @@ class S3Store(Store):
             else:
                 p = [self._download_file(key, tree_path, dst_path, client, bucket, overwrite)]
             paths.extend(p)
-
-            self._cache[s[0]] = p
 
         return paths
 

@@ -42,11 +42,6 @@ class RemoteStore(Store):
         # Handle source
         src: str = src[0][0]
 
-        # Retrieve from cache
-        cached = self._cache.get(src)
-        if cached is not None and not overwrite:
-            return cached
-
         # Handle destination
         if dst is None:
             dst = self._build_temp()
@@ -62,7 +57,6 @@ class RemoteStore(Store):
 
         paths = [self._download_file(src, dst, overwrite)]
 
-        self._cache[src] = paths
         return paths
 
     def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:

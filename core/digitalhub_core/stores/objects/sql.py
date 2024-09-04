@@ -63,11 +63,6 @@ class SqlStore(Store):
         # Handle source
         src: str = src[0][0]
 
-        # Retrieve from cache
-        cached = self._cache.get(src)
-        if cached is not None and not overwrite:
-            return cached
-
         table_name = self._get_table_name(src) + ".parquet"
         # Case where dst is not provided
         if dst is None:
@@ -91,7 +86,6 @@ class SqlStore(Store):
         table = self._get_table_name(src)
         path = [self._download_table(schema, table, str(dst))]
 
-        self._cache[src] = path
         return path
 
     def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
