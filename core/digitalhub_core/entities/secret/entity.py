@@ -40,7 +40,7 @@ class Secret(VersionedEntity):
 
     def set_secret_value(self, value: str) -> None:
         """
-        Set a secret.
+        Update the secret value with a new one.
 
         Parameters
         ----------
@@ -59,7 +59,7 @@ class Secret(VersionedEntity):
 
     def read_secret_value(self) -> dict:
         """
-        Read a secret from backend.
+        Read the secret value from backend.
 
         Returns
         -------
