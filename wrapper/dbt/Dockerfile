@@ -13,8 +13,9 @@ RUN python -m pip install "digitalhub_runtime_dbt[local]>=${VERSION}"
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
 
-# Use non root user
-RUN chown -R 1000 /app
-USER 1000
+# Add nonroot group and user
+RUN useradd -r -m -u 8877 nonroot && \
+    chown -R nonroot /app
+USER 8877
 
 ENTRYPOINT ["python", "wrapper.py"]
