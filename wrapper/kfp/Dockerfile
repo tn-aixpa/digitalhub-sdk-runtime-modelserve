@@ -25,6 +25,6 @@ COPY step.py /app/
 # Add nonroot group and user
 RUN useradd -r -m -u 8877 nonroot && \
     chown -R nonroot /app
-USER 8877
+USER nonroot
 
 ENTRYPOINT ["python", "wrapper.py"]
