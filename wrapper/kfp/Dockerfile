@@ -4,7 +4,6 @@ FROM python:3.9
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-sdk
 ARG VERSION=0.7.0b
 
-
 # Set working dir
 WORKDIR /app/
 
@@ -22,5 +21,8 @@ RUN python -m pip install "digitalhub-core[full]>=${VERSION}" \
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
 COPY step.py /app/
+
+RUN adduser --system --no-create-home nonroot && chown -R nonroot /app
+USER nonroot
 
 ENTRYPOINT ["python", "wrapper.py"]

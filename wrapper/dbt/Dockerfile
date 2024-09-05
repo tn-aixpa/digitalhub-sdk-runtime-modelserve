@@ -13,4 +13,7 @@ RUN python -m pip install "digitalhub_runtime_dbt[local]>=${VERSION}"
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
 
+RUN adduser --system --no-create-home nonroot && chown -R nonroot /app
+USER nonroot
+
 ENTRYPOINT ["python", "wrapper.py"]
