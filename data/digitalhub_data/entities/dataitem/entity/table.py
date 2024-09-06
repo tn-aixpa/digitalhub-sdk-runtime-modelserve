@@ -85,7 +85,9 @@ class DataitemTable(Dataitem):
         **kwargs,
     ) -> str:
         """
-        Write DataFrame as parquet/csv/table into dataitem path.
+        Write DataFrame as parquet/csv/table into dataitem spec.path.
+        keyword arguments will be passed to the DataFrame reader function such as
+        pandas's to_csv or to_parquet.
 
         Parameters
         ----------
