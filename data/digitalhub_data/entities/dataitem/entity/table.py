@@ -19,18 +19,26 @@ class DataitemTable(Dataitem):
     def as_df(
         self,
         file_format: str | None = None,
+        engine: str | None = None,
         clean_tmp_path: bool = True,
         **kwargs,
     ) -> Any:
         """
-        Read dataitem as a DataFrame from spec.path. If the dataitem is not local,
-        it will be downloaded to a temporary folder. If clean_tmp_path is True,
-        the temporary folder will be deleted after the method is executed.
+        Read dataitem file (csv or parquet) as a DataFrame from spec.path.
+        If the dataitem is not local, it will be downloaded to a temporary
+        folder named tmp_dir in the project context folder.
+        If clean_tmp_path is True, the temporary folder will be deleted after the
+        method is executed.
+        It's possible to pass additional arguments to the this function. These
+        keyword arguments will be passed to the DataFrame reader function such as
+        pandas's read_csv or read_parquet.
 
         Parameters
         ----------
         file_format : str
             Format of the file. (Supported csv and parquet).
+        engine : str
+            Dataframe framework, by default pandas.
         clean_tmp_path : bool
             If True, the temporary folder will be deleted.
         **kwargs : dict
@@ -41,6 +49,8 @@ class DataitemTable(Dataitem):
         Any
             DataFrame.
         """
+        if engine is None:
+            engine = "pandas"
         try:
             if check_local_path(self.spec.path):
                 tmp_dir = None
@@ -59,7 +69,7 @@ class DataitemTable(Dataitem):
             path = download_paths[0]
             extension = self._get_extension(path, file_format)
             datastore = get_datastore(path)
-            return datastore.read_df(download_paths, extension, **kwargs)
+            return datastore.read_df(download_paths, extension, engine, **kwargs)
 
         except Exception as e:
             raise e

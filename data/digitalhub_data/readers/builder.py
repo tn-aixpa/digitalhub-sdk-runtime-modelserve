@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from typing import Any
 
-from digitalhub_data.readers.registry import REGISTRY
+from digitalhub_data.readers.registry import REGISTRY_DATAFRAME, REGISTRY_FRAMEWORK
 
 if typing.TYPE_CHECKING:
     from digitalhub_data.readers.objects.base import DataframeReader
@@ -24,9 +24,11 @@ def get_reader_by_engine(engine: str) -> DataframeReader:
         Reader object.
     """
     try:
-        return REGISTRY[engine]()
+        return REGISTRY_FRAMEWORK[engine]()
     except KeyError:
-        raise ValueError(f"Unsupported dataframe engine: {engine}. Make sure it is installed.")
+        engines = list(REGISTRY_FRAMEWORK.keys())
+        msg = f"Unsupported dataframe engine: {engine}. Supported engines: {engines}"
+        raise ValueError(msg)
 
 
 def get_reader_by_object(obj: Any) -> DataframeReader:
@@ -47,4 +49,6 @@ def get_reader_by_object(obj: Any) -> DataframeReader:
         obj_name = f"{obj.__class__.__module__}.{obj.__class__.__name__}"
         return get_reader_by_engine(obj_name)
     except KeyError:
-        raise ValueError(f"Unsupported dataframe type: {obj}. Make sure it is installed.")
+        types = list(REGISTRY_DATAFRAME.keys())
+        msg = f"Unsupported dataframe type: {obj}. Supported types: {types}"
+        raise ValueError(msg)
