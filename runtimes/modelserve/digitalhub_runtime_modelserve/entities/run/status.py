@@ -26,11 +26,12 @@ class RunStatusModelserve(RunStatusMl):
         None
         """
         try:
+            model_name=kwargs.pop("model_name", "model")
             if local:
                 endpoint = self.results.get("endpoint")
             else:
                 url = self.service.get("url")
-                endpoint = f"http://{url}/v2/models/model/infer"
+                endpoint = f"http://{url}/v2/models/{model_name}/infer"
             kwargs["url"] = endpoint
             response = requests.post(**kwargs)
             response.raise_for_status()

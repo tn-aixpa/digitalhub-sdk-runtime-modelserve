@@ -47,7 +47,7 @@ def get_reader_by_object(obj: Any) -> DataframeReader:
     """
     try:
         obj_name = f"{obj.__class__.__module__}.{obj.__class__.__name__}"
-        return get_reader_by_engine(obj_name)
+        return REGISTRY_DATAFRAME[obj_name]()
     except KeyError:
         types = list(REGISTRY_DATAFRAME.keys())
         msg = f"Unsupported dataframe type: {obj}. Supported types: {types}"
