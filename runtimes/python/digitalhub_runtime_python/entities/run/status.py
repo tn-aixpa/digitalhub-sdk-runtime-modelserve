@@ -27,8 +27,11 @@ class RunStatusPython(RunStatusMl):
         try:
             if local:
                 raise EntityError("Invoke not supported locally.")
-            kwargs["url"] = "http://" + self.service.get("url")
-            response = requests.request(**kwargs)
+
+            method = kwargs.pop("method", "POST")
+            url = kwargs.get("url", "http://" + self.service.get("url"))
+
+            response = requests.request(method=method, url=url, **kwargs)
             response.raise_for_status()
             return response
         except Exception as e:
