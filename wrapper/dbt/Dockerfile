@@ -16,6 +16,6 @@ COPY wrapper.py /app/
 # Add nonroot group and user
 RUN useradd -r -m -u 8877 nonroot && \
     chown -R nonroot /app
-USER nonroot
+USER 8877
 
 ENTRYPOINT ["python", "wrapper.py"]
