@@ -68,7 +68,6 @@ class LocalStore(Store):
 
         # Handle src
         for s in src:
-
             # Check if source is local
             self._check_local_src(s[0])
             src_pth = Path(s[0])

@@ -88,7 +88,6 @@ class S3Store(Store):
 
         paths = []
         for s in src:
-
             # Cycle over keys and original tree paths
             key = self._get_key(s[0])
             tree_path = s[1]

@@ -12,30 +12,39 @@ class RunStatusModelserve(RunStatusMl):
     Run Model serve status.
     """
 
-    def invoke(self, local: bool, **kwargs) -> dict:
+    def invoke(self, local: bool, model_name: str | None = None, **kwargs) -> requests.Response:
         """
-        Invoke running process.
+        Invoke running process. By default it exposes infer v2 endpoint.
 
         Parameters
         ----------
+        model_name : str
+            Name of the model for the endpoint.
         kwargs
             Keyword arguments to pass to the request.
 
         Returns
         -------
-        None
+        requests.Response
+            Response from the request.
         """
         try:
-            model_name=kwargs.pop("model_name", "model")
-            if local:
-                endpoint = self.results.get("endpoint")
-            else:
-                url = self.service.get("url")
-                endpoint = f"http://{url}/v2/models/{model_name}/infer"
-            kwargs["url"] = endpoint
-            response = requests.post(**kwargs)
+            method = kwargs.pop("method", "POST")
+            url = kwargs.pop("url", None)
+            if url is None:
+                if local:
+                    url = self.results.get("endpoint")
+                else:
+                    model_name = model_name if model_name is not None else "model"
+                    url = f"http://{self.service.get('url')}/v2/models/{model_name}/infer"
+
+            response = requests.request(
+                method=method,
+                url=url,
+                **kwargs,
+            )
             response.raise_for_status()
-            return response.json()
+            return response
         except Exception as e:
             msg = f"Something got wrong during model serving. Exception: {e.__class__}. Error: {e.args}"
             raise EntityError(msg)
