@@ -181,9 +181,7 @@ class S3Store(Store):
             for i in files:
                 if i.is_absolute():
                     i = i.relative_to(src)
-                    keys.append(f"{dst.removesuffix('/')}{i}")
-                else:
-                    keys.append(f"{dst}{i}")
+                keys.append(f"{dst}{i}")
 
         # Single file
         else:
