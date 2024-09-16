@@ -54,22 +54,22 @@ class DataitemTable(Dataitem):
         try:
             if check_local_path(self.spec.path):
                 tmp_dir = None
+                data_path = self.spec.path
             else:
                 tmp_dir = self._context().root / "tmp_data"
                 tmp_dir.mkdir(parents=True, exist_ok=True)
+                data_path = self.download(destination=str(tmp_dir), overwrite=True)
 
-            # Check file format and get dataitem as DataFrame
-            store = get_store(self.spec.path)
-            paths = self._get_paths()
-            download_paths = store.download(paths, dst=str(tmp_dir), overwrite=True)
+            if Path(data_path).is_dir():
+                files = [str(i) for i in Path(data_path).rglob("*") if i.is_file()]
+                checker = files[0]
+            else:
+                checker = data_path
 
-            if not download_paths:
-                raise RuntimeError(f"No file found in {self.spec.path}.")
+            extension = self._get_extension(checker, file_format)
+            datastore = get_datastore("")
 
-            path = download_paths[0]
-            extension = self._get_extension(path, file_format)
-            datastore = get_datastore(path)
-            return datastore.read_df(download_paths, extension, engine, **kwargs)
+            return datastore.read_df(data_path, extension, engine, **kwargs)
 
         except Exception as e:
             raise e

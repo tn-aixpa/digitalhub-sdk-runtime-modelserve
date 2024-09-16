@@ -81,7 +81,7 @@ class SqlStore(Store):
         if dst is None:
             dst = Path(self._build_temp("sql")) / table_name
         else:
-            self._check_local_dst(dst)
+            self._check_local_dst(str(dst))
             path = Path(dst)
 
             # Case where dst is a directory
@@ -92,7 +92,7 @@ class SqlStore(Store):
             elif path.suffix != ".parquet":
                 raise StoreError("The destination path must be a directory or a parquet file.")
 
-            self._check_overwrite(str(dst), overwrite)
+            self._check_overwrite(dst, overwrite)
             self._build_path(dst)
 
         schema = self._get_schema(src)

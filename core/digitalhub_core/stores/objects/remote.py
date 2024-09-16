@@ -57,13 +57,12 @@ class RemoteStore(Store):
         if dst is None:
             dst = self._build_temp()
         else:
-            self._check_local_dst(dst)
-            dst = Path(dst)
+            self._check_local_dst(str(dst))
 
         if dst.suffix == "":
             dst = dst / "data.file"
 
-        self._check_overwrite(str(dst), overwrite)
+        self._check_overwrite(dst, overwrite)
         self._build_path(dst)
 
         return self._download_file(root, dst, overwrite)
