@@ -51,11 +51,6 @@ def check_local_path(path: str) -> bool:
     -------
     bool
         True if path is local.
-
-    Raises
-    ------
-    Exception
-        If the path is not specified.
     """
     scheme = map_uri_scheme(path)
     return scheme == "local"

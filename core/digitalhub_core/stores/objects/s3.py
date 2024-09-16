@@ -50,101 +50,145 @@ class S3Store(Store):
 
     def download(
         self,
-        src: list[tuple[str, str | None]],
-        dst: str | None = None,
+        root: str,
+        dst: Path,
+        src: list[str],
         overwrite: bool = False,
-    ) -> list[str]:
+    ) -> str:
         """
-        Download artifacts from S3 storage.
+        Download artifacts from storage.
 
         Parameters
         ----------
-        src : list[tuple[str, str | None]]
-            The source location of the artifact on s3 and eventual origin tree path.
+        root : str
+            The root path of the artifact.
         dst : str
             The destination of the artifact on local filesystem.
+        src : list[str]
+            List of sources.
         overwrite : bool
             Specify if overwrite existing file(s).
 
         Returns
         -------
-        list[str]
-            List of paths of the downloaded artifacts.
+        str
+            Destination path of the downloaded artifact.
         """
         client, bucket = self._check_factory()
 
-        # Handle destination
-
-        # If destination is not specified, build destination
-        # as a temporary directory
-        if dst is None:
-            dst = self._build_temp()
-
-        # Otherwise, check if the destination is local,
+        # Build destination directory
+        if dst.suffix == "":
+            dst.mkdir(parents=True, exist_ok=True)
         else:
-            self._check_local_dst(dst)
+            dst.parent.mkdir(parents=True, exist_ok=True)
 
-        dst_path = Path(dst)
-
-        paths = []
-        for s in src:
-            # Cycle over keys and original tree paths
-            key = self._get_key(s[0])
-            tree_path = s[1]
-
-            if key.endswith("/"):
-                p = self._download_files(key, tree_path, dst_path, client, bucket, overwrite)
+        # Handle src and tree destination
+        if self.is_partition(root):
+            if not src:
+                keys = self._list_objects(client, bucket, root)
+                strip_root = self._get_key(root)
+                trees = [k.removeprefix(strip_root) for k in keys]
             else:
-                p = [self._download_file(key, tree_path, dst_path, client, bucket, overwrite)]
-            paths.extend(p)
+                keys = self._build_key_from_root(root, src)
+                trees = [s for s in src]
+        else:
+            keys = [self._get_key(root)]
+            if not src:
+                trees = [self._get_key(root)]
+            else:
+                trees = [src]
 
-        return paths
+        if len(keys) != len(trees):
+            raise StoreError("Keys and trees must have the same length.")
 
-    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
+        # Download files
+        for elements in zip(keys, trees):
+
+            key = elements[0]
+            tree = elements[1]
+
+            # Build destination path
+            if dst.suffix == "":
+                dst_pth = Path(dst, tree)
+            else:
+                dst_pth = dst
+
+            # Check if destination path already exists
+            self._check_overwrite(dst_pth, overwrite)
+
+            self._build_path(dst_pth.parent)
+
+            self._download_file(key, dst_pth, client, bucket)
+
+        return dst
+
+    def upload(self, src: str | list[str], dst: str | None = None) -> list[tuple[str, str]]:
         """
         Upload an artifact to storage.
 
         Parameters
         ----------
         src : str
-            The source location of the artifact on local filesystem.
+            List of sources.
         dst : str
             The destination of the artifact on storage.
 
         Returns
         -------
-        list[str]
-            Returns the list of source and destination paths of the
-            uploaded artifacts.
+        list[tuple[str, str]]
+            Returns the list of destination and source paths of the uploaded artifacts.
         """
+        client, bucket = self._check_factory()
+
         # Destination handling
 
         # If no destination is provided, build key from source
         # Otherwise build key from destination
         if dst is None:
-            dst = self._get_key(src)
+            raise StoreError("Destination must be provided. " +
+                             "If source is a list of files or a directory, "
+                             "destination must be a partition, e.g. 's3://bucket/partition/', ",
+                             "otherwise a destination key, e.g. 's3://bucket/key'")
         else:
             dst = self._get_key(dst)
 
         # Source handling
-
-        self._check_local_src(src)
-        src_is_dir = Path(src).is_dir()
+        if not isinstance(src, list):
+            self._check_local_src(src)
+            src_is_dir = Path(src).is_dir()
+        else:
+            for s in src:
+                self._check_local_src(s)
+            src_is_dir = False
 
         # If source is a directory, destination must be a partition
-        if src_is_dir and not dst.endswith("/"):
-            raise StoreError("Destination must be a partition if the source is a directory.")
+        if (src_is_dir or isinstance(src, list)) and not dst.endswith("/"):
+                raise StoreError("Destination must be a partition if the source is a directory or a list of files.")
 
-        # If source is a file and destination is a partition,
-        # build key from source
-        if not src_is_dir and dst.endswith("/"):
-            dst = f"{dst}{self._get_key(src)}"
-
-        client, bucket = self._check_factory()
-
+        # Directory
         if src_is_dir:
-            return self._upload_files(src, dst, client, bucket)
-        return [self._upload_file(src, dst, client, bucket)]
+            files = [i for i in Path(src).rglob("*") if i.is_file()]
+            keys = [f"{dst}{i}" for i in files]
+
+        # List of files
+        elif isinstance(src, list):
+            files = src
+            keys = [f"{dst}{i}" for i in files]
+
+        # Single file
+        else:
+            files = [src]
+            if dst.endswith("/"):
+                dst = f"{dst}{src}"
+            keys = [dst]
+
+        # Upload files
+        paths = []
+        for i in zip(files, keys):
+            self._upload_file(i[0], i[1], client, bucket)
+            paths.append((i[1], str(i[0])))
+
+        return paths
 
     def upload_fileobject(self, src: BytesIO, dst: str) -> str:
         """
@@ -172,7 +216,7 @@ class S3Store(Store):
         Parameters
         ----------
         paths : list
-            The list of destination and source paths.
+            List of source paths.
 
         Returns
         -------
@@ -183,14 +227,13 @@ class S3Store(Store):
 
         infos = []
         for i in paths:
-            s3_path, src_path = i
+            key, src_path = i
 
             # Get metadata
-            key = self._get_key(s3_path)
             metadata = client.head_object(Bucket=bucket, Key=key)
 
             # Get file info
-            info = get_file_info_from_s3(s3_path, src_path, metadata)
+            info = get_file_info_from_s3(src_path, metadata)
             infos.append(info)
 
         return infos
@@ -199,155 +242,37 @@ class S3Store(Store):
     # Private I/O methods
     ##############################
 
-    def _download_files(
+    def _download_file(
         self,
         key: str,
-        tree_path: str | None,
-        dst: Path,
+        dst_pth: Path,
         client: S3Client,
         bucket: str,
-        overwrite: bool,
     ) -> list[str]:
         """
         Download files from S3 partition.
 
         Parameters
         ----------
-        key : str
-            The key partition.
-        tree_path : str
-            Original source tree path.
-        dst : str
+        keys : str
+            The list of keys to be downloaded.
+        dst_pth : str
             The destination of the files on local filesystem.
         client : S3Client
             The S3 client object.
         bucket : str
             The name of the S3 bucket.
-        overwrite : bool
-            Whether to overwrite existing files.
 
         Returns
         -------
         list[str]
             The list of paths of the downloaded files.
         """
-        # If downloadding from a partition, destination must be a directory
-        if not dst.is_dir():
-            raise StoreError("Destination must be a directory if the source is a directory.")
-
-        # List keys under the partition
-        file_list = client.list_objects_v2(Bucket=bucket, Prefix=key).get("Contents", [])
-        keys = [f["Key"] for f in file_list]
-
-        paths = []
-        for k in keys:
-            # If original source is not specified, use the key as path
-            if tree_path is None:
-                dst_pth = Path(dst, k)
-            else:
-                dst_pth = Path(dst, tree_path)
-
-            # Build destination path
-            self._build_path(dst_pth.parent)
-
-            # Check if destination path already exists
-            dst_pth = str(dst_pth)
-            self._check_overwrite(dst_pth, overwrite)
-
-            # Download file
-            client.download_file(bucket, k, dst_pth)
-            paths.append(dst_pth)
-        return paths
-
-    def _download_file(
-        self,
-        key: str,
-        tree_path: str | None,
-        dst: Path,
-        client: S3Client,
-        bucket: str,
-        overwrite: bool,
-    ) -> str:
-        """
-        Download a file from S3 based storage. The function checks if the bucket is accessible
-        and if the destination directory exists. If the destination directory does not exist,
-        it will be created.
-
-        Parameters
-        ----------
-        key : str
-            The key of the file on S3 based storage.
-        tree_path : str
-            Original source tree path.
-        dst : str
-            The destination of the file on local filesystem.
-        client : S3Client
-            The S3 client object.
-        bucket : str
-            The name of the S3 bucket.
-        overwrite : bool
-            Whether to overwrite existing files.
-
-        Returns
-        -------
-        str
-            The path of the downloaded file.
-        """
-        # If original source is not specified,
-        # use the key as path
-        if tree_path is None:
-            tree_path = key
-
-        # Build destination path
-        if dst.suffix == "" and not Path(tree_path).is_absolute():
-            dst_pth = Path(dst, tree_path)
-        else:
-            dst_pth = Path(dst, key)
-
-        self._build_path(dst_pth.parent)
-
-        # Check if destination path already exists
-        dst_pth = str(dst_pth)
-        self._check_overwrite(dst_pth, overwrite)
-
         # Download file
         client.download_file(bucket, key, dst_pth)
-        return dst_pth
-
-    def _upload_files(self, src: str, dst: str, client: S3Client, bucket: str) -> list[tuple[str, str]]:
-        """
-        Upload files to S3 based storage. The function checks if the bucket is accessible.
-
-        Parameters
-        ----------
-        src : str
-            The source path of the files on local filesystem.
-        dst : str
-            The destination of the files on S3 based storage.
-        client : S3Client
-            The S3 client object.
-        bucket : str
-            The name of the S3 bucket.
-
-        Returns
-        -------
-        list[tuple[str, str]]
-            A list of tuples containing the path of the uploaded files
-            and the path of the original files.
-        """
-        path_src = Path(src)
-        paths = []
-        files = [i for i in path_src.rglob("*") if i.is_file()]
-
-        for file in files:
-            key = self._get_key(str(file.relative_to(path_src)))
-            built_key = f"{dst}{key}"
-            paths.append(self._upload_file(str(file), built_key, client, bucket))
-
-        return paths
 
     @staticmethod
-    def _upload_file(src: str, key: str, client: S3Client, bucket: str) -> tuple[str, str]:
+    def _upload_file(src: str, key: str, client: S3Client, bucket: str) -> None:
         """
         Upload a file to S3 based storage. The function checks if the
         bucket is accessible.
@@ -365,17 +290,13 @@ class S3Store(Store):
 
         Returns
         -------
-        tuple[str, str]
-            A tuple containing the URI of the uploaded file
-            and the path of the original file.
+        None
         """
         extra_args = {}
         mime_type = get_file_mime_type(src)
         if mime_type is not None:
             extra_args["ContentType"] = mime_type
-
         client.upload_file(Filename=src, Bucket=bucket, Key=key, ExtraArgs=extra_args)
-        return f"s3://{bucket}/{key}", src
 
     @staticmethod
     def _upload_fileobject(fileobj: BytesIO, key: str, client: S3Client, bucket: str) -> str:
@@ -432,26 +353,6 @@ class S3Store(Store):
         }
         return boto3.client("s3", **cfg)
 
-    @staticmethod
-    def _get_key(path: str) -> str:
-        """
-        Build key.
-
-        Parameters
-        ----------
-        path : str
-            The source path to get the key from.
-
-        Returns
-        -------
-        str
-            The key.
-        """
-        key = urlparse(path).path.replace("\\", "/")
-        if key.startswith("/"):
-            key = key[1:]
-        return key
-
     def _check_factory(self) -> tuple[S3Client, str]:
         """
         Check if the S3 bucket is accessible by sending a head_bucket request.
@@ -490,3 +391,86 @@ class S3Store(Store):
             client.head_bucket(Bucket=bucket)
         except ClientError as e:
             raise ClientError("No access to s3 bucket!") from e
+
+    @staticmethod
+    def _get_key(path: str) -> str:
+        """
+        Build key.
+
+        Parameters
+        ----------
+        path : str
+            The source path to get the key from.
+
+        Returns
+        -------
+        str
+            The key.
+        """
+        key = urlparse(path).path.replace("\\", "/")
+        if key.startswith("/"):
+            key = key[1:]
+        return key
+
+    def _build_key_from_root(self, root: str, paths: list[str]) -> list[str]:
+        """
+        Method to build object path.
+
+        Parameters
+        ----------
+        root : str
+            The root of the object path.
+        paths : list[str]
+            The path to build.
+
+        Returns
+        -------
+        list[str]
+            List of keys.
+        """
+        keys = []
+        for path in paths:
+            clean_path = self._get_key(path)
+            key = self._get_key(f"{root}{clean_path}")
+            keys.append(key)
+        return keys
+
+    def _list_objects(self, client: S3Client, bucket: str, partition: str) -> list[str]:
+        """
+        List objects in a S3 partition.
+
+        Parameters
+        ----------
+        client : S3Client
+            The S3 client object.
+        bucket : str
+            The name of the S3 bucket.
+        partition : str
+            The partition.
+
+        Returns
+        -------
+        list[str]
+            The list of keys under the partition.
+        """
+        key = self._get_key(partition)
+        file_list = client.list_objects_v2(Bucket=bucket, Prefix=key).get("Contents", [])
+        return [f["Key"] for f in file_list]
+
+    @staticmethod
+    def is_partition(path: str) -> bool:
+        """
+        Check if path is a directory or a partition.
+
+        Parameters
+        ----------
+        path : str
+            The path to check.
+
+        Returns
+        -------
+        bool
+        """
+        if path.endswith("/"):
+            return True
+        return False

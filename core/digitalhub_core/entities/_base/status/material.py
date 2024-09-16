@@ -15,9 +15,11 @@ class MaterialStatus(Status):
         files: list[dict] | None = None,
     ) -> None:
         super().__init__(state, message)
-        self.files: list[dict] | None = files
+        if files is None:
+            files = []
+        self.files = files
 
-    def add_files_info(self, files: list[dict] | None = None) -> None:
+    def add_files_info(self, files: list[dict]) -> None:
         """
         Add a file to the status.
 
@@ -30,19 +32,18 @@ class MaterialStatus(Status):
         -------
         None
         """
-        if isinstance(files, list):
-            if files:
-                self.files = files
+        path_list = self.get_file_paths()
+        for f in files:
+            if not f.get("path") in path_list:
+                self.files.append(f)
 
-    def get_file_paths(self) -> list[tuple[str, str]]:
+    def get_file_paths(self) -> list[str]:
         """
         Get the paths of the files in the status.
 
         Returns
         -------
-        list[tuple[str, str]]
+        list[str]
             Paths of the files in the status.
         """
-        if self.files is None:
-            return []
-        return [(f.get("path"), f.get("src_path")) for f in self.files]
+        return [f.get("path") for f in self.files]

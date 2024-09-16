@@ -14,7 +14,6 @@ class FileInfo(BaseModel):
     """
 
     path: str = None
-    src_path: str = None
     name: str = None
     content_type: str = None
     size: int = None
@@ -152,8 +151,7 @@ def get_file_info_from_local(path: str, src_path: str) -> None | dict:
         last_modified = get_last_modified(path)
 
         return FileInfo(
-            path=path,
-            src_path=src_path,
+            path=src_path,
             name=name,
             content_type=content_type,
             size=size,
@@ -164,16 +162,16 @@ def get_file_info_from_local(path: str, src_path: str) -> None | dict:
         return None
 
 
-def get_file_info_from_s3(s3_path: str, src_path: str, metadata: dict) -> None | dict:
+def get_file_info_from_s3(path: str, metadata: dict) -> None | dict:
     """
     Get file info from path.
 
     Parameters
     ----------
+    path : str
+        Object source path.
     metadata : dict
         Metadata of the object from S3.
-    path : str
-        Object key.
 
     Returns
     -------
@@ -190,13 +188,12 @@ def get_file_info_from_s3(s3_path: str, src_path: str, metadata: dict) -> None |
         else:
             file_hash = "LiteralETag:" + file_hash
 
-        name = get_path_name(s3_path)
+        name = get_path_name(path)
         content_type = metadata["ContentType"]
         last_modified = metadata["LastModified"].isoformat()
 
         return FileInfo(
-            path=s3_path,
-            src_path=src_path,
+            path=path,
             name=name,
             content_type=content_type,
             size=size,

@@ -38,25 +38,3 @@ class Artifact(MaterialEntity):
 
         self.spec: ArtifactSpec
         self.status: ArtifactStatus
-
-    ##############################
-    #  Artifacts Methods
-    ##############################
-
-    def upload(self, source: str | None = None) -> None:
-        """
-        Upload artifact from given local path to spec path destination.
-
-        Parameters
-        ----------
-        source : str
-            Source path is the local path of the artifact.
-
-        Returns
-        -------
-        None
-        """
-        src = source if source is not None else self.spec.src_path
-        if src is None:
-            raise EntityError("Source path is not specified.")
-        return super().upload(src)

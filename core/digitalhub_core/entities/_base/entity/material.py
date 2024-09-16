@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from pathlib import Path
 
 from digitalhub_core.entities._base.crud import files_info_get_api, files_info_put_api
 from digitalhub_core.entities._base.entity.versioned import VersionedEntity
@@ -80,23 +81,26 @@ class MaterialEntity(VersionedEntity):
             List of file paths.
         """
         store = get_store(self.spec.path)
-        paths = self._get_paths()
-        return store.download(paths)
+        paths = self.status.get_file_paths()
+        dst = store._build_temp()
+        return store.download(self.spec.path, dst=dst, src=paths)
 
     def download(
         self,
         destination: str | None = None,
         overwrite: bool = False,
-    ) -> list[str]:
+    ) -> str:
         """
-        Download file(s) from specified storage.
-        This function looks into object's status files attribute. If it finds
-        a list of files descriptors, it will download them according to the
-        specified path. In case the object does not have files info in status,
-        it will fallback on spec path.
-        If destination is provided, it will download to that path, otherwise,
-        it will download into the root project path, inside a directory named
-        after the entity type.
+        This function downloads one or more file from storage on local
+        machine.
+        It looks inside the object's status for the file(s) path under
+        files attribute. If it does not find it, it will try to download
+        what it can from spec.path.
+        The files are downloaded into a destination folder. If the destination
+        is not specified, it will set by default under the context path
+        as '<ctx-root>/<entity_type>', e.g. './dataitem'.
+        The overwrite flag allows to overwrite existing file(s) in the
+        destination folder.
 
         Parameters
         ----------
@@ -108,8 +112,8 @@ class MaterialEntity(VersionedEntity):
 
         Returns
         -------
-        list[str]
-            List of downloaded file paths.
+        str
+            Downloaded path.
 
         Examples
         --------
@@ -117,23 +121,25 @@ class MaterialEntity(VersionedEntity):
 
         >>> entity.status.files[0]
         {
-            "path ": "s3://bucket/data.csv",
+            "path ": "data.csv",
             "name ": "data.csv",
             "content_type ": "text/csv;charset=utf-8 "
         }
-        >>> paths = entity.download()
-        >>> print(paths[0])
+        >>> path = entity.download()
+        >>> print(path)
         dataitem/data.csv
         """
         store = get_store(self.spec.path)
-        paths = self._get_paths()
+        paths = self.status.get_file_paths()
 
         if destination is None:
-            destination = str(self._context().root / self.ENTITY_TYPE)
+            dst = self._context().root / self.ENTITY_TYPE
+        else:
+            dst = Path(destination)
 
-        return store.download(paths, dst=destination, overwrite=overwrite)
+        return store.download(self.spec.path, dst=dst, src=paths, overwrite=overwrite)
 
-    def upload(self, source: str) -> None:
+    def upload(self, source: str | list[str]) -> None:
         """
         Upload object from given local path to spec path destination.
         Source must be a local path. If the path is a folder, destination
@@ -142,8 +148,8 @@ class MaterialEntity(VersionedEntity):
 
         Parameters
         ----------
-        source : str
-            Source path is the local path of the object.
+        source : str | list[str]
+            Local filepath, directory or list of filepaths.
 
         Returns
         -------
@@ -172,24 +178,6 @@ class MaterialEntity(VersionedEntity):
     #  Private Helpers
     ##############################
 
-    def _get_paths(self) -> list[tuple[str, str | None]]:
-        """
-        Get paths from spec.
-
-        Returns
-        -------
-        list[tuple[str, str | None]]
-            List of paths.
-        """
-        # Try to download from files info in status
-        paths = self.status.get_file_paths()
-
-        # Fallback to spec path
-        if not paths:
-            paths = [(self.spec.path, None)]
-
-        return paths
-
     def _update_files_info(self, files_info: list[dict] | None = None) -> None:
         """
         Update files info.
@@ -217,7 +205,7 @@ class MaterialEntity(VersionedEntity):
         -------
         None
         """
-        if not self._context().local and (not self.status.files or self.status.files is None):
+        if not self._context().local and not self.status.files:
             files = files_info_get_api(
                 project=self.project,
                 entity_type=self.ENTITY_TYPE,

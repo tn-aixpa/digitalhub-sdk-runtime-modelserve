@@ -40,22 +40,23 @@ class Store(metaclass=ABCMeta):
     @abstractmethod
     def download(
         self,
-        src: list[tuple[str, str | None]],
-        dst: str | None = None,
+        root: str,
+        dst: Path,
+        src: list[str],
         overwrite: bool = False,
-    ) -> list[str]:
+    ) -> str:
         """
         Method to download artifact from storage.
         """
 
     @abstractmethod
-    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
+    def upload(self, src: str | list[str], dst: str | None = None) -> list[tuple[str, str]]:
         """
         Method to upload artifact to storage.
         """
 
     @abstractmethod
-    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
+    def get_file_info(self, paths: list[str]) -> list[dict]:
         """
         Method to get file metadata.
         """
@@ -106,13 +107,13 @@ class Store(metaclass=ABCMeta):
         if map_uri_scheme(dst) != "local":
             raise StoreError(f"Destination '{dst}' is not a local path.")
 
-    def _check_overwrite(self, dst: str, overwrite: bool) -> None:
+    def _check_overwrite(self, dst: Path, overwrite: bool) -> None:
         """
         Check if destination path exists for overwrite.
 
         Parameters
         ----------
-        dst : str
+        dst : Path
             Destination path as filename.
         overwrite : bool
             Specify if overwrite an existing file.
@@ -126,8 +127,8 @@ class Store(metaclass=ABCMeta):
         StoreError
             If destination path exists and overwrite is False.
         """
-        if Path(dst).exists() and not overwrite:
-            raise StoreError(f"Destination {dst} already exists.")
+        if dst.exists() and not overwrite:
+            raise StoreError(f"Destination {str(dst)} already exists.")
 
     @staticmethod
     def _build_path(path: str | Path) -> None:
@@ -150,17 +151,17 @@ class Store(metaclass=ABCMeta):
         path.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
-    def _build_temp() -> str:
+    def _build_temp() -> Path:
         """
         Build a temporary path.
 
         Returns
         -------
-        str
+        Path
             Temporary path.
         """
         tmpdir = mkdtemp()
-        return tmpdir
+        return Path(tmpdir)
 
 
 class StoreConfig(BaseModel):

@@ -91,7 +91,7 @@ def log_artifact(
     project: str,
     name: str,
     kind: str,
-    source: str,
+    source: list[str] | str,
     path: str | None = None,
     **kwargs,
 ) -> Artifact:
@@ -125,25 +125,37 @@ def log_artifact(
     >>>                    kind="artifact",
     >>>                    source="./local-path")
     """
-    source_is_local = check_local_path(source)
-    if path is not None and not source_is_local:
-        raise ValueError("If you provide a path, you must use a local path as source.")
+    if isinstance(source, list):
+        source_is_local = all(check_local_path(s) for s in source)
+        for s in source:
+            if Path(s).is_dir():
+                raise ValueError(f"Invalid source path: {s}. " +
+                                 "List of paths must be list of files, not directories.")
+    else:
+        source_is_local = check_local_path(source)
 
-    if path is None and source_is_local:
-        uuid = build_uuid()
-        kwargs["uuid"] = uuid
-        path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
 
-        pth_src = Path(source)
-        if pth_src.is_dir():
-            path = f"{path}/"
-        elif pth_src.is_file():
-            path = f"{path}/{pth_src.name}"
+        if not source_is_local:
+            raise ValueError(f"Invalid source path: {s}")
+
+    if path is not None:
+        if source_is_local:
+            raise ValueError("If you provide a path, you must use a local path as source.")
+    else:
+        if source_is_local:
+            uuid = build_uuid()
+            kwargs["uuid"] = uuid
+            path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
+
+            if isinstance(source, list) or Path(source).is_dir():
+                path = f"{path}/"
+            elif Path(source).is_file():
+                path = f"{path}/{Path(source).name}"
+            else:
+                raise ValueError(f"Invalid source path: {source}")
+
         else:
-            raise ValueError(f"Invalid source path: {source}")
-
-    if path is None and not source_is_local:
-        path = source
+            path = source
 
     obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
 

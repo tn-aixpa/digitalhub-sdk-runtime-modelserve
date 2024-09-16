@@ -4,6 +4,7 @@ from pathlib import Path
 
 import requests
 from digitalhub_core.stores.objects.base import Store, StoreConfig
+from digitalhub_core.utils.exceptions import StoreError
 
 
 class RemoteStoreConfig(StoreConfig):
@@ -28,49 +29,57 @@ class RemoteStore(Store):
 
     def download(
         self,
-        src: list[tuple[str, str | None]],
-        dst: str | None = None,
+        root: str,
+        dst: Path,
+        src: list[str],
         overwrite: bool = False,
-    ) -> list[str]:
+    ) -> str:
         """
-        Download an artifact from HTTP(s) storage.
+        Download artifacts from storage.
 
-        See Also
-        --------
-        fetch_artifact
+        Parameters
+        ----------
+        root : str
+            The root path of the artifact.
+        dst : str
+            The destination of the artifact on local filesystem.
+        src : list[str]
+            List of sources.
+        overwrite : bool
+            Specify if overwrite existing file(s).
+
+        Returns
+        -------
+        str
+            Destination path of the downloaded artifact.
         """
-        # Handle source
-        src: str = src[0][0]
-
         # Handle destination
         if dst is None:
             dst = self._build_temp()
         else:
             self._check_local_dst(dst)
+            dst = Path(dst)
 
-        dst: Path = Path(dst)
         if dst.suffix == "":
             dst = dst / "data.file"
 
         self._check_overwrite(str(dst), overwrite)
         self._build_path(dst)
 
-        paths = [self._download_file(src, dst, overwrite)]
+        return self._download_file(root, dst, overwrite)
 
-        return paths
-
-    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
+    def upload(self, src: str | list[str], dst: str | None = None) -> list[tuple[str, str]]:
         """
-        Upload an artifact to HTTP(s) storage.
+        Upload an artifact to storage.
 
         Raises
         ------
-        NotImplementedError
+        StoreError
             This method is not implemented.
         """
-        raise NotImplementedError("Remote store does not support upload.")
+        raise StoreError("Remote HTTP store does not support upload.")
 
-    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
+    def get_file_info(self, paths: list[str]) -> list[dict]:
         """
         Get file information from HTTP(s) storage.
 

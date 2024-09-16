@@ -33,120 +33,64 @@ class LocalStore(Store):
 
     def download(
         self,
-        src: list[tuple[str, str | None]],
-        dst: str | None = None,
+        root: str,
+        dst: Path,
+        src: list[str],
         overwrite: bool = False,
-    ) -> list[str]:
+    ) -> str:
         """
-        Download an artifact from local storage.
+        Download artifacts from storage.
 
         Parameters
         ----------
-        """
-        paths = []
-
-        # Handle destination
-
-        # If destination is not specified, return the source path
-        if dst is None:
-            for i in src:
-                self._check_local_src(i[0])
-                p = Path(i[0])
-                if p.is_file():
-                    paths.append(str(p))
-                elif p.is_dir():
-                    files = [str(i) for i in p.rglob("*") if i.is_file()]
-                    paths.extend(files)
-            return paths
-
-        # Otherwise, check if the destination is local,
-        else:
-            self._check_local_dst(dst)
-
-        dst_pth = Path(dst)
-        self._build_path(dst_pth)
-
-        # Handle src
-        for s in src:
-            # Check if source is local
-            self._check_local_src(s[0])
-            src_pth = Path(s[0])
-
-            # If an original source path is specified try to reconstruct
-            # the path under the new destination
-            if s[1] is not None:
-                self._check_local_src(s[1])
-                tree_path = Path(s[1])
-                dst_pth = self._rebuild_path(dst_pth, tree_path)
-
-            # If source is a directory, copy recursively
-            if src_pth.is_dir():
-                p = self._copy_dir(src_pth, dst_pth, overwrite)
-            else:
-                p = [self._copy_file(src_pth, dst_pth, overwrite)]
-
-            paths.extend(p)
-
-        return paths
-
-    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
-        """
-        Upload an artifact to storage.
-
-        Parameters
-        ----------
-        src : str
-            The source location of the artifact on local filesystem.
+        root : str
+            The root path of the artifact.
         dst : str
-            The destination of the artifact on storage.
+            The destination of the artifact on local filesystem.
+        src : list[str]
+            List of sources.
+        overwrite : bool
+            Specify if overwrite existing file(s).
 
         Returns
         -------
-        list[tuple[str, str]]
-            Returns the list of source and destination paths of the
-            uploaded artifacts.
+        str
+            Destination path of the downloaded artifact.
         """
-        # Destination handling
+        raise StoreError("Local store does not support download.")
 
-        # If no destination is provided use store path
-        if dst is None:
-            dst = self.config.path
+    def upload(self, src: str | list[str], dst: str | None = None) -> list[tuple[str, str]]:
+        """
+        Upload an artifact to storage.
 
-        self._check_local_dst(dst)
-        dst_pth = Path(dst)
-        self._build_path(dst_pth)
+        Raises
+        ------
+        StoreError
+            This method is not implemented.
+        """
+        raise StoreError("Local store does not support upload.")
 
-        # Source handling
-        self._check_local_src(src)
-        src_pth = Path(src)
-
-        if src_pth.is_dir():
-            if not dst_pth.is_dir():
-                raise StoreError("Destination must be a directory if the source is a directory.")
-            return self._get_src_dst_files(src_pth, dst_pth)
-        return [self._get_src_dst_file(src_pth, dst_pth)]
-
-    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
+    def get_file_info(self, paths: list[str]) -> list[dict]:
         """
         Method to get file metadata.
 
         Parameters
         ----------
         paths : list
-            The list of destination and source paths.
+            List of source paths.
 
         Returns
         -------
         list[dict]
             Returns files metadata.
         """
-        return [get_file_info_from_local(*p) for p in paths]
+        return [get_file_info_from_local(p) for p in paths]
 
     ##############################
     # Private I/O methods
     ##############################
 
-    def _get_src_dst_files(self, src: Path, dst: Path) -> list[tuple[str, str]]:
+    def _get_src_dst_files(self, src: Path, dst: Path) -> list[str]:
         """
         Copy files from source to destination.
 
@@ -159,7 +103,7 @@ class LocalStore(Store):
 
         Returns
         -------
-        list[tuple[str, str]]
+        list[str]
             Returns the list of destination and source paths of the
             copied files.
         """
@@ -243,3 +187,44 @@ class LocalStore(Store):
             dst = dst / src
         self._build_path(dst)
         return dst
+
+    ##############################
+    # Static methods
+    ##############################
+
+    @staticmethod
+    def is_partition_or_dir(path: str) -> bool:
+        """
+        Check if path is a directory or a partition.
+
+        Parameters
+        ----------
+        path : str
+            The path to check.
+
+        Returns
+        -------
+        bool
+        """
+        return Path(path).is_dir()
+
+    @staticmethod
+    def build_object_path(root: str, paths: str | list[str]) -> list[str]:
+        """
+        Method to build object path.
+
+        Parameters
+        ----------
+        root : str
+            The root of the object path.
+        paths : str | list[str]
+            The path to build.
+
+        Returns
+        -------
+        list[str]
+            Returns the path of the object.
+        """
+        if isinstance(paths, str):
+            paths = [paths]
+        return [str(Path(root) / path) for path in paths]

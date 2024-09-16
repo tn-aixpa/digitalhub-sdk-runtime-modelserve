@@ -20,7 +20,7 @@ classifiers = [
 keywords = ["data", "dataops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-    "digitalhub-data>=0.7.0b",
+    "digitalhub-data>=0.7.0b, <0.8",
 ]
 [project.optional-dependencies]
 mlflow = [

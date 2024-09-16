@@ -49,19 +49,32 @@ class SqlStore(Store):
 
     def download(
         self,
-        src: list[tuple[str, str | None]],
-        dst: str | None = None,
+        root: str,
+        dst: Path,
+        src: list[str],
         overwrite: bool = False,
-    ) -> list[str]:
+    ) -> str:
         """
-        Download an artifact from SQL based storage.
+        Download artifacts from storage.
 
-        See Also
-        --------
-        fetch_artifact
+        Parameters
+        ----------
+        root : str
+            The root path of the artifact.
+        dst : str
+            The destination of the artifact on local filesystem.
+        src : list[str]
+            List of sources.
+        overwrite : bool
+            Specify if overwrite existing file(s).
+
+        Returns
+        -------
+        str
+            Destination path of the downloaded artifact.
         """
         # Handle source
-        src: str = src[0][0]
+        src: str = src[0]
 
         table_name = self._get_table_name(src) + ".parquet"
         # Case where dst is not provided
@@ -84,22 +97,20 @@ class SqlStore(Store):
 
         schema = self._get_schema(src)
         table = self._get_table_name(src)
-        path = [self._download_table(schema, table, str(dst))]
+        return self._download_table(schema, table, str(dst))
 
-        return path
-
-    def upload(self, src: str, dst: str | None = None) -> list[tuple[str, str]]:
+    def upload(self, src: str | list[str], dst: str | None = None) -> list[tuple[str, str]]:
         """
-        Upload an artifact to SQL based storage.s
+        Upload an artifact to storage.
 
         Raises
         ------
-        NotImplementedError
+        StoreError
             This method is not implemented.
         """
-        raise NotImplementedError("SQL store does not support upload.")
+        raise StoreError("SQL store does not support upload.")
 
-    def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
+    def get_file_info(self, paths: list[str]) -> list[dict]:
         """
         Get file information from SQL based storage.
 

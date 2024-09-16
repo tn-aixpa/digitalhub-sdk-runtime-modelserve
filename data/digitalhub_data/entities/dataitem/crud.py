@@ -93,7 +93,7 @@ def log_dataitem(
     project: str,
     name: str,
     kind: str,
-    source: str | None = None,
+    source: list[str] | str | None = None,
     data: Any | None = None,
     extension: str | None = None,
     path: str | None = None,
@@ -138,22 +138,28 @@ def log_dataitem(
 
     # Case where source is provided
     if source is not None:
-        source_is_local = check_local_path(source)
-        if path is not None:
-            if not source_is_local:
-                raise ValueError("If you provide a path, you must use a local path as source.")
+        if isinstance(source, list):
+            source_is_local = all(check_local_path(s) for s in source)
+            for s in source:
+                if Path(s).is_dir():
+                    raise ValueError(f"Invalid source path: {s}. " +
+                                    "List of paths must be list of files, not directories.")
+        else:
+            source_is_local = check_local_path(source)
 
+        if path is not None:
+            if source_is_local:
+                raise ValueError("If you provide a path, you must use a local path as source.")
         else:
             if source_is_local:
                 uuid = build_uuid()
                 kwargs["uuid"] = uuid
                 path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
 
-                pth_src = Path(source)
-                if pth_src.is_dir():
+                if isinstance(source, list) or Path(source).is_dir():
                     path = f"{path}/"
-                elif pth_src.is_file():
-                    path = f"{path}/{pth_src.name}"
+                elif Path(source).is_file():
+                    path = f"{path}/{Path(source).name}"
                 else:
                     raise ValueError(f"Invalid source path: {source}")
 
