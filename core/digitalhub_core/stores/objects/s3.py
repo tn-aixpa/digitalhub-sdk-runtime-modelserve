@@ -168,18 +168,29 @@ class S3Store(Store):
         # Directory
         if src_is_dir:
             files = [i for i in Path(src).rglob("*") if i.is_file()]
-            keys = [f"{dst}{i}" for i in files]
+            keys = []
+            for i in files:
+                if Path.absolute(i):
+                    keys.append(f"{dst.removesuffix('/')}{i}")
+                else:
+                    keys.append(f"{dst}{i}")
 
         # List of files
         elif isinstance(src, list):
             files = src
-            keys = [f"{dst}{i}" for i in files]
+            keys = []
+            for i in files:
+                if Path.absolute(i):
+                    keys.append(f"{dst.removesuffix('/')}{i}")
+                else:
+                    keys.append(f"{dst}{i}")
 
         # Single file
         else:
             files = [src]
-            if dst.endswith("/"):
-                dst = f"{dst}{src}"
+            if Path(src).absolute():
+                if dst.endswith("/"):
+                    dst = f"{dst.removeprefix('/')}{src}"
             keys = [dst]
 
         # Upload files
