@@ -179,8 +179,8 @@ class S3Store(Store):
             files = src
             keys = []
             for i in files:
-                if i.is_absolute():
-                    i = i.relative_to(src)
+                if Path(i).is_absolute():
+                    raise StoreError("Sources must point to relative paths if the source is a list of files.")
                 keys.append(f"{dst}{i}")
 
         # Single file
