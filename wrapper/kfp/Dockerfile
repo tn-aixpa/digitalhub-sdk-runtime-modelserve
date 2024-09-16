@@ -2,21 +2,22 @@ FROM python:3.9
 
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-sdk
-ARG VERSION=0.7.0b
+ARG VERSION_LOWER=0.7.0b
+ARG VERSION_UPPER=0.8.0
 
 # Set working dir
 WORKDIR /app/
 
 # Install digitalhub-core
-RUN python -m pip install "digitalhub-core[full]>=${VERSION}" \
-                          "digitalhub-data[pandas]>=${VERSION}" \
-                          "digitalhub-runtime-kfp[local]>=${VERSION}" && \
-    python -m pip install "digitalhub>=${VERSION}" \
-                          "digitalhub-ml>=${VERSION}" \
-                          "digitalhub-runtime-python>=${VERSION}" \
-                          "digitalhub-runtime-container>=${VERSION}" \
-                          "digitalhub-runtime-modelserve>=${VERSION}" \
-                          "digitalhub-runtime-dbt>=${VERSION}" --no-deps
+RUN python -m pip install "digitalhub-core[full]>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+                          "digitalhub-data[pandas]>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+                          "digitalhub-runtime-kfp[local]>=${VERSION_LOWER}, <${VERSION_UPPER}" && \
+    python -m pip install "digitalhub>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+                          "digitalhub-ml>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+                          "digitalhub-runtime-python>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+                          "digitalhub-runtime-container>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+                          "digitalhub-runtime-modelserve>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+                          "digitalhub-runtime-dbt>=${VERSION_LOWER}, <${VERSION_UPPER}" --no-deps
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
