@@ -190,12 +190,11 @@ def build_status(
         mapped_outputs = {}
 
     try:
-        for key, _ in mapped_outputs.items():
-            if key in parsed_execution:
-                if isinstance(parsed_execution[key], (DataitemTable, Artifact)):
-                    outputs[key] = parsed_execution[key].key
-                else:
-                    results[key] = parsed_execution[key]
+        for key, value in parsed_execution.items():
+            if isinstance(value, (DataitemTable, Artifact)):
+                outputs[key] = value.key
+            else:
+                results[key] = value
         return {
             "state": State.COMPLETED.value,
             "outputs": outputs,
