@@ -103,7 +103,6 @@ class S3Store(Store):
 
         # Download files
         for elements in zip(keys, trees):
-
             key = elements[0]
             tree = elements[1]
 
@@ -145,10 +144,11 @@ class S3Store(Store):
         # If no destination is provided, build key from source
         # Otherwise build key from destination
         if dst is None:
-            raise StoreError("Destination must be provided. " +
-                             "If source is a list of files or a directory, "
-                             "destination must be a partition, e.g. 's3://bucket/partition/', ",
-                             "otherwise a destination key, e.g. 's3://bucket/key'")
+            raise StoreError(
+                "Destination must be provided. " + "If source is a list of files or a directory, "
+                "destination must be a partition, e.g. 's3://bucket/partition/', ",
+                "otherwise a destination key, e.g. 's3://bucket/key'",
+            )
         else:
             dst = self._get_key(dst)
 
@@ -163,7 +163,7 @@ class S3Store(Store):
 
         # If source is a directory, destination must be a partition
         if (src_is_dir or isinstance(src, list)) and not dst.endswith("/"):
-                raise StoreError("Destination must be a partition if the source is a directory or a list of files.")
+            raise StoreError("Destination must be a partition if the source is a directory or a list of files.")
 
         # Directory
         if src_is_dir:

@@ -129,11 +129,9 @@ def log_artifact(
         source_is_local = all(check_local_path(s) for s in source)
         for s in source:
             if Path(s).is_dir():
-                raise ValueError(f"Invalid source path: {s}. " +
-                                 "List of paths must be list of files, not directories.")
+                raise ValueError(f"Invalid source path: {s}. List of paths must be list of files, not directories.")
     else:
         source_is_local = check_local_path(source)
-
 
         if not source_is_local:
             raise ValueError(f"Invalid source path: {s}")

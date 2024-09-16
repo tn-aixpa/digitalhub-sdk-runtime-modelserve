@@ -34,7 +34,7 @@ class MaterialStatus(Status):
         """
         path_list = self.get_file_paths()
         for f in files:
-            if not f.get("path") in path_list:
+            if f.get("path") not in path_list:
                 self.files.append(f)
 
     def get_file_paths(self) -> list[str]:

@@ -4,7 +4,6 @@ import typing
 
 from digitalhub_core.entities._base.entity.material import MaterialEntity
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.metadata import Metadata
