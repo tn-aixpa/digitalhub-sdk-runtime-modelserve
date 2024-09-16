@@ -163,7 +163,7 @@ class DataframeReaderPandas(DataframeReader):
         schema = {"fields": []}
 
         for column_name, dtype in df.dtypes.items():
-            field = {"name": column_name, "type": ""}
+            field = {"name": str(column_name), "type": ""}
 
             if pd.api.types.is_integer_dtype(dtype):
                 field["type"] = "integer"
@@ -197,7 +197,7 @@ class DataframeReaderPandas(DataframeReader):
         Any
             The preview.
         """
-        columns = df.columns.tolist()
+        columns = [str(col) for col, _ in df.dtypes.items()]
         head = df.head(10)
         head = head.replace({np.nan: None})
         head = head.values.tolist()
