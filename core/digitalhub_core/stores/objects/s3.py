@@ -170,17 +170,17 @@ class S3Store(Store):
             files = [i for i in Path(src).rglob("*") if i.is_file()]
             keys = []
             for i in files:
-                if Path.absolute(i):
-                    keys.append(f"{dst.removesuffix('/')}{i}")
-                else:
-                    keys.append(f"{dst}{i}")
+                if i.is_absolute():
+                    i = i.relative_to(src)
+                keys.append(f"{dst}{i}")
 
         # List of files
         elif isinstance(src, list):
             files = src
             keys = []
             for i in files:
-                if Path.absolute(i):
+                if i.is_absolute():
+                    i = i.relative_to(src)
                     keys.append(f"{dst.removesuffix('/')}{i}")
                 else:
                     keys.append(f"{dst}{i}")
