@@ -28,7 +28,7 @@ class S3Datastore(Datastore):
         Returns
         -------
         str
-            The path S3 path where the dataframe was saved.
+            The S3 path where the dataframe was saved.
         """
         fileobj = BytesIO()
         reader = get_reader_by_object(df)

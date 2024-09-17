@@ -96,7 +96,7 @@ class S3Store(Store):
             if not src:
                 trees = [self._get_key(root)]
             else:
-                trees = [src]
+                trees = [s for s in src]
 
         if len(keys) != len(trees):
             raise StoreError("Keys and trees must have the same length.")
@@ -189,10 +189,11 @@ class S3Store(Store):
         Returns
         -------
         str
-            Returns the URI of the artifact on S3 based storage.
+            S3 key of the uploaded artifact.
         """
         client, bucket = self._check_factory()
-        return self._upload_fileobject(src, dst, client, bucket)
+        self._upload_fileobject(src, dst, client, bucket)
+        return f"s3://{bucket}/{dst}"
 
     def get_file_info(self, paths: list[tuple[str, str]]) -> list[dict]:
         """
@@ -375,7 +376,7 @@ class S3Store(Store):
         client.upload_file(Filename=src, Bucket=bucket, Key=key, ExtraArgs=extra_args)
 
     @staticmethod
-    def _upload_fileobject(fileobj: BytesIO, key: str, client: S3Client, bucket: str) -> str:
+    def _upload_fileobject(fileobj: BytesIO, key: str, client: S3Client, bucket: str) -> None:
         """
         Upload a fileobject to S3 based storage. The function checks if the bucket is accessible.
 
@@ -392,11 +393,9 @@ class S3Store(Store):
 
         Returns
         -------
-        str
-            The URI of the uploaded fileobject on S3 based storage.
+        None
         """
         client.put_object(Bucket=bucket, Key=key, Body=fileobj.getvalue())
-        return f"s3://{bucket}/{key}"
 
     ##############################
     # Private helper methods
