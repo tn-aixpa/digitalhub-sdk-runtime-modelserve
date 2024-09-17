@@ -278,11 +278,12 @@ class S3Store(Store):
         """
         client, bucket = self._check_factory()
 
-        files = [i for i in Path(src).rglob("*") if i.is_file()]
+        src_pth = Path(src)
+        files = [i for i in src_pth.rglob("*") if i.is_file()]
         keys = []
         for i in files:
-            if i.is_absolute():
-                i = i.relative_to(src)
+            if src_pth.is_absolute():
+                i = i.relative_to(src_pth)
             keys.append(f"{dst}{i}")
 
         # Upload files
@@ -290,6 +291,8 @@ class S3Store(Store):
         for i in zip(files, keys):
             f, k = i
             self._upload_file(f, k, client, bucket)
+            if src_pth.is_absolute():
+                f = f.relative_to(src_pth)
             paths.append((k, str(f)))
         return paths
 
