@@ -119,7 +119,7 @@ class S3Store(Store):
 
             self._download_file(key, dst_pth, client, bucket)
 
-        return dst
+        return str(dst)
 
     def upload(self, src: str | list[str], dst: str | None = None) -> list[tuple[str, str]]:
         """
