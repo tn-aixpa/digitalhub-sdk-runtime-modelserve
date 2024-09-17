@@ -137,7 +137,6 @@ class S3Store(Store):
         list[tuple[str, str]]
             Returns the list of destination and source paths of the uploaded artifacts.
         """
-        client, bucket = self._check_factory()
 
         # Destination handling
 
@@ -167,37 +166,14 @@ class S3Store(Store):
 
         # Directory
         if src_is_dir:
-            files = [i for i in Path(src).rglob("*") if i.is_file()]
-            keys = []
-            for i in files:
-                if i.is_absolute():
-                    i = i.relative_to(src)
-                keys.append(f"{dst}{i}")
+            return self._upload_dir(src, dst)
 
         # List of files
         elif isinstance(src, list):
-            files = src
-            keys = []
-            for i in files:
-                if Path(i).is_absolute():
-                    raise StoreError("Sources must point to relative paths if the source is a list of files.")
-                keys.append(f"{dst}{i}")
+            return self._upload_file_list(src, dst)
 
         # Single file
-        else:
-            files = [src]
-            if Path(src).absolute():
-                if dst.endswith("/"):
-                    dst = f"{dst.removeprefix('/')}{src}"
-            keys = [dst]
-
-        # Upload files
-        paths = []
-        for i in zip(files, keys):
-            self._upload_file(i[0], i[1], client, bucket)
-            paths.append((i[1], str(i[0])))
-
-        return paths
+        return self._upload_single_file(src, dst)
 
     def upload_fileobject(self, src: BytesIO, dst: str) -> str:
         """
@@ -279,6 +255,97 @@ class S3Store(Store):
         """
         # Download file
         client.download_file(bucket, key, dst_pth)
+
+    def _upload_dir(self, src: str, dst: str) -> list[tuple[str, str]]:
+        """
+        Upload directory to storage.
+
+        Parameters
+        ----------
+        src : str
+            List of sources.
+        dst : str
+            The destination of the artifact on storage.
+
+        Returns
+        -------
+        list[tuple[str, str]]
+            Returns the list of destination and source paths of the uploaded artifacts.
+        """
+        client, bucket = self._check_factory()
+
+        files = [i for i in Path(src).rglob("*") if i.is_file()]
+        keys = []
+        for i in files:
+            if i.is_absolute():
+                i = i.relative_to(src)
+            keys.append(f"{dst}{i}")
+
+        # Upload files
+        paths = []
+        for i in zip(files, keys):
+            f, k = i
+            self._upload_file(f, k, client, bucket)
+            paths.append((k, str(f)))
+        return paths
+
+    def _upload_file_list(self, src: list[str], dst: str) -> list[tuple[str, str]]:
+        """
+        Upload list of files to storage.
+
+        Parameters
+        ----------
+        src : list
+            List of sources.
+        dst : str
+            The destination of the artifact on storage.
+
+        Returns
+        -------
+        list[tuple[str, str]]
+            Returns the list of destination and source paths of the uploaded artifacts.
+        """
+        client, bucket = self._check_factory()
+        files = src
+        keys = []
+        for i in files:
+            keys.append(f"{dst}{Path(i).name}")
+        if len(set(keys)) != len(keys):
+            raise StoreError(f"Keys must be unique (Select files with different names, otherwise upload a directory).")
+
+        # Upload files
+        paths = []
+        for i in zip(files, keys):
+            f, k = i
+            self._upload_file(f, k, client, bucket)
+            paths.append((k, Path(f).name))
+        return paths
+
+    def _upload_single_file(self, src: str, dst: str) -> str:
+        """
+        Upload a single file to storage.
+
+        Parameters
+        ----------
+        src : str
+            List of sources.
+        dst : str
+            The destination of the artifact on storage.
+
+        Returns
+        -------
+        str
+            Returns the URI of the artifact on S3 based storage.
+        """
+        client, bucket = self._check_factory()
+
+        if dst.endswith("/"):
+            dst = f"{dst.removeprefix('/')}{Path(src).name}"
+
+        # Upload file
+        self._upload_file(src, dst, client, bucket)
+        name = Path(self._get_key(dst)).name
+        return [(dst, name)]
 
     @staticmethod
     def _upload_file(src: str, key: str, client: S3Client, bucket: str) -> None:

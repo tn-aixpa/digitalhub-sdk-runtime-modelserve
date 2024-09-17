@@ -147,7 +147,7 @@ def log_dataitem(
             source_is_local = check_local_path(source)
 
         if path is not None:
-            if source_is_local:
+            if not source_is_local:
                 raise ValueError("If you provide a path, you must use a local path as source.")
         else:
             if source_is_local:
