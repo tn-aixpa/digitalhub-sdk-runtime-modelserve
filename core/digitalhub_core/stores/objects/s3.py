@@ -94,7 +94,7 @@ class S3Store(Store):
         else:
             keys = [self._get_key(root)]
             if not src:
-                trees = [self._get_key(root)]
+                trees = [Path(self._get_key(root)).name]
             else:
                 trees = [s for s in src]
 
@@ -214,6 +214,9 @@ class S3Store(Store):
         infos = []
         for i in paths:
             key, src_path = i
+
+            # Rebuild key in case here arrive an s3://bucket prefix
+            key = self._get_key(key)
 
             # Get metadata
             metadata = client.head_object(Bucket=bucket, Key=key)

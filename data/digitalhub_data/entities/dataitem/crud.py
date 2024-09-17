@@ -3,7 +3,9 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
+from digitalhub_core.stores.builder import get_store
 from digitalhub_core.context.builder import check_context
 from digitalhub_core.entities._base.crud import (
     delete_entity_api_ctx,
@@ -178,10 +180,15 @@ def log_dataitem(
 
         obj = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)
         if kind == "table":
-            obj.write_df(df=data, extension=extension)
+            dst = obj.write_df(df=data, extension=extension)
             reader = get_reader_by_object(data)
             obj.spec.schema = reader.get_schema(data)
             obj.status.preview = reader.get_preview(data)
+            store = get_store(obj.spec.path)
+            src = Path(urlparse(obj.spec.path).path).name
+            paths = [(dst, src)]
+            infos = store.get_file_info(paths)
+            obj.status.add_files_info(infos)
             obj.save()
 
     return obj
