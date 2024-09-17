@@ -335,7 +335,7 @@ class S3Store(Store):
         Returns
         -------
         str
-            Returns the URI of the artifact on S3 based storage.
+            Returns the list of destination and source paths of the uploaded artifacts.
         """
         client, bucket = self._check_factory()
 
