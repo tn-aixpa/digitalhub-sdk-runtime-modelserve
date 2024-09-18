@@ -4,7 +4,6 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.uri_utils import check_local_path
 from digitalhub_data.datastores.builder import get_datastore
 from digitalhub_data.entities.dataitem.entity._base import Dataitem

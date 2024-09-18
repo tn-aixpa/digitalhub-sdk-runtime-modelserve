@@ -318,7 +318,7 @@ class S3Store(Store):
         for i in files:
             keys.append(f"{dst}{Path(i).name}")
         if len(set(keys)) != len(keys):
-            raise StoreError(f"Keys must be unique (Select files with different names, otherwise upload a directory).")
+            raise StoreError("Keys must be unique (Select files with different names, otherwise upload a directory).")
 
         # Upload files
         paths = []

@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from digitalhub_core.stores.builder import get_store
 from digitalhub_core.context.builder import check_context
 from digitalhub_core.entities._base.crud import (
     delete_entity_api_ctx,
@@ -14,9 +13,9 @@ from digitalhub_core.entities._base.crud import (
     read_entity_api_ctx_versions,
 )
 from digitalhub_core.entities._builders.uuid import build_uuid
-from digitalhub_core.utils.env_utils import get_s3_bucket
+from digitalhub_core.entities.utils import build_log_path_from_filename, build_log_path_from_source, eval_local_source
+from digitalhub_core.stores.builder import get_store
 from digitalhub_core.utils.io_utils import read_yaml
-from digitalhub_core.utils.uri_utils import check_local_path
 from digitalhub_data.entities.dataitem.builder import dataitem_from_dict, dataitem_from_parameters
 from digitalhub_data.entities.entity_types import EntityTypes
 from digitalhub_data.readers.builder import get_reader_by_object
@@ -140,43 +139,22 @@ def log_dataitem(
 
     # Case where source is provided
     if source is not None:
-        if isinstance(source, list):
-            source_is_local = all(check_local_path(s) for s in source)
-            for s in source:
-                if Path(s).is_dir():
-                    raise ValueError(f"Invalid source path: {s}. List of paths must be list of files, not directories.")
-        else:
-            source_is_local = check_local_path(source)
+        eval_local_source(source)
 
-        if path is not None:
-            if not source_is_local:
-                raise ValueError("If you provide a path, you must use a local path as source.")
-        else:
-            if source_is_local:
-                uuid = build_uuid()
-                kwargs["uuid"] = uuid
-                path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}"
+        if path is None:
+            uuid = build_uuid()
+            kwargs["uuid"] = uuid
+            path = build_log_path_from_source(project, ENTITY_TYPE, name, uuid, source)
 
-                if isinstance(source, list) or Path(source).is_dir():
-                    path = f"{path}/"
-                elif Path(source).is_file():
-                    path = f"{path}/{Path(source).name}"
-                else:
-                    raise ValueError(f"Invalid source path: {source}")
-
-            else:
-                path = source
-
-            obj = new_dataitem(project=project, name=name, kind=kind, path=path, **kwargs)
-            if source_is_local:
-                obj.upload(source)
+        obj = new_dataitem(project=project, name=name, kind=kind, path=path, **kwargs)
+        obj.upload(source)
 
     # Case where data is provided
     else:
         if path is None:
             uuid = build_uuid()
             kwargs["uuid"] = uuid
-            path = f"s3://{get_s3_bucket()}/{project}/{ENTITY_TYPE}/{name}/{uuid}/data.parquet"
+            path = build_log_path_from_filename(project, ENTITY_TYPE, name, uuid, "data.parquet")
 
         obj = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)
         if kind == "table":
@@ -189,7 +167,7 @@ def log_dataitem(
             paths = [(dst, src)]
             infos = store.get_file_info(paths)
             obj.status.add_files_info(infos)
-            obj.save()
+        obj.save()
 
     return obj
 
