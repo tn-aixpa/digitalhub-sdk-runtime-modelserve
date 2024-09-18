@@ -13,7 +13,7 @@ from digitalhub_runtime_kfp.utils.configurations import (
     parse_workflow_specs,
     save_workflow_source,
 )
-from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline
+from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline, run_kfp_build
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.kind_registry import KindRegistry
@@ -54,7 +54,7 @@ class RuntimeKFP(Runtime):
             **task.get("spec", {}),
             **run.get("spec", {}),
         }
-        if task.get("kind") == "kfp+pipeline":
+        if task.get("kind") == "kfp+pipeline" or task.get("kind") == "kfp+build":
             kfp_workflow = self._configure_execution(res)
             pipeline_spec = build_kfp_pipeline(run, kfp_workflow)
             res["workflow"] = pipeline_spec
@@ -73,7 +73,7 @@ class RuntimeKFP(Runtime):
         action = self._validate_task(run)
         executable = self._get_executable(action, run)
 
-        LOGGER.info("Starting task.")
+        LOGGER.info(f"Starting task {action}.")
         spec = run.get("spec")
 
         LOGGER.info("Collecting inputs.")
@@ -111,6 +111,8 @@ class RuntimeKFP(Runtime):
         """
         if action == "pipeline":
             return run_kfp_pipeline(run)
+        if action == "build":
+            return run_kfp_build(run)
         raise NotImplementedError
 
     ##############################
