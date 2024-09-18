@@ -172,6 +172,6 @@ def build_log_path_from_source(
     if isinstance(source, list) or Path(source).is_dir():
         path += "/"
     elif Path(source).is_file():
-        path += Path(source).name
+        path += f"/{Path(source).name}"
 
     return path
