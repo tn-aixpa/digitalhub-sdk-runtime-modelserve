@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-data"
-version = "0.7.0b9"
+version = "0.7.0"
 description = "Python SDK for DHCore data layer"
 readme = "README.md"
 authors = [
@@ -31,7 +31,7 @@ pandas = [
 exclude = ["modules*"]
 
 [tool.bumpver]
-current_version = "0.7.0b9"
+current_version = "0.7.0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false
