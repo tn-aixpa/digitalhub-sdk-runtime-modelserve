@@ -56,6 +56,7 @@ class RuntimeModelserve(Runtime):
         dict
             Status of the executed run.
         """
+        raise NotImplementedError("Local execution not implemented.")
         LOGGER.info("Validating task.")
         self._validate_task(run)
 
