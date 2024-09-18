@@ -73,10 +73,7 @@ class SqlStore(Store):
         str
             Destination path of the downloaded artifact.
         """
-        # Handle source
-        src: str = src[0]
-
-        table_name = self._get_table_name(src) + ".parquet"
+        table_name = self._get_table_name(root) + ".parquet"
         # Case where dst is not provided
         if dst is None:
             dst = Path(self._build_temp("sql")) / table_name
@@ -95,8 +92,8 @@ class SqlStore(Store):
             self._check_overwrite(dst, overwrite)
             self._build_path(dst)
 
-        schema = self._get_schema(src)
-        table = self._get_table_name(src)
+        schema = self._get_schema(root)
+        table = self._get_table_name(root)
         return self._download_table(schema, table, str(dst))
 
     def upload(self, src: str | list[str], dst: str | None = None) -> list[tuple[str, str]]:
