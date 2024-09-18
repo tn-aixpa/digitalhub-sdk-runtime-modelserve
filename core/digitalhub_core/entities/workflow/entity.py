@@ -44,7 +44,7 @@ class Workflow(ExecutableEntity):
     #  Workflow Methods
     ##############################
 
-    def run(self, **kwargs) -> Run:
+    def run(self, action: str = "pipeline", **kwargs) -> Run:
         """
         Run workflow.
 
@@ -63,7 +63,7 @@ class Workflow(ExecutableEntity):
         kind_reg = get_kind_registry(self.kind)
 
         # Get task and run kind
-        task_kind = kind_reg.get_task_kind_from_action(action="pipeline")
+        task_kind = kind_reg.get_task_kind_from_action(action=action)
         run_kind = kind_reg.get_run_kind()
 
         # Create or update new task

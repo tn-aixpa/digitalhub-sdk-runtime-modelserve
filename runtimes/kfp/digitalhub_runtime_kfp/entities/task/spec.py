@@ -28,3 +28,17 @@ class TaskParamsPipeline(TaskParamsK8s):
 
     schedule: str = None
     """KFP schedule specification."""
+
+class TaskSpecBuild(TaskSpecK8s):
+    """Task Build specification."""
+
+    def __init__(
+        self,
+        function: str,
+        **kwargs,
+    ) -> None:
+        super().__init__(function, **kwargs)
+
+
+class TaskParamsBuild(TaskParamsK8s):
+    pass
