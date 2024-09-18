@@ -35,13 +35,10 @@ class TaskSpecBuild(TaskSpecK8s):
     def __init__(
         self,
         function: str,
-        workflow: str | None = None,
         **kwargs,
     ) -> None:
         super().__init__(function, **kwargs)
-        self.workflow = workflow
-
 
 class TaskParamsBuild(TaskParamsK8s):
-    workflow: str = None
-    """KFP workflow specification as YAML string."""
+    pass
+    
