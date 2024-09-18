@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "digitalhub-ml"
-version = "0.7.0b5"
+version = "0.7.0b6"
 description = "Python SDK for DHCore ml layer"
 readme = "README.md"
 authors = [
@@ -31,7 +31,7 @@ mlflow = [
 exclude = ["modules*"]
 
 [tool.bumpver]
-current_version = "0.7.0b5"
+current_version = "0.7.0b6"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message  = "Bump version {old_version} -> {new_version}"
 commit          = false
