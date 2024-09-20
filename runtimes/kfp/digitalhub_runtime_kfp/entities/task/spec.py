@@ -29,6 +29,7 @@ class TaskParamsPipeline(TaskParamsK8s):
     schedule: str = None
     """KFP schedule specification."""
 
+
 class TaskSpecBuild(TaskSpecK8s):
     """Task Build specification."""
 
@@ -39,6 +40,6 @@ class TaskSpecBuild(TaskSpecK8s):
     ) -> None:
         super().__init__(function, **kwargs)
 
+
 class TaskParamsBuild(TaskParamsK8s):
     pass
-    

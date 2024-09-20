@@ -7,11 +7,11 @@ from pathlib import Path
 from typing import Callable
 
 import kfp
+from digitalhub_core.entities._base.state import State
 from digitalhub_core.utils.io_utils import read_text
 from digitalhub_runtime_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_runtime_kfp.utils.outputs import build_status
 from kfp.compiler import compiler
-from digitalhub_core.entities._base.state import State
 
 import digitalhub as dh
 
@@ -85,7 +85,7 @@ def run_kfp_pipeline(run: dict) -> dict:
 
         # workflow was not built locally
         if workflow is None:
-            run_status = { "state": State.ERROR.value}
+            run_status = {"state": State.ERROR.value}
             _update_status(run.get("key"), run_status)
             return run_status
 
@@ -114,6 +114,7 @@ def run_kfp_pipeline(run: dict) -> dict:
         return run_status
 
     return _kfp_execution
+
 
 def run_kfp_build(run: dict) -> dict:
     """
@@ -159,12 +160,13 @@ def run_kfp_build(run: dict) -> dict:
             # Check if this actually work in core
             dhcore_run.save(update=True)
 
-        run_status = { "state": State.COMPLETED.value}
+        run_status = {"state": State.COMPLETED.value}
         _update_status(run.get("key"), run_status)
 
         return run_status
 
     return _kfp_build_execution
+
 
 def _update_status(key: dict, status: dict) -> None:
     """

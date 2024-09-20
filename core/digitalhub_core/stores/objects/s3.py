@@ -119,7 +119,7 @@ class S3Store(Store):
 
             self._download_file(key, dst_pth, client, bucket)
 
-        if len(trees)==1:
+        if len(trees) == 1:
             if dst.suffix == "":
                 return str(Path(dst, trees[0]))
         return str(dst)

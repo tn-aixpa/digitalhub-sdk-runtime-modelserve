@@ -13,7 +13,7 @@ from digitalhub_runtime_kfp.utils.configurations import (
     parse_workflow_specs,
     save_workflow_source,
 )
-from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline, run_kfp_build
+from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_build, run_kfp_pipeline
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.runtimes.kind_registry import KindRegistry
