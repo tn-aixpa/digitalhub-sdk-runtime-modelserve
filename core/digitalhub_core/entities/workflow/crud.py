@@ -58,7 +58,7 @@ def new_workflow(
     Examples
     --------
     >>> obj = new_function(project="my-project",
-    >>>                    name="my-function",
+    >>>                    name="my-workflow",
     >>>                    kind="kfp",
     >>>                    code_src="pipeline.py",
     >>>                    handler="pipeline-handler")
