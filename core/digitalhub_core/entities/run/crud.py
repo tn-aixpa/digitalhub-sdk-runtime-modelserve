@@ -102,8 +102,8 @@ def get_run(
     >>> obj = get_run("my-run-id"
     >>>               project="my-project")
     """
-    if not identifier.startswith("store://"):
-        raise EntityError("Run has no name. Use key instead.")
+    if not identifier.startswith("store://") and project is None:
+        raise EntityError("Specify entity key or entity ID combined with project")
     obj = read_entity_api_ctx(
         identifier,
         ENTITY_TYPE,
@@ -134,6 +134,7 @@ def list_runs(project: str, **kwargs) -> list[Run]:
     --------
     >>> objs = list_runs(project="my-project")
     """
+    # TODO more examples: search by function, latest for task and function
     objs = list_entity_api_ctx(
         project=project,
         entity_type=ENTITY_TYPE,
@@ -188,9 +189,6 @@ def update_run(entity: Run) -> Run:
 def delete_run(
     identifier: str,
     project: str | None = None,
-    entity_id: str | None = None,
-    delete_all_versions: bool = False,
-    cascade: bool = True,
     **kwargs,
 ) -> dict:
     """
@@ -199,15 +197,9 @@ def delete_run(
     Parameters
     ----------
     identifier : str
-        Entity key (store://...) or entity name.
+        Entity key (store://...) or entity ID.
     project : str
         Project name.
-    entity_id : str
-        Entity ID.
-    delete_all_versions : bool
-        Delete all versions of the named entity. If True, use entity name instead of entity key as identifier.
-    cascade : bool
-        Cascade delete.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -218,22 +210,17 @@ def delete_run(
 
     Examples
     --------
-    If delete_all_versions is False:
     >>> obj = delete_run("store://my-run-key")
-
-    Otherwise:
-    >>> obj = delete_run("run-name",
-    >>>                  project="my-project",
-    >>>                  delete_all_versions=True)
+    >>> obj = delete_run("my-run-id", project="my-project")
     """
-    if not identifier.startswith("store://"):
-        raise EntityError("Run has no name. Use key instead.")
+    if not identifier.startswith("store://") and project is None:
+        raise EntityError("Specify entity key or entity ID combined with project")
     return delete_entity_api_ctx(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,
-        entity_id=entity_id,
-        delete_all_versions=delete_all_versions,
-        cascade=cascade,
+        entity_id=identifier,
         **kwargs,
     )
+
+    # TODO read logs
