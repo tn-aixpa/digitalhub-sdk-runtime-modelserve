@@ -72,7 +72,7 @@ def update_client_from_env() -> None:
     # Update endpoint
     endpoint = os.getenv("DHCORE_ENDPOINT")
     if endpoint is not None:
-        client._endpoint = endpoint
+        client._endpoint_core = endpoint
 
     # Update auth
 
