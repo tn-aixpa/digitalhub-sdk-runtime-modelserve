@@ -5,6 +5,7 @@ import typing
 from digitalhub_core.entities._base.crud import list_entity_api_ctx
 from digitalhub_core.entities._base.entity.versioned import VersionedEntity
 from digitalhub_core.entities.entity_types import EntityTypes
+from digitalhub_core.entities.run.crud import delete_run, get_run, list_runs
 from digitalhub_core.entities.task.crud import delete_task, task_from_dict, task_from_parameters
 from digitalhub_core.utils.exceptions import BackendError, EntityError
 
@@ -12,6 +13,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.metadata import Metadata
     from digitalhub_core.entities._base.spec.base import Spec
     from digitalhub_core.entities._base.status.base import Status
+    from digitalhub_core.entities.run.entity import Run
     from digitalhub_core.entities.task.entity import Task
 
 
@@ -50,6 +52,28 @@ class ExecutableEntity(VersionedEntity):
             Executable string.
         """
         return f"{self.kind}://{self.project}/{self.name}:{self.id}"
+
+    ##############################
+    #  Tasks
+    ##############################
+
+    def _get_or_create_task(self, kind: str, **kwargs) -> Task:
+        """
+        Get or create task.
+
+        Parameters
+        ----------
+        kind : str
+            Kind the object.
+
+        Returns
+        -------
+        Task
+            Task.
+        """
+        if self._tasks.get(kind) is None:
+            return self.new_task(kind)
+        return self._tasks[kind]
 
     def import_tasks(self, tasks: list[dict]) -> None:
         """
@@ -92,7 +116,7 @@ class ExecutableEntity(VersionedEntity):
 
     def new_task(self, task_kind: str, **kwargs) -> Task:
         """
-        Create new task.
+        Create new task. If the task already exists, update it.
 
         Parameters
         ----------
@@ -106,6 +130,11 @@ class ExecutableEntity(VersionedEntity):
         Task
             New task.
         """
+        self._raise_if_exists(task_kind)
+
+        if kwargs is None:
+            kwargs = {}
+
         # Override kwargs
         kwargs["project"] = self.project
         kwargs["function"] = self._get_executable_string()
@@ -113,20 +142,12 @@ class ExecutableEntity(VersionedEntity):
 
         # Create object instance
         task = task_from_parameters(**kwargs)
-
-        exists, task_id = self._check_task_in_backend(task_kind)
-
-        # Save or update task
-        if not exists:
-            task.save()
-        else:
-            task.id = task_id
-            task.save(update=True)
+        task.save()
 
         self._tasks[task_kind] = task
         return task
 
-    def update_task(self, kind: str, **kwargs) -> None:
+    def update_task(self, kind: str, **kwargs) -> Task:
         """
         Update task.
 
@@ -139,14 +160,13 @@ class ExecutableEntity(VersionedEntity):
 
         Returns
         -------
-        None
-
-        Raises
-        ------
-        EntityError
-            If task does not exist.
+        Task
+            Task.
         """
         self._raise_if_not_exists(kind)
+
+        if kwargs is None:
+            kwargs = {}
 
         # Update kwargs
         kwargs["project"] = self.project
@@ -158,6 +178,7 @@ class ExecutableEntity(VersionedEntity):
         task = task_from_parameters(**kwargs)
         task.save(update=True)
         self._tasks[kind] = task
+        return task
 
     def get_task(self, kind: str) -> Task:
         """
@@ -181,7 +202,7 @@ class ExecutableEntity(VersionedEntity):
         self._raise_if_not_exists(kind)
         return self._tasks[kind]
 
-    def delete_task(self, kind: str, cascade: bool = True) -> None:
+    def delete_task(self, kind: str, cascade: bool = True) -> dict:
         """
         Delete task.
 
@@ -194,18 +215,14 @@ class ExecutableEntity(VersionedEntity):
 
         Returns
         -------
-        None
-
-        Raises
-        ------
-        EntityError
-            If task is not created.
+        dict
+            Response from backend.
         """
-        self._raise_if_not_exists(kind)
-        delete_task(self._tasks[kind].key, cascade=cascade)
+        resp = delete_task(self._tasks[kind].key, cascade=cascade)
         self._tasks.pop(kind, None)
+        return resp
 
-    def _check_task_in_backend(self, kind: str) -> tuple[bool, str | None]:
+    def _check_task_in_backend(self, kind: str) -> bool:
         """
         Check if task exists in backend.
 
@@ -216,16 +233,37 @@ class ExecutableEntity(VersionedEntity):
 
         Returns
         -------
-        tuple[bool, str | None]
-            Flag to determine if task exists in backend and ID if exists.
+        bool
+            Flag to determine if task exists in backend.
         """
         # List tasks from backend filtered by function and kind
         params = {"function": self._get_executable_string(), "kind": kind}
-        objs = list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)
         try:
-            return True, objs[0]["id"]
+            list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)[0]["id"]
+            return True
         except IndexError:
-            return False, None
+            return False
+
+    def _raise_if_exists(self, kind: str) -> None:
+        """
+        Raise error if task is created.
+
+        Parameters
+        ----------
+        kind : str
+            Kind the object.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        EntityError
+            If task already exists.
+        """
+        if self._check_task_in_backend(kind):
+            raise EntityError(f"Task '{kind}' already exists.")
 
     def _raise_if_not_exists(self, kind: str) -> None:
         """
@@ -246,4 +284,98 @@ class ExecutableEntity(VersionedEntity):
             If task does not exist.
         """
         if self._tasks.get(kind) is None:
-            raise EntityError("Task does not exist.")
+            raise EntityError(f"Task '{kind}' does not exist.")
+
+    ##############################
+    #  Runs
+    ##############################
+
+    def get_run(
+        self,
+        identifier: str,
+        **kwargs,
+    ) -> Run:
+        """
+        Get object from backend.
+
+        Parameters
+        ----------
+        identifier : str
+            Entity key (store://...) or entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        Run
+            Object instance.
+
+        Examples
+        --------
+        Using entity key:
+        >>> obj = executable.get_run("store://my-secret-key")
+
+        Using entity ID:
+        >>> obj = executable.get_run("123")
+        """
+        obj = get_run(
+            identifier=identifier,
+            project=self.project,
+            **kwargs,
+        )
+        self.refresh()
+        return obj
+
+    def list_runs(self, **kwargs) -> list[Run]:
+        """
+        List all runs from backend.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        list[Run]
+            List of object instances.
+
+        Examples
+        --------
+        >>> objs = executable.list_runs()
+        """
+        if kwargs is None:
+            kwargs = {}
+        kwargs["params"] = {"function": self._get_executable_string()}
+        return list_runs(self.project, **kwargs)
+
+    def delete_run(
+        self,
+        identifier: str,
+        **kwargs,
+    ) -> None:
+        """
+        Delete run from backend.
+
+        Parameters
+        ----------
+        identifier : str
+            Entity key (store://...) or entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        dict
+            Response from backend.
+
+        Examples
+        --------
+        >>> executable.delete_run("store://my-run-key")
+
+        """
+        delete_run(
+            identifier=identifier,
+            project=self.project,
+            **kwargs,
+        )

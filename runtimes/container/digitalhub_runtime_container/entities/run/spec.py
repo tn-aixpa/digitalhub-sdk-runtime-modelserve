@@ -14,6 +14,7 @@ class RunSpecContainer(RunSpec):
     ) -> None:
         super().__init__(task, local_execution)
 
+        self.source = kwargs.get("source")
         self.image = kwargs.get("image")
         self.base_image = kwargs.get("base_image")
         self.command = kwargs.get("command")
@@ -44,6 +45,7 @@ class RunParamsContainer(RunParams):
     """Run Container parameters."""
 
     # Function parameters
+    source: dict = None
     image: str = None
     base_image: str = None
     command: str = None

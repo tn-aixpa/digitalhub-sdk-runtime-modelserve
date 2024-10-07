@@ -64,7 +64,7 @@ class Function(ExecutableEntity):
         log_info : bool
             Flag to log information while waiting.
         **kwargs : dict
-            Keyword arguments passed to Task and Run builders.
+            Keyword arguments passed to Run builder.
 
         Returns
         -------
@@ -79,7 +79,7 @@ class Function(ExecutableEntity):
         run_kind = kind_reg.get_run_kind()
 
         # Create or update new task
-        task = self.new_task(task_kind, **kwargs)
+        task = self._get_or_create_task(task_kind)
 
         # Run function from task
         run = task.run(run_kind, local_execution, **kwargs)
@@ -99,14 +99,3 @@ class Function(ExecutableEntity):
             result = executor.submit(run.run)
             r = result.result()
         return r
-
-    def _get_function_string(self) -> str:
-        """
-        Get function string.
-
-        Returns
-        -------
-        str
-            Function string.
-        """
-        return self._get_executable_string()

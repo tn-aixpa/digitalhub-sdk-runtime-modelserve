@@ -1099,8 +1099,9 @@ class ProjectCore(Project):
         )
         self.refresh()
 
-    # TODO
-    # - list runs
+    ##############################
+    #  Runs
+    ##############################
 
     def get_run(
         self,
@@ -1114,8 +1115,6 @@ class ProjectCore(Project):
         ----------
         identifier : str
             Entity key (store://...) or entity ID.
-        entity_id : str
-            Entity ID.
         **kwargs : dict
             Parameters to pass to the API call.
 
@@ -1158,7 +1157,8 @@ class ProjectCore(Project):
         --------
         >>> objs = project.list_runs()
         """
-        # TODO more examples: search by function, latest for task and function
+        if kwargs is None:
+            kwargs = {}
         return list_runs(self.name, **kwargs)
 
     def delete_run(
@@ -1173,8 +1173,6 @@ class ProjectCore(Project):
         ----------
         identifier : str
             Entity key (store://...) or entity ID.
-        entity_id : str
-            Entity ID.
         **kwargs : dict
             Parameters to pass to the API call.
 

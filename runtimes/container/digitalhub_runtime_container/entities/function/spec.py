@@ -29,40 +29,6 @@ class FunctionSpecContainer(FunctionSpec):
         self.command = command
         self.args = args
 
-        self.source = self._set_source(source, code_src, handler, code, base64, lang)
-
-    def _set_source(
-        self,
-        source: dict | None,
-        code_src: str | None,
-        handler: str | None,
-        code: str | None,
-        base64: str | None,
-        lang: str | None,
-    ) -> SourceCodeStructContainer | None:
-        """
-        Set source code.
-
-        Parameters
-        ----------
-        source : dict
-            Source code dictionary.
-        code_src : str
-            Source code reference.
-        handler : str
-            Function handler.
-        code : str
-            Source code.
-        base64 : str
-            Source code (base64 encoded).
-        lang : str
-            Source code language.
-
-        Returns
-        -------
-        SourceCodeStruct
-            Source code.
-        """
         # Give source precedence
         if source is not None:
             source_dict = source
@@ -75,12 +41,8 @@ class FunctionSpecContainer(FunctionSpec):
                 "lang": lang,
             }
 
-        # Check if some values are provided for source
-        if any([True for i in source_dict.values() if i is not None]):
-            source_checked = self.source_check(source_dict)
-            self.source = SourceCodeStructContainer(**source_checked)
-        else:
-            self.source = None
+        source_checked = self.source_check(source_dict)
+        self.source = SourceCodeStructContainer(**source_checked)
 
     @staticmethod
     def source_check(source: dict) -> dict:
@@ -120,8 +82,7 @@ class FunctionSpecContainer(FunctionSpec):
             Dictionary representation of the object.
         """
         dict_ = super().to_dict()
-        if self.source is not None:
-            dict_["source"] = self.source.to_dict()
+        dict_["source"] = self.source.to_dict()
         return dict_
 
 
