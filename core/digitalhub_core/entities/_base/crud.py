@@ -16,8 +16,8 @@ from digitalhub_core.entities._base.api import (
     api_ctx_list,
     api_ctx_logs,
     api_ctx_read,
-    api_ctx_stop,
     api_ctx_resume,
+    api_ctx_stop,
     api_ctx_update,
 )
 from digitalhub_core.entities.utils import parse_entity_key
@@ -521,6 +521,7 @@ def stop_api(
     api = api_ctx_stop(project, entity_type, entity_id)
     get_context(project).create_object(api, obj={}, **kwargs)
 
+
 def resume_api(
     project: str,
     entity_type: str,
@@ -547,6 +548,7 @@ def resume_api(
     """
     api = api_ctx_resume(project, entity_type, entity_id)
     get_context(project).create_object(api, obj={}, **kwargs)
+
 
 def files_info_get_api(
     project: str,

@@ -10,8 +10,8 @@ from digitalhub_core.entities._base.crud import (
     list_entity_api_ctx,
     logs_api,
     read_entity_api_ctx,
-    stop_api,
     resume_api,
+    stop_api,
 )
 from digitalhub_core.entities._base.entity.unversioned import UnversionedEntity
 from digitalhub_core.entities._base.state import State
@@ -296,7 +296,7 @@ class Run(UnversionedEntity):
         """
         if not self._context().local and not self.spec.local_execution:
             return resume_api(self.project, self.ENTITY_TYPE, self.id)
-        
+
         try:
             self.status.resume()
         except AttributeError:

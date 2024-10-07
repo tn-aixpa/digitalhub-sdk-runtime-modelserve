@@ -25,6 +25,7 @@ from digitalhub_core.entities.function.crud import (
     update_function,
 )
 from digitalhub_core.entities.project.entity._base import CTX_ENTITIES, FUNC_MAP, Project
+from digitalhub_core.entities.run.crud import delete_run, get_run, list_runs
 from digitalhub_core.entities.secret.crud import (
     delete_secret,
     get_secret,
@@ -46,25 +47,19 @@ from digitalhub_core.entities.workflow.crud import (
     workflow_from_dict,
 )
 
-from digitalhub_core.entities.run.crud import (
-    delete_run,
-    get_run,
-    list_runs
-)
-
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifact.entity._base import Artifact
     from digitalhub_core.entities.function.entity import Function
+    from digitalhub_core.entities.run.entity import Run
     from digitalhub_core.entities.secret.entity import Secret
     from digitalhub_core.entities.workflow.entity import Workflow
-    from digitalhub_core.entities.run.entity import Run
 
 
 ARTIFACTS = EntityTypes.ARTIFACT.value
 FUNCTIONS = EntityTypes.FUNCTION.value
 WORKFLOWS = EntityTypes.WORKFLOW.value
-SECRETS   = EntityTypes.SECRET.value
-RUNS      = EntityTypes.RUN.value
+SECRETS = EntityTypes.SECRET.value
+RUNS = EntityTypes.RUN.value
 
 CTX_ENTITIES.extend(
     [
@@ -1104,7 +1099,7 @@ class ProjectCore(Project):
         )
         self.refresh()
 
-    #TODO
+    # TODO
     # - list runs
 
     def get_run(
@@ -1198,4 +1193,4 @@ class ProjectCore(Project):
             project=self.name,
             **kwargs,
         )
-        self.refresh()    
+        self.refresh()

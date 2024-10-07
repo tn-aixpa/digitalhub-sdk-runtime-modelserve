@@ -193,6 +193,7 @@ def api_ctx_stop(project: str, entity_type: str, entity_id: str) -> str:
         entity_type += "s"
     return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}/stop"
 
+
 def api_ctx_resume(project: str, entity_type: str, entity_id: str) -> str:
     """
     Resume context API.
@@ -214,6 +215,7 @@ def api_ctx_resume(project: str, entity_type: str, entity_id: str) -> str:
     if not entity_type.endswith("s"):
         entity_type += "s"
     return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}/resume"
+
 
 def api_ctx_files(project: str, entity_type: str, entity_id: str) -> str:
     """
