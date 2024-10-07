@@ -46,17 +46,25 @@ from digitalhub_core.entities.workflow.crud import (
     workflow_from_dict,
 )
 
+from digitalhub_core.entities.run.crud import (
+    delete_run,
+    get_run,
+    list_runs
+)
+
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities.artifact.entity._base import Artifact
     from digitalhub_core.entities.function.entity import Function
     from digitalhub_core.entities.secret.entity import Secret
     from digitalhub_core.entities.workflow.entity import Workflow
+    from digitalhub_core.entities.run.entity import Run
 
 
 ARTIFACTS = EntityTypes.ARTIFACT.value
 FUNCTIONS = EntityTypes.FUNCTION.value
 WORKFLOWS = EntityTypes.WORKFLOW.value
-SECRETS = EntityTypes.SECRET.value
+SECRETS   = EntityTypes.SECRET.value
+RUNS      = EntityTypes.RUN.value
 
 CTX_ENTITIES.extend(
     [
@@ -1095,3 +1103,99 @@ class ProjectCore(Project):
             **kwargs,
         )
         self.refresh()
+
+    #TODO
+    # - list runs
+
+    def get_run(
+        self,
+        identifier: str,
+        **kwargs,
+    ) -> Run:
+        """
+        Get object from backend.
+
+        Parameters
+        ----------
+        identifier : str
+            Entity key (store://...) or entity ID.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        Run
+            Object instance.
+
+        Examples
+        --------
+        Using entity key:
+        >>> obj = project.get_run("store://my-secret-key")
+
+        Using entity ID:
+        >>> obj = project.get_run("123")
+        """
+        obj = get_run(
+            identifier=identifier,
+            project=self.name,
+            **kwargs,
+        )
+        self.refresh()
+        return obj
+
+    def list_runs(self, **kwargs) -> list[Run]:
+        """
+        List all latest objects from backend.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        list[Run]
+            List of object instances.
+
+        Examples
+        --------
+        >>> objs = project.list_runs()
+        """
+        # TODO more examples: search by function, latest for task and function
+        return list_runs(self.name, **kwargs)
+
+    def delete_run(
+        self,
+        identifier: str,
+        **kwargs,
+    ) -> None:
+        """
+        Delete run from backend.
+
+        Parameters
+        ----------
+        identifier : str
+            Entity key (store://...) or entity ID.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        dict
+            Response from backend.
+
+        Examples
+        --------
+        >>> project.delete_run("store://my-run-key")
+
+        """
+        delete_run(
+            identifier=identifier,
+            project=self.name,
+            **kwargs,
+        )
+        self.refresh()    

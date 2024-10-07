@@ -11,6 +11,7 @@ from digitalhub_core.entities._base.crud import (
     logs_api,
     read_entity_api_ctx,
     stop_api,
+    resume_api,
 )
 from digitalhub_core.entities._base.entity.unversioned import UnversionedEntity
 from digitalhub_core.entities._base.state import State
@@ -86,8 +87,8 @@ class Run(UnversionedEntity):
         """
         self.refresh()
         if self.spec.local_execution:
-            if not self._is_built():
-                raise EntityError("Run is not in built state. Build it again.")
+            if not self._is_ready_to_run():
+                raise EntityError("Run is not in a state to run.")
             self._set_state(State.RUNNING.value)
             self.save(update=True)
 
@@ -282,7 +283,30 @@ class Run(UnversionedEntity):
         try:
             self.status.stop()
         except AttributeError:
+            raise EntityError("Stop is not supported in local execution.")
             return
+
+    def resume(self) -> None:
+        """
+        Resume run.
+
+        Returns
+        -------
+        None
+        """
+        if not self._context().local and not self.spec.local_execution:
+            return resume_api(self.project, self.ENTITY_TYPE, self.id)
+        
+        try:
+            self.status.resume()
+        except AttributeError:
+            raise EntityError("Resume is not supported in local execution.")
+            return
+        # re-run
+        # TODO verify the logic and order
+        self.run()
+
+    # TODO read logs
 
     def invoke(self, **kwargs) -> requests.Response:
         """
@@ -314,16 +338,16 @@ class Run(UnversionedEntity):
     #  Helpers
     ##############################
 
-    def _is_built(self) -> bool:
+    def _is_ready_to_run(self) -> bool:
         """
-        Check if run is in built state.
+        Check if run is in a state ready for running (BUILT or STOPPED).
 
         Returns
         -------
         bool
-            True if run is in built state, False otherwise.
+            True if run is in runnable state, False otherwise.
         """
-        return self.status.state == State.BUILT.value
+        return (self.status.state == State.BUILT.value) or (self.status.state == State.STOPPED.value)
 
     def _set_status(self, status: dict) -> None:
         """
