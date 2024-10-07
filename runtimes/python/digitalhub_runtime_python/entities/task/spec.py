@@ -16,6 +16,7 @@ class TaskSpecJob(TaskSpecK8s):
         super().__init__(function, **kwargs)
 
         self.backoff_limit = kwargs.get("backoff_limit")
+        self.schedule = kwargs.get("schedule")
 
 
 class TaskParamsJob(TaskParamsK8s):
@@ -25,6 +26,9 @@ class TaskParamsJob(TaskParamsK8s):
 
     backoff_limit: int = None
     """Backoff limit."""
+
+    schedule: str = None
+    """Schedule."""
 
 
 class TaskSpecBuild(TaskSpecK8s):
