@@ -5,6 +5,7 @@ import typing
 from digitalhub_core.entities._base.spec.base import Spec, SpecParams
 from digitalhub_core.entities.artifact.crud import get_artifact
 from digitalhub_core.entities.entity_types import EntityTypes
+from digitalhub_core.entities.task.models import K8s
 from digitalhub_core.entities.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
@@ -23,9 +24,28 @@ class RunSpec(Spec):
         self,
         task: str,
         local_execution: bool = False,
+        function: str | None = None,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        **kwargs,
     ) -> None:
         self.task = task
         self.local_execution = local_execution
+        self.function = function
+        self.node_selector = node_selector
+        self.volumes = volumes
+        self.resources = resources
+        self.affinity = affinity
+        self.tolerations = tolerations
+        self.envs = envs
+        self.secrets = secrets
+        self.profile = profile
 
     def get_inputs(self, as_dict: bool = False) -> dict:
         """
@@ -114,10 +134,13 @@ class RunSpec(Spec):
         return ENTITY_FUNC[entity_type](key)
 
 
-class RunParams(SpecParams):
+class RunParams(SpecParams, K8s):
     """
     Run parameters.
     """
+
+    function: str = None
+    """The function associated with the run."""
 
     task: str = None
     """The task string associated with the run."""

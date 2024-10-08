@@ -10,26 +10,43 @@ class RunSpecModelserve(RunSpecMl):
         self,
         task: str,
         local_execution: bool = False,
+        function: str | None = None,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        image: str | None = None,
+        path: str | None = None,
+        model_name: str | None = None,
+        model_key: str | None = None,
+        service_type: str | None = None,
+        replicas: int | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(task, local_execution)
-
-        self.image = kwargs.get("image")
-        self.path = kwargs.get("path")
-        self.model_name = kwargs.get("model_name")
-        self.model_key = kwargs.get("model_key")
-
-        self.function = kwargs.get("function")
-        self.node_selector = kwargs.get("node_selector")
-        self.volumes = kwargs.get("volumes")
-        self.resources = kwargs.get("resources")
-        self.affinity = kwargs.get("affinity")
-        self.tolerations = kwargs.get("tolerations")
-        self.env = kwargs.get("env")
-        self.secrets = kwargs.get("secrets")
-        self.profile = kwargs.get("profile")
-        self.service_type = kwargs.get("service_type")
-        self.replicas = kwargs.get("replicas")
+        super().__init__(
+            task,
+            local_execution,
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.image = image
+        self.path = path
+        self.model_name = model_name
+        self.model_key = model_key
+        self.service_type = service_type
+        self.replicas = replicas
 
 
 class RunParamsModelserve(RunParamsMl):
@@ -40,17 +57,6 @@ class RunParamsModelserve(RunParamsMl):
     path: str = None
     model_name: str = None
     model_key: str = None
-
-    # Task parameters
-    function: str = None
-    node_selector: list[dict] = None
-    volumes: list[dict] = None
-    resources: dict = None
-    affinity: dict = None
-    tolerations: list[dict] = None
-    env: list[dict] = None
-    secrets: list[str] = None
-    profile: str = None
 
     # Task serve
     service_type: str = None

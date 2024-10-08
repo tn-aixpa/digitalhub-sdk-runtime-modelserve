@@ -15,17 +15,25 @@ class TaskSpecK8s(TaskSpec):
     def __init__(
         self,
         function: str,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
         **kwargs,
     ) -> None:
         super().__init__(function)
-        self.node_selector = kwargs.get("node_selector")
-        self.volumes = kwargs.get("volumes")
-        self.resources = kwargs.get("resources")
-        self.affinity = kwargs.get("affinity")
-        self.tolerations = kwargs.get("tolerations")
-        self.envs = kwargs.get("envs")
-        self.secrets = kwargs.get("secrets")
-        self.profile = kwargs.get("profile")
+        self.node_selector = node_selector
+        self.volumes = volumes
+        self.resources = resources
+        self.affinity = affinity
+        self.tolerations = tolerations
+        self.envs = envs
+        self.secrets = secrets
+        self.profile = profile
 
 
 class TaskParams(SpecParams):

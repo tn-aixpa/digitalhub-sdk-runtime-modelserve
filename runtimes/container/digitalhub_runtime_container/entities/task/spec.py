@@ -5,16 +5,39 @@ from digitalhub_runtime_container.entities.task.models import CorePort
 
 
 class TaskSpecJob(TaskSpecK8s):
-    """Task Job specification."""
+    """
+    Task Job specification.
+    """
 
     def __init__(
         self,
         function: str,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        backoff_limit: int | None = None,
+        schedule: str | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(function, **kwargs)
-        self.backoff_limit = kwargs.get("backoff_limit")
-        self.schedule = kwargs.get("schedule")
+        super().__init__(
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.backoff_limit = backoff_limit
+        self.schedule = schedule
 
 
 class TaskParamsJob(TaskParamsK8s):
@@ -30,15 +53,37 @@ class TaskParamsJob(TaskParamsK8s):
 
 
 class TaskSpecDeploy(TaskSpecK8s):
-    """Task Deploy specification."""
+    """
+    Task Deploy specification.
+    """
 
     def __init__(
         self,
         function: str,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        replicas: int | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(function, **kwargs)
-        self.replicas = kwargs.get("replicas")
+        super().__init__(
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.replicas = replicas
 
 
 class TaskParamsDeploy(TaskParamsK8s):
@@ -51,19 +96,41 @@ class TaskParamsDeploy(TaskParamsK8s):
 
 
 class TaskSpecServe(TaskSpecK8s):
-    """Task Serve specification."""
+    """
+    Task Serve specification.
+    """
 
     def __init__(
         self,
         function: str,
-        service_ports: list[CorePort] | None = None,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        replicas: int | None = None,
+        service_ports: list | None = None,
         service_type: str | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(function, **kwargs)
+        super().__init__(
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.replicas = replicas
         self.service_ports = service_ports
         self.service_type = service_type
-        self.replicas = kwargs.get("replicas")
 
 
 class TaskParamsServe(TaskParamsK8s):
@@ -82,15 +149,37 @@ class TaskParamsServe(TaskParamsK8s):
 
 
 class TaskSpecBuild(TaskSpecK8s):
-    """Task Build specification."""
+    """
+    Task Build specification.
+    """
 
     def __init__(
         self,
         function: str,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        instructions: list | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(function, **kwargs)
-        self.instructions = kwargs.get("instructions")
+        super().__init__(
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.instructions = instructions
 
 
 class TaskParamsBuild(TaskParamsK8s):

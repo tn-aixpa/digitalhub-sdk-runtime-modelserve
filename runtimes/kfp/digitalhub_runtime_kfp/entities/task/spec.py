@@ -4,16 +4,37 @@ from digitalhub_core.entities.task.spec import TaskParamsK8s, TaskSpecK8s
 
 
 class TaskSpecPipeline(TaskSpecK8s):
-    """Task Pipeline specification."""
+    """
+    Task Pipeline specification.
+    """
 
     def __init__(
         self,
         function: str,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
         workflow: str | None = None,
         schedule: str | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(function, **kwargs)
+        super().__init__(
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
         self.workflow = workflow
         self.schedule = schedule
 
@@ -31,15 +52,12 @@ class TaskParamsPipeline(TaskParamsK8s):
 
 
 class TaskSpecBuild(TaskSpecK8s):
-    """Task Build specification."""
-
-    def __init__(
-        self,
-        function: str,
-        **kwargs,
-    ) -> None:
-        super().__init__(function, **kwargs)
+    """
+    Task Build specification.
+    """
 
 
 class TaskParamsBuild(TaskParamsK8s):
-    pass
+    """
+    TaskParamsBuild model.
+    """

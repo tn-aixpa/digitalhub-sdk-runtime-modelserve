@@ -10,35 +10,53 @@ class RunSpecContainer(RunSpec):
         self,
         task: str,
         local_execution: bool = False,
+        function: str | None = None,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        source: dict | None = None,
+        image: str | None = None,
+        base_image: str | None = None,
+        command: str | None = None,
+        args: list[str] | None = None,
+        backoff_limit: int | None = None,
+        schedule: str | None = None,
+        replicas: int | None = None,
+        service_ports: list | None = None,
+        service_type: str | None = None,
+        instructions: dict | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(task, local_execution)
-
-        self.source = kwargs.get("source")
-        self.image = kwargs.get("image")
-        self.base_image = kwargs.get("base_image")
-        self.command = kwargs.get("command")
-        self.args = kwargs.get("args")
-
-        self.function = kwargs.get("function")
-        self.node_selector = kwargs.get("node_selector")
-        self.volumes = kwargs.get("volumes")
-        self.resources = kwargs.get("resources")
-        self.affinity = kwargs.get("affinity")
-        self.tolerations = kwargs.get("tolerations")
-        self.env = kwargs.get("env")
-        self.secrets = kwargs.get("secrets")
-        self.profile = kwargs.get("profile")
-
-        self.backoff_limit = kwargs.get("backoff_limit")
-        self.schedule = kwargs.get("schedule")
-
-        self.replicas = kwargs.get("replicas")
-
-        self.service_ports = kwargs.get("service_ports")
-        self.service_type = kwargs.get("service_type")
-
-        self.instructions = kwargs.get("instructions")
+        super().__init__(
+            task,
+            local_execution,
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.source = source
+        self.image = image
+        self.base_image = base_image
+        self.command = command
+        self.args = args
+        self.backoff_limit = backoff_limit
+        self.schedule = schedule
+        self.replicas = replicas
+        self.service_ports = service_ports
+        self.service_type = service_type
+        self.instructions = instructions
 
 
 class RunParamsContainer(RunParams):
@@ -50,17 +68,6 @@ class RunParamsContainer(RunParams):
     base_image: str = None
     command: str = None
     args: list[str] = None
-
-    # Task parameters
-    function: str = None
-    node_selector: list[dict] = None
-    volumes: list[dict] = None
-    resources: dict = None
-    affinity: dict = None
-    tolerations: list[dict] = None
-    env: list[dict] = None
-    secrets: list[str] = None
-    profile: str = None
 
     # Task job
     backoff_limit: int = None

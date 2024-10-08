@@ -10,28 +10,39 @@ class RunSpecDbt(RunSpecData):
         self,
         task: str,
         local_execution: bool = False,
+        function: str | None = None,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        source: dict | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
+        parameters: dict | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(task, local_execution)
-
-        self.source = kwargs.get("source")
-
-        self.function = kwargs.get("function")
-        self.node_selector = kwargs.get("node_selector")
-        self.volumes = kwargs.get("volumes")
-        self.resources = kwargs.get("resources")
-        self.affinity = kwargs.get("affinity")
-        self.tolerations = kwargs.get("tolerations")
-        self.env = kwargs.get("env")
-        self.secrets = kwargs.get("secrets")
-        self.profile = kwargs.get("profile")
-        self.backoff_limit = kwargs.get("backoff_limit")
-        self.schedule = kwargs.get("schedule")
-        self.replicas = kwargs.get("replicas")
-
-        self.inputs = kwargs.get("inputs")
-        self.outputs = kwargs.get("outputs")
-        self.parameters = kwargs.get("parameters")
+        super().__init__(
+            task,
+            local_execution,
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.source = source
+        self.inputs = inputs
+        self.outputs = outputs
+        self.parameters = parameters
 
 
 class RunParamsDbt(RunParamsData):
@@ -39,17 +50,6 @@ class RunParamsDbt(RunParamsData):
 
     # Function parameters
     source: dict = None
-
-    # Task parameters
-    function: str = None
-    node_selector: list[dict] = None
-    volumes: list[dict] = None
-    resources: dict = None
-    affinity: dict = None
-    tolerations: list[dict] = None
-    env: list[dict] = None
-    secrets: list[str] = None
-    profile: str = None
 
     # Run parameters
     inputs: dict = None

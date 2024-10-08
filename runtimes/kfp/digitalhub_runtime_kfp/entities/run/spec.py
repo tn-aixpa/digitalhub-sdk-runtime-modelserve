@@ -4,39 +4,59 @@ from digitalhub_data.entities.run.spec import RunParamsData, RunSpecData
 
 
 class RunSpecKFP(RunSpecData):
-    """Run Mlrun specification."""
+    """Run KFP specification."""
 
     def __init__(
         self,
         task: str,
         local_execution: bool = False,
+        function: str | None = None,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        source: dict | None = None,
+        image: str | None = None,
+        tag: str | None = None,
+        handler: str | None = None,
+        schedule: str | None = None,
+        replicas: int | None = None,
+        workflow: str | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
+        parameters: dict | None = None,
+        values: list | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(task, local_execution)
-
-        self.source = kwargs.get("source")
-        self.image = kwargs.get("image")
-        self.tag = kwargs.get("tag")
-        self.handler = kwargs.get("handler")
-
-        self.function = kwargs.get("function")
-        self.node_selector = kwargs.get("node_selector")
-        self.volumes = kwargs.get("volumes")
-        self.resources = kwargs.get("resources")
-        self.affinity = kwargs.get("affinity")
-        self.tolerations = kwargs.get("tolerations")
-        self.env = kwargs.get("env")
-        self.secrets = kwargs.get("secrets")
-        self.profile = kwargs.get("profile")
-
-        self.schedule = kwargs.get("schedule")
-        self.replicas = kwargs.get("replicas")
-        self.workflow = kwargs.get("workflow")
-
-        self.inputs = kwargs.get("inputs")
-        self.outputs = kwargs.get("outputs")
-        self.parameters = kwargs.get("parameters")
-        self.values = kwargs.get("values")
+        super().__init__(
+            task,
+            local_execution,
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.source = source
+        self.image = image
+        self.tag = tag
+        self.handler = handler
+        self.schedule = schedule
+        self.replicas = replicas
+        self.workflow = workflow
+        self.inputs = inputs
+        self.outputs = outputs
+        self.parameters = parameters
+        self.values = values
 
 
 class RunParamsKFP(RunParamsData):
@@ -47,17 +67,6 @@ class RunParamsKFP(RunParamsData):
     image: str = None
     tag: str = None
     handler: str = None
-
-    # Task parameters
-    function: str = None
-    node_selector: list[dict] = None
-    volumes: list[dict] = None
-    resources: dict = None
-    affinity: dict = None
-    tolerations: list[dict] = None
-    env: list[dict] = None
-    secrets: list[str] = None
-    profile: str = None
 
     # Pipeline parameters
     workflow: str = None

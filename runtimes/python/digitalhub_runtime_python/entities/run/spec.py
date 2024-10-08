@@ -10,37 +10,49 @@ class RunSpecPython(RunSpecMl):
         self,
         task: str,
         local_execution: bool = False,
+        function: str | None = None,
+        node_selector: dict | None = None,
+        volumes: list | None = None,
+        resources: dict | None = None,
+        affinity: dict | None = None,
+        tolerations: list | None = None,
+        envs: list | None = None,
+        secrets: list | None = None,
+        profile: str | None = None,
+        source: dict | None = None,
+        image: str | None = None,
+        base_image: str | None = None,
+        python_version: str | None = None,
+        requirements: list | None = None,
+        instructions: dict | None = None,
+        inputs: dict | None = None,
+        outputs: dict | None = None,
+        parameters: dict | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(task, local_execution)
-
-        self.source = kwargs.get("source")
-        self.image = kwargs.get("image")
-        self.base_image = kwargs.get("base_image")
-        self.python_version = kwargs.get("python_version")
-        self.requirements = kwargs.get("requirements")
-
-        self.function = kwargs.get("function")
-        self.node_selector = kwargs.get("node_selector")
-        self.volumes = kwargs.get("volumes")
-        self.resources = kwargs.get("resources")
-        self.affinity = kwargs.get("affinity")
-        self.tolerations = kwargs.get("tolerations")
-        self.env = kwargs.get("env")
-        self.secrets = kwargs.get("secrets")
-        self.profile = kwargs.get("profile")
-        self.backoff_limit = kwargs.get("backoff_limit")
-        self.schedule = kwargs.get("schedule")
-        self.replicas = kwargs.get("replicas")
-
-        # Task job
-
-        # Task build
-        self.instructions = kwargs.get("instructions")
-
-        self.inputs = kwargs.get("inputs")
-        self.outputs = kwargs.get("outputs")
-        self.parameters = kwargs.get("parameters")
+        super().__init__(
+            task,
+            local_execution,
+            function,
+            node_selector,
+            volumes,
+            resources,
+            affinity,
+            tolerations,
+            envs,
+            secrets,
+            profile,
+            **kwargs,
+        )
+        self.source = source
+        self.image = image
+        self.base_image = base_image
+        self.python_version = python_version
+        self.requirements = requirements
+        self.instructions = instructions
+        self.inputs = inputs
+        self.outputs = outputs
+        self.parameters = parameters
 
 
 class RunParamsPython(RunParamsMl):
@@ -52,17 +64,6 @@ class RunParamsPython(RunParamsMl):
     base_image: str = None
     python_version: str = None
     requirements: list = None
-
-    # Task parameters
-    function: str = None
-    node_selector: list[dict] = None
-    volumes: list[dict] = None
-    resources: dict = None
-    affinity: dict = None
-    tolerations: list[dict] = None
-    env: list[dict] = None
-    secrets: list[str] = None
-    profile: str = None
 
     # Task job
     backoff_limit: int = None
