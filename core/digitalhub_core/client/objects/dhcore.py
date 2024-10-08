@@ -263,6 +263,8 @@ class ClientDHCore(Client):
         dict
             Response object.
         """
+        if kwargs is None:
+            kwargs = {}
         url = self._endpoint_core + api
         kwargs = self._set_auth_header(kwargs)
         return self._make_call(call_type, url, **kwargs)
@@ -323,7 +325,7 @@ class ClientDHCore(Client):
 
     def _check_core_version(self, response: Response) -> None:
         """
-        Raise an exception if the response indicates an error.
+        Raise an exception if DHCore API version is not supported.
 
         Parameters
         ----------
@@ -341,7 +343,7 @@ class ClientDHCore(Client):
 
     def _raise_for_error(self, response: Response) -> None:
         """
-        Raise an exception if the response indicates an error.
+        Handle DHCore API errors.
 
         Parameters
         ----------
@@ -360,15 +362,15 @@ class ClientDHCore(Client):
             elif isinstance(e, ConnectionError):
                 msg = "Unable to connect to DHCore backend."
             elif isinstance(e, HTTPError):
-                if response.status_code == 401:
-                    msg = "Backend authentication failed."
-                elif response.status_code == 403:
-                    msg = "Backend authorization failed."
+                if response.status_code in [401, 403]:
+                    msg = "Access denied."
                 elif response.status_code == 404:
-                    msg = "Backend resource not found."
+                    msg = "Resource not found."
+                else:
+                    msg = "Backend error."
             else:
-                msg = "Backend error."
-            msg += f" Backend response: {response.text}."
+                msg = "Error during DHCore backend call."
+            msg += f" Response: {response.text}."
             raise BackendError(msg) from e
 
         except Exception as e:
