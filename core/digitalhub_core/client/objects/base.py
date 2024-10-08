@@ -39,7 +39,13 @@ class Client:
     @abstractmethod
     def list_objects(self, api: str, **kwargs) -> dict:
         """
-        Generic call method.
+        List objects method.
+        """
+
+    @abstractmethod
+    def list_first_object(self, api: str, **kwargs) -> dict:
+        """
+        Read first object method.
         """
 
     @staticmethod

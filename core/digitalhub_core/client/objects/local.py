@@ -328,6 +328,27 @@ class ClientLocal(Client):
 
         return listed_objects
 
+    def list_first_object(self, api: str, **kwargs) -> dict:
+        """
+        List first objects.
+
+        Parameters
+        ----------
+        api : str
+            The api to list the objects with.
+        **kwargs : dict
+            Keyword arguments passed to the request.
+
+        Returns
+        -------
+        dict
+            The list of objects.
+        """
+        try:
+            return self.list_objects(api, **kwargs)[0]
+        except IndexError as e:
+            raise IndexError("No objects found")
+
     ##############################
     # Helpers
     ##############################

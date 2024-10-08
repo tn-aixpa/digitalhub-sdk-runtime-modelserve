@@ -247,7 +247,7 @@ def read_entity_api_ctx(
     if entity_id is None:
         kwargs["params"]["name"] = identifier
         api = api_ctx_list(project, entity_type)
-        return get_context(project).list_objects(api, **kwargs)[0]
+        return get_context(project).list_first_object(api, **kwargs)
 
     api = api_ctx_read(project, entity_type, entity_id)
     return get_context(project).read_object(api, **kwargs)
@@ -378,7 +378,7 @@ def delete_entity_api_ctx(
         api = api_ctx_list(project, entity_type)
         if delete_all_versions:
             return get_context(project).delete_object(api, **kwargs)
-        obj = get_context(project).list_objects(api, **kwargs)[0]
+        obj = get_context(project).list_first_object(api, **kwargs)
         entity_id = obj["id"]
 
     api = api_ctx_delete(project, entity_type, entity_id)

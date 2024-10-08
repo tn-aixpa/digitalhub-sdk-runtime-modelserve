@@ -9,7 +9,7 @@ from digitalhub_core.utils.exceptions import BackendError
 from dotenv import load_dotenv, set_key
 from pydantic import BaseModel
 from requests import request
-from requests.exceptions import JSONDecodeError, RequestException, Timeout
+from requests.exceptions import JSONDecodeError, RequestException, Timeout, HTTPError
 
 if typing.TYPE_CHECKING:
     from requests import Response
@@ -220,6 +220,27 @@ class ClientDHCore(Client):
 
         return objects
 
+    def list_first_object(self, api: str, **kwargs) -> dict:
+        """
+        List first objects.
+
+        Parameters
+        ----------
+        api : str
+            The api to list the objects with.
+        **kwargs : dict
+            Keyword arguments passed to the request.
+
+        Returns
+        -------
+        dict
+            The list of objects.
+        """
+        try:
+            return self.list_objects(api, **kwargs)[0]
+        except IndexError as e:
+            raise IndexError("No objects found")
+
     ##############################
     # Call methods
     ##############################
@@ -334,13 +355,22 @@ class ClientDHCore(Client):
         try:
             response.raise_for_status()
         except RequestException as e:
-            if isinstance(e, Timeout):
+            if isinstance(e, TimeoutError):
                 msg = "Request to DHCore backend timed out."
             elif isinstance(e, ConnectionError):
                 msg = "Unable to connect to DHCore backend."
+            elif isinstance(e, HTTPError):
+                if response.status_code == 401:
+                    msg = "Backend authentication failed."
+                elif response.status_code == 403:
+                    msg = "Backend authorization failed."
+                elif response.status_code == 404:
+                    msg = f"Backend resource not found."
             else:
-                msg = f"Request to DHCore backend failed. Exception: {e.__class__}. Error: {e.args}"
-                raise BackendError(msg) from e
+                msg = f"Backend error."
+            msg += f" Backend response: {response.text}."
+            raise BackendError(msg) from e
+
         except Exception as e:
             msg = f"Some error occurred: {e}"
             raise RuntimeError(msg) from e
