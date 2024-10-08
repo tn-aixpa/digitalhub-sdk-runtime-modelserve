@@ -346,7 +346,7 @@ class ClientLocal(Client):
         """
         try:
             return self.list_objects(api, **kwargs)[0]
-        except IndexError as e:
+        except IndexError:
             raise IndexError("No objects found")
 
     ##############################

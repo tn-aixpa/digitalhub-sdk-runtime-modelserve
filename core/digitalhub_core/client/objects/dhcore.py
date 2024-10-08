@@ -9,7 +9,7 @@ from digitalhub_core.utils.exceptions import BackendError
 from dotenv import load_dotenv, set_key
 from pydantic import BaseModel
 from requests import request
-from requests.exceptions import JSONDecodeError, RequestException, Timeout, HTTPError
+from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 
 if typing.TYPE_CHECKING:
     from requests import Response
@@ -238,7 +238,7 @@ class ClientDHCore(Client):
         """
         try:
             return self.list_objects(api, **kwargs)[0]
-        except IndexError as e:
+        except IndexError:
             raise IndexError("No objects found")
 
     ##############################
@@ -365,9 +365,9 @@ class ClientDHCore(Client):
                 elif response.status_code == 403:
                     msg = "Backend authorization failed."
                 elif response.status_code == 404:
-                    msg = f"Backend resource not found."
+                    msg = "Backend resource not found."
             else:
-                msg = f"Backend error."
+                msg = "Backend error."
             msg += f" Backend response: {response.text}."
             raise BackendError(msg) from e
 
