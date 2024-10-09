@@ -164,13 +164,10 @@ class Project(Entity):
         """
         # Cycle over entity types
         for entity_type in CTX_ENTITIES:
-
             # Entity types are stored as a list of entities
             for idx, entity in enumerate(obj.get("spec", {}).get(entity_type, [])):
-
                 # Export entity if not embedded is in metadata, else do nothing
                 if not entity["metadata"]["embedded"]:
-
                     # Get entity object from backend
                     obj_dict: dict = read_entity_api_ctx(entity["key"])
 
