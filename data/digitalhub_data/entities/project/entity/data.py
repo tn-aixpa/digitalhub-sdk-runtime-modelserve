@@ -21,8 +21,7 @@ if typing.TYPE_CHECKING:
     from digitalhub_data.entities.dataitem.entity._base import Dataitem
 
 
-DATAITEMS = EntityTypes.DATAITEM.value
-
+DATAITEMS = EntityTypes.DATAITEM.value + "s"
 CTX_ENTITIES.append(DATAITEMS)
 FUNC_MAP[DATAITEMS] = dataitem_from_dict
 

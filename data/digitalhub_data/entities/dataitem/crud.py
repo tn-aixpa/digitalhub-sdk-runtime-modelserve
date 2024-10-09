@@ -15,6 +15,7 @@ from digitalhub_core.entities._base.crud import (
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.utils import build_log_path_from_filename, build_log_path_from_source, eval_local_source
 from digitalhub_core.stores.builder import get_store
+from digitalhub_core.utils.exceptions import EntityAlreadyExistsError
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_data.entities.dataitem.builder import dataitem_from_dict, dataitem_from_parameters
 from digitalhub_data.entities.entity_types import EntityTypes
@@ -315,8 +316,14 @@ def import_dataitem(file: str) -> Dataitem:
     --------
     >>> obj = import_dataitem("my-dataitem.yaml")
     """
-    obj: dict = read_yaml(file)
-    return dataitem_from_dict(obj)
+    dict_obj: dict = read_yaml(file)
+    obj = dataitem_from_dict(dict_obj)
+    try:
+        obj.save()
+    except EntityAlreadyExistsError:
+        pass
+    finally:
+        return obj
 
 
 def update_dataitem(entity: Dataitem) -> Dataitem:

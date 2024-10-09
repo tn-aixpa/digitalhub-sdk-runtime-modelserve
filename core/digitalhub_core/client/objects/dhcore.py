@@ -5,7 +5,15 @@ import typing
 from urllib.parse import urlparse
 
 from digitalhub_core.client.objects.base import Client
-from digitalhub_core.utils.exceptions import BackendError
+from digitalhub_core.utils.exceptions import (
+    BackendError,
+    BadRequestError,
+    EntityAlreadyExistsError,
+    EntityNotExistsError,
+    ForbiddenError,
+    MissingSpecError,
+    UnauthorizedError,
+)
 from dotenv import load_dotenv, set_key
 from pydantic import BaseModel
 from requests import request
@@ -30,8 +38,8 @@ ENV_FILE = ".dhcore"
 
 
 # API levels that are supported
-MAX_API_LEVEL = 100
-MIN_API_LEVEL = 6
+MAX_API_LEVEL = 20
+MIN_API_LEVEL = 8
 
 
 class AuthConfig(BaseModel):
@@ -356,23 +364,73 @@ class ClientDHCore(Client):
         """
         try:
             response.raise_for_status()
+
+        # Backend errors
         except RequestException as e:
+            # Handle timeout
             if isinstance(e, TimeoutError):
                 msg = "Request to DHCore backend timed out."
+                raise TimeoutError(msg)
+
+            # Handle connection error
             elif isinstance(e, ConnectionError):
                 msg = "Unable to connect to DHCore backend."
-            elif isinstance(e, HTTPError):
-                if response.status_code in [401, 403]:
-                    msg = "Access denied."
-                elif response.status_code == 404:
-                    msg = "Resource not found."
-                else:
-                    msg = "Backend error."
-            else:
-                msg = "Error during DHCore backend call."
-            msg += f" Response: {response.text}."
-            raise BackendError(msg) from e
+                raise ConnectionError(msg)
 
+            # Handle HTTP errors
+            elif isinstance(e, HTTPError):
+                txt_resp = f"Response: {response.text}."
+
+                # Bad request
+                if response.status_code == 400:
+                    # Missing spec in backend
+                    if "missing spec" in response.text:
+                        msg = f"Missing spec in backend. {txt_resp}"
+                        raise MissingSpecError(msg)
+
+                    # Duplicated entity
+                    elif "Duplicated entity" in response.text:
+                        msg = f"Entity already exists. {txt_resp}"
+                        raise EntityAlreadyExistsError(msg)
+
+                    # Other errors
+                    else:
+                        msg = f"Bad request. {txt_resp}"
+                        raise BadRequestError(msg)
+
+                # Unauthorized errors
+                elif response.status_code == 401:
+                    msg = f"Unauthorized. {txt_resp}"
+                    raise UnauthorizedError(msg)
+
+                # Forbidden errors
+                elif response.status_code == 403:
+                    msg = f"Forbidden. {txt_resp}"
+                    raise ForbiddenError(msg)
+
+                # Entity not found
+                elif response.status_code == 404:
+                    # Put with entity not found
+                    if "No such EntityName" in response.text:
+                        msg = f"Entity does not exists. {txt_resp}"
+                        raise EntityNotExistsError(msg)
+
+                    # Other cases
+                    else:
+                        msg = f"Not found. {txt_resp}"
+                        raise BackendError(msg)
+
+                # Other errors
+                else:
+                    msg = f"Backend error. {txt_resp}"
+                    raise BackendError(msg) from e
+
+            # Other requests errors
+            else:
+                msg = f"Some error occurred. {e}"
+                raise BackendError(msg) from e
+
+        # Other generic errors
         except Exception as e:
             msg = f"Some error occurred: {e}"
             raise RuntimeError(msg) from e

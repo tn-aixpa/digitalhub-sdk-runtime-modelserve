@@ -31,7 +31,7 @@ class UnversionedEntity(ContextEntity):
         self.key = f"store://{project}/{self.ENTITY_TYPE}/{kind}/{uuid}"
         self._obj_attr.extend(["id"])
 
-    def export(self, filename: str | None = None) -> None:
+    def export(self, filename: str | None = None) -> str:
         """
         Export object as a YAML file.
 
@@ -42,13 +42,15 @@ class UnversionedEntity(ContextEntity):
 
         Returns
         -------
-        None
+        str
+            Exported file.
         """
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.ENTITY_TYPE}-{self.id}.yml"
         pth = self._context().root / filename
         write_yaml(pth, obj)
+        return str(pth)
 
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:

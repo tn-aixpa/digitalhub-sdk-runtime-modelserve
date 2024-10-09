@@ -55,11 +55,10 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.workflow.entity import Workflow
 
 
-ARTIFACTS = EntityTypes.ARTIFACT.value
-FUNCTIONS = EntityTypes.FUNCTION.value
-WORKFLOWS = EntityTypes.WORKFLOW.value
-SECRETS = EntityTypes.SECRET.value
-RUNS = EntityTypes.RUN.value
+ARTIFACTS = EntityTypes.ARTIFACT.value + "s"
+FUNCTIONS = EntityTypes.FUNCTION.value + "s"
+WORKFLOWS = EntityTypes.WORKFLOW.value + "s"
+SECRETS = EntityTypes.SECRET.value + "s"
 
 CTX_ENTITIES.extend(
     [

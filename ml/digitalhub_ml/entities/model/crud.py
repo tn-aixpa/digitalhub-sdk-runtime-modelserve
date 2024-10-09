@@ -11,6 +11,7 @@ from digitalhub_core.entities._base.crud import (
 )
 from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.utils import build_log_path_from_source, eval_local_source
+from digitalhub_core.utils.exceptions import EntityAlreadyExistsError
 from digitalhub_core.utils.io_utils import read_yaml
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.model.builder import model_from_dict, model_from_parameters
@@ -278,8 +279,14 @@ def import_model(file: str) -> Model:
     --------
     >>> obj = import_model("my-model.yaml")
     """
-    obj: dict = read_yaml(file)
-    return model_from_dict(obj)
+    dict_obj: dict = read_yaml(file)
+    obj = model_from_dict(dict_obj)
+    try:
+        obj.save()
+    except EntityAlreadyExistsError:
+        pass
+    finally:
+        return obj
 
 
 def update_model(entity: Model) -> Model:

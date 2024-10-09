@@ -11,6 +11,7 @@ from digitalhub_core.entities._base.crud import (
 )
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.secret.builder import secret_from_dict, secret_from_parameters
+from digitalhub_core.utils.exceptions import EntityAlreadyExistsError
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -214,8 +215,14 @@ def import_secret(file: str) -> Secret:
     --------
     >>> obj = import_secret("my-secret.yaml")
     """
-    obj: dict = read_yaml(file)
-    return secret_from_dict(obj)
+    dict_obj: dict = read_yaml(file)
+    obj = secret_from_dict(dict_obj)
+    try:
+        obj.save()
+    except EntityAlreadyExistsError:
+        pass
+    finally:
+        return obj
 
 
 def update_secret(entity: Secret) -> Secret:

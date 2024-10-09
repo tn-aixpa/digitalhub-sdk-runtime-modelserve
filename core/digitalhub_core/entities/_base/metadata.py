@@ -24,6 +24,7 @@ class Metadata(ModelObj):
         updated: str | None = None,
         updated_by: str | None = None,
         embedded: bool | None = None,
+        ref: str | None = None,
         **kwargs,
     ) -> None:
         self.project = project
@@ -36,6 +37,7 @@ class Metadata(ModelObj):
         self.created_by = created_by
         self.updated_by = updated_by
         self.embedded = embedded
+        self.ref = ref
 
         self._any_setter(**kwargs)
 
