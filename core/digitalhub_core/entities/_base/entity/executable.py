@@ -7,7 +7,7 @@ from digitalhub_core.entities._base.entity.versioned import VersionedEntity
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.run.crud import delete_run, get_run, list_runs
 from digitalhub_core.entities.task.crud import delete_task, task_from_dict, task_from_parameters
-from digitalhub_core.utils.exceptions import BackendError, EntityError
+from digitalhub_core.utils.exceptions import EntityAlreadyExistsError, EntityError
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.metadata import Metadata
@@ -106,7 +106,7 @@ class ExecutableEntity(VersionedEntity):
             # Ignore if task already exists
             try:
                 task_obj.save()
-            except BackendError:
+            except EntityAlreadyExistsError:
                 pass
 
             # Set task if function is the same. Overwrite
@@ -238,11 +238,10 @@ class ExecutableEntity(VersionedEntity):
         """
         # List tasks from backend filtered by function and kind
         params = {"function": self._get_executable_string(), "kind": kind}
-        try:
-            list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)[0]["id"]
-            return True
-        except IndexError:
+        resp = list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)
+        if not resp:
             return False
+        return True
 
     def _raise_if_exists(self, kind: str) -> None:
         """

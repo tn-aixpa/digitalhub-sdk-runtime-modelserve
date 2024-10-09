@@ -109,7 +109,7 @@ class Project(Entity):
         self._update_attributes(new_obj)
         return self
 
-    def export(self, filename: str | None = None) -> None:
+    def export(self, filename: str | None = None) -> str:
         """
         Export object as a YAML file. If the objects are not embedded, the objects are
         exported as a YAML file.
@@ -121,7 +121,8 @@ class Project(Entity):
 
         Returns
         -------
-        None
+        str
+            Exported file.
         """
         obj = self._refresh_to_dict()
 
@@ -129,13 +130,9 @@ class Project(Entity):
             filename = f"{self.kind}_{self.name}.yml"
         pth = Path(self.spec.context) / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
+        obj = self._export_not_embedded(obj)
         write_yaml(pth, obj)
-
-        for entity_type in CTX_ENTITIES:
-            entity_list = obj.get("spec", {}).get(entity_type, [])
-            if not entity_list:
-                continue
-            self._export_not_embedded(entity_list, entity_type)
+        return str(pth)
 
     def _refresh_to_dict(self) -> dict:
         """
@@ -151,24 +148,41 @@ class Project(Entity):
         except BackendError:
             return self.to_dict()
 
-    def _export_not_embedded(self, entity_list: list, entity_type: str) -> None:
+    def _export_not_embedded(self, obj: dict) -> dict:
         """
         Export project objects if not embedded.
 
         Parameters
         ----------
-        entity_list : list
-            Entity list.
+        obj : dict
+            Project object in dictionary format.
 
         Returns
         -------
-        None
+        dict
+            Updatated project object in dictionary format with referenced entities.
         """
-        for entity in entity_list:
-            if not entity["metadata"]["embedded"]:
-                obj: dict = read_entity_api_ctx(entity["key"])
-                ent = FUNC_MAP[entity_type](obj)
-                ent.export()
+        # Cycle over entity types
+        for entity_type in CTX_ENTITIES:
+
+            # Entity types are stored as a list of entities
+            for idx, entity in enumerate(obj.get("spec", {}).get(entity_type, [])):
+
+                # Export entity if not embedded is in metadata, else do nothing
+                if not entity["metadata"]["embedded"]:
+
+                    # Get entity object from backend
+                    obj_dict: dict = read_entity_api_ctx(entity["key"])
+
+                    # Create from dict (not need to new method, we do not save to backend)
+                    ent = FUNC_MAP[entity_type](obj_dict)
+
+                    # Export and stor ref in object metadata inside project
+                    pth = ent.export()
+                    obj["spec"][entity_type][idx]["metadata"]["ref"] = pth
+
+        # Return updated object
+        return obj
 
     ##############################
     #  Static interface methods

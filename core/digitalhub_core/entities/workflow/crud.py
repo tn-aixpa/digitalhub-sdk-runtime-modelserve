@@ -11,6 +11,7 @@ from digitalhub_core.entities._base.crud import (
 )
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.workflow.builder import workflow_from_dict, workflow_from_parameters
+from digitalhub_core.utils.exceptions import EntityAlreadyExistsError
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -209,18 +210,25 @@ def import_workflow(file: str) -> Workflow:
     --------
     >>> obj = import_workflow("my-workflow.yaml")
     """
-    obj: dict = read_yaml(file)
-    if isinstance(obj, list):
-        wf_dict = obj[0]
-        task_dicts = obj[1:]
+    dict_obj: dict | list[dict] = read_yaml(file)
+    if isinstance(dict_obj, list):
+        wkf_dict = dict_obj[0]
+        tsk_dicts = dict_obj[1:]
     else:
-        wf_dict = obj
-        task_dicts = []
+        wkf_dict = dict_obj
+        tsk_dicts = []
 
-    check_context(obj.get("project"))
-    workflow = workflow_from_dict(wf_dict)
-    workflow.import_tasks(task_dicts)
-    return workflow
+    check_context(wkf_dict.get("project"))
+    obj = workflow_from_dict(wkf_dict)
+
+    obj.import_tasks(tsk_dicts)
+
+    try:
+        obj.save()
+    except EntityAlreadyExistsError:
+        pass
+    finally:
+        return obj
 
 
 def update_workflow(entity: Workflow) -> Workflow:

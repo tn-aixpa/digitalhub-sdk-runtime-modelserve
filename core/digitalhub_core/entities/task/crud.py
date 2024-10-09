@@ -6,7 +6,7 @@ from digitalhub_core.context.builder import check_context
 from digitalhub_core.entities._base.crud import delete_entity_api_ctx, list_entity_api_ctx, read_entity_api_ctx
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.task.builder import task_from_dict, task_from_parameters
-from digitalhub_core.utils.exceptions import EntityError
+from digitalhub_core.utils.exceptions import EntityAlreadyExistsError, EntityError
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -156,8 +156,14 @@ def import_task(file: str) -> Task:
     -------
     >>> obj = import_task("my-task.yaml")
     """
-    obj: dict = read_yaml(file)
-    return task_from_dict(obj)
+    dict_obj: dict = read_yaml(file)
+    obj = task_from_dict(dict_obj)
+    try:
+        obj.save()
+    except EntityAlreadyExistsError:
+        pass
+    finally:
+        return obj
 
 
 def update_task(entity: Task) -> Task:

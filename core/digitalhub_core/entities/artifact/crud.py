@@ -13,6 +13,7 @@ from digitalhub_core.entities._builders.uuid import build_uuid
 from digitalhub_core.entities.artifact.builder import artifact_from_dict, artifact_from_parameters
 from digitalhub_core.entities.entity_types import EntityTypes
 from digitalhub_core.entities.utils import build_log_path_from_source, eval_local_source
+from digitalhub_core.utils.exceptions import EntityAlreadyExistsError
 from digitalhub_core.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -278,8 +279,14 @@ def import_artifact(file: str) -> Artifact:
     --------
     >>> obj = import_artifact("my-artifact.yaml")
     """
-    obj: dict = read_yaml(file)
-    return artifact_from_dict(obj)
+    dict_obj: dict = read_yaml(file)
+    obj = artifact_from_dict(dict_obj)
+    try:
+        obj.save()
+    except EntityAlreadyExistsError:
+        pass
+    finally:
+        return obj
 
 
 def update_artifact(entity: Artifact) -> Artifact:

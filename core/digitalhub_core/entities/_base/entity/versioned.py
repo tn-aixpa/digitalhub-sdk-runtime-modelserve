@@ -36,7 +36,7 @@ class VersionedEntity(ContextEntity):
         # Add attributes to be used in the to_dict method
         self._obj_attr.extend(["name", "id"])
 
-    def export(self, filename: str | None = None) -> None:
+    def export(self, filename: str | None = None) -> str:
         """
         Export object as a YAML file.
 
@@ -47,13 +47,15 @@ class VersionedEntity(ContextEntity):
 
         Returns
         -------
-        None
+        str
+            Exported file.
         """
         obj = self.to_dict()
         if filename is None:
             filename = f"{self.ENTITY_TYPE}-{self.name}-{self.id}.yml"
         pth = self._context().root / filename
         write_yaml(pth, obj)
+        return str(pth)
 
     @staticmethod
     def _parse_dict(obj: dict, validate: bool = True) -> dict:
