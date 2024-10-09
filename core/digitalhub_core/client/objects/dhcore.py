@@ -478,6 +478,9 @@ class ClientDHCore(Client):
         -------
         None
         """
+        # Load env from file
+        self._load_env()
+
         self._get_endpoints_from_env()
 
         if config is not None:
@@ -499,6 +502,9 @@ class ClientDHCore(Client):
 
         self._get_auth_from_env()
 
+        # Propagate access and refresh token to env file
+        self._write_env()
+
     def _get_endpoints_from_env(self) -> None:
         """
         Get the DHCore endpoint and token issuer endpoint from env.
@@ -512,8 +518,6 @@ class ClientDHCore(Client):
         Exception
             If the endpoint of DHCore is not set in the env variables.
         """
-        self._load_env()
-
         core_endpt = os.getenv("DHCORE_ENDPOINT")
         if core_endpt is None:
             raise BackendError("Endpoint not set as environment variables.")
@@ -602,7 +606,7 @@ class ClientDHCore(Client):
 
         # Call
         r = request("GET", url, timeout=60)
-        r.raise_for_status()
+        self._raise_for_error(r)
         return r.json().get("token_endpoint")
 
     def _call_refresh_token_endpoint(self, url: str) -> dict:
@@ -627,7 +631,7 @@ class ClientDHCore(Client):
         }
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         r = request("POST", url, data=payload, headers=headers, timeout=60)
-        r.raise_for_status()
+        self._raise_for_error(r)
         return r.json()
 
     @staticmethod

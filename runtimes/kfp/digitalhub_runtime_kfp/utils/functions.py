@@ -154,7 +154,7 @@ def run_kfp_build(run: dict) -> dict:
         # need to replicate the build
         workflow = build_kfp_pipeline(run, pipeline)
 
-        run_status = { "state": State.COMPLETED.value, "results": {"workflow":  workflow} }
+        run_status = {"state": State.COMPLETED.value, "results": {"workflow": workflow}}
         _update_status(run.get("key"), run_status)
 
         return run_status

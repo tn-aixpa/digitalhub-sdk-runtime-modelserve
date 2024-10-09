@@ -99,6 +99,18 @@ def update_client_from_env() -> None:
         client._auth_type = "basic"
 
 
+def refresh_token() -> None:
+    """
+    Function to refresh token.
+
+    Returns
+    -------
+    None
+    """
+    client: ClientDHCore = get_client(local=False)
+    client._get_new_access_token()
+
+
 def get_s3_bucket() -> str | None:
     """
     Function to get S3 bucket name.
