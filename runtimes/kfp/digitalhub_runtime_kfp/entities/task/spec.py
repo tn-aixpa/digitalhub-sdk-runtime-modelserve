@@ -19,7 +19,6 @@ class TaskSpecPipeline(TaskSpecK8s):
         envs: list | None = None,
         secrets: list | None = None,
         profile: str | None = None,
-        workflow: str | None = None,
         schedule: str | None = None,
         **kwargs,
     ) -> None:
@@ -35,7 +34,6 @@ class TaskSpecPipeline(TaskSpecK8s):
             profile,
             **kwargs,
         )
-        self.workflow = workflow
         self.schedule = schedule
 
 
@@ -43,9 +41,6 @@ class TaskParamsPipeline(TaskParamsK8s):
     """
     TaskParamsPipeline model.
     """
-
-    workflow: str = None
-    """KFP workflow specification as YAML string."""
 
     schedule: str = None
     """KFP schedule specification."""
