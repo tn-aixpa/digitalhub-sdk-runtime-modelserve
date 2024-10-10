@@ -57,7 +57,7 @@ class TestModelCRUD:
         for i in dicts:
             dh.new_model(p.name, **i)
 
-        # List artifacts
+        # List models
         l_obj = dh.list_models(p.name)
         assert isinstance(l_obj, list)
         assert len(l_obj) == 4
