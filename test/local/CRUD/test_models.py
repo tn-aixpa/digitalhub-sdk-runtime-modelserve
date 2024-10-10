@@ -2,7 +2,7 @@
 Unit tests for the entity Models
 """
 
-from digitalhub_ml.entities.model.entity._base import Model
+from digitalhub.entities.model.entity._base import Model
 
 import digitalhub as dh
 
@@ -17,10 +17,10 @@ class TestModelCRUD:
             "2618d9c4-cd61-440f-aebb-7e5761709f3b",
         ]
         paths = [
-            "./data/test.csv",
-            "s3://bucket/key.csv",
-            "sql://database/schema/table",
-            "https://url.com/file.csv",
+            "./data/my_random_forest_model.pkl",
+            "s3://bucket/model.pkl",
+            "sql://database/schema/linear_regression_model.joblib",
+            "https://url.com/bert_base_uncased.pt",
         ]
         kind = ["model", "model", "model", "model"]
 

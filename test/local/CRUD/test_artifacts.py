@@ -2,7 +2,7 @@
 Unit tests for the entity Artifact
 """
 
-from digitalhub_core.entities.artifact.entity._base import Artifact
+from digitalhub.entities.artifact.entity._base import Artifact
 
 import digitalhub as dh
 
