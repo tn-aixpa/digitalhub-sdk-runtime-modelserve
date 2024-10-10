@@ -3,14 +3,15 @@ from __future__ import annotations
 import typing
 from typing import Callable
 
-from digitalhub_core.context.builder import get_context
-from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_modelserve.utils.configuration import get_function_args
 from digitalhub_runtime_modelserve.utils.function import get_serve_function
 
+from digitalhub.context.builder import get_context
+from digitalhub.runtimes.base import Runtime
+from digitalhub.utils.logger import LOGGER
+
 if typing.TYPE_CHECKING:
-    from digitalhub_core.runtimes.kind_registry import KindRegistry
+    from digitalhub.runtimes.kind_registry import KindRegistry
 
 
 class RuntimeModelserve(Runtime):

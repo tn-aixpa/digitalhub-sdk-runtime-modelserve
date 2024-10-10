@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from digitalhub_core.entities.task.spec import TaskParamsK8s, TaskSpecK8s
+from digitalhub.entities.task.spec import TaskParamsK8s, TaskSpecK8s
 
 
 class TaskSpecJob(TaskSpecK8s):

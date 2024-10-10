@@ -4,16 +4,18 @@ import typing
 from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
-from digitalhub_core.entities._base.state import State
-from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitem.crud import dataitem_from_parameters
-from digitalhub_data.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub_runtime_dbt.utils.env import get_connection
 from psycopg2 import sql
 
+from digitalhub.entities._base.state import State
+from digitalhub.entities.dataitem.crud import dataitem_from_parameters
+from digitalhub.utils.data_utils import build_data_preview, get_data_preview
+from digitalhub.utils.logger import LOGGER
+
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_data.entities.dataitem.entity._base import Dataitem
+
+    from digitalhub.entities.dataitem.entity._base import Dataitem
 
 
 # Postgres type mapper to frictionless types.

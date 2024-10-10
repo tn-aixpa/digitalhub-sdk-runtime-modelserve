@@ -1,7 +1,7 @@
 import dotenv
-from digitalhub_core.entities.task.entity import Task
 
 import digitalhub
+from digitalhub.entities.task.entity import Task
 
 dotenv.load_dotenv()
 

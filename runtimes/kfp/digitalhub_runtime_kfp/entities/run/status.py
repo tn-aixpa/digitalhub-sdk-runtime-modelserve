@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_data.entities.run.status import RunStatusData
+from digitalhub.entities.run.status import RunStatus
 
 
-class RunStatusKFP(RunStatusData):
+class RunStatusKFP(RunStatus):
     """
     Run KFP status.
     """

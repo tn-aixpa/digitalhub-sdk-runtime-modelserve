@@ -4,8 +4,8 @@ import os
 import subprocess
 from pathlib import Path
 
-from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.logger import LOGGER
+from digitalhub.utils.exceptions import EntityError
+from digitalhub.utils.logger import LOGGER
 
 MLFLOW_RUNTIME = "mlserver_mlflow.MLflowRuntime"
 ENDPOINT = "http://localhost:8080/v2/models/model/infer"

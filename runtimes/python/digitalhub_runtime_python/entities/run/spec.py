@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_ml.entities.run.spec import RunParamsMl, RunSpecMl
+from digitalhub.entities.run.spec import RunParams, RunSpec
 
 
-class RunSpecPython(RunSpecMl):
+class RunSpecPython(RunSpec):
     """Run Python specification."""
 
     def __init__(
@@ -55,7 +55,7 @@ class RunSpecPython(RunSpecMl):
         self.parameters = parameters
 
 
-class RunParamsPython(RunParamsMl):
+class RunParamsPython(RunParams):
     """Run Python parameters."""
 
     # Function parameters

@@ -4,9 +4,6 @@ import shutil
 import typing
 from typing import Callable
 
-from digitalhub_core.context.builder import get_context
-from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_kfp.utils.configurations import (
     get_dhcore_workflow,
     get_kfp_pipeline,
@@ -15,8 +12,12 @@ from digitalhub_runtime_kfp.utils.configurations import (
 )
 from digitalhub_runtime_kfp.utils.functions import run_kfp_build, run_kfp_pipeline
 
+from digitalhub.context.builder import get_context
+from digitalhub.runtimes.base import Runtime
+from digitalhub.utils.logger import LOGGER
+
 if typing.TYPE_CHECKING:
-    from digitalhub_core.runtimes.kind_registry import KindRegistry
+    from digitalhub.runtimes.kind_registry import KindRegistry
 
 
 class RuntimeKFP(Runtime):

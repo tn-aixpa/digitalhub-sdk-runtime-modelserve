@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from digitalhub_core.entities.function.models import SourceCodeParams, SourceCodeStruct
-from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.generic_utils import encode_string
-from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub.entities.function.models import SourceCodeParams, SourceCodeStruct
+from digitalhub.utils.exceptions import EntityError
+from digitalhub.utils.generic_utils import encode_string
+from digitalhub.utils.uri_utils import map_uri_scheme
 
 
 class SourceCodeStructDbt(SourceCodeStruct):

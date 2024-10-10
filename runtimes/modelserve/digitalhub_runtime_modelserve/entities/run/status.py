@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import psutil
 import requests
-from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.logger import LOGGER
-from digitalhub_ml.entities.run.status import RunStatusMl
+
+from digitalhub.entities.run.status import RunStatus
+from digitalhub.utils.exceptions import EntityError
+from digitalhub.utils.logger import LOGGER
 
 
-class RunStatusModelserve(RunStatusMl):
+class RunStatusModelserve(RunStatus):
     """
     Run Model serve status.
     """

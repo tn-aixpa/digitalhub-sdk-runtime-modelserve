@@ -3,11 +3,6 @@ from __future__ import annotations
 import typing
 from typing import Callable
 
-from digitalhub_core.context.builder import get_context
-from digitalhub_core.entities._builders.uuid import build_uuid
-from digitalhub_core.runtimes.base import Runtime
-from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitem.crud import dataitem_from_dict
 from digitalhub_runtime_dbt.utils.cleanup import cleanup
 from digitalhub_runtime_dbt.utils.configuration import (
     generate_dbt_profile_yml,
@@ -21,10 +16,17 @@ from digitalhub_runtime_dbt.utils.functions import transform
 from digitalhub_runtime_dbt.utils.inputs import materialize_dataitem
 from digitalhub_runtime_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
+from digitalhub.context.builder import get_context
+from digitalhub.entities._builders.uuid import build_uuid
+from digitalhub.entities.dataitem.crud import dataitem_from_dict
+from digitalhub.runtimes.base import Runtime
+from digitalhub.utils.logger import LOGGER
+
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-    from digitalhub_core.runtimes.kind_registry import KindRegistry
-    from digitalhub_data.entities.dataitem.entity._base import Dataitem
+
+    from digitalhub.entities.dataitem.entity._base import Dataitem
+    from digitalhub.runtimes.kind_registry import KindRegistry
 
 
 class RuntimeDbt(Runtime):

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_ml.entities.run.spec import RunParamsMl, RunSpecMl
+from digitalhub.entities.run.spec import RunParams, RunSpec
 
 
-class RunSpecModelserve(RunSpecMl):
+class RunSpecModelserve(RunSpec):
     """Run model serving specification."""
 
     def __init__(
@@ -49,7 +49,7 @@ class RunSpecModelserve(RunSpecMl):
         self.replicas = replicas
 
 
-class RunParamsModelserve(RunParamsMl):
+class RunParamsModelserve(RunParams):
     """Run Model serving parameters."""
 
     # Function parameters

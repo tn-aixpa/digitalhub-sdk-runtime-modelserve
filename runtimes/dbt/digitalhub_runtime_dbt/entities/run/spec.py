@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_data.entities.run.spec import RunParamsData, RunSpecData
+from digitalhub.entities.run.spec import RunParams, RunSpec
 
 
-class RunSpecDbt(RunSpecData):
+class RunSpecDbt(RunSpec):
     """Run Dbt specification."""
 
     def __init__(
@@ -45,7 +45,7 @@ class RunSpecDbt(RunSpecData):
         self.parameters = parameters
 
 
-class RunParamsDbt(RunParamsData):
+class RunParamsDbt(RunParams):
     """Run Dbt parameters."""
 
     # Function parameters

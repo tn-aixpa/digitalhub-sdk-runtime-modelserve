@@ -4,16 +4,16 @@ import importlib.util as imputil
 from pathlib import Path
 from typing import Callable
 
-from digitalhub_core.utils.generic_utils import (
+from digitalhub.utils.generic_utils import (
     decode_string,
     extract_archive,
     get_bucket_and_key,
     get_s3_source,
     requests_chunk_download,
 )
-from digitalhub_core.utils.git_utils import clone_repository
-from digitalhub_core.utils.logger import LOGGER
-from digitalhub_core.utils.uri_utils import map_uri_scheme
+from digitalhub.utils.git_utils import clone_repository
+from digitalhub.utils.logger import LOGGER
+from digitalhub.utils.uri_utils import map_uri_scheme
 
 
 def get_function_from_source(path: Path, source_spec: dict) -> Callable:

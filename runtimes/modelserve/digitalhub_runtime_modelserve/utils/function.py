@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Callable
 
-from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_modelserve.utils._registry import serve_function_registry
+
+from digitalhub.utils.exceptions import EntityError
+from digitalhub.utils.logger import LOGGER
 
 
 def get_serve_function(action: str) -> Callable:

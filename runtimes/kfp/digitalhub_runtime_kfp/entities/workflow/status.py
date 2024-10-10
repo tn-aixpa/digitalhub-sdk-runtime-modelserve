@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.workflow.status import WorkflowStatus
+from digitalhub.entities.workflow.status import WorkflowStatus
 
 
 class WorkflowStatusKFP(WorkflowStatus):

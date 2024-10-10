@@ -7,13 +7,13 @@ from pathlib import Path
 from typing import Callable
 
 import kfp
-from digitalhub_core.entities._base.state import State
-from digitalhub_core.utils.io_utils import read_text
 from digitalhub_runtime_kfp.dsl import set_current_project, unset_current_project
 from digitalhub_runtime_kfp.utils.outputs import build_status
 from kfp.compiler import compiler
 
 import digitalhub as dh
+from digitalhub.entities._base.state import State
+from digitalhub.utils.io_utils import read_text
 
 
 def build_kfp_pipeline(run: dict, pipeline: Callable) -> str | None:

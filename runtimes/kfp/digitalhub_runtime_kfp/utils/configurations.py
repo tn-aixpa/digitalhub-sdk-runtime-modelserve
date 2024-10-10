@@ -10,20 +10,21 @@ from pathlib import Path
 from types import ModuleType
 from typing import Callable
 
-from digitalhub_core.entities.workflow.crud import get_workflow
-from digitalhub_core.utils.generic_utils import (
+from digitalhub.entities.workflow.crud import get_workflow
+from digitalhub.utils.generic_utils import (
     decode_string,
     extract_archive,
     get_bucket_and_key,
     get_s3_source,
     requests_chunk_download,
 )
-from digitalhub_core.utils.git_utils import clone_repository
-from digitalhub_core.utils.logger import LOGGER
+from digitalhub.utils.git_utils import clone_repository
+from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub_core.entities.workflow.entity import Workflow
     from digitalhub_runtime_kfp.entities.workflow.spec import WorkflowSpecKFP
+
+    from digitalhub.entities.workflow.entity import Workflow
 
 
 def get_dhcore_workflow(workflow_string: str) -> Workflow:

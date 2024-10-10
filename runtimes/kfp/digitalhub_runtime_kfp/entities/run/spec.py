@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_data.entities.run.spec import RunParamsData, RunSpecData
+from digitalhub.entities.run.spec import RunParams, RunSpec
 
 
-class RunSpecKFP(RunSpecData):
+class RunSpecKFP(RunSpec):
     """Run KFP specification."""
 
     def __init__(
@@ -57,7 +57,7 @@ class RunSpecKFP(RunSpecData):
         self.values = values
 
 
-class RunParamsKFP(RunParamsData):
+class RunParamsKFP(RunParams):
     """Run KFP parameters."""
 
     # Workflow parameters

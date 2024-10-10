@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from digitalhub_core.registry.registry import registry
-from digitalhub_core.registry.utils import create_info
-from digitalhub_data.entities.entity_types import EntityTypes
+from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.registry.registry import registry
+from digitalhub.registry.utils import create_info
 
 root = "digitalhub_runtime_dbt"
 runtime_info = {
