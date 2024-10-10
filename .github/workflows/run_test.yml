@@ -22,8 +22,8 @@ jobs:
           python -m pip install flake8 pytest pytest-cov  
       - name: Lint with Ruff  
         run: |  
-          pip install ruff  
-          ruff --format=github --target-version=py310 .  
+          pip install ruff
+          ruff check --output-format=github .
         continue-on-error: true  
       - name: Test with pytest  
         run: |  
