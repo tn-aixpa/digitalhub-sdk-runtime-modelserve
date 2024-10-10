@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from typing import Any
 
-from digitalhub_core.entities.project.entity.core import CTX_ENTITIES, FUNC_MAP, ProjectCore
+from digitalhub_core.entities.project.entity.core import CTX_ENTITIES, FROM_DICT_MAP, IMPORT_MAP, ProjectCore
 from digitalhub_data.entities.dataitem.crud import (
     dataitem_from_dict,
     delete_dataitem,
@@ -23,7 +23,8 @@ if typing.TYPE_CHECKING:
 
 DATAITEMS = EntityTypes.DATAITEM.value + "s"
 CTX_ENTITIES.append(DATAITEMS)
-FUNC_MAP[DATAITEMS] = dataitem_from_dict
+FROM_DICT_MAP[DATAITEMS] = dataitem_from_dict
+IMPORT_MAP[DATAITEMS] = import_dataitem
 
 
 class ProjectData(ProjectCore):
