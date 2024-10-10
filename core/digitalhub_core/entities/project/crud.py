@@ -146,10 +146,15 @@ def import_project(
     >>> obj = import_project("my-project.yaml")
     """
     build_client(local, config)
-    obj: dict = read_yaml(file)
-    obj["local"] = local
-    project = project_from_dict(obj)
-    return _setup_project(project, setup_kwargs)
+    dict_obj: dict = read_yaml(file)
+    dict_obj["local"] = local
+    obj = project_from_dict(dict_obj)
+    obj = _setup_project(obj, setup_kwargs)
+
+    # Import related entities
+    obj._import_entities()
+
+    return obj
 
 
 def load_project(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub_data.entities.project.entity.data import CTX_ENTITIES, FUNC_MAP, ProjectData
+from digitalhub_data.entities.project.entity.data import CTX_ENTITIES, FROM_DICT_MAP, IMPORT_MAP, ProjectData
 from digitalhub_ml.entities.entity_types import EntityTypes
 from digitalhub_ml.entities.model.crud import (
     delete_model,
@@ -21,7 +21,8 @@ if typing.TYPE_CHECKING:
 
 MODELS = EntityTypes.MODEL.value + "s"
 CTX_ENTITIES.append(MODELS)
-FUNC_MAP[MODELS] = model_from_dict
+FROM_DICT_MAP[MODELS] = model_from_dict
+IMPORT_MAP[MODELS] = import_model
 
 
 class ProjectMl(ProjectData):

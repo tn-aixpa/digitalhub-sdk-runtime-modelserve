@@ -17,9 +17,10 @@ from digitalhub_core.entities._builders.name import build_name
 from digitalhub_core.entities._builders.spec import build_spec
 from digitalhub_core.entities._builders.status import build_status
 from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.utils.exceptions import BackendError
+from digitalhub_core.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError
 from digitalhub_core.utils.generic_utils import get_timestamp
 from digitalhub_core.utils.io_utils import write_yaml
+from digitalhub_core.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_core.entities._base.metadata import Metadata
@@ -27,7 +28,8 @@ if typing.TYPE_CHECKING:
     from digitalhub_core.entities.project.status import ProjectStatus
 
 CTX_ENTITIES = []
-FUNC_MAP = {}
+FROM_DICT_MAP = {}
+IMPORT_MAP = {}
 
 
 class Project(Entity):
@@ -168,11 +170,12 @@ class Project(Entity):
             for idx, entity in enumerate(obj.get("spec", {}).get(entity_type, [])):
                 # Export entity if not embedded is in metadata, else do nothing
                 if not entity["metadata"]["embedded"]:
+
                     # Get entity object from backend
                     obj_dict: dict = read_entity_api_ctx(entity["key"])
 
                     # Create from dict (not need to new method, we do not save to backend)
-                    ent = FUNC_MAP[entity_type](obj_dict)
+                    ent = FROM_DICT_MAP[entity_type](obj_dict)
 
                     # Export and stor ref in object metadata inside project
                     pth = ent.export()
@@ -180,6 +183,39 @@ class Project(Entity):
 
         # Return updated object
         return obj
+
+    def _import_entities(self) -> None:
+        """
+        Import project entities.
+
+        Returns
+        -------
+        None
+        """
+        # Cycle over entity types
+        for entity_type in CTX_ENTITIES:
+            # Entity types are stored as a list of entities
+            for entity in getattr(self.spec, entity_type, []):
+                entity_metadata = entity["metadata"]
+                embedded = entity_metadata.get("embedded", False)
+                ref = entity_metadata.get("ref", None)
+
+                # Import entity if not embedded
+                if not embedded and ref is not None:
+                    # Import entity from local ref
+                    if map_uri_scheme(ref) == "local":
+                        try:
+                            IMPORT_MAP[entity_type](ref)
+                        except FileNotFoundError:
+                            msg = f"File not found: {ref}."
+                            raise EntityError(msg)
+
+                # If entity is embedded, create it and try to save
+                elif embedded:
+                    try:
+                        FROM_DICT_MAP[entity_type](entity).save()
+                    except EntityAlreadyExistsError:
+                        pass
 
     ##############################
     #  Static interface methods

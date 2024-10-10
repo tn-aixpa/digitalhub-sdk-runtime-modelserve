@@ -24,7 +24,7 @@ from digitalhub_core.entities.function.crud import (
     new_function,
     update_function,
 )
-from digitalhub_core.entities.project.entity._base import CTX_ENTITIES, FUNC_MAP, Project
+from digitalhub_core.entities.project.entity._base import CTX_ENTITIES, FROM_DICT_MAP, IMPORT_MAP, Project
 from digitalhub_core.entities.run.crud import delete_run, get_run, list_runs
 from digitalhub_core.entities.secret.crud import (
     delete_secret,
@@ -58,20 +58,13 @@ if typing.TYPE_CHECKING:
 ARTIFACTS = EntityTypes.ARTIFACT.value + "s"
 FUNCTIONS = EntityTypes.FUNCTION.value + "s"
 WORKFLOWS = EntityTypes.WORKFLOW.value + "s"
-SECRETS = EntityTypes.SECRET.value + "s"
-
-CTX_ENTITIES.extend(
-    [
-        ARTIFACTS,
-        FUNCTIONS,
-        WORKFLOWS,
-        SECRETS,
-    ]
-)
-FUNC_MAP[ARTIFACTS] = artifact_from_dict
-FUNC_MAP[FUNCTIONS] = function_from_dict
-FUNC_MAP[WORKFLOWS] = workflow_from_dict
-FUNC_MAP[SECRETS] = secret_from_dict
+CTX_ENTITIES.extend([ARTIFACTS, FUNCTIONS, WORKFLOWS])
+FROM_DICT_MAP[ARTIFACTS] = artifact_from_dict
+FROM_DICT_MAP[FUNCTIONS] = function_from_dict
+FROM_DICT_MAP[WORKFLOWS] = workflow_from_dict
+IMPORT_MAP[ARTIFACTS] = import_artifact
+IMPORT_MAP[FUNCTIONS] = import_function
+IMPORT_MAP[WORKFLOWS] = import_workflow
 
 
 class ProjectCore(Project):
