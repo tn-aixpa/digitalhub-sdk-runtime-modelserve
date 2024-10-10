@@ -94,7 +94,7 @@ def register_entities() -> None:
     """
     # Try ot import registry from entities.registries module
     try:
-        import_module(f"digitalhub.entities.registries")
+        import_module("digitalhub.entities.registries")
     except Exception:
         pass
 
