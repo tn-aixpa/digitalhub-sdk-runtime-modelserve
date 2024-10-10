@@ -1,12 +1,13 @@
-import shutil
-from copy import deepcopy
+"""
+Unit tests for the entity Dataitem
+"""
 
-
-import digitalhub as dh
 from digitalhub.entities.dataitem.entity._base import Dataitem
 
+import digitalhub as dh
 
-class TestDataItemCRUD:
+
+class TestDataitemCRUD:
 
     def create_test_dicts(self):
         names = ["test1", "test2", "test3", "test4"]
@@ -16,15 +17,21 @@ class TestDataItemCRUD:
             "b4a3dfdc-b917-44c4-9a29-613dcf734244",
             "2618d9c4-cd61-440f-aebb-7e5761709f3b",
         ]
-        paths = ["./data/test.csv", "s3://bucket/key.csv", "sql://database/schema/table", "https://url.com/file.csv"]
+        paths = [
+            "./data/test.csv",
+            "s3://bucket/key.csv",
+            "sql://database/schema/table",
+            "https://url.com/file.csv",
+        ]
         kind = ["dataitem", "dataitem", "dataitem", "dataitem"]
 
         dicts = []
         for i in range(len(names)):
-            dicts.append({"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]})
+            dicts.append(
+                {"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]}
+            )
 
         return dicts
-    
 
     def test_create_delete(self):
         dicts = self.create_test_dicts()
@@ -40,7 +47,6 @@ class TestDataItemCRUD:
 
         assert dh.list_dataitems(p.name) == []
         dh.delete_project("test", local=True, clean_context=True)
-
 
     def test_list(self):
         dicts = self.create_test_dicts()
