@@ -3,13 +3,13 @@ from __future__ import annotations
 import pickle
 from typing import Any
 
-from digitalhub_core.entities._base.state import State
-from digitalhub_core.entities.artifact.crud import log_artifact
-from digitalhub_core.entities.artifact.entity._base import Artifact
-from digitalhub_core.utils.logger import LOGGER
-from digitalhub_data.entities.dataitem.crud import log_dataitem
-from digitalhub_data.entities.dataitem.entity.table import DataitemTable
-from digitalhub_data.readers.registry import DATAFRAME_TYPES
+from digitalhub.entities._base.state import State
+from digitalhub.entities.artifact.crud import log_artifact
+from digitalhub.entities.artifact.entity._base import Artifact
+from digitalhub.entities.dataitem.crud import log_dataitem
+from digitalhub.entities.dataitem.entity.table import DataitemTable
+from digitalhub.readers.registry import DATAFRAME_TYPES
+from digitalhub.utils.logger import LOGGER
 
 
 def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict:

@@ -2,15 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from digitalhub_core.utils.generic_utils import (
-    decode_string,
-    extract_archive,
-    get_bucket_and_key,
-    get_s3_source,
-    requests_chunk_download,
-)
-from digitalhub_core.utils.git_utils import clone_repository
-from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_dbt.utils.env import (
     POSTGRES_DATABASE,
     POSTGRES_HOST,
@@ -19,6 +10,16 @@ from digitalhub_runtime_dbt.utils.env import (
     POSTGRES_SCHEMA,
     POSTGRES_USER,
 )
+
+from digitalhub.utils.generic_utils import (
+    decode_string,
+    extract_archive,
+    get_bucket_and_key,
+    get_s3_source,
+    requests_chunk_download,
+)
+from digitalhub.utils.git_utils import clone_repository
+from digitalhub.utils.logger import LOGGER
 
 ##############################
 # Templates

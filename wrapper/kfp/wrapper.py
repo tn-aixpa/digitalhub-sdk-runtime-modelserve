@@ -3,10 +3,9 @@ Wrapper to execute an arbitrary function.
 """
 import os
 
-from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.utils.logger import LOGGER
-
 import digitalhub as dh
+from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.utils.logger import LOGGER
 
 
 def main():

@@ -8,9 +8,10 @@ from datetime import datetime
 from io import BytesIO
 from typing import Any
 
-from digitalhub_core.entities._base.state import State
-from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_kfp.dsl import label_prefix
+
+from digitalhub.entities._base.state import State
+from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from kfp import Client

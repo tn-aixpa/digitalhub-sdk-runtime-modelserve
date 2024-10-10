@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from digitalhub_core.entities.function.spec import FunctionParams, FunctionSpec
 from digitalhub_runtime_python.entities.function.models import SourceCodeParamsPython, SourceCodeStructPython
+
+from digitalhub.entities.function.spec import FunctionParams, FunctionSpec
 
 
 class FunctionSpecPython(FunctionSpec):

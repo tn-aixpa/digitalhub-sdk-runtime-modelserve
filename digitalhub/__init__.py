@@ -1,113 +1,81 @@
-from digitalhub_core import (
+from digitalhub.entities.artifact.crud import (
     delete_artifact,
-    delete_function,
-    delete_project,
-    delete_run,
-    delete_secret,
-    delete_task,
-    delete_workflow,
     get_artifact,
     get_artifact_versions,
-    get_function,
-    get_function_versions,
-    get_run,
-    get_secret,
-    get_secret_versions,
-    get_task,
-    get_workflow,
-    get_workflow_versions,
     import_artifact,
-    import_function,
-    import_run,
-    import_secret,
-    import_task,
-    import_workflow,
     list_artifacts,
-    list_functions,
-    list_runs,
-    list_secrets,
-    list_tasks,
-    list_workflows,
     log_artifact,
     new_artifact,
-    new_function,
-    new_run,
-    new_secret,
-    new_task,
-    new_workflow,
-    refresh_token,
-    set_dhcore_env,
-    set_store,
     update_artifact,
+)
+from digitalhub.entities.dataitem.crud import (
+    delete_dataitem,
+    get_dataitem,
+    get_dataitem_versions,
+    import_dataitem,
+    list_dataitems,
+    log_dataitem,
+    new_dataitem,
+    update_dataitem,
+)
+from digitalhub.entities.function.crud import (
+    delete_function,
+    get_function,
+    get_function_versions,
+    import_function,
+    list_functions,
+    new_function,
     update_function,
+)
+from digitalhub.entities.model.crud import (
+    delete_model,
+    get_model,
+    get_model_versions,
+    import_model,
+    list_models,
+    log_model,
+    new_model,
+    update_model,
+)
+from digitalhub.entities.project.crud import (
+    delete_project,
+    get_or_create_project,
+    get_project,
+    import_project,
+    load_project,
+    new_project,
     update_project,
-    update_run,
+)
+from digitalhub.entities.run.crud import delete_run, get_run, import_run, list_runs, new_run, update_run
+from digitalhub.entities.secret.crud import (
+    delete_secret,
+    get_secret,
+    get_secret_versions,
+    import_secret,
+    list_secrets,
+    new_secret,
     update_secret,
-    update_task,
+)
+from digitalhub.entities.task.crud import delete_task, get_task, import_task, list_tasks, new_task, update_task
+from digitalhub.entities.workflow.crud import (
+    delete_workflow,
+    get_workflow,
+    get_workflow_versions,
+    import_workflow,
+    list_workflows,
+    new_workflow,
     update_workflow,
 )
-from digitalhub_core.registry.utils import register_layer_entities, register_runtimes_entities
 
-_PROJECT_IMPORTED = False
+try:
+    from digitalhub.entities.model.entity.mlflow import from_mlflow_run
+except ImportError:
+    ...
 
-if not _PROJECT_IMPORTED:
-    try:
-        from digitalhub_data import (
-            delete_dataitem,
-            get_dataitem,
-            get_dataitem_versions,
-            import_dataitem,
-            list_dataitems,
-            log_dataitem,
-            new_dataitem,
-            update_dataitem,
-        )
-        from digitalhub_ml import (
-            delete_model,
-            get_model,
-            get_model_versions,
-            get_or_create_project,
-            get_project,
-            import_model,
-            import_project,
-            list_models,
-            load_project,
-            log_model,
-            new_model,
-            new_project,
-            update_model,
-        )
-
-        _PROJECT_IMPORTED = True
-    except ImportError:
-        ...
-
-if not _PROJECT_IMPORTED:
-    try:
-        from digitalhub_data import (
-            delete_dataitem,
-            get_dataitem,
-            get_dataitem_versions,
-            get_or_create_project,
-            get_project,
-            import_dataitem,
-            import_project,
-            list_dataitems,
-            load_project,
-            log_dataitem,
-            new_dataitem,
-            new_project,
-            update_dataitem,
-        )
-
-        _PROJECT_IMPORTED = True
-    except ImportError:
-        ...
-
-if not _PROJECT_IMPORTED:
-    from digitalhub_core import get_or_create_project, get_project, import_project, load_project, new_project
-
+from digitalhub.registry.utils import register_entities, register_runtimes_entities
+from digitalhub.stores.builder import set_store
+from digitalhub.utils.env_utils import refresh_token, set_dhcore_env
 
 # Register entities into registry
-register_layer_entities()
+register_entities()
 register_runtimes_entities()

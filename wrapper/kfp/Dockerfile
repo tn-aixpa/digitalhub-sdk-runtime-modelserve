@@ -9,12 +9,9 @@ ARG VERSION_UPPER=0.9.0
 WORKDIR /app/
 
 # Install digitalhub-core
-RUN python -m pip install "digitalhub-core[full]>=${VERSION_LOWER}, <${VERSION_UPPER}" \
-                          "digitalhub-data[pandas]>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+RUN python -m pip install "digitalhub[pandas]>=${VERSION_LOWER}, <${VERSION_UPPER}" \
                           "digitalhub-runtime-kfp[local]>=${VERSION_LOWER}, <${VERSION_UPPER}" && \
-    python -m pip install "digitalhub>=${VERSION_LOWER}, <${VERSION_UPPER}" \
-                          "digitalhub-ml>=${VERSION_LOWER}, <${VERSION_UPPER}" \
-                          "digitalhub-runtime-python>=${VERSION_LOWER}, <${VERSION_UPPER}" \
+    python -m pip install "digitalhub-runtime-python>=${VERSION_LOWER}, <${VERSION_UPPER}" \
                           "digitalhub-runtime-container>=${VERSION_LOWER}, <${VERSION_UPPER}" \
                           "digitalhub-runtime-modelserve>=${VERSION_LOWER}, <${VERSION_UPPER}" \
                           "digitalhub-runtime-dbt>=${VERSION_LOWER}, <${VERSION_UPPER}" --no-deps

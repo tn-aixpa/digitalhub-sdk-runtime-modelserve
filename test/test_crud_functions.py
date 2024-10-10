@@ -1,9 +1,9 @@
 from copy import deepcopy
 
 import dotenv
-from digitalhub_core.entities.function.entity import Function
 
 import digitalhub
+from digitalhub.entities.function.entity import Function
 
 dotenv.load_dotenv()
 

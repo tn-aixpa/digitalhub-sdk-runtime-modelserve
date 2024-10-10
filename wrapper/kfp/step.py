@@ -6,10 +6,9 @@ import json
 import os
 import time
 
-from digitalhub_core.entities._base.entity.base import Entity
-from digitalhub_core.utils.logger import LOGGER
-
 import digitalhub as dh
+from digitalhub.entities._base.entity.base import Entity
+from digitalhub.utils.logger import LOGGER
 
 # default KFP artifacts and output (ui metadata, metrics etc.)
 # directories to /tmp to allow running with security context

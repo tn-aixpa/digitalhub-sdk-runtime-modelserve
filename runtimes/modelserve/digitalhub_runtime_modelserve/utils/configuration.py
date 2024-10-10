@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from digitalhub_core.utils.exceptions import EntityError
-from digitalhub_core.utils.logger import LOGGER
 from digitalhub_runtime_modelserve.utils._registry import config_function_registry
+
+from digitalhub.utils.exceptions import EntityError
+from digitalhub.utils.logger import LOGGER
 
 
 def get_function_args(action: str, root: str, model_path: str) -> None:

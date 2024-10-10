@@ -1,7 +1,7 @@
 import dotenv
-from digitalhub_core.entities.run.entity import Run
 
 import digitalhub
+from digitalhub.entities.run.entity import Run
 
 dotenv.load_dotenv()
 

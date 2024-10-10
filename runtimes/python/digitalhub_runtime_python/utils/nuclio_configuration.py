@@ -3,8 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable, Union
 
-from digitalhub_core.utils.uri_utils import map_uri_scheme
 from digitalhub_runtime_python.utils.configuration import import_function
+
+from digitalhub.utils.uri_utils import map_uri_scheme
 
 
 def parse_handler(handler: str) -> tuple[Path, str]:

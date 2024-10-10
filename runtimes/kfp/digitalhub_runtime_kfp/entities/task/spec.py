@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.task.spec import TaskParamsK8s, TaskSpecK8s
+from digitalhub.entities.task.spec import TaskParamsK8s, TaskSpecK8s
 
 
 class TaskSpecPipeline(TaskSpecK8s):

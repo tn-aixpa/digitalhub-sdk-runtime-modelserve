@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.entity_types import EntityTypes
-from digitalhub_core.registry.registry import registry
-from digitalhub_core.registry.utils import create_info
 from digitalhub_runtime_python.utils.utils import handler
+
+from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.registry.registry import registry
+from digitalhub.registry.utils import create_info
 
 root = "digitalhub_runtime_python"
 runtime_info = {

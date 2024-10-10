@@ -2,9 +2,9 @@ import shutil
 from copy import deepcopy
 
 import dotenv
-from digitalhub_data.entities.dataitem.entity._base import Dataitem
 
 import digitalhub as dh
+from digitalhub.entities.dataitem.entity._base import Dataitem
 
 dotenv.load_dotenv()
 

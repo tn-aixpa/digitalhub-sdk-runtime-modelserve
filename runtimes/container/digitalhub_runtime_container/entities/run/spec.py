@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_core.entities.run.spec import RunParams, RunSpec
+from digitalhub.entities.run.spec import RunParams, RunSpec
 
 
 class RunSpecContainer(RunSpec):
