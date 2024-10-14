@@ -2,13 +2,11 @@
 Unit tests for the entity Dataitem
 """
 
-from digitalhub.entities.dataitem.entity._base import Dataitem
-
 import digitalhub as dh
+from digitalhub.entities.dataitem.entity._base import Dataitem
 
 
 class TestDataitemCRUD:
-
     def create_test_dicts(self):
         names = ["test1", "test2", "test3", "test4"]
         uuids = [
@@ -27,9 +25,7 @@ class TestDataitemCRUD:
 
         dicts = []
         for i in range(len(names)):
-            dicts.append(
-                {"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]}
-            )
+            dicts.append({"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]})
 
         return dicts
 

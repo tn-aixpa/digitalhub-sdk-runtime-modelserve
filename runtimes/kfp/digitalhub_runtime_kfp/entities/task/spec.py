@@ -44,15 +44,3 @@ class TaskParamsPipeline(TaskParamsK8s):
 
     schedule: str = None
     """KFP schedule specification."""
-
-
-class TaskSpecBuild(TaskSpecK8s):
-    """
-    Task Build specification.
-    """
-
-
-class TaskParamsBuild(TaskParamsK8s):
-    """
-    TaskParamsBuild model.
-    """

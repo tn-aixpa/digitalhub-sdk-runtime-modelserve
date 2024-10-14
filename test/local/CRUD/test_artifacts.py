@@ -2,13 +2,11 @@
 Unit tests for the entity Artifact
 """
 
-from digitalhub.entities.artifact.entity._base import Artifact
-
 import digitalhub as dh
+from digitalhub.entities.artifact.entity._base import Artifact
 
 
 class TestArtifactCRUD:
-
     def create_test_dicts(self):
         names = ["test1", "test2", "test3", "test4"]
         uuids = [
@@ -27,9 +25,7 @@ class TestArtifactCRUD:
 
         dicts = []
         for i in range(len(names)):
-            dicts.append(
-                {"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]}
-            )
+            dicts.append({"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]})
 
         return dicts
 

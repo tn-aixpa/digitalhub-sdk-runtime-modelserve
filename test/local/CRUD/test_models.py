@@ -2,12 +2,11 @@
 Unit tests for the entity Models
 """
 
+import digitalhub as dh
 from digitalhub.entities.model.entity._base import Model
 
-import digitalhub as dh
 
 class TestModelCRUD:
-
     def create_test_dicts(self):
         names = ["test1", "test2", "test3", "test4"]
         uuids = [
@@ -26,9 +25,7 @@ class TestModelCRUD:
 
         dicts = []
         for i in range(len(names)):
-            dicts.append(
-                {"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]}
-            )
+            dicts.append({"name": names[i], "uuid": uuids[i], "path": paths[i], "kind": kind[i]})
 
         return dicts
 
@@ -45,8 +42,6 @@ class TestModelCRUD:
             p.delete_model(d.key)
         assert dh.list_models(p.name) == []
         dh.delete_project("test", local=True, clean_context=True)
-
-
 
     def test_list(self):
         dicts = self.create_test_dicts()
@@ -71,7 +66,6 @@ class TestModelCRUD:
         assert len(dh.list_models(p.name)) == 0
 
         dh.delete_project("test", clean_context=True, local=True)
-
 
     def test_get(self):
         dicts = self.create_test_dicts()

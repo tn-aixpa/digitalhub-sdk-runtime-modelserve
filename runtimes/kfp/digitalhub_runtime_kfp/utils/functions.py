@@ -12,7 +12,6 @@ from digitalhub_runtime_kfp.utils.outputs import build_status
 from kfp.compiler import compiler
 
 import digitalhub as dh
-from digitalhub.entities._base.state import State
 from digitalhub.utils.io_utils import read_text
 
 
@@ -83,11 +82,14 @@ def run_kfp_pipeline(run: dict) -> dict:
         # workaround to pass the project implicitly
         workflow = run.get("spec", {}).get("workflow", None)
 
-        # workflow was not built locally
+        # workflow was not built locally, need to replicate the build
         if workflow is None:
-            run_status = {"state": State.ERROR.value}
-            _update_status(run.get("key"), run_status)
-            return run_status
+            dhcore_run = dh.get_run(run.get("key"))
+            workflow = build_kfp_pipeline(run, pipeline)
+            dhcore_run.spec.workflow = workflow
+
+            # Check if this actually work in core
+            dhcore_run.save(update=True)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline_package_path = Path(tmpdir, "pipeline.yaml")
@@ -114,52 +116,6 @@ def run_kfp_pipeline(run: dict) -> dict:
         return run_status
 
     return _kfp_execution
-
-
-def run_kfp_build(run: dict) -> dict:
-    """
-    Run KFP pipeline build.
-
-    Parameters
-    ----------
-    run: dict
-        Run dictionary.
-
-    Returns
-    -------
-    dict
-        Execution results.
-    """
-
-    def _kfp_build_execution(pipeline: Callable, function_args) -> dict:
-        """
-        Run KFP build.
-
-        Parameters
-        ----------
-        pipeline : Callable
-            KFP pipeline function.
-        function_args: dict
-            Function arguments.
-
-        Returns
-        -------
-        dict
-            Execution results.
-        """
-
-        # workaround to pass the project implicitly
-        workflow = run.get("spec", {}).get("workflow", None)
-
-        # need to replicate the build
-        workflow = build_kfp_pipeline(run, pipeline)
-
-        run_status = {"state": State.COMPLETED.value, "results": {"workflow": workflow}}
-        _update_status(run.get("key"), run_status)
-
-        return run_status
-
-    return _kfp_build_execution
 
 
 def _update_status(key: dict, status: dict) -> None:

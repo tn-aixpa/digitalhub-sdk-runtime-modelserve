@@ -7,9 +7,3 @@ class TaskStatusPipeline(TaskStatus):
     """
     Task Pipeline status.
     """
-
-
-class TaskStatusBuild(TaskStatus):
-    """
-    Task Build status.
-    """
