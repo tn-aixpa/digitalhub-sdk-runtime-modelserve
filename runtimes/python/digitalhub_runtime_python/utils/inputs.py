@@ -57,7 +57,7 @@ def get_entity_inputs(inputs: dict) -> dict[str, Entity]:
     Returns
     -------
     dict
-        Mlrun inputs.
+        Dictionary of inputs.
     """
     try:
         inputs_objects = {}
