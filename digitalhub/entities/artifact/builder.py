@@ -10,13 +10,13 @@ from digitalhub.entities._builders.uuid import build_uuid
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.artifact.entity._base import Artifact
+    from digitalhub.entities.artifact._base.entity import Artifact
 
 # Manage class mapper
 cls_mapper = {}
 
 try:
-    from digitalhub.entities.artifact.entity.artifact import ArtifactArtifact
+    from digitalhub.entities.artifact.artifact.entity import ArtifactArtifact
 
     cls_mapper["artifact"] = ArtifactArtifact
 except ImportError:

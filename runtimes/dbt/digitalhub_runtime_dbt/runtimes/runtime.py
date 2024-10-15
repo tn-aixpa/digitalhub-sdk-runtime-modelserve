@@ -25,7 +25,7 @@ from digitalhub.utils.logger import LOGGER
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
 
-    from digitalhub.entities.dataitem.entity._base import Dataitem
+    from digitalhub.entities.dataitem._base.entity import Dataitem
     from digitalhub.runtimes.kind_registry import KindRegistry
 
 

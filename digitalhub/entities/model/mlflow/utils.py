@@ -1,17 +1,8 @@
-from __future__ import annotations
-
 from urllib.parse import urlparse
 
 import mlflow
 
-from digitalhub.entities.model.entity._base import Model
-from digitalhub.entities.model.models import Dataset, Signature
-
-
-class ModelMlflow(Model):
-    """
-    Mlflow model.
-    """
+from digitalhub.entities.model.mlflow.models import Dataset, Signature
 
 
 def from_mlflow_run(run_id: str) -> dict:

@@ -3,7 +3,7 @@ Unit tests for the entity Dataitem
 """
 
 import digitalhub as dh
-from digitalhub.entities.dataitem.entity._base import Dataitem
+from digitalhub.entities.dataitem._base.entity import Dataitem
 
 
 class TestDataitemCRUD:

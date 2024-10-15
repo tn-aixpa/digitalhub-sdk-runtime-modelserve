@@ -9,7 +9,7 @@ from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.dataitem.entity.table import DataitemTable
+    from digitalhub.entities.dataitem.table.entity import DataitemTable
 
 
 def materialize_dataitem(dataitem: DataitemTable, name: str) -> str:

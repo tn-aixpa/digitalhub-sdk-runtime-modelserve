@@ -10,32 +10,32 @@ from digitalhub.entities._builders.uuid import build_uuid
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.model.entity._base import Model
+    from digitalhub.entities.model._base.entity import Model
 
 # Manage class mapper
 cls_mapper = {}
 
 try:
-    from digitalhub.entities.model.entity.model import ModelModel
+    from digitalhub.entities.model.model.entity import ModelModel
 
     cls_mapper["model"] = ModelModel
 except ImportError:
     ...
 
 try:
-    from digitalhub.entities.model.entity.mlflow import ModelMlflow
+    from digitalhub.entities.model.mlflow.entity import ModelMlflow
 
     cls_mapper["mlflow"] = ModelMlflow
 except ImportError:
     ...
 try:
-    from digitalhub.entities.model.entity.sklearn import ModelSklearn
+    from digitalhub.entities.model.sklearn.entity import ModelSklearn
 
     cls_mapper["sklearn"] = ModelSklearn
 except ImportError:
     ...
 try:
-    from digitalhub.entities.model.entity.huggingface import ModelHuggingface
+    from digitalhub.entities.model.huggingface.entity import ModelHuggingface
 
     cls_mapper["huggingface"] = ModelHuggingface
 except ImportError:

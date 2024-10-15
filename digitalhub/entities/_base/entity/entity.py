@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from abc import ABCMeta, abstractmethod
 
-from digitalhub.entities._base.model_object.entity import ModelObj
+from digitalhub.entities._base._base.entity import Base
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.status import Status
 
 
-class Entity(ModelObj, metaclass=ABCMeta):
+class Entity(Base, metaclass=ABCMeta):
     """
     Abstract class for entities.
 

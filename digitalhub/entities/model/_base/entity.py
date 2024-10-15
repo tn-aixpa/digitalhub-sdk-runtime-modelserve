@@ -7,20 +7,16 @@ from digitalhub.entities.utils.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
-    from digitalhub.entities.artifact.spec import ArtifactSpec
-    from digitalhub.entities.artifact.status import ArtifactStatus
+    from digitalhub.entities.model._base.spec import ModelSpec
+    from digitalhub.entities.model._base.status import ModelStatus
 
 
-class Artifact(MaterialEntity):
+class Model(MaterialEntity):
     """
-    A class representing a artifact.
-
-    Artifacts are (binary) objects stored in one of the artifact
-    stores of the platform, and available to every process, module
-    and component as files.
+    A class representing a model.
     """
 
-    ENTITY_TYPE = EntityTypes.ARTIFACT.value
+    ENTITY_TYPE = EntityTypes.MODEL.value
 
     def __init__(
         self,
@@ -29,11 +25,10 @@ class Artifact(MaterialEntity):
         uuid: str,
         kind: str,
         metadata: Metadata,
-        spec: ArtifactSpec,
-        status: ArtifactStatus,
+        spec: ModelSpec,
+        status: ModelStatus,
         user: str | None = None,
     ) -> None:
         super().__init__(project, name, uuid, kind, metadata, spec, status, user)
-
-        self.spec: ArtifactSpec
-        self.status: ArtifactStatus
+        self.spec: ModelSpec
+        self.status: ModelStatus

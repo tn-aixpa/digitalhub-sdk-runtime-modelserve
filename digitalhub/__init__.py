@@ -68,7 +68,7 @@ from digitalhub.entities.workflow.crud import (
 )
 
 try:
-    from digitalhub.entities.model.entity.mlflow import from_mlflow_run
+    from digitalhub.entities.model.mlflow.utils import from_mlflow_run
 except ImportError:
     ...
 

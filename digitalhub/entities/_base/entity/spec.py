@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from digitalhub.entities._base.model_object.entity import ModelObj
+from digitalhub.entities._base._base.entity import Base
 
 
-class Spec(ModelObj):
+class Spec(Base):
     """
     A class representing the specification of an entity.
     Specification is a collection of information about an entity

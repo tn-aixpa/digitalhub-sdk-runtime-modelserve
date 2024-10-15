@@ -17,7 +17,7 @@ from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.model.entity._base import Model
+    from digitalhub.entities.model._base.entity import Model
 
 
 ENTITY_TYPE = EntityTypes.MODEL.value

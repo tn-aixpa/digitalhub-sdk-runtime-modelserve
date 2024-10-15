@@ -3,7 +3,7 @@ from __future__ import annotations
 from pydantic import Field
 
 from digitalhub.entities._base.material.spec import MaterialSpec, MaterialValidator
-from digitalhub.entities.dataitem.models import TableSchema
+from digitalhub.entities.dataitem.table.models import TableSchema
 
 
 class DataitemSpec(MaterialSpec):

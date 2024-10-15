@@ -3,7 +3,7 @@ from __future__ import annotations
 from digitalhub.utils.generic_utils import dict_to_json
 
 
-class ModelObj:
+class Base:
     """
     Base class for all entities.
     It implements to_dict abd to_json method to represent

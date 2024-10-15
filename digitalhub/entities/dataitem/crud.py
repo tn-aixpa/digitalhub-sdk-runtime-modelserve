@@ -22,7 +22,7 @@ from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.dataitem.entity._base import Dataitem
+    from digitalhub.entities.dataitem._base.entity import Dataitem
 
 
 ENTITY_TYPE = EntityTypes.DATAITEM.value

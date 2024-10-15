@@ -1,19 +1,40 @@
 from __future__ import annotations
 
 import shutil
+import typing
 from pathlib import Path
 from typing import Any
 
 from digitalhub.datastores.builder import get_datastore
-from digitalhub.entities.dataitem.entity._base import Dataitem
+from digitalhub.entities.dataitem._base.entity import Dataitem
 from digitalhub.utils.uri_utils import check_local_path
+
+if typing.TYPE_CHECKING:
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities.dataitem.table.spec import DataitemSpecTable
+    from digitalhub.entities.dataitem.table.status import DataitemStatusTable
 
 
 class DataitemTable(Dataitem):
+    """
+    DataitemTable class.
+    """
 
-    """
-    Table dataitem.
-    """
+    def __init__(
+        self,
+        project: str,
+        name: str,
+        uuid: str,
+        kind: str,
+        metadata: Metadata,
+        spec: DataitemSpecTable,
+        status: DataitemStatusTable,
+        user: str | None = None,
+    ) -> None:
+        super().__init__(project, name, uuid, kind, metadata, spec, status, user)
+
+        self.spec: DataitemSpecTable
+        self.status: DataitemStatusTable
 
     def as_df(
         self,

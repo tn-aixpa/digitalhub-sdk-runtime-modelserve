@@ -17,7 +17,7 @@ from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.artifact.entity._base import Artifact
+    from digitalhub.entities.artifact._base.entity import Artifact
 
 
 ENTITY_TYPE = EntityTypes.ARTIFACT.value

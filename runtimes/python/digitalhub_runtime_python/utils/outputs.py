@@ -3,10 +3,10 @@ from __future__ import annotations
 import pickle
 from typing import Any
 
+from digitalhub.entities.artifact._base.entity import Artifact
 from digitalhub.entities.artifact.crud import log_artifact
-from digitalhub.entities.artifact.entity._base import Artifact
 from digitalhub.entities.dataitem.crud import log_dataitem
-from digitalhub.entities.dataitem.entity.table import DataitemTable
+from digitalhub.entities.dataitem.table.entity import DataitemTable
 from digitalhub.entities.utils.state import State
 from digitalhub.readers.registry import DATAFRAME_TYPES
 from digitalhub.utils.logger import LOGGER

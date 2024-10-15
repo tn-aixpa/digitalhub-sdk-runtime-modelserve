@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.model_object.entity import ModelObj
+from digitalhub.entities._base._base.entity import Base
 
 
-class Metadata(ModelObj):
+class Metadata(Base):
     """
     A class representing the metadata of an entity.
     Metadata is a collection of information about an entity thought

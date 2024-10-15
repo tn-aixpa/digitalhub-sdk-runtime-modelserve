@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.model_object.entity import ModelObj
+from digitalhub.entities._base._base.entity import Base
 
 
-class Status(ModelObj):
+class Status(Base):
     """
     Base Status class.
     The status class contains information about the state of an entity,

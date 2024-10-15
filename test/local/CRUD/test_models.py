@@ -3,7 +3,7 @@ Unit tests for the entity Models
 """
 
 import digitalhub as dh
-from digitalhub.entities.model.entity._base import Model
+from digitalhub.entities.model._base.entity import Model
 
 
 class TestModelCRUD:

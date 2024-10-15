@@ -10,24 +10,24 @@ from digitalhub.entities._builders.uuid import build_uuid
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.dataitem.entity._base import Dataitem
+    from digitalhub.entities.dataitem._base.entity import Dataitem
 
 # Manage class mapper
 cls_mapper = {}
 try:
-    from digitalhub.entities.dataitem.entity.dataitem import DataitemDataitem
+    from digitalhub.entities.dataitem.dataitem.entity import DataitemDataitem
 
     cls_mapper["dataitem"] = DataitemDataitem
 except ImportError:
     ...
 try:
-    from digitalhub.entities.dataitem.entity.table import DataitemTable
+    from digitalhub.entities.dataitem.table.entity import DataitemTable
 
     cls_mapper["table"] = DataitemTable
 except ImportError:
     ...
 try:
-    from digitalhub.entities.dataitem.entity.iceberg import DataitemIceberg
+    from digitalhub.entities.dataitem.iceberg.entity import DataitemIceberg
 
     cls_mapper["iceberg"] = DataitemIceberg
 except ImportError:

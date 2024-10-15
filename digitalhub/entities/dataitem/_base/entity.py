@@ -10,8 +10,8 @@ from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
-    from digitalhub.entities.dataitem.spec import DataitemSpec
-    from digitalhub.entities.dataitem.status import DataitemStatus
+    from digitalhub.entities.dataitem._base.spec import DataitemSpec
+    from digitalhub.entities.dataitem._base.status import DataitemStatus
 
 
 class Dataitem(MaterialEntity):

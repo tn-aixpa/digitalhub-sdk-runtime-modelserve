@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from digitalhub.entities._base.material.spec import MaterialSpec, MaterialValidator
-from digitalhub.entities.model.models import Dataset, Signature
+from digitalhub.entities.model.mlflow.models import Dataset, Signature
 
 
 class ModelSpec(MaterialSpec):
