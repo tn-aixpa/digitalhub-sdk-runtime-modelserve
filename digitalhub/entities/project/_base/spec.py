@@ -5,7 +5,7 @@ from digitalhub.entities._base.entity.spec import Spec, SpecValidator
 
 class ProjectSpec(Spec):
     """
-    Project specifications.
+    ProjectSpec specifications.
     """
 
     def __init__(
@@ -28,7 +28,7 @@ class ProjectSpec(Spec):
 
 class ProjectValidator(SpecValidator):
     """
-    Parameters model for project.
+    ProjectValidator validator.
     """
 
     context: str = None

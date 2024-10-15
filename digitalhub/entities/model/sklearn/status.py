@@ -5,5 +5,5 @@ from digitalhub.entities.model._base.status import ModelStatus
 
 class ModelStatusSklearn(ModelStatus):
     """
-    Status class for model entities.
+    ModelStatusSklearn status.
     """

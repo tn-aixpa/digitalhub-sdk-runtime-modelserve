@@ -5,11 +5,11 @@ from digitalhub.entities._base.entity.spec import Spec, SpecValidator
 
 class WorkflowSpec(Spec):
     """
-    Workflow specifications.
+    WorkflowSpec specifications.
     """
 
 
 class WorkflowValidator(SpecValidator):
     """
-    Workflow parameters.
+    WorkflowValidator validator.
     """

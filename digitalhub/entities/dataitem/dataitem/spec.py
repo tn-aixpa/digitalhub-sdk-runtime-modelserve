@@ -5,11 +5,11 @@ from digitalhub.entities.dataitem._base.spec import DataitemSpec, DataitemValida
 
 class DataitemSpecDataitem(DataitemSpec):
     """
-    Dataitem dataitem specifications.
+    DataitemSpecDataitem specifications.
     """
 
 
 class DataitemValidatorDataitem(DataitemValidator):
     """
-    Dataitem dataitem parameters.
+    DataitemValidatorDataitem validator.
     """

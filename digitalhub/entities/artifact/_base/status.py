@@ -5,5 +5,5 @@ from digitalhub.entities._base.material.status import MaterialStatus
 
 class ArtifactStatus(MaterialStatus):
     """
-    Status class for artifact entities.
+    ArtifactStatus status.
     """

@@ -5,11 +5,11 @@ from digitalhub.entities._base.material.spec import MaterialSpec, MaterialValida
 
 class DataitemSpec(MaterialSpec):
     """
-    Dataitem specifications.
+    DataitemSpec specifications.
     """
 
 
 class DataitemValidator(MaterialValidator):
     """
-    Dataitem parameters.
+    DataitemValidator validator.
     """

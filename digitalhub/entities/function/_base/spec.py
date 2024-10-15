@@ -5,11 +5,11 @@ from digitalhub.entities._base.entity.spec import Spec, SpecValidator
 
 class FunctionSpec(Spec):
     """
-    specifications.for a Function.
+    FunctionSpec specifications.
     """
 
 
 class FunctionValidator(SpecValidator):
     """
-    Function parameters model.
+    FunctionValidator validator.
     """

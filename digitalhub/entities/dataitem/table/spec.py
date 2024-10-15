@@ -8,7 +8,7 @@ from digitalhub.entities.dataitem.table.models import TableSchema
 
 class DataitemSpecTable(DataitemSpec):
     """
-    Dataitem table specifications.
+    DataitemSpecTable specifications.
     """
 
     def __init__(self, path: str, schema: dict | None = None) -> None:
@@ -18,7 +18,7 @@ class DataitemSpecTable(DataitemSpec):
 
 class DataitemValidatorTable(DataitemValidator):
     """
-    Dataitem table parameters.
+    DataitemValidatorTable validator.
     """
 
     schema_: TableSchema = Field(default=None, alias="schema")

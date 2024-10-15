@@ -22,7 +22,7 @@ ENTITY_FUNC = {
 
 
 class RunSpec(Spec):
-    """Run specifications."""
+    """RunSpec specifications."""
 
     def __init__(
         self,
@@ -140,7 +140,7 @@ class RunSpec(Spec):
 
 class RunValidator(SpecValidator, K8s):
     """
-    Run parameters.
+    RunValidator validator.
     """
 
     function: str = None

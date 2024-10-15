@@ -5,7 +5,7 @@ from digitalhub.entities._base.entity.spec import Spec, SpecValidator
 
 class SecretSpec(Spec):
     """
-    Secret specifications.
+    SecretSpec specifications.
     """
 
     def __init__(self, path: str | None = None, provider: str | None = None, **kwargs) -> None:
@@ -25,7 +25,7 @@ class SecretSpec(Spec):
 
 class SecretValidator(SpecValidator):
     """
-    Secret parameters.
+    SecretValidator validator.
     """
 
     path: str = None

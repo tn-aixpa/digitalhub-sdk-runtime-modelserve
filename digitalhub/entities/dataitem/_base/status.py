@@ -5,7 +5,7 @@ from digitalhub.entities._base.material.status import MaterialStatus
 
 class DataitemStatus(MaterialStatus):
     """
-    Status class for dataitem entities.
+    DataitemStatus status.
     """
 
     def __init__(

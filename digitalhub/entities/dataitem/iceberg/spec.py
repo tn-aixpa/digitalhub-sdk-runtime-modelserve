@@ -5,11 +5,11 @@ from digitalhub.entities.dataitem._base.spec import DataitemSpec, DataitemValida
 
 class DataitemSpecIceberg(DataitemSpec):
     """
-    Dataitem iceberg specifications.
+    DataitemSpecIceberg specifications.
     """
 
 
 class DataitemValidatorIceberg(DataitemValidator):
     """
-    Dataitem iceberg parameters.
+    DataitemValidatorIceberg validator.
     """

@@ -5,13 +5,15 @@ from digitalhub.entities.task._base.models import K8s
 
 
 class TaskSpec(Spec):
-    """Task specifications."""
+    """TaskSpec specifications."""
 
     def __init__(self, function: str) -> None:
         self.function = function
 
 
 class TaskSpecK8s(TaskSpec):
+    """TaskSpecK8s specifications."""
+
     def __init__(
         self,
         function: str,
@@ -38,7 +40,7 @@ class TaskSpecK8s(TaskSpec):
 
 class TaskValidator(SpecValidator):
     """
-    Base task model.
+    TaskValidator validator.
     """
 
     function: str
@@ -47,5 +49,5 @@ class TaskValidator(SpecValidator):
 
 class TaskValidatorK8s(TaskValidator, K8s):
     """
-    Kubernetes task model.
+    TaskValidatorK8s validator.
     """

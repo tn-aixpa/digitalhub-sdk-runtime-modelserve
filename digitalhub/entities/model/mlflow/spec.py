@@ -6,7 +6,7 @@ from digitalhub.entities.model.mlflow.models import Dataset, Signature
 
 class ModelSpecMlflow(ModelSpec):
     """
-    Mlflow model specifications.
+    ModelSpecMlflow specifications.
     """
 
     def __init__(
@@ -31,7 +31,7 @@ class ModelSpecMlflow(ModelSpec):
 
 class ModelValidatorMlflow(ModelValidator):
     """
-    Mlflow model parameters.
+    ModelValidatorMlflow validator.
     """
 
     flavor: str = None

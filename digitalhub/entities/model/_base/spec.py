@@ -5,7 +5,7 @@ from digitalhub.entities._base.material.spec import MaterialSpec, MaterialValida
 
 class ModelSpec(MaterialSpec):
     """
-    Model specifications.
+    ModelSpec specifications.
     """
 
     def __init__(
@@ -27,7 +27,7 @@ class ModelSpec(MaterialSpec):
 
 class ModelValidator(MaterialValidator):
     """
-    Model parameters.
+    ModelValidator validator.
     """
 
     path: str
@@ -43,7 +43,7 @@ class ModelValidator(MaterialValidator):
     """Base model."""
 
     parameters: dict = None
-    """Model parameters."""
+    """Model validator."""
 
     metrics: dict = None
     """Model metrics."""

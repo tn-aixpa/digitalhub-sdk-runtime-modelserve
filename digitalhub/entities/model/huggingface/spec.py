@@ -5,7 +5,7 @@ from digitalhub.entities.model._base.spec import ModelSpec, ModelValidator
 
 class ModelSpecHuggingface(ModelSpec):
     """
-    Huggingface model specifications.
+    ModelSpecHuggingface specifications.
     """
 
     def __init__(
@@ -26,10 +26,11 @@ class ModelSpecHuggingface(ModelSpec):
 
 class ModelValidatorHuggingface(ModelValidator):
     """
-    Huggingface model parameters.
+    ModelValidatorHuggingface validator.
     """
 
     model_id: str = None
-    """Huggingface model id. Optional. If not specified, the model is loaded from the model path"""
+    """Huggingface model id. If not specified, the model is loaded from the model path."""
+
     model_revision: str = None
-    """Huggingface model revision. Optional."""
+    """Huggingface model revision."""

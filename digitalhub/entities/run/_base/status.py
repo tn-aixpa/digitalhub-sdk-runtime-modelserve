@@ -16,7 +16,7 @@ ENTITY_FUNC = {
 
 class RunStatus(Status):
     """
-    Status class for run entities.
+    RunStatus status.
     """
 
     def __init__(

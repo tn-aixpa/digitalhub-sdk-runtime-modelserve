@@ -5,11 +5,11 @@ from digitalhub.entities.model._base.spec import ModelSpec, ModelValidator
 
 class ModelSpecModel(ModelSpec):
     """
-    Model specifications.
+    ModelSpecModel specifications.
     """
 
 
 class ModelValidatorModel(ModelValidator):
     """
-    Model parameters.
+    ModelValidatorModel validator.
     """

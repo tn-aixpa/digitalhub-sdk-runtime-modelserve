@@ -5,11 +5,11 @@ from digitalhub.entities._base.material.spec import MaterialSpec, MaterialValida
 
 class ArtifactSpec(MaterialSpec):
     """
-    Artifact specifications.
+    ArtifactSpec specifications.
     """
 
 
 class ArtifactValidator(MaterialValidator):
     """
-    Artifact base parameters.
+    ArtifactValidator validator.
     """
