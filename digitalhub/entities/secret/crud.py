@@ -11,7 +11,7 @@ from digitalhub.entities._base.crud import (
 )
 from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.secret.builder import secret_from_dict, secret_from_parameters
-from digitalhub.utils.exceptions import EntityAlreadyExistsError
+from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -119,6 +119,14 @@ def get_secret(
     >>>                  project="my-project",
     >>>                  entity_id="my-secret-id")
     """
+    if not identifier.startswith("store://"):
+        secrets = list_secrets(project=project, **kwargs)
+        for secret in secrets:
+            if secret.name == identifier:
+                return secret
+        else:
+            raise EntityNotExistsError(f"Secret {identifier} not found.")
+
     obj = read_entity_api_ctx(
         identifier,
         ENTITY_TYPE,
