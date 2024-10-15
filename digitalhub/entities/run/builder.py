@@ -4,7 +4,7 @@ from digitalhub.entities._builders.metadata import build_metadata
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities._builders.uuid import build_uuid
-from digitalhub.entities.run.entity import Run
+from digitalhub.entities.run._base.entity import Run
 
 
 def run_from_parameters(

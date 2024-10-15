@@ -15,7 +15,7 @@ from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.entity import Entity
-    from digitalhub.entities.project.entity import Project
+    from digitalhub.entities.project._base.entity import Project
 
 
 def get_project_(project_name: str) -> Project:

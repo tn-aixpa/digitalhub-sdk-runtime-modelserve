@@ -6,7 +6,7 @@ from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
 
 
 class TaskSpecServe(TaskSpecK8s):
-    """Task Serve specification."""
+    """Task Serve specifications."""
 
     def __init__(
         self,

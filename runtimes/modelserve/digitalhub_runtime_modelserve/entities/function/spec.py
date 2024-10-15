@@ -5,7 +5,7 @@ from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
 
 class FunctionSpecModelserve(FunctionSpec):
     """
-    Specification for a Function for model serving.
+    specifications.for a Function for model serving.
     """
 
     def __init__(
@@ -37,19 +37,19 @@ class FunctionValidatorModelserve(FunctionValidator):
 
 class FunctionSpecSklearnserve(FunctionSpecModelserve):
     """
-    Specification for a Function for SKLearn model serving.
+    specifications.for a Function for SKLearn model serving.
     """
 
 
 class FunctionSpecMlflowserve(FunctionSpecModelserve):
     """
-    Specification for a Function for MLFlow model serving.
+    specifications.for a Function for MLFlow model serving.
     """
 
 
 class FunctionSpecHuggingfaceserve(FunctionSpecModelserve):
     """
-    Specification for a Function for HuggingFace model serving.
+    specifications.for a Function for HuggingFace model serving.
     """
 
 

@@ -7,7 +7,7 @@ from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
 
 class FunctionSpecDbt(FunctionSpec):
     """
-    Specification for a Function Dbt.
+    specifications.for a Function Dbt.
     """
 
     def __init__(

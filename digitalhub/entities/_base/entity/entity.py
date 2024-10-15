@@ -15,7 +15,7 @@ class Entity(Base, metaclass=ABCMeta):
     """
     Abstract class for entities.
 
-    An entity is a collection of metadata, specification and status
+    An entity is a collection of metadata, specifications.and status
     representing a variety of objects handled by Digitalhub.
     """
 

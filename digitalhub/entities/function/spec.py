@@ -5,7 +5,7 @@ from digitalhub.entities._base.entity.spec import Spec, SpecValidator
 
 class FunctionSpec(Spec):
     """
-    Specification for a Function.
+    specifications.for a Function.
     """
 
 

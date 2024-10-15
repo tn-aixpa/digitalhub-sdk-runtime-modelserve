@@ -4,7 +4,7 @@ from digitalhub.entities.run.spec import RunSpec, RunValidator
 
 
 class RunSpecDbt(RunSpec):
-    """Run Dbt specification."""
+    """Run Dbt specifications."""
 
     def __init__(
         self,

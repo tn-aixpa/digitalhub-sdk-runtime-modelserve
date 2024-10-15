@@ -10,9 +10,9 @@ from digitalhub.utils.exceptions import BackendError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
-    from digitalhub.entities.function.spec import FunctionSpec
-    from digitalhub.entities.function.status import FunctionStatus
-    from digitalhub.entities.run.entity import Run
+    from digitalhub.entities.function._base.spec import FunctionSpec
+    from digitalhub.entities.function._base.status import FunctionStatus
+    from digitalhub.entities.run._base.entity import Run
 
 
 class Function(ExecutableEntity):

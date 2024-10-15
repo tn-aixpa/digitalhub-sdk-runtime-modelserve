@@ -10,7 +10,7 @@ from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.run.entity import Run
+    from digitalhub.entities.run._base.entity import Run
 
 
 ENTITY_TYPE = EntityTypes.RUN.value

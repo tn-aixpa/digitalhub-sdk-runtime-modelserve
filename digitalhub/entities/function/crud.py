@@ -15,7 +15,7 @@ from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.function.entity import Function
+    from digitalhub.entities.function._base.entity import Function
 
 ENTITY_TYPE = EntityTypes.FUNCTION.value
 

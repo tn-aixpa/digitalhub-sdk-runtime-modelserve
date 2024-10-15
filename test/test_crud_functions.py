@@ -3,7 +3,7 @@ from copy import deepcopy
 import dotenv
 
 import digitalhub
-from digitalhub.entities.function.entity import Function
+from digitalhub.entities.function._base.entity import Function
 
 dotenv.load_dotenv()
 

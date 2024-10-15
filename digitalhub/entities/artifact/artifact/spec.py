@@ -5,7 +5,7 @@ from digitalhub.entities.artifact._base.spec import ArtifactSpec, ArtifactValida
 
 class ArtifactSpecArtifact(ArtifactSpec):
     """
-    Artifact specification.
+    Artifact specifications.
     """
 
     def __init__(

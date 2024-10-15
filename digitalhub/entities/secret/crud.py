@@ -15,7 +15,7 @@ from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityNotExist
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.secret.entity import Secret
+    from digitalhub.entities.secret._base.entity import Secret
 
 
 ENTITY_TYPE = EntityTypes.SECRET.value

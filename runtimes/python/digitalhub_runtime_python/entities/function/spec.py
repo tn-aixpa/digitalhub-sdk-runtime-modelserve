@@ -9,7 +9,7 @@ from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
 
 class FunctionSpecPython(FunctionSpec):
     """
-    Specification for a Function job.
+    specifications.for a Function job.
     """
 
     def __init__(

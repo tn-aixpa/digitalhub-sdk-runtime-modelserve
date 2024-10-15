@@ -5,7 +5,7 @@ from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
 
 class TaskSpecPipeline(TaskSpecK8s):
     """
-    Task Pipeline specification.
+    Task Pipeline specifications.
     """
 
     def __init__(
@@ -20,6 +20,7 @@ class TaskSpecPipeline(TaskSpecK8s):
         secrets: list | None = None,
         profile: str | None = None,
         schedule: str | None = None,
+        workflow: str | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -34,6 +35,7 @@ class TaskSpecPipeline(TaskSpecK8s):
             profile,
             **kwargs,
         )
+        self.workflow = workflow
         self.schedule = schedule
 
 
@@ -42,5 +44,8 @@ class TaskValidatorPipeline(TaskValidatorK8s):
     TaskValidatorPipeline model.
     """
 
+    workflow: str = None
+    """KFP workflow specifications."""
+
     schedule: str = None
-    """KFP schedule specification."""
+    """KFP schedule specifications."""

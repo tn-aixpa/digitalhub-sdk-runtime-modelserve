@@ -5,7 +5,7 @@ from digitalhub.entities._builders.name import build_name
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities._builders.uuid import build_uuid
-from digitalhub.entities.workflow.entity import Workflow
+from digitalhub.entities.workflow._base.entity import Workflow
 
 
 def workflow_from_parameters(

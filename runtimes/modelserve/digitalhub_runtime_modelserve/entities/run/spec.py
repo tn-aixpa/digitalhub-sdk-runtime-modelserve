@@ -4,7 +4,7 @@ from digitalhub.entities.run.spec import RunSpec, RunValidator
 
 
 class RunSpecModelserve(RunSpec):
-    """Run model serving specification."""
+    """Run model serving specifications."""
 
     def __init__(
         self,
@@ -64,15 +64,15 @@ class RunValidatorModelserve(RunValidator):
 
 
 class RunSpecSklearnserve(RunSpecModelserve):
-    """Run SKLearn model serving specification."""
+    """Run SKLearn model serving specifications."""
 
 
 class RunSpecMlflowserve(RunSpecModelserve):
-    """Run MLFLow model serving specification."""
+    """Run MLFLow model serving specifications."""
 
 
 class RunSpecHuggingfaceserve(RunSpecModelserve):
-    """Run Huggingface model serving specification."""
+    """Run Huggingface model serving specifications."""
 
 
 class RunValidatorSklearnserve(RunValidatorModelserve):

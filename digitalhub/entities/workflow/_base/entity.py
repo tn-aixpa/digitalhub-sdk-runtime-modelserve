@@ -9,9 +9,9 @@ from digitalhub.utils.exceptions import BackendError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
-    from digitalhub.entities.run.entity import Run
-    from digitalhub.entities.workflow.spec import WorkflowSpec
-    from digitalhub.entities.workflow.status import WorkflowStatus
+    from digitalhub.entities.run._base.entity import Run
+    from digitalhub.entities.workflow._base.spec import WorkflowSpec
+    from digitalhub.entities.workflow._base.status import WorkflowStatus
 
 
 class Workflow(ExecutableEntity):

@@ -4,7 +4,7 @@ from digitalhub.entities._builders.metadata import build_metadata
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities._builders.uuid import build_uuid
-from digitalhub.entities.task.entity import Task
+from digitalhub.entities.task._base.entity import Task
 
 
 def task_from_parameters(

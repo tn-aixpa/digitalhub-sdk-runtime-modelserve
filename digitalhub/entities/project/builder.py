@@ -4,7 +4,7 @@ from digitalhub.entities._builders.metadata import build_metadata
 from digitalhub.entities._builders.name import build_name
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
-from digitalhub.entities.project.entity import Project
+from digitalhub.entities.project._base.entity import Project
 
 
 def project_from_parameters(

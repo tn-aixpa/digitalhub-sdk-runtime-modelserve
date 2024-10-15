@@ -19,7 +19,7 @@ from digitalhub.utils.s3_utils import get_bucket_and_key, get_s3_source
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_kfp.entities.workflow.spec import WorkflowSpecKFP
 
-    from digitalhub.entities.workflow.entity import Workflow
+    from digitalhub.entities.workflow._base.entity import Workflow
 
 
 def get_dhcore_workflow(workflow_string: str) -> Workflow:
@@ -247,7 +247,7 @@ def get_kfp_pipeline(name: str, workflow_source: str, workflow_specs: dict) -> d
     workflow_source : str
         Source of the workflow.
     workflow_specs : dict
-        Specifications of the workflow.
+        specifications.of the workflow.
 
     Returns
     -------

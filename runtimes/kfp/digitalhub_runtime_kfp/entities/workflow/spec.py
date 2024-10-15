@@ -7,7 +7,7 @@ from digitalhub.entities.workflow.spec import WorkflowSpec, WorkflowValidator
 
 class WorkflowSpecKFP(WorkflowSpec):
     """
-    Specification for a Workflow pipeline.
+    specifications.for a Workflow pipeline.
     """
 
     def __init__(

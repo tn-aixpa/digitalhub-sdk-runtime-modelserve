@@ -15,7 +15,7 @@ from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.workflow.entity import Workflow
+    from digitalhub.entities.workflow._base.entity import Workflow
 
 
 ENTITY_TYPE = EntityTypes.WORKFLOW.value

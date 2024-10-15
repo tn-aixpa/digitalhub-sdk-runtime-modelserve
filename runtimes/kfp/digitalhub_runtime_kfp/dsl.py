@@ -216,7 +216,7 @@ class PipelineContext:
         for param, val in outputs.items():
             cmd += ["-oe", f"{param}={val}"]
             if isinstance(val, dsl.PipelineParam):
-                raise Exception("Invalid output specification: cannot use pipeline params")
+                raise Exception("Invalid output specification. cannot use pipeline params")
             else:
                 oname = str(val)
             file_outputs[oname.replace(".", "_")] = f"/tmp/entity_{oname}"  # not using path.join to avoid windows "\"

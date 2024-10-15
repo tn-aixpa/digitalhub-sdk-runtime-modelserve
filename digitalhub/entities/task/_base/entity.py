@@ -8,9 +8,9 @@ from digitalhub.entities.utils.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
-    from digitalhub.entities.run.entity import Run
-    from digitalhub.entities.task.spec import TaskSpec
-    from digitalhub.entities.task.status import TaskStatus
+    from digitalhub.entities.run._base.entity import Run
+    from digitalhub.entities.task._base.spec import TaskSpec
+    from digitalhub.entities.task._base.status import TaskStatus
 
 
 class Task(UnversionedEntity):

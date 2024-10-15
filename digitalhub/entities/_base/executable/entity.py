@@ -13,8 +13,8 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities._base.entity.spec import Spec
     from digitalhub.entities._base.entity.status import Status
-    from digitalhub.entities.run.entity import Run
-    from digitalhub.entities.task.entity import Task
+    from digitalhub.entities.run._base.entity import Run
+    from digitalhub.entities.task._base.entity import Task
 
 
 class ExecutableEntity(VersionedEntity):

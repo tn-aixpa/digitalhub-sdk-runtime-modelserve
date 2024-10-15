@@ -5,7 +5,7 @@ from digitalhub.entities._base.material.spec import MaterialSpec, MaterialValida
 
 class ArtifactSpec(MaterialSpec):
     """
-    Artifact specification.
+    Artifact specifications.
     """
 
 
@@ -17,7 +17,7 @@ class ArtifactValidator(MaterialValidator):
 
 class ArtifactSpecArtifact(ArtifactSpec):
     """
-    Artifact specification.
+    Artifact specifications.
     """
 
     def __init__(

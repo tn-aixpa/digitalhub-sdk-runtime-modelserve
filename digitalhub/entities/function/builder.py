@@ -5,7 +5,7 @@ from digitalhub.entities._builders.name import build_name
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities._builders.uuid import build_uuid
-from digitalhub.entities.function.entity import Function
+from digitalhub.entities.function._base.entity import Function
 
 
 def function_from_parameters(

@@ -27,8 +27,8 @@ from digitalhub.utils.logger import LOGGER
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities._base.material.entity import MaterialEntity
-    from digitalhub.entities.run.spec import RunSpec
-    from digitalhub.entities.run.status import RunStatus
+    from digitalhub.entities.run._base.spec import RunSpec
+    from digitalhub.entities.run._base.status import RunStatus
     from digitalhub.runtimes.base import Runtime
 
 

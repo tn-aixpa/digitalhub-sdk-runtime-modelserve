@@ -8,8 +8,8 @@ from digitalhub.entities.utils.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
-    from digitalhub.entities.secret.spec import SecretSpec
-    from digitalhub.entities.secret.status import SecretStatus
+    from digitalhub.entities.secret._base.spec import SecretSpec
+    from digitalhub.entities.secret._base.status import SecretStatus
 
 
 class Secret(VersionedEntity):

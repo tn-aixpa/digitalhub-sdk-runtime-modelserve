@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from digitalhub.entities.function.models import SourceCodeStruct, SourceCodeValidator
+from digitalhub.entities.function._base.models import SourceCodeStruct, SourceCodeValidator
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.generic_utils import encode_source, encode_string
 from digitalhub.utils.uri_utils import map_uri_scheme
@@ -10,7 +10,7 @@ from digitalhub.utils.uri_utils import map_uri_scheme
 
 class SourceCodeStructContainer(SourceCodeStruct):
     """
-    Source code struct for container.
+    SourceCodeStructContainer struct.
     """
 
     @staticmethod
@@ -58,5 +58,5 @@ class SourceCodeStructContainer(SourceCodeStruct):
 
 class SourceCodeValidatorContainer(SourceCodeValidator):
     """
-    Source code params for container.
+    SourceCodeValidatorContainer validator.
     """

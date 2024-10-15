@@ -4,7 +4,7 @@ from digitalhub.entities.run.spec import RunSpec, RunValidator
 
 
 class RunSpecContainer(RunSpec):
-    """Run Container specification."""
+    """Run Container specifications."""
 
     def __init__(
         self,

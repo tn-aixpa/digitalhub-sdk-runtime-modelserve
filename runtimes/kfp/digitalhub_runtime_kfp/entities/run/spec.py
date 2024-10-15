@@ -4,7 +4,7 @@ from digitalhub.entities.run.spec import RunSpec, RunValidator
 
 
 class RunSpecKFP(RunSpec):
-    """Run KFP specification."""
+    """Run KFP specifications."""
 
     def __init__(
         self,

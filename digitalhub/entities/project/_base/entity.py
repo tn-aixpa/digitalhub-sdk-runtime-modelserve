@@ -90,13 +90,13 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.artifact._base.entity import Artifact
     from digitalhub.entities.dataitem._base.entity import Dataitem
-    from digitalhub.entities.function.entity import Function
+    from digitalhub.entities.function._base.entity import Function
     from digitalhub.entities.model._base.entity import Model
-    from digitalhub.entities.project.spec import ProjectSpec
-    from digitalhub.entities.project.status import ProjectStatus
-    from digitalhub.entities.run.entity import Run
-    from digitalhub.entities.secret.entity import Secret
-    from digitalhub.entities.workflow.entity import Workflow
+    from digitalhub.entities.project._base.spec import ProjectSpec
+    from digitalhub.entities.project._base.status import ProjectStatus
+    from digitalhub.entities.run._base.entity import Run
+    from digitalhub.entities.secret._base.entity import Secret
+    from digitalhub.entities.workflow._base.entity import Workflow
 
 
 ARTIFACTS = EntityTypes.ARTIFACT.value + "s"
