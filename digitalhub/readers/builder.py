@@ -6,7 +6,7 @@ from typing import Any
 from digitalhub.readers.registry import REGISTRY_DATAFRAME, REGISTRY_FRAMEWORK
 
 if typing.TYPE_CHECKING:
-    from digitalhub.readers.objects.base import DataframeReader
+    from digitalhub.readers._base.readers import DataframeReader
 
 
 def get_reader_by_engine(engine: str) -> DataframeReader:

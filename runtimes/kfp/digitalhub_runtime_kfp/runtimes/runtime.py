@@ -10,7 +10,7 @@ from digitalhub_runtime_kfp.utils.configurations import (
     parse_workflow_specs,
     save_workflow_source,
 )
-from digitalhub_runtime_kfp.utils.functions import build_kfp_pipeline, run_kfp_pipeline
+from digitalhub_runtime_kfp.utils.functions import run_kfp_pipeline
 
 from digitalhub.context.builder import get_context
 from digitalhub.runtimes.base import Runtime

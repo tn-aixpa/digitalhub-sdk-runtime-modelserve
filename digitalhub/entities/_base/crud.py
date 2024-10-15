@@ -23,7 +23,7 @@ from digitalhub.entities._base.api import (
 from digitalhub.entities.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
-    from digitalhub.client.objects.base import Client
+    from digitalhub.client._base.client import Client
 
 
 def create_entity_api_base(

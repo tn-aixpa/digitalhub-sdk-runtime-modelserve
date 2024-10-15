@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.datastores.objects.local import LocalDatastore
-from digitalhub.datastores.objects.remote import RemoteDatastore
-from digitalhub.datastores.objects.s3 import S3Datastore
-from digitalhub.datastores.objects.sql import SqlDatastore
+from digitalhub.datastores.local.datastore import LocalDatastore
+from digitalhub.datastores.remote.datastore import RemoteDatastore
+from digitalhub.datastores.s3.datastore import S3Datastore
+from digitalhub.datastores.sql.datastore import SqlDatastore
 from digitalhub.stores.builder import get_default_store, get_store
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from digitalhub.datastores.objects.base import Datastore
-    from digitalhub.stores.objects.base import Store
+    from digitalhub.datastores._base.datastore import Datastore
+    from digitalhub.stores._base.store import Store
 
 
 REGISTRY_DATASTORES = {"local": LocalDatastore, "remote": RemoteDatastore, "s3": S3Datastore, "sql": SqlDatastore}

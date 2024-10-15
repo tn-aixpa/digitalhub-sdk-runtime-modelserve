@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.client.objects.dhcore import ClientDHCore
-from digitalhub.client.objects.local import ClientLocal
+from digitalhub.client.dhcore.client import ClientDHCore
+from digitalhub.client.local.client import ClientLocal
 
 if typing.TYPE_CHECKING:
-    from digitalhub.client.objects.base import Client
+    from digitalhub.client._base.client import Client
 
 
 class ClientBuilder:

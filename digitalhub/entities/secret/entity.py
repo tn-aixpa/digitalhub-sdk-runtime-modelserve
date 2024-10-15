@@ -72,4 +72,3 @@ class Secret(VersionedEntity):
         params = {"keys": self.name}
         data = get_data_api(self.project, self.ENTITY_TYPE, params=params)
         return data[self.name]
-

@@ -5,7 +5,7 @@ REGISTRY_DATAFRAME = {}
 DATAFRAME_TYPES = []
 
 try:
-    from digitalhub.readers.objects.pandas import DataframeReaderPandas
+    from digitalhub.readers.pandas.readers import DataframeReaderPandas
 
     REGISTRY_FRAMEWORK["pandas"] = DataframeReaderPandas
     REGISTRY_DATAFRAME["pandas.core.frame.DataFrame"] = DataframeReaderPandas

@@ -72,9 +72,9 @@ try:
 except ImportError:
     ...
 
+from digitalhub.client.dhcore.utils import refresh_token, set_dhcore_env
 from digitalhub.registry.utils import register_entities, register_runtimes_entities
 from digitalhub.stores.builder import set_store
-from digitalhub.utils.env_utils import refresh_token, set_dhcore_env
 
 # Register entities into registry
 register_entities()

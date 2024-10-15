@@ -5,16 +5,16 @@ import typing
 
 from pydantic import ValidationError
 
-from digitalhub.stores.objects.base import StoreParameters
-from digitalhub.stores.objects.local import LocalStore, LocalStoreConfig
-from digitalhub.stores.objects.remote import RemoteStore, RemoteStoreConfig
-from digitalhub.stores.objects.s3 import S3Store, S3StoreConfig
-from digitalhub.stores.objects.sql import SqlStore, SQLStoreConfig
+from digitalhub.stores._base.store import StoreParameters
+from digitalhub.stores.local.store import LocalStore, LocalStoreConfig
+from digitalhub.stores.remote.store import RemoteStore, RemoteStoreConfig
+from digitalhub.stores.s3.store import S3Store, S3StoreConfig
+from digitalhub.stores.sql.store import SqlStore, SQLStoreConfig
 from digitalhub.utils.exceptions import StoreError
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from digitalhub.stores.objects.base import Store
+    from digitalhub.stores._base.store import Store
 
 
 REGISTRY_STORES = {
