@@ -3,11 +3,11 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.crud import get_data_api, set_data_api
-from digitalhub.entities._base.entity.versioned import VersionedEntity
+from digitalhub.entities._base.versioned.versioned import VersionedEntity
 from digitalhub.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
+    from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.secret.spec import SecretSpec
     from digitalhub.entities.secret.status import SecretStatus
 

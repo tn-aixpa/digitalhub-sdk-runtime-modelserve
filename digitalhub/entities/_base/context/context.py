@@ -9,9 +9,9 @@ from digitalhub.utils.generic_utils import get_timestamp
 
 if typing.TYPE_CHECKING:
     from digitalhub.context.context import Context
-    from digitalhub.entities._base.metadata import Metadata
-    from digitalhub.entities._base.spec.base import Spec
-    from digitalhub.entities._base.status.base import Status
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities._base.entity.spec import Spec
+    from digitalhub.entities._base.entity.status import Status
 
 
 class ContextEntity(Entity):

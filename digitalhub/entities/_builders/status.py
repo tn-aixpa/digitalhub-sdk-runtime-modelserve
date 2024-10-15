@@ -7,7 +7,7 @@ from digitalhub.registry.registry import registry
 from digitalhub.registry.utils import import_class
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.status.base import Status
+    from digitalhub.entities._base.entity.status import Status
     from digitalhub.registry.models import RegistryEntry
 
 

@@ -3,12 +3,12 @@ from __future__ import annotations
 import typing
 from abc import ABCMeta, abstractmethod
 
-from digitalhub.entities._base.base import ModelObj
+from digitalhub.entities._base.model_object.entity import ModelObj
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
-    from digitalhub.entities._base.spec.base import Spec
-    from digitalhub.entities._base.status.base import Status
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities._base.entity.spec import Spec
+    from digitalhub.entities._base.entity.status import Status
 
 
 class Entity(ModelObj, metaclass=ABCMeta):

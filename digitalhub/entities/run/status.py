@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.status.base import Status
+from digitalhub.entities._base.entity.status import Status
 from digitalhub.entities.artifact.crud import get_artifact
 from digitalhub.entities.dataitem.crud import get_dataitem
 from digitalhub.entities.entity_types import EntityTypes

@@ -87,7 +87,7 @@ from digitalhub.utils.io_utils import write_yaml
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
+    from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.artifact.entity._base import Artifact
     from digitalhub.entities.dataitem.entity._base import Dataitem
     from digitalhub.entities.function.entity import Function

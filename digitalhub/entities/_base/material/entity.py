@@ -4,13 +4,13 @@ import typing
 from pathlib import Path
 
 from digitalhub.entities._base.crud import files_info_get_api, files_info_put_api
-from digitalhub.entities._base.entity.versioned import VersionedEntity
+from digitalhub.entities._base.versioned.versioned import VersionedEntity
 from digitalhub.stores.builder import get_store
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
-    from digitalhub.entities._base.spec.material import MaterialSpec
-    from digitalhub.entities._base.status.material import MaterialStatus
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities._base.material.spec import MaterialSpec
+    from digitalhub.entities._base.material.status import MaterialStatus
 
 
 class MaterialEntity(VersionedEntity):

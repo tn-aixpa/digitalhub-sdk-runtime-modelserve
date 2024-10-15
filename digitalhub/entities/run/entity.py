@@ -14,8 +14,8 @@ from digitalhub.entities._base.crud import (
     resume_api,
     stop_api,
 )
-from digitalhub.entities._base.entity.unversioned import UnversionedEntity
 from digitalhub.entities._base.state import State
+from digitalhub.entities._base.unversioned.unversioned import UnversionedEntity
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities.entity_types import EntityTypes
@@ -25,8 +25,8 @@ from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.entity.material import MaterialEntity
-    from digitalhub.entities._base.metadata import Metadata
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities._base.material.entity import MaterialEntity
     from digitalhub.entities.run.spec import RunSpec
     from digitalhub.entities.run.status import RunStatus
     from digitalhub.runtimes.base import Runtime

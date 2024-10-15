@@ -3,13 +3,13 @@ from __future__ import annotations
 import typing
 from concurrent.futures import ThreadPoolExecutor
 
-from digitalhub.entities._base.entity.executable import ExecutableEntity
+from digitalhub.entities._base.executable.executable import ExecutableEntity
 from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.runtimes.builder import get_kind_registry
 from digitalhub.utils.exceptions import BackendError
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
+    from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.function.spec import FunctionSpec
     from digitalhub.entities.function.status import FunctionStatus
     from digitalhub.entities.run.entity import Run

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.entity.material import MaterialEntity
+from digitalhub.entities._base.material.entity import MaterialEntity
 from digitalhub.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
+    from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.artifact.spec import ArtifactSpec
     from digitalhub.entities.artifact.status import ArtifactStatus
 

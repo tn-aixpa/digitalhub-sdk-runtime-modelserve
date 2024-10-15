@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.base import Spec, SpecValidator
+from digitalhub.entities._base.entity.spec import Spec, SpecValidator
 
 
 class WorkflowSpec(Spec):

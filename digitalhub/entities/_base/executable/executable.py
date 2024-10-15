@@ -3,16 +3,16 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.crud import list_entity_api_ctx
-from digitalhub.entities._base.entity.versioned import VersionedEntity
+from digitalhub.entities._base.versioned.versioned import VersionedEntity
 from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.run.crud import delete_run, get_run, list_runs
 from digitalhub.entities.task.crud import delete_task, task_from_dict, task_from_parameters
 from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
-    from digitalhub.entities._base.spec.base import Spec
-    from digitalhub.entities._base.status.base import Status
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities._base.entity.spec import Spec
+    from digitalhub.entities._base.entity.status import Status
     from digitalhub.entities.run.entity import Run
     from digitalhub.entities.task.entity import Task
 

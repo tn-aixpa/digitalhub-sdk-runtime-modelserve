@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.entity.unversioned import UnversionedEntity
+from digitalhub.entities._base.unversioned.unversioned import UnversionedEntity
 from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.run.crud import delete_run, get_run, new_run, run_from_parameters
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
+    from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.run.entity import Run
     from digitalhub.entities.task.spec import TaskSpec
     from digitalhub.entities.task.status import TaskStatus

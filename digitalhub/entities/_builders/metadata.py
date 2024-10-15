@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.metadata import Metadata
+from digitalhub.entities._base.entity.metadata import Metadata
 from digitalhub.utils.generic_utils import get_timestamp
+
 
 def build_metadata(kind: str, **kwargs) -> Metadata:
     """

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.entity.context import ContextEntity
+from digitalhub.entities._base.context.context import ContextEntity
 from digitalhub.entities._builders.metadata import build_metadata
 from digitalhub.entities._builders.name import build_name
 from digitalhub.entities._builders.spec import build_spec
@@ -11,9 +11,9 @@ from digitalhub.entities._builders.uuid import build_uuid
 from digitalhub.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
-    from digitalhub.entities._base.spec.base import Spec
-    from digitalhub.entities._base.status.base import Status
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities._base.entity.spec import Spec
+    from digitalhub.entities._base.entity.status import Status
 
 
 class VersionedEntity(ContextEntity):

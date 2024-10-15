@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from digitalhub.entities._base.base import ModelObj
+from digitalhub.entities._base.model_object.entity import ModelObj
 
 
 class Spec(ModelObj):

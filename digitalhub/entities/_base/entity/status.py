@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.base import ModelObj
+from digitalhub.entities._base.model_object.entity import ModelObj
 
 
 class Status(ModelObj):

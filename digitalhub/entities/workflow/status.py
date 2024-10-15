@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.status.base import Status
+from digitalhub.entities._base.entity.status import Status
 
 
 class WorkflowStatus(Status):

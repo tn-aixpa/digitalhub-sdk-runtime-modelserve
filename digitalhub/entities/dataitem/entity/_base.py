@@ -3,13 +3,13 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 
-from digitalhub.entities._base.entity.material import MaterialEntity
+from digitalhub.entities._base.material.entity import MaterialEntity
 from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
+    from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.dataitem.spec import DataitemSpec
     from digitalhub.entities.dataitem.status import DataitemStatus
 

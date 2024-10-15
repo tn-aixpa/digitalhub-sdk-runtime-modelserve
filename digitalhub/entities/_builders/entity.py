@@ -11,9 +11,9 @@ from digitalhub.entities._builders.uuid import build_uuid
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.base import Entity
-    from digitalhub.entities._base.metadata import Metadata
-    from digitalhub.entities._base.spec.base import Spec, SpecValidator
-    from digitalhub.entities._base.status.base import Status
+    from digitalhub.entities._base.entity.metadata import Metadata
+    from digitalhub.entities._base.entity.spec import Spec, SpecValidator
+    from digitalhub.entities._base.entity.status import Status
 
 
 class EntityBuilder(metaclass=ABCMeta):
