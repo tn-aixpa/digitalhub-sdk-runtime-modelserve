@@ -11,15 +11,10 @@ from types import ModuleType
 from typing import Callable
 
 from digitalhub.entities.workflow.crud import get_workflow
-from digitalhub.utils.generic_utils import (
-    decode_string,
-    extract_archive,
-    get_bucket_and_key,
-    get_s3_source,
-    requests_chunk_download,
-)
+from digitalhub.utils.generic_utils import decode_string, extract_archive, requests_chunk_download
 from digitalhub.utils.git_utils import clone_repository
 from digitalhub.utils.logger import LOGGER
+from digitalhub.utils.s3_utils import get_bucket_and_key, get_s3_source
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_kfp.entities.workflow.spec import WorkflowSpecKFP

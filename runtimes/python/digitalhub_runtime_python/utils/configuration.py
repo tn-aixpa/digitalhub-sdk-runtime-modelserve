@@ -4,15 +4,10 @@ import importlib.util as imputil
 from pathlib import Path
 from typing import Callable
 
-from digitalhub.utils.generic_utils import (
-    decode_string,
-    extract_archive,
-    get_bucket_and_key,
-    get_s3_source,
-    requests_chunk_download,
-)
+from digitalhub.utils.generic_utils import decode_string, extract_archive, requests_chunk_download
 from digitalhub.utils.git_utils import clone_repository
 from digitalhub.utils.logger import LOGGER
+from digitalhub.utils.s3_utils import get_bucket_and_key, get_s3_source
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 
