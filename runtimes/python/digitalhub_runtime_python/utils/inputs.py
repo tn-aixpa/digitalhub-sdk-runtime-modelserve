@@ -7,10 +7,10 @@ from typing import Any, Callable
 from digitalhub.context.builder import get_context
 from digitalhub.entities.artifact.crud import artifact_from_dict
 from digitalhub.entities.dataitem.crud import dataitem_from_dict
-from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.model.crud import model_from_dict
 from digitalhub.entities.project.crud import get_project
-from digitalhub.entities.utils import parse_entity_key
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities.utils.utils import parse_entity_key
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:

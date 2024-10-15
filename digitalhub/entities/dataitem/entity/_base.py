@@ -4,7 +4,7 @@ import typing
 from pathlib import Path
 
 from digitalhub.entities._base.material.entity import MaterialEntity
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.uri_utils import map_uri_scheme
 

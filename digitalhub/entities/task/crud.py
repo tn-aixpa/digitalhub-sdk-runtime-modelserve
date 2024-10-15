@@ -4,8 +4,8 @@ import typing
 
 from digitalhub.context.builder import check_context
 from digitalhub.entities._base.crud import delete_entity_api_ctx, list_entity_api_ctx, read_entity_api_ctx
-from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.task.builder import task_from_dict, task_from_parameters
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
 from digitalhub.utils.io_utils import read_yaml
 

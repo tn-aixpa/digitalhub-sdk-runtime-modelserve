@@ -14,8 +14,8 @@ from digitalhub.entities._base.crud import (
 )
 from digitalhub.entities._builders.uuid import build_uuid
 from digitalhub.entities.dataitem.builder import dataitem_from_dict, dataitem_from_parameters
-from digitalhub.entities.entity_types import EntityTypes
-from digitalhub.entities.utils import build_log_path_from_filename, build_log_path_from_source, eval_local_source
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities.utils.utils import build_log_path_from_filename, build_log_path_from_source, eval_local_source
 from digitalhub.readers.builder import get_reader_by_object
 from digitalhub.stores.builder import get_store
 from digitalhub.utils.exceptions import EntityAlreadyExistsError

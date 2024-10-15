@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.material.entity import MaterialEntity
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata

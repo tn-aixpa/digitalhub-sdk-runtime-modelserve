@@ -11,8 +11,8 @@ from digitalhub.entities._base.crud import (
 )
 from digitalhub.entities._builders.uuid import build_uuid
 from digitalhub.entities.artifact.builder import artifact_from_dict, artifact_from_parameters
-from digitalhub.entities.entity_types import EntityTypes
-from digitalhub.entities.utils import build_log_path_from_source, eval_local_source
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities.utils.utils import build_log_path_from_source, eval_local_source
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 

@@ -14,11 +14,11 @@ from digitalhub.entities._base.crud import (
     resume_api,
     stop_api,
 )
-from digitalhub.entities._base.state import State
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities.utils.state import State
 from digitalhub.registry.registry import registry
 from digitalhub.runtimes.builder import build_runtime
 from digitalhub.utils.exceptions import EntityError

@@ -3,9 +3,9 @@ from __future__ import annotations
 from digitalhub.entities._base.entity.status import Status
 from digitalhub.entities.artifact.crud import get_artifact
 from digitalhub.entities.dataitem.crud import get_dataitem
-from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.model.crud import get_model
-from digitalhub.entities.utils import parse_entity_key
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities.utils.utils import parse_entity_key
 
 ENTITY_FUNC = {
     EntityTypes.ARTIFACT.value: get_artifact,

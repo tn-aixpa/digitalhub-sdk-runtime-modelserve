@@ -7,8 +7,8 @@ from dbt.cli.main import dbtRunnerResult
 from digitalhub_runtime_dbt.utils.env import get_connection
 from psycopg2 import sql
 
-from digitalhub.entities._base.state import State
 from digitalhub.entities.dataitem.crud import dataitem_from_parameters
+from digitalhub.entities.utils.state import State
 from digitalhub.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub.utils.logger import LOGGER
 

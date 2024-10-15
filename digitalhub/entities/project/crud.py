@@ -7,8 +7,8 @@ from pathlib import Path
 from digitalhub.client.builder import build_client, get_client
 from digitalhub.context.builder import delete_context
 from digitalhub.entities._base.crud import delete_entity_api_base, read_entity_api_base, update_entity_api_base
-from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.project.builder import project_from_dict, project_from_parameters
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.utils.exceptions import BackendError, EntityError
 from digitalhub.utils.io_utils import read_yaml
 

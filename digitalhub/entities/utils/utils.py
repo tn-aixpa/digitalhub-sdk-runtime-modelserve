@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.utils.file_utils import get_file_mime_type
 from digitalhub.utils.s3_utils import get_s3_bucket
 from digitalhub.utils.uri_utils import check_local_path

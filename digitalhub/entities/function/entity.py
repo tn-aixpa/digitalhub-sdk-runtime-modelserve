@@ -4,7 +4,7 @@ import typing
 from concurrent.futures import ThreadPoolExecutor
 
 from digitalhub.entities._base.executable.entity import ExecutableEntity
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.runtimes.builder import get_kind_registry
 from digitalhub.utils.exceptions import BackendError
 

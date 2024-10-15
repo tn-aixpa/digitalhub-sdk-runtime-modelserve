@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.state import State
+from digitalhub.entities.utils.state import State
 from digitalhub.registry.registry import registry
 from digitalhub.registry.utils import import_class
 

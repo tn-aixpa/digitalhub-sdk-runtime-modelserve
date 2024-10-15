@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from digitalhub_runtime_python.utils.utils import handler
 
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.registry.registry import registry
 from digitalhub.registry.utils import create_info
 

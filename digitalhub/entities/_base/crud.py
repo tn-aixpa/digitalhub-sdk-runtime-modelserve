@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.builder import get_context
-from digitalhub.entities._base.api import (
+from digitalhub.entities.utils.api import (
     api_base_create,
     api_base_delete,
     api_base_list,
@@ -20,7 +20,7 @@ from digitalhub.entities._base.api import (
     api_ctx_stop,
     api_ctx_update,
 )
-from digitalhub.entities.utils import parse_entity_key
+from digitalhub.entities.utils.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
     from digitalhub.client._base.client import Client

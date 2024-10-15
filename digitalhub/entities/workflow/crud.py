@@ -9,7 +9,7 @@ from digitalhub.entities._base.crud import (
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
 )
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.workflow.builder import workflow_from_dict, workflow_from_parameters
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml

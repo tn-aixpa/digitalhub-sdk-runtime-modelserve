@@ -39,7 +39,6 @@ from digitalhub.entities.dataitem.crud import (
     new_dataitem,
     update_dataitem,
 )
-from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.function.crud import (
     delete_function,
     function_from_dict,
@@ -71,6 +70,7 @@ from digitalhub.entities.secret.crud import (
     new_secret,
     update_secret,
 )
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.workflow.crud import (
     delete_workflow,
     get_workflow,

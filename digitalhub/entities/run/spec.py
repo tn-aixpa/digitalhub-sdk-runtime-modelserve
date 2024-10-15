@@ -5,10 +5,10 @@ import typing
 from digitalhub.entities._base.entity.spec import Spec, SpecValidator
 from digitalhub.entities.artifact.crud import get_artifact
 from digitalhub.entities.dataitem.crud import get_dataitem
-from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.model.crud import get_model
 from digitalhub.entities.task.models import K8s
-from digitalhub.entities.utils import parse_entity_key
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities.utils.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.entity import Entity

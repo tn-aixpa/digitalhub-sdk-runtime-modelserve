@@ -4,7 +4,7 @@ Wrapper to execute an arbitrary function.
 import os
 
 import digitalhub as dh
-from digitalhub.entities.entity_types import EntityTypes
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.utils.logger import LOGGER
 
 
