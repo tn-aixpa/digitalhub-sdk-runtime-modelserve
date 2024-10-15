@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.entity.base import Entity
+    from digitalhub.entities._base.entity.entity import Entity
 
 
 class EntityFactory:

@@ -10,7 +10,7 @@ from digitalhub.entities._builders.status import build_status
 from digitalhub.entities._builders.uuid import build_uuid
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.entity.base import Entity
+    from digitalhub.entities._base.entity.entity import Entity
     from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities._base.entity.spec import Spec, SpecValidator
     from digitalhub.entities._base.entity.status import Status

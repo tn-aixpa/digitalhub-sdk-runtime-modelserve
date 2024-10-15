@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.unversioned.unversioned import UnversionedEntity
+from digitalhub.entities._base.unversioned.entity import UnversionedEntity
 from digitalhub.entities.entity_types import EntityTypes
 from digitalhub.entities.run.crud import delete_run, get_run, new_run, run_from_parameters
 

@@ -7,7 +7,7 @@ import os
 import time
 
 import digitalhub as dh
-from digitalhub.entities._base.entity.base import Entity
+from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.utils.logger import LOGGER
 
 # default KFP artifacts and output (ui metadata, metrics etc.)

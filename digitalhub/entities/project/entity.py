@@ -12,7 +12,7 @@ from digitalhub.entities._base.crud import (
     read_entity_api_ctx,
     update_entity_api_base,
 )
-from digitalhub.entities._base.entity.base import Entity
+from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.entities._builders.metadata import build_metadata
 from digitalhub.entities._builders.name import build_name
 from digitalhub.entities._builders.spec import build_spec

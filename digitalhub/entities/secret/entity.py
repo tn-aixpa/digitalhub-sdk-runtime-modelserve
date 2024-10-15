@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.crud import get_data_api, set_data_api
-from digitalhub.entities._base.versioned.versioned import VersionedEntity
+from digitalhub.entities._base.versioned.entity import VersionedEntity
 from digitalhub.entities.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:

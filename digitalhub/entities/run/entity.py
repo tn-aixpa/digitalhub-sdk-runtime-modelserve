@@ -15,7 +15,7 @@ from digitalhub.entities._base.crud import (
     stop_api,
 )
 from digitalhub.entities._base.state import State
-from digitalhub.entities._base.unversioned.unversioned import UnversionedEntity
+from digitalhub.entities._base.unversioned.entity import UnversionedEntity
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities.entity_types import EntityTypes

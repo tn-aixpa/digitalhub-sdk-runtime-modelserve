@@ -11,7 +11,7 @@ from digitalhub.entities.task.models import K8s
 from digitalhub.entities.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.entity.base import Entity
+    from digitalhub.entities._base.entity.entity import Entity
 
 
 ENTITY_FUNC = {
