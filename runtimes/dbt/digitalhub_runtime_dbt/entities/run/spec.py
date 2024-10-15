@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.run.spec import RunParams, RunSpec
+from digitalhub.entities.run.spec import RunSpec, RunValidator
 
 
 class RunSpecDbt(RunSpec):
@@ -45,7 +45,7 @@ class RunSpecDbt(RunSpec):
         self.parameters = parameters
 
 
-class RunParamsDbt(RunParams):
+class RunValidatorDbt(RunValidator):
     """Run Dbt parameters."""
 
     # Function parameters

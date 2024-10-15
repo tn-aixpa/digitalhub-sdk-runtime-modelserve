@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.run.spec import RunParams, RunSpec
+from digitalhub.entities.run.spec import RunSpec, RunValidator
 
 
 class RunSpecModelserve(RunSpec):
@@ -49,7 +49,7 @@ class RunSpecModelserve(RunSpec):
         self.replicas = replicas
 
 
-class RunParamsModelserve(RunParams):
+class RunValidatorModelserve(RunValidator):
     """Run Model serving parameters."""
 
     # Function parameters
@@ -75,13 +75,13 @@ class RunSpecHuggingfaceserve(RunSpecModelserve):
     """Run Huggingface model serving specification."""
 
 
-class RunParamsSklearnserve(RunParamsModelserve):
+class RunValidatorSklearnserve(RunValidatorModelserve):
     """Run SKLearn model serving parameters."""
 
 
-class RunParamsMlflowserve(RunParamsModelserve):
+class RunValidatorMlflowserve(RunValidatorModelserve):
     """Run MLFLow model serving parameters."""
 
 
-class RunParamsHuggingfaceserve(RunParamsModelserve):
+class RunValidatorHuggingfaceserve(RunValidatorModelserve):
     """Run Huggingface model serving parameters."""

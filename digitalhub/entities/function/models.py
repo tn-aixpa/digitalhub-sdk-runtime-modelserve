@@ -94,7 +94,7 @@ class SourceCodeStruct:
         return str(self.to_dict())
 
 
-class SourceCodeParams(BaseModel):
+class SourceCodeValidator(BaseModel):
     """
     Source code params.
     """

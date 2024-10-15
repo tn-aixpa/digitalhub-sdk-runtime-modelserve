@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.base import Spec, SpecParams
+from digitalhub.entities._base.spec.base import Spec, SpecValidator
 
 
 class ProjectSpec(Spec):
@@ -26,7 +26,7 @@ class ProjectSpec(Spec):
         self.models = models if models is not None else []
 
 
-class ProjectParams(SpecParams):
+class ProjectValidator(SpecValidator):
     """
     Parameters model for project.
     """

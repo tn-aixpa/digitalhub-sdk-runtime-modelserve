@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from digitalhub_runtime_container.entities.task.models import CorePort
 
-from digitalhub.entities.task.spec import TaskParamsK8s, TaskSpecK8s
+from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
 
 
 class TaskSpecJob(TaskSpecK8s):
@@ -41,9 +41,9 @@ class TaskSpecJob(TaskSpecK8s):
         self.schedule = schedule
 
 
-class TaskParamsJob(TaskParamsK8s):
+class TaskValidatorJob(TaskValidatorK8s):
     """
-    TaskParamsJob model.
+    TaskValidatorJob model.
     """
 
     backoff_limit: int = None
@@ -87,9 +87,9 @@ class TaskSpecDeploy(TaskSpecK8s):
         self.replicas = replicas
 
 
-class TaskParamsDeploy(TaskParamsK8s):
+class TaskValidatorDeploy(TaskValidatorK8s):
     """
-    TaskParamsDeploy model.
+    TaskValidatorDeploy model.
     """
 
     replicas: int = None
@@ -134,9 +134,9 @@ class TaskSpecServe(TaskSpecK8s):
         self.service_type = service_type
 
 
-class TaskParamsServe(TaskParamsK8s):
+class TaskValidatorServe(TaskValidatorK8s):
     """
-    TaskParamsServe model.
+    TaskValidatorServe model.
     """
 
     replicas: int = None
@@ -183,9 +183,9 @@ class TaskSpecBuild(TaskSpecK8s):
         self.instructions = instructions
 
 
-class TaskParamsBuild(TaskParamsK8s):
+class TaskValidatorBuild(TaskValidatorK8s):
     """
-    TaskParamsBuild model.
+    TaskValidatorBuild model.
     """
 
     instructions: list[str] = None

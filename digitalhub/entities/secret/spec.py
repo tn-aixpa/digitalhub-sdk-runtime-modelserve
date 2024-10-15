@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.base import Spec, SpecParams
+from digitalhub.entities._base.spec.base import Spec, SpecValidator
 
 
 class SecretSpec(Spec):
@@ -23,7 +23,7 @@ class SecretSpec(Spec):
         self.provider = provider
 
 
-class SecretParams(SpecParams):
+class SecretValidator(SpecValidator):
     """
     Secret parameters.
     """

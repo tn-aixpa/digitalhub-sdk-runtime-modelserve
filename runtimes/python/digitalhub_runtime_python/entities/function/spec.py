@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from digitalhub_runtime_python.entities.function.models import SourceCodeParamsPython, SourceCodeStructPython
+from digitalhub_runtime_python.entities.function.models import SourceCodeStructPython, SourceCodeValidatorPython
 
-from digitalhub.entities.function.spec import FunctionParams, FunctionSpec
+from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
 
 
 class FunctionSpecPython(FunctionSpec):
@@ -91,7 +91,7 @@ class FunctionSpecPython(FunctionSpec):
         return dict_
 
 
-class FunctionParamsPython(FunctionParams, SourceCodeParamsPython):
+class FunctionValidatorPython(FunctionValidator, SourceCodeValidatorPython):
     """
     Function python parameters model.
     """

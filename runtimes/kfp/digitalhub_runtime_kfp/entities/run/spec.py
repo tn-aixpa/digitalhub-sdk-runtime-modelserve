@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.run.spec import RunParams, RunSpec
+from digitalhub.entities.run.spec import RunSpec, RunValidator
 
 
 class RunSpecKFP(RunSpec):
@@ -59,7 +59,7 @@ class RunSpecKFP(RunSpec):
         self.values = values
 
 
-class RunParamsKFP(RunParams):
+class RunValidatorKFP(RunValidator):
     """Run KFP parameters."""
 
     # Workflow parameters

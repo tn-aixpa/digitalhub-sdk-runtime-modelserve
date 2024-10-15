@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.function.spec import FunctionParams, FunctionSpec
+from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
 
 
 class FunctionSpecModelserve(FunctionSpec):
@@ -20,7 +20,7 @@ class FunctionSpecModelserve(FunctionSpec):
         self.image = image
 
 
-class FunctionParamsModelserve(FunctionParams):
+class FunctionValidatorModelserve(FunctionValidator):
     """
     Function model serving parameters model.
     """
@@ -53,19 +53,19 @@ class FunctionSpecHuggingfaceserve(FunctionSpecModelserve):
     """
 
 
-class FunctionParamsSklearnserve(FunctionParamsModelserve):
+class FunctionValidatorSklearnserve(FunctionValidatorModelserve):
     """
     Function SKLearn model serving parameters model.
     """
 
 
-class FunctionParamsMlflowserve(FunctionParamsModelserve):
+class FunctionValidatorMlflowserve(FunctionValidatorModelserve):
     """
     Function MLFlow model serving parameters model.
     """
 
 
-class FunctionParamsHuggingfaceserve(FunctionParamsModelserve):
+class FunctionValidatorHuggingfaceserve(FunctionValidatorModelserve):
     """
     Function HuggingFace model serving parameters model.
     """

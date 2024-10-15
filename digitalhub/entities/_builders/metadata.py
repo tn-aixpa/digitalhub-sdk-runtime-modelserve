@@ -1,15 +1,7 @@
 from __future__ import annotations
 
-import typing
-
-from digitalhub.registry.registry import registry
-from digitalhub.registry.utils import import_class
+from digitalhub.entities._base.metadata import Metadata
 from digitalhub.utils.generic_utils import get_timestamp
-
-if typing.TYPE_CHECKING:
-    from digitalhub.entities._base.metadata import Metadata
-    from digitalhub.registry.models import RegistryEntry
-
 
 def build_metadata(kind: str, **kwargs) -> Metadata:
     """
@@ -33,10 +25,8 @@ def build_metadata(kind: str, **kwargs) -> Metadata:
     Metadata
         Metadata object.
     """
-    infos: RegistryEntry = getattr(registry, kind)
-    metadata = import_class(infos.metadata.module, infos.metadata.class_name)
     kwargs = parse_arguments(**kwargs)
-    return metadata(**kwargs)
+    return Metadata(**kwargs)
 
 
 def parse_arguments(**kwargs) -> dict:

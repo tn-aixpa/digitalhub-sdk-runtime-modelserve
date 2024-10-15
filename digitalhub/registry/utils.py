@@ -132,7 +132,7 @@ def create_info(
         "spec": {
             "module": f"{root}.{entity_type}.spec",
             "class_name": f"{prefix}Spec{suffix}",
-            "parameters_validator": f"{prefix}Params{suffix}",
+            "parameters_validator": f"{prefix}Validator{suffix}",
         },
         "status": {
             "module": f"{root}.{entity_type}.status",

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.material import MaterialParams, MaterialSpec
+from digitalhub.entities._base.spec.material import MaterialSpec, MaterialValidator
 
 
 class ArtifactSpec(MaterialSpec):
@@ -9,7 +9,7 @@ class ArtifactSpec(MaterialSpec):
     """
 
 
-class ArtifactParams(MaterialParams):
+class ArtifactValidator(MaterialValidator):
     """
     Artifact base parameters.
     """
@@ -30,7 +30,7 @@ class ArtifactSpecArtifact(ArtifactSpec):
         self.src_path = src_path
 
 
-class ArtifactParamsArtifact(ArtifactParams):
+class ArtifactValidatorArtifact(ArtifactValidator):
     """
     Artifact parameters.
     """

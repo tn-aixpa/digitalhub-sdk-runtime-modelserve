@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.spec.base import Spec, SpecParams
+from digitalhub.entities._base.spec.base import Spec, SpecValidator
 from digitalhub.entities.artifact.crud import get_artifact
 from digitalhub.entities.dataitem.crud import get_dataitem
 from digitalhub.entities.entity_types import EntityTypes
@@ -138,7 +138,7 @@ class RunSpec(Spec):
         return ENTITY_FUNC[entity_type](key)
 
 
-class RunParams(SpecParams, K8s):
+class RunValidator(SpecValidator, K8s):
     """
     Run parameters.
     """

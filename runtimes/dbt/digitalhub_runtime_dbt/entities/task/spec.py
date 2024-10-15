@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from digitalhub.entities.task.spec import TaskParamsK8s, TaskSpecK8s
+from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
 
 
 class TaskSpecTransform(TaskSpecK8s):
     """Task Transform specification."""
 
 
-class TaskParamsTransform(TaskParamsK8s):
+class TaskValidatorTransform(TaskValidatorK8s):
     """
-    TaskParamsTransform model.
+    TaskValidatorTransform model.
     """

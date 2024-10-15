@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.base import Spec, SpecParams
+from digitalhub.entities._base.spec.base import Spec, SpecValidator
 from digitalhub.entities.task.models import K8s
 
 
@@ -36,7 +36,7 @@ class TaskSpecK8s(TaskSpec):
         self.profile = profile
 
 
-class TaskParams(SpecParams):
+class TaskValidator(SpecValidator):
     """
     Base task model.
     """
@@ -45,7 +45,7 @@ class TaskParams(SpecParams):
     """Function string."""
 
 
-class TaskParamsK8s(TaskParams, K8s):
+class TaskValidatorK8s(TaskValidator, K8s):
     """
     Kubernetes task model.
     """

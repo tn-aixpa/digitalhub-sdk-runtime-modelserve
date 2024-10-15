@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from digitalhub.entities.task.spec import TaskParamsK8s, TaskSpecK8s
+from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
 
 
 class TaskSpecServe(TaskSpecK8s):
@@ -39,9 +39,9 @@ class TaskSpecServe(TaskSpecK8s):
         self.service_type = service_type
 
 
-class TaskParamsServe(TaskParamsK8s):
+class TaskValidatorServe(TaskValidatorK8s):
     """
-    TaskParamsServe model.
+    TaskValidatorServe model.
     """
 
     replicas: int = None
@@ -54,9 +54,9 @@ class TaskSpecSklearnserveServe(TaskSpecServe):
     """
 
 
-class TaskParamsSklearnserveServe(TaskParamsServe):
+class TaskValidatorSklearnserveServe(TaskValidatorServe):
     """
-    TaskParamsSklearnserveServe model.
+    TaskValidatorSklearnserveServe model.
     """
 
 
@@ -66,9 +66,9 @@ class TaskSpecMlflowserveServe(TaskSpecServe):
     """
 
 
-class TaskParamsMlflowserveServe(TaskParamsServe):
+class TaskValidatorMlflowserveServe(TaskValidatorServe):
     """
-    TaskParamsMlflowserveServe model.
+    TaskValidatorMlflowserveServe model.
     """
 
 
@@ -127,9 +127,9 @@ class TaskSpecHuggingfaceserveServe(TaskSpecServe):
         self.return_probabilities = return_probabilities
 
 
-class TaskParamsHuggingfaceserveServe(TaskParamsServe):
+class TaskValidatorHuggingfaceserveServe(TaskValidatorServe):
     """
-    TaskParamsHuggingfaceserveServe model.
+    TaskValidatorHuggingfaceserveServe model.
     """
 
     huggingface_task_name: Literal[

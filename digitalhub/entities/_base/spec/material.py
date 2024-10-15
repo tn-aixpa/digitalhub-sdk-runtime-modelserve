@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.base import Spec, SpecParams
+from digitalhub.entities._base.spec.base import Spec, SpecValidator
 
 
 class MaterialSpec(Spec):
@@ -13,7 +13,7 @@ class MaterialSpec(Spec):
         self.path = path
 
 
-class MaterialParams(SpecParams):
+class MaterialValidator(SpecValidator):
     """
     Material parameters class.
     """

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from digitalhub_runtime_container.entities.function.models import SourceCodeParamsContainer, SourceCodeStructContainer
+from digitalhub_runtime_container.entities.function.models import (
+    SourceCodeStructContainer,
+    SourceCodeValidatorContainer,
+)
 
-from digitalhub.entities.function.spec import FunctionParams, FunctionSpec
+from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
 
 
 class FunctionSpecContainer(FunctionSpec):
@@ -87,7 +90,7 @@ class FunctionSpecContainer(FunctionSpec):
         return dict_
 
 
-class FunctionParamsContainer(FunctionParams, SourceCodeParamsContainer):
+class FunctionValidatorContainer(FunctionValidator, SourceCodeValidatorContainer):
     """
     Function container parameters model.
     """

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from digitalhub_runtime_kfp.entities.workflow.models import SourceCodeParamsKfp, SourceCodeStructKfp
+from digitalhub_runtime_kfp.entities.workflow.models import SourceCodeStructKfp, SourceCodeValidatorKfp
 
-from digitalhub.entities.workflow.spec import WorkflowParams, WorkflowSpec
+from digitalhub.entities.workflow.spec import WorkflowSpec, WorkflowValidator
 
 
 class WorkflowSpecKFP(WorkflowSpec):
@@ -83,7 +83,7 @@ class WorkflowSpecKFP(WorkflowSpec):
         return dict_
 
 
-class WorkflowParamsKFP(WorkflowParams, SourceCodeParamsKfp):
+class WorkflowValidatorKFP(WorkflowValidator, SourceCodeValidatorKfp):
     """
     Workflow kfp parameters model.
     """

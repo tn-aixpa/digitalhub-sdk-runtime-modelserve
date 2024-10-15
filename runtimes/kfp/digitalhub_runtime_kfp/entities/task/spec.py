@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.task.spec import TaskParamsK8s, TaskSpecK8s
+from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
 
 
 class TaskSpecPipeline(TaskSpecK8s):
@@ -37,9 +37,9 @@ class TaskSpecPipeline(TaskSpecK8s):
         self.schedule = schedule
 
 
-class TaskParamsPipeline(TaskParamsK8s):
+class TaskValidatorPipeline(TaskValidatorK8s):
     """
-    TaskParamsPipeline model.
+    TaskValidatorPipeline model.
     """
 
     schedule: str = None

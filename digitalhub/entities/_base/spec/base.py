@@ -30,7 +30,7 @@ class Spec(ModelObj):
         return cls(**obj)
 
 
-class SpecParams(BaseModel, extra="ignore"):
+class SpecValidator(BaseModel, extra="ignore"):
     """
     A class representing the parameters of an entity.
     This base class is used to define the parameters of an entity
@@ -49,7 +49,7 @@ class MaterialSpec(Spec):
         self.path = path
 
 
-class MaterialParams(SpecParams):
+class MaterialValidator(SpecValidator):
     """
     Material parameters class.
     """

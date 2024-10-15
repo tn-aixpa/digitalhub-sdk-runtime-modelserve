@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from digitalhub.entities._base.spec.material import MaterialParams, MaterialSpec
+from digitalhub.entities._base.spec.material import MaterialSpec, MaterialValidator
 from digitalhub.entities.dataitem.models import TableSchema
 
 
@@ -12,7 +12,7 @@ class DataitemSpec(MaterialSpec):
     """
 
 
-class DataitemParams(MaterialParams):
+class DataitemValidator(MaterialValidator):
     """
     Dataitem parameters.
     """
@@ -24,7 +24,7 @@ class DataitemSpecDataitem(DataitemSpec):
     """
 
 
-class DataitemParamsDataitem(DataitemParams):
+class DataitemValidatorDataitem(DataitemValidator):
     """
     Dataitem dataitem parameters.
     """
@@ -40,7 +40,7 @@ class DataitemSpecTable(DataitemSpec):
         self.schema = schema
 
 
-class DataitemParamsTable(DataitemParams):
+class DataitemValidatorTable(DataitemValidator):
     """
     Dataitem table parameters.
     """
@@ -55,7 +55,7 @@ class DataitemSpecIceberg(DataitemSpec):
     """
 
 
-class DataitemParamsIceberg(DataitemParams):
+class DataitemValidatorIceberg(DataitemValidator):
     """
     Dataitem iceberg parameters.
     """

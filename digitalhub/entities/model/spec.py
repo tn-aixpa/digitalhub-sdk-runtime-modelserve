@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.material import MaterialParams, MaterialSpec
+from digitalhub.entities._base.spec.material import MaterialSpec, MaterialValidator
 from digitalhub.entities.model.models import Dataset, Signature
 
 
@@ -26,7 +26,7 @@ class ModelSpec(MaterialSpec):
         self.metrics = metrics
 
 
-class ModelParams(MaterialParams):
+class ModelValidator(MaterialValidator):
     """
     Model parameters.
     """
@@ -56,7 +56,7 @@ class ModelSpecModel(ModelSpec):
     """
 
 
-class ModelParamsModel(ModelParams):
+class ModelValidatorModel(ModelValidator):
     """
     Model parameters.
     """
@@ -87,7 +87,7 @@ class ModelSpecMlflow(ModelSpec):
         self.signature = signature
 
 
-class ModelParamsMlflow(ModelParams):
+class ModelValidatorMlflow(ModelValidator):
     """
     Mlflow model parameters.
     """
@@ -108,7 +108,7 @@ class ModelSpecSklearn(ModelSpec):
     """
 
 
-class ModelParamsSklearn(ModelParams):
+class ModelValidatorSklearn(ModelValidator):
     """
     SKLearn model parameters.
     """
@@ -135,7 +135,7 @@ class ModelSpecHuggingface(ModelSpec):
         self.model_revision = model_revision
 
 
-class ModelParamsHuggingface(ModelParams):
+class ModelValidatorHuggingface(ModelValidator):
     """
     Huggingface model parameters.
     """

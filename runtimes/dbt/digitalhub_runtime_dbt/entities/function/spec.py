@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from digitalhub_runtime_dbt.entities.function.models import SourceCodeParamsDbt, SourceCodeStructDbt
+from digitalhub_runtime_dbt.entities.function.models import SourceCodeStructDbt, SourceCodeValidatorDbt
 
-from digitalhub.entities.function.spec import FunctionParams, FunctionSpec
+from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
 
 
 class FunctionSpecDbt(FunctionSpec):
@@ -78,7 +78,7 @@ class FunctionSpecDbt(FunctionSpec):
         return dict_
 
 
-class FunctionParamsDbt(FunctionParams, SourceCodeParamsDbt):
+class FunctionValidatorDbt(FunctionValidator, SourceCodeValidatorDbt):
     """
     Function Dbt parameters model.
     """

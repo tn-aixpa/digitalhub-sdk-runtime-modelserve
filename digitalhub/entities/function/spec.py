@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.spec.base import Spec, SpecParams
+from digitalhub.entities._base.spec.base import Spec, SpecValidator
 
 
 class FunctionSpec(Spec):
@@ -9,7 +9,7 @@ class FunctionSpec(Spec):
     """
 
 
-class FunctionParams(SpecParams):
+class FunctionValidator(SpecValidator):
     """
     Function parameters model.
     """
