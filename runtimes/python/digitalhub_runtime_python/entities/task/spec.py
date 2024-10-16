@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Literal
 
-from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
+from digitalhub.entities.task._base.spec import TaskSpecK8s, TaskValidatorK8s
 
 
-class TaskSpecJob(TaskSpecK8s):
-    """Task Job specifications."""
+class TaskSpecPythonJob(TaskSpecK8s):
+    """TaskSpecPythonJob specifications."""
 
     def __init__(
         self,
@@ -35,14 +35,13 @@ class TaskSpecJob(TaskSpecK8s):
             profile,
             **kwargs,
         )
-
         self.backoff_limit = backoff_limit
         self.schedule = schedule
 
 
-class TaskValidatorJob(TaskValidatorK8s):
+class TaskValidatorPythonJob(TaskValidatorK8s):
     """
-    TaskValidatorJob model.
+    TaskValidatorPythonJob validator.
     """
 
     backoff_limit: int = None
@@ -52,8 +51,8 @@ class TaskValidatorJob(TaskValidatorK8s):
     """Schedule."""
 
 
-class TaskSpecBuild(TaskSpecK8s):
-    """Task Build specifications."""
+class TaskSpecPythonBuild(TaskSpecK8s):
+    """TaskSpecPythonBuild specifications."""
 
     def __init__(
         self,
@@ -81,21 +80,20 @@ class TaskSpecBuild(TaskSpecK8s):
             profile,
             **kwargs,
         )
-
         self.instructions = instructions
 
 
-class TaskValidatorBuild(TaskValidatorK8s):
+class TaskValidatorPythonBuild(TaskValidatorK8s):
     """
-    TaskValidatorBuild model.
+    TaskValidatorPythonBuild validator.
     """
 
     instructions: list[str] = None
     """Build instructions."""
 
 
-class TaskSpecServe(TaskSpecK8s):
-    """Task Serve specifications."""
+class TaskSpecPythonServe(TaskSpecK8s):
+    """TaskSpecPythonServe specifications."""
 
     def __init__(
         self,
@@ -124,14 +122,13 @@ class TaskSpecServe(TaskSpecK8s):
             profile,
             **kwargs,
         )
-
         self.replicas = replicas
         self.service_type = service_type
 
 
-class TaskValidatorServe(TaskValidatorK8s):
+class TaskValidatorPythonServe(TaskValidatorK8s):
     """
-    TaskValidatorServe model.
+    TaskValidatorPythonServe validator.
     """
 
     replicas: int = None

@@ -197,3 +197,12 @@ class K8s(BaseModel):
 
     profile: str = None
     """Profile template."""
+
+
+class CorePort(BaseModel):
+    """
+    Port mapper model.
+    """
+
+    port: int
+    target_port: int

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.run.spec import RunSpec, RunValidator
+from digitalhub.entities.run._base.spec import RunSpec, RunValidator
 
 
 class RunSpecContainerRun(RunSpec):

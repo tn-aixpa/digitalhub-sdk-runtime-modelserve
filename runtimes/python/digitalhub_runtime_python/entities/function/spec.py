@@ -4,7 +4,7 @@ from typing import Literal
 
 from digitalhub_runtime_python.entities.function.models import SourceCodeStructPython, SourceCodeValidatorPython
 
-from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
+from digitalhub.entities.function._base.spec import FunctionSpec, FunctionValidator
 
 
 class FunctionSpecPython(FunctionSpec):

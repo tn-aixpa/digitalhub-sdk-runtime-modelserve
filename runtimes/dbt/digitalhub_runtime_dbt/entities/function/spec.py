@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from digitalhub_runtime_dbt.entities.function.models import SourceCodeStructDbt, SourceCodeValidatorDbt
 
-from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
+from digitalhub.entities.function._base.spec import FunctionSpec, FunctionValidator
 
 
 class FunctionSpecDbt(FunctionSpec):

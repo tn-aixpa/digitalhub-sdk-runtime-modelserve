@@ -8,8 +8,8 @@ root = "digitalhub_runtime_modelserve"
 root_ent = f"{root}.entities"
 
 for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
-    func_kind = m
-    suffix = func_kind.capitalize()
+    exec_kind = m
+    suffix = exec_kind.capitalize()
 
     runtime_info = {
         "module": f"{root}.runtimes.runtime",
@@ -21,23 +21,23 @@ for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
     # Function
     entity_type = EntityTypes.FUNCTION.value
     prefix = entity_type.capitalize()
-    suffix = func_kind.capitalize()
-    func_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
-    registry.register(func_kind, func_info)
+    suffix = exec_kind.capitalize()
+    exec_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
+    registry.register(exec_kind, exec_info)
 
     # Tasks
     entity_type = EntityTypes.TASK.value
     for i in ["serve"]:
-        task_kind = f"{func_kind}+{i}"
+        task_kind = f"{exec_kind}+{i}"
         prefix = entity_type.capitalize()
-        suffix = func_kind.capitalize() + i.capitalize()
+        suffix = exec_kind.capitalize() + i.capitalize()
         task_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
         registry.register(task_kind, task_info)
 
     # Runs
     entity_type = EntityTypes.RUN.value
-    run_kind = f"{func_kind}+run"
+    run_kind = f"{exec_kind}+run"
     prefix = entity_type.capitalize()
-    suffix = func_kind.capitalize()
+    suffix = exec_kind.capitalize()
     run_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
     registry.register(run_kind, run_info)

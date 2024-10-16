@@ -10,14 +10,14 @@ root = "digitalhub.entities"
 # Projects
 entity_type = EntityTypes.PROJECT.value
 prefix = entity_type.capitalize()
-project_info = create_info(root, entity_type, prefix)
+project_info = create_info(root, entity_type, "project", prefix)
 registry.register("project", project_info)
 
 
 # Secrets
 entity_type = EntityTypes.SECRET.value
 prefix = entity_type.capitalize()
-secret_info = create_info(root, entity_type, prefix)
+secret_info = create_info(root, entity_type, "secret", prefix)
 registry.register("secret", secret_info)
 
 
@@ -26,7 +26,7 @@ entity_type = EntityTypes.ARTIFACT.value
 for i in ["artifact"]:
     prefix = entity_type.capitalize()
     suffix = i.capitalize()
-    artifact_info = create_info(root, entity_type, prefix, suffix)
+    artifact_info = create_info(root, entity_type, i, prefix, suffix)
     registry.register(i, artifact_info)
 
 
@@ -35,7 +35,7 @@ entity_type = EntityTypes.DATAITEM.value
 for i in ["dataitem", "table"]:
     prefix = entity_type.capitalize()
     suffix = i.capitalize()
-    dataitem_info = create_info(root, entity_type, prefix, suffix)
+    dataitem_info = create_info(root, entity_type, i, prefix, suffix)
     registry.register(i, dataitem_info)
 
 
@@ -44,5 +44,5 @@ entity_type = EntityTypes.MODEL.value
 for i in ["model", "mlflow", "sklearn", "huggingface"]:
     prefix = entity_type.capitalize()
     suffix = i.capitalize()
-    model_info = create_info(root, entity_type, prefix, suffix)
+    model_info = create_info(root, entity_type, i, prefix, suffix)
     registry.register(i, model_info)

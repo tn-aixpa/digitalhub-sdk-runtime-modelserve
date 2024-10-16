@@ -102,6 +102,7 @@ def register_entities() -> None:
 def create_info(
     root: str,
     entity_type: str,
+    kind: str,
     prefix: str,
     suffix: str | None = "",
     runtime_info: dict | None = None,
@@ -130,12 +131,12 @@ def create_info(
     dict_ = {
         "entity_type": entity_type,
         "spec": {
-            "module": f"{root}.{entity_type}.spec",
+            "module": f"{root}.{entity_type}.{kind}.spec",
             "class_name": f"{prefix}Spec{suffix}",
             "parameters_validator": f"{prefix}Validator{suffix}",
         },
         "status": {
-            "module": f"{root}.{entity_type}.status",
+            "module": f"{root}.{entity_type}.{kind}.status",
             "class_name": f"{prefix}Status{suffix}",
         },
         "metadata": {

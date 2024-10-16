@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from digitalhub_runtime_kfp.entities.workflow.models import SourceCodeStructKfp, SourceCodeValidatorKfp
 
-from digitalhub.entities.workflow.spec import WorkflowSpec, WorkflowValidator
+from digitalhub.entities.workflow._base.spec import WorkflowSpec, WorkflowValidator
 
 
 class WorkflowSpecKFP(WorkflowSpec):

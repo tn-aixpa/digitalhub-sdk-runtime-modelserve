@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
+from digitalhub.entities.task._base.spec import TaskSpecK8s, TaskValidatorK8s
 
 
 class TaskSpecTransform(TaskSpecK8s):

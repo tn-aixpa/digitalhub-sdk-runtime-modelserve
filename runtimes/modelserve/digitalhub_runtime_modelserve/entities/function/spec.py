@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.function.spec import FunctionSpec, FunctionValidator
+from digitalhub.entities.function._base.spec import FunctionSpec, FunctionValidator
 
 
 class FunctionSpecModelserve(FunctionSpec):

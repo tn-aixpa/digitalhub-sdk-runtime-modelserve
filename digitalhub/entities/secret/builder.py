@@ -5,7 +5,7 @@ from digitalhub.entities._builders.name import build_name
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities._builders.uuid import build_uuid
-from digitalhub.entities.secret._base.entity import Secret
+from digitalhub.entities.secret.secret.entity import Secret
 
 
 def secret_from_parameters(

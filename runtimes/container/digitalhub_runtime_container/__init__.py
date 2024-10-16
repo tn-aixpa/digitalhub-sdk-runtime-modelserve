@@ -17,27 +17,29 @@ root_ent = f"{root}.entities"
 
 # Function
 entity_type = EntityTypes.FUNCTION.value
-func_kind = "container"
+exec_kind = "container"
 prefix = entity_type.capitalize()
-suffix = func_kind.capitalize()
-func_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
-registry.register(func_kind, func_info)
+suffix = exec_kind.capitalize()
+exec_info = create_info(root_ent, entity_type, exec_kind, prefix, suffix, runtime_info)
+registry.register(exec_kind, exec_info)
 
 
 # Tasks
 entity_type = EntityTypes.TASK.value
 for i in ["job", "deploy", "serve", "build"]:
-    task_kind = f"{func_kind}+{i}"
+    task_kind = f"{exec_kind}+{i}"
     prefix = entity_type.capitalize()
-    suffix = i.capitalize()
-    task_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
+    suffix = exec_kind.capitalize() + i.capitalize()
+    kind_underscore = task_kind.replace("+", "_")
+    task_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
     registry.register(task_kind, task_info)
 
 
 # Runs
 entity_type = EntityTypes.RUN.value
-run_kind = f"{func_kind}+run"
+run_kind = f"{exec_kind}+run"
 prefix = entity_type.capitalize()
-suffix = func_kind.capitalize()
-run_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
+suffix = exec_kind.capitalize() + entity_type.capitalize()
+kind_underscore = run_kind.replace("+", "_")
+run_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
 registry.register(run_kind, run_info)

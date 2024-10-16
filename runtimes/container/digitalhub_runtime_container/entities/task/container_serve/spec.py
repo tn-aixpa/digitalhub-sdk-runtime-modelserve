@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from digitalhub_runtime_container.entities.task.models import CorePort
-
-from digitalhub.entities.task.spec import TaskSpecK8s, TaskValidatorK8s
+from digitalhub.entities.task._base.models import CorePort
+from digitalhub.entities.task._base.spec import TaskSpecK8s, TaskValidatorK8s
 
 
 class TaskSpecContainerServe(TaskSpecK8s):

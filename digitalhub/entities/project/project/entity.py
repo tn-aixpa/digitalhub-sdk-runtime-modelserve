@@ -92,10 +92,10 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.dataitem._base.entity import Dataitem
     from digitalhub.entities.function._base.entity import Function
     from digitalhub.entities.model._base.entity import Model
-    from digitalhub.entities.project._base.spec import ProjectSpec
-    from digitalhub.entities.project._base.status import ProjectStatus
+    from digitalhub.entities.project.project.spec import ProjectSpec
+    from digitalhub.entities.project.project.status import ProjectStatus
     from digitalhub.entities.run._base.entity import Run
-    from digitalhub.entities.secret._base.entity import Secret
+    from digitalhub.entities.secret.secret.entity import Secret
     from digitalhub.entities.workflow._base.entity import Workflow
 
 
