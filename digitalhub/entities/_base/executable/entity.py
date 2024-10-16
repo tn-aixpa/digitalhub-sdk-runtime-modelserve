@@ -57,7 +57,7 @@ class ExecutableEntity(VersionedEntity):
     #  Tasks
     ##############################
 
-    def _get_or_create_task(self, kind: str, **kwargs) -> Task:
+    def _get_or_create_task(self, kind: str) -> Task:
         """
         Get or create task.
 
@@ -150,6 +150,34 @@ class ExecutableEntity(VersionedEntity):
         self._tasks[task_kind] = task
         return task
 
+    def get_task(self, kind: str) -> Task:
+        """
+        Get task.
+
+        Parameters
+        ----------
+        kind : str
+            Kind the object.
+
+        Returns
+        -------
+        Task
+            Task.
+
+        Raises
+        ------
+        EntityError
+            If task is not created.
+        """
+        try:
+            return self._tasks[kind]
+        except KeyError:
+            resp = self._get_task_from_backend(kind)
+            if not resp:
+                raise EntityError(f"Task {kind} is not created")
+            self._tasks[kind] = task_from_dict(resp[0])
+            return self._tasks[kind]
+
     def update_task(self, kind: str, **kwargs) -> Task:
         """
         Update task.
@@ -183,35 +211,6 @@ class ExecutableEntity(VersionedEntity):
         self._tasks[kind] = task
         return task
 
-    def get_task(self, kind: str) -> Task:
-        """
-        Get task.
-
-        Parameters
-        ----------
-        kind : str
-            Kind the object.
-
-        Returns
-        -------
-        Task
-            Task.
-
-        Raises
-        ------
-        EntityError
-            If task is not created.
-        """
-        try:
-            return self._tasks[kind]
-        except KeyError:
-            params = {"function": self._get_executable_string(), "kind": kind}
-            resp = list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)
-            if len(resp) == 0:
-                raise EntityError(f"Task {kind} is not created")
-            self._tasks[kind] = task_from_dict(resp[0])
-            return self._tasks[kind]
-
     def delete_task(self, kind: str, cascade: bool = True) -> dict:
         """
         Delete task.
@@ -232,6 +231,23 @@ class ExecutableEntity(VersionedEntity):
         self._tasks.pop(kind, None)
         return resp
 
+    def _get_task_from_backend(self, kind: str) -> list:
+        """
+        List tasks from backend filtered by function and kind.
+
+        Parameters
+        ----------
+        kind : str
+            Kind the object.
+
+        Returns
+        -------
+        list
+            Response from backend.
+        """
+        params = {"function": self._get_executable_string(), "kind": kind}
+        return list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)
+
     def _check_task_in_backend(self, kind: str) -> bool:
         """
         Check if task exists in backend.
@@ -246,9 +262,7 @@ class ExecutableEntity(VersionedEntity):
         bool
             Flag to determine if task exists in backend.
         """
-        # List tasks from backend filtered by function and kind
-        params = {"function": self._get_executable_string(), "kind": kind}
-        resp = list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)
+        resp = self._get_task_from_backend(kind)
         if not resp:
             return False
         return True
