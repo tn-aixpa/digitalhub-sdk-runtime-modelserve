@@ -4,7 +4,6 @@ import typing
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
-from digitalhub.utils.generic_utils import sanitize_filename
 
 from digitalhub.context.builder import check_context
 from digitalhub.entities._base.crud import (
@@ -20,6 +19,7 @@ from digitalhub.entities.utils.utils import build_log_path_from_filename, build_
 from digitalhub.readers.builder import get_reader_by_object
 from digitalhub.stores.builder import get_store
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
+from digitalhub.utils.generic_utils import sanitize_filename
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
