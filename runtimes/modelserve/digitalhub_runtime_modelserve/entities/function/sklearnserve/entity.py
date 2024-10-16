@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities.function._base.entity import Function
+from digitalhub_runtime_modelserve.entities.function.modelserve.entity import FunctionModelserve
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_modelserve.entities.function.sklearnserve.spec import FunctionSpecSklearnserve
@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
 
 
-class FunctionSklearnserve(Function):
+class FunctionSklearnserve(FunctionModelserve):
     """
     FunctionSklearnserve class.
     """
