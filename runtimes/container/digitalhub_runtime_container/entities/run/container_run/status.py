@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.run.status import RunStatus
+from digitalhub.entities.run._base.status import RunStatus
 
 
 class RunStatusContainerRun(RunStatus):

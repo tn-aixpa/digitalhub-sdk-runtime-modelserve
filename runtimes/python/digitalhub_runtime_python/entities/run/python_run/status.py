@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import requests
 
-from digitalhub.entities.run.status import RunStatus
+from digitalhub.entities.run._base.status import RunStatus
 from digitalhub.utils.exceptions import EntityError
 
 

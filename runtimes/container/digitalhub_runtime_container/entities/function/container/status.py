@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities.function.status import FunctionStatus
+from digitalhub.entities.function._base.status import FunctionStatus
 
 
 class FunctionStatusContainer(FunctionStatus):

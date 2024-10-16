@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_runtime_container.entities.function.models import (
+from digitalhub_runtime_container.entities.function.container.models import (
     SourceCodeStructContainer,
     SourceCodeValidatorContainer,
 )

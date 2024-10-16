@@ -72,7 +72,10 @@ class ExecutableEntity(VersionedEntity):
             Task.
         """
         if self._tasks.get(kind) is None:
-            return self.new_task(kind)
+            try:
+                self._tasks[kind] = self.get_task(kind)
+            except EntityError:
+                self._tasks[kind] = self.new_task(kind)
         return self._tasks[kind]
 
     def import_tasks(self, tasks: list[dict]) -> None:
@@ -199,8 +202,15 @@ class ExecutableEntity(VersionedEntity):
         EntityError
             If task is not created.
         """
-        self._raise_if_not_exists(kind)
-        return self._tasks[kind]
+        try:
+            return self._tasks[kind]
+        except KeyError:
+            params = {"function": self._get_executable_string(), "kind": kind}
+            resp = list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)
+            if len(resp) == 0:
+                raise EntityError(f"Task {kind} is not created")
+            self._tasks[kind] = task_from_dict(resp[0])
+            return self._tasks[kind]
 
     def delete_task(self, kind: str, cascade: bool = True) -> dict:
         """

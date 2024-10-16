@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_runtime_dbt.entities.function.models import SourceCodeStructDbt, SourceCodeValidatorDbt
+from digitalhub_runtime_dbt.entities.function.dbt.models import SourceCodeStructDbt, SourceCodeValidatorDbt
 
 from digitalhub.entities.function._base.spec import FunctionSpec, FunctionValidator
 
