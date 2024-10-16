@@ -9,6 +9,7 @@ from zipfile import ZipFile
 
 import numpy as np
 from requests import get as requests_get
+from slugify import slugify
 
 from digitalhub.utils.io_utils import read_text
 
@@ -163,3 +164,20 @@ def dict_to_json(struct: dict) -> str:
         The json string.
     """
     return json.dumps(struct, cls=MyEncoder)
+
+
+def sanitize_filename(filename: str) -> str:
+    """
+    Sanitize a filename.
+
+    Parameters
+    ----------
+    filename : str
+        The filename to sanitize.
+
+    Returns
+    -------
+    str
+        The sanitized filename.
+    """
+    return slugify(filename, max_length=255)

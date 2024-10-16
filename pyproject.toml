@@ -31,6 +31,7 @@ dependencies = [
     "python-dotenv",
     "GitPython>=3",
     "psycopg2-binary",
+    "python-slugify",
 ]
 
 [project.optional-dependencies]

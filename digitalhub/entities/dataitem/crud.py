@@ -4,6 +4,7 @@ import typing
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
+from digitalhub.utils.generic_utils import sanitize_filename
 
 from digitalhub.context.builder import check_context
 from digitalhub.entities._base.crud import (
@@ -152,10 +153,12 @@ def log_dataitem(
 
     # Case where data is provided
     else:
+        extension = extension if extension is not None else "parquet"
         if path is None:
             uuid = build_uuid()
             kwargs["uuid"] = uuid
-            path = build_log_path_from_filename(project, ENTITY_TYPE, name, uuid, "data.parquet")
+            slug = sanitize_filename(name) + f".{extension}"
+            path = build_log_path_from_filename(project, ENTITY_TYPE, name, uuid, slug)
 
         obj = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)
         if kind == "table":
