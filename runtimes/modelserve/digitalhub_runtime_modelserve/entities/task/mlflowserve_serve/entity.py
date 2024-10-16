@@ -11,9 +11,9 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
 
 
-class TaskModelserveServe(TaskModelserveServe):
+class TaskMlflowserveServe(TaskModelserveServe):
     """
-    TaskModelserveServe class.
+    TaskMlflowserveServe class.
     """
 
     def __init__(
