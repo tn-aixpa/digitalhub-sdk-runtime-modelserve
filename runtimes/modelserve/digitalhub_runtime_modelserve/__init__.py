@@ -22,7 +22,7 @@ for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
     entity_type = EntityTypes.FUNCTION.value
     prefix = entity_type.capitalize()
     suffix = exec_kind.capitalize()
-    exec_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
+    exec_info = create_info(root_ent, entity_type, exec_kind, prefix, suffix, runtime_info)
     registry.register(exec_kind, exec_info)
 
     # Tasks
@@ -31,13 +31,15 @@ for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
         task_kind = f"{exec_kind}+{i}"
         prefix = entity_type.capitalize()
         suffix = exec_kind.capitalize() + i.capitalize()
-        task_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
+        kind_underscore = task_kind.replace("+", "_")
+        task_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
         registry.register(task_kind, task_info)
 
     # Runs
     entity_type = EntityTypes.RUN.value
     run_kind = f"{exec_kind}+run"
     prefix = entity_type.capitalize()
-    suffix = exec_kind.capitalize()
-    run_info = create_info(root_ent, entity_type, prefix, suffix, runtime_info)
+    suffix = exec_kind.capitalize() + entity_type.capitalize()
+    kind_underscore = task_kind.replace("+", "_")
+    run_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
     registry.register(run_kind, run_info)
