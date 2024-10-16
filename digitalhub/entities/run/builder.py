@@ -17,7 +17,7 @@ def run_from_parameters(
     **kwargs,
 ) -> Run:
     """
-    Create run.
+    Create a new object.
 
     Parameters
     ----------

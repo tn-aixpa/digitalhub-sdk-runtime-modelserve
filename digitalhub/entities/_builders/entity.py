@@ -124,7 +124,7 @@ class EntityBuilder(metaclass=ABCMeta):
         return build_status(kind, **kwargs)
 
     @abstractmethod
-    def build(self, _validate: bool = True, **kwargs) -> Entity:
+    def build(self, **kwargs) -> Entity:
         """
         Build entity object.
         """
@@ -142,7 +142,7 @@ class EntityBuilder(metaclass=ABCMeta):
 
         Returns
         -------
-        ArtifactArtifact
-            Entity built from the dictionary.
+        Entity
+            Object instance.
         """
-        return self.build(**obj, _validate=validate)
+        return self.ENTITY_CLASS.from_dict(obj, validate=validate)
