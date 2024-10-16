@@ -61,27 +61,3 @@ class RunValidatorModelserveRun(RunValidator):
     # Task serve
     service_type: str = None
     replicas: int = None
-
-
-class RunSpecSklearnserveRun(RunSpecModelserveRun):
-    """RunSpecSklearnserveRun specifications."""
-
-
-class RunValidatorSklearnserveRun(RunValidatorModelserveRun):
-    """RunValidatorSklearnserveRun validator."""
-
-
-class RunSpecMlflowserveRun(RunSpecModelserveRun):
-    """RunSpecMlflowserveRun specifications."""
-
-
-class RunValidatorMlflowserveRun(RunValidatorModelserveRun):
-    """RunValidatorMlflowserveRun validator."""
-
-
-class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
-    """RunSpecHuggingfaceserveRun specifications."""
-
-
-class RunValidatorHuggingfaceserveRun(RunValidatorModelserveRun):
-    """RunValidatorHuggingfaceserveRun validator."""
