@@ -579,11 +579,16 @@ class ClientDHCore(Client):
         dict
             Response object.
         """
+        # Get refersh token from .core file to avoid concurrency
+        # in a shared workspace
+        self._load_env()
+        refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
+
         # Send request to get new access token
         payload = {
             "grant_type": "refresh_token",
             "client_id": self._client_id,
-            "refresh_token": self._refresh_token,
+            "refresh_token": refresh_token,
         }
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         r = request("POST", url, data=payload, headers=headers, timeout=60)
