@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 
 from digitalhub.entities._builders.metadata import build_metadata
 from digitalhub.entities._builders.name import build_name

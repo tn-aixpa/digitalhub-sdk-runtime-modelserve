@@ -35,7 +35,7 @@ def new_run(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+        ID of the object.
     labels : list[str]
         List of labels.
     task : str

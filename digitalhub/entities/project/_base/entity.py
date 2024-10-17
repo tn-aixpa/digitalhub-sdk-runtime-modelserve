@@ -13,10 +13,6 @@ from digitalhub.entities._base.crud import (
     update_entity_api_base,
 )
 from digitalhub.entities._base.entity.entity import Entity
-from digitalhub.entities._builders.metadata import build_metadata
-from digitalhub.entities._builders.name import build_name
-from digitalhub.entities._builders.spec import build_spec
-from digitalhub.entities._builders.status import build_status
 from digitalhub.entities.artifact.crud import (
     artifact_from_dict,
     delete_artifact,
@@ -333,7 +329,7 @@ class Project(Entity):
         kind : str
             Kind the object.
         uuid : str
-            ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+            ID of the object.
         description : str
             Description of the object (human readable).
         labels : list[str]
@@ -624,7 +620,7 @@ class Project(Entity):
         kind : str
             Kind the object.
         uuid : str
-            ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+            ID of the object.
         description : str
             Description of the object (human readable).
         labels : list[str]
@@ -928,7 +924,7 @@ class Project(Entity):
         kind : str
             Kind the object.
         uuid : str
-            ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+            ID of the object.
         description : str
             Description of the object (human readable).
         labels : list[str]
@@ -1219,7 +1215,7 @@ class Project(Entity):
         kind : str
             Kind the object.
         uuid : str
-            ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+            ID of the object.
         description : str
             Description of the object (human readable).
         labels : list[str]
@@ -1465,7 +1461,7 @@ class Project(Entity):
         kind : str
             Kind the object.
         uuid : str
-            ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+            ID of the object.
         description : str
             Description of the object (human readable).
         labels : list[str]
@@ -1709,7 +1705,7 @@ class Project(Entity):
         name : str
             Object name.
         uuid : str
-            ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+            ID of the object.
         description : str
             Description of the object (human readable).
         labels : list[str]

@@ -41,7 +41,7 @@ def new_workflow(
     name : str
         Object name.
     uuid : str
-        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+        ID of the object.
     description : str
         Description of the object (human readable).
     labels : list[str]

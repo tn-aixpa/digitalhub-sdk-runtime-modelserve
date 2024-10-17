@@ -166,7 +166,7 @@ def dict_to_json(struct: dict) -> str:
     return json.dumps(struct, cls=MyEncoder)
 
 
-def sanitize_filename(filename: str) -> str:
+def slugify_string(filename: str) -> str:
     """
     Sanitize a filename.
 

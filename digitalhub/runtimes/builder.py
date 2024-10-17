@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from abc import ABCMeta
 
 from digitalhub.utils.exceptions import BuilderError
 
@@ -10,7 +9,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.runtimes.kind_registry import KindRegistry
 
 
-class RuntimeBuilder(metaclass=ABCMeta):
+class RuntimeBuilder:
     """
     Builder class for building runtimes.
     """

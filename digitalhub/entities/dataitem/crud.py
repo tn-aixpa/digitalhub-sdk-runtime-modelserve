@@ -19,7 +19,7 @@ from digitalhub.entities.utils.utils import build_log_path_from_filename, build_
 from digitalhub.readers.builder import get_reader_by_object
 from digitalhub.stores.builder import get_store
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
-from digitalhub.utils.generic_utils import sanitize_filename
+from digitalhub.utils.generic_utils import slugify_string
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -52,7 +52,7 @@ def new_dataitem(
     kind : str
         Kind the object.
     uuid : str
-        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+        ID of the object.
     description : str
         Description of the object (human readable).
     labels : list[str]
@@ -157,7 +157,7 @@ def log_dataitem(
         if path is None:
             uuid = build_uuid()
             kwargs["uuid"] = uuid
-            slug = sanitize_filename(name) + f".{extension}"
+            slug = slugify_string(name) + f".{extension}"
             path = build_log_path_from_filename(project, ENTITY_TYPE, name, uuid, slug)
 
         obj = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)

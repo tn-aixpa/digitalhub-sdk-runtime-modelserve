@@ -2,15 +2,7 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from pydantic import UUID4, BaseModel
-
-
-class UUIDValidator(BaseModel):
-    """
-    Validate UUID format.
-    """
-
-    uuid: UUID4
+from digitalhub.utils.generic_utils import slugify_string
 
 
 def build_uuid(uuid: str | None = None) -> str:
@@ -20,7 +12,7 @@ def build_uuid(uuid: str | None = None) -> str:
     Parameters
     ----------
     uuid : str
-        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
+        ID of the object.
 
     Returns
     -------
@@ -28,6 +20,7 @@ def build_uuid(uuid: str | None = None) -> str:
         Validated UUID4.
     """
     if uuid is not None:
-        UUIDValidator(uuid=uuid)
+        if slugify_string(uuid) != uuid:
+            raise ValueError(f"Invalid ID: {uuid}. Must pass slugified ID.")
         return uuid
     return str(uuid4())

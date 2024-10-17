@@ -5,6 +5,7 @@ from digitalhub_runtime_python.entities.run.python_run.builder import RunPythonR
 from digitalhub_runtime_python.entities.task.python_build.builder import TaskPythonBuildBuilder
 from digitalhub_runtime_python.entities.task.python_job.builder import TaskPythonJobBuilder
 from digitalhub_runtime_python.entities.task.python_serve.builder import TaskPythonServeBuilder
+from digitalhub_runtime_python.utils.utils import handler
 
 entity_builders = (
     (FunctionPythonBuilder.ENTITY_KIND, FunctionPythonBuilder),
@@ -21,5 +22,3 @@ try:
     runtime_builders = ((kind, RuntimePythonBuilder) for kind in kind_registry.get_all_kinds())
 except ImportError:
     runtime_builders = tuple()
-
-from digitalhub_runtime_python.utils.utils import handler
