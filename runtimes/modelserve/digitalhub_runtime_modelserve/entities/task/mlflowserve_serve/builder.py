@@ -19,3 +19,5 @@ class TaskMlflowserveServeBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecMlflowserveServe
     ENTITY_SPEC_VALIDATOR = TaskValidatorMlflowserveServe
     ENTITY_STATUS_CLASS = TaskStatusMlflowserveServe
+    ENTITY_KIND = "mlflowserve+serve"
+    ACTION = "serve"

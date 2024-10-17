@@ -2,9 +2,6 @@ from __future__ import annotations
 
 import time
 import typing
-from typing import Any
-
-import requests
 
 from digitalhub.entities._base.crud import (
     list_entity_api_base,
@@ -15,21 +12,17 @@ from digitalhub.entities._base.crud import (
     stop_api,
 )
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
-from digitalhub.entities._builders.spec import build_spec
-from digitalhub.entities._builders.status import build_status
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.state import State
-from digitalhub.registry.registry import registry
-from digitalhub.runtimes.builder import build_runtime
+from digitalhub.factory.factory import factory
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
-    from digitalhub.entities._base.material.entity import MaterialEntity
     from digitalhub.entities.run._base.spec import RunSpec
     from digitalhub.entities.run._base.status import RunStatus
-    from digitalhub.runtimes.base import Runtime
+    from digitalhub.runtimes._base import Runtime
 
 
 class Run(UnversionedEntity):
@@ -70,7 +63,7 @@ class Run(UnversionedEntity):
         executable = self._get_executable(runtime)
         task = self._get_task(runtime)
         new_spec = runtime.build(executable, task, self.to_dict())
-        self.spec = build_spec(
+        self.spec = factory.build_spec(
             self.kind,
             **new_spec,
         )
@@ -147,116 +140,6 @@ class Run(UnversionedEntity):
                     LOGGER.info(f"Run {self.id} finished in {current:.2f} seconds.")
                 return self
 
-    def inputs(self, as_dict: bool = False) -> list[dict]:
-        """
-        Get inputs passed in spec as objects or as dictionaries.
-
-        Parameters
-        ----------
-        as_dict : bool
-            If True, return inputs as dictionaries.
-
-        Returns
-        -------
-        list[dict]
-            List of input objects.
-        """
-        try:
-            return self.spec.get_inputs(as_dict=as_dict)
-        except AttributeError:
-            msg = f"Run of type {self.kind} has no inputs."
-            raise EntityError(msg)
-
-    def results(self) -> dict:
-        """
-        Get results from runtime execution.
-
-        Returns
-        -------
-        dict
-            Results.
-        """
-        try:
-            return self.status.get_results()
-        except AttributeError:
-            msg = f"Run of type {self.kind} has no results."
-            raise EntityError(msg)
-
-    def result(self, key: str) -> Any:
-        """
-        Get result from runtime execution by key.
-
-        Parameters
-        ----------
-        key : str
-            Key of the result.
-
-        Returns
-        -------
-        Any
-            Result.
-        """
-        return self.results().get(key)
-
-    def outputs(self, as_key: bool = False, as_dict: bool = False) -> dict:
-        """
-        Get run objects results.
-
-        Parameters
-        ----------
-        as_key : bool
-            If True, return results as keys.
-        as_dict : bool
-            If True, return results as dictionaries.
-
-        Returns
-        -------
-        dict
-            List of output objects.
-        """
-        try:
-            return self.status.get_outputs(as_key=as_key, as_dict=as_dict)
-        except AttributeError:
-            msg = f"Run of type {self.kind} has no outputs."
-            raise EntityError(msg)
-
-    def output(self, key: str, as_key: bool = False, as_dict: bool = False) -> MaterialEntity | dict | str | None:
-        """
-        Get run object result by key.
-
-        Parameters
-        ----------
-        key : str
-            Key of the result.
-        as_key : bool
-            If True, return result as key.
-        as_dict : bool
-            If True, return result as dictionary.
-
-        Returns
-        -------
-        Entity | dict | str | None
-            Result.
-        """
-        return self.outputs(as_key=as_key, as_dict=as_dict).get(key)
-
-    def values(self) -> dict:
-        """
-        Get values from runtime execution.
-
-        Returns
-        -------
-        dict
-            Values from backend.
-        """
-        try:
-            value_list = getattr(self.spec, "values", [])
-            value_list = value_list if value_list is not None else []
-            return self.status.get_values(value_list)
-        except AttributeError:
-            msg = f"Run of type {self.kind} has no values."
-            raise EntityError(msg)
-
     def logs(self) -> dict:
         """
         Get object from backend.
@@ -307,32 +190,6 @@ class Run(UnversionedEntity):
         # TODO verify the logic and order
         self.run()
 
-    def invoke(self, **kwargs) -> requests.Response:
-        """
-        Invoke run.
-
-        Parameters
-        ----------
-        kwargs
-            Keyword arguments to pass to the request.
-
-        Returns
-        -------
-        requests.Response
-            Response from service.
-        """
-        try:
-            if not self._context().local and not self.spec.local_execution:
-                local = False
-            else:
-                local = True
-            if kwargs is None:
-                kwargs = {}
-            return self.status.invoke(local, **kwargs)
-        except AttributeError:
-            msg = f"Run of type {self.kind} has no invoke operation."
-            raise EntityError(msg)
-
     ##############################
     #  Helpers
     ##############################
@@ -361,7 +218,7 @@ class Run(UnversionedEntity):
         -------
         None
         """
-        self.status: RunStatus = build_status(self.kind, **status)
+        self.status: RunStatus = factory.build_status(self.kind, **status)
 
     def _set_state(self, state: str) -> None:
         """
@@ -402,7 +259,7 @@ class Run(UnversionedEntity):
         Runtime
             Runtime object.
         """
-        return build_runtime(self.kind, self.project)
+        return factory.build_runtime(self.kind, self.project)
 
     def _get_executable(self, runtime: Runtime) -> dict:
         """
@@ -419,7 +276,7 @@ class Run(UnversionedEntity):
             Executable (function or workflow) from backend.
         """
         exec_kind = runtime.get_executable_kind()
-        entity_type = registry.get_entity_type(exec_kind)
+        entity_type = factory.get_entity_type_from_builder(exec_kind)
         splitted = self.spec.task.split("/")
         exec_name = splitted[-1].split(":")[0]
         exec_id = splitted[-1].split(":")[1]

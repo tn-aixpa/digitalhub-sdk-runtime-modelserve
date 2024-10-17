@@ -1,53 +1,37 @@
 from __future__ import annotations
 
 import typing
+from abc import ABCMeta
 
-from digitalhub.registry.registry import registry
-from digitalhub.registry.utils import import_class
+from digitalhub.utils.exceptions import BuilderError
 
 if typing.TYPE_CHECKING:
-    from digitalhub.registry.models import RegistryEntry
-    from digitalhub.runtimes.base import Runtime
+    from digitalhub.runtimes._base import Runtime
     from digitalhub.runtimes.kind_registry import KindRegistry
 
 
-def build_runtime(kind: str, project: str) -> Runtime:
+class RuntimeBuilder(metaclass=ABCMeta):
     """
-    Build runtime object. The builder takes in input a kind.
-    This kind can derive from functions, tasks, or runs, and
-    is inserted in the global kind registry where the runtimes
-    pakages are registered.
-    The builder requires the module path where the Runtime
-    subclass is defined and the class name. It requires also
-    the kind registry module, kind registry class and the project
-    name.
-
-    Parameters
-    ----------
-    kind : str
-        The type of runtime to build.
-    project : str
-        The project name.
-
-    Returns
-    -------
-    Runtime
-        Runtime object.
+    Builder class for building runtimes.
     """
-    infos: RegistryEntry = getattr(registry, kind)
-    cls = import_class(infos.runtime.module, infos.runtime.class_name)
-    kind_registry = get_kind_registry(kind)
-    return cls(kind_registry, project)
 
+    # Class variables
+    RUNTIME_CLASS: Runtime = None
+    KIND_REGISTRY: KindRegistry = None
 
-def get_kind_registry(kind: str) -> KindRegistry:
-    """
-    Get kind registry.
+    def __init__(self) -> None:
+        if self.RUNTIME_CLASS is None:
+            raise BuilderError("RUNTIME_CLASS must be set")
+        if self.KIND_REGISTRY is None:
+            raise BuilderError("KIND_REGISTRY must be set")
 
-    Returns
-    -------
-    KindRegistry
-        Kind registry.
-    """
-    infos: RegistryEntry = getattr(registry, kind)
-    return import_class(infos.runtime.kind_registry_module, infos.runtime.kind_registry_class_name)
+    def build(self, *args, **kwargs) -> Runtime:
+        """
+        Build runtime object.
+
+        Returns
+        -------
+        Runtime
+            Runtime object.
+        """
+        return self.RUNTIME_CLASS(self.KIND_REGISTRY, *args, **kwargs)

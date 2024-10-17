@@ -15,3 +15,4 @@ class ModelHuggingfaceBuilder(ModelBuilder):
     ENTITY_SPEC_CLASS = ModelSpecHuggingface
     ENTITY_SPEC_VALIDATOR = ModelValidatorHuggingface
     ENTITY_STATUS_CLASS = ModelStatusHuggingface
+    ENTITY_KIND = "huggingface"

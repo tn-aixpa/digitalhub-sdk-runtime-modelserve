@@ -13,16 +13,16 @@ from digitalhub_runtime_kfp.utils.configurations import (
 from digitalhub_runtime_kfp.utils.functions import run_kfp_pipeline
 
 from digitalhub.context.builder import get_context
-from digitalhub.runtimes.base import Runtime
+from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from digitalhub.runtimes.kind_registry import KindRegistry
 
 
-class RuntimeKFP(Runtime):
+class RuntimeKfp(Runtime):
     """
-    Runtime KFP class.
+    RuntimeKfp class.
     """
 
     def __init__(self, kind_registry: KindRegistry, project: str) -> None:

@@ -8,6 +8,7 @@ from digitalhub.entities._builders.name import build_name
 from digitalhub.entities._builders.spec import build_spec
 from digitalhub.entities._builders.status import build_status
 from digitalhub.entities._builders.uuid import build_uuid
+from digitalhub.utils.exceptions import BuilderError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.entity import Entity
@@ -16,26 +17,32 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.status import Status
 
 
-class EntityBuilder(metaclass=ABCMeta):
+class EntityBuilder:
     """
     Builder class for building entities.
     """
 
     # Class variables
+    ENTITY_TYPE: str = None
     ENTITY_CLASS: Entity = None
     ENTITY_SPEC_CLASS: Spec = None
     ENTITY_SPEC_VALIDATOR: SpecValidator = None
     ENTITY_STATUS_CLASS: Status = None
+    ENTITY_KIND: str = None
 
     def __init__(self) -> None:
+        if self.ENTITY_TYPE is None:
+            raise BuilderError("ENTITY_TYPE must be set")
         if self.ENTITY_CLASS is None:
-            raise ValueError("ENTITY_CLASS must be set")
+            raise BuilderError("ENTITY_CLASS must be set")
         if self.ENTITY_SPEC_CLASS is None:
-            raise ValueError("ENTITY_SPEC_CLASS must be set")
+            raise BuilderError("ENTITY_SPEC_CLASS must be set")
         if self.ENTITY_SPEC_VALIDATOR is None:
-            raise ValueError("ENTITY_SPEC_VALIDATOR must be set")
+            raise BuilderError("ENTITY_SPEC_VALIDATOR must be set")
         if self.ENTITY_STATUS_CLASS is None:
-            raise ValueError("ENTITY_STATUS_CLASS must be set")
+            raise BuilderError("ENTITY_STATUS_CLASS must be set")
+        if self.ENTITY_KIND is None:
+            raise BuilderError("ENTITY_KIND must be set")
 
     def build_name(self, name: str) -> str:
         """
@@ -69,14 +76,12 @@ class EntityBuilder(metaclass=ABCMeta):
         """
         return build_uuid(uuid)
 
-    def build_metadata(self, kind: str, **kwargs) -> Metadata:
+    def build_metadata(self, **kwargs) -> Metadata:
         """
         Build entity metadata object.
 
         Parameters
         ----------
-        kind : str
-            Registry entry kind.
         **kwargs : dict
             Keyword arguments for the constructor.
 
@@ -85,16 +90,14 @@ class EntityBuilder(metaclass=ABCMeta):
         Metadata
             Metadata object.
         """
-        return build_metadata(kind, **kwargs)
+        return build_metadata(**kwargs)
 
-    def build_spec(self, kind: str, **kwargs) -> Spec:
+    def build_spec(self, validate: bool = True, **kwargs) -> Spec:
         """
         Build entity spec object.
 
         Parameters
         ----------
-        kind : str
-            Registry entry kind.
         **kwargs : dict
             Keyword arguments for the constructor.
 
@@ -103,16 +106,14 @@ class EntityBuilder(metaclass=ABCMeta):
         Spec
             Spec object.
         """
-        return build_spec(kind, **kwargs)
+        return build_spec(self.ENTITY_SPEC_CLASS, self.ENTITY_SPEC_VALIDATOR, validate=validate, **kwargs)
 
-    def build_status(self, kind: str, **kwargs) -> Status:
+    def build_status(self, **kwargs) -> Status:
         """
         Build entity status object.
 
         Parameters
         ----------
-        kind : str
-            Registry entry kind.
         **kwargs : dict
             Keyword arguments for the constructor.
 
@@ -121,28 +122,32 @@ class EntityBuilder(metaclass=ABCMeta):
         Status
             Status object.
         """
-        return build_status(kind, **kwargs)
+        return build_status(self.ENTITY_STATUS_CLASS, **kwargs)
 
-    @abstractmethod
-    def build(self, **kwargs) -> Entity:
+    def build_entity(self, **kwargs) -> Entity:
         """
         Build entity object.
-        """
-
-    def from_dict(self, obj: dict, validate: bool = True) -> Entity:
-        """
-        Build entity from dictionary.
 
         Parameters
         ----------
-        obj : dict
-            Dictionary to build the entity from.
-        validate : bool
-            Whether to validate the entity.
+        **kwargs : dict
+            Keyword arguments for the constructor.
 
         Returns
         -------
         Entity
-            Object instance.
+            Entity object.
         """
-        return self.ENTITY_CLASS.from_dict(obj, validate=validate)
+        return self.ENTITY_CLASS(**kwargs)
+
+    @abstractmethod
+    def build(self, *args, **kwargs) -> Entity:
+        """
+        Build entity object.
+        """
+
+    @abstractmethod
+    def from_dict(self, obj: dict, validate: bool = True) -> Entity:
+        """
+        Build entity object from dictionary.
+        """

@@ -13,7 +13,7 @@ from digitalhub.utils.exceptions import BackendError, EntityError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.project.project.entity import Project
+    from digitalhub.entities.project._base.entity import Project
 
 
 ENTITY_TYPE = EntityTypes.PROJECT.value

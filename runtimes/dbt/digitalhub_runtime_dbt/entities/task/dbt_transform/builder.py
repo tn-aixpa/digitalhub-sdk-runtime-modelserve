@@ -16,3 +16,5 @@ class TaskDbtTransformBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecDbtTransform
     ENTITY_SPEC_VALIDATOR = TaskValidatorDbtTransform
     ENTITY_STATUS_CLASS = TaskStatusDbtTransform
+    ENTITY_KIND = "dbt+transform"
+    ACTION = "transform"

@@ -19,3 +19,4 @@ class FunctionHuggingfaceserveBuilder(FunctionBuilder):
     ENTITY_SPEC_CLASS = FunctionSpecHuggingfaceserve
     ENTITY_SPEC_VALIDATOR = FunctionValidatorHuggingfaceserve
     ENTITY_STATUS_CLASS = FunctionStatusHuggingfaceserve
+    ENTITY_KIND = "huggingfaceserve"

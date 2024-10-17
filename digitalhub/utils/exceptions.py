@@ -1,6 +1,12 @@
 from __future__ import annotations
 
 
+class BuilderError(Exception):
+    """
+    Raised when incontered errors on builders.
+    """
+
+
 class StoreError(Exception):
     """
     Raised when incontered errors on stores.

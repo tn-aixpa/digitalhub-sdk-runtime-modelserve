@@ -19,7 +19,6 @@ class RunMlflowserveRun(RunModelserveRun):
     def __init__(
         self,
         project: str,
-        name: str,
         uuid: str,
         kind: str,
         metadata: Metadata,
@@ -27,7 +26,7 @@ class RunMlflowserveRun(RunModelserveRun):
         status: RunStatusMlflowserveRun,
         user: str | None = None,
     ) -> None:
-        super().__init__(project, name, uuid, kind, metadata, spec, status, user)
+        super().__init__(project, uuid, kind, metadata, spec, status, user)
 
         self.spec: RunSpecMlflowserveRun
         self.status: RunStatusMlflowserveRun

@@ -19,7 +19,6 @@ class RunSklearnserveRun(RunModelserveRun):
     def __init__(
         self,
         project: str,
-        name: str,
         uuid: str,
         kind: str,
         metadata: Metadata,
@@ -27,7 +26,7 @@ class RunSklearnserveRun(RunModelserveRun):
         status: RunStatusSklearnserveRun,
         user: str | None = None,
     ) -> None:
-        super().__init__(project, name, uuid, kind, metadata, spec, status, user)
+        super().__init__(project, uuid, kind, metadata, spec, status, user)
 
         self.spec: RunSpecSklearnserveRun
         self.status: RunStatusSklearnserveRun

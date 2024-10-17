@@ -5,7 +5,7 @@ import typing
 from digitalhub.context.context import Context
 
 if typing.TYPE_CHECKING:
-    from digitalhub.entities.project.project.entity import Project
+    from digitalhub.entities.project._base.entity import Project
 
 
 class ContextBuilder:

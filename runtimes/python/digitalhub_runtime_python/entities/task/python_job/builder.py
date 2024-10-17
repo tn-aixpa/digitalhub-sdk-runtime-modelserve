@@ -16,3 +16,5 @@ class TaskPythonJobBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecPythonJob
     ENTITY_SPEC_VALIDATOR = TaskValidatorPythonJob
     ENTITY_STATUS_CLASS = TaskStatusPythonJob
+    ENTITY_KIND = "python+job"
+    ACTION = "job"

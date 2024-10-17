@@ -6,7 +6,7 @@ from digitalhub.entities.model.model.spec import ModelSpecModel, ModelValidatorM
 from digitalhub.entities.model.model.status import ModelStatusModel
 
 
-class ModelModelBuilder(ModelBuilder):
+class ModelMlflowBuilder(ModelBuilder):
     """
     ModelModel builder.
     """
@@ -15,3 +15,4 @@ class ModelModelBuilder(ModelBuilder):
     ENTITY_SPEC_CLASS = ModelSpecModel
     ENTITY_SPEC_VALIDATOR = ModelValidatorModel
     ENTITY_STATUS_CLASS = ModelStatusModel
+    ENTITY_KIND = "model"

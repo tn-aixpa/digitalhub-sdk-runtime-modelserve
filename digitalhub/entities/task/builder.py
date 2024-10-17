@@ -1,60 +1,33 @@
 from __future__ import annotations
 
-from digitalhub.entities._builders.metadata import build_metadata
-from digitalhub.entities._builders.spec import build_spec
-from digitalhub.entities._builders.status import build_status
-from digitalhub.entities._builders.uuid import build_uuid
-from digitalhub.entities.task._base.entity import Task
+import typing
+
+from digitalhub.factory.factory import factory
+from digitalhub.utils.exceptions import BuilderError
+
+if typing.TYPE_CHECKING:
+    from digitalhub.entities.task._base.entity import Task
 
 
-def task_from_parameters(
-    project: str,
-    kind: str,
-    uuid: str | None = None,
-    labels: list[str] | None = None,
-    function: str | None = None,
-    **kwargs,
-) -> Task:
+def task_from_parameters(**kwargs) -> Task:
     """
     Create a new object.
 
     Parameters
     ----------
-    project : str
-        Project name.
-    kind : str
-        Kind the object.
-    uuid : str
-        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
-    labels : list[str]
-        List of labels.
-    function : str
-        Name of the executable associated with the task.
-    **kwargs : dict
-        Spec keyword arguments.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Task
         Object instance.
     """
-    uuid = build_uuid(uuid)
-    metadata = build_metadata(
-        kind=kind,
-        project=project,
-        name=uuid,
-        labels=labels,
-    )
-    spec = build_spec(kind, function=function, **kwargs)
-    status = build_status(kind)
-    return Task(
-        project=project,
-        uuid=uuid,
-        kind=kind,
-        metadata=metadata,
-        spec=spec,
-        status=status,
-    )
+    try:
+        kind = kwargs["kind"]
+    except KeyError:
+        raise BuilderError("Missing 'kind' parameter.")
+    return factory.build_entity_from_params(kind, **kwargs)
 
 
 def task_from_dict(obj: dict) -> Task:
@@ -64,11 +37,15 @@ def task_from_dict(obj: dict) -> Task:
     Parameters
     ----------
     obj : dict
-        Dictionary representation of Task.
+        Dictionary to create object from.
 
     Returns
     -------
     Task
         Object instance.
     """
-    return Task.from_dict(obj)
+    try:
+        kind = obj["kind"]
+    except KeyError:
+        raise BuilderError("Missing 'kind' parameter.")
+    return factory.build_entity_from_dict(kind, obj)

@@ -19,3 +19,4 @@ class FunctionSklearnserveBuilder(FunctionBuilder):
     ENTITY_SPEC_CLASS = FunctionSpecSklearnserve
     ENTITY_SPEC_VALIDATOR = FunctionValidatorSklearnserve
     ENTITY_STATUS_CLASS = FunctionStatusSklearnserve
+    ENTITY_KIND = "sklearnserve"

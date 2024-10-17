@@ -8,7 +8,7 @@ from digitalhub_runtime_python.utils.inputs import compose_inputs
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
 from digitalhub.context.builder import get_context
-from digitalhub.runtimes.base import Runtime
+from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:

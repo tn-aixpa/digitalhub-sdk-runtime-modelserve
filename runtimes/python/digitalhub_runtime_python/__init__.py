@@ -1,47 +1,25 @@
 from __future__ import annotations
 
+from digitalhub_runtime_python.entities.function.python.builder import FunctionPythonBuilder
+from digitalhub_runtime_python.entities.run.python_run.builder import RunPythonRunBuilder
+from digitalhub_runtime_python.entities.task.python_build.builder import TaskPythonBuildBuilder
+from digitalhub_runtime_python.entities.task.python_job.builder import TaskPythonJobBuilder
+from digitalhub_runtime_python.entities.task.python_serve.builder import TaskPythonServeBuilder
+
+entity_builders = (
+    (FunctionPythonBuilder.ENTITY_KIND, FunctionPythonBuilder),
+    (TaskPythonBuildBuilder.ENTITY_KIND, TaskPythonBuildBuilder),
+    (TaskPythonJobBuilder.ENTITY_KIND, TaskPythonJobBuilder),
+    (TaskPythonServeBuilder.ENTITY_KIND, TaskPythonServeBuilder),
+    (RunPythonRunBuilder.ENTITY_KIND, RunPythonRunBuilder),
+)
+
+try:
+    from digitalhub_runtime_python.runtimes.builder import RuntimePythonBuilder
+    from digitalhub_runtime_python.runtimes.kind_registry import kind_registry
+
+    runtime_builders = ((kind, RuntimePythonBuilder) for kind in kind_registry.get_all_kinds())
+except ImportError:
+    runtime_builders = tuple()
+
 from digitalhub_runtime_python.utils.utils import handler
-
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.registry.registry import registry
-from digitalhub.registry.utils import create_info
-
-root = "digitalhub_runtime_python"
-runtime_info = {
-    "module": f"{root}.runtimes.runtime",
-    "class_name": "RuntimePython",
-    "kind_registry_module": f"{root}.runtimes.kind_registry",
-    "kind_registry_class_name": "kind_registry",
-}
-
-root_ent = f"{root}.entities"
-
-
-# Function
-entity_type = EntityTypes.FUNCTION.value
-exec_kind = "python"
-prefix = entity_type.capitalize()
-suffix = exec_kind.capitalize()
-exec_info = create_info(root_ent, entity_type, exec_kind, prefix, suffix, runtime_info)
-registry.register(exec_kind, exec_info)
-
-
-# Tasks
-entity_type = EntityTypes.TASK.value
-for i in ["job", "build", "serve"]:
-    task_kind = f"{exec_kind}+{i}"
-    prefix = entity_type.capitalize()
-    suffix = exec_kind.capitalize() + i.capitalize()
-    kind_underscore = task_kind.replace("+", "_")
-    task_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-    registry.register(task_kind, task_info)
-
-
-# Runs
-entity_type = EntityTypes.RUN.value
-run_kind = f"{exec_kind}+run"
-prefix = entity_type.capitalize()
-suffix = exec_kind.capitalize() + entity_type.capitalize()
-kind_underscore = run_kind.replace("+", "_")
-run_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-registry.register(run_kind, run_info)

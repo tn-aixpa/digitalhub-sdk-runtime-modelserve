@@ -1,20 +1,23 @@
 from __future__ import annotations
 
-from digitalhub.entities._builders.entity import EntityBuilder
-from digitalhub.entities.secret.secret.entity import Secret
-from digitalhub.entities.secret.secret.spec import SecretSpec, SecretValidator
-from digitalhub.entities.secret.secret.status import SecretStatus
+from digitalhub.entities._base.versioned.builder import VersionedBuilder
+from digitalhub.entities.secret._base.entity import Secret
+from digitalhub.entities.secret._base.spec import SecretSpec, SecretValidator
+from digitalhub.entities.secret._base.status import SecretStatus
+from digitalhub.entities.utils.entity_types import EntityTypes
 
 
-class SecretSecretBuilder(EntityBuilder):
+class SecretSecretBuilder(VersionedBuilder):
     """
-    SecretSecret builder.
+    SecretSecretBuilder builder.
     """
 
+    ENTITY_TYPE = EntityTypes.SECRET.value
     ENTITY_CLASS = Secret
     ENTITY_SPEC_CLASS = SecretSpec
     ENTITY_SPEC_VALIDATOR = SecretValidator
     ENTITY_STATUS_CLASS = SecretStatus
+    ENTITY_KIND = "secret"
 
     def build(
         self,
@@ -24,7 +27,6 @@ class SecretSecretBuilder(EntityBuilder):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
         **kwargs,
     ) -> Secret:
         """
@@ -44,8 +46,6 @@ class SecretSecretBuilder(EntityBuilder):
             Description of the object (human readable).
         labels : list[str]
             List of labels.
-        embedded : bool
-            Flag to determine if object spec must be embedded in project spec.
         **kwargs : dict
             Spec keyword arguments.
 
@@ -65,14 +65,12 @@ class SecretSecretBuilder(EntityBuilder):
         path = f"kubernetes://dhcore-proj-secrets-{project}/{name}"
         provider = "kubernetes"
         spec = self.build_spec(
-            self.ENTITY_SPEC_CLASS,
-            self.ENTITY_SPEC_VALIDATOR,
             path=path,
             provider=provider,
             **kwargs,
         )
-        status = self.build_status(self.ENTITY_STATUS_CLASS)
-        return self.ENTITY_CLASS(
+        status = self.build_status()
+        return self.build_entity(
             project=project,
             name=name,
             uuid=uuid,

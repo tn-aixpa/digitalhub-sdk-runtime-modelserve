@@ -1,44 +1,19 @@
 from __future__ import annotations
 
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.registry.registry import registry
-from digitalhub.registry.utils import create_info
+from digitalhub_runtime_kfp.entities.run.kfp_run.builder import RunKfpRunBuilder
+from digitalhub_runtime_kfp.entities.task.kfp_pipeline.builder import TaskKfpPipelineBuilder
+from digitalhub_runtime_kfp.entities.workflow.kfp.builder import WorkflowKfpBuilder
 
-root = "digitalhub_runtime_kfp"
-runtime_info = {
-    "module": f"{root}.runtimes.runtime",
-    "class_name": "RuntimeKFP",
-    "kind_registry_module": f"{root}.runtimes.kind_registry",
-    "kind_registry_class_name": "kind_registry",
-}
+entity_builders = (
+    (RunKfpRunBuilder.ENTITY_KIND, RunKfpRunBuilder),
+    (TaskKfpPipelineBuilder.ENTITY_KIND, TaskKfpPipelineBuilder),
+    (WorkflowKfpBuilder.ENTITY_KIND, WorkflowKfpBuilder),
+)
 
-root_ent = f"{root}.entities"
+try:
+    from digitalhub_runtime_kfp.runtimes.builder import RuntimeKfpBuilder
+    from digitalhub_runtime_kfp.runtimes.kind_registry import kind_registry
 
-# Workflow
-entity_type = EntityTypes.WORKFLOW.value
-exec_kind = "kfp"
-prefix = entity_type.capitalize()
-suffix = exec_kind.capitalize()
-exec_info = create_info(root_ent, entity_type, exec_kind, prefix, suffix, runtime_info)
-registry.register(exec_kind, exec_info)
-
-
-# Tasks
-entity_type = EntityTypes.TASK.value
-for i in ["pipeline"]:
-    task_kind = f"{exec_kind}+{i}"
-    prefix = entity_type.capitalize()
-    suffix = exec_kind.capitalize() + i.capitalize()
-    kind_underscore = task_kind.replace("+", "_")
-    task_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-    registry.register(task_kind, task_info)
-
-
-# Runs
-entity_type = EntityTypes.RUN.value
-run_kind = f"{exec_kind}+run"
-prefix = entity_type.capitalize()
-suffix = exec_kind.capitalize() + entity_type.capitalize()
-kind_underscore = run_kind.replace("+", "_")
-run_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-registry.register(run_kind, run_info)
+    runtime_builders = ((kind, RuntimeKfpBuilder) for kind in kind_registry.get_all_kinds())
+except ImportError:
+    runtime_builders = tuple()

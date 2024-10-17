@@ -19,7 +19,6 @@ class TaskMlflowserveServe(TaskModelserveServe):
     def __init__(
         self,
         project: str,
-        name: str,
         uuid: str,
         kind: str,
         metadata: Metadata,
@@ -27,7 +26,7 @@ class TaskMlflowserveServe(TaskModelserveServe):
         status: TaskStatusMlflowserveServe,
         user: str | None = None,
     ) -> None:
-        super().__init__(project, name, uuid, kind, metadata, spec, status, user)
+        super().__init__(project, uuid, kind, metadata, spec, status, user)
 
         self.spec: TaskSpecMlflowserveServe
         self.status: TaskStatusMlflowserveServe

@@ -16,3 +16,4 @@ class RunDbtRunBuilder(RunBuilder):
     ENTITY_SPEC_CLASS = RunSpecDbtRun
     ENTITY_SPEC_VALIDATOR = RunValidatorDbtRun
     ENTITY_STATUS_CLASS = RunStatusDbtRun
+    ENTITY_KIND = "dbt+run"

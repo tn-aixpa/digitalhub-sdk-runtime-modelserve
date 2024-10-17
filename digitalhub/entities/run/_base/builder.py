@@ -2,16 +2,19 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._builders.entity import EntityBuilder
+from digitalhub.entities._base.unversioned.builder import UnversionedBuilder
+from digitalhub.entities.utils.entity_types import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.run._base.entity import Run
 
 
-class RunBuilder(EntityBuilder):
+class RunBuilder(UnversionedBuilder):
     """
     Run builder.
     """
+
+    ENTITY_TYPE = EntityTypes.RUN.value
 
     def build(
         self,
@@ -55,14 +58,12 @@ class RunBuilder(EntityBuilder):
             labels=labels,
         )
         spec = self.build_spec(
-            self.ENTITY_SPEC_CLASS,
-            self.ENTITY_SPEC_VALIDATOR,
             task=task,
             local_execution=local_execution,
             **kwargs,
         )
-        status = self.build_status(self.ENTITY_STATUS_CLASS)
-        return self.ENTITY_CLASS(
+        status = self.build_status()
+        return self.build_entity(
             project=project,
             uuid=uuid,
             kind=kind,

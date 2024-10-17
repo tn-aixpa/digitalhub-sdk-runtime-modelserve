@@ -19,3 +19,4 @@ class FunctionMlflowserveBuilder(FunctionBuilder):
     ENTITY_SPEC_CLASS = FunctionSpecMlflowserve
     ENTITY_SPEC_VALIDATOR = FunctionValidatorMlflowserve
     ENTITY_STATUS_CLASS = FunctionStatusMlflowserve
+    ENTITY_KIND = "mlflowserve"

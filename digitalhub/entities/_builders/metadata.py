@@ -4,20 +4,13 @@ from digitalhub.entities._base.entity.metadata import Metadata
 from digitalhub.utils.generic_utils import get_timestamp
 
 
-def build_metadata(kind: str, **kwargs) -> Metadata:
+def build_metadata(**kwargs) -> Metadata:
     """
-    Build entity metadata object. The builder takes as input
-    the kind of metadata's object to build and the keyword
-    arguments to pass to the metadata's constructor.
-    The specific Metadata class is searched in the global
-    registry, where lies info about where to find the class.
-    The arguments are parsed, eventually adding default values,
-    and then passed to the constructor.
+    Build entity metadata object. This method is used to build entity
+    metadata.
 
     Parameters
     ----------
-    kind : str
-        Registry entry kind.
     **kwargs : dict
         Keyword arguments for the constructor.
 

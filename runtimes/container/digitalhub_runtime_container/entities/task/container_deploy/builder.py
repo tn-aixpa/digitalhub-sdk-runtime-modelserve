@@ -19,3 +19,5 @@ class TaskContainerDeployBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecContainerDeploy
     ENTITY_SPEC_VALIDATOR = TaskValidatorContainerDeploy
     ENTITY_STATUS_CLASS = TaskStatusContainerDeploy
+    ENTITY_KIND = "container+deploy"
+    ACTION = "deploy"

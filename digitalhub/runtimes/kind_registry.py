@@ -168,3 +168,17 @@ class KindRegistry:
             Executable kind.
         """
         return self.data.executable.kind
+
+    def get_all_kinds(self) -> list[str]:
+        """
+        Get all kinds.
+
+        Returns
+        -------
+        list[str]
+            All kinds.
+        """
+        exec_kind = self.get_executable_kind()
+        run_kind = self.get_run_kind()
+        task_kinds = [task.kind for task in self.data.task]
+        return [exec_kind, run_kind, *task_kinds]

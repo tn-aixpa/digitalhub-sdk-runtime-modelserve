@@ -15,3 +15,4 @@ class DataitemIcebergBuilder(DataitemBuilder):
     ENTITY_SPEC_CLASS = DataitemSpecIceberg
     ENTITY_SPEC_VALIDATOR = DataitemValidatorIceberg
     ENTITY_STATUS_CLASS = DataitemStatusIceberg
+    ENTITY_KIND = "iceberg"

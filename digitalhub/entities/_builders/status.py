@@ -3,40 +3,30 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities.utils.state import State
-from digitalhub.registry.registry import registry
-from digitalhub.registry.utils import import_class
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.status import Status
-    from digitalhub.registry.models import RegistryEntry
 
 
-def build_status(kind: str, **kwargs) -> Status:
+def build_status(status_cls: Status, **kwargs) -> Status:
     """
-    Build entity status object. The builder takes as input
-    the kind of status's object to build and the keyword
-    arguments to pass to the status's constructor.
-    The specific Status class is searched in the global
-    registry, where lies info about where to find the class.
-    The arguments are parsed, eventually adding default values,
-    and then passed to the constructor.
+    Build entity status object. This method is used to build entity
+    status.
 
     Parameters
     ----------
-    kind : str
-        Registry entry kind.
+    status_cls : Status
+        Entity status class.
     **kwargs : dict
-        Keyword arguments for the constructor.
+        Keyword arguments.
 
     Returns
     -------
     Status
-        Status object.
+        Entity status object.
     """
-    infos: RegistryEntry = getattr(registry, kind)
-    status = import_class(infos.status.module, infos.status.class_name)
     kwargs = parse_arguments(**kwargs)
-    return status(**kwargs)
+    return status_cls(**kwargs)
 
 
 def parse_arguments(**kwargs) -> dict:

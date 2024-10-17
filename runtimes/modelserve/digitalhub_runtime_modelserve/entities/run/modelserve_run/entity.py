@@ -21,7 +21,6 @@ class RunModelserveRun(Run):
     def __init__(
         self,
         project: str,
-        name: str,
         uuid: str,
         kind: str,
         metadata: Metadata,
@@ -29,7 +28,7 @@ class RunModelserveRun(Run):
         status: RunStatusModelserveRun,
         user: str | None = None,
     ) -> None:
-        super().__init__(project, name, uuid, kind, metadata, spec, status, user)
+        super().__init__(project, uuid, kind, metadata, spec, status, user)
 
         self.spec: RunSpecModelserveRun
         self.status: RunStatusModelserveRun

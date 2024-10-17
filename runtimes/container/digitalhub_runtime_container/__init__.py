@@ -1,45 +1,25 @@
 from __future__ import annotations
 
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.registry.registry import registry
-from digitalhub.registry.utils import create_info
+from digitalhub_runtime_container.entities.function.container.builder import FunctionContainerBuilder
+from digitalhub_runtime_container.entities.run.container_run.builder import RunContainerRunBuilder
+from digitalhub_runtime_container.entities.task.container_build.builder import TaskContainerBuildBuilder
+from digitalhub_runtime_container.entities.task.container_deploy.builder import TaskContainerDeployBuilder
+from digitalhub_runtime_container.entities.task.container_job.builder import TaskContainerJobBuilder
+from digitalhub_runtime_container.entities.task.container_serve.builder import TaskContainerServeBuilder
 
-root = "digitalhub_runtime_container"
-runtime_info = {
-    "module": f"{root}.runtimes.runtime",
-    "class_name": "RuntimeContainer",
-    "kind_registry_module": f"{root}.runtimes.kind_registry",
-    "kind_registry_class_name": "kind_registry",
-}
+entity_builders = (
+    (FunctionContainerBuilder.ENTITY_KIND, FunctionContainerBuilder),
+    (TaskContainerBuildBuilder.ENTITY_KIND, TaskContainerBuildBuilder),
+    (TaskContainerDeployBuilder.ENTITY_KIND, TaskContainerDeployBuilder),
+    (TaskContainerJobBuilder.ENTITY_KIND, TaskContainerJobBuilder),
+    (TaskContainerServeBuilder.ENTITY_KIND, TaskContainerServeBuilder),
+    (RunContainerRunBuilder.ENTITY_KIND, RunContainerRunBuilder),
+)
 
-root_ent = f"{root}.entities"
+try:
+    from digitalhub_runtime_container.runtimes.builder import RuntimeContainerBuilder
+    from digitalhub_runtime_container.runtimes.kind_registry import kind_registry
 
-
-# Function
-entity_type = EntityTypes.FUNCTION.value
-exec_kind = "container"
-prefix = entity_type.capitalize()
-suffix = exec_kind.capitalize()
-exec_info = create_info(root_ent, entity_type, exec_kind, prefix, suffix, runtime_info)
-registry.register(exec_kind, exec_info)
-
-
-# Tasks
-entity_type = EntityTypes.TASK.value
-for i in ["job", "deploy", "serve", "build"]:
-    task_kind = f"{exec_kind}+{i}"
-    prefix = entity_type.capitalize()
-    suffix = exec_kind.capitalize() + i.capitalize()
-    kind_underscore = task_kind.replace("+", "_")
-    task_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-    registry.register(task_kind, task_info)
-
-
-# Runs
-entity_type = EntityTypes.RUN.value
-run_kind = f"{exec_kind}+run"
-prefix = entity_type.capitalize()
-suffix = exec_kind.capitalize() + entity_type.capitalize()
-kind_underscore = run_kind.replace("+", "_")
-run_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-registry.register(run_kind, run_info)
+    runtime_builders = ((kind, RuntimeContainerBuilder) for kind in kind_registry.get_all_kinds())
+except ImportError:
+    runtime_builders = tuple()

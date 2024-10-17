@@ -19,3 +19,4 @@ class RunHuggingfaceserveRunBuilder(RunBuilder):
     ENTITY_SPEC_CLASS = RunSpecHuggingfaceserveRun
     ENTITY_SPEC_VALIDATOR = RunValidatorHuggingfaceserveRun
     ENTITY_STATUS_CLASS = RunStatusHuggingfaceserveRun
+    ENTITY_KIND = "huggingfaceserve+run"

@@ -19,7 +19,7 @@ from digitalhub_runtime_dbt.utils.outputs import build_status, create_dataitem_,
 from digitalhub.context.builder import get_context
 from digitalhub.entities._builders.uuid import build_uuid
 from digitalhub.entities.dataitem.crud import dataitem_from_dict
-from digitalhub.runtimes.base import Runtime
+from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:

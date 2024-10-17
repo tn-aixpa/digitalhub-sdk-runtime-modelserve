@@ -16,3 +16,4 @@ class RunKfpRunBuilder(RunBuilder):
     ENTITY_SPEC_CLASS = RunSpecKfpRun
     ENTITY_SPEC_VALIDATOR = RunValidatorKfpRun
     ENTITY_STATUS_CLASS = RunStatusKfpRun
+    ENTITY_KIND = "kfp+run"

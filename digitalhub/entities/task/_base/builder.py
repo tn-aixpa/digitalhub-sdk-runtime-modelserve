@@ -2,16 +2,26 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._builders.entity import EntityBuilder
+from digitalhub.entities._base.unversioned.builder import UnversionedBuilder
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.utils.exceptions import BuilderError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.task._base.entity import Task
 
 
-class TaskBuilder(EntityBuilder):
+class TaskBuilder(UnversionedBuilder):
     """
     Task builder.
     """
+
+    ACTION: str = None
+    ENTITY_TYPE = EntityTypes.TASK.value
+
+    def __init__(self) -> None:
+        super().__init__()
+        if self.ACTION is None:
+            raise BuilderError("ACTION must be set")
 
     def build(
         self,
@@ -52,13 +62,11 @@ class TaskBuilder(EntityBuilder):
             labels=labels,
         )
         spec = self.build_spec(
-            self.ENTITY_SPEC_CLASS,
-            self.ENTITY_SPEC_VALIDATOR,
             function=function,
             **kwargs,
         )
-        status = self.build_status(self.ENTITY_STATUS_CLASS)
-        return self.ENTITY_CLASS(
+        status = self.build_status()
+        return self.build_entity(
             project=project,
             uuid=uuid,
             kind=kind,

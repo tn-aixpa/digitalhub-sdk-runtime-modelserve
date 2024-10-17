@@ -15,3 +15,4 @@ class ArtifactArtifactBuilder(ArtifactBuilder):
     ENTITY_SPEC_CLASS = ArtifactSpecArtifact
     ENTITY_SPEC_VALIDATOR = ArtifactValidatorArtifact
     ENTITY_STATUS_CLASS = ArtifactStatusArtifact
+    ENTITY_KIND = "artifact"

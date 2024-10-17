@@ -1,45 +1,39 @@
 from __future__ import annotations
 
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.registry.registry import registry
-from digitalhub.registry.utils import create_info
+from digitalhub_runtime_modelserve.entities.function.huggingfaceserve.builder import FunctionHuggingfaceserveBuilder
+from digitalhub_runtime_modelserve.entities.function.mlflowserve.builder import FunctionMlflowserveBuilder
+from digitalhub_runtime_modelserve.entities.function.sklearnserve.builder import FunctionSklearnserveBuilder
+from digitalhub_runtime_modelserve.entities.run.huggingfaceserve_run.builder import RunHuggingfaceserveRunBuilder
+from digitalhub_runtime_modelserve.entities.run.mlflowserve_run.builder import RunMlflowserveRunBuilder
+from digitalhub_runtime_modelserve.entities.run.sklearnserve_run.builder import RunSklearnserveRunBuilder
+from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.builder import TaskHuggingfaceserveServeBuilder
+from digitalhub_runtime_modelserve.entities.task.mlflowserve_serve.builder import TaskMlflowserveServeBuilder
+from digitalhub_runtime_modelserve.entities.task.sklearnserve_serve.builder import TaskSklearnserveServeBuilder
 
-root = "digitalhub_runtime_modelserve"
-root_ent = f"{root}.entities"
+entity_builders = (
+    (FunctionHuggingfaceserveBuilder.ENTITY_KIND, FunctionHuggingfaceserveBuilder),
+    (FunctionMlflowserveBuilder.ENTITY_KIND, FunctionMlflowserveBuilder),
+    (FunctionSklearnserveBuilder.ENTITY_KIND, FunctionSklearnserveBuilder),
+    (TaskHuggingfaceserveServeBuilder.ENTITY_KIND, TaskHuggingfaceserveServeBuilder),
+    (TaskMlflowserveServeBuilder.ENTITY_KIND, TaskMlflowserveServeBuilder),
+    (TaskSklearnserveServeBuilder.ENTITY_KIND, TaskSklearnserveServeBuilder),
+    (RunHuggingfaceserveRunBuilder.ENTITY_KIND, RunHuggingfaceserveRunBuilder),
+    (RunMlflowserveRunBuilder.ENTITY_KIND, RunMlflowserveRunBuilder),
+    (RunSklearnserveRunBuilder.ENTITY_KIND, RunSklearnserveRunBuilder),
+)
 
-for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
-    exec_kind = m
-    suffix = exec_kind.capitalize()
+try:
+    from digitalhub_runtime_modelserve.runtimes.builder import RuntimeModelserveBuilder
+    from digitalhub_runtime_modelserve.runtimes.kind_registry import (
+        huggingfaceserve_kind_registry,
+        mlflowserve_kind_registry,
+        sklearnserve_kind_registry,
+    )
 
-    runtime_info = {
-        "module": f"{root}.runtimes.runtime",
-        "class_name": "RuntimeModelserve",
-        "kind_registry_module": f"{root}.runtimes.kind_registry",
-        "kind_registry_class_name": f"{m}_kind_registry",
-    }
-
-    # Function
-    entity_type = EntityTypes.FUNCTION.value
-    prefix = entity_type.capitalize()
-    suffix = exec_kind.capitalize()
-    exec_info = create_info(root_ent, entity_type, exec_kind, prefix, suffix, runtime_info)
-    registry.register(exec_kind, exec_info)
-
-    # Tasks
-    entity_type = EntityTypes.TASK.value
-    for i in ["serve"]:
-        task_kind = f"{exec_kind}+{i}"
-        prefix = entity_type.capitalize()
-        suffix = exec_kind.capitalize() + i.capitalize()
-        kind_underscore = task_kind.replace("+", "_")
-        task_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-        registry.register(task_kind, task_info)
-
-    # Runs
-    entity_type = EntityTypes.RUN.value
-    run_kind = f"{exec_kind}+run"
-    prefix = entity_type.capitalize()
-    suffix = exec_kind.capitalize() + entity_type.capitalize()
-    kind_underscore = run_kind.replace("+", "_")
-    run_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
-    registry.register(run_kind, run_info)
+    runtime_builders = (
+        *[(kind, RuntimeModelserveBuilder) for kind in sklearnserve_kind_registry.get_all_kinds()],
+        *[(kind, RuntimeModelserveBuilder) for kind in mlflowserve_kind_registry.get_all_kinds()],
+        *[(kind, RuntimeModelserveBuilder) for kind in huggingfaceserve_kind_registry.get_all_kinds()],
+    )
+except ImportError:
+    runtime_builders = tuple()

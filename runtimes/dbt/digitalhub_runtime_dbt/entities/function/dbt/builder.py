@@ -16,3 +16,4 @@ class FunctionDbtBuilder(FunctionBuilder):
     ENTITY_SPEC_CLASS = FunctionSpecDbt
     ENTITY_SPEC_VALIDATOR = FunctionValidatorDbt
     ENTITY_STATUS_CLASS = FunctionStatusDbt
+    ENTITY_KIND = "dbt"

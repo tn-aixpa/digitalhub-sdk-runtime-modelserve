@@ -4,6 +4,7 @@ import typing
 from abc import ABCMeta, abstractmethod
 
 from digitalhub.entities._base._base.entity import Base
+from digitalhub.factory.factory import factory
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
@@ -68,7 +69,7 @@ class Entity(Base, metaclass=ABCMeta):
         -------
         None
         """
-        new_obj = self.from_dict(obj)
+        new_obj = factory.build_entity_from_dict(self.kind, obj)
         self.metadata = new_obj.metadata
         self.spec = new_obj.spec
         self.status = new_obj.status
@@ -92,33 +93,6 @@ class Entity(Base, metaclass=ABCMeta):
             A dictionary containing the attributes of the entity instance.
         """
         return {k: v for k, v in super().to_dict().items() if k in self._obj_attr}
-
-    @classmethod
-    def from_dict(cls, obj: dict, validate: bool = True) -> Entity:
-        """
-        Create a new object from dictionary.
-
-        Parameters
-        ----------
-        obj : dict
-            Dictionary to create object from.
-        validate : bool
-            Flag to indicate if arguments validation against a pydantic schema must be ignored.
-
-        Returns
-        -------
-        Self
-            Self instance.
-        """
-        parsed_dict = cls._parse_dict(obj, validate=validate)
-        return cls(**parsed_dict)
-
-    @staticmethod
-    @abstractmethod
-    def _parse_dict(obj: dict, validate: bool = True) -> dict:
-        """
-        Abstract method to parse dictionary.
-        """
 
     def __repr__(self) -> str:
         """

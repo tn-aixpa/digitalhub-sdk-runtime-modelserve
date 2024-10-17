@@ -19,3 +19,4 @@ class FunctionContainerBuilder(FunctionBuilder):
     ENTITY_SPEC_CLASS = FunctionSpecContainer
     ENTITY_SPEC_VALIDATOR = FunctionValidatorContainer
     ENTITY_STATUS_CLASS = FunctionStatusContainer
+    ENTITY_KIND = "container"

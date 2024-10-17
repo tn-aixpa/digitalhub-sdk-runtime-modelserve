@@ -16,3 +16,5 @@ class TaskPythonServeBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecPythonServe
     ENTITY_SPEC_VALIDATOR = TaskValidatorPythonServe
     ENTITY_STATUS_CLASS = TaskStatusPythonServe
+    ENTITY_KIND = "python+serve"
+    ACTION = "serve"

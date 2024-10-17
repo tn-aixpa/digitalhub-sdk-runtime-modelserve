@@ -15,3 +15,4 @@ class DataitemDataitemBuilder(DataitemBuilder):
     ENTITY_SPEC_CLASS = DataitemSpecDataitem
     ENTITY_SPEC_VALIDATOR = DataitemValidatorDataitem
     ENTITY_STATUS_CLASS = DataitemStatusDataitem
+    ENTITY_KIND = "dataitem"

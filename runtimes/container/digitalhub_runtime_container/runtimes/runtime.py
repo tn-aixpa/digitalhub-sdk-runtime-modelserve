@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from digitalhub.runtimes.base import Runtime
+from digitalhub.runtimes._base import Runtime
 
 
 class RuntimeContainer(Runtime):

@@ -19,3 +19,5 @@ class TaskSklearnserveServeBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecSklearnserveServe
     ENTITY_SPEC_VALIDATOR = TaskValidatorSklearnserveServe
     ENTITY_STATUS_CLASS = TaskStatusSklearnserveServe
+    ENTITY_KIND = "sklearnserve+serve"
+    ACTION = "serve"

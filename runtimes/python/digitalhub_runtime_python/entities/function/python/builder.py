@@ -16,3 +16,4 @@ class FunctionPythonBuilder(FunctionBuilder):
     ENTITY_SPEC_CLASS = FunctionSpecPython
     ENTITY_SPEC_VALIDATOR = FunctionValidatorPython
     ENTITY_STATUS_CLASS = FunctionStatusPython
+    ENTITY_KIND = "python"

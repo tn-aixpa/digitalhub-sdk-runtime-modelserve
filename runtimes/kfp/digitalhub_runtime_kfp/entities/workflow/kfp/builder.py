@@ -16,3 +16,4 @@ class WorkflowKfpBuilder(WorkflowBuilder):
     ENTITY_SPEC_CLASS = WorkflowSpecKfp
     ENTITY_SPEC_VALIDATOR = WorkflowValidatorKfp
     ENTITY_STATUS_CLASS = WorkflowStatusKfp
+    ENTITY_KIND = "kfp"

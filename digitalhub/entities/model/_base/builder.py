@@ -2,17 +2,20 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._builders.entity import EntityBuilder
+from digitalhub.entities._base.versioned.builder import VersionedBuilder
+from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.model._base.entity import Model
 
 
-class ModelBuilder(EntityBuilder):
+class ModelBuilder(VersionedBuilder):
     """
     Model builder.
     """
+
+    ENTITY_TYPE = EntityTypes.MODEL.value
 
     def build(
         self,
@@ -65,15 +68,14 @@ class ModelBuilder(EntityBuilder):
             name=name,
             description=description,
             labels=labels,
+            embedded=embedded,
         )
         spec = self.build_spec(
-            self.ENTITY_SPEC_CLASS,
-            self.ENTITY_SPEC_VALIDATOR,
             path=path,
             **kwargs,
         )
-        status = self.build_status(self.ENTITY_STATUS_CLASS)
-        return self.ENTITY_CLASS(
+        status = self.build_status()
+        return self.build_entity(
             project=project,
             name=name,
             uuid=uuid,

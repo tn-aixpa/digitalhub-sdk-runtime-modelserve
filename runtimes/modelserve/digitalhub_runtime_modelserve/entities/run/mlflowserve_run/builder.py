@@ -19,3 +19,4 @@ class RunMlflowserveRunBuilder(RunBuilder):
     ENTITY_SPEC_CLASS = RunSpecMlflowserveRun
     ENTITY_SPEC_VALIDATOR = RunValidatorMlflowserveRun
     ENTITY_STATUS_CLASS = RunStatusMlflowserveRun
+    ENTITY_KIND = "mlflowserve+run"

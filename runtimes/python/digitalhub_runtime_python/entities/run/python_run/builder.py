@@ -16,3 +16,4 @@ class RunPythonRunBuilder(RunBuilder):
     ENTITY_SPEC_CLASS = RunSpecPythonRun
     ENTITY_SPEC_VALIDATOR = RunValidatorPythonRun
     ENTITY_STATUS_CLASS = RunStatusPythonRun
+    ENTITY_KIND = "python+run"

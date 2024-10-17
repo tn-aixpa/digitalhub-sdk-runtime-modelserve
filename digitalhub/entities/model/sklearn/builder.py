@@ -15,3 +15,4 @@ class ModelSklearnBuilder(ModelBuilder):
     ENTITY_SPEC_CLASS = ModelSpecSklearn
     ENTITY_SPEC_VALIDATOR = ModelValidatorSklearn
     ENTITY_STATUS_CLASS = ModelStatusSklearn
+    ENTITY_KIND = "sklearn"

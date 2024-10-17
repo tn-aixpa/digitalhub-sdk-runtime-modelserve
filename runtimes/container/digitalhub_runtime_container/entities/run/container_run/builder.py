@@ -16,3 +16,4 @@ class RunContainerRunBuilder(RunBuilder):
     ENTITY_SPEC_CLASS = RunSpecContainerRun
     ENTITY_SPEC_VALIDATOR = RunValidatorContainerRun
     ENTITY_STATUS_CLASS = RunStatusContainerRun
+    ENTITY_KIND = "container+run"

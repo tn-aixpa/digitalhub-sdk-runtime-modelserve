@@ -19,3 +19,4 @@ class RunSklearnserveRunBuilder(RunBuilder):
     ENTITY_SPEC_CLASS = RunSpecSklearnserveRun
     ENTITY_SPEC_VALIDATOR = RunValidatorSklearnserveRun
     ENTITY_STATUS_CLASS = RunStatusSklearnserveRun
+    ENTITY_KIND = "sklearnserve+run"

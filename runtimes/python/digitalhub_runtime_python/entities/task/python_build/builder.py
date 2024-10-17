@@ -16,3 +16,5 @@ class TaskPythonBuildBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecPythonBuild
     ENTITY_SPEC_VALIDATOR = TaskValidatorPythonBuild
     ENTITY_STATUS_CLASS = TaskStatusPythonBuild
+    ENTITY_KIND = "python+build"
+    ACTION = "build"

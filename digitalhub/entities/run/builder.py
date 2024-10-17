@@ -1,63 +1,33 @@
 from __future__ import annotations
 
-from digitalhub.entities._builders.metadata import build_metadata
-from digitalhub.entities._builders.spec import build_spec
-from digitalhub.entities._builders.status import build_status
-from digitalhub.entities._builders.uuid import build_uuid
-from digitalhub.entities.run._base.entity import Run
+import typing
+
+from digitalhub.factory.factory import factory
+from digitalhub.utils.exceptions import BuilderError
+
+if typing.TYPE_CHECKING:
+    from digitalhub.entities.run._base.entity import Run
 
 
-def run_from_parameters(
-    project: str,
-    kind: str,
-    uuid: str | None = None,
-    labels: list[str] | None = None,
-    task: str | None = None,
-    local_execution: bool = False,
-    **kwargs,
-) -> Run:
+def run_from_parameters(**kwargs) -> Run:
     """
     Create a new object.
 
     Parameters
     ----------
-    project : str
-        Project name.
-    kind : str
-        Kind the object.
-    uuid : str
-        ID of the object (UUID4, e.g. 40f25c4b-d26b-4221-b048-9527aff291e2).
-    labels : list[str]
-        List of labels.
-    task : str
-        Name of the task associated with the run.
-    local_execution : bool
-        Flag to determine if object has local execution.
-    **kwargs : dict
-        Spec keyword arguments.
+    **kwargs
+        Keyword arguments.
 
     Returns
     -------
     Run
         Object instance.
     """
-    uuid = build_uuid(uuid)
-    metadata = build_metadata(
-        kind=kind,
-        project=project,
-        name=uuid,
-        labels=labels,
-    )
-    spec = build_spec(kind, task=task, local_execution=local_execution, **kwargs)
-    status = build_status(kind)
-    return Run(
-        project=project,
-        uuid=uuid,
-        kind=kind,
-        metadata=metadata,
-        spec=spec,
-        status=status,
-    )
+    try:
+        kind = kwargs["kind"]
+    except KeyError:
+        raise BuilderError("Missing 'kind' parameter.")
+    return factory.build_entity_from_params(kind, **kwargs)
 
 
 def run_from_dict(obj: dict) -> Run:
@@ -74,4 +44,8 @@ def run_from_dict(obj: dict) -> Run:
     Run
         Object instance.
     """
-    return Run.from_dict(obj)
+    try:
+        kind = obj["kind"]
+    except KeyError:
+        raise BuilderError("Missing 'kind' parameter.")
+    return factory.build_entity_from_dict(kind, obj)

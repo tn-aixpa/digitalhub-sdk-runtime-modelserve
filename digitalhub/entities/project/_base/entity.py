@@ -92,10 +92,10 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.dataitem._base.entity import Dataitem
     from digitalhub.entities.function._base.entity import Function
     from digitalhub.entities.model._base.entity import Model
-    from digitalhub.entities.project.project.spec import ProjectSpec
-    from digitalhub.entities.project.project.status import ProjectStatus
+    from digitalhub.entities.project._base.spec import ProjectSpec
+    from digitalhub.entities.project._base.status import ProjectStatus
     from digitalhub.entities.run._base.entity import Run
-    from digitalhub.entities.secret.secret.entity import Secret
+    from digitalhub.entities.secret._base.entity import Secret
     from digitalhub.entities.workflow._base.entity import Workflow
 
 
@@ -307,44 +307,6 @@ class Project(Entity):
                         FROM_DICT_MAP[entity_type](entity).save()
                     except EntityAlreadyExistsError:
                         pass
-
-    ##############################
-    #  Static interface methods
-    ##############################
-
-    @staticmethod
-    def _parse_dict(obj: dict, validate: bool = True) -> dict:
-        """
-        Get dictionary and parse it to a valid entity dictionary.
-
-        Parameters
-        ----------
-        entity : str
-            Entity type.
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-        """
-        name = build_name(obj.get("name"))
-        kind = obj.get("kind")
-        metadata = build_metadata(kind, **obj.get("metadata", {}))
-        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, **obj.get("status", {}))
-        user = obj.get("user")
-        local = obj.get("local", False)
-        return {
-            "name": name,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-            "user": user,
-            "local": local,
-        }
 
     ##############################
     #  Artifacts

@@ -56,39 +56,3 @@ class VersionedEntity(ContextEntity):
         pth = self._context().root / filename
         write_yaml(pth, obj)
         return str(pth)
-
-    @staticmethod
-    def _parse_dict(obj: dict, validate: bool = True) -> dict:
-        """
-        Get dictionary and parse it to a valid entity dictionary.
-
-        Parameters
-        ----------
-        entity : str
-            Entity type.
-        obj : dict
-            Dictionary to parse.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the attributes of the entity instance.
-        """
-        project = obj.get("project")
-        kind = obj.get("kind")
-        name = build_name(obj.get("name"))
-        uuid = build_uuid(obj.get("id"))
-        metadata = build_metadata(kind, **obj.get("metadata", {}))
-        spec = build_spec(kind, validate=validate, **obj.get("spec", {}))
-        status = build_status(kind, **obj.get("status", {}))
-        user = obj.get("user")
-        return {
-            "project": project,
-            "name": name,
-            "uuid": uuid,
-            "kind": kind,
-            "metadata": metadata,
-            "spec": spec,
-            "status": status,
-            "user": user,
-        }

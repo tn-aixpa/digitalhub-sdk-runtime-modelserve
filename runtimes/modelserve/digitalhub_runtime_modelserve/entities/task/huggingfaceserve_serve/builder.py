@@ -19,3 +19,5 @@ class TaskHuggingfaceserveServeBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecHuggingfaceserveServe
     ENTITY_SPEC_VALIDATOR = TaskValidatorHuggingfaceserveServe
     ENTITY_STATUS_CLASS = TaskStatusHuggingfaceserveServe
+    ENTITY_KIND = "huggingfaceserve+serve"
+    ACTION = "serve"

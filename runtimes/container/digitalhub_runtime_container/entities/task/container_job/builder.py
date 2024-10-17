@@ -19,3 +19,5 @@ class TaskContainerJobBuilder(TaskBuilder):
     ENTITY_SPEC_CLASS = TaskSpecContainerJob
     ENTITY_SPEC_VALIDATOR = TaskValidatorContainerJob
     ENTITY_STATUS_CLASS = TaskStatusContainerJob
+    ENTITY_KIND = "container+job"
+    ACTION = "job"
