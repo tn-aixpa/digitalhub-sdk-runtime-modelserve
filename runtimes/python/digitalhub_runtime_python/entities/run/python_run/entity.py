@@ -35,6 +35,17 @@ class RunPythonRun(Run):
         self.spec: RunSpecPythonRun
         self.status: RunStatusPythonRun
 
+    def _setup_execution(self) -> None:
+        """
+        Setup run execution.
+
+        Returns
+        -------
+        None
+        """
+        self.refresh()
+        self.spec.inputs = self.inputs(as_dict=True)
+
     def inputs(self, as_dict: bool = False) -> list[dict]:
         """
         Get inputs passed in spec as objects or as dictionaries.

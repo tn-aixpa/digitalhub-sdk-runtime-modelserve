@@ -86,16 +86,15 @@ class Run(UnversionedEntity):
             self._set_state(State.RUNNING.value)
             self.save(update=True)
 
-        # Try to get inputs if they exist
-        try:
-            self.spec.inputs = self.inputs(as_dict=True)
-        except EntityError:
-            pass
+        self._setup_execution()
 
         try:
             status = self._get_runtime().run(self.to_dict())
         except Exception as e:
             self.refresh()
+            import pdb
+
+            pdb.set_trace()
             if self.spec.local_execution:
                 self._set_state(State.ERROR.value)
             self._set_message(str(e))
@@ -193,6 +192,15 @@ class Run(UnversionedEntity):
     ##############################
     #  Helpers
     ##############################
+
+    def _setup_execution(self) -> None:
+        """
+        Setup run execution. In base class, nothing to do.
+
+        Returns
+        -------
+        None
+        """
 
     def _is_ready_to_run(self) -> bool:
         """

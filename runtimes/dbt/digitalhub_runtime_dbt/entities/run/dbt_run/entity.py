@@ -32,6 +32,17 @@ class RunDbtRun(Run):
         self.spec: RunSpecDbtRun
         self.status: RunStatusDbtRun
 
+    def _setup_execution(self) -> None:
+        """
+        Setup run execution.
+
+        Returns
+        -------
+        None
+        """
+        self.refresh()
+        self.spec.inputs = self.inputs(as_dict=True)
+
     def inputs(self, as_dict: bool = False) -> list[dict]:
         """
         Get inputs passed in spec as objects or as dictionaries.
