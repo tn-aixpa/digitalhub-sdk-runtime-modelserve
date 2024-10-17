@@ -40,6 +40,6 @@ for m in ["sklearnserve", "mlflowserve", "huggingfaceserve"]:
     run_kind = f"{exec_kind}+run"
     prefix = entity_type.capitalize()
     suffix = exec_kind.capitalize() + entity_type.capitalize()
-    kind_underscore = task_kind.replace("+", "_")
+    kind_underscore = run_kind.replace("+", "_")
     run_info = create_info(root_ent, entity_type, kind_underscore, prefix, suffix, runtime_info)
     registry.register(run_kind, run_info)
