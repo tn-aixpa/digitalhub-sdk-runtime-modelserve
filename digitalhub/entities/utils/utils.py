@@ -182,3 +182,21 @@ def build_log_path_from_source(
         path += f"/{Path(source).name}"
 
     return path
+
+
+def get_entity_type_from_key(key: str) -> str:
+    """
+    Get entity type.
+
+    Parameters
+    ----------
+    key : str
+        The key of the entity.
+
+    Returns
+    -------
+    str
+        The entity type.
+    """
+    _, entity_type, _, _, _ = parse_entity_key(key)
+    return entity_type

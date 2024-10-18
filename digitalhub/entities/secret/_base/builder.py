@@ -62,7 +62,7 @@ class SecretSecretBuilder(VersionedBuilder):
             description=description,
             labels=labels,
         )
-        path = f"kubernetes://dhcore-proj-secrets-{project}/{name}"
+        path = f"secret://{name}"
         provider = "kubernetes"
         spec = self.build_spec(
             path=path,

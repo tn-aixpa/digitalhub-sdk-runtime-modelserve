@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub_runtime_dbt.entities.run.dbt_run.utils import get_getter_for_material
+
 from digitalhub.entities.run._base.entity import Run
+from digitalhub.entities.utils.utils import get_entity_type_from_key
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_dbt.entities.run.dbt_run.spec import RunSpecDbtRun
@@ -43,7 +46,7 @@ class RunDbtRun(Run):
         self.refresh()
         self.spec.inputs = self.inputs(as_dict=True)
 
-    def inputs(self, as_dict: bool = False) -> list[dict]:
+    def inputs(self, as_dict: bool = False) -> dict:
         """
         Get inputs passed in spec as objects or as dictionaries.
 
@@ -54,14 +57,54 @@ class RunDbtRun(Run):
 
         Returns
         -------
-        list[dict]
-            List of input objects.
+        dict
+            Inputs.
         """
-        return self.spec.get_inputs(as_dict=as_dict)
+        inputs = {}
+        if self.inputs is None:
+            return inputs
 
-    def outputs(self, as_key: bool = False, as_dict: bool = False) -> dict:
+        for parameter, key in self.spec.inputs.items():
+            entity_type = get_entity_type_from_key(key)
+            entity = get_getter_for_material(entity_type)(key)
+            if as_dict:
+                entity = entity.to_dict()
+            inputs[parameter] = entity
+
+        return inputs
+
+    def output(
+        self,
+        output_name: str,
+        as_key: bool = False,
+        as_dict: bool = False,
+    ) -> MaterialEntity | dict | str | None:
         """
-        Get run objects results.
+        Get run's output by name.
+
+        Parameters
+        ----------
+        output_name : str
+            Key of the result.
+        as_key : bool
+            If True, return result as key.
+        as_dict : bool
+            If True, return result as dictionary.
+
+        Returns
+        -------
+        Entity | dict | str | None
+            Result.
+        """
+        return self.outputs(as_key=as_key, as_dict=as_dict).get(output_name)
+
+    def outputs(
+        self,
+        as_key: bool = False,
+        as_dict: bool = False,
+    ) -> MaterialEntity | dict | str | None:
+        """
+        Get run's outputs.
 
         Parameters
         ----------
@@ -75,24 +118,17 @@ class RunDbtRun(Run):
         dict
             List of output objects.
         """
-        return self.status.get_outputs(as_key=as_key, as_dict=as_dict)
+        outputs = {}
+        if self.status.outputs is None:
+            return outputs
 
-    def output(self, key: str, as_key: bool = False, as_dict: bool = False) -> MaterialEntity | dict | str | None:
-        """
-        Get run object result by key.
+        for parameter, key in self.status.outputs.items():
+            entity_type = get_entity_type_from_key(key)
+            entity = get_getter_for_material(entity_type)(key)
+            if as_key:
+                entity = entity.key
+            if as_dict:
+                entity = entity.to_dict()
+            outputs[parameter] = entity
 
-        Parameters
-        ----------
-        key : str
-            Key of the result.
-        as_key : bool
-            If True, return result as key.
-        as_dict : bool
-            If True, return result as dictionary.
-
-        Returns
-        -------
-        Entity | dict | str | None
-            Result.
-        """
-        return self.outputs(as_key=as_key, as_dict=as_dict).get(key)
+        return outputs

@@ -5,6 +5,7 @@ import typing
 import requests
 
 from digitalhub.entities.run._base.entity import Run
+from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_modelserve.entities.run.modelserve_run.spec import RunSpecModelserveRun
@@ -33,24 +34,35 @@ class RunModelserveRun(Run):
         self.spec: RunSpecModelserveRun
         self.status: RunStatusModelserveRun
 
-    def invoke(self, **kwargs) -> requests.Response:
+    def invoke(
+        self,
+        model_name: str | None = None,
+        method: str = "POST",
+        url: str | None = None,
+        **kwargs,
+    ) -> requests.Response:
         """
-        Invoke run.
+        Invoke served model. By default it exposes infer v2 endpoint.
 
         Parameters
         ----------
-        kwargs
+        model_name : str
+            Name of the model.
+        method : str
+            Method of the request.
+        url : str
+            URL of the request.
+        **kwargs : dict
             Keyword arguments to pass to the request.
 
         Returns
         -------
         requests.Response
-            Response from service.
+            Response from the request.
         """
-        if not self._context().local and not self.spec.local_execution:
-            local = False
-        else:
-            local = True
-        if kwargs is None:
-            kwargs = {}
-        return self.status.invoke(local, **kwargs)
+        if self._context().local:
+            raise EntityError("Invoke not supported locally.")
+        if url is None:
+            model_name = model_name if model_name is not None else "model"
+            url = f"http://{self.status.service.get('url')}/v2/models/{model_name}/infer"
+        return requests.request(method=method, url=url, **kwargs)

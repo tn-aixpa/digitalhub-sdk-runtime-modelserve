@@ -10,9 +10,20 @@ class Status(Base):
     for example, the state of a RUNNING run, and eventual error message.
     """
 
-    def __init__(self, state: str, message: str | None = None) -> None:
+    def __init__(
+        self,
+        state: str,
+        message: str | None = None,
+        transitions: list[dict] | None = None,
+        k8s: dict | None = None,
+        **kwargs,
+    ) -> None:
         self.state = state
         self.message = message
+        self.transitions = transitions
+        self.k8s = k8s
+
+        self._any_setter(**kwargs)
 
     @classmethod
     def from_dict(cls, obj: dict) -> Status:

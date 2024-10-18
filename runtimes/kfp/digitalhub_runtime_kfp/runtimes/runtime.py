@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import shutil
-import typing
 from typing import Callable
 
 from digitalhub_runtime_kfp.utils.configurations import (

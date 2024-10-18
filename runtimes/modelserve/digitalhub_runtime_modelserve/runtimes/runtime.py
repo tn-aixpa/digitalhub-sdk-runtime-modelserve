@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import typing
 from typing import Callable
 
 from digitalhub_runtime_modelserve.utils.configuration import get_function_args

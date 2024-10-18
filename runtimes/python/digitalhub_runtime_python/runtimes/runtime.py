@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import typing
 from typing import Callable
 
 from digitalhub_runtime_python.utils.configuration import get_function_from_source

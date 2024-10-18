@@ -165,11 +165,6 @@ class Run(UnversionedEntity):
         """
         if not self._context().local and not self.spec.local_execution:
             return stop_api(self.project, self.ENTITY_TYPE, self.id)
-        try:
-            self.status.stop()
-        except AttributeError:
-            raise EntityError("Stop is not supported in local execution.")
-            return
 
     def resume(self) -> None:
         """
@@ -181,14 +176,6 @@ class Run(UnversionedEntity):
         """
         if not self._context().local and not self.spec.local_execution:
             return resume_api(self.project, self.ENTITY_TYPE, self.id)
-
-        try:
-            self.status.resume()
-        except AttributeError:
-            raise EntityError("Resume is not supported in local execution.")
-            return
-        # re-run
-        # TODO verify the logic and order
         self.run()
 
     ##############################
