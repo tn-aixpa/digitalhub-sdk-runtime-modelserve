@@ -18,11 +18,6 @@ def main():
     run_key = f"store://{project.name}/{EntityTypes.RUN.value}/kfp+run/{os.getenv('RUN_ID')}"
     run = dh.get_run(run_key)
 
-    LOGGER.info("Installing run dependencies.")
-    for requirement in run.spec.to_dict().get("requirements", []):
-        LOGGER.info(f"Installing {requirement}.")
-        os.system(f"pip install {requirement}")
-
     LOGGER.info("Executing function.")
     run.run()
 
