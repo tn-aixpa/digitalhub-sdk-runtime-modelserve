@@ -18,8 +18,7 @@ entity_builders = (
 
 try:
     from digitalhub_runtime_container.runtimes.builder import RuntimeContainerBuilder
-    from digitalhub_runtime_container.runtimes.kind_registry import kind_registry
 
-    runtime_builders = ((kind, RuntimeContainerBuilder) for kind in kind_registry.get_all_kinds())
+    runtime_builders = ((kind, RuntimeContainerBuilder) for kind in FunctionContainerBuilder().get_all_kinds())
 except ImportError:
     runtime_builders = tuple()

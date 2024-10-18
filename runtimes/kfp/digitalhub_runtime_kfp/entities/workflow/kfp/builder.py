@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_container.entities._base.runtime_entity.builder import RuntimeEntityBuilderContainer
 from digitalhub_runtime_kfp.entities.workflow.kfp.entity import WorkflowKfp
 from digitalhub_runtime_kfp.entities.workflow.kfp.spec import WorkflowSpecKfp, WorkflowValidatorKfp
 from digitalhub_runtime_kfp.entities.workflow.kfp.status import WorkflowStatusKfp
@@ -7,7 +8,7 @@ from digitalhub_runtime_kfp.entities.workflow.kfp.status import WorkflowStatusKf
 from digitalhub.entities.workflow._base.builder import WorkflowBuilder
 
 
-class WorkflowKfpBuilder(WorkflowBuilder):
+class WorkflowKfpBuilder(WorkflowBuilder, RuntimeEntityBuilderContainer):
     """
     WorkflowKfp builder.
     """

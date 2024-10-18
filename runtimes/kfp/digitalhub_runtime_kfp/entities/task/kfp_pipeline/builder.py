@@ -17,4 +17,3 @@ class TaskKfpPipelineBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorKfpPipeline
     ENTITY_STATUS_CLASS = TaskStatusKfpPipeline
     ENTITY_KIND = "kfp+pipeline"
-    ACTION = "pipeline"

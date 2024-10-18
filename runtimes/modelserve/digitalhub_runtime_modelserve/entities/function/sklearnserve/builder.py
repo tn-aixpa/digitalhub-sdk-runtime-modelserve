@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderSklearnserve
 from digitalhub_runtime_modelserve.entities.function.sklearnserve.entity import FunctionSklearnserve
 from digitalhub_runtime_modelserve.entities.function.sklearnserve.spec import (
     FunctionSpecSklearnserve,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.function.sklearnserve.status import 
 from digitalhub.entities.function._base.builder import FunctionBuilder
 
 
-class FunctionSklearnserveBuilder(FunctionBuilder):
+class FunctionSklearnserveBuilder(FunctionBuilder, RuntimeEntityBuilderSklearnserve):
     """
     FunctionSklearnserve builder.
     """

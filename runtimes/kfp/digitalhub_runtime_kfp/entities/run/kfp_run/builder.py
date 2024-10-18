@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_kfp.entities._base.runtime_entity.builder import RuntimeEntityBuilderKfp
 from digitalhub_runtime_kfp.entities.run.kfp_run.entity import RunKfpRun
 from digitalhub_runtime_kfp.entities.run.kfp_run.spec import RunSpecKfpRun, RunValidatorKfpRun
 from digitalhub_runtime_kfp.entities.run.kfp_run.status import RunStatusKfpRun
@@ -7,7 +8,7 @@ from digitalhub_runtime_kfp.entities.run.kfp_run.status import RunStatusKfpRun
 from digitalhub.entities.run._base.builder import RunBuilder
 
 
-class RunKfpRunBuilder(RunBuilder):
+class RunKfpRunBuilder(RunBuilder, RuntimeEntityBuilderKfp):
     """
     RunKfpRunBuilder runer.
     """

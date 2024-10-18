@@ -5,11 +5,12 @@ import typing
 from digitalhub.utils.exceptions import BuilderError
 
 if typing.TYPE_CHECKING:
+    from digitalhub.entities._base.entity.builder import EntityBuilder
     from digitalhub.entities._base.entity.entity import Entity
     from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities._base.entity.spec import Spec
     from digitalhub.entities._base.entity.status import Status
-    from digitalhub.entities._builders.entity import EntityBuilder
+    from digitalhub.entities._base.runtime_entity.builder import RuntimeEntityBuilder
     from digitalhub.runtimes._base import Runtime
     from digitalhub.runtimes.builder import RuntimeBuilder
 
@@ -20,10 +21,10 @@ class Factory:
     """
 
     def __init__(self):
-        self._entity_builders: dict[str, EntityBuilder] = {}
+        self._entity_builders: dict[str, EntityBuilder | RuntimeEntityBuilder] = {}
         self._runtime_builders: dict[str, RuntimeBuilder] = {}
 
-    def add_entity_builder(self, name: str, builder: EntityBuilder) -> None:
+    def add_entity_builder(self, name: str, builder: EntityBuilder | RuntimeEntityBuilder) -> None:
         """
         Add a builder to the factory.
 
@@ -75,7 +76,6 @@ class Factory:
         Entity
             Entity object.
         """
-        self._raise_if_builder_not_found(kind_to_build_from)
         return self._entity_builders[kind_to_build_from].build(*args, **kwargs)
 
     def build_entity_from_dict(self, kind_to_build_from: str, dict_data: dict) -> Entity:
@@ -94,7 +94,6 @@ class Factory:
         Entity
             Entity object.
         """
-        self._raise_if_builder_not_found(kind_to_build_from)
         return self._entity_builders[kind_to_build_from].from_dict(dict_data)
 
     def build_spec(self, kind_to_build_from: str, **kwargs) -> Spec:
@@ -111,7 +110,6 @@ class Factory:
         Spec
             Spec object.
         """
-        self._raise_if_builder_not_found(kind_to_build_from)
         return self._entity_builders[kind_to_build_from].build_spec(**kwargs)
 
     def build_metadata(self, kind_to_build_from: str, **kwargs) -> Metadata:
@@ -128,7 +126,6 @@ class Factory:
         Metadata
             Metadata object.
         """
-        self._raise_if_builder_not_found(kind_to_build_from)
         return self._entity_builders[kind_to_build_from].build_metadata(**kwargs)
 
     def build_status(self, kind_to_build_from: str, **kwargs) -> Status:
@@ -145,7 +142,6 @@ class Factory:
         Status
             Status object.
         """
-        self._raise_if_builder_not_found(kind_to_build_from)
         return self._entity_builders[kind_to_build_from].build_status(**kwargs)
 
     def build_runtime(self, kind_to_build_from: str, project: str) -> Runtime:
@@ -164,10 +160,9 @@ class Factory:
         Runtime
             Runtime object.
         """
-        self._raise_if_builder_not_found(kind_to_build_from)
         return self._runtime_builders[kind_to_build_from].build(project=project)
 
-    def get_entity_type_from_builder(self, kind: str) -> str:
+    def get_entity_type_from_kind(self, kind: str) -> str:
         """
         Get entity type from builder.
 
@@ -181,24 +176,91 @@ class Factory:
         str
             Entity type.
         """
-        self._raise_if_builder_not_found(kind)
-        return self._entity_builders[kind].ENTITY_TYPE
+        return self._entity_builders[kind].get_entity_type()
 
-    def _raise_if_builder_not_found(self, kind: str) -> None:
+    def get_executable_kind(self, kind: str) -> str:
         """
-        Raise error if builder not found.
+        Get executable kind.
 
         Parameters
         ----------
         kind : str
-            Entity type.
+            Kind.
 
         Returns
         -------
-        None
+        str
+            Executable kind.
         """
-        if kind not in self._entity_builders:
-            raise BuilderError(f"Builder for kind '{kind}' not found.")
+        return self._entity_builders[kind].get_executable_kind()
+
+    def get_action_from_task_kind(self, kind: str, task_kind: str) -> str:
+        """
+        Get action from task.
+
+        Parameters
+        ----------
+        kind : str
+            Kind.
+        task_kind : str
+            Task kind.
+
+        Returns
+        -------
+        str
+            Action.
+        """
+        return self._entity_builders[kind].get_action_from_task_kind(task_kind)
+
+    def get_task_kind_from_action(self, kind: str, action: str) -> list[str]:
+        """
+        Get task kinds from action.
+
+        Parameters
+        ----------
+        kind : str
+            Kind.
+        action : str
+            Action.
+
+        Returns
+        -------
+        list[str]
+            Task kinds.
+        """
+        return self._entity_builders[kind].get_task_kind_from_action(action)
+
+    def get_run_kind(self, kind: str) -> str:
+        """
+        Get run kind.
+
+        Parameters
+        ----------
+        kind : str
+            Kind.
+
+        Returns
+        -------
+        str
+            Run kind.
+        """
+        return self._entity_builders[kind].get_run_kind()
+
+    def get_all_kinds(self, kind: str) -> list[str]:
+        """
+        Get all kinds.
+
+        Parameters
+        ----------
+        kind : str
+            Kind.
+
+        Returns
+        -------
+        list[str]
+            All kinds.
+        """
+        return self._entity_builders[kind].get_all_kinds()
 
 
 factory = Factory()

@@ -12,8 +12,7 @@ entity_builders = (
 
 try:
     from digitalhub_runtime_kfp.runtimes.builder import RuntimeKfpBuilder
-    from digitalhub_runtime_kfp.runtimes.kind_registry import kind_registry
 
-    runtime_builders = ((kind, RuntimeKfpBuilder) for kind in kind_registry.get_all_kinds())
+    runtime_builders = ((kind, RuntimeKfpBuilder) for kind in WorkflowKfpBuilder().get_all_kinds())
 except ImportError:
     runtime_builders = tuple()

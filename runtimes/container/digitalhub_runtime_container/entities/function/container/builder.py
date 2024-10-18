@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_container.entities._base.runtime_entity.builder import RuntimeEntityBuilderContainer
 from digitalhub_runtime_container.entities.function.container.entity import FunctionContainer
 from digitalhub_runtime_container.entities.function.container.spec import (
     FunctionSpecContainer,
@@ -10,7 +11,7 @@ from digitalhub_runtime_container.entities.function.container.status import Func
 from digitalhub.entities.function._base.builder import FunctionBuilder
 
 
-class FunctionContainerBuilder(FunctionBuilder):
+class FunctionContainerBuilder(FunctionBuilder, RuntimeEntityBuilderContainer):
     """
     FunctionContainer builder.
     """

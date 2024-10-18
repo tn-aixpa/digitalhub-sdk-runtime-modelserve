@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_container.entities._base.runtime_entity.builder import RuntimeEntityBuilderContainer
 from digitalhub_runtime_container.entities.task.container_deploy.entity import TaskContainerDeploy
 from digitalhub_runtime_container.entities.task.container_deploy.spec import (
     TaskSpecContainerDeploy,
@@ -10,7 +11,7 @@ from digitalhub_runtime_container.entities.task.container_deploy.status import T
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskContainerDeployBuilder(TaskBuilder):
+class TaskContainerDeployBuilder(TaskBuilder, RuntimeEntityBuilderContainer):
     """
     TaskContainerDeployBuilder deployer.
     """
@@ -20,4 +21,3 @@ class TaskContainerDeployBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorContainerDeploy
     ENTITY_STATUS_CLASS = TaskStatusContainerDeploy
     ENTITY_KIND = "container+deploy"
-    ACTION = "deploy"

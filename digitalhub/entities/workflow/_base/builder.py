@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub.entities._base.runtime_entity.builder import RuntimeEntityBuilder
 from digitalhub.entities._base.versioned.builder import VersionedBuilder
 from digitalhub.entities.utils.entity_types import EntityTypes
 
@@ -9,7 +10,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.workflow._base.entity import Workflow
 
 
-class WorkflowBuilder(VersionedBuilder):
+class WorkflowBuilder(VersionedBuilder, RuntimeEntityBuilder):
     """
     Workflow builder.
     """

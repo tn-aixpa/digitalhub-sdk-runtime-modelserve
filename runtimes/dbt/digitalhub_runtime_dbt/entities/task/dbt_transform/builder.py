@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_dbt.entities._base.runtime_entity.builder import RuntimeEntityBuilderDbt
 from digitalhub_runtime_dbt.entities.task.dbt_transform.entity import TaskDbtTransform
 from digitalhub_runtime_dbt.entities.task.dbt_transform.spec import TaskSpecDbtTransform, TaskValidatorDbtTransform
 from digitalhub_runtime_dbt.entities.task.dbt_transform.status import TaskStatusDbtTransform
@@ -7,7 +8,7 @@ from digitalhub_runtime_dbt.entities.task.dbt_transform.status import TaskStatus
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskDbtTransformBuilder(TaskBuilder):
+class TaskDbtTransformBuilder(TaskBuilder, RuntimeEntityBuilderDbt):
     """
     TaskDbtTransformBuilder transformer.
     """
@@ -17,4 +18,3 @@ class TaskDbtTransformBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorDbtTransform
     ENTITY_STATUS_CLASS = TaskStatusDbtTransform
     ENTITY_KIND = "dbt+transform"
-    ACTION = "transform"

@@ -14,7 +14,13 @@ from digitalhub.entities._base.crud import (
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.state import State
-from digitalhub.factory.factory import factory
+from digitalhub.factory.api import (
+    build_runtime,
+    build_spec,
+    build_status,
+    get_entity_type_from_kind,
+    get_executable_kind,
+)
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
@@ -59,11 +65,10 @@ class Run(UnversionedEntity):
         -------
         None
         """
-        runtime = self._get_runtime()
-        executable = self._get_executable(runtime)
-        task = self._get_task(runtime)
-        new_spec = runtime.build(executable, task, self.to_dict())
-        self.spec = factory.build_spec(
+        executable = self._get_executable()
+        task = self._get_task()
+        new_spec = self._get_runtime().build(executable, task, self.to_dict())
+        self.spec = build_spec(
             self.kind,
             **new_spec,
         )
@@ -92,9 +97,6 @@ class Run(UnversionedEntity):
             status = self._get_runtime().run(self.to_dict())
         except Exception as e:
             self.refresh()
-            import pdb
-
-            pdb.set_trace()
             if self.spec.local_execution:
                 self._set_state(State.ERROR.value)
             self._set_message(str(e))
@@ -226,7 +228,7 @@ class Run(UnversionedEntity):
         -------
         None
         """
-        self.status: RunStatus = factory.build_status(self.kind, **status)
+        self.status: RunStatus = build_status(self.kind, **status)
 
     def _set_state(self, state: str) -> None:
         """
@@ -267,24 +269,20 @@ class Run(UnversionedEntity):
         Runtime
             Runtime object.
         """
-        return factory.build_runtime(self.kind, self.project)
+        return build_runtime(self.kind, self.project)
 
-    def _get_executable(self, runtime: Runtime) -> dict:
+    def _get_executable(self) -> dict:
         """
-        Get object from backend. Reimplemented to avoid circular imports.
-
-        Parameters
-        ----------
-        runtime : Runtime
-            Runtime object.
+        Get executable object from backend. Reimplemented to avoid
+        circular imports.
 
         Returns
         -------
         dict
             Executable (function or workflow) from backend.
         """
-        exec_kind = runtime.get_executable_kind()
-        entity_type = factory.get_entity_type_from_builder(exec_kind)
+        exec_kind = get_executable_kind(self.kind)
+        entity_type = get_entity_type_from_kind(exec_kind)
         splitted = self.spec.task.split("/")
         exec_name = splitted[-1].split(":")[0]
         exec_id = splitted[-1].split(":")[1]
@@ -295,21 +293,17 @@ class Run(UnversionedEntity):
             entity_id=exec_id,
         )
 
-    def _get_task(self, runtime: Runtime) -> dict:
+    def _get_task(self) -> dict:
         """
-        Get object from backend. Reimplemented to avoid circular imports.
-
-        Parameters
-        ----------
-        runtime : Runtime
-            Runtime object.
+        Get object from backend. Reimplemented to avoid
+        circular imports.
 
         Returns
         -------
         dict
             Task from backend.
         """
-        executable_kind = runtime.get_executable_kind()
+        executable_kind = get_executable_kind(self.kind)
         exec_string = f"{executable_kind}://{self.spec.task.split('://')[1]}"
 
         # Local backend

@@ -11,17 +11,14 @@ from digitalhub.context.builder import get_context
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 
-if typing.TYPE_CHECKING:
-    from digitalhub.runtimes.kind_registry import KindRegistry
-
 
 class RuntimePython(Runtime):
     """
     Runtime Python class.
     """
 
-    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
-        super().__init__(kind_registry, project)
+    def __init__(self, project: str) -> None:
+        super().__init__(project)
         ctx = get_context(self.project)
         self.runtime_dir = ctx.root / "runtime_python"
         self.runtime_dir.mkdir(parents=True, exist_ok=True)

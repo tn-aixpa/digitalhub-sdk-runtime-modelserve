@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_container.entities._base.runtime_entity.builder import RuntimeEntityBuilderContainer
 from digitalhub_runtime_container.entities.task.container_build.entity import TaskContainerBuild
 from digitalhub_runtime_container.entities.task.container_build.spec import (
     TaskSpecContainerBuild,
@@ -10,7 +11,7 @@ from digitalhub_runtime_container.entities.task.container_build.status import Ta
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskContainerBuildBuilder(TaskBuilder):
+class TaskContainerBuildBuilder(TaskBuilder, RuntimeEntityBuilderContainer):
     """
     TaskContainerBuild builder.
     """
@@ -20,4 +21,3 @@ class TaskContainerBuildBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorContainerBuild
     ENTITY_STATUS_CLASS = TaskStatusContainerBuild
     ENTITY_KIND = "container+build"
-    ACTION = "build"

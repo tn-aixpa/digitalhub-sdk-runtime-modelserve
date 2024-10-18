@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderMlflowserve
 from digitalhub_runtime_modelserve.entities.task.mlflowserve_serve.entity import TaskMlflowserveServe
 from digitalhub_runtime_modelserve.entities.task.mlflowserve_serve.spec import (
     TaskSpecMlflowserveServe,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.task.mlflowserve_serve.status import
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskMlflowserveServeBuilder(TaskBuilder):
+class TaskMlflowserveServeBuilder(TaskBuilder, RuntimeEntityBuilderMlflowserve):
     """
     TaskMlflowserveServe builder.
     """
@@ -20,4 +21,3 @@ class TaskMlflowserveServeBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorMlflowserveServe
     ENTITY_STATUS_CLASS = TaskStatusMlflowserveServe
     ENTITY_KIND = "mlflowserve+serve"
-    ACTION = "serve"

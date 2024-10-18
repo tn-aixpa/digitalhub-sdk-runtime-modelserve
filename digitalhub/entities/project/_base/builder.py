@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from digitalhub.entities._builders.entity import EntityBuilder
+from digitalhub.entities._base.entity.builder import EntityBuilder
 from digitalhub.entities.project._base.entity import Project
 from digitalhub.entities.project._base.spec import ProjectSpec, ProjectValidator
 from digitalhub.entities.project._base.status import ProjectStatus

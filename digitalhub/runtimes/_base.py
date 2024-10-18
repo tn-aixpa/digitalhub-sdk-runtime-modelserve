@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-import typing
 from abc import abstractmethod
 from typing import Any, Callable
 
+from digitalhub.factory.api import get_action_from_task_kind
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
-
-if typing.TYPE_CHECKING:
-    from digitalhub.runtimes.kind_registry import KindRegistry
 
 
 class Runtime:
@@ -22,8 +19,7 @@ class Runtime:
     libraries, code, external tools etc.
     """
 
-    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
-        self.kind_registry = kind_registry
+    def __init__(self, project: str) -> None:
         self.project = project
 
     @abstractmethod
@@ -73,7 +69,7 @@ class Runtime:
             raise RuntimeError(msg)
 
         try:
-            return self.get_action_from_task_kind(task_kind)
+            return get_action_from_task_kind(task_kind, task_kind)
         except EntityError:
             msg = f"Task {task_kind} not allowed."
             LOGGER.exception(msg)
@@ -104,61 +100,3 @@ class Runtime:
             msg = "Something got wrong during function execution."
             LOGGER.exception(msg)
             raise RuntimeError(msg)
-
-    ##############################
-    # Wrapper registry methods
-    ##############################
-
-    def get_executable_kind(self) -> str:
-        """
-        Get executable kind.
-
-        Returns
-        -------
-        str
-            Executable kind.
-        """
-        return self.kind_registry.get_executable_kind()
-
-    def get_task_kind_from_action(self, action: str) -> str:
-        """
-        Get task kind from action.
-
-        Parameters
-        ----------
-        action : str
-            Task action.
-
-        Returns
-        -------
-        str
-            Task kind.
-        """
-        return self.kind_registry.get_task_kind_from_action(action)
-
-    def get_action_from_task_kind(self, kind: str) -> str:
-        """
-        Get action from task.
-
-        Parameters
-        ----------
-        kind : str
-            Task kind.
-
-        Returns
-        -------
-        str
-            Action.
-        """
-        return self.kind_registry.get_action_from_task_kind(kind)
-
-    def get_run_kind(self) -> str:
-        """
-        Get run kind.
-
-        Returns
-        -------
-        str
-            Run kind.
-        """
-        return self.kind_registry.get_run_kind()

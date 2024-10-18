@@ -17,7 +17,7 @@ from digitalhub_runtime_dbt.utils.inputs import materialize_dataitem
 from digitalhub_runtime_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
 from digitalhub.context.builder import get_context
-from digitalhub.entities._builders.uuid import build_uuid
+from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities.dataitem.crud import dataitem_from_dict
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
@@ -26,7 +26,6 @@ if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
 
     from digitalhub.entities.dataitem._base.entity import Dataitem
-    from digitalhub.runtimes.kind_registry import KindRegistry
 
 
 class RuntimeDbt(Runtime):
@@ -34,8 +33,8 @@ class RuntimeDbt(Runtime):
     Runtime Dbt class.
     """
 
-    def __init__(self, kind_registry: KindRegistry, project: str) -> None:
-        super().__init__(kind_registry, project)
+    def __init__(self, project: str) -> None:
+        super().__init__(project)
 
         ctx = get_context(self.project)
         self.runtime_dir = ctx.root / "runtime_dbt"

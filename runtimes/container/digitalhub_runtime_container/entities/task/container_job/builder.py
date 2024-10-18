@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_container.entities._base.runtime_entity.builder import RuntimeEntityBuilderContainer
 from digitalhub_runtime_container.entities.task.container_job.entity import TaskContainerJob
 from digitalhub_runtime_container.entities.task.container_job.spec import (
     TaskSpecContainerJob,
@@ -10,7 +11,7 @@ from digitalhub_runtime_container.entities.task.container_job.status import Task
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskContainerJobBuilder(TaskBuilder):
+class TaskContainerJobBuilder(TaskBuilder, RuntimeEntityBuilderContainer):
     """
     TaskContainerJobBuilder jober.
     """
@@ -20,4 +21,3 @@ class TaskContainerJobBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorContainerJob
     ENTITY_STATUS_CLASS = TaskStatusContainerJob
     ENTITY_KIND = "container+job"
-    ACTION = "job"

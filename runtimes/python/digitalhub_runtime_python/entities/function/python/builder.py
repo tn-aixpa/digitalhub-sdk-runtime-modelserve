@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_python.entities._base.runtime_entity.builder import RuntimeEntityBuilderPython
 from digitalhub_runtime_python.entities.function.python.entity import FunctionPython
 from digitalhub_runtime_python.entities.function.python.spec import FunctionSpecPython, FunctionValidatorPython
 from digitalhub_runtime_python.entities.function.python.status import FunctionStatusPython
@@ -7,7 +8,7 @@ from digitalhub_runtime_python.entities.function.python.status import FunctionSt
 from digitalhub.entities.function._base.builder import FunctionBuilder
 
 
-class FunctionPythonBuilder(FunctionBuilder):
+class FunctionPythonBuilder(FunctionBuilder, RuntimeEntityBuilderPython):
     """
     FunctionPython builder.
     """

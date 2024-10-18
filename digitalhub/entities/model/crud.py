@@ -9,7 +9,7 @@ from digitalhub.entities._base.crud import (
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
 )
-from digitalhub.entities._builders.uuid import build_uuid
+from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities.model.builder import model_from_dict, model_from_parameters
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.utils import build_log_path_from_source, eval_local_source

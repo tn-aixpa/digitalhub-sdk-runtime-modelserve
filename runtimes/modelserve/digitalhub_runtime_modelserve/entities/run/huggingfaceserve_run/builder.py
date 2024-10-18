@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderHuggingfaceserve
 from digitalhub_runtime_modelserve.entities.run.huggingfaceserve_run.entity import RunHuggingfaceserveRun
 from digitalhub_runtime_modelserve.entities.run.huggingfaceserve_run.spec import (
     RunSpecHuggingfaceserveRun,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.run.huggingfaceserve_run.status impo
 from digitalhub.entities.run._base.builder import RunBuilder
 
 
-class RunHuggingfaceserveRunBuilder(RunBuilder):
+class RunHuggingfaceserveRunBuilder(RunBuilder, RuntimeEntityBuilderHuggingfaceserve):
     """
     RunHuggingfaceserveRunBuilder runer.
     """

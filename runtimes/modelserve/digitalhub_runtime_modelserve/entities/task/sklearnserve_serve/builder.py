@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderSklearnserve
 from digitalhub_runtime_modelserve.entities.task.sklearnserve_serve.entity import TaskSklearnserveServe
 from digitalhub_runtime_modelserve.entities.task.sklearnserve_serve.spec import (
     TaskSpecSklearnserveServe,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.task.sklearnserve_serve.status impor
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskSklearnserveServeBuilder(TaskBuilder):
+class TaskSklearnserveServeBuilder(TaskBuilder, RuntimeEntityBuilderSklearnserve):
     """
     TaskSklearnserveServe builder.
     """
@@ -20,4 +21,3 @@ class TaskSklearnserveServeBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorSklearnserveServe
     ENTITY_STATUS_CLASS = TaskStatusSklearnserveServe
     ENTITY_KIND = "sklearnserve+serve"
-    ACTION = "serve"

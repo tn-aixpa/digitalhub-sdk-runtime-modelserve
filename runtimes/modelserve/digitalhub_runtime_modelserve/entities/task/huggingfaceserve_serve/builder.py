@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderHuggingfaceserve
 from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.entity import TaskHuggingfaceserveServe
 from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.spec import (
     TaskSpecHuggingfaceserveServe,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.status i
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskHuggingfaceserveServeBuilder(TaskBuilder):
+class TaskHuggingfaceserveServeBuilder(TaskBuilder, RuntimeEntityBuilderHuggingfaceserve):
     """
     TaskHuggingfaceserveServe builder.
     """
@@ -20,4 +21,3 @@ class TaskHuggingfaceserveServeBuilder(TaskBuilder):
     ENTITY_SPEC_VALIDATOR = TaskValidatorHuggingfaceserveServe
     ENTITY_STATUS_CLASS = TaskStatusHuggingfaceserveServe
     ENTITY_KIND = "huggingfaceserve+serve"
-    ACTION = "serve"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderSklearnserve
 from digitalhub_runtime_modelserve.entities.run.sklearnserve_run.entity import RunSklearnserveRun
 from digitalhub_runtime_modelserve.entities.run.sklearnserve_run.spec import (
     RunSpecSklearnserveRun,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.run.sklearnserve_run.status import R
 from digitalhub.entities.run._base.builder import RunBuilder
 
 
-class RunSklearnserveRunBuilder(RunBuilder):
+class RunSklearnserveRunBuilder(RunBuilder, RuntimeEntityBuilderSklearnserve):
     """
     RunSklearnserveRunBuilder runer.
     """

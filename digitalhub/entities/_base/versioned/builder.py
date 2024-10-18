@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._builders.entity import EntityBuilder
+from digitalhub.entities._base.entity.builder import EntityBuilder
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.versioned.entity import VersionedEntity

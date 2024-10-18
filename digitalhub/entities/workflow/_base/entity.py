@@ -4,7 +4,7 @@ import typing
 
 from digitalhub.entities._base.executable.entity import ExecutableEntity
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.runtimes.utils import get_kind_registry
+from digitalhub.factory.api import get_run_kind, get_task_kind_from_action
 from digitalhub.utils.exceptions import BackendError
 
 if typing.TYPE_CHECKING:
@@ -60,12 +60,9 @@ class Workflow(ExecutableEntity):
         if action is None:
             action = "pipeline"
 
-        # Get kind registry
-        kind_reg = get_kind_registry(self.kind, self.project)
-
         # Get task and run kind
-        task_kind = kind_reg.get_task_kind_from_action(action=action)
-        run_kind = kind_reg.get_run_kind()
+        task_kind = get_task_kind_from_action(self.kind, action)
+        run_kind = get_run_kind(self.kind)
 
         # Create or update new task
         task = self._get_or_create_task(task_kind)

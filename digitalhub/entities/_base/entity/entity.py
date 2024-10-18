@@ -4,7 +4,7 @@ import typing
 from abc import ABCMeta, abstractmethod
 
 from digitalhub.entities._base._base.entity import Base
-from digitalhub.factory.factory import factory
+from digitalhub.factory.api import build_entity_from_dict
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
@@ -69,7 +69,7 @@ class Entity(Base, metaclass=ABCMeta):
         -------
         None
         """
-        new_obj = factory.build_entity_from_dict(self.kind, obj)
+        new_obj = build_entity_from_dict(self.kind, obj)
         self.metadata = new_obj.metadata
         self.spec = new_obj.spec
         self.status = new_obj.status

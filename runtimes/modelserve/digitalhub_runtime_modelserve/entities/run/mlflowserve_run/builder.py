@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderMlflowserve
 from digitalhub_runtime_modelserve.entities.run.mlflowserve_run.entity import RunMlflowserveRun
 from digitalhub_runtime_modelserve.entities.run.mlflowserve_run.spec import (
     RunSpecMlflowserveRun,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.run.mlflowserve_run.status import Ru
 from digitalhub.entities.run._base.builder import RunBuilder
 
 
-class RunMlflowserveRunBuilder(RunBuilder):
+class RunMlflowserveRunBuilder(RunBuilder, RuntimeEntityBuilderMlflowserve):
     """
     RunMlflowserveRunBuilder runer.
     """

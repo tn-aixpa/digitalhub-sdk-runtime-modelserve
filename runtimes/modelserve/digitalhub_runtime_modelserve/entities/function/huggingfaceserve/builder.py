@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_modelserve.entities._base.runtime_entity.builder import RuntimeEntityBuilderHuggingfaceserve
 from digitalhub_runtime_modelserve.entities.function.huggingfaceserve.entity import FunctionHuggingfaceserve
 from digitalhub_runtime_modelserve.entities.function.huggingfaceserve.spec import (
     FunctionSpecHuggingfaceserve,
@@ -10,7 +11,7 @@ from digitalhub_runtime_modelserve.entities.function.huggingfaceserve.status imp
 from digitalhub.entities.function._base.builder import FunctionBuilder
 
 
-class FunctionHuggingfaceserveBuilder(FunctionBuilder):
+class FunctionHuggingfaceserveBuilder(FunctionBuilder, RuntimeEntityBuilderHuggingfaceserve):
     """
     FunctionHuggingfaceserve builder.
     """

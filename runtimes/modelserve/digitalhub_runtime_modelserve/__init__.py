@@ -24,16 +24,11 @@ entity_builders = (
 
 try:
     from digitalhub_runtime_modelserve.runtimes.builder import RuntimeModelserveBuilder
-    from digitalhub_runtime_modelserve.runtimes.kind_registry import (
-        huggingfaceserve_kind_registry,
-        mlflowserve_kind_registry,
-        sklearnserve_kind_registry,
-    )
 
     runtime_builders = (
-        *[(kind, RuntimeModelserveBuilder) for kind in sklearnserve_kind_registry.get_all_kinds()],
-        *[(kind, RuntimeModelserveBuilder) for kind in mlflowserve_kind_registry.get_all_kinds()],
-        *[(kind, RuntimeModelserveBuilder) for kind in huggingfaceserve_kind_registry.get_all_kinds()],
+        *[(kind, RuntimeModelserveBuilder) for kind in FunctionSklearnserveBuilder().get_all_kinds()],
+        *[(kind, RuntimeModelserveBuilder) for kind in FunctionMlflowserveBuilder().get_all_kinds()],
+        *[(kind, RuntimeModelserveBuilder) for kind in FunctionHuggingfaceserveBuilder().get_all_kinds()],
     )
 except ImportError:
     runtime_builders = tuple()
