@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from digitalhub_runtime_kfp.entities._base.runtime_entity.builder import RuntimeEntityBuilderKfp
 from digitalhub_runtime_kfp.entities.task.kfp_pipeline.entity import TaskKfpPipeline
 from digitalhub_runtime_kfp.entities.task.kfp_pipeline.spec import TaskSpecKfpPipeline, TaskValidatorKfpPipeline
 from digitalhub_runtime_kfp.entities.task.kfp_pipeline.status import TaskStatusKfpPipeline
@@ -7,7 +8,7 @@ from digitalhub_runtime_kfp.entities.task.kfp_pipeline.status import TaskStatusK
 from digitalhub.entities.task._base.builder import TaskBuilder
 
 
-class TaskKfpPipelineBuilder(TaskBuilder):
+class TaskKfpPipelineBuilder(TaskBuilder, RuntimeEntityBuilderKfp):
     """
     TaskKfpPipelineBuilder pipelineer.
     """
