@@ -4,7 +4,7 @@ import typing
 from abc import ABCMeta, abstractmethod
 from typing import Any
 
-from digitalhub.readers.builder import get_reader_by_engine
+from digitalhub.readers.api import get_reader_by_engine
 
 if typing.TYPE_CHECKING:
     from digitalhub.stores._base.store import Store
@@ -32,7 +32,7 @@ class Datastore(metaclass=ABCMeta):
         self,
         path: str | list[str],
         extension: str,
-        engine: str | None = "pandas",
+        engine: str | None = None,
         **kwargs,
     ) -> Any:
         """

@@ -8,7 +8,7 @@ from digitalhub.entities.artifact.crud import log_artifact
 from digitalhub.entities.dataitem.crud import log_dataitem
 from digitalhub.entities.dataitem.table.entity import DataitemTable
 from digitalhub.entities.utils.state import State
-from digitalhub.readers.registry import DATAFRAME_TYPES
+from digitalhub.readers.api import get_supported_dataframes
 from digitalhub.utils.logger import LOGGER
 
 
@@ -40,7 +40,7 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
         if isinstance(item, (str, int, float, bool, bytes)):
             objects[name] = item
 
-        elif f"{item.__class__.__module__}.{item.__class__.__name__}" in DATAFRAME_TYPES:
+        elif f"{item.__class__.__module__}.{item.__class__.__name__}" in get_supported_dataframes():
             objects[name] = _log_dataitem(name, project_name, item)
 
         else:

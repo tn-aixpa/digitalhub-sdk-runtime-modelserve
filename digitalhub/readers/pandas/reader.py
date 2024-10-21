@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas.errors import ParserError
 
-from digitalhub.readers._base.readers import DataframeReader
+from digitalhub.readers._base.reader import DataframeReader
 from digitalhub.utils.data_utils import build_data_preview, get_data_preview
 
 

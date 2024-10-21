@@ -1,16 +1,24 @@
 from __future__ import annotations
 
+import typing
 from io import BytesIO
 from typing import Any
 
 from digitalhub.datastores._base.datastore import Datastore
-from digitalhub.readers.builder import get_reader_by_object
+from digitalhub.readers.api import get_reader_by_object
+
+if typing.TYPE_CHECKING:
+    from digitalhub.stores.s3.store import S3Store
 
 
 class S3Datastore(Datastore):
     """
     S3 Datastore class.
     """
+
+    def __init__(self, store: S3Store, **kwargs) -> None:
+        super().__init__(store, **kwargs)
+        self.store: S3Store
 
     def write_df(self, df: Any, dst: str, extension: str | None = None, **kwargs) -> str:
         """

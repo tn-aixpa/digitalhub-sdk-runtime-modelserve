@@ -1,15 +1,23 @@
 from __future__ import annotations
 
+import typing
 from typing import Any
 
 from digitalhub.datastores._base.datastore import Datastore
-from digitalhub.readers.builder import get_reader_by_object
+from digitalhub.readers.api import get_reader_by_object
+
+if typing.TYPE_CHECKING:
+    from digitalhub.stores.sql.store import SqlStore
 
 
 class SqlDatastore(Datastore):
     """
     Sql Datastore class.
     """
+
+    def __init__(self, store: SqlStore, **kwargs) -> None:
+        super().__init__(store, **kwargs)
+        self.store: SqlStore
 
     def write_df(self, df: Any, dst: str, extension: str | None = None, **kwargs) -> str:
         """
