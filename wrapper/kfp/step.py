@@ -121,16 +121,19 @@ def execute_step(
         results = {}
 
         # process entities
-        for prop, val in run.status.get_outputs().items():
+        for prop, val in run.outputs().items():
             # write to file val
             target_output = f"entity_{prop}"
             results[target_output] = val if isinstance(val, str) else val.key if isinstance(val, Entity) else val["key"]
         # process values
         if values is not None:
-            for prop, val in run.status.get_values(values_list=values).items():
-                # write to file val
-                target_output = f"value_{prop}"
-                results[target_output] = str(val)
+            if hasattr(run, "values"):
+                for prop, val in run.values(values_list=values).items():
+                    # write to file val
+                    target_output = f"value_{prop}"
+                    results[target_output] = str(val)
+            else:
+                LOGGER.warning("Run does not have values method, cannot process values")
 
         for key, value in results.items():
             try:
