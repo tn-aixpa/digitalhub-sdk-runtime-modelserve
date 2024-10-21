@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.builder import check_context
+from digitalhub.context.api import check_context
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
@@ -10,9 +10,10 @@ from digitalhub.entities._base.crud import (
     read_entity_api_ctx_versions,
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities.artifact.builder import artifact_from_dict, artifact_from_parameters
+from digitalhub.entities.artifact._base.entity import Artifact
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.utils import build_log_path_from_source, eval_local_source
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
@@ -71,7 +72,7 @@ def new_artifact(
     >>>                    path="s3://my-bucket/my-key")
     """
     check_context(project)
-    obj = artifact_from_parameters(
+    obj = build_entity_from_params(
         project=project,
         name=name,
         kind=kind,
@@ -178,7 +179,7 @@ def get_artifact(
         entity_id=entity_id,
         **kwargs,
     )
-    entity = artifact_from_dict(obj)
+    entity = build_entity_from_dict(obj)
     entity._get_files_info()
     return entity
 
@@ -222,7 +223,7 @@ def get_artifact_versions(
     )
     objects = []
     for o in objs:
-        entity = artifact_from_dict(o)
+        entity: Artifact = build_entity_from_dict(o)
         entity._get_files_info()
         objects.append(entity)
     return objects
@@ -255,7 +256,7 @@ def list_artifacts(project: str, **kwargs) -> list[Artifact]:
     )
     objects = []
     for o in objs:
-        entity = artifact_from_dict(o)
+        entity: Artifact = build_entity_from_dict(o)
         entity._get_files_info()
         objects.append(entity)
     return objects
@@ -280,7 +281,7 @@ def import_artifact(file: str) -> Artifact:
     >>> obj = import_artifact("my-artifact.yaml")
     """
     dict_obj: dict = read_yaml(file)
-    obj = artifact_from_dict(dict_obj)
+    obj = build_entity_from_dict(dict_obj)
     try:
         obj.save()
     except EntityAlreadyExistsError:

@@ -5,7 +5,7 @@ import typing
 from pathlib import Path
 from typing import Any
 
-from digitalhub.datastores.builder import get_datastore
+from digitalhub.datastores.api import get_datastore
 from digitalhub.entities.dataitem._base.entity import Dataitem
 from digitalhub.utils.uri_utils import check_local_path
 

@@ -5,7 +5,7 @@ from typing import Callable
 from digitalhub_runtime_modelserve.utils.configuration import get_function_args
 from digitalhub_runtime_modelserve.utils.function import get_serve_function
 
-from digitalhub.context.builder import get_context
+from digitalhub.context.api import get_context
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 

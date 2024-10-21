@@ -3,8 +3,9 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
-from digitalhub.entities.run.crud import delete_run, get_run, new_run, run_from_parameters
+from digitalhub.entities.run.crud import delete_run, get_run, new_run
 from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.factory.api import build_entity_from_params
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
@@ -100,7 +101,7 @@ class Task(UnversionedEntity):
             Run object.
         """
         if kwargs["local_execution"]:
-            return run_from_parameters(**kwargs)
+            return build_entity_from_params(**kwargs)
         return new_run(**kwargs)
 
     def get_run(self, entity_key: str) -> Run:

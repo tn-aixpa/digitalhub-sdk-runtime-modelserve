@@ -4,11 +4,11 @@ import importlib.util as imputil
 import typing
 from pathlib import Path
 
-from digitalhub.client.builder import build_client, get_client
-from digitalhub.context.builder import delete_context
+from digitalhub.client.api import build_client, get_client
+from digitalhub.context.api import delete_context
 from digitalhub.entities._base.crud import delete_entity_api_base, read_entity_api_base, update_entity_api_base
-from digitalhub.entities.project.builder import project_from_dict, project_from_parameters
 from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import BackendError, EntityError
 from digitalhub.utils.io_utils import read_yaml
 
@@ -63,7 +63,7 @@ def new_project(
     build_client(local, config)
     if context is None:
         context = name
-    obj = project_from_parameters(
+    obj = build_entity_from_params(
         name=name,
         kind="project",
         description=description,
@@ -112,7 +112,7 @@ def get_project(
     client = get_client(local)
     obj = read_entity_api_base(client, ENTITY_TYPE, name, **kwargs)
     obj["local"] = local
-    project = project_from_dict(obj)
+    project = build_entity_from_dict(obj)
     return _setup_project(project, setup_kwargs)
 
 
@@ -148,7 +148,7 @@ def import_project(
     build_client(local, config)
     dict_obj: dict = read_yaml(file)
     dict_obj["local"] = local
-    obj = project_from_dict(dict_obj)
+    obj = build_entity_from_dict(dict_obj)
     obj = _setup_project(obj, setup_kwargs)
 
     # Import related entities
@@ -278,7 +278,7 @@ def update_project(entity: Project, local: bool = False, **kwargs) -> Project:
     """
     client = get_client(local)
     obj = update_entity_api_base(client, ENTITY_TYPE, entity.name, entity.to_dict(), **kwargs)
-    return project_from_dict(obj)
+    return build_entity_from_dict(obj)
 
 
 def delete_project(

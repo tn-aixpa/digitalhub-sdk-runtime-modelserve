@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.builder import check_context
+from digitalhub.context.api import check_context
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
 )
-from digitalhub.entities.function.builder import function_from_dict, function_from_parameters
 from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
@@ -66,7 +66,7 @@ def new_function(
     >>>                    handler="function-handler")
     """
     check_context(project)
-    obj = function_from_parameters(
+    obj = build_entity_from_params(
         project=project,
         name=name,
         kind=kind,
@@ -122,7 +122,7 @@ def get_function(
         entity_id=entity_id,
         **kwargs,
     )
-    return function_from_dict(obj)
+    return build_entity_from_dict(obj)
 
 
 def get_function_versions(
@@ -162,7 +162,7 @@ def get_function_versions(
         project=project,
         **kwargs,
     )
-    return [function_from_dict(o) for o in obj]
+    return [build_entity_from_dict(o) for o in obj]
 
 
 def list_functions(project: str, **kwargs) -> list[Function]:
@@ -190,7 +190,7 @@ def list_functions(project: str, **kwargs) -> list[Function]:
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [function_from_dict(obj) for obj in objs]
+    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def import_function(file: str) -> Function:
@@ -220,7 +220,7 @@ def import_function(file: str) -> Function:
         tsk_dicts = []
 
     check_context(fnc_dict.get("project"))
-    obj = function_from_dict(fnc_dict)
+    obj: Function = build_entity_from_dict(fnc_dict)
 
     obj.import_tasks(tsk_dicts)
 

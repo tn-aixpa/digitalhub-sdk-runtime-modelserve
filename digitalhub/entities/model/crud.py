@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.builder import check_context
+from digitalhub.context.api import check_context
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
@@ -10,9 +10,9 @@ from digitalhub.entities._base.crud import (
     read_entity_api_ctx_versions,
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities.model.builder import model_from_dict, model_from_parameters
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.utils import build_log_path_from_source, eval_local_source
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.io_utils import read_yaml
 
@@ -71,7 +71,7 @@ def new_model(
     >>>                    path="s3://my-bucket/my-key")
     """
     check_context(project)
-    obj = model_from_parameters(
+    obj = build_entity_from_params(
         project=project,
         name=name,
         kind=kind,
@@ -178,7 +178,7 @@ def get_model(
         entity_id=entity_id,
         **kwargs,
     )
-    entity = model_from_dict(obj)
+    entity = build_entity_from_dict(obj)
     entity._get_files_info()
     return entity
 
@@ -222,7 +222,7 @@ def get_model_versions(
     )
     objects = []
     for o in objs:
-        entity = model_from_dict(o)
+        entity: Model = build_entity_from_dict(o)
         entity._get_files_info()
         objects.append(entity)
     return objects
@@ -255,7 +255,7 @@ def list_models(project: str, **kwargs) -> list[Model]:
     )
     objects = []
     for o in objs:
-        entity = model_from_dict(o)
+        entity: Model = build_entity_from_dict(o)
         entity._get_files_info()
         objects.append(entity)
     return objects
@@ -280,7 +280,7 @@ def import_model(file: str) -> Model:
     >>> obj = import_model("my-model.yaml")
     """
     dict_obj: dict = read_yaml(file)
-    obj = model_from_dict(dict_obj)
+    obj = build_entity_from_dict(dict_obj)
     try:
         obj.save()
     except EntityAlreadyExistsError:

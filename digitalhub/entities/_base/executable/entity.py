@@ -5,8 +5,9 @@ import typing
 from digitalhub.entities._base.crud import list_entity_api_ctx
 from digitalhub.entities._base.versioned.entity import VersionedEntity
 from digitalhub.entities.run.crud import delete_run, get_run, list_runs
-from digitalhub.entities.task.crud import delete_task, task_from_dict, task_from_parameters
+from digitalhub.entities.task.crud import delete_task
 from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
 
 if typing.TYPE_CHECKING:
@@ -101,7 +102,7 @@ class ExecutableEntity(VersionedEntity):
             # Create a new object from dictionary.
             # the form in which tasks are stored in function
             # status
-            task_obj = task_from_dict(task)
+            task_obj = build_entity_from_dict(task)
 
             # Try to save it in backend to been able to use
             # it for launching runs. In fact, tasks must be
@@ -144,7 +145,7 @@ class ExecutableEntity(VersionedEntity):
         kwargs["kind"] = task_kind
 
         # Create object instance
-        task = task_from_parameters(**kwargs)
+        task = build_entity_from_params(**kwargs)
         task.save()
 
         self._tasks[task_kind] = task
@@ -175,7 +176,7 @@ class ExecutableEntity(VersionedEntity):
             resp = self._get_task_from_backend(kind)
             if not resp:
                 raise EntityError(f"Task {kind} is not created")
-            self._tasks[kind] = task_from_dict(resp[0])
+            self._tasks[kind] = build_entity_from_dict(resp[0])
             return self._tasks[kind]
 
     def update_task(self, kind: str, **kwargs) -> Task:
@@ -206,7 +207,7 @@ class ExecutableEntity(VersionedEntity):
         kwargs["uuid"] = self._tasks[kind].id
 
         # Update task
-        task = task_from_parameters(**kwargs)
+        task = build_entity_from_params(**kwargs)
         task.save(update=True)
         self._tasks[kind] = task
         return task

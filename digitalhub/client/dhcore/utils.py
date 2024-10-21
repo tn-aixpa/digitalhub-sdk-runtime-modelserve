@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import typing
 
-from digitalhub.client.builder import check_client_exists, get_client
+from digitalhub.client.api import check_client_exists, get_client
 
 if typing.TYPE_CHECKING:
     from digitalhub.client.dhcore.client import ClientDHCore

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.builder import get_context
+from digitalhub.context.api import get_context
 from digitalhub.entities.utils.api import (
     api_base_create,
     api_base_delete,

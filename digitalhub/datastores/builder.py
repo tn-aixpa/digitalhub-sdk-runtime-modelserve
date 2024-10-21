@@ -6,7 +6,7 @@ from digitalhub.datastores.local.datastore import LocalDatastore
 from digitalhub.datastores.remote.datastore import RemoteDatastore
 from digitalhub.datastores.s3.datastore import S3Datastore
 from digitalhub.datastores.sql.datastore import SqlDatastore
-from digitalhub.stores.builder import get_default_store, get_store
+from digitalhub.stores.api import get_default_store, get_store
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
@@ -14,7 +14,12 @@ if typing.TYPE_CHECKING:
     from digitalhub.stores._base.store import Store
 
 
-REGISTRY_DATASTORES = {"local": LocalDatastore, "remote": RemoteDatastore, "s3": S3Datastore, "sql": SqlDatastore}
+REGISTRY_DATASTORES = {
+    "local": LocalDatastore,
+    "remote": RemoteDatastore,
+    "s3": S3Datastore,
+    "sql": SqlDatastore,
+}
 
 
 class DatastoreBuilder:
@@ -103,32 +108,3 @@ class DatastoreBuilder:
 
 
 builder = DatastoreBuilder()
-
-
-def get_datastore(uri: str) -> Datastore:
-    """
-    Get a datastore instance by URI.
-
-    Parameters
-    ----------
-    uri : str
-        URI to parse.
-
-    Returns
-    -------
-    Datastore
-        The datastore instance.
-    """
-    return builder.get(uri)
-
-
-def get_default_datastore() -> Datastore:
-    """
-    Get the default datastore instance.
-
-    Returns
-    -------
-    Datastore
-        The default datastore instance.
-    """
-    return builder.default()

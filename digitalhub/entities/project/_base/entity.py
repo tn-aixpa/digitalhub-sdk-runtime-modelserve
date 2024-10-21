@@ -4,8 +4,8 @@ import typing
 from pathlib import Path
 from typing import Any
 
-from digitalhub.client.builder import get_client
-from digitalhub.context.builder import set_context
+from digitalhub.client.api import get_client
+from digitalhub.context.api import set_context
 from digitalhub.entities._base.crud import (
     create_entity_api_base,
     read_entity_api_base,
@@ -14,7 +14,6 @@ from digitalhub.entities._base.crud import (
 )
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.entities.artifact.crud import (
-    artifact_from_dict,
     delete_artifact,
     get_artifact,
     get_artifact_versions,
@@ -25,7 +24,6 @@ from digitalhub.entities.artifact.crud import (
     update_artifact,
 )
 from digitalhub.entities.dataitem.crud import (
-    dataitem_from_dict,
     delete_dataitem,
     get_dataitem,
     get_dataitem_versions,
@@ -37,7 +35,6 @@ from digitalhub.entities.dataitem.crud import (
 )
 from digitalhub.entities.function.crud import (
     delete_function,
-    function_from_dict,
     get_function,
     get_function_versions,
     import_function,
@@ -52,7 +49,6 @@ from digitalhub.entities.model.crud import (
     import_model,
     list_models,
     log_model,
-    model_from_dict,
     new_model,
     update_model,
 )
@@ -75,8 +71,8 @@ from digitalhub.entities.workflow.crud import (
     list_workflows,
     new_workflow,
     update_workflow,
-    workflow_from_dict,
 )
+from digitalhub.factory.api import build_entity_from_dict
 from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError
 from digitalhub.utils.generic_utils import get_timestamp
 from digitalhub.utils.io_utils import write_yaml
@@ -102,14 +98,6 @@ DATAITEMS = EntityTypes.DATAITEM.value + "s"
 MODELS = EntityTypes.MODEL.value + "s"
 
 CTX_ENTITIES = [ARTIFACTS, FUNCTIONS, WORKFLOWS, DATAITEMS, MODELS]
-
-FROM_DICT_MAP = {
-    ARTIFACTS: artifact_from_dict,
-    FUNCTIONS: function_from_dict,
-    WORKFLOWS: workflow_from_dict,
-    DATAITEMS: dataitem_from_dict,
-    MODELS: model_from_dict,
-}
 
 IMPORT_MAP = {
     ARTIFACTS: import_artifact,
@@ -262,7 +250,7 @@ class Project(Entity):
                     obj_dict: dict = read_entity_api_ctx(entity["key"])
 
                     # Create from dict (not need to new method, we do not save to backend)
-                    ent = FROM_DICT_MAP[entity_type](obj_dict)
+                    ent = build_entity_from_dict(obj_dict)
 
                     # Export and stor ref in object metadata inside project
                     pth = ent.export()
@@ -300,7 +288,7 @@ class Project(Entity):
                 # If entity is embedded, create it and try to save
                 elif embedded:
                     try:
-                        FROM_DICT_MAP[entity_type](entity).save()
+                        build_entity_from_dict(entity).save()
                     except EntityAlreadyExistsError:
                         pass
 

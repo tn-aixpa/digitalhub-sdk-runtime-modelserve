@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from digitalhub.context.builder import check_context
+from digitalhub.context.api import check_context
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
@@ -13,11 +13,11 @@ from digitalhub.entities._base.crud import (
     read_entity_api_ctx_versions,
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities.dataitem.builder import dataitem_from_dict, dataitem_from_parameters
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.utils import build_log_path_from_filename, build_log_path_from_source, eval_local_source
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.readers.builder import get_reader_by_object
-from digitalhub.stores.builder import get_store
+from digitalhub.stores.api import get_store
 from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.generic_utils import slugify_string
 from digitalhub.utils.io_utils import read_yaml
@@ -77,7 +77,7 @@ def new_dataitem(
     >>>                    path="s3://my-bucket/my-key")
     """
     check_context(project)
-    obj = dataitem_from_parameters(
+    obj = build_entity_from_params(
         project=project,
         name=name,
         kind=kind,
@@ -160,7 +160,7 @@ def log_dataitem(
             slug = slugify_string(name) + f".{extension}"
             path = build_log_path_from_filename(project, ENTITY_TYPE, name, uuid, slug)
 
-        obj = dataitem_from_parameters(project=project, name=name, kind=kind, path=path, **kwargs)
+        obj = build_entity_from_params(project=project, name=name, kind=kind, path=path, **kwargs)
         if kind == "table":
             dst = obj.write_df(df=data, extension=extension)
             reader = get_reader_by_object(data)
@@ -218,7 +218,7 @@ def get_dataitem(
         entity_id=entity_id,
         **kwargs,
     )
-    entity = dataitem_from_dict(obj)
+    entity = build_entity_from_dict(obj)
     entity._get_files_info()
     return entity
 
@@ -262,7 +262,7 @@ def get_dataitem_versions(
     )
     objects = []
     for o in objs:
-        entity = dataitem_from_dict(o)
+        entity: Dataitem = build_entity_from_dict(o)
         entity._get_files_info()
         objects.append(entity)
     return objects
@@ -295,7 +295,7 @@ def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
     )
     objects = []
     for o in objs:
-        entity = dataitem_from_dict(o)
+        entity: Dataitem = build_entity_from_dict(o)
         entity._get_files_info()
         objects.append(entity)
     return objects
@@ -320,7 +320,7 @@ def import_dataitem(file: str) -> Dataitem:
     >>> obj = import_dataitem("my-dataitem.yaml")
     """
     dict_obj: dict = read_yaml(file)
-    obj = dataitem_from_dict(dict_obj)
+    obj = build_entity_from_dict(dict_obj)
     try:
         obj.save()
     except EntityAlreadyExistsError:

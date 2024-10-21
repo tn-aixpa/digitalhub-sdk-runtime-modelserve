@@ -69,7 +69,7 @@ class Entity(Base, metaclass=ABCMeta):
         -------
         None
         """
-        new_obj = build_entity_from_dict(self.kind, obj)
+        new_obj = build_entity_from_dict(obj)
         self.metadata = new_obj.metadata
         self.spec = new_obj.spec
         self.status = new_obj.status

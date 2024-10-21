@@ -13,22 +13,48 @@ if typing.TYPE_CHECKING:
     from digitalhub.runtimes._base import Runtime
 
 
-def build_entity(kind_to_build_from: str, *args, **kwargs) -> Entity:
+def build_entity_from_params(**kwargs) -> Entity:
     """
     Build an entity.
 
     Parameters
     ----------
-    kind_to_build_from : str
-        Entity type.
+    **kwargs
+        Entity parameters.
 
     Returns
     -------
     Entity
         Entity object.
     """
-    _raise_if_entity_builder_not_found(kind_to_build_from)
-    return factory.build_entity_from_params(kind_to_build_from, *args, **kwargs)
+    try:
+        kind = kwargs["kind"]
+    except KeyError:
+        raise BuilderError("Missing 'kind' parameter.")
+    _raise_if_entity_builder_not_found(kind)
+    return factory.build_entity_from_params(kind, **kwargs)
+
+
+def build_entity_from_dict(obj: dict) -> Entity:
+    """
+    Build an entity from a dictionary.
+
+    Parameters
+    ----------
+    obj : dict
+        Dictionary with entity data.
+
+    Returns
+    -------
+    Entity
+        Entity object.
+    """
+    try:
+        kind = obj["kind"]
+    except KeyError:
+        raise BuilderError("Missing 'kind' parameter.")
+    _raise_if_entity_builder_not_found(kind)
+    return factory.build_entity_from_dict(kind, obj)
 
 
 def build_spec(kind_to_build_from: str, **kwargs) -> Spec:
@@ -103,26 +129,6 @@ def build_runtime(kind_to_build_from: str, project: str) -> Runtime:
     """
     _raise_if_runtime_builder_not_found(kind_to_build_from)
     return factory.build_runtime(kind_to_build_from, project)
-
-
-def build_entity_from_dict(kind_to_build_from: str, dict_data: dict) -> Entity:
-    """
-    Build an entity from a dictionary.
-
-    Parameters
-    ----------
-    kind_to_build_from : str
-        Entity type.
-    dict_data : dict
-        Dictionary with entity data.
-
-    Returns
-    -------
-    Entity
-        Entity object.
-    """
-    _raise_if_entity_builder_not_found(kind_to_build_from)
-    return factory.build_entity_from_dict(kind_to_build_from, dict_data)
 
 
 def get_entity_type_from_kind(kind: str) -> str:

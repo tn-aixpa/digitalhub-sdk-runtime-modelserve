@@ -4,13 +4,9 @@ import inspect
 import typing
 from typing import Any, Callable
 
-from digitalhub.context.builder import get_context
-from digitalhub.entities.artifact.crud import artifact_from_dict
-from digitalhub.entities.dataitem.crud import dataitem_from_dict
-from digitalhub.entities.model.crud import model_from_dict
+from digitalhub.context.api import get_context
 from digitalhub.entities.project.crud import get_project
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import parse_entity_key
+from digitalhub.factory.api import build_entity_from_dict
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
@@ -62,13 +58,7 @@ def get_entity_inputs(inputs: dict) -> dict[str, Entity]:
     try:
         inputs_objects = {}
         for k, v in inputs.items():
-            _, entity_type, _, _, _ = parse_entity_key(v.get("key"))
-            if entity_type == EntityTypes.DATAITEM.value:
-                inputs_objects[k] = dataitem_from_dict(v)
-            elif entity_type == EntityTypes.ARTIFACT.value:
-                inputs_objects[k] = artifact_from_dict(v)
-            elif entity_type == EntityTypes.MODEL.value:
-                inputs_objects[k] = model_from_dict(v)
+            inputs_objects[k] = build_entity_from_dict(v)
         return inputs_objects
     except Exception as e:
         msg = f"Error during inputs collection. Exception: {e.__class__}. Error: {e.args}"

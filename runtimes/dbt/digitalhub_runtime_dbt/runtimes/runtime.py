@@ -16,9 +16,9 @@ from digitalhub_runtime_dbt.utils.functions import transform
 from digitalhub_runtime_dbt.utils.inputs import materialize_dataitem
 from digitalhub_runtime_dbt.utils.outputs import build_status, create_dataitem_, parse_results
 
-from digitalhub.context.builder import get_context
+from digitalhub.context.api import get_context
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities.dataitem.crud import dataitem_from_dict
+from digitalhub.factory.api import build_entity_from_dict
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 
@@ -153,7 +153,7 @@ class RuntimeDbt(Runtime):
         """
         # Collect input dataitems
         for param, di in spec.get("inputs", {}).items():
-            di = dataitem_from_dict(di)
+            di = build_entity_from_dict(di)
 
             # Register dataitem in a dict to be used for inputs confs generation
             self._input_dataitems.append({"name": param, "id": di.id})

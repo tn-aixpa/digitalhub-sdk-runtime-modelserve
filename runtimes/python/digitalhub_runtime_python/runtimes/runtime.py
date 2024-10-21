@@ -6,7 +6,7 @@ from digitalhub_runtime_python.utils.configuration import get_function_from_sour
 from digitalhub_runtime_python.utils.inputs import compose_inputs
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
-from digitalhub.context.builder import get_context
+from digitalhub.context.api import get_context
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 

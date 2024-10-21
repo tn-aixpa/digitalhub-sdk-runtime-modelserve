@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.builder import check_context
+from digitalhub.context.api import check_context
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
 )
-from digitalhub.entities.secret.builder import secret_from_dict, secret_from_parameters
 from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
 
@@ -69,7 +69,7 @@ def new_secret(
     if secret_value is None:
         raise ValueError("secret_value must be provided.")
 
-    obj = secret_from_parameters(
+    obj = build_entity_from_params(
         project=project,
         name=name,
         kind="secret",
@@ -134,7 +134,7 @@ def get_secret(
         entity_id=entity_id,
         **kwargs,
     )
-    return secret_from_dict(obj)
+    return build_entity_from_dict(obj)
 
 
 def get_secret_versions(
@@ -174,7 +174,7 @@ def get_secret_versions(
         project=project,
         **kwargs,
     )
-    return [secret_from_dict(o) for o in obj]
+    return [build_entity_from_dict(o) for o in obj]
 
 
 def list_secrets(project: str, **kwargs) -> list[Secret]:
@@ -202,7 +202,7 @@ def list_secrets(project: str, **kwargs) -> list[Secret]:
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [secret_from_dict(obj) for obj in objs]
+    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def import_secret(file: str) -> Secret:
@@ -224,7 +224,7 @@ def import_secret(file: str) -> Secret:
     >>> obj = import_secret("my-secret.yaml")
     """
     dict_obj: dict = read_yaml(file)
-    obj = secret_from_dict(dict_obj)
+    obj = build_entity_from_dict(dict_obj)
     try:
         obj.save()
     except EntityAlreadyExistsError:

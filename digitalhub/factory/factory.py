@@ -62,23 +62,25 @@ class Factory:
             raise BuilderError(f"Builder {name} already exists.")
         self._runtime_builders[name] = builder()
 
-    def build_entity_from_params(self, kind_to_build_from: str, *args, **kwargs) -> Entity:
+    def build_entity_from_params(self, kind_to_build_from: str, **kwargs) -> Entity:
         """
-        Build an entity.
+        Build an entity from parameters.
 
         Parameters
         ----------
         kind_to_build_from : str
             Entity type.
+        **kwargs
+            Entity parameters.
 
         Returns
         -------
         Entity
             Entity object.
         """
-        return self._entity_builders[kind_to_build_from].build(*args, **kwargs)
+        return self._entity_builders[kind_to_build_from].build(**kwargs)
 
-    def build_entity_from_dict(self, kind_to_build_from: str, dict_data: dict) -> Entity:
+    def build_entity_from_dict(self, kind_to_build_from: str, obj: dict) -> Entity:
         """
         Build an entity from a dictionary.
 
@@ -94,7 +96,7 @@ class Factory:
         Entity
             Entity object.
         """
-        return self._entity_builders[kind_to_build_from].from_dict(dict_data)
+        return self._entity_builders[kind_to_build_from].from_dict(obj)
 
     def build_spec(self, kind_to_build_from: str, **kwargs) -> Spec:
         """

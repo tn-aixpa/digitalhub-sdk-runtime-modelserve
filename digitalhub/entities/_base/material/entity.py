@@ -5,7 +5,7 @@ from pathlib import Path
 
 from digitalhub.entities._base.crud import files_info_get_api, files_info_put_api
 from digitalhub.entities._base.versioned.entity import VersionedEntity
-from digitalhub.stores.builder import get_store
+from digitalhub.stores.api import get_store
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata

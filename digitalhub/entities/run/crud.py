@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.builder import check_context
+from digitalhub.context.api import check_context
 from digitalhub.entities._base.crud import delete_entity_api_ctx, list_entity_api_ctx, read_entity_api_ctx
-from digitalhub.entities.run.builder import run_from_dict, run_from_parameters
 from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
 from digitalhub.utils.io_utils import read_yaml
 
@@ -58,7 +58,7 @@ def new_run(
     >>>                    task="task-string"
     """
     check_context(project)
-    obj = run_from_parameters(
+    obj = build_entity_from_params(
         project=project,
         kind=kind,
         uuid=uuid,
@@ -111,7 +111,7 @@ def get_run(
         entity_id=identifier,
         **kwargs,
     )
-    return run_from_dict(obj)
+    return build_entity_from_dict(obj)
 
 
 def list_runs(project: str, **kwargs) -> list[Run]:
@@ -140,7 +140,7 @@ def list_runs(project: str, **kwargs) -> list[Run]:
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [run_from_dict(obj) for obj in objs]
+    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def import_run(file: str) -> Run:
@@ -162,7 +162,7 @@ def import_run(file: str) -> Run:
     >>> obj = import_run("my-run.yaml")
     """
     dict_obj: dict = read_yaml(file)
-    obj = run_from_dict(dict_obj)
+    obj = build_entity_from_dict(dict_obj)
     try:
         obj.save()
     except EntityAlreadyExistsError:
