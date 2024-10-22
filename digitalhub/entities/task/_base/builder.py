@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.runtime_entity.builder import RuntimeEntityBuilder
+from digitalhub.entities._base.runtime_entity.builder import RuntimeEntityBuilder, EntityError
 from digitalhub.entities._base.unversioned.builder import UnversionedBuilder
 from digitalhub.entities.utils.entity_types import EntityTypes
 
@@ -49,6 +49,10 @@ class TaskBuilder(UnversionedBuilder, RuntimeEntityBuilder):
         Task
             Object instance.
         """
+        if function is None:
+            raise EntityError("function must be provided")
+
+        self._check_kind_validity(function)
         uuid = self.build_uuid(uuid)
         metadata = self.build_metadata(
             project=project,
@@ -68,3 +72,20 @@ class TaskBuilder(UnversionedBuilder, RuntimeEntityBuilder):
             spec=spec,
             status=status,
         )
+
+    def _check_kind_validity(self, function: str) -> None:
+        """
+        Check kind validity.
+
+        Parameters
+        ----------
+        function : str
+            Function string.
+
+        Returns
+        -------
+        None
+        """
+        function_kind = function.split("://")[0]
+        if self.EXECUTABLE_KIND != function_kind:
+            raise EntityError(f"Invalid task '{self.ENTITY_KIND}' for function kind '{function_kind}'")

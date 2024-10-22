@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.runtime_entity.builder import RuntimeEntityBuilder
+from digitalhub.entities._base.runtime_entity.builder import RuntimeEntityBuilder, EntityError
 from digitalhub.entities._base.unversioned.builder import UnversionedBuilder
 from digitalhub.entities.utils.entity_types import EntityTypes
 
@@ -52,6 +52,9 @@ class RunBuilder(UnversionedBuilder, RuntimeEntityBuilder):
         Run
             Object instance.
         """
+        if task is None:
+            raise EntityError("Missing task in run spec")
+        self._check_kind_validity(task)
         uuid = self.build_uuid(uuid)
         metadata = self.build_metadata(
             project=project,
@@ -72,3 +75,20 @@ class RunBuilder(UnversionedBuilder, RuntimeEntityBuilder):
             spec=spec,
             status=status,
         )
+
+    def _check_kind_validity(self, task: str) -> None:
+        """
+        Check kind validity.
+
+        Parameters
+        ----------
+        task : str
+            Task string.
+
+        Returns
+        -------
+        None
+        """
+        task_kind = task.split("://")[0]
+        if task_kind not in self.get_all_kinds():
+            raise EntityError(f"Invalid run '{self.ENTITY_KIND}' for task kind '{task_kind}'")
