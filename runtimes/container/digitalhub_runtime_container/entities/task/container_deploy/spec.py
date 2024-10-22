@@ -20,6 +20,7 @@ class TaskSpecContainerDeploy(TaskSpecK8s):
         secrets: list | None = None,
         profile: str | None = None,
         replicas: int | None = None,
+        fsGroup: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -35,6 +36,7 @@ class TaskSpecContainerDeploy(TaskSpecK8s):
             **kwargs,
         )
         self.replicas = replicas
+        self.fsGroup = fsGroup
 
 
 class TaskValidatorContainerDeploy(TaskValidatorK8s):
@@ -44,3 +46,6 @@ class TaskValidatorContainerDeploy(TaskValidatorK8s):
 
     replicas: int = None
     """Replicas."""
+
+    fsGroup: int = None
+    """FSGroup."""

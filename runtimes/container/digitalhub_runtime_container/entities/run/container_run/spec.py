@@ -32,6 +32,7 @@ class RunSpecContainerRun(RunSpec):
         service_ports: list | None = None,
         service_type: str | None = None,
         instructions: dict | None = None,
+        fsGroup: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -59,6 +60,7 @@ class RunSpecContainerRun(RunSpec):
         self.service_ports = service_ports
         self.service_type = service_type
         self.instructions = instructions
+        self.fsGroup = fsGroup
 
 
 class RunValidatorContainerRun(RunValidator):
@@ -86,3 +88,5 @@ class RunValidatorContainerRun(RunValidator):
 
     # Task build
     instructions: list[str] = None
+
+    fsGroup: int = None

@@ -23,6 +23,7 @@ class TaskSpecContainerServe(TaskSpecK8s):
         replicas: int | None = None,
         service_ports: list | None = None,
         service_type: str | None = None,
+        fsGroup: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -40,6 +41,7 @@ class TaskSpecContainerServe(TaskSpecK8s):
         self.replicas = replicas
         self.service_ports = service_ports
         self.service_type = service_type
+        self.fsGroup = fsGroup
 
 
 class TaskValidatorContainerServe(TaskValidatorK8s):
@@ -55,3 +57,6 @@ class TaskValidatorContainerServe(TaskValidatorK8s):
 
     service_type: str = None
     """Service type."""
+
+    fsGroup: int = None
+    """FSGroup."""

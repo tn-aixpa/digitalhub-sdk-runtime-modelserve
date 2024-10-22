@@ -21,6 +21,7 @@ class TaskSpecContainerJob(TaskSpecK8s):
         profile: str | None = None,
         backoff_limit: int | None = None,
         schedule: str | None = None,
+        fsGroup: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -37,6 +38,7 @@ class TaskSpecContainerJob(TaskSpecK8s):
         )
         self.backoff_limit = backoff_limit
         self.schedule = schedule
+        self.fsGroup = fsGroup
 
 
 class TaskValidatorContainerJob(TaskValidatorK8s):
@@ -49,3 +51,6 @@ class TaskValidatorContainerJob(TaskValidatorK8s):
 
     schedule: str = None
     """Schedule."""
+
+    fsGroup: int = None
+    """FSGroup."""
