@@ -91,20 +91,20 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.workflow._base.entity import Workflow
 
 
-ARTIFACTS = EntityTypes.ARTIFACT.value + "s"
-FUNCTIONS = EntityTypes.FUNCTION.value + "s"
-WORKFLOWS = EntityTypes.WORKFLOW.value + "s"
-DATAITEMS = EntityTypes.DATAITEM.value + "s"
-MODELS = EntityTypes.MODEL.value + "s"
+ARTIFACTS = f"{EntityTypes.ARTIFACT.value}s"
+DATAITEMS = f"{EntityTypes.DATAITEM.value}s"
+MODELS = f"{EntityTypes.MODEL.value}s"
+FUNCTIONS = f"{EntityTypes.FUNCTION.value}s"
+WORKFLOWS = f"{EntityTypes.WORKFLOW.value}s"
 
 CTX_ENTITIES = [ARTIFACTS, FUNCTIONS, WORKFLOWS, DATAITEMS, MODELS]
 
 IMPORT_MAP = {
     ARTIFACTS: import_artifact,
-    FUNCTIONS: import_function,
-    WORKFLOWS: import_workflow,
     DATAITEMS: import_dataitem,
     MODELS: import_model,
+    FUNCTIONS: import_function,
+    WORKFLOWS: import_workflow,
 }
 
 
@@ -291,6 +291,33 @@ class Project(Entity):
                         build_entity_from_dict(entity).save()
                     except EntityAlreadyExistsError:
                         pass
+
+    def run(self, workflow: str, **kwargs) -> Run:
+        """
+        Run workflow project.
+
+        Parameters
+        ----------
+        workflow : str
+            Workflow name.
+        **kwargs : dict
+            Keyword arguments passed to workflow.run().
+
+        Returns
+        -------
+        Run
+            Run instance.
+        """
+        self.refresh()
+        for i in self.spec.workflows:
+            if i["name"] == workflow or i["key"] == workflow:
+                workflow = build_entity_from_dict(i)
+                break
+        else:
+            msg = f"Workflow {workflow} not found."
+            raise EntityError(msg)
+
+        return workflow.run(**kwargs)
 
     ##############################
     #  Artifacts
@@ -2004,3 +2031,7 @@ class Project(Entity):
             **kwargs,
         )
         self.refresh()
+
+    ##############################
+    #  Project methods
+    ##############################
