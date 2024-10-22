@@ -6,6 +6,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from digitalhub.context.api import check_context
+from digitalhub.entities._base.context.crud import import_context_entity
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
@@ -18,9 +19,7 @@ from digitalhub.entities.utils.utils import build_log_path_from_filename, build_
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.readers.api import get_reader_by_object
 from digitalhub.stores.api import get_store
-from digitalhub.utils.exceptions import EntityAlreadyExistsError
 from digitalhub.utils.generic_utils import slugify_string
-from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.dataitem._base.entity import Dataitem
@@ -319,14 +318,7 @@ def import_dataitem(file: str) -> Dataitem:
     --------
     >>> obj = import_dataitem("my-dataitem.yaml")
     """
-    dict_obj: dict = read_yaml(file)
-    obj = build_entity_from_dict(dict_obj)
-    try:
-        obj.save()
-    except EntityAlreadyExistsError:
-        pass
-    finally:
-        return obj
+    return import_context_entity(file)
 
 
 def update_dataitem(entity: Dataitem) -> Dataitem:

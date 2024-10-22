@@ -6,6 +6,7 @@ from typing import Any
 
 from digitalhub.client.api import get_client
 from digitalhub.context.api import set_context
+from digitalhub.entities._base.context.crud import import_context_entity
 from digitalhub.entities._base.crud import (
     create_entity_api_base,
     read_entity_api_base,
@@ -13,6 +14,7 @@ from digitalhub.entities._base.crud import (
     update_entity_api_base,
 )
 from digitalhub.entities._base.entity.entity import Entity
+from digitalhub.entities._base.executable.crud import import_executable_entity
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
     get_artifact,
@@ -89,23 +91,6 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.run._base.entity import Run
     from digitalhub.entities.secret._base.entity import Secret
     from digitalhub.entities.workflow._base.entity import Workflow
-
-
-ARTIFACTS = f"{EntityTypes.ARTIFACT.value}s"
-DATAITEMS = f"{EntityTypes.DATAITEM.value}s"
-MODELS = f"{EntityTypes.MODEL.value}s"
-FUNCTIONS = f"{EntityTypes.FUNCTION.value}s"
-WORKFLOWS = f"{EntityTypes.WORKFLOW.value}s"
-
-CTX_ENTITIES = [ARTIFACTS, FUNCTIONS, WORKFLOWS, DATAITEMS, MODELS]
-
-IMPORT_MAP = {
-    ARTIFACTS: import_artifact,
-    DATAITEMS: import_dataitem,
-    MODELS: import_model,
-    FUNCTIONS: import_function,
-    WORKFLOWS: import_workflow,
-}
 
 
 class Project(Entity):
@@ -241,7 +226,7 @@ class Project(Entity):
             Updatated project object in dictionary format with referenced entities.
         """
         # Cycle over entity types
-        for entity_type in CTX_ENTITIES:
+        for entity_type in self._get_entity_types():
             # Entity types are stored as a list of entities
             for idx, entity in enumerate(obj.get("spec", {}).get(entity_type, [])):
                 # Export entity if not embedded is in metadata, else do nothing
@@ -267,8 +252,10 @@ class Project(Entity):
         -------
         None
         """
+        entity_types = self._get_entity_types()
+
         # Cycle over entity types
-        for entity_type in CTX_ENTITIES:
+        for entity_type in entity_types:
             # Entity types are stored as a list of entities
             for entity in getattr(self.spec, entity_type, []):
                 entity_metadata = entity["metadata"]
@@ -280,7 +267,12 @@ class Project(Entity):
                     # Import entity from local ref
                     if map_uri_scheme(ref) == "local":
                         try:
-                            IMPORT_MAP[entity_type](ref)
+                            # Artifacts, Dataitems and Models
+                            if entity_type in entity_types[:3]:
+                                import_context_entity(ref)
+                            # Functions and Workflows
+                            elif entity_type in entity_types[3:]:
+                                import_executable_entity(ref)
                         except FileNotFoundError:
                             msg = f"File not found: {ref}."
                             raise EntityError(msg)
@@ -291,6 +283,23 @@ class Project(Entity):
                         build_entity_from_dict(entity).save()
                     except EntityAlreadyExistsError:
                         pass
+
+    def _get_entity_types(self) -> list[str]:
+        """
+        Get entity types.
+
+        Returns
+        -------
+        list
+            Entity types.
+        """
+        return [
+            f"{EntityTypes.ARTIFACT.value}s",
+            f"{EntityTypes.DATAITEM.value}s",
+            f"{EntityTypes.MODEL.value}s",
+            f"{EntityTypes.FUNCTION.value}s",
+            f"{EntityTypes.WORKFLOW.value}s",
+        ]
 
     def run(self, workflow: str, **kwargs) -> Run:
         """

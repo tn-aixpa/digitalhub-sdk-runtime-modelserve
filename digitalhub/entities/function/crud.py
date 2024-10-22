@@ -9,10 +9,9 @@ from digitalhub.entities._base.crud import (
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
 )
+from digitalhub.entities._base.executable.crud import import_executable_entity
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
-from digitalhub.utils.exceptions import EntityAlreadyExistsError
-from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.function._base.entity import Function
@@ -211,25 +210,7 @@ def import_function(file: str) -> Function:
     --------
     >>> obj = import_function("my-function.yaml")
     """
-    dict_obj: dict | list[dict] = read_yaml(file)
-    if isinstance(dict_obj, list):
-        fnc_dict = dict_obj[0]
-        tsk_dicts = dict_obj[1:]
-    else:
-        fnc_dict = dict_obj
-        tsk_dicts = []
-
-    check_context(fnc_dict.get("project"))
-    obj: Function = build_entity_from_dict(fnc_dict)
-
-    obj.import_tasks(tsk_dicts)
-
-    try:
-        obj.save()
-    except EntityAlreadyExistsError:
-        pass
-    finally:
-        return obj
+    return import_executable_entity(file)
 
 
 def update_function(entity: Function) -> Function:

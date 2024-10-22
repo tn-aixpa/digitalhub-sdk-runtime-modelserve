@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import check_context
+from digitalhub.entities._base.context.crud import import_context_entity
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
@@ -11,8 +12,7 @@ from digitalhub.entities._base.crud import (
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
-from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityNotExistsError
-from digitalhub.utils.io_utils import read_yaml
+from digitalhub.utils.exceptions import EntityNotExistsError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.secret._base.entity import Secret
@@ -223,14 +223,7 @@ def import_secret(file: str) -> Secret:
     --------
     >>> obj = import_secret("my-secret.yaml")
     """
-    dict_obj: dict = read_yaml(file)
-    obj = build_entity_from_dict(dict_obj)
-    try:
-        obj.save()
-    except EntityAlreadyExistsError:
-        pass
-    finally:
-        return obj
+    return import_context_entity(file)
 
 
 def update_secret(entity: Secret) -> Secret:

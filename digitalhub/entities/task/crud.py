@@ -3,11 +3,11 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import check_context
+from digitalhub.entities._base.context.crud import import_context_entity
 from digitalhub.entities._base.crud import delete_entity_api_ctx, list_entity_api_ctx, read_entity_api_ctx
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
-from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
-from digitalhub.utils.io_utils import read_yaml
+from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.task._base.entity import Task
@@ -156,14 +156,7 @@ def import_task(file: str) -> Task:
     -------
     >>> obj = import_task("my-task.yaml")
     """
-    dict_obj: dict = read_yaml(file)
-    obj = build_entity_from_dict(dict_obj)
-    try:
-        obj.save()
-    except EntityAlreadyExistsError:
-        pass
-    finally:
-        return obj
+    return import_context_entity(file)
 
 
 def update_task(entity: Task) -> Task:

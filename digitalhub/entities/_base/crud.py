@@ -26,6 +26,11 @@ if typing.TYPE_CHECKING:
     from digitalhub.client._base.client import Client
 
 
+##############################
+# CRUD base entity
+##############################
+
+
 def create_entity_api_base(
     client: Client,
     entity_type: str,
@@ -82,6 +87,30 @@ def read_entity_api_base(
     """
     api = api_base_read(entity_type, entity_name)
     return client.read_object(api, **kwargs)
+
+
+def list_entity_api_base(
+    client: Client,
+    entity_type: str,
+    **kwargs,
+) -> list[dict]:
+    """
+    List objects from backend.
+
+    Parameters
+    ----------
+    entity_type : str
+        Entity type.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[dict]
+        List of objects.
+    """
+    api = api_base_list(entity_type)
+    return client.list_objects(api, **kwargs)
 
 
 def update_entity_api_base(
@@ -151,28 +180,9 @@ def delete_entity_api_base(
     return client.delete_object(api, **kwargs)
 
 
-def list_entity_api_base(
-    client: Client,
-    entity_type: str,
-    **kwargs,
-) -> list[dict]:
-    """
-    List objects from backend.
-
-    Parameters
-    ----------
-    entity_type : str
-        Entity type.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[dict]
-        List of objects.
-    """
-    api = api_base_list(entity_type)
-    return client.list_objects(api, **kwargs)
+##############################
+# CRUD context entity
+##############################
 
 
 def create_entity_api_ctx(
@@ -294,6 +304,32 @@ def read_entity_api_ctx_versions(
     return get_context(project).list_objects(api, **kwargs)
 
 
+def list_entity_api_ctx(
+    project: str,
+    entity_type: str,
+    **kwargs,
+) -> list[dict]:
+    """
+    List objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    entity_type : str
+        Entity type.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[dict]
+        List of objects.
+    """
+    api = api_ctx_list(project, entity_type)
+    return get_context(project).list_objects(api, **kwargs)
+
+
 def update_entity_api_ctx(
     project: str,
     entity_type: str,
@@ -383,32 +419,6 @@ def delete_entity_api_ctx(
 
     api = api_ctx_delete(project, entity_type, entity_id)
     return get_context(project).delete_object(api, **kwargs)
-
-
-def list_entity_api_ctx(
-    project: str,
-    entity_type: str,
-    **kwargs,
-) -> list[dict]:
-    """
-    List objects from backend.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    entity_type : str
-        Entity type.
-    **kwargs : dict
-        Parameters to pass to the API call.
-
-    Returns
-    -------
-    list[dict]
-        List of objects.
-    """
-    api = api_ctx_list(project, entity_type)
-    return get_context(project).list_objects(api, **kwargs)
 
 
 def set_data_api(

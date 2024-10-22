@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import check_context
+from digitalhub.entities._base.context.crud import import_context_entity
 from digitalhub.entities._base.crud import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
@@ -13,8 +14,6 @@ from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.utils import build_log_path_from_source, eval_local_source
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
-from digitalhub.utils.exceptions import EntityAlreadyExistsError
-from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.model._base.entity import Model
@@ -279,14 +278,7 @@ def import_model(file: str) -> Model:
     --------
     >>> obj = import_model("my-model.yaml")
     """
-    dict_obj: dict = read_yaml(file)
-    obj = build_entity_from_dict(dict_obj)
-    try:
-        obj.save()
-    except EntityAlreadyExistsError:
-        pass
-    finally:
-        return obj
+    return import_context_entity(file)
 
 
 def update_model(entity: Model) -> Model:
