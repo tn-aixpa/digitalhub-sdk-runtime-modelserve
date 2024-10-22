@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.api import check_context
-from digitalhub.entities._base.context.crud import import_context_entity
-from digitalhub.entities._base.crud import delete_entity_api_ctx, list_entity_api_ctx, read_entity_api_ctx
+from digitalhub.entities._base.crud import (
+    delete_entity,
+    get_unversioned_entity,
+    import_context_entity,
+    list_context_entities,
+    new_context_entity,
+)
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
@@ -52,13 +55,11 @@ def new_run(
 
     Examples
     --------
-    >>> obj = new_function(project="my-project",
-    >>>                    name="my-function",
-    >>>                    kind="python+run",
-    >>>                    task="task-string"
+    >>> obj = new_run(project="my-project",
+    >>>               kind="python+run",
+    >>>               task="task-string")
     """
-    check_context(project)
-    obj = build_entity_from_params(
+    return new_context_entity(
         project=project,
         kind=kind,
         uuid=uuid,
@@ -67,8 +68,6 @@ def new_run(
         local_execution=local_execution,
         **kwargs,
     )
-    obj.save()
-    return obj
 
 
 def get_run(
@@ -102,16 +101,12 @@ def get_run(
     >>> obj = get_run("my-run-id"
     >>>               project="my-project")
     """
-    if not identifier.startswith("store://") and project is None:
-        raise EntityError("Specify entity key or entity ID combined with project")
-    obj = read_entity_api_ctx(
+    return get_unversioned_entity(
         identifier,
-        ENTITY_TYPE,
+        entity_type=ENTITY_TYPE,
         project=project,
-        entity_id=identifier,
         **kwargs,
     )
-    return build_entity_from_dict(obj)
 
 
 def list_runs(project: str, **kwargs) -> list[Run]:
@@ -135,12 +130,11 @@ def list_runs(project: str, **kwargs) -> list[Run]:
     >>> objs = list_runs(project="my-project")
     """
     # TODO more examples: search by function, latest for task and function
-    objs = list_entity_api_ctx(
+    return list_context_entities(
         project=project,
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def import_run(file: str) -> Run:
@@ -214,7 +208,7 @@ def delete_run(
     """
     if not identifier.startswith("store://") and project is None:
         raise EntityError("Specify entity key or entity ID combined with project")
-    return delete_entity_api_ctx(
+    return delete_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

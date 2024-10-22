@@ -3,15 +3,15 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import check_context
-from digitalhub.entities._base.context.crud import import_context_entity
 from digitalhub.entities._base.crud import (
-    delete_entity_api_ctx,
-    list_entity_api_ctx,
-    read_entity_api_ctx,
-    read_entity_api_ctx_versions,
+    delete_entity,
+    get_context_entity_versions,
+    get_versioned_entity,
+    import_context_entity,
+    list_context_entities,
+    new_context_entity,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityNotExistsError
 
 if typing.TYPE_CHECKING:
@@ -68,8 +68,7 @@ def new_secret(
 
     if secret_value is None:
         raise ValueError("secret_value must be provided.")
-
-    obj = build_entity_from_params(
+    obj: Secret = new_context_entity(
         project=project,
         name=name,
         kind="secret",
@@ -79,7 +78,6 @@ def new_secret(
         embedded=embedded,
         **kwargs,
     )
-    obj.save()
     obj.set_secret_value(value=secret_value)
     return obj
 
@@ -127,14 +125,13 @@ def get_secret(
         else:
             raise EntityNotExistsError(f"Secret {identifier} not found.")
 
-    obj = read_entity_api_ctx(
+    return get_versioned_entity(
         identifier,
-        ENTITY_TYPE,
+        entity_type=ENTITY_TYPE,
         project=project,
         entity_id=entity_id,
         **kwargs,
     )
-    return build_entity_from_dict(obj)
 
 
 def get_secret_versions(
@@ -168,13 +165,12 @@ def get_secret_versions(
     >>> objs = get_secret_versions("my-secret-name",
     >>>                            project="my-project")
     """
-    obj = read_entity_api_ctx_versions(
+    return get_context_entity_versions(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
         **kwargs,
     )
-    return [build_entity_from_dict(o) for o in obj]
 
 
 def list_secrets(project: str, **kwargs) -> list[Secret]:
@@ -197,12 +193,11 @@ def list_secrets(project: str, **kwargs) -> list[Secret]:
     --------
     >>> objs = list_secrets(project="my-project")
     """
-    objs = list_entity_api_ctx(
+    return list_context_entities(
         project=project,
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def import_secret(file: str) -> Secret:
@@ -285,7 +280,7 @@ def delete_secret(
     >>>                     project="my-project",
     >>>                     delete_all_versions=True)
     """
-    return delete_entity_api_ctx(
+    return delete_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

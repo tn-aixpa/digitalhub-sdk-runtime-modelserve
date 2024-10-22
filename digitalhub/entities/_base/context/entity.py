@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import get_context
-from digitalhub.entities._base.crud import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
+from digitalhub.entities._base.api_utils import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.utils.generic_utils import get_timestamp
 

@@ -5,18 +5,18 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from digitalhub.context.api import check_context
-from digitalhub.entities._base.context.crud import import_context_entity
 from digitalhub.entities._base.crud import (
-    delete_entity_api_ctx,
-    list_entity_api_ctx,
-    read_entity_api_ctx,
-    read_entity_api_ctx_versions,
+    delete_entity,
+    get_material_entity,
+    get_material_entity_versions,
+    import_context_entity,
+    list_material_entities,
+    new_context_entity,
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.utils.utils import build_log_path_from_filename, build_log_path_from_source, eval_local_source
-from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
+from digitalhub.factory.api import build_entity_from_params
 from digitalhub.readers.api import get_reader_by_object
 from digitalhub.stores.api import get_store
 from digitalhub.utils.generic_utils import slugify_string
@@ -75,8 +75,7 @@ def new_dataitem(
     >>>                    kind="dataitem",
     >>>                    path="s3://my-bucket/my-key")
     """
-    check_context(project)
-    obj = build_entity_from_params(
+    return new_context_entity(
         project=project,
         name=name,
         kind=kind,
@@ -87,8 +86,6 @@ def new_dataitem(
         path=path,
         **kwargs,
     )
-    obj.save()
-    return obj
 
 
 def log_dataitem(
@@ -210,16 +207,13 @@ def get_dataitem(
     >>>                    project="my-project",
     >>>                    entity_id="my-dataitem-id")
     """
-    obj = read_entity_api_ctx(
-        identifier,
-        ENTITY_TYPE,
+    return get_material_entity(
+        identifier=identifier,
+        entity_type=ENTITY_TYPE,
         project=project,
         entity_id=entity_id,
         **kwargs,
     )
-    entity = build_entity_from_dict(obj)
-    entity._get_files_info()
-    return entity
 
 
 def get_dataitem_versions(
@@ -253,18 +247,12 @@ def get_dataitem_versions(
     >>> objs = get_dataitem_versions("my-dataitem-name",
     >>>                              project="my-project")
     """
-    objs = read_entity_api_ctx_versions(
-        identifier,
+    return get_material_entity_versions(
+        identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,
         **kwargs,
     )
-    objects = []
-    for o in objs:
-        entity: Dataitem = build_entity_from_dict(o)
-        entity._get_files_info()
-        objects.append(entity)
-    return objects
 
 
 def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
@@ -287,17 +275,11 @@ def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
     --------
     >>> objs = list_dataitems(project="my-project")
     """
-    objs = list_entity_api_ctx(
+    return list_material_entities(
         project=project,
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    objects = []
-    for o in objs:
-        entity: Dataitem = build_entity_from_dict(o)
-        entity._get_files_info()
-        objects.append(entity)
-    return objects
 
 
 def import_dataitem(file: str) -> Dataitem:
@@ -380,7 +362,7 @@ def delete_dataitem(
     >>>                       project="my-project",
     >>>                       delete_all_versions=True)
     """
-    return delete_entity_api_ctx(
+    return delete_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

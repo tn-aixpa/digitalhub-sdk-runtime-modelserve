@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.api import check_context
-from digitalhub.entities._base.context.crud import import_context_entity
-from digitalhub.entities._base.crud import delete_entity_api_ctx, list_entity_api_ctx, read_entity_api_ctx
+from digitalhub.entities._base.crud import (
+    delete_entity,
+    get_unversioned_entity,
+    import_context_entity,
+    list_context_entities,
+    new_context_entity,
+)
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
@@ -49,13 +52,11 @@ def new_task(
 
     Examples
     --------
-    >>> obj = new_function(project="my-project",
-    >>>                    name="my-function",
-    >>>                    kind="python+task",
-    >>>                    task="task-string"
+    >>> obj = new_task(project="my-project",
+    >>>                kind="python+job",
+    >>>                function="function-string")
     """
-    check_context(project)
-    obj = build_entity_from_params(
+    return new_context_entity(
         project=project,
         kind=kind,
         uuid=uuid,
@@ -63,8 +64,6 @@ def new_task(
         function=function,
         **kwargs,
     )
-    obj.save()
-    return obj
 
 
 def get_task(
@@ -98,16 +97,12 @@ def get_task(
     >>> obj = get_task("my-task-id"
     >>>               project="my-project")
     """
-    if not identifier.startswith("store://"):
-        raise EntityError("Task has no name. Use key instead.")
-    obj = read_entity_api_ctx(
+    return get_unversioned_entity(
         identifier,
-        ENTITY_TYPE,
+        entity_type=ENTITY_TYPE,
         project=project,
-        entity_id=identifier,
         **kwargs,
     )
-    return build_entity_from_dict(obj)
 
 
 def list_tasks(project: str, **kwargs) -> list[Task]:
@@ -130,12 +125,11 @@ def list_tasks(project: str, **kwargs) -> list[Task]:
     --------
     >>> objs = list_tasks(project="my-project")
     """
-    objs = list_entity_api_ctx(
+    return list_context_entities(
         project=project,
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def import_task(file: str) -> Task:
@@ -223,7 +217,7 @@ def delete_task(
     """
     if not identifier.startswith("store://"):
         raise EntityError("Task has no name. Use key instead.")
-    return delete_entity_api_ctx(
+    return delete_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

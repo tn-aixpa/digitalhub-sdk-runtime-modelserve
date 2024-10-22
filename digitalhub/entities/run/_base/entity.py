@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 import typing
 
-from digitalhub.entities._base.crud import (
+from digitalhub.entities._base.api_utils import (
     list_entity_api_base,
     list_entity_api_ctx,
     logs_api,

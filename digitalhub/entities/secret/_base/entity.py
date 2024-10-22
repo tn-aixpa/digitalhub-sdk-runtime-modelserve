@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.crud import get_data_api, set_data_api
+from digitalhub.entities._base.api_utils import get_data_api, set_data_api
 from digitalhub.entities._base.versioned.entity import VersionedEntity
 from digitalhub.entities.utils.entity_types import EntityTypes
 

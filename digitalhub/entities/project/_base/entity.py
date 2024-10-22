@@ -6,15 +6,14 @@ from typing import Any
 
 from digitalhub.client.api import get_client
 from digitalhub.context.api import set_context
-from digitalhub.entities._base.context.crud import import_context_entity
-from digitalhub.entities._base.crud import (
+from digitalhub.entities._base.api_utils import (
     create_entity_api_base,
     read_entity_api_base,
     read_entity_api_ctx,
     update_entity_api_base,
 )
+from digitalhub.entities._base.crud import import_context_entity, import_executable_entity
 from digitalhub.entities._base.entity.entity import Entity
-from digitalhub.entities._base.executable.crud import import_executable_entity
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
     get_artifact,
@@ -301,7 +300,7 @@ class Project(Entity):
             f"{EntityTypes.WORKFLOW.value}s",
         ]
 
-    def run(self, workflow: str, **kwargs) -> Run:
+    def run(self, workflow: str | None = "main", **kwargs) -> Run:
         """
         Run workflow project.
 

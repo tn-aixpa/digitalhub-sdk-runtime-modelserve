@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.context.api import check_context
 from digitalhub.entities._base.crud import (
-    delete_entity_api_ctx,
-    list_entity_api_ctx,
-    read_entity_api_ctx,
-    read_entity_api_ctx_versions,
+    delete_entity,
+    get_context_entity_versions,
+    get_versioned_entity,
+    import_executable_entity,
+    list_context_entities,
+    new_context_entity,
 )
-from digitalhub.entities._base.executable.crud import import_executable_entity
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.function._base.entity import Function
@@ -64,8 +63,7 @@ def new_function(
     >>>                    code_src="function.py",
     >>>                    handler="function-handler")
     """
-    check_context(project)
-    obj = build_entity_from_params(
+    return new_context_entity(
         project=project,
         name=name,
         kind=kind,
@@ -75,8 +73,6 @@ def new_function(
         embedded=embedded,
         **kwargs,
     )
-    obj.save()
-    return obj
 
 
 def get_function(
@@ -114,14 +110,13 @@ def get_function(
     >>>                    project="my-project",
     >>>                    entity_id="my-function-id")
     """
-    obj = read_entity_api_ctx(
+    return get_versioned_entity(
         identifier,
-        ENTITY_TYPE,
+        entity_type=ENTITY_TYPE,
         project=project,
         entity_id=entity_id,
         **kwargs,
     )
-    return build_entity_from_dict(obj)
 
 
 def get_function_versions(
@@ -155,13 +150,12 @@ def get_function_versions(
     >>> obj = get_function_versions("my-function-name"
     >>>                             project="my-project")
     """
-    obj = read_entity_api_ctx_versions(
+    return get_context_entity_versions(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
         **kwargs,
     )
-    return [build_entity_from_dict(o) for o in obj]
 
 
 def list_functions(project: str, **kwargs) -> list[Function]:
@@ -184,12 +178,11 @@ def list_functions(project: str, **kwargs) -> list[Function]:
     --------
     >>> objs = list_functions(project="my-project")
     """
-    objs = list_entity_api_ctx(
+    return list_context_entities(
         project=project,
         entity_type=ENTITY_TYPE,
         **kwargs,
     )
-    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def import_function(file: str) -> Function:
@@ -275,7 +268,7 @@ def delete_function(
     >>>                       project="my-project",
     >>>                       delete_all_versions=True)
     """
-    return delete_entity_api_ctx(
+    return delete_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

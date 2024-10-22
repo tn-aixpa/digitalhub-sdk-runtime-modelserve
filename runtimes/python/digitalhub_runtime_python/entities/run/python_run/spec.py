@@ -24,6 +24,10 @@ class RunSpecPythonRun(RunSpec):
         base_image: str | None = None,
         python_version: str | None = None,
         requirements: list | None = None,
+        backoff_limit: int | None = None,
+        schedule: str | None = None,
+        service_type: str | None = None,
+        replicas: int | None = None,
         instructions: dict | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
@@ -49,6 +53,10 @@ class RunSpecPythonRun(RunSpec):
         self.base_image = base_image
         self.python_version = python_version
         self.requirements = requirements
+        self.backoff_limit = backoff_limit
+        self.schedule = schedule
+        self.service_type = service_type
+        self.replicas = replicas
         self.instructions = instructions
         self.inputs = inputs
         self.outputs = outputs
@@ -67,6 +75,7 @@ class RunValidatorPythonRun(RunValidator):
 
     # Task job
     backoff_limit: int = None
+    schedule: str = None
 
     # Task serve
     service_type: str = None
