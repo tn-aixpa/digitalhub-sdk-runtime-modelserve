@@ -27,7 +27,7 @@ def new_secret(
     uuid: str | None = None,
     description: str | None = None,
     labels: list[str] | None = None,
-    embedded: bool = True,
+    embedded: bool = False,
     secret_value: str | None = None,
     **kwargs,
 ) -> Secret:

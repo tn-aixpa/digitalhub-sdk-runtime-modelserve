@@ -29,7 +29,7 @@ def new_artifact(
     uuid: str | None = None,
     description: str | None = None,
     labels: list[str] | None = None,
-    embedded: bool = True,
+    embedded: bool = False,
     path: str | None = None,
     **kwargs,
 ) -> Artifact:

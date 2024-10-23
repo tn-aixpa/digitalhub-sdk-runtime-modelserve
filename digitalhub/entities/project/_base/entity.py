@@ -338,7 +338,7 @@ class Project(Entity):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
+        embedded: bool = False,
         path: str | None = None,
         **kwargs,
     ) -> Artifact:
@@ -629,7 +629,7 @@ class Project(Entity):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
+        embedded: bool = False,
         path: str | None = None,
         **kwargs,
     ) -> Dataitem:
@@ -933,7 +933,7 @@ class Project(Entity):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
+        embedded: bool = False,
         path: str | None = None,
         **kwargs,
     ) -> Model:
@@ -1225,7 +1225,7 @@ class Project(Entity):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
+        embedded: bool = False,
         **kwargs,
     ) -> Function:
         """
@@ -1471,7 +1471,7 @@ class Project(Entity):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
+        embedded: bool = False,
         **kwargs,
     ) -> Workflow:
         """
@@ -1716,7 +1716,7 @@ class Project(Entity):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
+        embedded: bool = False,
         secret_value: str | None = None,
         **kwargs,
     ) -> Secret:

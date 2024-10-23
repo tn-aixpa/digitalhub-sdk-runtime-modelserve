@@ -25,7 +25,7 @@ class WorkflowBuilder(VersionedBuilder, RuntimeEntityBuilder):
         uuid: str | None = None,
         description: str | None = None,
         labels: list[str] | None = None,
-        embedded: bool = True,
+        embedded: bool = False,
         **kwargs,
     ) -> Workflow:
         """
