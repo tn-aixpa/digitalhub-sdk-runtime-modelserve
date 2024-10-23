@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import datetime
+import json
 import os
 import typing
 from urllib.parse import urlparse
@@ -83,7 +85,10 @@ class ClientDHCore(Client):
         dict
             Response object.
         """
-        kwargs["json"] = obj
+        if "headers" not in kwargs:
+            kwargs["headers"] = {}
+        kwargs["headers"]['Content-Type'] = "application/json"
+        kwargs["data"] = json.dumps(obj, default=ClientDHCore._json_serialize)
         return self._prepare_call("POST", api, **kwargs)
 
     def read_object(self, api: str, **kwargs) -> dict:
@@ -122,7 +127,10 @@ class ClientDHCore(Client):
         dict
             Response object.
         """
-        kwargs["json"] = obj
+        if "headers" not in kwargs:
+            kwargs["headers"] = {}
+        kwargs["headers"]['Content-Type'] = "application/json"
+        kwargs["data"] = json.dumps(obj, default=ClientDHCore._json_serialize)
         return self._prepare_call("PUT", api, **kwargs)
 
     def delete_object(self, api: str, **kwargs) -> dict:
@@ -165,7 +173,7 @@ class ClientDHCore(Client):
         if kwargs is None:
             kwargs = {}
 
-        if kwargs.get("params") is None:
+        if "params" not in kwargs:
             kwargs["params"] = {}
 
         start_page = 0
@@ -203,11 +211,30 @@ class ClientDHCore(Client):
         try:
             return self.list_objects(api, **kwargs)[0]
         except IndexError:
-            raise IndexError("No objects found")
+            raise BackendError("No object found.")
 
     ##############################
     # Call methods
     ##############################
+
+    @staticmethod
+    def _json_serialize(obj: dict) -> dict:
+        """
+        JSON datetime to ISO format serializer.
+
+        Parameters
+        ----------
+        obj : dict
+            The object to serialize.
+
+        Returns
+        -------
+        dict
+            The serialized object.
+        """
+        if isinstance(obj, (datetime.datetime, datetime.date)):
+            return obj.isoformat()
+        raise TypeError ("Type %s not serializable" % type(obj))
 
     def _prepare_call(self, call_type: str, api: str, **kwargs) -> dict:
         """
@@ -230,12 +257,12 @@ class ClientDHCore(Client):
         if kwargs is None:
             kwargs = {}
         url = self._endpoint_core + api
-        kwargs = self._set_auth_header(kwargs)
+        kwargs = self._set_auth(kwargs)
         return self._make_call(call_type, url, **kwargs)
 
-    def _set_auth_header(self, kwargs: dict) -> dict:
+    def _set_auth(self, kwargs: dict) -> dict:
         """
-        Set the authentication header.
+        Set the authentication type.
 
         Parameters
         ----------
@@ -245,13 +272,14 @@ class ClientDHCore(Client):
         Returns
         -------
         dict
-            Keyword arguments with the authentication header.
+            Keyword arguments with the authentication parameters.
         """
         if self._auth_type == "basic":
             kwargs["auth"] = self._user, self._password
         elif self._auth_type == "oauth2":
-            kwargs["headers"] = {"Authorization": f"Bearer {self._access_token}"}
-
+            if "headers" not in kwargs:
+                kwargs["headers"] = {}
+            kwargs["headers"]["Authorization"] = f"Bearer {self._access_token}"
         return kwargs
 
     def _make_call(self, call_type: str, url: str, refresh_token: bool = True, **kwargs) -> dict:
@@ -281,7 +309,7 @@ class ClientDHCore(Client):
         # Handle token refresh
         if response.status_code in [401] and refresh_token:
             self._get_new_access_token()
-            kwargs = self._set_auth_header(kwargs)
+            kwargs = self._set_auth(kwargs)
             return self._make_call(call_type, url, refresh_token=False, **kwargs)
 
         self._raise_for_error(response)

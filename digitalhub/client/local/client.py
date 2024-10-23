@@ -470,7 +470,7 @@ class ClientLocal(Client):
                     copied = deepcopy(entity)
 
                     # Remove spec if not embedded
-                    if not copied.get("metadata", {}).get("embedded", True):
+                    if not copied.get("metadata", {}).get("embedded", False):
                         copied.pop("spec", None)
 
                     # Add to project spec
