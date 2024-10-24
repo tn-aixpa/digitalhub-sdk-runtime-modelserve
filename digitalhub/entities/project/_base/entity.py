@@ -358,8 +358,8 @@ class Project(Entity):
         workflow = workflow if workflow is not None else "main"
 
         for i in self.spec.workflows:
-            if i["name"] == workflow or i["key"] == workflow:
-                entity = self.get_workflow(i)
+            if workflow in [i["name"], i["key"]]:
+                entity = self.get_workflow(i["key"])
                 break
         else:
             msg = f"Workflow {workflow} not found."
