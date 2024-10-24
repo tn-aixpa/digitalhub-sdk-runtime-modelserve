@@ -244,9 +244,14 @@ class Project(Entity):
         # Return updated object
         return obj
 
-    def _import_entities(self) -> None:
+    def _import_entities(self, obj: dict) -> None:
         """
         Import project entities.
+
+        Parameters
+        ----------
+        obj : dict
+            Project object in dictionary format.
 
         Returns
         -------
@@ -257,10 +262,9 @@ class Project(Entity):
         # Cycle over entity types
         for entity_type in entity_types:
             # Entity types are stored as a list of entities
-            for entity in getattr(self.spec, entity_type, []):
-                entity_metadata = entity["metadata"]
-                embedded = entity_metadata.get("embedded", False)
-                ref = entity_metadata.get("ref", None)
+            for entity in obj.get("spec", {}).get(entity_type, []):
+                embedded = self._is_embedded(entity)
+                ref = entity["metadata"].get("ref")
 
                 # Import entity if not embedded
                 if not embedded and ref is not None:
@@ -279,10 +283,33 @@ class Project(Entity):
 
                 # If entity is embedded, create it and try to save
                 elif embedded:
+                    # It's possible that embedded field in metadata is not shown
+                    if entity["metadata"].get("embedded") is None:
+                        entity["metadata"]["embedded"] = True
+
                     try:
                         build_entity_from_dict(entity).save()
                     except EntityAlreadyExistsError:
                         pass
+
+    def _is_embedded(self, entity: dict) -> bool:
+        """
+        Check if entity is embedded.
+
+        Parameters
+        ----------
+        entity : dict
+            Entity in dictionary format.
+
+        Returns
+        -------
+        bool
+            True if entity is embedded.
+        """
+        metadata_embedded = entity["metadata"].get("embedded", False)
+        no_status = entity.get("status", None) is None
+        no_spec = entity.get("spec", None) is None
+        return metadata_embedded or not (no_status and no_spec)
 
     def _get_entity_types(self) -> list[str]:
         """

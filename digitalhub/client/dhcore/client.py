@@ -87,7 +87,7 @@ class ClientDHCore(Client):
         """
         if "headers" not in kwargs:
             kwargs["headers"] = {}
-        kwargs["headers"]['Content-Type'] = "application/json"
+        kwargs["headers"]["Content-Type"] = "application/json"
         kwargs["data"] = json.dumps(obj, default=ClientDHCore._json_serialize)
         return self._prepare_call("POST", api, **kwargs)
 
@@ -129,7 +129,7 @@ class ClientDHCore(Client):
         """
         if "headers" not in kwargs:
             kwargs["headers"] = {}
-        kwargs["headers"]['Content-Type'] = "application/json"
+        kwargs["headers"]["Content-Type"] = "application/json"
         kwargs["data"] = json.dumps(obj, default=ClientDHCore._json_serialize)
         return self._prepare_call("PUT", api, **kwargs)
 
@@ -234,7 +234,7 @@ class ClientDHCore(Client):
         """
         if isinstance(obj, (datetime.datetime, datetime.date)):
             return obj.isoformat()
-        raise TypeError ("Type %s not serializable" % type(obj))
+        raise TypeError("Type %s not serializable" % type(obj))
 
     def _prepare_call(self, call_type: str, api: str, **kwargs) -> dict:
         """

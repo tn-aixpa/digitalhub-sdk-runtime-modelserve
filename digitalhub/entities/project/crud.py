@@ -9,7 +9,7 @@ from digitalhub.context.api import delete_context
 from digitalhub.entities._base.api_utils import delete_entity_api_base, read_entity_api_base, update_entity_api_base
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
-from digitalhub.utils.exceptions import BackendError, EntityError
+from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -151,8 +151,13 @@ def import_project(
     obj = build_entity_from_dict(dict_obj)
     obj = _setup_project(obj, setup_kwargs)
 
+    try:
+        obj.save()
+    except EntityAlreadyExistsError:
+        pass
+
     # Import related entities
-    obj._import_entities()
+    obj._import_entities(dict_obj)
 
     return obj
 

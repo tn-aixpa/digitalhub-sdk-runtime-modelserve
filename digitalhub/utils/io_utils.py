@@ -37,7 +37,6 @@ def write_yaml(filepath: str | Path, obj: dict | list[dict]) -> None:
 ##############################
 
 
-
 class NoDatesSafeLoader(yaml.SafeLoader):
     """
     Loader implementation to exclude implicit resolvers.
@@ -63,15 +62,17 @@ class NoDatesSafeLoader(yaml.SafeLoader):
         -------
         None
         """
-        if not 'yaml_implicit_resolvers' in cls.__dict__:
+        if not "yaml_implicit_resolvers" in cls.__dict__:
             cls.yaml_implicit_resolvers = cls.yaml_implicit_resolvers.copy()
 
         for first_letter, mappings in cls.yaml_implicit_resolvers.items():
-            cls.yaml_implicit_resolvers[first_letter] = [(tag, regexp)
-                                                         for tag, regexp in mappings
-                                                         if tag != tag_to_remove]
+            cls.yaml_implicit_resolvers[first_letter] = [
+                (tag, regexp) for tag, regexp in mappings if tag != tag_to_remove
+            ]
 
-NoDatesSafeLoader.remove_implicit_resolver('tag:yaml.org,2002:timestamp')
+
+NoDatesSafeLoader.remove_implicit_resolver("tag:yaml.org,2002:timestamp")
+
 
 def read_yaml(filepath: str | Path) -> dict | list[dict]:
     """
