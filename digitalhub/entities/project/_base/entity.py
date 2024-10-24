@@ -337,7 +337,7 @@ class Project(Entity):
             f"{EntityTypes.WORKFLOW.value}s",
         ]
 
-    def run(self, workflow: str | None = "main", **kwargs) -> Run:
+    def run(self, workflow: str | None = None, **kwargs) -> Run:
         """
         Run workflow project.
 
@@ -354,15 +354,18 @@ class Project(Entity):
             Run instance.
         """
         self.refresh()
+
+        workflow = workflow if workflow is not None else "main"
+
         for i in self.spec.workflows:
             if i["name"] == workflow or i["key"] == workflow:
-                workflow = build_entity_from_dict(i)
+                entity = self.get_workflow(i)
                 break
         else:
             msg = f"Workflow {workflow} not found."
             raise EntityError(msg)
 
-        return workflow.run(**kwargs)
+        return entity.run(**kwargs)
 
     ##############################
     #  Artifacts
