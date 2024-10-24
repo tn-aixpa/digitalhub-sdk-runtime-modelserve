@@ -192,6 +192,7 @@ class Project(Entity):
             filename = f"{self.kind}_{self.name}.yml"
         pth = Path(self.spec.context) / filename
         pth.parent.mkdir(parents=True, exist_ok=True)
+
         obj = self._export_not_embedded(obj)
         write_yaml(pth, obj)
         return str(pth)
@@ -226,11 +227,13 @@ class Project(Entity):
         """
         # Cycle over entity types
         for entity_type in self._get_entity_types():
+
             # Entity types are stored as a list of entities
             for idx, entity in enumerate(obj.get("spec", {}).get(entity_type, [])):
+
                 # Export entity if not embedded is in metadata, else do nothing
-                embedded = entity["metadata"].get("embedded", False)
-                if not embedded:
+                if not self._is_embedded(entity):
+
                     # Get entity object from backend
                     obj_dict: dict = read_entity_api_ctx(entity["key"])
 
@@ -261,28 +264,34 @@ class Project(Entity):
 
         # Cycle over entity types
         for entity_type in entity_types:
+
             # Entity types are stored as a list of entities
             for entity in obj.get("spec", {}).get(entity_type, []):
+
                 embedded = self._is_embedded(entity)
                 ref = entity["metadata"].get("ref")
 
-                # Import entity if not embedded
+                # Import entity if not embedded and there is a ref
                 if not embedded and ref is not None:
+
                     # Import entity from local ref
                     if map_uri_scheme(ref) == "local":
                         try:
                             # Artifacts, Dataitems and Models
                             if entity_type in entity_types[:3]:
                                 import_context_entity(ref)
+
                             # Functions and Workflows
                             elif entity_type in entity_types[3:]:
                                 import_executable_entity(ref)
+
                         except FileNotFoundError:
                             msg = f"File not found: {ref}."
                             raise EntityError(msg)
 
                 # If entity is embedded, create it and try to save
                 elif embedded:
+
                     # It's possible that embedded field in metadata is not shown
                     if entity["metadata"].get("embedded") is None:
                         entity["metadata"]["embedded"] = True
