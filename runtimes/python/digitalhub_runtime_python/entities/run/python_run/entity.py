@@ -1,19 +1,18 @@
 from __future__ import annotations
 
+import time
 import typing
 from typing import Any
-
-import time
-from digitalhub.entities.utils.state import State
-from digitalhub.utils.logger import LOGGER
-from digitalhub.factory.api import get_action_from_task_kind
 
 import requests
 from digitalhub_runtime_python.entities.run.python_run.utils import get_getter_for_material
 
 from digitalhub.entities.run._base.entity import Run
+from digitalhub.entities.utils.state import State
 from digitalhub.entities.utils.utils import get_entity_type_from_key
+from digitalhub.factory.api import get_action_from_task_kind
 from digitalhub.utils.exceptions import EntityError
+from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_python.entities.run.python_run.spec import RunSpecPythonRun
@@ -72,12 +71,10 @@ class RunPythonRun(Run):
         action = get_action_from_task_kind(self.kind, task_kind)
 
         if action == "serve":
-
             serve_timeout = 300
             start = time.time()
 
             while time.time() - start < serve_timeout:
-
                 if log_info:
                     LOGGER.info(f"Waiting for run {self.id} to deploy service.")
 
