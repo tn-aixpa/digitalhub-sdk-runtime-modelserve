@@ -227,13 +227,10 @@ class Project(Entity):
         """
         # Cycle over entity types
         for entity_type in self._get_entity_types():
-
             # Entity types are stored as a list of entities
             for idx, entity in enumerate(obj.get("spec", {}).get(entity_type, [])):
-
                 # Export entity if not embedded is in metadata, else do nothing
                 if not self._is_embedded(entity):
-
                     # Get entity object from backend
                     obj_dict: dict = read_entity_api_ctx(entity["key"])
 
@@ -264,16 +261,13 @@ class Project(Entity):
 
         # Cycle over entity types
         for entity_type in entity_types:
-
             # Entity types are stored as a list of entities
             for entity in obj.get("spec", {}).get(entity_type, []):
-
                 embedded = self._is_embedded(entity)
                 ref = entity["metadata"].get("ref")
 
                 # Import entity if not embedded and there is a ref
                 if not embedded and ref is not None:
-
                     # Import entity from local ref
                     if map_uri_scheme(ref) == "local":
                         try:
@@ -291,7 +285,6 @@ class Project(Entity):
 
                 # If entity is embedded, create it and try to save
                 elif embedded:
-
                     # It's possible that embedded field in metadata is not shown
                     if entity["metadata"].get("embedded") is None:
                         entity["metadata"]["embedded"] = True
