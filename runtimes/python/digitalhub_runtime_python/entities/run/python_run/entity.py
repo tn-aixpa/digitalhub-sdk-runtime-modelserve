@@ -81,13 +81,13 @@ class RunPythonRun(Run):
                 self.refresh()
                 if self.status.service is not None:
                     if log_info:
-                        msg = f"Run {self.id} deployed."
+                        msg = f"Run {self.id} service deployed."
                         LOGGER.info(msg)
                     return self
 
                 elif self.status.state == State.ERROR.value:
                     if log_info:
-                        msg = f"Run {self.id} failed."
+                        msg = f"Run {self.id} serving failed."
                         LOGGER.info(msg)
                     return self
 

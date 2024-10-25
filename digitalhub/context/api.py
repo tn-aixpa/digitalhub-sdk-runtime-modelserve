@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.builder import context_builder
+from digitalhub.utils.exceptions import ContextError
 
 if typing.TYPE_CHECKING:
     from digitalhub.context.context import Context
@@ -24,8 +25,7 @@ def check_context(project: str) -> None:
         True if the project is in the context, False otherwise.
     """
     if project not in context_builder._instances:
-        msg = f"Context missing. Set context by creating or importing a project named '{project}'."
-        raise RuntimeError(msg)
+        raise ContextError
 
 
 def set_context(project: Project) -> None:

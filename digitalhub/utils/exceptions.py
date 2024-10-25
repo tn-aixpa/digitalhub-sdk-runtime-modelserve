@@ -59,3 +59,9 @@ class EntityError(Exception):
     """
     Raised when incontered errors on entities.
     """
+
+
+class ContextError(Exception):
+    """
+    Raised when context errors.
+    """

@@ -2,15 +2,19 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub.client.api import build_client, get_client
 from digitalhub.context.api import check_context
 from digitalhub.entities._base.api_utils import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
+    read_entity_api_base,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
 )
+from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities.utils.utils import parse_entity_key
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
-from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
+from digitalhub.utils.exceptions import ContextError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -19,6 +23,58 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.material.entity import MaterialEntity
     from digitalhub.entities._base.unversioned.entity import UnversionedEntity
     from digitalhub.entities._base.versioned.entity import VersionedEntity
+
+
+def _check_context(project: str) -> None:
+    """
+    Check if the given project is in the context.
+    Otherwise try to get the project from remote.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+
+    Returns
+    -------
+    None
+    """
+    try:
+        check_context(project)
+    except ContextError:
+        try:
+            build_client()
+            client = get_client()
+            obj = read_entity_api_base(client, EntityTypes.PROJECT.value, project)
+            build_entity_from_dict(obj)
+        except EntityNotExistsError:
+            raise ContextError(f"Project '{project}' not found.")
+
+
+def _check_project_from_identifier(identifier: str, project: str | None = None) -> None:
+    """
+    Check if the given project is in the context.
+    Otherwise try to get the project from remote.
+
+    Parameters
+    ----------
+    identifier : str
+        Entity key (store://...) or entity name.
+    project : str
+        Project name.
+
+    Returns
+    -------
+    None
+    """
+    if not identifier.startswith("store://"):
+        if project is None:
+            raise EntityError("Specify project if you do not specify entity key.")
+
+    else:
+        project, _, _, _, _ = parse_entity_key(identifier)
+
+    _check_context(project)
 
 
 def new_context_entity(**kwargs) -> ContextEntity:
@@ -45,7 +101,7 @@ def new_context_entity(**kwargs) -> ContextEntity:
     ContextEntity
         Object instance.
     """
-    check_context(kwargs["project"])
+    _check_context(kwargs["project"])
     obj = build_entity_from_params(**kwargs)
     obj.save()
     return obj
@@ -79,6 +135,7 @@ def get_versioned_entity(
     VersionedEntity
         Object instance.
     """
+    _check_project_from_identifier(identifier, project)
     obj = read_entity_api_ctx(
         identifier,
         entity_type=entity_type,
@@ -116,8 +173,8 @@ def get_unversioned_entity(
     UnversionedEntity
         Object instance.
     """
-    if not identifier.startswith("store://") and project is None:
-        raise EntityError("Specify entity key or entity ID combined with project")
+    _check_project_from_identifier(identifier, project)
+
     obj = read_entity_api_ctx(
         identifier,
         entity_type=entity_type,
@@ -191,6 +248,7 @@ def get_context_entity_versions(
     list[ContextEntity]
         List of object instances.
     """
+    _check_project_from_identifier(identifier, project)
     obj = read_entity_api_ctx_versions(
         identifier,
         entity_type=entity_type,
@@ -225,6 +283,7 @@ def get_material_entity_versions(
     list[MaterialEntity]
         List of object instances.
     """
+    _check_project_from_identifier(identifier, project)
     objs = read_entity_api_ctx_versions(
         identifier,
         entity_type=entity_type,
@@ -257,6 +316,7 @@ def list_context_entities(project: str, entity_type: str, **kwargs) -> list[Cont
     list[ContextEntity]
         List of object instances.
     """
+    _check_context(project)
     objs = list_entity_api_ctx(
         project=project,
         entity_type=entity_type,
@@ -287,6 +347,7 @@ def list_material_entities(
     list[MaterialEntity]
         List of object instances.
     """
+    _check_context(project)
     objs = list_entity_api_ctx(
         project=project,
         entity_type=entity_type,
@@ -316,7 +377,7 @@ def import_context_entity(file: str) -> ContextEntity:
     """
     dict_obj: dict = read_yaml(file)
 
-    check_context(dict_obj["project"])
+    _check_context(dict_obj["project"])
 
     obj = build_entity_from_dict(dict_obj)
     try:
@@ -348,7 +409,7 @@ def import_executable_entity(file: str) -> ExecutableEntity:
         exec_dict = dict_obj
         tsk_dicts = []
 
-    check_context(exec_dict["project"])
+    _check_context(exec_dict["project"])
 
     obj: ExecutableEntity = build_entity_from_dict(exec_dict)
 
@@ -395,6 +456,7 @@ def delete_entity(
     dict
         Response from backend.
     """
+    _check_project_from_identifier(identifier, project)
     return delete_entity_api_ctx(
         identifier=identifier,
         entity_type=entity_type,
