@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import typing
+import time
+from digitalhub.entities.utils.state import State
+from digitalhub.utils.logger import LOGGER
+from digitalhub.factory.api import get_action_from_task_kind
 
 import requests
 
@@ -34,6 +38,56 @@ class RunContainerRun(Run):
         self.spec: RunSpecContainerRun
         self.status: RunStatusContainerRun
 
+    def wait(self, log_info: bool = True) -> Run:
+        """
+        Wait for run to finish.
+
+        Parameters
+        ----------
+        log_info : bool
+            If True, log information.
+
+        Returns
+        -------
+        Run
+            Run object.
+        """
+        task_kind = self.spec.task.split("://")[0]
+        action = get_action_from_task_kind(self.kind, task_kind)
+
+        if action == "serve":
+
+            serve_timeout = 300
+            start = time.time()
+
+            while time.time() - start < serve_timeout:
+
+                if log_info:
+                    LOGGER.info(f"Waiting for run {self.id} to deploy service.")
+
+                self.refresh()
+                if self.status.service is not None:
+                    if log_info:
+                        msg = f"Run {self.id} deployed."
+                        LOGGER.info(msg)
+                    return self
+
+                elif self.status.state == State.ERROR.value:
+                    if log_info:
+                        msg = f"Run {self.id} failed."
+                        LOGGER.info(msg)
+                    return self
+
+                time.sleep(5)
+
+            if log_info:
+                msg = f"Waiting for run {self.id} service timed out. Check logs for more information."
+                LOGGER.info(msg)
+
+            return self
+
+        return super().wait(log_info=log_info)
+
     def invoke(
         self,
         method: str = "POST",
@@ -60,5 +114,9 @@ class RunContainerRun(Run):
         if self._context().local:
             raise EntityError("Invoke not supported locally.")
         if url is None:
-            url = f"http://{self.status.service.get('url')}"
+            try:
+                url = f"http://{self.status.service.get('url')}"
+            except AttributeError:
+                msg = "Url not specified and service not found on run status. If a service is deploying, use run.wait() or try again later."
+                raise EntityError(msg)
         return requests.request(method=method, url=url, **kwargs)
