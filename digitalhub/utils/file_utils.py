@@ -157,7 +157,7 @@ def get_file_info_from_local(path: str, src_path: str) -> None | dict:
             size=size,
             hash=hash,
             last_modified=last_modified,
-        ).dict()
+        ).model_dump()
     except Exception:
         return None
 
@@ -199,6 +199,6 @@ def get_file_info_from_s3(path: str, metadata: dict) -> None | dict:
             size=size,
             hash=file_hash,
             last_modified=last_modified,
-        ).dict()
+        ).model_dump()
     except Exception:
         return None

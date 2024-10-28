@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pydantic import Field
 from digitalhub.entities.model._base.spec import ModelSpec, ModelValidator
 
 
@@ -29,8 +30,8 @@ class ModelValidatorHuggingface(ModelValidator):
     ModelValidatorHuggingface validator.
     """
 
-    model_id: str = None
+    placeholder_model_id: str = Field(default=None, alias="model_id")
     """Huggingface model id. If not specified, the model is loaded from the model path."""
 
-    model_revision: str = None
+    placeholder_model_revision: str = Field(default=None, alias="model_revision")
     """Huggingface model revision."""

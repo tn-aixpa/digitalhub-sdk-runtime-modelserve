@@ -44,7 +44,7 @@ def from_mlflow_run(run_id: str) -> dict:
         inputs=mlflow_signature.inputs.to_json() if mlflow_signature.inputs else None,
         outputs=mlflow_signature.outputs.to_json() if mlflow_signature.outputs else None,
         params=mlflow_signature.params.to_json() if mlflow_signature.params else None,
-    ).dict()
+    ).model_dump()
 
     # Extract datasets
     datasets = []
@@ -57,7 +57,7 @@ def from_mlflow_run(run_id: str) -> dict:
                 schema=d.dataset.schema,
                 source=d.dataset.source,
                 source_type=d.dataset.source_type,
-            ).dict()
+            ).model_dump()
             for d in run.inputs.dataset_inputs
         ]
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pydantic import Field
 from digitalhub.entities.model._base.spec import ModelSpec, ModelValidator
 from digitalhub.entities.model.mlflow.models import Dataset, Signature
 
@@ -36,9 +37,12 @@ class ModelValidatorMlflow(ModelValidator):
 
     flavor: str = None
     """Mlflow model flavor."""
-    model_config: dict = None
+
+    placeholder_cfg_: dict = Field(default=None, alias="model_config")
     """Mlflow model config."""
+
     input_datasets: list[Dataset] = None
     """Mlflow input datasets."""
+
     signature: Signature = None
     """Mlflow model signature."""

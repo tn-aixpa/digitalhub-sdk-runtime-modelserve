@@ -39,10 +39,10 @@ class ResourceItem(BaseModel):
     Resource item model.
     """
 
-    requests: str = Field(default=None, regex=r"[\d]+|^([0-9])+([a-zA-Z])+$")
+    requests: str = Field(default=None, pattern=r"[\d]+|^([0-9])+([a-zA-Z])+$")
     """Resource requests."""
 
-    limits: str = Field(default=None, regex=r"[\d]+|^([0-9])+([a-zA-Z])+$")
+    limits: str = Field(default=None, pattern=r"[\d]+|^([0-9])+([a-zA-Z])+$")
     """Resource limits."""
 
 
