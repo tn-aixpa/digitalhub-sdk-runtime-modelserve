@@ -87,4 +87,4 @@ def register_entities() -> None:
             kind, builder = entity_builder_tuple
             factory.add_entity_builder(kind, builder)
     except Exception:
-        pass
+        raise
