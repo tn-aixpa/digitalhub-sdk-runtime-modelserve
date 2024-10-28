@@ -159,6 +159,8 @@ def import_project(
     # Import related entities
     obj._import_entities(dict_obj)
 
+    obj.refresh()
+
     return obj
 
 
