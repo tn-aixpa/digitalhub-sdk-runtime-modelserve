@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from digitalhub_runtime_kfp.entities.run.kfp_run.builder import RunKfpRunBuilder
 from digitalhub_runtime_kfp.entities.task.kfp_pipeline.builder import TaskKfpPipelineBuilder
+from digitalhub_runtime_kfp.entities.task.kfp_build.builder import TaskKfpBuildBuilder
 from digitalhub_runtime_kfp.entities.workflow.kfp.builder import WorkflowKfpBuilder
 
 entity_builders = (
     (RunKfpRunBuilder.ENTITY_KIND, RunKfpRunBuilder),
     (TaskKfpPipelineBuilder.ENTITY_KIND, TaskKfpPipelineBuilder),
+    (TaskKfpBuildBuilder.ENTITY_KIND, TaskKfpBuildBuilder),
     (WorkflowKfpBuilder.ENTITY_KIND, WorkflowKfpBuilder),
 )
 

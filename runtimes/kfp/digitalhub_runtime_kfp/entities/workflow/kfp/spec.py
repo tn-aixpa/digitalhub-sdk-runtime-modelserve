@@ -20,11 +20,13 @@ class WorkflowSpecKfp(WorkflowSpec):
         lang: str | None = None,
         image: str | None = None,
         tag: str | None = None,
+        workflow: str | None = None,
     ) -> None:
         super().__init__()
 
         self.image = image
         self.tag = tag
+        self.workflow = workflow
 
         # Give source precedence
         if source is not None:
@@ -93,3 +95,6 @@ class WorkflowValidatorKfp(WorkflowValidator, SourceCodeValidatorKfp):
 
     tag: str = None
     """Tag of the Workflow's container image."""
+
+    workflow: str = None
+    """YAML of the Workflow."""

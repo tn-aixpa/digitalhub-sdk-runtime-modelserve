@@ -25,7 +25,6 @@ class RunSpecKfpRun(RunSpec):
         handler: str | None = None,
         schedule: str | None = None,
         replicas: int | None = None,
-        workflow: str | None = None,
         inputs: dict | None = None,
         outputs: dict | None = None,
         parameters: dict | None = None,
@@ -52,7 +51,6 @@ class RunSpecKfpRun(RunSpec):
         self.handler = handler
         self.schedule = schedule
         self.replicas = replicas
-        self.workflow = workflow
         self.inputs = inputs
         self.outputs = outputs
         self.parameters = parameters
@@ -72,7 +70,6 @@ class RunValidatorKfpRun(RunValidator):
     schedule: str = None
 
     # Run parameters
-    workflow: str = None
     inputs: dict = None
     outputs: dict = None
     parameters: dict = None
