@@ -2,7 +2,7 @@ FROM python:3.9
 
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-sdk
-ARG VERSION_LOWER=0.8.0b
+ARG VERSION_LOWER=0.9.0b0b
 ARG VERSION_UPPER=0.9.0
 
 # Set working dir
