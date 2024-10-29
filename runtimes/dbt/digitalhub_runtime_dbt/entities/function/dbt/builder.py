@@ -4,7 +4,7 @@ from digitalhub_runtime_dbt.entities._base.runtime_entity.builder import Runtime
 from digitalhub_runtime_dbt.entities.function.dbt.entity import FunctionDbt
 from digitalhub_runtime_dbt.entities.function.dbt.spec import FunctionSpecDbt, FunctionValidatorDbt
 from digitalhub_runtime_dbt.entities.function.dbt.status import FunctionStatusDbt
-from digitalhub_runtime_dbt.entities.function.dbt.utils import source_check
+from digitalhub_runtime_dbt.entities.function.dbt.utils import source_check, source_post_check
 
 from digitalhub.entities.function._base.builder import FunctionBuilder
 
@@ -32,7 +32,7 @@ class FunctionDbtBuilder(FunctionBuilder, RuntimeEntityBuilderDbt):
         **kwargs,
     ) -> FunctionDbt:
         kwargs = source_check(**kwargs)
-        return super().build(
+        obj = super().build(
             kind,
             project,
             name,
@@ -42,3 +42,4 @@ class FunctionDbtBuilder(FunctionBuilder, RuntimeEntityBuilderDbt):
             embedded,
             **kwargs,
         )
+        return source_post_check(obj)

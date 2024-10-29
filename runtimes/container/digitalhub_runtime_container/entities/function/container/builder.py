@@ -7,7 +7,7 @@ from digitalhub_runtime_container.entities.function.container.spec import (
     FunctionValidatorContainer,
 )
 from digitalhub_runtime_container.entities.function.container.status import FunctionStatusContainer
-from digitalhub_runtime_container.entities.function.container.utils import source_check
+from digitalhub_runtime_container.entities.function.container.utils import source_check, source_post_check
 
 from digitalhub.entities.function._base.builder import FunctionBuilder
 
@@ -35,7 +35,7 @@ class FunctionContainerBuilder(FunctionBuilder, RuntimeEntityBuilderContainer):
         **kwargs,
     ) -> FunctionContainer:
         kwargs = source_check(**kwargs)
-        return super().build(
+        obj = super().build(
             kind,
             project,
             name,
@@ -45,3 +45,4 @@ class FunctionContainerBuilder(FunctionBuilder, RuntimeEntityBuilderContainer):
             embedded,
             **kwargs,
         )
+        return source_post_check(obj)

@@ -7,6 +7,8 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from digitalhub.utils.uri_utils import check_local_path
+
 
 class FileInfo(BaseModel):
     """
@@ -202,3 +204,112 @@ def get_file_info_from_s3(path: str, metadata: dict) -> None | dict:
         ).model_dump()
     except Exception:
         return None
+
+
+def eval_zip_type(source: str) -> bool:
+    """
+    Evaluate zip type.
+
+    Parameters
+    ----------
+    source : str
+        Source.
+
+    Returns
+    -------
+    bool
+        True if path is zip.
+    """
+    extension = source.endswith(".zip")
+    mime_zip = get_file_mime_type(source) == "application/zip"
+    return extension or mime_zip
+
+
+def eval_text_type(source: str) -> bool:
+    """
+    Evaluate text type.
+
+    Parameters
+    ----------
+    source : str
+        Source.
+
+    Returns
+    -------
+    bool
+        True if path is text.
+    """
+    return get_file_mime_type(source) == "text/plain"
+
+
+def eval_py_type(source: str) -> bool:
+    """
+    Evaluate python type.
+
+    Parameters
+    ----------
+    source : str
+        Source.
+
+    Returns
+    -------
+    bool
+        True if path is python.
+    """
+    extension = source.endswith(".py")
+    mime_py = get_file_mime_type(source) == "text/x-python"
+    return extension or mime_py
+
+
+def eval_zip_sources(source: str | list[str]) -> bool:
+    """
+    Evaluate zip sources.
+
+    Parameters
+    ----------
+    source : str | list[str]
+        Source(s).
+
+    Returns
+    -------
+    bool
+        True if path is zip.
+    """
+    if isinstance(source, list):
+        if len(source) > 1:
+            return False
+        else:
+            path = source[0]
+    else:
+        if Path(source).is_dir():
+            return False
+        path = source
+
+    return eval_zip_type(path)
+
+
+def eval_local_source(source: str | list[str]) -> None:
+    """
+    Evaluate if source is local.
+
+    Parameters
+    ----------
+    source : str | list[str]
+        Source(s).
+
+    Returns
+    -------
+    None
+    """
+    if isinstance(source, list):
+        if not source:
+            raise ValueError("Empty list of sources.")
+        source_is_local = all(check_local_path(s) for s in source)
+        for s in source:
+            if Path(s).is_dir():
+                raise ValueError(f"Invalid source path: {s}. List of paths must be list of files, not directories.")
+    else:
+        source_is_local = check_local_path(source)
+
+    if not source_is_local:
+        raise ValueError("Invalid source path. Source must be a local path.")

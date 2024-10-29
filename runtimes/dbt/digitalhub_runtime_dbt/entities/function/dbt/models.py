@@ -8,7 +8,7 @@ class SourceValidator(BaseModel):
     Source code params.
     """
 
-    code_src: str = None
+    source: str = None
     "Pointer to source code"
 
     handler: str = None

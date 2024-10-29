@@ -15,10 +15,11 @@ from digitalhub.entities._base.crud import (
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import build_log_path_from_filename, build_log_path_from_source, eval_local_source
+from digitalhub.entities.utils.utils import build_log_path_from_filename, build_log_path_from_source
 from digitalhub.factory.api import build_entity_from_params
 from digitalhub.readers.api import get_reader_by_object
 from digitalhub.stores.api import get_store
+from digitalhub.utils.file_utils import eval_local_source
 from digitalhub.utils.generic_utils import slugify_string
 
 if typing.TYPE_CHECKING:

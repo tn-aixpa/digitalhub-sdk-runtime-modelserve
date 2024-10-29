@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import typing
 from pathlib import Path
 
+from digitalhub.stores.api import get_store
 from digitalhub.utils.exceptions import EntityError
+from digitalhub.utils.file_utils import eval_py_type, eval_zip_type
 from digitalhub.utils.generic_utils import encode_source, encode_string
+from digitalhub.utils.s3_utils import get_s3_bucket
 from digitalhub.utils.uri_utils import map_uri_scheme
+
+if typing.TYPE_CHECKING:
+    from digitalhub_runtime_python.entities.function.python.entity import FunctionPython
 
 
 def source_check(**kwargs) -> dict:
@@ -97,11 +104,42 @@ def _check_params(
         source["base64"] = encode_string(code)
         return source
 
-    if code_src is not None:
-        if map_uri_scheme(code_src) == "local":
-            if not (Path(code_src).suffix == ".py" and Path(code_src).is_file()):
-                raise EntityError("Source is not a valid python file.")
-            source["base64"] = encode_source(code_src)
-            return source
+    source["source"] = code_src
+    return source
 
-    raise EntityError("Local code_src must be provided.")
+
+def source_post_check(exec: FunctionPython) -> FunctionPython:
+    """
+    Post check source.
+
+    Parameters
+    ----------
+    exec : FunctionPython
+        Executable.
+
+    Returns
+    -------
+    FunctionPython
+        Updated executable.
+    """
+    code_src = exec.spec.source.get("source", None)
+    base64 = exec.spec.source.get("base64", None)
+    if code_src is None or base64 is not None:
+        return exec
+
+    # Check local source
+    if map_uri_scheme(code_src) == "local" and Path(code_src).is_file():
+        # Check py
+        if eval_py_type(code_src):
+            exec.spec.source["base64"] = encode_source(code_src)
+
+        # Check zip
+        elif eval_zip_type(code_src):
+            filename = Path(code_src).name
+            dst = f"zip+s3://{get_s3_bucket()}/{exec.project}/{exec.ENTITY_TYPE}/{exec.name}/{exec.id}/{filename}"
+            get_store(dst).upload(code_src, dst)
+            exec.spec.source["source"] = dst
+            if ":" not in exec.spec.source["handler"]:
+                exec.spec.source["handler"] = f"{Path(code_src).stem}:{exec.spec.source['handler']}"
+
+    return exec

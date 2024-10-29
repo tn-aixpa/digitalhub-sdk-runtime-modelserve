@@ -4,7 +4,7 @@ from digitalhub_runtime_kfp.entities._base.runtime_entity.builder import Runtime
 from digitalhub_runtime_kfp.entities.workflow.kfp.entity import WorkflowKfp
 from digitalhub_runtime_kfp.entities.workflow.kfp.spec import WorkflowSpecKfp, WorkflowValidatorKfp
 from digitalhub_runtime_kfp.entities.workflow.kfp.status import WorkflowStatusKfp
-from digitalhub_runtime_kfp.entities.workflow.kfp.utils import source_check
+from digitalhub_runtime_kfp.entities.workflow.kfp.utils import source_check, source_post_check
 
 from digitalhub.entities.workflow._base.builder import WorkflowBuilder
 
@@ -32,7 +32,7 @@ class WorkflowKfpBuilder(WorkflowBuilder, RuntimeEntityBuilderKfp):
         **kwargs,
     ) -> WorkflowKfp:
         kwargs = source_check(**kwargs)
-        return super().build(
+        obj = super().build(
             kind,
             project,
             name,
@@ -42,3 +42,4 @@ class WorkflowKfpBuilder(WorkflowBuilder, RuntimeEntityBuilderKfp):
             embedded,
             **kwargs,
         )
+        return source_post_check(obj)
