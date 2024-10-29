@@ -81,17 +81,6 @@ class Entity(Base, metaclass=ABCMeta):
         Abstract export method.
         """
 
-    def get_state(self) -> str:
-        """
-        Return the state of the entity.
-
-        Returns
-        -------
-        str
-            The state of the entity.
-        """
-        return self.status.state
-
     def to_dict(self) -> dict:
         """
         Override default to_dict method to add the possibility to exclude
