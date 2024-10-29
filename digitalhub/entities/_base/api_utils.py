@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import get_context
-from digitalhub.entities.utils.api import (
+from digitalhub.entities._base.api import (
     api_base_create,
     api_base_delete,
     api_base_list,
@@ -17,6 +17,7 @@ from digitalhub.entities.utils.api import (
     api_ctx_logs,
     api_ctx_read,
     api_ctx_resume,
+    api_ctx_search_item,
     api_ctx_stop,
     api_ctx_update,
 )
@@ -618,3 +619,26 @@ def files_info_put_api(
     """
     api = api_ctx_files(project, entity_type, entity_id)
     get_context(project).update_object(api, entity_list, **kwargs)
+
+
+def search_api(
+    project: str,
+    **kwargs,
+) -> dict:
+    """
+    Search in backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    dict
+        Response from backend.
+    """
+    api = api_ctx_search_item(project)
+    return get_context(project).read_object(api, **kwargs)

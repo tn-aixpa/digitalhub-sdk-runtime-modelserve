@@ -53,7 +53,7 @@ def parse_entity_key(key: str) -> tuple[str]:
 
 def get_entity_type_from_key(key: str) -> str:
     """
-    Get entity type.
+    Get entity type from key.
 
     Parameters
     ----------
@@ -67,6 +67,24 @@ def get_entity_type_from_key(key: str) -> str:
     """
     _, entity_type, _, _, _ = parse_entity_key(key)
     return entity_type
+
+
+def get_project_from_key(key: str) -> str:
+    """
+    Get project from key.
+
+    Parameters
+    ----------
+    key : str
+        The key of the entity.
+
+    Returns
+    -------
+    str
+        The project.
+    """
+    project, _, _, _, _ = parse_entity_key(key)
+    return project
 
 
 def build_log_path_from_filename(

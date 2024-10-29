@@ -10,9 +10,10 @@ from digitalhub.entities._base.api_utils import (
     read_entity_api_base,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
+    search_api,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import parse_entity_key
+from digitalhub.entities.utils.utils import get_project_from_key
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import ContextError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
@@ -72,7 +73,7 @@ def _check_project_from_identifier(identifier: str, project: str | None = None) 
             raise EntityError("Specify project if you do not specify entity key.")
 
     else:
-        project, _, _, _, _ = parse_entity_key(identifier)
+        project = get_project_from_key(identifier)
 
     _check_context(project)
 
@@ -420,6 +421,70 @@ def import_executable_entity(file: str) -> ExecutableEntity:
     except EntityAlreadyExistsError:
         pass
     return obj
+
+
+def search_entity(
+    project: str,
+    name: str | None = None,
+    kind: str | None = None,
+    user: str | None = None,
+    state: str | None = None,
+    created: str | None = None,
+    updated: str | None = None,
+    version: str | None = None,
+    **kwargs,
+) -> list[ContextEntity]:
+    """
+    Search objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    name : str
+        Entity name.
+    kind : str
+        Entity kind.
+    user : str
+        Entity user.
+    state : str
+        Entity state.
+    created : str
+        Entity creation date.
+    updated : str
+        Entity update date.
+    version : str
+        Entity version.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[ContextEntity]
+        List of object instances.
+    """
+    if "params" not in kwargs:
+        kwargs["params"] = {}
+    if name is not None:
+        kwargs["params"]["name"] = name
+    if kind is not None:
+        kwargs["params"]["kind"] = kind
+    if user is not None:
+        kwargs["params"]["user"] = user
+    if state is not None:
+        kwargs["params"]["state"] = state
+    if created is not None:
+        kwargs["params"]["created"] = created
+    if updated is not None:
+        kwargs["params"]["updated"] = updated
+    if version is not None:
+        kwargs["params"]["version"] = version
+    _check_context(project)
+    objs = search_api(
+        project=project,
+        **kwargs,
+    )
+    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def delete_entity(

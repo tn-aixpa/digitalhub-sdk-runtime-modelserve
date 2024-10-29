@@ -90,6 +90,7 @@ class Entity(Base, metaclass=ABCMeta):
         str
             The state of the entity.
         """
+        self.refresh()
         return self.status.state
 
     def to_dict(self) -> dict:

@@ -12,7 +12,7 @@ from digitalhub.entities._base.api_utils import (
     read_entity_api_ctx,
     update_entity_api_base,
 )
-from digitalhub.entities._base.crud import import_context_entity, import_executable_entity
+from digitalhub.entities._base.crud import import_context_entity, import_executable_entity, search_entity
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
@@ -80,6 +80,7 @@ from digitalhub.utils.io_utils import write_yaml
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
+    from digitalhub.entities._base.context.entity import ContextEntity
     from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.artifact._base.entity import Artifact
     from digitalhub.entities.dataitem._base.entity import Dataitem
@@ -359,6 +360,58 @@ class Project(Entity):
             raise EntityError(msg)
 
         return entity.run(**kwargs)
+
+    def search_entity(
+        self,
+        name: str | None = None,
+        kind: str | None = None,
+        user: str | None = None,
+        state: str | None = None,
+        created: str | None = None,
+        updated: str | None = None,
+        version: str | None = None,
+        **kwargs,
+    ) -> list[ContextEntity]:
+        """
+        Search objects from backend.
+
+        Parameters
+        ----------
+        name : str
+            Entity name.
+        kind : str
+            Entity kind.
+        user : str
+            Entity user.
+        state : str
+            Entity state.
+        created : str
+            Entity creation date.
+        updated : str
+            Entity update date.
+        version : str
+            Entity version.
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        list[ContextEntity]
+            List of object instances.
+        """
+        objs = search_entity(
+            self.name,
+            name,
+            kind,
+            user,
+            state,
+            created,
+            updated,
+            version,
+            **kwargs,
+        )
+        self.refresh()
+        return objs
 
     ##############################
     #  Artifacts
