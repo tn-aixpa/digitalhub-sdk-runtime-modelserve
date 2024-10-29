@@ -10,5 +10,9 @@ class RuntimeEntityBuilderKfp(RuntimeEntityBuilder):
             "kind": "kfp+pipeline",
             "action": "pipeline",
         },
+        {
+            "kind": "kfp+build",
+            "action": "build",
+        },
     ]
     RUN_KIND = "kfp+run"
