@@ -15,9 +15,10 @@ from digitalhub.utils.generic_utils import decode_string, extract_archive, reque
 from digitalhub.utils.git_utils import clone_repository
 from digitalhub.utils.logger import LOGGER
 from digitalhub.utils.s3_utils import get_bucket_and_key, get_s3_source
+from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from digitalhub_runtime_kfp.entities.workflow.spec import WorkflowSpecKFP
+    from digitalhub_runtime_kfp.entities.workflow.kfp.spec import WorkflowSpecKfp
 
     from digitalhub.entities.workflow._base.entity import Workflow
 
@@ -67,49 +68,52 @@ def save_workflow_source(path: Path, source_spec: dict) -> str:
     path.mkdir(parents=True, exist_ok=True)
 
     # Get relevant information
-    code = source_spec.get("code")
     base64 = source_spec.get("base64")
     source = source_spec.get("source")
     handler = source_spec.get("handler")
 
-    if code is not None:
-        path = path / "source.py"
-        path.write_text(code)
-        return str(path)
+    scheme = None
+    if source is not None:
+        scheme = map_uri_scheme(source)
 
+    # Base64
     if base64 is not None:
-        path = path / "source.py"
-        path.write_text(decode_base64(base64))
-        return str(path)
+        filename = "main.py"
+        if scheme == "local":
+            filename = Path(source).name
 
-    if source is None or handler is None:
-        raise RuntimeError("Workflow source and handler must be defined.")
+        base64_path = path / filename
+        base64_path.write_text(decode_base64(base64))
 
-    scheme = source.split("://")[0]
+        if scheme is None or scheme == "local":
+            return base64_path
+
+    # Git repo
+    if scheme == "git":
+        get_repository(path, source)
 
     # Http(s) or s3 presigned urls
-    if scheme in ["http", "https"]:
+    elif scheme == "remote":
         filename = path / "archive.zip"
         get_remote_source(source, filename)
         unzip(path, filename)
-        return str(path / handler)
-
-    # Git repo
-    if scheme == "git+https":
-        path = path / "repository"
-        get_repository(path, source)
-        return str(path / handler)
 
     # S3 path
-    if scheme == "zip+s3":
+    elif scheme == "s3":
         filename = path / "archive.zip"
         bucket, key = get_bucket_and_key(source)
         get_s3_source(bucket, key, filename)
         unzip(path, filename)
-        return str(path / handler)
 
     # Unsupported scheme
-    raise RuntimeError(f"Unsupported scheme: {scheme}")
+    else:
+        raise RuntimeError(f"Unsupported scheme: {scheme}")
+
+    if ":" in handler:
+        handler = handler.split(":")[0].split(".")
+        return str(Path(path, *handler).with_suffix(".py"))
+    else:
+        return str(path.with_suffix(".py"))
 
 
 def get_remote_source(source: str, filename: Path) -> None:
@@ -210,7 +214,7 @@ def decode_base64(base64: str) -> str:
         raise RuntimeError(msg) from e
 
 
-def parse_workflow_specs(spec: WorkflowSpecKFP) -> dict:
+def parse_workflow_specs(spec: WorkflowSpecKfp) -> dict:
     """
     Parse workflow specs.
 
@@ -228,7 +232,7 @@ def parse_workflow_specs(spec: WorkflowSpecKFP) -> dict:
         return {
             "image": spec.image,
             "tag": spec.tag,
-            "handler": spec.source.handler,
+            "handler": spec.source.get("handler"),
         }
     except AttributeError as e:
         msg = f"Error parsing workflow specs. Exception: {e.__class__}. Error: {e.args}"
@@ -262,7 +266,8 @@ def get_kfp_pipeline(name: str, workflow_source: str, workflow_specs: dict) -> d
         if abspath not in sys.path:
             sys.path.append(abspath)
 
-        return _load_module(workflow_source, workflow_specs.get("handler"))
+        handler = workflow_specs.get("handler").split(":")[-1]
+        return _load_module(workflow_source, handler)
     except Exception as e:
         msg = f"Error getting '{name}' KFP pipeline. Exception: {e.__class__}. Error: {e.args}"
         LOGGER.exception(msg)

@@ -12,7 +12,8 @@ from digitalhub.entities._base.crud import (
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import build_log_path_from_source, eval_local_source
+from digitalhub.entities.utils.utils import build_log_path_from_source
+from digitalhub.utils.file_utils import eval_local_source
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.model._base.entity import Model

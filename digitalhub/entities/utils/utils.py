@@ -3,9 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.utils.file_utils import get_file_mime_type
+from digitalhub.utils.file_utils import eval_zip_sources
 from digitalhub.utils.s3_utils import get_s3_bucket
-from digitalhub.utils.uri_utils import check_local_path
 
 
 def parse_entity_key(key: str) -> tuple[str]:
@@ -52,60 +51,22 @@ def parse_entity_key(key: str) -> tuple[str]:
         raise ValueError("Invalid key format.") from e
 
 
-def eval_local_source(source: str | list[str]) -> None:
+def get_entity_type_from_key(key: str) -> str:
     """
-    Evaluate if source is local.
+    Get entity type.
 
     Parameters
     ----------
-    source : str | list[str]
-        Source(s).
+    key : str
+        The key of the entity.
 
     Returns
     -------
-    None
+    str
+        The entity type.
     """
-    if isinstance(source, list):
-        if not source:
-            raise ValueError("Empty list of sources.")
-        source_is_local = all(check_local_path(s) for s in source)
-        for s in source:
-            if Path(s).is_dir():
-                raise ValueError(f"Invalid source path: {s}. List of paths must be list of files, not directories.")
-    else:
-        source_is_local = check_local_path(source)
-
-    if not source_is_local:
-        raise ValueError("Invalid source path. Source must be a local path.")
-
-
-def eval_zip_type(source: str | list[str]) -> bool:
-    """
-    Evaluate zip type.
-
-    Parameters
-    ----------
-    source : str | list[str]
-        Source(s).
-
-    Returns
-    -------
-    bool
-        True if path is zip.
-    """
-    if isinstance(source, list):
-        if len(source) > 1:
-            return False
-        else:
-            path = source[0]
-    else:
-        if Path(source).is_dir():
-            return False
-        path = source
-
-    extension = path.endswith(".zip")
-    mime_zip = get_file_mime_type(path) == "application/zip"
-    return extension or mime_zip
+    _, entity_type, _, _, _ = parse_entity_key(key)
+    return entity_type
 
 
 def build_log_path_from_filename(
@@ -167,7 +128,7 @@ def build_log_path_from_source(
     str
         Log path.
     """
-    is_zip = eval_zip_type(source)
+    is_zip = eval_zip_sources(source)
     scheme = "zip+s3" if is_zip else "s3"
     path = f"{scheme}://{get_s3_bucket()}/{project}/{entity_type}/{name}/{uuid}"
 
@@ -182,21 +143,3 @@ def build_log_path_from_source(
         path += f"/{Path(source).name}"
 
     return path
-
-
-def get_entity_type_from_key(key: str) -> str:
-    """
-    Get entity type.
-
-    Parameters
-    ----------
-    key : str
-        The key of the entity.
-
-    Returns
-    -------
-    str
-        The entity type.
-    """
-    _, entity_type, _, _, _ = parse_entity_key(key)
-    return entity_type
