@@ -156,6 +156,7 @@ class PipelineContext:
             "env": env,
             "secrets": secrets,
         }
+        props = {k: v for k, v in props.items() if v}
 
         parameters = {} if parameters is None else parameters
         inputs = {} if inputs is None else inputs
