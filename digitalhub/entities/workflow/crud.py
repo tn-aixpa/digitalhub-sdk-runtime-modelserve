@@ -8,6 +8,7 @@ from digitalhub.entities._base.crud.crud import (
     get_versioned_entity,
     import_executable_entity,
     list_context_entities,
+    load_executable_entity,
     new_context_entity,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
@@ -186,7 +187,7 @@ def list_workflows(project: str, **kwargs) -> list[Workflow]:
 
 def import_workflow(file: str) -> Workflow:
     """
-    Import object from a YAML file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -203,6 +204,27 @@ def import_workflow(file: str) -> Workflow:
     >>> obj = import_workflow("my-workflow.yaml")
     """
     return import_executable_entity(file)
+
+
+def load_workflow(file: str) -> Workflow:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    Workflow
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = load_workflow("my-workflow.yaml")
+    """
+    return load_executable_entity(file)
 
 
 def update_workflow(entity: Workflow) -> Workflow:

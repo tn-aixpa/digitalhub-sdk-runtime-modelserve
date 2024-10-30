@@ -7,6 +7,7 @@ from digitalhub.entities._base.crud.crud import (
     get_unversioned_entity,
     import_context_entity,
     list_context_entities,
+    load_context_entity,
     new_context_entity,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
@@ -134,7 +135,7 @@ def list_tasks(project: str, **kwargs) -> list[Task]:
 
 def import_task(file: str) -> Task:
     """
-    Get object from file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -151,6 +152,27 @@ def import_task(file: str) -> Task:
     >>> obj = import_task("my-task.yaml")
     """
     return import_context_entity(file)
+
+
+def load_task(file: str) -> Task:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    Task
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = load_task("my-task.yaml")
+    """
+    return load_context_entity(file)
 
 
 def update_task(entity: Task) -> Task:

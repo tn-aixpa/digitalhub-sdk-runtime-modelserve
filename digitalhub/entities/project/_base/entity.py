@@ -12,7 +12,13 @@ from digitalhub.entities._base.crud.api_utils import (
     read_entity_api_ctx,
     update_entity_api_base,
 )
-from digitalhub.entities._base.crud.crud import import_context_entity, import_executable_entity, search_entity
+from digitalhub.entities._base.crud.crud import (
+    import_context_entity,
+    import_executable_entity,
+    load_context_entity,
+    load_executable_entity,
+    search_entity,
+)
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
@@ -153,7 +159,7 @@ class Project(Entity):
             return self
 
         self.metadata.updated = obj["metadata"]["updated"] = get_timestamp()
-        new_obj = update_entity_api_base(self._client, self.ENTITY_TYPE, obj)
+        new_obj = update_entity_api_base(self._client, self.ENTITY_TYPE, self.name, obj)
         new_obj["local"] = self._client.is_local()
         self._update_attributes(new_obj)
         return self
@@ -294,6 +300,45 @@ class Project(Entity):
                         build_entity_from_dict(entity).save()
                     except EntityAlreadyExistsError:
                         pass
+
+    def _load_entities(self, obj: dict) -> None:
+        """
+        Load project entities.
+
+        Parameters
+        ----------
+        obj : dict
+            Project object in dictionary format.
+
+        Returns
+        -------
+        None
+        """
+        entity_types = self._get_entity_types()
+
+        # Cycle over entity types
+        for entity_type in entity_types:
+            # Entity types are stored as a list of entities
+            for entity in obj.get("spec", {}).get(entity_type, []):
+                embedded = self._is_embedded(entity)
+                ref = entity["metadata"].get("ref")
+
+                # Load entity if not embedded and there is a ref
+                if not embedded and ref is not None:
+                    # Load entity from local ref
+                    if map_uri_scheme(ref) == "local":
+                        try:
+                            # Artifacts, Dataitems and Models
+                            if entity_type in entity_types[:3]:
+                                load_context_entity(ref)
+
+                            # Functions and Workflows
+                            elif entity_type in entity_types[3:]:
+                                load_executable_entity(ref)
+
+                        except FileNotFoundError:
+                            msg = f"File not found: {ref}."
+                            raise EntityError(msg)
 
     def _is_embedded(self, entity: dict) -> bool:
         """
@@ -622,7 +667,7 @@ class Project(Entity):
         **kwargs,
     ) -> Artifact:
         """
-        Import object from a YAML file.
+        Import object from a YAML file and create a new object into the backend.
 
         Parameters
         ----------
@@ -925,7 +970,7 @@ class Project(Entity):
         **kwargs,
     ) -> Dataitem:
         """
-        Import object from a YAML file.
+        Import object from a YAML file and create a new object into the backend.
 
         Parameters
         ----------
@@ -1217,7 +1262,7 @@ class Project(Entity):
         **kwargs,
     ) -> Model:
         """
-        Import object from a YAML file.
+        Import object from a YAML file and create a new object into the backend.
 
         Parameters
         ----------
@@ -1460,7 +1505,7 @@ class Project(Entity):
         **kwargs,
     ) -> Function:
         """
-        Import object from a YAML file.
+        Import object from a YAML file and create a new object into the backend.
 
         Parameters
         ----------
@@ -1706,7 +1751,7 @@ class Project(Entity):
         **kwargs,
     ) -> Workflow:
         """
-        Import object from a YAML file.
+        Import object from a YAML file and create a new object into the backend.
 
         Parameters
         ----------
@@ -1950,7 +1995,7 @@ class Project(Entity):
         **kwargs,
     ) -> Secret:
         """
-        Import object from a YAML file.
+        Import object from a YAML file and create a new object into the backend.
 
         Parameters
         ----------
