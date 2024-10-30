@@ -445,7 +445,7 @@ def load_context_entity(file: str) -> ContextEntity:
     try:
         obj.save(update=True)
     except EntityNotExistsError:
-        raise EntityError(f"Entity {obj.name} does not exists. If you want to create it, use import instead.")
+        obj.save()
     return obj
 
 
@@ -480,7 +480,7 @@ def load_executable_entity(file: str) -> ExecutableEntity:
     try:
         obj.save(update=True)
     except EntityNotExistsError:
-        raise EntityError(f"Entity {obj.name} does not exists. If you want to create it, use import instead.")
+        obj.save()
     return obj
 
 

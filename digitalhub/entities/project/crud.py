@@ -206,7 +206,7 @@ def load_project(
     try:
         obj.save(update=True)
     except EntityNotExistsError:
-        raise EntityError(f"Entity {obj.name} does not exists. If you want to create it, use import instead.")
+        obj.save()
 
     # Load related entities
     obj._load_entities(dict_obj)
