@@ -47,6 +47,7 @@ def execute_step(
 
     if jsonprops is not None:
         props = json.loads(jsonprops)
+        props = {k: v for k, v in props.items() if v}
     else:
         props = {}
 

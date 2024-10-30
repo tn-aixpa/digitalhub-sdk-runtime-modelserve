@@ -15,12 +15,14 @@ class WorkflowSpecKfp(WorkflowSpec):
         source: dict | None = None,
         image: str | None = None,
         tag: str | None = None,
+        workflow: str | None = None,
     ) -> None:
         super().__init__()
 
         self.image = image
         self.tag = tag
         self.source = source
+        self.workflow = workflow
 
 
 class WorkflowValidatorKfp(WorkflowValidator):
@@ -36,3 +38,6 @@ class WorkflowValidatorKfp(WorkflowValidator):
 
     tag: str = None
     """Tag of the Workflow's container image."""
+
+    workflow: str = None
+    """YAML of the Workflow."""

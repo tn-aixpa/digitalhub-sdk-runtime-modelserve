@@ -9,7 +9,7 @@ from digitalhub_runtime_kfp.utils.configurations import (
     parse_workflow_specs,
     save_workflow_source,
 )
-from digitalhub_runtime_kfp.utils.functions import run_kfp_pipeline
+from digitalhub_runtime_kfp.utils.functions import run_kfp_build
 
 from digitalhub.context.api import get_context
 from digitalhub.runtimes._base import Runtime
@@ -101,8 +101,8 @@ class RuntimeKfp(Runtime):
         Callable
             Workflow to execute.
         """
-        if action == "pipeline":
-            return run_kfp_pipeline(run)
+        if action == "build":
+            return run_kfp_build(run)
         raise NotImplementedError
 
     ##############################

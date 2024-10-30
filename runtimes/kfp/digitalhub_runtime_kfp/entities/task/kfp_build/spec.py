@@ -3,9 +3,9 @@ from __future__ import annotations
 from digitalhub.entities.task._base.spec import TaskSpecK8s, TaskValidatorK8s
 
 
-class TaskSpecKfpPipeline(TaskSpecK8s):
+class TaskSpecKfpBuild(TaskSpecK8s):
     """
-    TaskSpecKfpPipeline specifications.
+    TaskSpecKfpBuild specifications.
     """
 
     def __init__(
@@ -37,9 +37,9 @@ class TaskSpecKfpPipeline(TaskSpecK8s):
         self.schedule = schedule
 
 
-class TaskValidatorKfpPipeline(TaskValidatorK8s):
+class TaskValidatorKfpBuild(TaskValidatorK8s):
     """
-    TaskValidatorKfpPipeline validator.
+    TaskValidatorKfpBuild validator.
     """
 
     schedule: str = None
