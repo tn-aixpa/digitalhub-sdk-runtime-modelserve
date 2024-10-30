@@ -8,7 +8,7 @@ from typing import Any
 from zipfile import ZipFile
 
 import numpy as np
-from requests import get as requests_get
+import requests
 from slugify import slugify
 
 from digitalhub.utils.io_utils import read_text
@@ -92,7 +92,7 @@ def requests_chunk_download(source: str, filename: Path) -> None:
     -------
     None
     """
-    with requests_get(source, stream=True) as r:
+    with requests.get(source, stream=True) as r:
         r.raise_for_status()
         with filename.open("wb") as f:
             for chunk in r.iter_content(chunk_size=8192):

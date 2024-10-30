@@ -213,6 +213,56 @@ class ClientDHCore(Client):
         except IndexError:
             raise BackendError("No object found.")
 
+    def search_objects(self, api: str, **kwargs) -> list[dict]:
+        """
+        Search objects from DHCore.
+
+        Parameters
+        ----------
+        api : str
+            Search API.
+        **kwargs : dict
+            Keyword arguments to pass to the request.
+
+        Returns
+        -------
+        list[dict]
+            Response objects.
+        """
+        if kwargs is None:
+            kwargs = {}
+
+        if "params" not in kwargs:
+            kwargs["params"] = {}
+
+        start_page = 0
+        if "page" not in kwargs["params"]:
+            kwargs["params"]["page"] = start_page
+
+        if "size" not in kwargs["params"]:
+            kwargs["params"]["size"] = 10
+
+        # Add sorting
+        if "sort" not in kwargs["params"]:
+            kwargs["params"]["sort"] = "metadata.updated,DESC"
+
+        objects_with_highlights = []
+        while True:
+            resp = self._prepare_call("GET", api, **kwargs)
+            contents = resp["content"]
+            total_pages = resp["totalPages"]
+            if not contents or kwargs["params"]["page"] >= total_pages:
+                break
+            objects_with_highlights.extend(contents)
+            kwargs["params"]["page"] += 1
+
+        objects = []
+        for obj in objects_with_highlights:
+            obj.pop("highlights", None)
+            objects.append(obj)
+
+        return objects
+
     ##############################
     # Call methods
     ##############################

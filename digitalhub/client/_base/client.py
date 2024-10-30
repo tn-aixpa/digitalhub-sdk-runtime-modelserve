@@ -48,6 +48,12 @@ class Client:
         Read first object method.
         """
 
+    @abstractmethod
+    def search_objects(self, api: str, **kwargs) -> dict:
+        """
+        Search objects method.
+        """
+
     @staticmethod
     @abstractmethod
     def is_local() -> bool:

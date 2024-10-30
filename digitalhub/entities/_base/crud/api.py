@@ -240,6 +240,23 @@ def api_ctx_files(project: str, entity_type: str, entity_id: str) -> str:
     return f"{API_CONTEXT}/{project}/{entity_type}/{entity_id}/files/info"
 
 
+def api_ctx_search_item(project: str) -> str:
+    """
+    Search item context API.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+
+    Returns
+    -------
+    str
+        The API string formatted.
+    """
+    return f"{API_CONTEXT}/{project}/solr/search/item"
+
+
 ##############################
 # Base APIs
 ##############################

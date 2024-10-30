@@ -4,15 +4,16 @@ import typing
 
 from digitalhub.client.api import build_client, get_client
 from digitalhub.context.api import check_context
-from digitalhub.entities._base.api_utils import (
+from digitalhub.entities._base.crud.api_utils import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
     read_entity_api_base,
     read_entity_api_ctx,
     read_entity_api_ctx_versions,
+    search_api,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import parse_entity_key
+from digitalhub.entities.utils.utils import get_project_from_key
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import ContextError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
@@ -72,7 +73,7 @@ def _check_project_from_identifier(identifier: str, project: str | None = None) 
             raise EntityError("Specify project if you do not specify entity key.")
 
     else:
-        project, _, _, _, _ = parse_entity_key(identifier)
+        project = get_project_from_key(identifier)
 
     _check_context(project)
 
@@ -420,6 +421,105 @@ def import_executable_entity(file: str) -> ExecutableEntity:
     except EntityAlreadyExistsError:
         pass
     return obj
+
+
+def search_entity(
+    project: str,
+    query: str | None = None,
+    entity_types: list[str] | None = None,
+    name: str | None = None,
+    kind: str | None = None,
+    created: str | None = None,
+    updated: str | None = None,
+    description: str | None = None,
+    labels: list[str] | None = None,
+    **kwargs,
+) -> list[ContextEntity]:
+    """
+    Search objects from backend.
+
+    Parameters
+    ----------
+    project : str
+        Project name.
+    query : str
+        Search query.
+    entity_types : list[str]
+        Entity types.
+    name : str
+        Entity name.
+    kind : str
+        Entity kind.
+    created : str
+        Entity creation date.
+    updated : str
+        Entity update date.
+    description : str
+        Entity description.
+    labels : list[str]
+        Entity labels.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    list[ContextEntity]
+        List of object instances.
+    """
+    _check_context(project)
+
+    if "params" not in kwargs:
+        kwargs["params"] = {}
+
+    # Add search query
+    if query is not None:
+        kwargs["params"]["q"] = query
+
+    # Add search filters
+    fq = []
+
+    # Entity types
+    if entity_types is not None:
+        if len(entity_types) == 1:
+            entity_types = entity_types[0]
+        else:
+            entity_types = " OR ".join(entity_types)
+        fq.append(f"type:({entity_types})")
+
+    # Name
+    if name is not None:
+        fq.append(f'metadata.name:"{name}"')
+
+    # Kind
+    if kind is not None:
+        fq.append(f'kind:"{kind}"')
+
+    # Time
+    created = created if created is not None else "*"
+    updated = updated if updated is not None else "*"
+    fq.append(f"metadata.updated:[{created} TO {updated}]")
+
+    # Description
+    if description is not None:
+        fq.append(f'metadata.description:"{description}"')
+
+    # Labels
+    if labels is not None:
+        if len(labels) == 1:
+            labels = labels[0]
+        else:
+            labels = " AND ".join(labels)
+        fq.append(f"metadata.labels:({labels})")
+
+    # Add filters
+    kwargs["params"]["fq"] = fq
+
+    objs = search_api(
+        project=project,
+        **kwargs,
+    )
+    return objs
+    return [build_entity_from_dict(obj) for obj in objs]
 
 
 def delete_entity(

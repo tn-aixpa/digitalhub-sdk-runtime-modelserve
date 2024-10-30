@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 
-from digitalhub.entities._base.api_utils import files_info_get_api, files_info_put_api
+from digitalhub.entities._base.crud.api_utils import files_info_get_api, files_info_put_api
 from digitalhub.entities._base.versioned.entity import VersionedEntity
 from digitalhub.stores.api import get_store
 

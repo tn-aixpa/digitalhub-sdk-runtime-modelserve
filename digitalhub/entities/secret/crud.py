@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import check_context
-from digitalhub.entities._base.crud import (
+from digitalhub.entities._base.crud.crud import (
     delete_entity,
     get_context_entity_versions,
     get_versioned_entity,

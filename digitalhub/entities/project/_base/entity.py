@@ -6,13 +6,13 @@ from typing import Any
 
 from digitalhub.client.api import get_client
 from digitalhub.context.api import set_context
-from digitalhub.entities._base.api_utils import (
+from digitalhub.entities._base.crud.api_utils import (
     create_entity_api_base,
     read_entity_api_base,
     read_entity_api_ctx,
     update_entity_api_base,
 )
-from digitalhub.entities._base.crud import import_context_entity, import_executable_entity
+from digitalhub.entities._base.crud.crud import import_context_entity, import_executable_entity, search_entity
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
@@ -80,6 +80,7 @@ from digitalhub.utils.io_utils import write_yaml
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
+    from digitalhub.entities._base.context.entity import ContextEntity
     from digitalhub.entities._base.entity.metadata import Metadata
     from digitalhub.entities.artifact._base.entity import Artifact
     from digitalhub.entities.dataitem._base.entity import Dataitem
@@ -359,6 +360,62 @@ class Project(Entity):
             raise EntityError(msg)
 
         return entity.run(**kwargs)
+
+    def search_entity(
+        self,
+        query: str | None = None,
+        entity_types: list[str] | None = None,
+        name: str | None = None,
+        kind: str | None = None,
+        created: str | None = None,
+        updated: str | None = None,
+        description: str | None = None,
+        labels: list[str] | None = None,
+        **kwargs,
+    ) -> list[ContextEntity]:
+        """
+        Search objects from backend.
+
+        Parameters
+        ----------
+        query : str
+            Search query.
+        entity_types : list[str]
+            Entity types.
+        name : str
+            Entity name.
+        kind : str
+            Entity kind.
+        created : str
+            Entity creation date.
+        updated : str
+            Entity update date.
+        description : str
+            Entity description.
+        labels : list[str]
+            Entity labels.
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+            Returns
+            -------
+            list[ContextEntity]
+                List of object instances.
+        """
+        objs = search_entity(
+            self.name,
+            query=query,
+            entity_types=entity_types,
+            name=name,
+            kind=kind,
+            created=created,
+            updated=updated,
+            description=description,
+            labels=labels,
+            **kwargs,
+        )
+        self.refresh()
+        return objs
 
     ##############################
     #  Artifacts
