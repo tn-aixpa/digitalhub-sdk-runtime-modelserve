@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel, Field
 from typing_extensions import Literal
 
@@ -176,28 +174,28 @@ class K8s(BaseModel):
     Kubernetes resource model.
     """
 
-    node_selector: Optional[list[NodeSelector]] = None
+    node_selector: list[NodeSelector] = None
     """Node selector."""
 
-    volumes: Optional[list[Volume]] = None
+    volumes: list[Volume] = None
     """List of volumes."""
 
-    resources: Optional[Resource] = None
+    resources: Resource = None
     """Resources restrictions."""
 
-    affinity: Optional[Affinity] = None
+    affinity: Affinity = None
     """Affinity."""
 
-    tolerations: Optional[list[Toleration]] = None
+    tolerations: list[Toleration] = None
     """Tolerations."""
 
-    envs: Optional[list[Env]] = None
+    envs: list[Env] = None
     """Env variables."""
 
-    secrets: Optional[list[str]] = None
+    secrets: list[str] = None
     """List of secret names."""
 
-    profile: Optional[str] = None
+    profile: str = None
     """Profile template."""
 
 

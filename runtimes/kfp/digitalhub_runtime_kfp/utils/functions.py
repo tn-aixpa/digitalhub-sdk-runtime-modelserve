@@ -2,17 +2,14 @@ from __future__ import annotations
 
 import os
 import tempfile
-import time
-from pathlib import Path
 from typing import Callable
 
 import kfp
 from digitalhub_runtime_kfp.dsl import set_current_project, unset_current_project
-from digitalhub_runtime_kfp.utils.outputs import build_status
-from digitalhub.entities.utils.state import State
 from kfp.compiler import compiler
 
 import digitalhub as dh
+from digitalhub.entities.utils.state import State
 from digitalhub.utils.io_utils import read_text
 
 
@@ -84,7 +81,7 @@ def run_kfp_build(run: dict) -> dict:
         # need to replicate the build
         workflow = build_kfp_pipeline(run, pipeline)
 
-        run_status = { "state": State.COMPLETED.value, "results": {"workflow":  workflow} }
+        run_status = {"state": State.COMPLETED.value, "results": {"workflow": workflow}}
         _update_status(run.get("key"), run_status)
 
         return run_status

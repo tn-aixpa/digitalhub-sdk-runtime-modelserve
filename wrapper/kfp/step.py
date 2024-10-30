@@ -1,6 +1,5 @@
-"""
-Wrapper to execute an arbitrary function.
-"""
+from __future__ import annotations
+
 import argparse
 import json
 import os
@@ -9,6 +8,7 @@ import time
 import digitalhub as dh
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.utils.logger import LOGGER
+from digitalhub.entities.utils.state import State
 
 # default KFP artifacts and output (ui metadata, metrics etc.)
 # directories to /tmp to allow running with security context
@@ -16,30 +16,87 @@ KFPMETA_DIR = "/tmp"
 KFP_ARTIFACTS_DIR = "/tmp"
 
 
-def _is_finished(state: str):
-    return state == "COMPLETED" or state == "ERROR" or state == "STOPPED"
+def _is_finished(state: str) -> bool:
+    """
+    Check if state is finished.
+
+    Parameters
+    ----------
+    state : str
+        The state to check.
+
+    Returns
+    -------
+    bool
+        True if the state is finished, False otherwise.
+    """
+    return state in (State.COMPLETED.value, State.ERROR.value, State.STOPPED.value)
 
 
-def _is_complete(state: str):
-    return state == "COMPLETED"
+def _is_complete(state: str) -> bool:
+    """
+    Check if state is complete.
+
+    Parameters
+    ----------
+    state : str
+        The state to check.
+
+    Returns
+    -------
+    bool
+        True if the state is complete, False otherwise.
+    """
+    return state == State.COMPLETED.value
 
 
 def execute_step(
-    project,
-    function,
-    function_id,
-    workflow,
-    workflow_id,
-    action,
-    jsonprops=None,
-    inputs={},
-    outputs={},
-    parameters={},
-    values=[],
-    args=None,
-):
+    project: str,
+    function: str | None = None,
+    function_id: str | None = None,
+    workflow: str | None = None,
+    workflow_id: str | None = None,
+    action: str | None = None,
+    jsonprops: str | None = None,
+    inputs: dict | None = None,
+    outputs: dict | None = None,
+    parameters: dict | None = None,
+    values: list | None = None,
+    args: dict | None = None,
+) -> None:
     """
     Execute a step.
+
+    Parameters
+    ----------
+    project : str
+        The project name.
+    function : str
+        The function name.
+    function_id : str
+        The function id.
+    workflow : str
+        The workflow name.
+    workflow_id : str
+        The workflow id.
+    action : str
+        The action name.
+    jsonprops : str
+        The json properties.
+    inputs : dict
+        The inputs.
+    outputs : dict
+        The outputs.
+    parameters : dict
+        The parameters.
+    values : list
+        The values.
+    args : dict
+        The args.
+
+    Returns
+    -------
+    None
     """
 
     LOGGER.info("Loading project " + project)
@@ -64,11 +121,11 @@ def execute_step(
 
         run = function.run(
             action,
-            node_selector=props.get("node_selector") if "node_selector" in props else None,
-            volumes=props.get("volumes") if "volumes" in props else None,
-            resources=props.get("resources") if "resources" in props else None,
-            env=props.get("env") if "env" in props else None,
-            secrets=props.get("secrets") if "secrets" in props else None,
+            node_selector=props.get("node_selector", []),
+            volumes=props.get("volumes", []),
+            resources=props.get("resources", {}),
+            envs=props.get("envs", []),
+            secrets=props.get("secrets", []),
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
@@ -78,6 +135,7 @@ def execute_step(
     elif workflow is not None:
         if action is None:
             action = "pipeline"
+
         LOGGER.info("Executing workflow " + workflow + " task " + action)
         function = (
             project.get_workflow(workflow, entity_id=workflow_id)
@@ -87,11 +145,11 @@ def execute_step(
 
         run = workflow.run(
             action,
-            node_selector=props.get("node_selector") if "node_selector" in props else None,
-            volumes=props.get("volumes") if "volumes" in props else None,
-            resources=props.get("resources") if "resources" in props else None,
-            env=props.get("env") if "env" in props else None,
-            secrets=props.get("secrets") if "secrets" in props else None,
+            node_selector=props.get("node_selector", []),
+            volumes=props.get("volumes", []),
+            resources=props.get("resources", {}),
+            envs=props.get("envs", []),
+            secrets=props.get("secrets", []),
             inputs=inputs,
             outputs=outputs,
             parameters=parameters,
@@ -149,7 +207,7 @@ def execute_step(
         exit(1)
 
 
-def _write_output(key: str, value: str):
+def _write_output(key: str, value: str) -> None:
     # NOTE: if key has "../x", it would fail on path traversal
     path = os.path.join(KFP_ARTIFACTS_DIR, key)
     if not _is_safe_path(KFP_ARTIFACTS_DIR, path):
@@ -164,7 +222,7 @@ def _write_output(key: str, value: str):
     LOGGER.debug(f"Checking file {path}: {file_stats.st_size}")
 
 
-def _is_safe_path(base, filepath, is_symlink=False):
+def _is_safe_path(base, filepath, is_symlink=False) -> bool:
     # Avoid path traversal attacks by ensuring that the path is safe
     resolved_filepath = os.path.abspath(filepath) if not is_symlink else os.path.realpath(filepath)
     return base == os.path.commonpath((base, resolved_filepath))
