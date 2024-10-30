@@ -1,4 +1,4 @@
-from digitalhub.entities._base.crud import search_entity
+from digitalhub.entities._base.crud.crud import search_entity
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
     get_artifact,

@@ -99,7 +99,7 @@ class Context:
         """
         return self.client.delete_object(api, **kwargs)
 
-    def list_objects(self, api: str, **kwargs) -> dict:
+    def list_objects(self, api: str, **kwargs) -> list[dict]:
         """
         List objects.
 
@@ -112,7 +112,7 @@ class Context:
 
         Returns
         -------
-        dict
+        list[dict]
             The list of objects.
         """
         return self.client.list_objects(api, **kwargs)
@@ -134,3 +134,21 @@ class Context:
             The list of objects.
         """
         return self.client.list_first_object(api, **kwargs)
+
+    def search_objects(self, api: str, **kwargs) -> list[dict]:
+        """
+        Search objects.
+
+        Parameters
+        ----------
+        api : str
+            The api to list the objects with.
+        **kwargs : dict
+            Keyword arguments passed to the request.
+
+        Returns
+        -------
+        list[dict]
+            The list of objects.
+        """
+        return self.client.search_objects(api, **kwargs)

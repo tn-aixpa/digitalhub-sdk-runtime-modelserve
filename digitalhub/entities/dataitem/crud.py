@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from digitalhub.entities._base.crud import (
+from digitalhub.entities._base.crud.crud import (
     delete_entity,
     get_material_entity,
     get_material_entity_versions,

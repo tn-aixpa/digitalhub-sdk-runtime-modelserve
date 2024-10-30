@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.api_utils import list_entity_api_ctx
+from digitalhub.entities._base.crud.api_utils import list_entity_api_ctx
 from digitalhub.entities._base.versioned.entity import VersionedEntity
 from digitalhub.entities.run.crud import delete_run, get_run, list_runs
 from digitalhub.entities.task.crud import delete_task

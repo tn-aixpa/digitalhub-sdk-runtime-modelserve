@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.crud import (
+from digitalhub.entities._base.crud.crud import (
     delete_entity,
     get_unversioned_entity,
     import_context_entity,

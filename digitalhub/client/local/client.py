@@ -349,6 +349,24 @@ class ClientLocal(Client):
         except IndexError:
             raise IndexError("No objects found")
 
+    def search_objects(self, api: str, **kwargs) -> dict:
+        """
+        Search objects from Local.
+
+        Parameters
+        ----------
+        api : str
+            Search API.
+        **kwargs : dict
+            Keyword arguments to pass to the request.
+
+        Returns
+        -------
+        dict
+            Response objects.
+        """
+        raise NotImplementedError("Local client does not support search_objects.")
+
     ##############################
     # Helpers
     ##############################

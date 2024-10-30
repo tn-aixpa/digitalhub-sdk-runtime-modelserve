@@ -4,7 +4,7 @@ import typing
 
 from digitalhub.client.api import build_client, get_client
 from digitalhub.context.api import check_context
-from digitalhub.entities._base.api_utils import (
+from digitalhub.entities._base.crud.api_utils import (
     delete_entity_api_ctx,
     list_entity_api_ctx,
     read_entity_api_base,
@@ -425,13 +425,14 @@ def import_executable_entity(file: str) -> ExecutableEntity:
 
 def search_entity(
     project: str,
+    query: str | None = None,
+    entity_types: list[str] | None = None,
     name: str | None = None,
     kind: str | None = None,
-    user: str | None = None,
-    state: str | None = None,
     created: str | None = None,
     updated: str | None = None,
-    version: str | None = None,
+    description: str | None = None,
+    labels: list[str] | None = None,
     **kwargs,
 ) -> list[ContextEntity]:
     """
@@ -441,20 +442,22 @@ def search_entity(
     ----------
     project : str
         Project name.
+    query : str
+        Search query.
+    entity_types : list[str]
+        Entity types.
     name : str
         Entity name.
     kind : str
         Entity kind.
-    user : str
-        Entity user.
-    state : str
-        Entity state.
     created : str
         Entity creation date.
     updated : str
         Entity update date.
-    version : str
-        Entity version.
+    description : str
+        Entity description.
+    labels : list[str]
+        Entity labels.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -463,27 +466,59 @@ def search_entity(
     list[ContextEntity]
         List of object instances.
     """
+    _check_context(project)
+
     if "params" not in kwargs:
         kwargs["params"] = {}
+
+    # Add search query
+    if query is not None:
+        kwargs["params"]["q"] = query
+
+    # Add search filters
+    fq = []
+
+    # Entity types
+    if entity_types is not None:
+        if len(entity_types) == 1:
+            entity_types = entity_types[0]
+        else:
+            entity_types = " OR ".join(entity_types)
+        fq.append(f"type:({entity_types})")
+
+    # Name
     if name is not None:
-        kwargs["params"]["name"] = name
+        fq.append(f'metadata.name:"{name}"')
+
+    # Kind
     if kind is not None:
-        kwargs["params"]["kind"] = kind
-    if user is not None:
-        kwargs["params"]["user"] = user
-    if state is not None:
-        kwargs["params"]["state"] = state
-    if created is not None:
-        kwargs["params"]["created"] = created
-    if updated is not None:
-        kwargs["params"]["updated"] = updated
-    if version is not None:
-        kwargs["params"]["version"] = version
-    _check_context(project)
+        fq.append(f'kind:"{kind}"')
+
+    # Time
+    created = created if created is not None else "*"
+    updated = updated if updated is not None else "*"
+    fq.append(f"metadata.updated:[{created} TO {updated}]")
+
+    # Description
+    if description is not None:
+        fq.append(f'metadata.description:"{description}"')
+
+    # Labels
+    if labels is not None:
+        if len(labels) == 1:
+            labels = labels[0]
+        else:
+            labels = " AND ".join(labels)
+        fq.append(f"metadata.labels:({labels})")
+
+    # Add filters
+    kwargs["params"]["fq"] = fq
+
     objs = search_api(
         project=project,
         **kwargs,
     )
+    return objs
     return [build_entity_from_dict(obj) for obj in objs]
 
 

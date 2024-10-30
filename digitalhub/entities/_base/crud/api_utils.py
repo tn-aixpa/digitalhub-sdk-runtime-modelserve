@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.api import get_context
-from digitalhub.entities._base.api import (
+from digitalhub.entities._base.crud.api import (
     api_base_create,
     api_base_delete,
     api_base_list,
@@ -641,4 +641,4 @@ def search_api(
         Response from backend.
     """
     api = api_ctx_search_item(project)
-    return get_context(project).read_object(api, **kwargs)
+    return get_context(project).search_objects(api, **kwargs)
