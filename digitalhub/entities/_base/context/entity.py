@@ -100,7 +100,7 @@ class ContextEntity(Entity):
             Exported filepath.
         """
         obj = self.to_dict()
-        pth = self._context().root / f"{self.ENTITY_TYPE}s-{self.name}.yaml"
+        pth = self._context().root / f"{self.ENTITY_TYPE}s-{self.id}.yaml"
         write_yaml(pth, obj)
         return str(pth)
 

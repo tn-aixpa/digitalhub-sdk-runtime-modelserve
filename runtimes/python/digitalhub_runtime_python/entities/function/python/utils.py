@@ -28,18 +28,30 @@ def source_check(**kwargs) -> dict:
     dict
         Checked source.
     """
-    source: dict = kwargs.pop("source", {})
-    source.update(
-        {
-            "source": kwargs.pop("code_src", source.get("source")),
-            "code": kwargs.pop("code", source.get("code")),
-            "base64": kwargs.pop("base64", source.get("base64")),
-            "handler": kwargs.pop("handler", source.get("handler")),
-            "init_function": kwargs.pop("init_function", source.get("init_function")),
-            "lang": kwargs.pop("lang", source.get("lang")),
-        }
+    source: dict = kwargs.pop("source", None)
+    code_src = kwargs.pop("code_src", None)
+    code = kwargs.pop("code", None)
+    base64 = kwargs.pop("base64", None)
+    handler = kwargs.pop("handler", None)
+    init_function = kwargs.pop("init_function", None)
+    lang = kwargs.pop("lang", None)
+
+    if source is not None:
+        code_src = source.pop("source", None)
+        code = source.pop("code", None)
+        base64 = source.pop("base64", None)
+        handler = source.pop("handler", None)
+        init_function = source.pop("init_function", None)
+        lang = source.pop("lang", None)
+
+    kwargs["source"] = _check_params(
+        code_src=code_src,
+        code=code,
+        base64=base64,
+        handler=handler,
+        init_function=init_function,
+        lang=lang,
     )
-    kwargs["source"] = _check_params(**source)
     return kwargs
 
 
