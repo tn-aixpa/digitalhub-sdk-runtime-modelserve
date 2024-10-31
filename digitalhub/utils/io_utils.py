@@ -32,6 +32,24 @@ def write_yaml(filepath: str | Path, obj: dict | list[dict]) -> None:
             yaml.dump(obj, out_file, sort_keys=False)
 
 
+def write_text(filepath: Path, text: str) -> None:
+    """
+    Write text to a file.
+
+    Parameters
+    ----------
+    filepath : Path
+        The file path to write.
+    text : str
+        The text to write.
+
+    Returns
+    -------
+    None
+    """
+    filepath.write_text(text, encoding="utf-8")
+
+
 ##############################
 # Readers
 ##############################

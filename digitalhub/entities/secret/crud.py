@@ -9,6 +9,7 @@ from digitalhub.entities._base.crud.crud import (
     get_versioned_entity,
     import_context_entity,
     list_context_entities,
+    load_context_entity,
     new_context_entity,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
@@ -202,7 +203,7 @@ def list_secrets(project: str, **kwargs) -> list[Secret]:
 
 def import_secret(file: str) -> Secret:
     """
-    Import object from a YAML file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -219,6 +220,27 @@ def import_secret(file: str) -> Secret:
     >>> obj = import_secret("my-secret.yaml")
     """
     return import_context_entity(file)
+
+
+def load_secret(file: str) -> Secret:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    Secret
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = load_secret("my-secret.yaml")
+    """
+    return load_context_entity(file)
 
 
 def update_secret(entity: Secret) -> Secret:

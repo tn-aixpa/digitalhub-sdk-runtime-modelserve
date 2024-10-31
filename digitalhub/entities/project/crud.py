@@ -13,7 +13,7 @@ from digitalhub.entities._base.crud.api_utils import (
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
-from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError
+from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
 
 if typing.TYPE_CHECKING:
@@ -127,7 +127,7 @@ def import_project(
     setup_kwargs: dict | None = None,
 ) -> Project:
     """
-    Import object from a YAML file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -158,7 +158,7 @@ def import_project(
     try:
         obj.save()
     except EntityAlreadyExistsError:
-        pass
+        raise EntityError(f"Entity {obj.name} already exists. If you want to update it, use load instead.")
 
     # Import related entities
     obj._import_entities(dict_obj)
@@ -169,22 +169,17 @@ def import_project(
 
 
 def load_project(
-    name: str | None = None,
-    filename: str | None = None,
+    file: str,
     local: bool = False,
     config: dict | None = None,
     setup_kwargs: dict | None = None,
-    **kwargs,
 ) -> Project:
     """
-    Load project and context from backend or file. Name or
-    filename must be provided. Name takes precedence over filename.
+    Load object from a YAML file and update an existing object into the backend.
 
     Parameters
     ----------
-    name : str
-        Project name.
-    filename : str
+    file : str
         Path to YAML file.
     local : bool
         Flag to determine if backend is local.
@@ -192,8 +187,6 @@ def load_project(
         DHCore environment configuration.
     setup_kwargs : dict
         Setup keyword arguments passed to setup_project() function.
-    **kwargs : dict
-        Keyword arguments.
 
     Returns
     -------
@@ -202,17 +195,25 @@ def load_project(
 
     Examples
     --------
-    If name is provided, load project from backend.
-    >>> obj = load_project(name="my-project")
-
-    If filename is provided, load project from file.
-    >>> obj = load_project(filename="my-project.yaml")
+    >>> obj = load_project("my-project.yaml")
     """
-    if name is not None:
-        return get_project(name=name, local=local, config=config, setup_kwargs=setup_kwargs, **kwargs)
-    if filename is not None:
-        return import_project(filename, local=local, config=config, setup_kwargs=setup_kwargs)
-    raise EntityError("Either name or filename must be provided.")
+    build_client(local, config)
+    dict_obj: dict = read_yaml(file)
+    dict_obj["local"] = local
+    obj = build_entity_from_dict(dict_obj)
+    obj = _setup_project(obj, setup_kwargs)
+
+    try:
+        obj.save(update=True)
+    except EntityNotExistsError:
+        obj.save()
+
+    # Load related entities
+    obj._load_entities(dict_obj)
+
+    obj.refresh()
+
+    return obj
 
 
 def get_or_create_project(

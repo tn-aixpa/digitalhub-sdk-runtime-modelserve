@@ -7,6 +7,7 @@ from digitalhub.entities._base.crud.crud import (
     get_unversioned_entity,
     import_context_entity,
     list_context_entities,
+    load_context_entity,
     new_context_entity,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
@@ -139,7 +140,7 @@ def list_runs(project: str, **kwargs) -> list[Run]:
 
 def import_run(file: str) -> Run:
     """
-    Get object from file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -156,6 +157,27 @@ def import_run(file: str) -> Run:
     >>> obj = import_run("my-run.yaml")
     """
     return import_context_entity(file)
+
+
+def load_run(file: str) -> Run:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    Run
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = load_run("my-run.yaml")
+    """
+    return load_context_entity(file)
 
 
 def update_run(entity: Run) -> Run:

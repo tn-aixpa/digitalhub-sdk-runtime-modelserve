@@ -364,7 +364,7 @@ def list_material_entities(
 
 def import_context_entity(file: str) -> ContextEntity:
     """
-    Get object from file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -384,13 +384,13 @@ def import_context_entity(file: str) -> ContextEntity:
     try:
         obj.save()
     except EntityAlreadyExistsError:
-        pass
+        raise EntityError(f"Entity {obj.name} already exists. If you want to update it, use load instead.")
     return obj
 
 
 def import_executable_entity(file: str) -> ExecutableEntity:
     """
-    Get object from file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -419,7 +419,68 @@ def import_executable_entity(file: str) -> ExecutableEntity:
     try:
         obj.save()
     except EntityAlreadyExistsError:
-        pass
+        raise EntityError(f"Entity {obj.name} already exists. If you want to update it, use load instead.")
+    return obj
+
+
+def load_context_entity(file: str) -> ContextEntity:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    ContextEntity
+        Object instance.
+    """
+    dict_obj: dict = read_yaml(file)
+
+    _check_context(dict_obj["project"])
+
+    obj = build_entity_from_dict(dict_obj)
+    try:
+        obj.save(update=True)
+    except EntityNotExistsError:
+        obj.save()
+    return obj
+
+
+def load_executable_entity(file: str) -> ExecutableEntity:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    ExecutableEntity
+        Object instance.
+    """
+    dict_obj: dict | list[dict] = read_yaml(file)
+    if isinstance(dict_obj, list):
+        exec_dict = dict_obj[0]
+        tsk_dicts = dict_obj[1:]
+    else:
+        exec_dict = dict_obj
+        tsk_dicts = []
+
+    _check_context(exec_dict["project"])
+
+    obj: ExecutableEntity = build_entity_from_dict(exec_dict)
+
+    obj.import_tasks(tsk_dicts)
+
+    try:
+        obj.save(update=True)
+    except EntityNotExistsError:
+        obj.save()
     return obj
 
 

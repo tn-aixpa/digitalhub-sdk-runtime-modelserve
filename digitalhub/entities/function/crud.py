@@ -8,6 +8,7 @@ from digitalhub.entities._base.crud.crud import (
     get_versioned_entity,
     import_executable_entity,
     list_context_entities,
+    load_executable_entity,
     new_context_entity,
 )
 from digitalhub.entities.utils.entity_types import EntityTypes
@@ -187,7 +188,7 @@ def list_functions(project: str, **kwargs) -> list[Function]:
 
 def import_function(file: str) -> Function:
     """
-    Get object from file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -204,6 +205,27 @@ def import_function(file: str) -> Function:
     >>> obj = import_function("my-function.yaml")
     """
     return import_executable_entity(file)
+
+
+def load_function(file: str) -> Function:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    Function
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = load_function("my-function.yaml")
+    """
+    return load_executable_entity(file)
 
 
 def update_function(entity: Function) -> Function:

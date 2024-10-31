@@ -11,6 +11,7 @@ from digitalhub.entities._base.crud.crud import (
     get_material_entity_versions,
     import_context_entity,
     list_material_entities,
+    load_context_entity,
     new_context_entity,
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
@@ -285,7 +286,7 @@ def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
 
 def import_dataitem(file: str) -> Dataitem:
     """
-    Import object from a YAML file.
+    Import object from a YAML file and create a new object into the backend.
 
     Parameters
     ----------
@@ -302,6 +303,27 @@ def import_dataitem(file: str) -> Dataitem:
     >>> obj = import_dataitem("my-dataitem.yaml")
     """
     return import_context_entity(file)
+
+
+def load_dataitem(file: str) -> Dataitem:
+    """
+    Load object from a YAML file and update an existing object into the backend.
+
+    Parameters
+    ----------
+    file : str
+        Path to YAML file.
+
+    Returns
+    -------
+    Dataitem
+        Object instance.
+
+    Examples
+    --------
+    >>> obj = load_dataitem("my-dataitem.yaml")
+    """
+    return load_context_entity(file)
 
 
 def update_dataitem(entity: Dataitem) -> Dataitem:
