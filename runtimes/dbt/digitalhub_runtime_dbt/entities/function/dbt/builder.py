@@ -43,3 +43,47 @@ class FunctionDbtBuilder(FunctionBuilder, RuntimeEntityBuilderDbt):
             **kwargs,
         )
         return source_post_check(obj)
+
+    def from_dict(self, obj: dict, validate: bool = True) -> FunctionDbt:
+        """
+        Create a new object from dictionary.
+
+        Parameters
+        ----------
+        obj : dict
+            Dictionary to create object from.
+        validate : bool
+            Flag to indicate if arguments must be validated.
+
+        Returns
+        -------
+        FunctionDbt
+            Object instance.
+        """
+        entity = super().from_dict(obj, validate=validate)
+        return source_post_check(entity)
+
+    def _parse_dict(self, obj: dict, validate: bool = True) -> dict:
+        """
+        Get dictionary and parse it to a valid entity dictionary.
+
+        Parameters
+        ----------
+        entity : str
+            Entity type.
+        obj : dict
+            Dictionary to parse.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the entity instance.
+        """
+        # Look for source in spec
+        if spec_dict := obj.get("spec", {}):
+            # Check source
+            source = spec_dict.get("source", {})
+            if source:
+                spec_dict["source"] = source_check(source=source)["source"]
+
+        return super()._parse_dict(obj, validate=validate)

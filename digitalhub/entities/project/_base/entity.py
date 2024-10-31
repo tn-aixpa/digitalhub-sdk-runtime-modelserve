@@ -178,28 +178,18 @@ class Project(Entity):
         self._update_attributes(new_obj)
         return self
 
-    def export(self, filename: str | None = None) -> str:
+    def export(self) -> str:
         """
-        Export object as a YAML file. If the objects are not embedded, the objects are
-        exported as a YAML file.
-
-        Parameters
-        ----------
-        filename : str
-            Name of the export YAML file. If not specified, the default value is used.
+        Export object as a YAML file in the context folder.
+        If the objects are not embedded, the objects are exported as a YAML file.
 
         Returns
         -------
         str
-            Exported file.
+            Exported filepath.
         """
         obj = self._refresh_to_dict()
-
-        if filename is None:
-            filename = f"{self.kind}_{self.name}.yml"
-        pth = Path(self.spec.context) / filename
-        pth.parent.mkdir(parents=True, exist_ok=True)
-
+        pth = Path(self.spec.context) / f"{self.ENTITY_TYPE}s-{self.name}.yaml"
         obj = self._export_not_embedded(obj)
         write_yaml(pth, obj)
         return str(pth)

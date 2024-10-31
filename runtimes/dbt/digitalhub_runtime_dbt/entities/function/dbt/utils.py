@@ -28,7 +28,7 @@ def source_check(**kwargs) -> dict:
     dict
         Checked source.
     """
-    source = kwargs.pop("source", None)
+    source: dict = kwargs.pop("source", None)
     code_src = kwargs.pop("code_src", None)
     code = kwargs.pop("code", None)
     base64 = kwargs.pop("base64", None)
@@ -36,15 +36,19 @@ def source_check(**kwargs) -> dict:
     lang = kwargs.pop("lang", None)
 
     if source is not None:
-        kwargs["source"] = source
-    else:
-        kwargs["source"] = _check_params(
-            code_src=code_src,
-            code=code,
-            base64=base64,
-            handler=handler,
-            lang=lang,
-        )
+        code_src = source.pop("source", None)
+        code = source.pop("code", None)
+        base64 = source.pop("base64", None)
+        handler = source.pop("handler", None)
+        lang = source.pop("lang", None)
+
+    kwargs["source"] = _check_params(
+        code_src=code_src,
+        code=code,
+        base64=base64,
+        handler=handler,
+        lang=lang,
+    )
     return kwargs
 
 
@@ -87,15 +91,15 @@ def _check_params(
     if code_src is None and code is None and base64 is None:
         raise EntityError("Source must be provided.")
 
+    if code_src is not None:
+        source["source"] = code_src
+
     if base64 is not None:
         source["base64"] = base64
-        return source
 
     if code is not None:
         source["base64"] = encode_string(code)
-        return source
 
-    source["source"] = code_src
     return source
 
 

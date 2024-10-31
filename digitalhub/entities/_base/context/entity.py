@@ -6,6 +6,7 @@ from digitalhub.context.api import get_context
 from digitalhub.entities._base.crud.api_utils import create_entity_api_ctx, read_entity_api_ctx, update_entity_api_ctx
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.utils.generic_utils import get_timestamp
+from digitalhub.utils.io_utils import write_yaml
 
 if typing.TYPE_CHECKING:
     from digitalhub.context.context import Context
@@ -88,6 +89,20 @@ class ContextEntity(Entity):
         new_obj = update_entity_api_ctx(self.project, self.ENTITY_TYPE, self.id, obj)
         self._update_attributes(new_obj)
         return self
+
+    def export(self) -> str:
+        """
+        Export object as a YAML file in the context folder.
+
+        Returns
+        -------
+        str
+            Exported filepath.
+        """
+        obj = self.to_dict()
+        pth = self._context().root / f"{self.ENTITY_TYPE}s-{self.name}.yaml"
+        write_yaml(pth, obj)
+        return str(pth)
 
     def refresh(self) -> ContextEntity:
         """

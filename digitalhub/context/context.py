@@ -22,6 +22,7 @@ class Context:
         self.client = project._client
         self.local = project._client.is_local()
         self.root = Path(project.spec.context)
+        self.root.mkdir(parents=True, exist_ok=True)
 
     def create_object(self, api: str, obj: dict, **kwargs) -> dict:
         """

@@ -76,7 +76,7 @@ class Entity(Base, metaclass=ABCMeta):
         self.user = new_obj.user
 
     @abstractmethod
-    def export(self, filename: str | None = None) -> str:
+    def export(self) -> str:
         """
         Abstract export method.
         """
