@@ -12,8 +12,8 @@ from digitalhub.entities._base.crud.api_utils import (
     read_entity_api_ctx_versions,
     search_api,
 )
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import get_project_from_key
+from digitalhub.entities._commons.enums import EntityTypes
+from digitalhub.entities._commons.utils import get_project_from_key
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import ContextError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml

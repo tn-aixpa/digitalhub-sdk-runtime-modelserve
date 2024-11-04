@@ -95,6 +95,7 @@ class RuntimeDbt(Runtime):
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
+        run_key = run.get("key")
 
         LOGGER.info("Collecting inputs.")
         self._collect_inputs(spec)
@@ -106,7 +107,7 @@ class RuntimeDbt(Runtime):
         results = self._execute(executable, output_table, self.runtime_dir)
 
         LOGGER.info("Collecting outputs.")
-        output = self._collect_outputs(results, output_table, project)
+        output = self._collect_outputs(results, output_table, project, run_key)
         status = build_status(output, results, output_table)
 
         LOGGER.info("Clean up environment.")
@@ -209,7 +210,7 @@ class RuntimeDbt(Runtime):
     # Outputs
     ##############################
 
-    def _collect_outputs(self, results: RunResult, output_table: str, project: str) -> Dataitem:
+    def _collect_outputs(self, results: RunResult, output_table: str, project: str, run_key: str) -> Dataitem:
         """
         Collect outputs.
 
@@ -221,6 +222,8 @@ class RuntimeDbt(Runtime):
             Output table name.
         project : str
             The project name.
+        run_key : str
+            The run key.
 
         Returns
         -------
@@ -228,7 +231,7 @@ class RuntimeDbt(Runtime):
             The output dataitem table.
         """
         parsed_result = parse_results(results, output_table, project)
-        return create_dataitem_(parsed_result, project, self.uuid)
+        return create_dataitem_(parsed_result, project, self.uuid, run_key)
 
     ##############################
     # Cleanup

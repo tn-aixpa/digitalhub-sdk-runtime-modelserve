@@ -4,7 +4,7 @@ import typing
 
 from digitalhub.entities._base.runtime_entity.builder import EntityError, RuntimeEntityBuilder
 from digitalhub.entities._base.unversioned.builder import UnversionedBuilder
-from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities._commons.enums import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.task._base.entity import Task

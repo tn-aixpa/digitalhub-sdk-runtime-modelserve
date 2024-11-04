@@ -20,6 +20,7 @@ from digitalhub.entities._base.crud.crud import (
     search_entity,
 )
 from digitalhub.entities._base.entity.entity import Entity
+from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
     get_artifact,
@@ -69,7 +70,6 @@ from digitalhub.entities.secret.crud import (
     new_secret,
     update_secret,
 )
-from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.entities.workflow.crud import (
     delete_workflow,
     get_workflow,

@@ -7,7 +7,7 @@ from dbt.cli.main import dbtRunnerResult
 from digitalhub_runtime_dbt.utils.env import get_connection
 from psycopg2 import sql
 
-from digitalhub.entities.utils.state import State
+from digitalhub.entities._commons.enums import Relationship, State
 from digitalhub.factory.api import build_entity_from_params
 from digitalhub.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub.utils.logger import LOGGER
@@ -157,7 +157,7 @@ def get_path(result: RunResult) -> str:
         raise RuntimeError(msg) from e
 
 
-def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem:
+def create_dataitem_(result: ParsedResults, project: str, uuid: str, run_key: str) -> Dataitem:
     """
     Create new dataitem.
 
@@ -169,6 +169,8 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
         The project name.
     uuid : str
         The uuid of the model for outputs versioning.
+    run_key : str
+        The run key.
 
     Returns
     -------
@@ -195,6 +197,15 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str) -> Dataitem
 
         # Create dataitem
         dataitem = build_entity_from_params(**kwargs)
+
+        # Update dataitem relationships with run key
+        dataitem.add_relationship(
+            {
+                "type": Relationship.PRODUCEDBY.value,
+                "source": dataitem.key,
+                "dest": run_key,
+            }
+        )
 
         # Update dataitem status with preview
         dataitem.status.preview = _get_data_preview(columns, data, rows_count)

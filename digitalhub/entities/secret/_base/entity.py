@@ -4,7 +4,7 @@ import typing
 
 from digitalhub.entities._base.crud.api_utils import get_data_api, set_data_api
 from digitalhub.entities._base.versioned.entity import VersionedEntity
-from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities._commons.enums import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata

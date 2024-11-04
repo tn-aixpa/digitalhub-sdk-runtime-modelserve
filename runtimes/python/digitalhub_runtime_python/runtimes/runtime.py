@@ -64,6 +64,7 @@ class RuntimePython(Runtime):
         LOGGER.info("Starting task.")
         spec = run.get("spec")
         project = run.get("project")
+        run_key = run.get("key")
 
         LOGGER.info("Configuring execution.")
         fnc, wrapped = self._configure_execution(spec)
@@ -73,11 +74,11 @@ class RuntimePython(Runtime):
 
         LOGGER.info("Executing run.")
         if wrapped:
-            results: dict = self._execute(fnc, project, **fnc_args)
+            results: dict = self._execute(fnc, project, run_key, **fnc_args)
         else:
             exec_result = self._execute(fnc, **fnc_args)
             LOGGER.info("Collecting outputs.")
-            results = parse_outputs(exec_result, list(spec.get("outputs", {})), project)
+            results = parse_outputs(exec_result, list(spec.get("outputs", {})), project, run_key)
 
         status = build_status(results, spec.get("outputs"))
 

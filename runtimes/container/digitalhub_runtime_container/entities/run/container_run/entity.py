@@ -5,8 +5,8 @@ import typing
 
 import requests
 
+from digitalhub.entities._commons.enums import State
 from digitalhub.entities.run._base.entity import Run
-from digitalhub.entities.utils.state import State
 from digitalhub.factory.api import get_action_from_task_kind
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER

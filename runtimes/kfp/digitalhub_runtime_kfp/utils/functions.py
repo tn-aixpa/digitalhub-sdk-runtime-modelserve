@@ -9,7 +9,7 @@ from digitalhub_runtime_kfp.dsl import set_current_project, unset_current_projec
 from kfp.compiler import compiler
 
 import digitalhub as dh
-from digitalhub.entities.utils.state import State
+from digitalhub.entities._commons.enums import State
 from digitalhub.utils.io_utils import read_text
 
 

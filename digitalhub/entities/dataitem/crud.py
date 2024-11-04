@@ -16,8 +16,8 @@ from digitalhub.entities._base.crud.crud import (
     new_context_entity,
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import build_log_path_from_filename, build_log_path_from_source
+from digitalhub.entities._commons.enums import EntityTypes
+from digitalhub.entities._commons.utils import build_log_path_from_filename, build_log_path_from_source
 from digitalhub.factory.api import build_entity_from_params
 from digitalhub.readers.api import get_reader_by_object
 from digitalhub.stores.api import get_store

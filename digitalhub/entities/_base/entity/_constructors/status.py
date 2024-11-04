@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities.utils.state import State
+from digitalhub.entities._commons.enums import State
+from digitalhub.utils.exceptions import BuilderError
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.status import Status
@@ -48,5 +49,5 @@ def parse_arguments(**kwargs) -> dict:
         kwargs["state"] = State.CREATED.value
     else:
         if kwargs["state"] not in State.__members__:
-            raise ValueError(f"Invalid state: {state}")
+            raise BuilderError(f"Invalid state: {state}")
     return kwargs

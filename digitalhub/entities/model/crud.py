@@ -13,8 +13,8 @@ from digitalhub.entities._base.crud.crud import (
     new_context_entity,
 )
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.utils import build_log_path_from_source
+from digitalhub.entities._commons.enums import EntityTypes
+from digitalhub.entities._commons.utils import build_log_path_from_source
 from digitalhub.utils.file_utils import eval_local_source
 
 if typing.TYPE_CHECKING:

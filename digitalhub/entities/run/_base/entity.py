@@ -12,8 +12,7 @@ from digitalhub.entities._base.crud.api_utils import (
     stop_api,
 )
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
-from digitalhub.entities.utils.entity_types import EntityTypes
-from digitalhub.entities.utils.state import State
+from digitalhub.entities._commons.enums import EntityTypes, State
 from digitalhub.factory.api import (
     build_runtime,
     build_spec,

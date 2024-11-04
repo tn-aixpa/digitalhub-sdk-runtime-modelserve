@@ -10,7 +10,7 @@ from digitalhub.entities._base.crud.crud import (
     load_context_entity,
     new_context_entity,
 )
-from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:

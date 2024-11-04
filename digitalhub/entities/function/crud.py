@@ -11,7 +11,7 @@ from digitalhub.entities._base.crud.crud import (
     load_executable_entity,
     new_context_entity,
 )
-from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities._commons.enums import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.function._base.entity import Function

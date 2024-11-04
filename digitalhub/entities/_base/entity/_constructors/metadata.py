@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from digitalhub.entities._base.entity.metadata import Metadata
+from pydantic import ValidationError
+
+from digitalhub.entities._base.entity.metadata import Metadata, RelationshipValidator
+from digitalhub.utils.exceptions import BuilderError
 from digitalhub.utils.generic_utils import get_timestamp
 
 
@@ -41,4 +44,12 @@ def parse_arguments(**kwargs) -> dict:
         kwargs["created"] = get_timestamp()
     if "updated" not in kwargs or kwargs["updated"] is None:
         kwargs["updated"] = kwargs["created"]
+    if "relationships" in kwargs:
+        if not isinstance(kwargs["relationships"], list):
+            raise BuilderError("Invalid relationships format. Must be a list of maps.")
+        for relationship in kwargs["relationships"]:
+            try:
+                RelationshipValidator(**relationship)
+            except ValidationError as e:
+                raise BuilderError(f"Malformed relationship: {e}") from e
     return kwargs
