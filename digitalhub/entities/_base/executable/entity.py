@@ -4,9 +4,9 @@ import typing
 
 from digitalhub.entities._base.crud.api_utils import list_entity_api_ctx
 from digitalhub.entities._base.versioned.entity import VersionedEntity
+from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities.run.crud import delete_run, get_run, list_runs
 from digitalhub.entities.task.crud import delete_task
-from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import EntityAlreadyExistsError, EntityError
 

@@ -7,9 +7,9 @@ from typing import Any
 import requests
 from digitalhub_runtime_python.entities.run.python_run.utils import get_getter_for_material
 
+from digitalhub.entities._commons.enums import State
+from digitalhub.entities._commons.utils import get_entity_type_from_key
 from digitalhub.entities.run._base.entity import Run
-from digitalhub.entities.utils.state import State
-from digitalhub.entities.utils.utils import get_entity_type_from_key
 from digitalhub.factory.api import get_action_from_task_kind
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER

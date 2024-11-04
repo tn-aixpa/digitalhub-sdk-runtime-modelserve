@@ -62,7 +62,7 @@ class MaterialEntity(VersionedEntity):
         # Handle files info
         if files is not None:
             files_info_put_api(self.project, self.ENTITY_TYPE, self.id, files)
-            self.status.add_files_info(files)
+            self.add_files_info(files)
 
         return new_obj
 
@@ -81,7 +81,7 @@ class MaterialEntity(VersionedEntity):
             List of file paths.
         """
         store = get_store(self.spec.path)
-        paths = self.status.get_file_paths()
+        paths = self.get_file_paths()
         dst = store._build_temp()
         return store.download(self.spec.path, dst=dst, src=paths)
 
@@ -130,7 +130,7 @@ class MaterialEntity(VersionedEntity):
         dataitem/data.csv
         """
         store = get_store(self.spec.path)
-        paths = self.status.get_file_paths()
+        paths = self.get_file_paths()
 
         if destination is None:
             dst = self._context().root / self.ENTITY_TYPE
@@ -206,7 +206,7 @@ class MaterialEntity(VersionedEntity):
             Paths of the files in the status.
         """
         if self.status.files is None:
-            return []
+            self.status.files = []
         return [f.get("path") for f in self.status.files]
 
     ##############################
@@ -229,7 +229,7 @@ class MaterialEntity(VersionedEntity):
         if files_info is None:
             return
         self.refresh()
-        self.status.add_files_info(files_info)
+        self.add_files_info(files_info)
         self.save(update=True)
 
     def _get_files_info(self) -> None:
@@ -246,4 +246,4 @@ class MaterialEntity(VersionedEntity):
                 entity_type=self.ENTITY_TYPE,
                 entity_id=self.id,
             )
-            self.status.add_files_info(files)
+            self.add_files_info(files)

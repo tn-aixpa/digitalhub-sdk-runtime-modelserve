@@ -4,12 +4,12 @@ import pickle
 import typing
 from typing import Any
 
+from digitalhub.entities._commons.enums import Relationship, State
 from digitalhub.entities.artifact._base.entity import Artifact
 from digitalhub.entities.artifact.crud import log_artifact
 from digitalhub.entities.dataitem._base.entity import Dataitem
 from digitalhub.entities.dataitem.crud import log_dataitem
 from digitalhub.entities.model._base.entity import Model
-from digitalhub.entities.utils.state import State
 from digitalhub.readers.api import get_supported_dataframes
 from digitalhub.utils.logger import LOGGER
 
@@ -17,7 +17,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.dataitem.table.entity import DataitemTable
 
 
-def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict:
+def collect_outputs(results: Any, outputs: list[str], project_name: str, run_key: str) -> dict:
     """
     Collect outputs. Use the produced results directly.
 
@@ -25,8 +25,12 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
     ----------
     results : Any
         Function outputs.
-    project : Project
-        Project object.
+    outputs : list[str]
+        List of named outputs to collect.
+    project_name : str
+        Project name.
+    run_key : str
+        Run key.
 
     Returns
     -------
@@ -45,19 +49,30 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str) -> dict
         if isinstance(item, (str, int, float, bool, bytes)):
             objects[name] = item
 
-        elif f"{item.__class__.__module__}.{item.__class__.__name__}" in get_supported_dataframes():
-            objects[name] = _log_dataitem(name, project_name, item)
-
-        elif isinstance(item, (Dataitem, Artifact, Model)):
-            objects[name] = item
-
         else:
-            objects[name] = _log_artifact(name, project_name, item)
+            if f"{item.__class__.__module__}.{item.__class__.__name__}" in get_supported_dataframes():
+                obj = _log_dataitem(name, project_name, item)
+
+            elif isinstance(item, (Dataitem, Artifact, Model)):
+                obj = item
+
+            else:
+                obj = _log_artifact(name, project_name, item)
+
+            obj.add_relationship(
+                {
+                    "type": Relationship.PRODUCEDBY.value,
+                    "source": obj.key,
+                    "dest": run_key,
+                }
+            )
+            obj.save(update=True)
+            objects[name] = obj
 
     return objects
 
 
-def parse_outputs(results: Any, run_outputs: list, project_name: str) -> dict:
+def parse_outputs(results: Any, run_outputs: list, project_name: str, run_key: str) -> dict:
     """
     Parse outputs.
 
@@ -65,8 +80,12 @@ def parse_outputs(results: Any, run_outputs: list, project_name: str) -> dict:
     ----------
     results : Any
         Function outputs.
-    project : Project
-        Project object.
+    run_outputs : list
+        Run outputs.
+    project_name : str
+        Project name.
+    run_key : str
+        Run key.
 
     Returns
     -------
@@ -80,7 +99,7 @@ def parse_outputs(results: Any, run_outputs: list, project_name: str) -> dict:
             out_list.append(run_outputs.pop(0))
         except IndexError:
             out_list.append(f"output_{idx}")
-    return collect_outputs(results, out_list, project_name)
+    return collect_outputs(results, out_list, project_name, run_key)
 
 
 def listify_results(results: Any) -> list:
@@ -117,7 +136,7 @@ def _log_dataitem(name: str, project_name: str, data: Any) -> DataitemTable:
     project_name : str
         Project name.
     data : Any
-        Dataframe.
+        Data.
 
     Returns
     -------

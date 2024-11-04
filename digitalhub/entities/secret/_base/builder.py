@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from digitalhub.entities._base.versioned.builder import VersionedBuilder
+from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities.secret._base.entity import Secret
 from digitalhub.entities.secret._base.spec import SecretSpec, SecretValidator
 from digitalhub.entities.secret._base.status import SecretStatus
-from digitalhub.entities.utils.entity_types import EntityTypes
 
 
 class SecretSecretBuilder(VersionedBuilder):

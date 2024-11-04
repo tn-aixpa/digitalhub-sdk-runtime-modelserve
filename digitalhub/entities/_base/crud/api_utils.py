@@ -21,7 +21,7 @@ from digitalhub.entities._base.crud.api import (
     api_ctx_stop,
     api_ctx_update,
 )
-from digitalhub.entities.utils.utils import parse_entity_key
+from digitalhub.entities._commons.utils import parse_entity_key
 
 if typing.TYPE_CHECKING:
     from digitalhub.client._base.client import Client

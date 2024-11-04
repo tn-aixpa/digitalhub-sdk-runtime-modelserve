@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.versioned.builder import VersionedBuilder
-from digitalhub.entities.utils.entity_types import EntityTypes
+from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:

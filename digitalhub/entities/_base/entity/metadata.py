@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from pydantic import BaseModel, Field, ValidationError
+from typing_extensions import Literal
+
 from digitalhub.entities._base._base.entity import Base
+from digitalhub.entities._commons.enums import Relationship
+from digitalhub.utils.exceptions import BuilderError
 
 
 class Metadata(Base):
@@ -24,6 +29,7 @@ class Metadata(Base):
         updated: str | None = None,
         updated_by: str | None = None,
         embedded: bool | None = None,
+        relationships: list[dict] | None = None,
         ref: str | None = None,
         **kwargs,
     ) -> None:
@@ -37,9 +43,31 @@ class Metadata(Base):
         self.created_by = created_by
         self.updated_by = updated_by
         self.embedded = embedded
+        self.relationships = relationships
         self.ref = ref
 
         self._any_setter(**kwargs)
+
+    def add_relationship(self, obj: dict) -> None:
+        """
+        Add relationship to metadata.
+
+        Parameters
+        ----------
+        obj : dict
+            Mapping representation of object.
+
+        Returns
+        -------
+        None
+        """
+        if self.relationships is None:
+            self.relationships = []
+        try:
+            RelationshipValidator(**obj)
+        except ValidationError as e:
+            raise BuilderError(f"Malformed relationship: {e}") from e
+        self.relationships.append(obj)
 
     @classmethod
     def from_dict(cls, obj: dict) -> Metadata:
@@ -57,3 +85,21 @@ class Metadata(Base):
             An entity metadata object.
         """
         return cls(**obj)
+
+
+class RelationshipValidator(BaseModel):
+    """
+    A class representing the relationship of an entity.
+    """
+
+    type_: Literal[
+        Relationship.PRODUCEDBY.value,
+        Relationship.CONSUMES.value,
+    ] = Field(default=None, alias="type")
+    """The type of relationship."""
+
+    source: str = None
+    """The source entity."""
+
+    dest: str = None
+    """The target entity."""

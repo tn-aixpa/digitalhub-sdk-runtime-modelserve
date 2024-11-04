@@ -57,14 +57,16 @@ def handler(outputs: list[str] | None = None) -> Callable:
             nonlocal outputs
 
             # We pass the first argument as the project name
+            # and the second argument as the run key
             project_name = args[0]
-            args = args[1:]
+            run_key = args[1]
+            args = args[2:]
 
             # Execute the function
             results = func(*args, **kwargs)
 
             # Parse outputs based on the decorator signature
-            return collect_outputs(results, outputs, project_name)
+            return collect_outputs(results, outputs, project_name, run_key)
 
         wrapper = functools.wraps(func)(wrapper)
 

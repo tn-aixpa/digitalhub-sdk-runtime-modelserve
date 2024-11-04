@@ -81,6 +81,21 @@ class Entity(Base, metaclass=ABCMeta):
         Abstract export method.
         """
 
+    def add_relationship(self, obj: dict) -> None:
+        """
+        Add relationship to entity.
+
+        Parameters
+        ----------
+        obj : dict
+            Mapping representation of object.
+
+        Returns
+        -------
+        None
+        """
+        self.metadata.add_relationship(obj)
+
     def to_dict(self) -> dict:
         """
         Override default to_dict method to add the possibility to exclude

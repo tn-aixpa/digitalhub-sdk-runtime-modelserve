@@ -4,8 +4,8 @@ import typing
 
 from digitalhub_runtime_dbt.entities.run.dbt_run.utils import get_getter_for_material
 
+from digitalhub.entities._commons.utils import get_entity_type_from_key
 from digitalhub.entities.run._base.entity import Run
-from digitalhub.entities.utils.utils import get_entity_type_from_key
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_dbt.entities.run.dbt_run.spec import RunSpecDbtRun

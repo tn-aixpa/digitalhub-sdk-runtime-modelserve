@@ -3,8 +3,8 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
+from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities.run.crud import delete_run, get_run, new_run
-from digitalhub.entities.utils.entity_types import EntityTypes
 from digitalhub.factory.api import build_entity_from_params
 
 if typing.TYPE_CHECKING:
