@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._base.crud.crud import (
+    _check_context,
     delete_entity,
     get_material_entity,
     get_material_entity_versions,
@@ -122,6 +123,8 @@ def log_artifact(
     >>>                    kind="artifact",
     >>>                    source="./local-path")
     """
+    _check_context(project)
+
     eval_local_source(source)
 
     if path is None:

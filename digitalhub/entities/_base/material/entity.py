@@ -175,6 +175,41 @@ class MaterialEntity(VersionedEntity):
         self._update_files_info(files_info)
 
     ##############################
+    #  Public Helpers
+    ##############################
+
+    def add_files_info(self, files: list[dict]) -> None:
+        """
+        Add a file to the status.
+
+        Parameters
+        ----------
+        files : list[dict]
+            Files to add.
+
+        Returns
+        -------
+        None
+        """
+        path_list = self.get_file_paths()
+        for f in files:
+            if f.get("path") not in path_list:
+                self.status.files.append(f)
+
+    def get_file_paths(self) -> list[str]:
+        """
+        Get the paths of the files in the status.
+
+        Returns
+        -------
+        list[str]
+            Paths of the files in the status.
+        """
+        if self.status.files is None:
+            return []
+        return [f.get("path") for f in self.status.files]
+
+    ##############################
     #  Private Helpers
     ##############################
 
