@@ -112,12 +112,17 @@ class SqlStore(Store):
         """
         Get file information from SQL based storage.
 
-        Raises
-        ------
-        NotImplementedError
-            This method is not implemented.
+        Parameters
+        ----------
+        paths : list[str]
+            List of source paths.
+
+        Returns
+        -------
+        list[dict]
+            Returns files metadata.
         """
-        raise NotImplementedError("SQL store does not support upload.")
+        return []
 
     ##############################
     # Private helper methods

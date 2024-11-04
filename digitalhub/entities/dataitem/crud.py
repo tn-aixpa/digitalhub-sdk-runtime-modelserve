@@ -6,6 +6,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from digitalhub.entities._base.crud.crud import (
+    _check_context,
     delete_entity,
     get_material_entity,
     get_material_entity_versions,
@@ -134,6 +135,8 @@ def log_dataitem(
     >>>                    kind="table",
     >>>                    data=df)
     """
+    _check_context(project)
+
     if (source is None) == (data is None):
         raise ValueError("You must provide source or data.")
 
@@ -158,8 +161,8 @@ def log_dataitem(
             slug = slugify_string(name) + f".{extension}"
             path = build_log_path_from_filename(project, ENTITY_TYPE, name, uuid, slug)
 
-        obj = build_entity_from_params(project=project, name=name, kind=kind, path=path, **kwargs)
-        if kind == "table":
+        obj: Dataitem = build_entity_from_params(project=project, name=name, kind=kind, path=path, **kwargs)
+        if obj.kind == "table":
             dst = obj.write_df(df=data, extension=extension)
             reader = get_reader_by_object(data)
             obj.spec.schema = reader.get_schema(data)
@@ -168,7 +171,7 @@ def log_dataitem(
             src = Path(urlparse(obj.spec.path).path).name
             paths = [(dst, src)]
             infos = store.get_file_info(paths)
-            obj.status.add_files_info(infos)
+            obj.add_files_info(infos)
         obj.save()
 
     return obj

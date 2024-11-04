@@ -83,12 +83,17 @@ class RemoteStore(Store):
         """
         Get file information from HTTP(s) storage.
 
-        Raises
-        ------
-        NotImplementedError
-            This method is not implemented.
+        Parameters
+        ----------
+        paths : list[str]
+            List of source paths.
+
+        Returns
+        -------
+        list[dict]
+            Returns files metadata.
         """
-        raise NotImplementedError("Remote store does not support get_file_info.")
+        return []
 
     ##############################
     # Private helper methods
