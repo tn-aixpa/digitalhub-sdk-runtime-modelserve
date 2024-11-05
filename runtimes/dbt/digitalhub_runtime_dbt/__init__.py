@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from digitalhub_runtime_dbt.entities.function.dbt.builder import FunctionDbtBuilder
 from digitalhub_runtime_dbt.entities.run.dbt_run.builder import RunDbtRunBuilder
 from digitalhub_runtime_dbt.entities.task.dbt_transform.builder import TaskDbtTransformBuilder
