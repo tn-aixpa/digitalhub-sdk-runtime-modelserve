@@ -5,6 +5,7 @@ from typing import Any
 
 from digitalhub_runtime_kfp.entities.run.kfp_run.utils import get_getter_for_material
 
+from digitalhub.entities._commons.enums import Relationship
 from digitalhub.entities._commons.utils import get_entity_type_from_key
 from digitalhub.entities.run._base.entity import Run
 
@@ -45,7 +46,12 @@ class RunKfpRun(Run):
         None
         """
         self.refresh()
-        self.spec.inputs = self.inputs(as_dict=True)
+        inputs = self.inputs(as_dict=True)
+        if self.spec.local_execution:
+            for _, v in inputs.items():
+                self.add_relationship(relation=Relationship.CONSUMES.value, source=self.key, dest=v.get("key"))
+        self.save(update=True)
+        self.spec.inputs = inputs
 
     def inputs(self, as_dict: bool = False) -> dict:
         """

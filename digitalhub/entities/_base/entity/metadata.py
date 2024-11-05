@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 from typing_extensions import Literal
 
 from digitalhub.entities._base._base.entity import Base
 from digitalhub.entities._commons.enums import Relationship
-from digitalhub.utils.exceptions import BuilderError
 
 
 class Metadata(Base):
@@ -47,27 +46,6 @@ class Metadata(Base):
         self.ref = ref
 
         self._any_setter(**kwargs)
-
-    def add_relationship(self, obj: dict) -> None:
-        """
-        Add relationship to metadata.
-
-        Parameters
-        ----------
-        obj : dict
-            Mapping representation of object.
-
-        Returns
-        -------
-        None
-        """
-        if self.relationships is None:
-            self.relationships = []
-        try:
-            RelationshipValidator(**obj)
-        except ValidationError as e:
-            raise BuilderError(f"Malformed relationship: {e}") from e
-        self.relationships.append(obj)
 
     @classmethod
     def from_dict(cls, obj: dict) -> Metadata:

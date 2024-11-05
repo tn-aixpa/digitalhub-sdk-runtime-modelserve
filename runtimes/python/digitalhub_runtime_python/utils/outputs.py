@@ -59,13 +59,7 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str, run_key
             else:
                 obj = _log_artifact(name, project_name, item)
 
-            obj.add_relationship(
-                {
-                    "type": Relationship.PRODUCEDBY.value,
-                    "source": obj.key,
-                    "dest": run_key,
-                }
-            )
+            obj.add_relationship(relation=Relationship.PRODUCEDBY.value, source=obj.key, dest=run_key)
             obj.save(update=True)
             objects[name] = obj
 

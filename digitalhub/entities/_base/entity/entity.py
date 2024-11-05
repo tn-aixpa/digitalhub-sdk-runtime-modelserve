@@ -81,20 +81,27 @@ class Entity(Base, metaclass=ABCMeta):
         Abstract export method.
         """
 
-    def add_relationship(self, obj: dict) -> None:
+    def add_relationship(self, relation: str, source: str, dest: str) -> None:
         """
-        Add relationship to entity.
+        Add relationship to entity metadata.
 
         Parameters
         ----------
-        obj : dict
-            Mapping representation of object.
+        relation : str
+            The type of relationship.
+        source : str
+            The source entity.
+        dest : str
+            The target entity..
 
         Returns
         -------
         None
         """
-        self.metadata.add_relationship(obj)
+        if self.metadata.relationships is None:
+            self.metadata.relationships = []
+        obj = {"type": relation, "source": source, "dest": dest}
+        self.metadata.relationships.append(obj)
 
     def to_dict(self) -> dict:
         """

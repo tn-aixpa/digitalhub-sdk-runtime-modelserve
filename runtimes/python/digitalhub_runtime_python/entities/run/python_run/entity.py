@@ -7,7 +7,7 @@ from typing import Any
 import requests
 from digitalhub_runtime_python.entities.run.python_run.utils import get_getter_for_material
 
-from digitalhub.entities._commons.enums import State
+from digitalhub.entities._commons.enums import Relationship, State
 from digitalhub.entities._commons.utils import get_entity_type_from_key
 from digitalhub.entities.run._base.entity import Run
 from digitalhub.factory.api import get_action_from_task_kind
@@ -51,7 +51,12 @@ class RunPythonRun(Run):
         None
         """
         self.refresh()
-        self.spec.inputs = self.inputs(as_dict=True)
+        inputs = self.inputs(as_dict=True)
+        if self.spec.local_execution:
+            for _, v in inputs.items():
+                self.add_relationship(relation=Relationship.CONSUMES.value, source=self.key, dest=v.get("key"))
+        self.save(update=True)
+        self.spec.inputs = inputs
 
     def wait(self, log_info: bool = True) -> Run:
         """
