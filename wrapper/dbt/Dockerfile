@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 
 # Repo info
 LABEL org.opencontainers.image.source=https://github.com/scc-digitalhub/digitalhub-sdk
