@@ -1,6 +1,7 @@
 """
 Wrapper to execute an arbitrary function.
 """
+
 import os
 
 import digitalhub as dh

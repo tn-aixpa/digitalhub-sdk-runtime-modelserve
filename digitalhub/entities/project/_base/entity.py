@@ -10,6 +10,7 @@ from digitalhub.entities._base.crud.api_utils import (
     create_entity_api_base,
     read_entity_api_base,
     read_entity_api_ctx,
+    share_entity_api_base,
     update_entity_api_base,
 )
 from digitalhub.entities._base.crud.crud import (
@@ -395,6 +396,42 @@ class Project(Entity):
             raise EntityError(msg)
 
         return entity.run(**kwargs)
+
+    def share(self, user: str) -> None:
+        """
+        Share project.
+
+        Parameters
+        ----------
+        user : str
+            User to share project with.
+
+        Returns
+        -------
+        None
+        """
+        self.refresh()
+        if self._client.is_local():
+            raise NotImplementedError("Sharing a local project is not supported.")
+        return share_entity_api_base(self._client, self.ENTITY_TYPE, self.name, user)
+
+    def unshare(self, user: str) -> None:
+        """
+        Unshare project.
+
+        Parameters
+        ----------
+        user : str
+            User to unshare project with.
+
+        Returns
+        -------
+        None
+        """
+        self.refresh()
+        if self._client.is_local():
+            raise NotImplementedError("Sharing a local project is not supported.")
+        return share_entity_api_base(self._client, self.ENTITY_TYPE, self.name, user, unshare=True)
 
     def search_entity(
         self,
