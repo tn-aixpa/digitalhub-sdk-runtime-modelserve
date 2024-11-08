@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import importlib.util as imputil
 import typing
-from pathlib import Path
 
 from digitalhub.client.api import build_client, get_client
 from digitalhub.context.api import delete_context
@@ -12,6 +10,7 @@ from digitalhub.entities._base.crud.api_utils import (
     update_entity_api_base,
 )
 from digitalhub.entities._commons.enums import EntityTypes
+from digitalhub.entities.project.utils import project_scaffolding
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
@@ -77,7 +76,7 @@ def new_project(
         **kwargs,
     )
     obj.save()
-    return _setup_project(obj, setup_kwargs)
+    return project_scaffolding(obj, setup_kwargs)
 
 
 def get_project(
@@ -117,7 +116,7 @@ def get_project(
     obj = read_entity_api_base(client, ENTITY_TYPE, name, **kwargs)
     obj["local"] = local
     project = build_entity_from_dict(obj)
-    return _setup_project(project, setup_kwargs)
+    return project_scaffolding(project, setup_kwargs)
 
 
 def import_project(
@@ -153,7 +152,7 @@ def import_project(
     dict_obj: dict = read_yaml(file)
     dict_obj["local"] = local
     obj = build_entity_from_dict(dict_obj)
-    obj = _setup_project(obj, setup_kwargs)
+    obj = project_scaffolding(obj, setup_kwargs)
 
     try:
         obj.save()
@@ -201,7 +200,7 @@ def load_project(
     dict_obj: dict = read_yaml(file)
     dict_obj["local"] = local
     obj = build_entity_from_dict(dict_obj)
-    obj = _setup_project(obj, setup_kwargs)
+    obj = project_scaffolding(obj, setup_kwargs)
 
     try:
         obj.save(update=True)
@@ -331,32 +330,3 @@ def delete_project(
     if clean_context:
         delete_context(name)
     return obj
-
-
-def _setup_project(project: Project, setup_kwargs: dict | None = None) -> Project:
-    """
-    Search for setup_project.py file and launch setup hanlder as project hook.
-
-    Parameters
-    ----------
-    project : Project
-        The project to scafold.
-    setup_kwargs : dict
-        Arguments to pass to setup handler.
-
-    Returns
-    -------
-    Project
-        Set up project.
-    """
-    setup_kwargs = setup_kwargs if setup_kwargs is not None else {}
-    check_pth = Path(project.spec.context, ".CHECK")
-    setup_pth = Path(project.spec.context, "setup_project.py")
-    if setup_pth.exists() and not check_pth.exists():
-        spec = imputil.spec_from_file_location("setup_project", setup_pth)
-        mod = imputil.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        handler = getattr(mod, "setup")
-        project = handler(project, **setup_kwargs)
-        check_pth.touch()
-    return project

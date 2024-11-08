@@ -8,6 +8,7 @@ from digitalhub.entities._base.crud.api import (
     api_base_delete,
     api_base_list,
     api_base_read,
+    api_base_share,
     api_base_update,
     api_ctx_create,
     api_ctx_data,
@@ -179,6 +180,57 @@ def delete_entity_api_base(
         kwargs["params"]["cascade"] = str(kwargs.pop("cascade")).lower()
     api = api_base_delete(entity_type, entity_name)
     return client.delete_object(api, **kwargs)
+
+
+def share_entity_api_base(
+    client: Client,
+    entity_type: str,
+    entity_name: str,
+    user: str,
+    unshare: bool = False,
+    **kwargs,
+):
+    """
+    Share object with another user.
+
+    Parameters
+    ----------
+    client : Client
+        Client instance.
+    entity_type : str
+        Entity type.
+    entity_name : str
+        Entity name.
+    user : str
+        User name.
+    unshare : bool
+        Unshare.
+    **kwargs : dict
+        Parameters to pass to the API call.
+
+    Returns
+    -------
+    None
+    """
+    if "params" not in kwargs:
+        kwargs["params"] = {}
+
+    api = api_base_share(entity_type, entity_name)
+
+    # Unshare
+    if unshare:
+        users = client.read_object(api, **kwargs)
+        for u in users:
+            if u["user"] == user:
+                kwargs["params"]["id"] = u["id"]
+                client.delete_object(api, **kwargs)
+                break
+        return
+
+    # Share
+    kwargs["params"]["user"] = user
+    client.create_object(api, obj={}, **kwargs)
+    return
 
 
 ##############################
