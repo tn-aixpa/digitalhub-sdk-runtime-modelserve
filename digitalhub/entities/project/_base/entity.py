@@ -5,7 +5,7 @@ from typing import Any
 
 from digitalhub.entities._base.project.entity import ProjectEntity
 from digitalhub.entities._commons.enums import EntityTypes
-from digitalhub.entities._operations.api import share_project_entity
+from digitalhub.entities._operations.processor import processor
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
     get_artifact,
@@ -1859,7 +1859,7 @@ class Project(ProjectEntity):
         -------
         None
         """
-        return share_project_entity(
+        return processor.share_project_entity(
             entity_type=self.ENTITY_TYPE, entity_name=self.name, user=user, unshare=False, local=self._client.is_local()
         )
 
@@ -1875,6 +1875,6 @@ class Project(ProjectEntity):
         -------
         None
         """
-        return share_project_entity(
+        return processor.share_project_entity(
             entity_type=self.ENTITY_TYPE, entity_name=self.name, user=user, unshare=True, local=self._client.is_local()
         )

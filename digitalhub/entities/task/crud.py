@@ -3,15 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities._commons.enums import EntityTypes
-from digitalhub.entities._operations.api import (
-    create_context_entity,
-    delete_context_entity,
-    import_context_entity,
-    list_context_entities,
-    load_context_entity,
-    read_context_entity,
-    update_context_entity,
-)
+from digitalhub.entities._operations.processor import processor
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
@@ -58,7 +50,7 @@ def new_task(
     >>>                kind="python+job",
     >>>                function="function-string")
     """
-    return create_context_entity(
+    return processor.create_context_entity(
         project=project,
         kind=kind,
         uuid=uuid,
@@ -99,7 +91,7 @@ def get_task(
     >>> obj = get_task("my-task-id"
     >>>               project="my-project")
     """
-    return read_context_entity(
+    return processor.read_context_entity(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -127,7 +119,7 @@ def list_tasks(project: str, **kwargs) -> list[Task]:
     --------
     >>> objs = list_tasks(project="my-project")
     """
-    return list_context_entities(
+    return processor.list_context_entities(
         project=project,
         entity_type=ENTITY_TYPE,
         **kwargs,
@@ -152,7 +144,7 @@ def import_task(file: str) -> Task:
     -------
     >>> obj = import_task("my-task.yaml")
     """
-    return import_context_entity(file)
+    return processor.import_context_entity(file)
 
 
 def load_task(file: str) -> Task:
@@ -173,7 +165,7 @@ def load_task(file: str) -> Task:
     --------
     >>> obj = load_task("my-task.yaml")
     """
-    return load_context_entity(file)
+    return processor.load_context_entity(file)
 
 
 def update_task(entity: Task) -> Task:
@@ -194,7 +186,7 @@ def update_task(entity: Task) -> Task:
     --------
     >>> obj = update_task(obj)
     """
-    return update_context_entity(
+    return processor.update_context_entity(
         project=entity.project,
         entity_type=entity.ENTITY_TYPE,
         entity_id=entity.id,
@@ -245,7 +237,7 @@ def delete_task(
     """
     if not identifier.startswith("store://"):
         raise EntityError("Task has no name. Use key instead.")
-    return delete_context_entity(
+    return processor.delete_context_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

@@ -8,16 +8,7 @@ from urllib.parse import urlparse
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities._commons.utils import build_log_path_from_filename, build_log_path_from_source
-from digitalhub.entities._operations.api import (
-    create_context_entity,
-    delete_context_entity,
-    import_context_entity,
-    list_material_entities,
-    load_context_entity,
-    read_material_entity,
-    read_material_entity_versions,
-    update_context_entity,
-)
+from digitalhub.entities._operations.processor import processor
 from digitalhub.factory.api import build_entity_from_params
 from digitalhub.readers.api import get_reader_by_object
 from digitalhub.stores.api import get_store
@@ -78,7 +69,7 @@ def new_dataitem(
     >>>                    kind="dataitem",
     >>>                    path="s3://my-bucket/my-key")
     """
-    return create_context_entity(
+    return processor.create_context_entity(
         project=project,
         name=name,
         kind=kind,
@@ -219,7 +210,7 @@ def get_dataitem(
     >>>                    project="my-project",
     >>>                    entity_id="my-dataitem-id")
     """
-    return read_material_entity(
+    return processor.read_material_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -259,7 +250,7 @@ def get_dataitem_versions(
     >>> objs = get_dataitem_versions("my-dataitem-name",
     >>>                              project="my-project")
     """
-    return read_material_entity_versions(
+    return processor.read_material_entity_versions(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -287,7 +278,7 @@ def list_dataitems(project: str, **kwargs) -> list[Dataitem]:
     --------
     >>> objs = list_dataitems(project="my-project")
     """
-    return list_material_entities(
+    return processor.list_material_entities(
         project=project,
         entity_type=ENTITY_TYPE,
         **kwargs,
@@ -312,7 +303,7 @@ def import_dataitem(file: str) -> Dataitem:
     --------
     >>> obj = import_dataitem("my-dataitem.yaml")
     """
-    return import_context_entity(file)
+    return processor.import_context_entity(file)
 
 
 def load_dataitem(file: str) -> Dataitem:
@@ -333,7 +324,7 @@ def load_dataitem(file: str) -> Dataitem:
     --------
     >>> obj = load_dataitem("my-dataitem.yaml")
     """
-    return load_context_entity(file)
+    return processor.load_context_entity(file)
 
 
 def update_dataitem(entity: Dataitem) -> Dataitem:
@@ -354,7 +345,7 @@ def update_dataitem(entity: Dataitem) -> Dataitem:
     --------
     >>> obj = update_dataitem(obj)
     """
-    return update_context_entity(
+    return processor.update_context_entity(
         project=entity.project,
         entity_type=entity.ENTITY_TYPE,
         entity_id=entity.id,
@@ -400,7 +391,7 @@ def delete_dataitem(
     >>>                       project="my-project",
     >>>                       delete_all_versions=True)
     """
-    return delete_context_entity(
+    return processor.delete_context_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

@@ -4,7 +4,7 @@ import typing
 
 from digitalhub.context.api import get_context
 from digitalhub.entities._base.entity.entity import Entity
-from digitalhub.entities._operations.api import create_context_entity, read_context_entity, update_context_entity
+from digitalhub.entities._operations.processor import processor
 from digitalhub.utils.generic_utils import get_timestamp
 from digitalhub.utils.io_utils import write_yaml
 
@@ -65,7 +65,7 @@ class ContextEntity(Entity):
         ContextEntity
             Entity saved.
         """
-        new_obj = create_context_entity(_entity=self)
+        new_obj = processor.create_context_entity(_entity=self)
         self._update_attributes(new_obj)
         return self
 
@@ -80,7 +80,7 @@ class ContextEntity(Entity):
         """
         if self._context().local:
             self.metadata.updated = self.metadata.updated = get_timestamp()
-        new_obj = update_context_entity(self.project, self.ENTITY_TYPE, self.id, self.to_dict())
+        new_obj = processor.update_context_entity(self.project, self.ENTITY_TYPE, self.id, self.to_dict())
         self._update_attributes(new_obj)
         return self
 
@@ -107,7 +107,7 @@ class ContextEntity(Entity):
         ContextEntity
             Entity refreshed.
         """
-        new_obj = read_context_entity(self.key)
+        new_obj = processor.read_context_entity(self.key)
         self._update_attributes(new_obj)
         return self
 

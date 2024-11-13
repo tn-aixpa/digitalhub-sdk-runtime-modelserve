@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.client.api import build_client, get_client
+from digitalhub.client.api import get_client
 from digitalhub.context.api import delete_context, get_context
 from digitalhub.entities._commons.enums import ApiCategories, BackendOperations, EntityTypes
 from digitalhub.entities._commons.utils import get_project_from_key, parse_entity_key
@@ -89,14 +89,11 @@ class OperationsProcessor:
             client = _entity._client
             obj = _entity
         else:
-            local = kwargs.pop("local", False)
-            build_client(local, kwargs.pop("config", None))
-            client = get_client(local)
-            obj: ContextEntity = build_entity_from_params(**kwargs)
+            client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
+            obj = build_entity_from_params(**kwargs)
         ent = self._create_base_entity(client, obj.ENTITY_TYPE, obj.to_dict())
-        ent = build_entity_from_dict(ent)
-        ent.local = client.is_local()
-        return ent
+        ent["local"] = client.is_local()
+        return build_entity_from_dict(ent)
 
     def _read_base_entity(
         self,
@@ -155,12 +152,79 @@ class OperationsProcessor:
         ProjectEntity
             Object instance.
         """
-        local = kwargs.pop("local", False)
-        build_client(local, kwargs.pop("config", None))
-        client = get_client(local)
+        client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
         obj = self._read_base_entity(client, entity_type, entity_name, **kwargs)
-        ent = build_entity_from_dict(obj)
-        ent.local = client.is_local()
+        obj["local"] = client.is_local()
+        return build_entity_from_dict(obj)
+
+    def import_project_entity(
+        self,
+        file: str,
+        **kwargs,
+    ) -> ProjectEntity:
+        """
+        Import object from a YAML file and create a new object into the backend.
+
+        Parameters
+        ----------
+        file : str
+            Path to YAML file.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        Returns
+        -------
+        ProjectEntity
+            Object instance.
+        """
+        client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
+        obj: dict = read_yaml(file)
+        obj["local"] = client.is_local()
+        ent: ProjectEntity = build_entity_from_dict(obj)
+
+        try:
+            self._create_base_entity(ent._client, ent.ENTITY_TYPE, ent.to_dict())
+        except EntityAlreadyExistsError:
+            raise EntityError(f"Entity {ent.name} already exists. If you want to update it, use load instead.")
+
+        # Import related entities
+        ent._import_entities(obj)
+        ent.refresh()
+        return ent
+
+    def load_project_entity(
+        self,
+        file: str,
+        **kwargs,
+    ) -> ProjectEntity:
+        """
+        Load object from a YAML file and update an existing object into the backend.
+
+        Parameters
+        ----------
+        file : str
+            Path to YAML file.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        Returns
+        -------
+        ProjectEntity
+            Object instance.
+        """
+        client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
+        obj: dict = read_yaml(file)
+        obj["local"] = client.is_local()
+        ent: ProjectEntity = build_entity_from_dict(obj)
+
+        try:
+            self._update_base_entity(ent._client, ent.ENTITY_TYPE, ent.name, ent.to_dict())
+        except EntityNotExistsError:
+            self._create_base_entity(ent._client, ent.ENTITY_TYPE, ent.to_dict())
+
+        # Load related entities
+        ent._load_entities(obj)
+        ent.refresh()
         return ent
 
     def _list_base_entities(
@@ -285,13 +349,10 @@ class OperationsProcessor:
         ProjectEntity
             Object instance.
         """
-        local = kwargs.pop("local", False)
-        build_client(local)
-        client = get_client(local)
+        client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
         obj = self._update_base_entity(client, entity_type, entity_name, entity_dict, **kwargs)
-        ent = build_entity_from_dict(obj)
-        ent.local = client.is_local()
-        return ent
+        obj["local"] = client.is_local()
+        return build_entity_from_dict(obj)
 
     def _delete_base_entity(
         self,
@@ -355,9 +416,8 @@ class OperationsProcessor:
             kwargs["params"]["cascade"] = str(cascade).lower()
         if kwargs.pop("clean_context", True):
             delete_context(entity_name)
-        local = kwargs.pop("local", False)
-        build_client(local)
-        client = get_client(local)
+
+        client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
         return self._delete_base_entity(
             client,
             entity_type,
@@ -370,7 +430,7 @@ class OperationsProcessor:
         entity_type: str,
         entity_name: str,
         **kwargs,
-    ) -> dict:
+    ) -> None:
         """
         Share object method.
 
@@ -385,19 +445,17 @@ class OperationsProcessor:
 
         Returns
         -------
-        dict
-            Response from backend.
+        None
         """
-        user = kwargs.pop("user")
-        unshare = kwargs.pop("unshare", False)
-
-        client = get_client(kwargs.pop("local", False))
+        client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
         api = client.build_api(
             ApiCategories.BASE.value,
             BackendOperations.SHARE.value,
             entity_type=entity_type,
             entity_name=entity_name,
         )
+        user = kwargs.pop("user")
+        unshare = kwargs.pop("unshare", False)
         kwargs = self._set_params(**kwargs)
 
         # Unshare
@@ -413,7 +471,6 @@ class OperationsProcessor:
         # Share
         kwargs["params"]["user"] = user
         client.create_object(api, obj={}, **kwargs)
-        return
 
     ##############################
     # CRUD context entity
@@ -697,9 +754,9 @@ class OperationsProcessor:
         """
         dict_obj: dict = read_yaml(file)
         context = self._get_context(dict_obj["project"])
-        obj = build_entity_from_dict(dict_obj)
+        obj: ContextEntity = build_entity_from_dict(dict_obj)
         try:
-            self._update_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
+            self._update_context_entity(context, obj.ENTITY_TYPE, obj.id, obj.to_dict())
         except EntityNotExistsError:
             self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
         return obj
@@ -733,7 +790,7 @@ class OperationsProcessor:
         obj: ExecutableEntity = build_entity_from_dict(exec_dict)
 
         try:
-            self._update_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
+            self._update_context_entity(context, obj.ENTITY_TYPE, obj.id, obj.to_dict())
         except EntityNotExistsError:
             self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
         obj.import_tasks(tsk_dicts)

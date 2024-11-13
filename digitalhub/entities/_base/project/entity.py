@@ -7,17 +7,7 @@ from digitalhub.client.api import get_client
 from digitalhub.context.api import build_context
 from digitalhub.entities._base.entity.entity import Entity
 from digitalhub.entities._commons.enums import EntityTypes
-from digitalhub.entities._operations.api import (
-    create_project_entity,
-    import_context_entity,
-    import_executable_entity,
-    load_context_entity,
-    load_executable_entity,
-    read_context_entity,
-    read_project_entity,
-    search_entity,
-    update_project_entity,
-)
+from digitalhub.entities._operations.processor import processor
 from digitalhub.factory.api import build_entity_from_dict
 from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError
 from digitalhub.utils.generic_utils import get_timestamp
@@ -79,16 +69,16 @@ class ProjectEntity(Entity):
             Entity saved.
         """
         if update:
-            if self.local:
+            if self._client.is_local():
                 self.metadata.updated = get_timestamp()
-            new_obj = update_project_entity(
+            new_obj = processor.update_project_entity(
                 entity_type=self.ENTITY_TYPE,
                 entity_name=self.name,
                 entity_dict=self.to_dict(),
-                local=self.local,
+                local=self._client.is_local(),
             )
         else:
-            new_obj = create_project_entity(_entity=self)
+            new_obj = processor.create_project_entity(_entity=self)
         self._update_attributes(new_obj)
         return self
 
@@ -101,10 +91,10 @@ class ProjectEntity(Entity):
         Project
             Project object.
         """
-        new_obj = read_project_entity(
+        new_obj = processor.read_project_entity(
             entity_type=self.ENTITY_TYPE,
             entity_name=self.name,
-            local=self.local,
+            local=self._client.is_local(),
         )
         self._update_attributes(new_obj)
         return self
@@ -150,7 +140,7 @@ class ProjectEntity(Entity):
             list[ContextEntity]
                 List of object instances.
         """
-        objs = search_entity(
+        objs = processor.search_entity(
             self.name,
             query=query,
             entity_types=entity_types,
@@ -216,7 +206,7 @@ class ProjectEntity(Entity):
                 # Export entity if not embedded is in metadata, else do nothing
                 if not self._is_embedded(entity):
                     # Get entity object from backend
-                    ent = read_context_entity(entity["key"])
+                    ent = processor.read_context_entity(entity["key"])
 
                     # Export and store ref in object metadata inside project
                     pth = ent.export()
@@ -254,11 +244,11 @@ class ProjectEntity(Entity):
                         try:
                             # Artifacts, Dataitems and Models
                             if entity_type in entity_types[:3]:
-                                import_context_entity(ref)
+                                processor.import_context_entity(ref)
 
                             # Functions and Workflows
                             elif entity_type in entity_types[3:]:
-                                import_executable_entity(ref)
+                                processor.import_executable_entity(ref)
 
                         except FileNotFoundError:
                             msg = f"File not found: {ref}."
@@ -304,11 +294,11 @@ class ProjectEntity(Entity):
                         try:
                             # Artifacts, Dataitems and Models
                             if entity_type in entity_types[:3]:
-                                load_context_entity(ref)
+                                processor.load_context_entity(ref)
 
                             # Functions and Workflows
                             elif entity_type in entity_types[3:]:
-                                load_executable_entity(ref)
+                                processor.load_executable_entity(ref)
 
                         except FileNotFoundError:
                             msg = f"File not found: {ref}."

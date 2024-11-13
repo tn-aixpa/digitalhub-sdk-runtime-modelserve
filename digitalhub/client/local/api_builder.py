@@ -62,7 +62,7 @@ class ClientLocalApiBuilder(ClientApiBuilder):
             BackendOperations.UPDATE.value,
             BackendOperations.DELETE.value,
         ):
-            return f"{API_BASE}/{entity_type}/{kwargs['entity_id']}"
+            return f"{API_BASE}/{entity_type}/{kwargs['entity_name']}"
         elif operation == BackendOperations.SHARE.value:
             raise BackendError("Share API not implemented for Local.")
         raise BackendError(f"Invalid operation '{operation}' for entity type '{entity_type}' in Local.")
