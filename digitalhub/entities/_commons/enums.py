@@ -54,3 +54,32 @@ class State(Enum):
     STOPPED = "STOPPED"
     SUCCESS = "SUCCESS"
     UNKNOWN = "UNKNOWN"
+
+
+class ApiCategories(Enum):
+    """
+    Entity categories.
+    """
+
+    BASE = "base"
+    CONTEXT = "context"
+
+
+class BackendOperations(Enum):
+    """
+    Backend operations.
+    """
+
+    CREATE = "create"
+    READ = "read"
+    UPDATE = "update"
+    DELETE = "delete"
+    LIST = "list"
+    LIST_FIRST = "list_first"
+    STOP = "stop"
+    RESUME = "resume"
+    DATA = "data"
+    FILES = "files"
+    LOGS = "logs"
+    SEARCH = "search"
+    SHARE = "share"

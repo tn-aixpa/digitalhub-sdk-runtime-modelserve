@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-import importlib.util as imputil
 import typing
-from pathlib import Path
 
-from digitalhub.client.api import build_client, get_client
-from digitalhub.context.api import delete_context
-from digitalhub.entities._base.crud.api_utils import (
-    delete_entity_api_base,
-    read_entity_api_base,
-    update_entity_api_base,
-)
+from digitalhub.client.api import build_client
 from digitalhub.entities._commons.enums import EntityTypes
-from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
+from digitalhub.entities._operations.api import (
+    create_project_entity,
+    delete_project_entity,
+    read_project_entity,
+    update_project_entity,
+)
+from digitalhub.entities.project.utils import setup_project
+from digitalhub.factory.api import build_entity_from_dict
 from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
 from digitalhub.utils.io_utils import read_yaml
 
@@ -64,20 +63,19 @@ def new_project(
     --------
     >>> obj = new_project("my-project")
     """
-    build_client(local, config)
     if context is None:
-        context = name
-    obj = build_entity_from_params(
+        context = "./"
+    obj = create_project_entity(
         name=name,
         kind="project",
         description=description,
         labels=labels,
         local=local,
+        config=config,
         context=context,
         **kwargs,
     )
-    obj.save()
-    return _setup_project(obj, setup_kwargs)
+    return setup_project(obj, setup_kwargs)
 
 
 def get_project(
@@ -112,12 +110,14 @@ def get_project(
     --------
     >>> obj = get_project("my-project")
     """
-    build_client(local, config)
-    client = get_client(local)
-    obj = read_entity_api_base(client, ENTITY_TYPE, name, **kwargs)
-    obj["local"] = local
-    project = build_entity_from_dict(obj)
-    return _setup_project(project, setup_kwargs)
+    obj = read_project_entity(
+        entity_type=ENTITY_TYPE,
+        entity_name=name,
+        local=local,
+        config=config,
+        **kwargs,
+    )
+    return setup_project(obj, setup_kwargs)
 
 
 def import_project(
@@ -153,8 +153,7 @@ def import_project(
     dict_obj: dict = read_yaml(file)
     dict_obj["local"] = local
     obj = build_entity_from_dict(dict_obj)
-    obj = _setup_project(obj, setup_kwargs)
-
+    obj = setup_project(obj, setup_kwargs)
     try:
         obj.save()
     except EntityAlreadyExistsError:
@@ -162,9 +161,7 @@ def import_project(
 
     # Import related entities
     obj._import_entities(dict_obj)
-
     obj.refresh()
-
     return obj
 
 
@@ -201,7 +198,7 @@ def load_project(
     dict_obj: dict = read_yaml(file)
     dict_obj["local"] = local
     obj = build_entity_from_dict(dict_obj)
-    obj = _setup_project(obj, setup_kwargs)
+    obj = setup_project(obj, setup_kwargs)
 
     try:
         obj.save(update=True)
@@ -210,9 +207,7 @@ def load_project(
 
     # Load related entities
     obj._load_entities(dict_obj)
-
     obj.refresh()
-
     return obj
 
 
@@ -266,7 +261,7 @@ def get_or_create_project(
         )
 
 
-def update_project(entity: Project, local: bool = False, **kwargs) -> Project:
+def update_project(entity: Project, **kwargs) -> Project:
     """
     Update object. Note that object spec are immutable.
 
@@ -274,8 +269,6 @@ def update_project(entity: Project, local: bool = False, **kwargs) -> Project:
     ----------
     entity : Project
         Object to update.
-    local : bool
-        Flag to determine if backend is local.
     **kwargs : dict
         Parameters to pass to the API call.
 
@@ -288,9 +281,13 @@ def update_project(entity: Project, local: bool = False, **kwargs) -> Project:
     --------
     >>> obj = update_project(obj)
     """
-    client = get_client(local)
-    obj = update_entity_api_base(client, ENTITY_TYPE, entity.name, entity.to_dict(), **kwargs)
-    return build_entity_from_dict(obj)
+    return update_project_entity(
+        entity_type=entity.ENTITY_TYPE,
+        entity_name=entity.name,
+        entity_dict=entity.to_dict(),
+        local=entity.local,
+        **kwargs,
+    )
 
 
 def delete_project(
@@ -310,8 +307,7 @@ def delete_project(
     cascade : bool
         Flag to determine if delete is cascading.
     clean_context : bool
-        Flag to determine if context will be deleted. If a context is deleted,
-        all its objects are unreacheable.
+        Flag to determine if context will be deleted.
     local : bool
         Flag to determine if backend is local.
     **kwargs : dict
@@ -326,37 +322,11 @@ def delete_project(
     --------
     >>> delete_project("my-project")
     """
-    client = get_client(local)
-    obj = delete_entity_api_base(client, ENTITY_TYPE, name, cascade=cascade, **kwargs)
-    if clean_context:
-        delete_context(name)
-    return obj
-
-
-def _setup_project(project: Project, setup_kwargs: dict | None = None) -> Project:
-    """
-    Search for setup_project.py file and launch setup hanlder as project hook.
-
-    Parameters
-    ----------
-    project : Project
-        The project to scafold.
-    setup_kwargs : dict
-        Arguments to pass to setup handler.
-
-    Returns
-    -------
-    Project
-        Set up project.
-    """
-    setup_kwargs = setup_kwargs if setup_kwargs is not None else {}
-    check_pth = Path(project.spec.context, ".CHECK")
-    setup_pth = Path(project.spec.context, "setup_project.py")
-    if setup_pth.exists() and not check_pth.exists():
-        spec = imputil.spec_from_file_location("setup_project", setup_pth)
-        mod = imputil.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        handler = getattr(mod, "setup")
-        project = handler(project, **setup_kwargs)
-        check_pth.touch()
-    return project
+    return delete_project_entity(
+        entity_type=ENTITY_TYPE,
+        entity_name=name,
+        local=local,
+        cascade=cascade,
+        clean_context=clean_context,
+        **kwargs,
+    )

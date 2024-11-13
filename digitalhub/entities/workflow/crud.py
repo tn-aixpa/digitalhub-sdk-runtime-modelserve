@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.crud.crud import (
-    delete_entity,
-    get_context_entity_versions,
-    get_versioned_entity,
+from digitalhub.entities._commons.enums import EntityTypes
+from digitalhub.entities._operations.api import (
+    create_context_entity,
+    delete_context_entity,
     import_executable_entity,
     list_context_entities,
     load_executable_entity,
-    new_context_entity,
+    read_context_entity,
+    read_context_entity_versions,
+    update_context_entity,
 )
-from digitalhub.entities._commons.enums import EntityTypes
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.workflow._base.entity import Workflow
@@ -63,7 +64,7 @@ def new_workflow(
     >>>                    code_src="pipeline.py",
     >>>                    handler="pipeline-handler")
     """
-    return new_context_entity(
+    return create_context_entity(
         project=project,
         name=name,
         kind=kind,
@@ -110,7 +111,7 @@ def get_workflow(
     >>>                    project="my-project",
     >>>                    entity_id="my-workflow-id")
     """
-    return get_versioned_entity(
+    return read_context_entity(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -150,7 +151,7 @@ def get_workflow_versions(
     >>> obj = get_workflow_versions("my-workflow-name"
     >>>                             project="my-project")
     """
-    return get_context_entity_versions(
+    return read_context_entity_versions(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -245,7 +246,12 @@ def update_workflow(entity: Workflow) -> Workflow:
     --------
     >>> obj = update_workflow(obj)
     """
-    return entity.save(update=True)
+    return update_context_entity(
+        project=entity.project,
+        entity_type=entity.ENTITY_TYPE,
+        entity_id=entity.id,
+        entity_dict=entity.to_dict(),
+    )
 
 
 def delete_workflow(
@@ -289,7 +295,7 @@ def delete_workflow(
     >>>                       project="my-project",
     >>>                       delete_all_versions=True)
     """
-    return delete_entity(
+    return delete_context_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

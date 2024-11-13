@@ -2,19 +2,19 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.crud.crud import (
-    _check_context,
-    delete_entity,
-    get_material_entity,
-    get_material_entity_versions,
-    import_context_entity,
-    list_material_entities,
-    load_context_entity,
-    new_context_entity,
-)
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities._commons.utils import build_log_path_from_source
+from digitalhub.entities._operations.api import (
+    create_context_entity,
+    delete_context_entity,
+    import_context_entity,
+    list_material_entities,
+    load_context_entity,
+    read_material_entity,
+    read_material_entity_versions,
+    update_context_entity,
+)
 from digitalhub.utils.file_utils import eval_local_source
 
 if typing.TYPE_CHECKING:
@@ -71,7 +71,7 @@ def new_model(
     >>>                    kind="model",
     >>>                    path="s3://my-bucket/my-key")
     """
-    return new_context_entity(
+    return create_context_entity(
         project=project,
         name=name,
         kind=kind,
@@ -122,15 +122,11 @@ def log_model(
     >>>                 kind="model",
     >>>                 source="./local-path")
     """
-    _check_context(project)
-
     eval_local_source(source)
-
     if path is None:
         uuid = build_uuid()
         kwargs["uuid"] = uuid
         path = build_log_path_from_source(project, ENTITY_TYPE, name, uuid, source)
-
     obj = new_model(project=project, name=name, kind=kind, path=path, **kwargs)
     obj.upload(source)
     return obj
@@ -171,7 +167,7 @@ def get_model(
     >>>                 project="my-project",
     >>>                 entity_id="my-model-id")
     """
-    return get_material_entity(
+    return read_material_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -211,7 +207,7 @@ def get_model_versions(
     >>> objs = get_model_versions("my-model-name",
     >>>                           project="my-project")
     """
-    return get_material_entity_versions(
+    return read_material_entity_versions(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -306,7 +302,12 @@ def update_model(entity: Model) -> Model:
     --------
     >>> obj = get_model("store://my-model-key")
     """
-    return entity.save(update=True)
+    return update_context_entity(
+        project=entity.project,
+        entity_type=entity.ENTITY_TYPE,
+        entity_id=entity.id,
+        entity_dict=entity.to_dict(),
+    )
 
 
 def delete_model(
@@ -347,7 +348,7 @@ def delete_model(
     >>>                    project="my-project",
     >>>                    delete_all_versions=True)
     """
-    return delete_entity(
+    return delete_context_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,

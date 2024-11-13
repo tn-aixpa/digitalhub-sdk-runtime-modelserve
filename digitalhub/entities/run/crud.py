@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.crud.crud import (
-    delete_entity,
-    get_unversioned_entity,
+from digitalhub.entities._commons.enums import EntityTypes
+from digitalhub.entities._operations.api import (
+    create_context_entity,
+    delete_context_entity,
     import_context_entity,
     list_context_entities,
     load_context_entity,
-    new_context_entity,
+    read_context_entity,
+    update_context_entity,
 )
-from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.utils.exceptions import EntityError
 
 if typing.TYPE_CHECKING:
@@ -60,7 +61,7 @@ def new_run(
     >>>               kind="python+run",
     >>>               task="task-string")
     """
-    return new_context_entity(
+    return create_context_entity(
         project=project,
         kind=kind,
         uuid=uuid,
@@ -102,7 +103,7 @@ def get_run(
     >>> obj = get_run("my-run-id"
     >>>               project="my-project")
     """
-    return get_unversioned_entity(
+    return read_context_entity(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,
@@ -198,7 +199,12 @@ def update_run(entity: Run) -> Run:
     --------
     >>> obj = update_run(obj)
     """
-    return entity.save(update=True)
+    return update_context_entity(
+        project=entity.project,
+        entity_type=entity.ENTITY_TYPE,
+        entity_id=entity.id,
+        entity_dict=entity.to_dict(),
+    )
 
 
 def delete_run(
@@ -230,12 +236,10 @@ def delete_run(
     """
     if not identifier.startswith("store://") and project is None:
         raise EntityError("Specify entity key or entity ID combined with project")
-    return delete_entity(
+    return delete_context_entity(
         identifier=identifier,
         entity_type=ENTITY_TYPE,
         project=project,
         entity_id=identifier,
         **kwargs,
     )
-
-    # TODO read logs

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from typing import Any
 
 from digitalhub.readers.api import get_reader_by_engine
@@ -10,7 +10,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.stores._base.store import Store
 
 
-class Datastore(metaclass=ABCMeta):
+class Datastore:
     """
     Datastore abstract class.
     """

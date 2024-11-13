@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 from pathlib import Path
 from tempfile import mkdtemp
 from typing import Literal
@@ -11,7 +11,7 @@ from digitalhub.utils.exceptions import StoreError
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 
-class Store(metaclass=ABCMeta):
+class Store:
     """
     Store abstract class.
     """

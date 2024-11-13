@@ -3,16 +3,16 @@ from __future__ import annotations
 import time
 import typing
 
-from digitalhub.entities._base.crud.api_utils import (
-    list_entity_api_base,
-    list_entity_api_ctx,
-    logs_api,
-    read_entity_api_ctx,
-    resume_api,
-    stop_api,
-)
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
 from digitalhub.entities._commons.enums import EntityTypes, State
+from digitalhub.entities._operations.api import (
+    list_base_entities,
+    list_context_entities,
+    read_context_entity,
+    read_run_logs,
+    resume_run,
+    stop_run,
+)
 from digitalhub.factory.api import (
     build_runtime,
     build_spec,
@@ -142,17 +142,14 @@ class Run(UnversionedEntity):
 
     def logs(self) -> dict:
         """
-        Get object from backend.
-        Returns empty dictionary if context is local.
+        Get run logs.
 
         Returns
         -------
         dict
-            Logs from backend.
+            Run logs.
         """
-        if self._context().local:
-            return {}
-        return logs_api(self.project, self.ENTITY_TYPE, self.id)
+        return read_run_logs(self.project, self.ENTITY_TYPE, self.id)
 
     def stop(self) -> None:
         """
@@ -162,8 +159,8 @@ class Run(UnversionedEntity):
         -------
         None
         """
-        if not self._context().local and not self.spec.local_execution:
-            return stop_api(self.project, self.ENTITY_TYPE, self.id)
+        if not self.spec.local_execution:
+            return stop_run(self.project, self.ENTITY_TYPE, self.id)
 
     def resume(self) -> None:
         """
@@ -173,9 +170,8 @@ class Run(UnversionedEntity):
         -------
         None
         """
-        if not self._context().local and not self.spec.local_execution:
-            return resume_api(self.project, self.ENTITY_TYPE, self.id)
-        self.run()
+        if not self.spec.local_execution:
+            return resume_run(self.project, self.ENTITY_TYPE, self.id)
 
     ##############################
     #  Helpers
@@ -272,12 +268,12 @@ class Run(UnversionedEntity):
         splitted = self.spec.task.split("/")
         exec_name = splitted[-1].split(":")[0]
         exec_id = splitted[-1].split(":")[1]
-        return read_entity_api_ctx(
+        return read_context_entity(
             exec_name,
             entity_type=entity_type,
             project=self.project,
             entity_id=exec_id,
-        )
+        ).to_dict()
 
     def _get_task(self) -> dict:
         """
@@ -294,7 +290,7 @@ class Run(UnversionedEntity):
 
         # Local backend
         if self._context().local:
-            tasks = list_entity_api_base(self._context().client, EntityTypes.TASK.value)
+            tasks = list_base_entities(self._context().client, EntityTypes.TASK.value)
             for i in tasks:
                 if i.get("spec").get("function") == exec_string:
                     return i
@@ -303,4 +299,4 @@ class Run(UnversionedEntity):
         # Remote backend
         task_kind = self.spec.task.split("://")[0]
         params = {"function": exec_string, "kind": task_kind}
-        return list_entity_api_ctx(self.project, EntityTypes.TASK.value, params=params)[0]
+        return list_context_entities(self.project, EntityTypes.TASK.value, params=params)[0].to_dict()
