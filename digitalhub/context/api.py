@@ -28,14 +28,14 @@ def check_context(project: str) -> None:
         raise ContextError
 
 
-def set_context(project: Project) -> None:
+def build_context(project: Project) -> None:
     """
     Wrapper for ContextBuilder.build().
 
     Parameters
     ----------
     project : Project
-        The project object used to set the current context.
+        The project object used to build the context.
 
     Returns
     -------
@@ -59,22 +59,6 @@ def get_context(project: str) -> Context:
         The context for the given project name.
     """
     return context_builder.get(project)
-
-
-def set_context_object(context: Context) -> None:
-    """
-    Wrapper for ContextBuilder.set().
-
-    Parameters
-    ----------
-    context : Context
-        The context to set.
-
-    Returns
-    -------
-    None
-    """
-    context_builder.set(context)
 
 
 def delete_context(project: str) -> None:

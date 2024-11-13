@@ -382,3 +382,4 @@ def api_base_share(entity_type: str, entity_id: str) -> str:
     if not entity_type.endswith("s"):
         entity_type += "s"
     return f"{API_BASE}/{entity_type}/{entity_id}/share"
+

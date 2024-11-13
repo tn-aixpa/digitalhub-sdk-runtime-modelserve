@@ -151,7 +151,6 @@ class RuntimeKfp(Runtime):
         tuple
             KFP pipeline to execute and parameters.
         """
-
         # Setup function source and specs
         LOGGER.info("Getting workflow source and specs.")
         dhcore_workflow = get_dhcore_workflow(spec.get("function"))

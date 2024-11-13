@@ -141,7 +141,6 @@ class S3Store(Store):
         list[tuple[str, str]]
             Returns the list of destination and source paths of the uploaded artifacts.
         """
-
         # Destination handling
 
         # If no destination is provided, build key from source

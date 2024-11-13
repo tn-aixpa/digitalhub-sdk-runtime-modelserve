@@ -74,7 +74,6 @@ def run_kfp_build(run: dict) -> dict:
         dict
             Execution results.
         """
-
         # workaround to pass the project implicitly
         workflow = run.get("spec", {}).get("workflow", None)
 

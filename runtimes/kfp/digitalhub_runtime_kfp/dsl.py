@@ -143,7 +143,6 @@ class PipelineContext:
         dsl.ContainerOp
             A KFP ContainerOp for the step.
         """
-
         WORKFLOW_IMAGE = os.environ.get("DHCORE_WORKFLOW_IMAGE")
         KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
         DHCORE_ENDPOINT = os.environ.get("DHCORE_ENDPOINT", "http://localhost:8080/")
