@@ -3,29 +3,10 @@ from __future__ import annotations
 import typing
 
 from digitalhub.context.builder import context_builder
-from digitalhub.utils.exceptions import ContextError
 
 if typing.TYPE_CHECKING:
     from digitalhub.context.context import Context
     from digitalhub.entities.project._base.entity import Project
-
-
-def check_context(project: str) -> None:
-    """
-    Check if the given project is in the context.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-
-    Returns
-    -------
-    bool
-        True if the project is in the context, False otherwise.
-    """
-    if project not in context_builder._instances:
-        raise ContextError
 
 
 def build_context(project: Project) -> None:
