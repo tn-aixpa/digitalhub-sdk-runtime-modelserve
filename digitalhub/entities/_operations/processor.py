@@ -89,7 +89,7 @@ class OperationsProcessor:
             client = _entity._client
             obj = _entity
         else:
-            client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
+            client = get_client(kwargs.get("local"), kwargs.pop("config", None))
             obj = build_entity_from_params(**kwargs)
         ent = self._create_base_entity(client, obj.ENTITY_TYPE, obj.to_dict())
         ent["local"] = client.is_local()
@@ -281,8 +281,8 @@ class OperationsProcessor:
         objs = self._list_base_entities(client, entity_type, **kwargs)
         entities = []
         for obj in objs:
+            obj["local"] = client.is_local()
             ent = build_entity_from_dict(obj)
-            ent.local = client.is_local()
             entities.append(ent)
         return entities
 
