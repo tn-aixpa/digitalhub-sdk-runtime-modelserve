@@ -60,10 +60,7 @@ class Run(UnversionedEntity):
         executable = self._get_executable()
         task = self._get_task()
         new_spec = self._get_runtime().build(executable, task, self.to_dict())
-        self.spec = build_spec(
-            self.kind,
-            **new_spec,
-        )
+        self.spec = build_spec(self.kind, **new_spec)
         self._set_state(State.BUILT.value)
         self.save()
 

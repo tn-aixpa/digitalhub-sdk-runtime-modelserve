@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from digitalhub.entities.task._base.spec import TaskSpecK8s, TaskValidatorK8s
+from digitalhub.entities.task._base.spec import TaskSpecFunction, TaskValidatorFunction
 
 
-class TaskSpecKfpPipeline(TaskSpecK8s):
+class TaskSpecKfpPipeline(TaskSpecFunction):
     """
     TaskSpecKfpPipeline specifications.
     """
@@ -11,13 +11,13 @@ class TaskSpecKfpPipeline(TaskSpecK8s):
     def __init__(
         self,
         function: str,
-        node_selector: dict | None = None,
-        volumes: list | None = None,
+        node_selector: list[dict] | None = None,
+        volumes: list[dict] | None = None,
         resources: dict | None = None,
         affinity: dict | None = None,
-        tolerations: list | None = None,
-        envs: list | None = None,
-        secrets: list | None = None,
+        tolerations: list[dict] | None = None,
+        envs: list[dict] | None = None,
+        secrets: list[str] | None = None,
         profile: str | None = None,
         schedule: str | None = None,
         **kwargs,
@@ -37,7 +37,7 @@ class TaskSpecKfpPipeline(TaskSpecK8s):
         self.schedule = schedule
 
 
-class TaskValidatorKfpPipeline(TaskValidatorK8s):
+class TaskValidatorKfpPipeline(TaskValidatorFunction):
     """
     TaskValidatorKfpPipeline validator.
     """

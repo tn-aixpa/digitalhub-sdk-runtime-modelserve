@@ -22,6 +22,9 @@ class FileInfo(BaseModel):
     hash: str = None
     last_modified: str = None
 
+    def to_dict(self):
+        return self.model_dump()
+
 
 def calculate_blob_hash(data_path: str) -> str:
     """
@@ -159,7 +162,7 @@ def get_file_info_from_local(path: str, src_path: str) -> None | dict:
             size=size,
             hash=hash,
             last_modified=last_modified,
-        ).model_dump()
+        ).to_dict()
     except Exception:
         return None
 
@@ -201,7 +204,7 @@ def get_file_info_from_s3(path: str, metadata: dict) -> None | dict:
             size=size,
             hash=file_hash,
             last_modified=last_modified,
-        ).model_dump()
+        ).to_dict()
     except Exception:
         return None
 
