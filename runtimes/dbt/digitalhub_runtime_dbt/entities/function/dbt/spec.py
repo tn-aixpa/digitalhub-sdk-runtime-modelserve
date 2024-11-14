@@ -10,10 +10,7 @@ class FunctionSpecDbt(FunctionSpec):
     FunctionSpecDbt specifications.
     """
 
-    def __init__(
-        self,
-        source: dict | None = None,
-    ) -> None:
+    def __init__(self, source: dict) -> None:
         super().__init__()
         self.source = source
 
@@ -23,5 +20,5 @@ class FunctionValidatorDbt(FunctionValidator):
     FunctionValidatorDbt validator.
     """
 
-    source: SourceValidator = None
+    source: SourceValidator
     """Source code."""
