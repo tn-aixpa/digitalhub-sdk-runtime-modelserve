@@ -12,7 +12,7 @@ from digitalhub.factory.api import build_entity_from_dict
 from digitalhub.utils.exceptions import BackendError, EntityAlreadyExistsError, EntityError
 from digitalhub.utils.generic_utils import get_timestamp
 from digitalhub.utils.io_utils import write_yaml
-from digitalhub.utils.uri_utils import map_uri_scheme
+from digitalhub.utils.uri_utils import has_local_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.context.entity import ContextEntity
@@ -240,7 +240,7 @@ class ProjectEntity(Entity):
                 # Import entity if not embedded and there is a ref
                 if not embedded and ref is not None:
                     # Import entity from local ref
-                    if map_uri_scheme(ref) == "local":
+                    if has_local_scheme(ref):
                         try:
                             # Artifacts, Dataitems and Models
                             if entity_type in entity_types[:3]:
@@ -290,7 +290,7 @@ class ProjectEntity(Entity):
                 # Load entity if not embedded and there is a ref
                 if not embedded and ref is not None:
                     # Load entity from local ref
-                    if map_uri_scheme(ref) == "local":
+                    if has_local_scheme(ref):
                         try:
                             # Artifacts, Dataitems and Models
                             if entity_type in entity_types[:3]:

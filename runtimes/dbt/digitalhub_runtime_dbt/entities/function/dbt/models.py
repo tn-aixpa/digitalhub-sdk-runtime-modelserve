@@ -33,5 +33,5 @@ class SourceValidator(BaseModel):
     base64: str = None
     "Source code (base64 encoded)."
 
-    lang: Lang = Field(default=None)
+    lang: Lang = Field(default=Lang.SQL.value)
     "Source code language (hint)."

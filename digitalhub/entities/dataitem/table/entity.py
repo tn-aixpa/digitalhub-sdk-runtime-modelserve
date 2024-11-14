@@ -7,7 +7,7 @@ from typing import Any
 
 from digitalhub.entities.dataitem._base.entity import Dataitem
 from digitalhub.stores.api import get_store
-from digitalhub.utils.uri_utils import check_local_path
+from digitalhub.utils.uri_utils import has_local_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
@@ -72,7 +72,7 @@ class DataitemTable(Dataitem):
         if engine is None:
             engine = "pandas"
         try:
-            if check_local_path(self.spec.path):
+            if has_local_scheme(self.spec.path):
                 tmp_dir = None
                 data_path = self.spec.path
             else:

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from digitalhub.utils.uri_utils import check_local_path
+from digitalhub.utils.uri_utils import has_local_scheme
 
 
 class FileInfo(BaseModel):
@@ -307,12 +307,12 @@ def eval_local_source(source: str | list[str]) -> None:
     if isinstance(source, list):
         if not source:
             raise ValueError("Empty list of sources.")
-        source_is_local = all(check_local_path(s) for s in source)
+        source_is_local = all(has_local_scheme(s) for s in source)
         for s in source:
             if Path(s).is_dir():
                 raise ValueError(f"Invalid source path: {s}. List of paths must be list of files, not directories.")
     else:
-        source_is_local = check_local_path(source)
+        source_is_local = has_local_scheme(source)
 
     if not source_is_local:
         raise ValueError("Invalid source path. Source must be a local path.")

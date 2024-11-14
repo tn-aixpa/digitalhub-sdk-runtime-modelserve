@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class FieldType(Enum):
@@ -31,6 +31,7 @@ class TableSchemaFieldEntry(BaseModel):
     """
     Table schema field entry model.
     """
+
     model_config = ConfigDict(use_enum_values=True)
 
     name: str
