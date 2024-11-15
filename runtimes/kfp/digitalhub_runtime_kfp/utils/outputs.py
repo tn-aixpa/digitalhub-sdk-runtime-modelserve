@@ -43,7 +43,9 @@ def map_state(state: str) -> str:
     return kfp_states.get(state, State.ERROR.value)
 
 
-def build_status(execution_results: ApiRunDetail, client: Client) -> dict:
+def build_status(
+    build: dict | None = None, execution_results: ApiRunDetail | None = None, client: Client | None = None
+) -> dict:
     """
     Collect outputs.
 
@@ -56,6 +58,8 @@ def build_status(execution_results: ApiRunDetail, client: Client) -> dict:
 
     """
     try:
+        if build is not None:
+            return {"results": build}
         return {
             "state": map_state(execution_results.run.status),
             "results": _convert_run(execution_results, client),
