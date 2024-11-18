@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.versioned.builder import VersionedBuilder
+from digitalhub.entities._base.context.builder import ContextBuilder
 from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.utils.exceptions import EntityError
 
@@ -10,7 +10,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.dataitem._base.entity import Dataitem
 
 
-class DataitemBuilder(VersionedBuilder):
+class DataitemBuilder(ContextBuilder):
     """
     Dataitem builder.
     """

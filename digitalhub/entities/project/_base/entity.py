@@ -1860,7 +1860,11 @@ class Project(ProjectEntity):
         None
         """
         return processor.share_project_entity(
-            entity_type=self.ENTITY_TYPE, entity_name=self.name, user=user, unshare=False, local=self._client.is_local()
+            entity_type=self.ENTITY_TYPE,
+            entity_name=self.name,
+            user=user,
+            unshare=False,
+            local=self._client.is_local(),
         )
 
     def unshare(self, user: str) -> None:
@@ -1876,5 +1880,9 @@ class Project(ProjectEntity):
         None
         """
         return processor.share_project_entity(
-            entity_type=self.ENTITY_TYPE, entity_name=self.name, user=user, unshare=True, local=self._client.is_local()
+            entity_type=self.ENTITY_TYPE,
+            entity_name=self.name,
+            user=user,
+            unshare=True,
+            local=self._client.is_local(),
         )

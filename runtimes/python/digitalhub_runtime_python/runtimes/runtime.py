@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Callable
 
-from digitalhub_runtime_python.utils.configuration import get_function_from_source
-from digitalhub_runtime_python.utils.inputs import compose_inputs
-from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
-
 from digitalhub.context.api import get_context
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
+
+from digitalhub_runtime_python.utils.configuration import get_function_from_source
+from digitalhub_runtime_python.utils.inputs import compose_inputs
+from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
 
 
 class RuntimePython(Runtime):
@@ -87,23 +87,6 @@ class RuntimePython(Runtime):
         return status
 
     @staticmethod
-    def _get_executable(action: str) -> Callable:
-        """
-        Select function according to action.
-
-        Parameters
-        ----------
-        action : str
-            Action to execute.
-
-        Returns
-        -------
-        Callable
-            Function to execute.
-        """
-        raise NotImplementedError
-
-    @staticmethod
     def _validate_run(run: dict) -> None:
         """
         Check if run is locally allowed.
@@ -118,8 +101,7 @@ class RuntimePython(Runtime):
         None
         """
         task_kind = run["spec"]["task"].split(":")[0]
-        local_execution = run["spec"]["local_execution"]
-        if task_kind != "python+job" and local_execution:
+        if task_kind != "python+job" and run["spec"]["local_execution"]:
             msg = f"Local execution not allowed for task kind {task_kind}."
             LOGGER.exception(msg)
             raise RuntimeError(msg)

@@ -5,9 +5,8 @@ import tempfile
 from typing import Callable
 
 import kfp
-from kfp.compiler import compiler
-
 from digitalhub.utils.generic_utils import encode_source
+from kfp.compiler import compiler
 
 
 def run_kfp_build(pipeline: Callable, *args, **kwargs) -> dict:
@@ -30,4 +29,4 @@ def run_kfp_build(pipeline: Callable, *args, **kwargs) -> dict:
             pipeline_func=pipeline,
             package_path=pipeline_package_path,
         )
-        return {"source": encode_source(pipeline_package_path), "lang": "yaml"}
+        return {"workflow": encode_source(pipeline_package_path)}

@@ -4,17 +4,16 @@ import typing
 from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
-from digitalhub_runtime_dbt.utils.env import get_connection
-from psycopg2 import sql
-
 from digitalhub.entities._commons.enums import Relationship, State
 from digitalhub.factory.api import build_entity_from_params
 from digitalhub.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub.utils.logger import LOGGER
+from psycopg2 import sql
+
+from digitalhub_runtime_dbt.utils.env import get_connection
 
 if typing.TYPE_CHECKING:
     from dbt.contracts.results import RunResult
-
     from digitalhub.entities.dataitem._base.entity import Dataitem
 
 

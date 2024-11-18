@@ -18,9 +18,9 @@ from digitalhub.utils.s3_utils import get_bucket_and_key, get_s3_source
 from digitalhub.utils.uri_utils import map_uri_scheme
 
 if typing.TYPE_CHECKING:
-    from digitalhub_runtime_kfp.entities.workflow.kfp.spec import WorkflowSpecKfp
-
     from digitalhub.entities.workflow._base.entity import Workflow
+
+    from digitalhub_runtime_kfp.entities.workflow.kfp.spec import WorkflowSpecKfp
 
 
 def get_dhcore_workflow(workflow_string: str) -> Workflow:

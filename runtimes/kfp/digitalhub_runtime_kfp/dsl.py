@@ -4,10 +4,9 @@ import json
 import os
 from contextlib import contextmanager
 
+import digitalhub as dh
 from kfp import dsl
 from kubernetes import client as k8s_client
-
-import digitalhub as dh
 
 label_prefix = "kfp-digitalhub-runtime-"
 

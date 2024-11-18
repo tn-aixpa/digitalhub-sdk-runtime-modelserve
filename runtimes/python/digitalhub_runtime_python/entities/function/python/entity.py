@@ -8,10 +8,10 @@ from digitalhub.utils.io_utils import write_text
 from digitalhub.utils.uri_utils import has_local_scheme
 
 if typing.TYPE_CHECKING:
+    from digitalhub.entities._base.entity.metadata import Metadata
+
     from digitalhub_runtime_python.entities.function.python.spec import FunctionSpecPython
     from digitalhub_runtime_python.entities.function.python.status import FunctionStatusPython
-
-    from digitalhub.entities._base.entity.metadata import Metadata
 
 
 class FunctionPython(Function):

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from digitalhub_runtime_kfp.entities.workflow.kfp.models import BuildValidator, SourceValidator
-
 from digitalhub.entities.workflow._base.spec import WorkflowSpec, WorkflowValidator
+
+from digitalhub_runtime_kfp.entities.workflow.kfp.models import BuildValidator, SourceValidator
 
 
 class WorkflowSpecKfp(WorkflowSpec):
