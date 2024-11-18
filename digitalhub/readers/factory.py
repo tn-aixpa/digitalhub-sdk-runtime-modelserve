@@ -134,4 +134,4 @@ try:
     factory.set_default(ReaderBuilderPandas.ENGINE)
 
 except ImportError:
-    raise ModuleNotFoundError("Please install pandas.")
+    pass
