@@ -3,11 +3,11 @@ from __future__ import annotations
 import shutil
 from typing import Callable
 
-from digitalhub_runtime_kfp.entities._commons.enums import TaskActions
 from digitalhub.context.api import get_context
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 
+from digitalhub_runtime_kfp.entities._commons.enums import TaskActions
 from digitalhub_runtime_kfp.utils.configurations import (
     get_dhcore_workflow,
     get_kfp_pipeline,

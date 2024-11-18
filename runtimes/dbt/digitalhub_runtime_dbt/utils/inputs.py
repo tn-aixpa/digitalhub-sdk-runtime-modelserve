@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub.entities._commons.enums import EntityKinds
 from digitalhub.entities.dataitem.crud import new_dataitem
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
-from digitalhub.entities._commons.enums import Relationship, State, EntityKinds
+
 from digitalhub_runtime_dbt.utils.env import POSTGRES_DATABASE, POSTGRES_SCHEMA
 
 if typing.TYPE_CHECKING:

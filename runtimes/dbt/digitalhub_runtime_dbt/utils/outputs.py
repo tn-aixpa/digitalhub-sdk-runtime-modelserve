@@ -4,7 +4,7 @@ import typing
 from dataclasses import dataclass
 
 from dbt.cli.main import dbtRunnerResult
-from digitalhub.entities._commons.enums import Relationship, State
+from digitalhub.entities._commons.enums import EntityKinds, Relationship, State
 from digitalhub.factory.api import build_entity_from_params
 from digitalhub.utils.data_utils import build_data_preview, get_data_preview
 from digitalhub.utils.logger import LOGGER
@@ -189,7 +189,7 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str, run_key: st
         kwargs = {}
         kwargs["project"] = project
         kwargs["name"] = result.name
-        kwargs["kind"] = "table"
+        kwargs["kind"] = EntityKinds.DATAITEM_TABLE.value
         kwargs["path"] = result.path
         kwargs["uuid"] = uuid
         kwargs["schema"] = get_schema(columns)

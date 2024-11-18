@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities.workflow._base.entity import Workflow
-from digitalhub.utils.generic_utils import decode_string
+from digitalhub.utils.generic_utils import decode_base64_string
 from digitalhub.utils.io_utils import write_text
 from digitalhub.utils.uri_utils import has_local_scheme
 
@@ -57,7 +57,7 @@ class WorkflowKfp(Workflow):
             if base64 is not None:
                 # Write local file
                 src_pth = self._context().root / source
-                write_text(src_pth, decode_string(base64))
+                write_text(src_pth, decode_base64_string(base64))
 
                 # Export and restore base64, then return
                 pth = super().export()

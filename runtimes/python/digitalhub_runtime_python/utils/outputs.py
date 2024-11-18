@@ -4,7 +4,7 @@ import pickle
 import typing
 from typing import Any
 
-from digitalhub.entities._commons.enums import Relationship, State, EntityKinds
+from digitalhub.entities._commons.enums import EntityKinds, Relationship, State
 from digitalhub.entities.artifact._base.entity import Artifact
 from digitalhub.entities.artifact.crud import log_artifact
 from digitalhub.entities.dataitem._base.entity import Dataitem
@@ -41,7 +41,6 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str, run_key
     results = listify_results(results)
 
     for idx, item in enumerate(results):
-
         # Get mapping of outputs, if not found, create a new one
         try:
             name = outputs[idx]
