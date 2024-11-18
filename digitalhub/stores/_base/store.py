@@ -3,13 +3,13 @@ from __future__ import annotations
 from abc import abstractmethod
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import Any, Literal
+from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from digitalhub.readers.api import get_reader_by_engine
 from digitalhub.utils.exceptions import StoreError
-from digitalhub.utils.uri_utils import map_uri_scheme
+from digitalhub.utils.uri_utils import Scheme, has_local_scheme
 
 
 class Store:
@@ -125,7 +125,7 @@ class Store:
         StoreError
             If the source is not a local path.
         """
-        if map_uri_scheme(src) != "local":
+        if not has_local_scheme(src):
             raise StoreError(f"Source '{src}' is not a local path.")
 
     def _check_local_dst(self, dst: str) -> None:
@@ -146,7 +146,7 @@ class Store:
         StoreError
             If the destination is not a local path.
         """
-        if map_uri_scheme(dst) != "local":
+        if not has_local_scheme(dst):
             raise StoreError(f"Destination '{dst}' is not a local path.")
 
     def _check_overwrite(self, dst: Path, overwrite: bool) -> None:
@@ -233,16 +233,20 @@ class StoreConfig(BaseModel):
     Store configuration base class.
     """
 
+    model_config = ConfigDict(use_enum_values=True)
+
 
 class StoreParameters(BaseModel):
     """
     Store configuration class.
     """
 
+    model_config = ConfigDict(use_enum_values=True)
+
     name: str
     """Store id."""
 
-    type: Literal["local", "s3", "remote", "sql"]
+    type: Scheme
     """Store type to instantiate."""
 
     config: StoreConfig = None

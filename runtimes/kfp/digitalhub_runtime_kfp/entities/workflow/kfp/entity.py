@@ -5,7 +5,7 @@ import typing
 from digitalhub.entities.workflow._base.entity import Workflow
 from digitalhub.utils.generic_utils import decode_string
 from digitalhub.utils.io_utils import write_text
-from digitalhub.utils.uri_utils import map_uri_scheme
+from digitalhub.utils.uri_utils import has_local_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_kfp.entities.workflow.kfp.spec import WorkflowSpecKfp
@@ -50,7 +50,7 @@ class WorkflowKfp(Workflow):
 
         # Check source
         source = self.spec.source.get("source")
-        if source is not None and map_uri_scheme(source) == "local":
+        if source is not None and has_local_scheme(source):
             # Check base64. If it is set, decode it in a local file
             # save in variable to restore on object after export
             base64 = self.spec.source.pop("base64", None)

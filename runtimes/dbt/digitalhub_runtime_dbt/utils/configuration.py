@@ -221,7 +221,7 @@ def save_function_source(path: Path, source_spec: dict) -> str:
         return (path / handler).read_text()
 
     # Unsupported scheme
-    raise RuntimeError(f"Unsupported scheme: {scheme}")
+    raise RuntimeError("Unable to collect source.")
 
 
 def get_remote_source(source: str, filename: Path) -> None:

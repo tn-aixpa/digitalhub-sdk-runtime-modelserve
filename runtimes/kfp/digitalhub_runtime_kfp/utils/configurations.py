@@ -107,7 +107,7 @@ def save_workflow_source(path: Path, source_spec: dict) -> str:
 
     # Unsupported scheme
     else:
-        raise RuntimeError(f"Unsupported scheme: {scheme}")
+        raise RuntimeError("Unable to collect source.")
 
     if ":" in handler:
         handler = handler.split(":")[0].split(".")
@@ -240,7 +240,7 @@ def parse_workflow_specs(spec: WorkflowSpecKfp) -> dict:
         raise RuntimeError(msg)
 
 
-def get_kfp_pipeline(name: str, workflow_source: str, workflow_specs: dict) -> dict:
+def get_kfp_pipeline(name: str, workflow_source: str, workflow_specs: dict) -> Callable:
     """
     Get KFP pipeline.
 
@@ -255,7 +255,7 @@ def get_kfp_pipeline(name: str, workflow_source: str, workflow_specs: dict) -> d
 
     Returns
     -------
-    dict
+    Callable
         KFP pipeline.
     """
     try:

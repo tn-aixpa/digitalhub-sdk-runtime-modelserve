@@ -116,7 +116,7 @@ def save_function_source(path: Path, source_spec: dict) -> Path:
 
     # Unsupported scheme
     else:
-        raise RuntimeError(f"Unsupported scheme: {scheme}")
+        raise RuntimeError("Unable to collect source.")
 
     return path
 

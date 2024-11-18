@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from urllib.parse import urlparse
 
 
@@ -38,7 +39,7 @@ def map_uri_scheme(uri: str) -> str:
     raise ValueError(f"Unknown scheme '{scheme}'!")
 
 
-def check_local_path(path: str) -> bool:
+def has_local_scheme(path: str) -> bool:
     """
     Check if path is local.
 
@@ -52,5 +53,15 @@ def check_local_path(path: str) -> bool:
     bool
         True if path is local.
     """
-    scheme = map_uri_scheme(path)
-    return scheme == "local"
+    return map_uri_scheme(path) == "local"
+
+
+class Scheme(Enum):
+    """
+    Scheme types.
+    """
+
+    S3 = "s3"
+    LOCAL = "local"
+    REMOTE = "remote"
+    SQL = "sql"
