@@ -5,7 +5,7 @@ import typing
 from digitalhub.entities.dataitem.crud import new_dataitem
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
-
+from digitalhub.entities._commons.enums import Relationship, State, EntityKinds
 from digitalhub_runtime_dbt.utils.env import POSTGRES_DATABASE, POSTGRES_SCHEMA
 
 if typing.TYPE_CHECKING:
@@ -43,7 +43,7 @@ def materialize_dataitem(dataitem: DataitemTable, name: str) -> str:
         materialized_dataitem: DataitemTable = new_dataitem(
             project=dataitem.project,
             name=table_name,
-            kind="table",
+            kind=EntityKinds.DATAITEM_TABLE.value,
             path=materialized_path,
         )
 

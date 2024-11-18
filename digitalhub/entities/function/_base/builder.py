@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.context.builder import ContextBuilder
+from digitalhub.entities._base.versioned.builder import VersionedBuilder
 from digitalhub.entities._base.runtime_entity.builder import RuntimeEntityBuilder
 from digitalhub.entities._commons.enums import EntityTypes
 
@@ -10,7 +10,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.function._base.entity import Function
 
 
-class FunctionBuilder(ContextBuilder, RuntimeEntityBuilder):
+class FunctionBuilder(VersionedBuilder, RuntimeEntityBuilder):
     """
     Function builder.
     """

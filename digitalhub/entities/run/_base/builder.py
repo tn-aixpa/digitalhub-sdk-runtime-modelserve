@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.context.builder import ContextBuilder
+from digitalhub.entities._base.unversioned.builder import UnversionedBuilder
 from digitalhub.entities._base.runtime_entity.builder import EntityError, RuntimeEntityBuilder
 from digitalhub.entities._commons.enums import EntityTypes
 
@@ -10,7 +10,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.run._base.entity import Run
 
 
-class RunBuilder(ContextBuilder, RuntimeEntityBuilder):
+class RunBuilder(UnversionedBuilder, RuntimeEntityBuilder):
     """
     Run builder.
     """
@@ -54,6 +54,7 @@ class RunBuilder(ContextBuilder, RuntimeEntityBuilder):
         """
         if task is None:
             raise EntityError("Missing task in run spec")
+
         self._check_kind_validity(task)
         uuid = self.build_uuid(uuid)
         metadata = self.build_metadata(

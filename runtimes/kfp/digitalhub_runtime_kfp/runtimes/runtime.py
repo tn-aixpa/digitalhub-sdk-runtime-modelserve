@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 from typing import Callable
 
+from digitalhub_runtime_kfp.entities._commons.enums import TaskActions
 from digitalhub.context.api import get_context
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
@@ -101,7 +102,7 @@ class RuntimeKfp(Runtime):
         Callable
             Workflow to execute.
         """
-        if action == "build":
+        if action == TaskActions.BUILD.value:
             return run_kfp_build
         raise NotImplementedError
 

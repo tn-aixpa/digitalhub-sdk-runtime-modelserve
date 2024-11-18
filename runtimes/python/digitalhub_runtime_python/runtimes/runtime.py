@@ -5,7 +5,7 @@ from typing import Callable
 from digitalhub.context.api import get_context
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
-
+from digitalhub_runtime_python.entities._commons.enums import EntityKinds
 from digitalhub_runtime_python.utils.configuration import get_function_from_source
 from digitalhub_runtime_python.utils.inputs import compose_inputs
 from digitalhub_runtime_python.utils.outputs import build_status, parse_outputs
@@ -101,7 +101,7 @@ class RuntimePython(Runtime):
         None
         """
         task_kind = run["spec"]["task"].split(":")[0]
-        if task_kind != "python+job" and run["spec"]["local_execution"]:
+        if task_kind != EntityKinds.TASK_PYTHON_JOB.value and run["spec"]["local_execution"]:
             msg = f"Local execution not allowed for task kind {task_kind}."
             LOGGER.exception(msg)
             raise RuntimeError(msg)

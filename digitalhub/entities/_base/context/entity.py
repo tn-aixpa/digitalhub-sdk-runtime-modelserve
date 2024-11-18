@@ -27,11 +27,10 @@ class ContextEntity(Entity):
     ) -> None:
         super().__init__(kind, metadata, spec, status, user)
         self.project = project
+        self.name: str
+        self.id: str
 
         # Different behaviour for versioned and unversioned
-        self.id: str
-        self.name: str
-
         self._obj_attr.extend(["project", "id", "name"])
 
     ##############################

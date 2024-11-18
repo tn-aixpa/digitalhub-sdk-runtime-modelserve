@@ -41,4 +41,4 @@ class RuntimeContainer(Runtime):
         dict
             Status of the executed run.
         """
-        raise RuntimeError("Cannot excute locally.")
+        raise NotImplementedError("Local execution not implemented for Container runtime.")

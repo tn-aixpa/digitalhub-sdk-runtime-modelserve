@@ -47,4 +47,4 @@ class RuntimeModelserve(Runtime):
         dict
             Status of the executed run.
         """
-        raise NotImplementedError("Local execution not implemented.")
+        raise NotImplementedError("Local execution not implemented for Modelserve runtime.")

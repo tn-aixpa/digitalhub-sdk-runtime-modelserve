@@ -9,7 +9,7 @@ from digitalhub.factory.api import build_entity_from_dict
 from digitalhub.runtimes._base import Runtime
 from digitalhub.utils.logger import LOGGER
 
-from digitalhub_runtime_dbt.entities.task.dbt_transform.builder import TaskDbtTransformBuilder
+from digitalhub_runtime_dbt.entities._commons.enums import TaskActions
 from digitalhub_runtime_dbt.utils.cleanup import cleanup
 from digitalhub_runtime_dbt.utils.configuration import (
     generate_dbt_profile_yml,
@@ -131,7 +131,7 @@ class RuntimeDbt(Runtime):
         Callable
             Function to execute.
         """
-        if action == TaskDbtTransformBuilder.ENTITY_ACTION:
+        if action == TaskActions.TRANSFORM.value:
             return transform
         raise NotImplementedError
 
