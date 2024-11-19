@@ -179,6 +179,7 @@ class OperationsProcessor:
         """
         client = get_client(kwargs.pop("local", False), kwargs.pop("config", None))
         obj: dict = read_yaml(file)
+        obj["status"] = {}
         obj["local"] = client.is_local()
         ent: ProjectEntity = build_entity_from_dict(obj)
 
@@ -691,6 +692,7 @@ class OperationsProcessor:
             Object instance.
         """
         dict_obj: dict = read_yaml(file)
+        dict_obj["status"] = {}
         context = self._get_context(dict_obj["project"])
         obj = build_entity_from_dict(dict_obj)
         try:
@@ -719,7 +721,11 @@ class OperationsProcessor:
         dict_obj: dict | list[dict] = read_yaml(file)
         if isinstance(dict_obj, list):
             exec_dict = dict_obj[0]
-            tsk_dicts = dict_obj[1:]
+            exec_dict["status"] = {}
+            tsk_dicts = []
+            for i in dict_obj[1:]:
+                i["status"] = {}
+                tsk_dicts.append(i)
         else:
             exec_dict = dict_obj
             tsk_dicts = []
