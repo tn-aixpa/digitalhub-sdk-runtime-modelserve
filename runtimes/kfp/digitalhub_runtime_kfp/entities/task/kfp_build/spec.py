@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from digitalhub.entities.task._base.spec import TaskSpecFunction, TaskValidatorFunction
+from digitalhub.entities.task._base.spec import TaskSpecWorkflow, TaskValidatorWorkflow
 
 
-class TaskSpecKfpBuild(TaskSpecFunction):
+class TaskSpecKfpBuild(TaskSpecWorkflow):
     """
     TaskSpecKfpBuild specifications.
     """
 
 
-class TaskValidatorKfpBuild(TaskValidatorFunction):
+class TaskValidatorKfpBuild(TaskValidatorWorkflow):
     """
     TaskValidatorKfpBuild validator.
     """

@@ -1664,7 +1664,7 @@ class OperationsProcessor:
         """
         try:
             client = get_client()
-            obj = self.read_base_entity(client, EntityTypes.PROJECT.value, project)
+            obj = self._read_base_entity(client, EntityTypes.PROJECT.value, project)
             build_entity_from_dict(obj)
             return get_context(project)
         except EntityNotExistsError:
