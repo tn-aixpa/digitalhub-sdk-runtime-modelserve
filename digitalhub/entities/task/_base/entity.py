@@ -5,7 +5,7 @@ import typing
 from digitalhub.entities._base.unversioned.entity import UnversionedEntity
 from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities.run.crud import delete_run, get_run, new_run
-from digitalhub.factory.api import build_entity_from_params, get_entity_type_from_kind, get_executable_kind
+from digitalhub.factory.api import get_entity_type_from_kind, get_executable_kind
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
