@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field
-
 from digitalhub.entities.task._base.models import CoreServiceType
 from digitalhub.entities.task._base.spec import TaskSpecFunction, TaskValidatorFunction
+from pydantic import Field
 
 
 class TaskSpecModelserveServe(TaskSpecFunction):

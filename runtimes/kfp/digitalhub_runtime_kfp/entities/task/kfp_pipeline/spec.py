@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from digitalhub.entities.task._base.spec import TaskSpecFunction, TaskValidatorFunction
+from digitalhub.entities.task._base.spec import TaskSpecWorkflow, TaskValidatorWorkflow
 
 
-class TaskSpecKfpPipeline(TaskSpecFunction):
+class TaskSpecKfpPipeline(TaskSpecWorkflow):
     """
     TaskSpecKfpPipeline specifications.
     """
 
     def __init__(
         self,
-        function: str,
+        workflow: str,
         node_selector: list[dict] | None = None,
         volumes: list[dict] | None = None,
         resources: dict | None = None,
@@ -23,7 +23,7 @@ class TaskSpecKfpPipeline(TaskSpecFunction):
         **kwargs,
     ) -> None:
         super().__init__(
-            function,
+            workflow,
             node_selector,
             volumes,
             resources,
@@ -37,7 +37,7 @@ class TaskSpecKfpPipeline(TaskSpecFunction):
         self.schedule = schedule
 
 
-class TaskValidatorKfpPipeline(TaskValidatorFunction):
+class TaskValidatorKfpPipeline(TaskValidatorWorkflow):
     """
     TaskValidatorKfpPipeline validator.
     """

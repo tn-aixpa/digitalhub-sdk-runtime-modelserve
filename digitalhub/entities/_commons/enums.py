@@ -84,3 +84,20 @@ class BackendOperations(Enum):
     LOGS = "logs"
     SEARCH = "search"
     SHARE = "share"
+
+
+class EntityKinds(Enum):
+    """
+    Entity kinds.
+    """
+
+    PROJECT_PROJECT = "project"
+    ARTIFACT_ARTIFACT = "artifact"
+    DATAITEM_DATAITEM = "dataitem"
+    DATAITEM_TABLE = "table"
+    DATAITEM_ICEBERG = "iceberg"
+    MODEL_MODEL = "model"
+    MODEL_MLFLOW = "mlflow"
+    MODEL_HUGGINGFACE = "huggingface"
+    MODEL_SKLEARN = "sklearn"
+    SECRET_SECRET = "secret"

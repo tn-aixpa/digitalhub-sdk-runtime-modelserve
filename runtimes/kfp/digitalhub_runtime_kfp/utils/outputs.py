@@ -8,10 +8,10 @@ from datetime import datetime
 from io import BytesIO
 from typing import Any
 
-from digitalhub_runtime_kfp.dsl import label_prefix
-
 from digitalhub.entities._commons.enums import State
 from digitalhub.utils.logger import LOGGER
+
+from digitalhub_runtime_kfp.dsl import label_prefix
 
 if typing.TYPE_CHECKING:
     from kfp import Client
@@ -44,7 +44,9 @@ def map_state(state: str) -> str:
 
 
 def build_status(
-    build: dict | None = None, execution_results: ApiRunDetail | None = None, client: Client | None = None
+    build: dict | None = None,
+    execution_results: ApiRunDetail | None = None,
+    client: Client | None = None,
 ) -> dict:
     """
     Collect outputs.
@@ -179,7 +181,10 @@ def _node_to_graph(id: str, run_detail: ApiRunDetail, node: dict, templates: lis
     if node["type"] == "Pod" and "outputs" in node:
         try:
             run_id_artifact = client.runs.read_artifact(
-                run_detail.run.id, node["id"], f"{node['displayName']}-run_id", async_req=False
+                run_detail.run.id,
+                node["id"],
+                f"{node['displayName']}-run_id",
+                async_req=False,
             )
             res["run_id"] = _get_artifact_value(run_id_artifact.data)
         except Exception as e:

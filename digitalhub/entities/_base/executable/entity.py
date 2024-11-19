@@ -141,7 +141,7 @@ class ExecutableEntity(VersionedEntity):
 
         # Override kwargs
         kwargs["project"] = self.project
-        kwargs["function"] = self._get_executable_string()
+        kwargs[self.ENTITY_TYPE] = self._get_executable_string()
         kwargs["kind"] = task_kind
 
         # Create object instance
@@ -203,7 +203,7 @@ class ExecutableEntity(VersionedEntity):
         # Update kwargs
         kwargs["project"] = self.project
         kwargs["kind"] = kind
-        kwargs["function"] = self._get_executable_string()
+        kwargs[self.ENTITY_TYPE] = self._get_executable_string()
         kwargs["uuid"] = self._tasks[kind].id
 
         # Update task
@@ -246,7 +246,7 @@ class ExecutableEntity(VersionedEntity):
         list
             Response from backend.
         """
-        params = {"function": self._get_executable_string(), "kind": kind}
+        params = {self.ENTITY_TYPE: self._get_executable_string(), "kind": kind}
         return processor.list_context_entities(self.project, EntityTypes.TASK.value, params=params)
 
     def _check_task_in_backend(self, kind: str) -> bool:
@@ -370,7 +370,7 @@ class ExecutableEntity(VersionedEntity):
         """
         if kwargs is None:
             kwargs = {}
-        kwargs["params"] = {"function": self._get_executable_string()}
+        kwargs["params"] = {self.ENTITY_TYPE: self._get_executable_string()}
         return list_runs(self.project, **kwargs)
 
     def delete_run(

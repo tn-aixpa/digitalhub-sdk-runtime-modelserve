@@ -6,7 +6,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities._commons.enums import EntityTypes
+from digitalhub.entities._commons.enums import EntityKinds, EntityTypes
 from digitalhub.entities._commons.utils import build_log_path_from_filename, build_log_path_from_source
 from digitalhub.entities._operations.processor import processor
 from digitalhub.factory.api import build_entity_from_params
@@ -160,7 +160,7 @@ def log_dataitem(
             path=path,
             **kwargs,
         )
-        if obj.kind == "table":
+        if obj.kind == EntityKinds.DATAITEM_TABLE.value:
             dst = obj.write_df(df=data, extension=extension)
             reader = get_reader_by_object(data)
             obj.spec.schema = reader.get_schema(data)

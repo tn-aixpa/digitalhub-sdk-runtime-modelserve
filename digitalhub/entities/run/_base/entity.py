@@ -62,7 +62,7 @@ class Run(UnversionedEntity):
         new_spec = self._get_runtime().build(executable, task, self.to_dict())
         self.spec = build_spec(self.kind, **new_spec)
         self._set_state(State.BUILT.value)
-        self.save()
+        self.save(update=True)
 
     def run(self) -> Run:
         """
@@ -254,13 +254,12 @@ class Run(UnversionedEntity):
             Executable (function or workflow) from backend.
         """
         exec_kind = get_executable_kind(self.kind)
-        entity_type = get_entity_type_from_kind(exec_kind)
-        splitted = self.spec.task.split("/")
-        exec_name = splitted[-1].split(":")[0]
-        exec_id = splitted[-1].split(":")[1]
+        exec_type = get_entity_type_from_kind(exec_kind)
+        string_to_split = getattr(self.spec, exec_type)
+        exec_name, exec_id = string_to_split.split("://")[-1].split("/")[-1].split(":")
         return processor.read_context_entity(
             exec_name,
-            entity_type=entity_type,
+            entity_type=exec_type,
             project=self.project,
             entity_id=exec_id,
         ).to_dict()
@@ -275,18 +274,9 @@ class Run(UnversionedEntity):
         dict
             Task from backend.
         """
-        executable_kind = get_executable_kind(self.kind)
-        exec_string = f"{executable_kind}://{self.spec.task.split('://')[1]}"
-
-        # Local backend
-        if self._context().local:
-            tasks = processor._list_base_entities(self._context().client, EntityTypes.TASK.value)
-            for i in tasks:
-                if i.get("spec").get("function") == exec_string:
-                    return i
-            raise EntityError("Task not found.")
-
-        # Remote backend
-        task_kind = self.spec.task.split("://")[0]
-        params = {"function": exec_string, "kind": task_kind}
-        return processor.list_context_entities(self.project, EntityTypes.TASK.value, params=params)[0].to_dict()
+        task_id = self.spec.task.split("://")[-1].split("/")[-1]
+        return processor.read_context_entity(
+            task_id,
+            entity_type=EntityTypes.TASK.value,
+            project=self.project,
+        ).to_dict()

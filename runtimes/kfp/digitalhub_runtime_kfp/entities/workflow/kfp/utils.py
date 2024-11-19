@@ -3,14 +3,14 @@ from __future__ import annotations
 import typing
 from pathlib import Path
 
-from digitalhub_runtime_kfp.entities.workflow.kfp.models import SourceLang
-
 from digitalhub.stores.api import get_store
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.file_utils import eval_py_type, eval_zip_type
 from digitalhub.utils.generic_utils import encode_source, encode_string
 from digitalhub.utils.s3_utils import get_s3_bucket
 from digitalhub.utils.uri_utils import has_local_scheme
+
+from digitalhub_runtime_kfp.entities.workflow.kfp.models import SourceLang
 
 if typing.TYPE_CHECKING:
     from digitalhub_runtime_kfp.entities.workflow.kfp.entity import WorkflowKfp

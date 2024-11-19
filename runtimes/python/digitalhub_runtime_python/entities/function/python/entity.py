@@ -3,15 +3,15 @@ from __future__ import annotations
 import typing
 
 from digitalhub.entities.function._base.entity import Function
-from digitalhub.utils.generic_utils import decode_string
+from digitalhub.utils.generic_utils import decode_base64_string
 from digitalhub.utils.io_utils import write_text
 from digitalhub.utils.uri_utils import has_local_scheme
 
 if typing.TYPE_CHECKING:
+    from digitalhub.entities._base.entity.metadata import Metadata
+
     from digitalhub_runtime_python.entities.function.python.spec import FunctionSpecPython
     from digitalhub_runtime_python.entities.function.python.status import FunctionStatusPython
-
-    from digitalhub.entities._base.entity.metadata import Metadata
 
 
 class FunctionPython(Function):
@@ -57,7 +57,7 @@ class FunctionPython(Function):
             if base64 is not None:
                 # Write local file
                 src_pth = self._context().root / source
-                write_text(src_pth, decode_string(base64))
+                write_text(src_pth, decode_base64_string(base64))
 
                 # Export and restore base64, then return
                 pth = super().export()
