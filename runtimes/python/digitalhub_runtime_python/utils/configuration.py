@@ -77,19 +77,19 @@ def get_function_source(source_spec: dict) -> Path:
     raise RuntimeError("Must provide handler path in handler in form <root>.<dir>.<module>:<function_name>.")
 
 
-def parse_handler(handler: str) -> tuple:
+def parse_handler(handler: str) -> tuple[Path, str]:
     """
     Parse handler.
 
     Parameters
     ----------
     handler : str
-        Function handler
+        Function handler.
 
     Returns
     -------
-    str
-        Function handler.
+    tuple[Path, str]
+        Handler path and function name.
     """
     parsed = handler.split(":")
     if len(parsed) == 1:
@@ -174,7 +174,8 @@ def import_function_and_init(source: dict) -> tuple[Callable, Union[Callable, No
 
     # Get init function
     init_fnc: Callable | None = None
-    if init_handler := source.get("init_function") is not None:
+    init_handler: str | None = source.get("init_function")
+    if init_handler is not None:
         init_fnc = import_function(function_path, init_handler)
 
     return fnc, init_fnc
