@@ -198,7 +198,8 @@ def create_dataitem_(result: ParsedResults, project: str, uuid: str, run_key: st
         dataitem = build_entity_from_params(**kwargs)
 
         # Update dataitem relationships with run key
-        dataitem.add_relationship(relation=Relationship.PRODUCEDBY.value, source=dataitem.key, dest=run_key)
+        dest = run_key + ":" + run_key.split("/")[-1]
+        dataitem.add_relationship(relation=Relationship.PRODUCEDBY.value, source=dataitem.key, dest=dest)
 
         # Update dataitem status with preview
         dataitem.status.preview = _get_data_preview(columns, data, rows_count)
