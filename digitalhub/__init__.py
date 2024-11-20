@@ -1,3 +1,4 @@
+__version__ = "0.9.0b0"
 from digitalhub.entities.artifact.crud import (
     delete_artifact,
     get_artifact,

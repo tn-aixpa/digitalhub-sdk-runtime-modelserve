@@ -148,9 +148,7 @@ class S3Store(Store):
         # Otherwise build key from destination
         if dst is None:
             raise StoreError(
-                "Destination must be provided. " + "If source is a list of files or a directory, "
-                "destination must be a partition, e.g. 's3://bucket/partition/', ",
-                "otherwise a destination key, e.g. 's3://bucket/key'",
+                "Destination must be provided. If source is a list of files or a directory, destination must be a partition, e.g. 's3://bucket/partition/' otherwise a destination key, e.g. 's3://bucket/key'"
             )
         else:
             dst = self._get_key(dst)
