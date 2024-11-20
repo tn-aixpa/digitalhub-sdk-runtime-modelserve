@@ -1,3 +1,4 @@
+from digitalhub_runtime_python.entities._commons.enums import EntityKinds
 from digitalhub_runtime_python.entities.function.python.builder import FunctionPythonBuilder
 from digitalhub_runtime_python.entities.run.python_run.builder import RunPythonRunBuilder
 from digitalhub_runtime_python.entities.task.python_build.builder import TaskPythonBuildBuilder
@@ -6,16 +7,16 @@ from digitalhub_runtime_python.entities.task.python_serve.builder import TaskPyt
 from digitalhub_runtime_python.utils.utils import handler
 
 entity_builders = (
-    (FunctionPythonBuilder.ENTITY_KIND, FunctionPythonBuilder),
-    (TaskPythonBuildBuilder.ENTITY_KIND, TaskPythonBuildBuilder),
-    (TaskPythonJobBuilder.ENTITY_KIND, TaskPythonJobBuilder),
-    (TaskPythonServeBuilder.ENTITY_KIND, TaskPythonServeBuilder),
-    (RunPythonRunBuilder.ENTITY_KIND, RunPythonRunBuilder),
+    (EntityKinds.FUNCTION_PYTHON.value, FunctionPythonBuilder),
+    (EntityKinds.TASK_PYTHON_BUILD.value, TaskPythonBuildBuilder),
+    (EntityKinds.TASK_PYTHON_JOB.value, TaskPythonJobBuilder),
+    (EntityKinds.TASK_PYTHON_SERVE.value, TaskPythonServeBuilder),
+    (EntityKinds.RUN_PYTHON.value, RunPythonRunBuilder),
 )
 
 try:
     from digitalhub_runtime_python.runtimes.builder import RuntimePythonBuilder
 
-    runtime_builders = ((kind, RuntimePythonBuilder) for kind in FunctionPythonBuilder().get_all_kinds())
+    runtime_builders = ((kind, RuntimePythonBuilder) for kind in [e.value for e in EntityKinds])
 except ImportError:
     runtime_builders = tuple()

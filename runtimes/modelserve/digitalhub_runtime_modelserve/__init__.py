@@ -1,3 +1,4 @@
+from digitalhub_runtime_modelserve.entities._commons.enums import EntityKinds
 from digitalhub_runtime_modelserve.entities.function.huggingfaceserve.builder import FunctionHuggingfaceserveBuilder
 from digitalhub_runtime_modelserve.entities.function.mlflowserve.builder import FunctionMlflowserveBuilder
 from digitalhub_runtime_modelserve.entities.function.sklearnserve.builder import FunctionSklearnserveBuilder
@@ -9,24 +10,20 @@ from digitalhub_runtime_modelserve.entities.task.mlflowserve_serve.builder impor
 from digitalhub_runtime_modelserve.entities.task.sklearnserve_serve.builder import TaskSklearnserveServeBuilder
 
 entity_builders = (
-    (FunctionHuggingfaceserveBuilder.ENTITY_KIND, FunctionHuggingfaceserveBuilder),
-    (FunctionMlflowserveBuilder.ENTITY_KIND, FunctionMlflowserveBuilder),
-    (FunctionSklearnserveBuilder.ENTITY_KIND, FunctionSklearnserveBuilder),
-    (TaskHuggingfaceserveServeBuilder.ENTITY_KIND, TaskHuggingfaceserveServeBuilder),
-    (TaskMlflowserveServeBuilder.ENTITY_KIND, TaskMlflowserveServeBuilder),
-    (TaskSklearnserveServeBuilder.ENTITY_KIND, TaskSklearnserveServeBuilder),
-    (RunHuggingfaceserveRunBuilder.ENTITY_KIND, RunHuggingfaceserveRunBuilder),
-    (RunMlflowserveRunBuilder.ENTITY_KIND, RunMlflowserveRunBuilder),
-    (RunSklearnserveRunBuilder.ENTITY_KIND, RunSklearnserveRunBuilder),
+    (EntityKinds.FUNCTION_HUGGINGFACESERVE.value, FunctionHuggingfaceserveBuilder),
+    (EntityKinds.FUNCTION_MLFLOWSERVE.value, FunctionMlflowserveBuilder),
+    (EntityKinds.FUNCTION_SKLEARNSERVE.value, FunctionSklearnserveBuilder),
+    (EntityKinds.TASK_HUGGINGFACESERVE_SERVE.value, TaskHuggingfaceserveServeBuilder),
+    (EntityKinds.TASK_MLFLOWSERVE_SERVE.value, TaskMlflowserveServeBuilder),
+    (EntityKinds.TASK_SKLEARNSERVE_SERVE.value, TaskSklearnserveServeBuilder),
+    (EntityKinds.RUN_HUGGINGFACESERVE.value, RunHuggingfaceserveRunBuilder),
+    (EntityKinds.RUN_MLFLOWSERVE.value, RunMlflowserveRunBuilder),
+    (EntityKinds.RUN_SKLEARNSERVE.value, RunSklearnserveRunBuilder),
 )
 
 try:
     from digitalhub_runtime_modelserve.runtimes.builder import RuntimeModelserveBuilder
 
-    runtime_builders = (
-        *[(kind, RuntimeModelserveBuilder) for kind in FunctionSklearnserveBuilder().get_all_kinds()],
-        *[(kind, RuntimeModelserveBuilder) for kind in FunctionMlflowserveBuilder().get_all_kinds()],
-        *[(kind, RuntimeModelserveBuilder) for kind in FunctionHuggingfaceserveBuilder().get_all_kinds()],
-    )
+    runtime_builders = ((kind, RuntimeModelserveBuilder) for kind in [e.value for e in EntityKinds])
 except ImportError:
     runtime_builders = tuple()

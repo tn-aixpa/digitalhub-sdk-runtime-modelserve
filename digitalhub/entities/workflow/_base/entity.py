@@ -76,7 +76,7 @@ class Workflow(ExecutableEntity):
             raise BackendError("Cannot run workflow with local backend.")
 
         # Run task
-        run = task.run(run_kind, local_execution=True, **kwargs)
+        run = task.run(run_kind, local_execution=False, **kwargs)
         if wait:
             return run.wait(log_info=log_info)
         return run
