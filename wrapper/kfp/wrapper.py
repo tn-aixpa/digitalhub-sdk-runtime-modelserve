@@ -12,7 +12,7 @@ def main():
     LOGGER.info("Getting run from backend.")
     run = dh.get_run(os.getenv("RUN_ID"), os.getenv("PROJECT_NAME"))
 
-    LOGGER.info("Executing function.")
+    LOGGER.info("Executing workflow.")
     run.run()
 
     LOGGER.info("Done.")

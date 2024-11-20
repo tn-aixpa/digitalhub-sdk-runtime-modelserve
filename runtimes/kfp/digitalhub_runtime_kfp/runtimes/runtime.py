@@ -154,7 +154,7 @@ class RuntimeKfp(Runtime):
         """
         # Setup function source and specs
         LOGGER.info("Getting workflow source and specs.")
-        dhcore_workflow = get_dhcore_workflow(spec.get("function"))
+        dhcore_workflow = get_dhcore_workflow(spec.get("workflow"))
         workflow_source = save_workflow_source(self.runtime_dir, dhcore_workflow.spec.to_dict().get("source"))
         workflow_specs = parse_workflow_specs(dhcore_workflow.spec)
 
