@@ -2,8 +2,17 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Literal
+
+
+class VolumeType(Enum):
+    """
+    Volume type.
+    """
+
+    PERSISTENT_VOLUME_CLAIM = "persistent_volume_claim"
+    EMPTY_DIR = "empty_dir"
 
 
 class Volume(BaseModel):
@@ -11,7 +20,9 @@ class Volume(BaseModel):
     Volume model.
     """
 
-    volume_type: Literal["persistent_volume_claim", "empty_dir"]
+    model_config = ConfigDict(use_enum_values=True)
+
+    volume_type: VolumeType
     """Volume type."""
 
     name: str
@@ -20,7 +31,7 @@ class Volume(BaseModel):
     mount_path: str
     """Volume mount path inside the container."""
 
-    spec: dict[str, str]
+    spec: dict[str, str] = None
     """Volume spec."""
 
 
