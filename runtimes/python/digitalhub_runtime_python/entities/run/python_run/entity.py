@@ -12,6 +12,7 @@ from digitalhub.factory.api import get_action_from_task_kind
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
+from digitalhub_runtime_python.entities._commons.enums import TaskActions
 from digitalhub_runtime_python.entities.run.python_run.utils import get_getter_for_material
 
 if typing.TYPE_CHECKING:
@@ -79,7 +80,7 @@ class RunPythonRun(Run):
         task_kind = self.spec.task.split("://")[0]
         action = get_action_from_task_kind(self.kind, task_kind)
 
-        if action == "serve":
+        if action == TaskActions.SERVE.value:
             serve_timeout = 300
             start = time.time()
 

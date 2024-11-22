@@ -4,6 +4,7 @@ import typing
 from typing import Any
 
 from digitalhub.readers.factory import factory
+from digitalhub.utils.exceptions import ReaderError
 
 if typing.TYPE_CHECKING:
     from digitalhub.readers._base.reader import DataframeReader
@@ -30,7 +31,7 @@ def get_reader_by_engine(engine: str | None = None) -> DataframeReader:
     except KeyError:
         engines = factory.list_supported_engines()
         msg = f"Unsupported dataframe engine: '{engine}'. Supported engines: {engines}"
-        raise ValueError(msg)
+        raise ReaderError(msg)
 
 
 def get_reader_by_object(obj: Any) -> DataframeReader:
@@ -53,7 +54,7 @@ def get_reader_by_object(obj: Any) -> DataframeReader:
     except KeyError:
         types = factory.list_supported_dataframes()
         msg = f"Unsupported dataframe type: '{obj}'. Supported types: {types}"
-        raise ValueError(msg)
+        raise ReaderError(msg)
 
 
 def get_supported_engines() -> list[str]:

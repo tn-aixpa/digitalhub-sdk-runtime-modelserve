@@ -10,6 +10,8 @@ from digitalhub.factory.api import get_action_from_task_kind
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
+from digitalhub_runtime_modelserve.entities._commons.enums import TaskActions
+
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
 
@@ -54,7 +56,7 @@ class RunModelserveRun(Run):
         task_kind = self.spec.task.split("://")[0]
         action = get_action_from_task_kind(self.kind, task_kind)
 
-        if action == "serve":
+        if action == TaskActions.SERVE.value:
             serve_timeout = 300
             start = time.time()
 

@@ -69,8 +69,6 @@ class DataitemTable(Dataitem):
         Any
             DataFrame.
         """
-        if engine is None:
-            engine = "pandas"
         try:
             if has_local_scheme(self.spec.path):
                 tmp_dir = None

@@ -65,3 +65,9 @@ class ContextError(Exception):
     """
     Raised when context errors.
     """
+
+
+class ReaderError(Exception):
+    """
+    Raised when incontered errors on readers.
+    """

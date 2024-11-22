@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+from digitalhub.utils.exceptions import BuilderError
+
 if typing.TYPE_CHECKING:
     from digitalhub.readers._base.builder import ReaderBuilder
     from digitalhub.readers._base.reader import DataframeReader
@@ -35,13 +37,13 @@ class ReaderFactory:
         if self._engine_builders is None:
             self._engine_builders = {}
         if engine in self._engine_builders:
-            raise ValueError(f"Engine {engine} already exists.")
+            raise BuilderError(f"Builder for engine '{engine}' already exists.")
         self._engine_builders[engine] = builder
 
         if self._dataframe_builders is None:
             self._dataframe_builders = {}
         if dataframe in self._dataframe_builders:
-            raise ValueError(f"Dataframe {dataframe} already exists.")
+            raise BuilderError(f"Builder for dataframe '{dataframe}' already exists.")
         self._dataframe_builders[dataframe] = builder
 
     def build(self, engine: str | None = None, dataframe: str | None = None, **kwargs) -> DataframeReader:
@@ -63,7 +65,7 @@ class ReaderFactory:
             Reader object.
         """
         if (engine is None) == (dataframe is None):
-            raise ValueError("Either engine or dataframe must be provided.")
+            raise BuilderError("Either engine or dataframe must be provided.")
         if engine is not None:
             return self._engine_builders[engine].build(**kwargs)
         return self._dataframe_builders[dataframe].build(**kwargs)
@@ -104,7 +106,7 @@ class ReaderFactory:
         None
         """
         if engine not in self._engine_builders:
-            raise ValueError(f"Engine {engine} not found.")
+            raise BuilderError(f"Engine {engine} not found.")
         self._default = engine
 
     def get_default(self) -> str:
@@ -117,7 +119,7 @@ class ReaderFactory:
             Default engine.
         """
         if self._default is None:
-            raise ValueError("No default engine set.")
+            raise BuilderError("No default engine set.")
         return self._default
 
 

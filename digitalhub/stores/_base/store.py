@@ -100,7 +100,6 @@ class Store:
             DataFrame.
         """
         reader = get_reader_by_engine(engine)
-        self._validate_extension(extension)
         return reader.read_df(path, extension, **kwargs)
 
     ##############################
@@ -204,28 +203,6 @@ class Store:
         """
         tmpdir = mkdtemp()
         return Path(tmpdir)
-
-    @staticmethod
-    def _validate_extension(extension: str) -> None:
-        """
-        Validate extension.
-
-        Parameters
-        ----------
-        extension : str
-            Extension of the file.
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        ValueError
-            If extension is not supported.
-        """
-        if extension not in ["csv", "parquet", "file"]:
-            raise ValueError(f"Extension {extension} not supported.")
 
 
 class StoreConfig(BaseModel):

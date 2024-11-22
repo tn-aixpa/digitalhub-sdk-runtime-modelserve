@@ -11,7 +11,7 @@ from digitalhub.stores.remote.store import RemoteStore, RemoteStoreConfig
 from digitalhub.stores.s3.store import S3Store, S3StoreConfig
 from digitalhub.stores.sql.store import SqlStore, SQLStoreConfig
 from digitalhub.utils.exceptions import StoreError
-from digitalhub.utils.uri_utils import map_uri_scheme
+from digitalhub.utils.uri_utils import Scheme, map_uri_scheme
 
 if typing.TYPE_CHECKING:
     from digitalhub.stores._base.store import Store
@@ -167,7 +167,7 @@ def get_env_store_config(scheme: str) -> StoreParameters:
     ValueError
         If the scheme is not supported.
     """
-    if scheme == "s3":
+    if scheme == Scheme.S3.value:
         return StoreParameters(
             name="s3",
             type="s3",
@@ -178,7 +178,7 @@ def get_env_store_config(scheme: str) -> StoreParameters:
                 bucket_name=os.getenv("S3_BUCKET_NAME"),  # type: ignore
             ),
         )
-    if scheme == "sql":
+    if scheme == Scheme.SQL.value:
         return StoreParameters(
             name="sql",
             type="sql",
@@ -191,13 +191,13 @@ def get_env_store_config(scheme: str) -> StoreParameters:
                 pg_schema=os.getenv("POSTGRES_SCHEMA"),  # type: ignore
             ),
         )
-    if scheme == "remote":
+    if scheme == Scheme.REMOTE.value:
         return StoreParameters(
             name="remote",
             type="remote",
             config=RemoteStoreConfig(),
         )
-    if scheme == "local":
+    if scheme == Scheme.LOCAL.value:
         return StoreParameters(
             name="local",
             type="local",

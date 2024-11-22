@@ -4,7 +4,6 @@ import datetime
 import json
 import os
 import typing
-from urllib.parse import urlparse
 from warnings import warn
 
 from dotenv import get_key, set_key
@@ -13,7 +12,8 @@ from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 
 from digitalhub.client._base.client import Client
 from digitalhub.client.dhcore.api_builder import ClientDHCoreApiBuilder
-from digitalhub.client.dhcore.env import ENV_FILE, FALLBACK_USER, MAX_API_LEVEL, MIN_API_LEVEL, LIB_VERSION
+from digitalhub.client.dhcore.enums import AuthType, EnvVar
+from digitalhub.client.dhcore.env import ENV_FILE, FALLBACK_USER, LIB_VERSION, MAX_API_LEVEL, MIN_API_LEVEL
 from digitalhub.client.dhcore.models import BasicAuth, OAuth2TokenAuth
 from digitalhub.utils.exceptions import (
     BackendError,
@@ -24,6 +24,7 @@ from digitalhub.utils.exceptions import (
     MissingSpecError,
     UnauthorizedError,
 )
+from digitalhub.utils.uri_utils import has_remote_scheme
 
 if typing.TYPE_CHECKING:
     from requests import Response
@@ -329,9 +330,9 @@ class ClientDHCore(Client):
         dict
             Keyword arguments with the authentication parameters.
         """
-        if self._auth_type == "basic":
+        if self._auth_type == AuthType.BASIC.value:
             kwargs["auth"] = self._user, self._password
-        elif self._auth_type == "oauth2":
+        elif self._auth_type == AuthType.OAUTH2.value:
             if "headers" not in kwargs:
                 kwargs["headers"] = {}
             kwargs["headers"]["Authorization"] = f"Bearer {self._access_token}"
@@ -529,13 +530,13 @@ class ClientDHCore(Client):
                 self._access_token = config.access_token
                 self._refresh_token = config.refresh_token
                 self._client_id = config.client_id
-                self._auth_type = "oauth2"
+                self._auth_type = AuthType.OAUTH2.value
 
             elif config.get("user") is not None and config.get("password") is not None:
                 config = BasicAuth(**config)
                 self._user = config.user
                 self._password = config.password
-                self._auth_type = "basic"
+                self._auth_type = AuthType.BASIC.value
 
             return
 
@@ -557,12 +558,12 @@ class ClientDHCore(Client):
         Exception
             If the endpoint of DHCore is not set in the env variables.
         """
-        core_endpt = os.getenv("DHCORE_ENDPOINT")
+        core_endpt = os.getenv(EnvVar.ENDPOINT.value)
         if core_endpt is None:
             raise BackendError("Endpoint not set as environment variables.")
         self._endpoint_core = self._sanitize_endpoint(core_endpt)
 
-        issr_endpt = os.getenv("DHCORE_ISSUER")
+        issr_endpt = os.getenv(EnvVar.ISSUER.value)
         if issr_endpt is not None:
             self._endpoint_issuer = self._sanitize_endpoint(issr_endpt)
 
@@ -574,9 +575,8 @@ class ClientDHCore(Client):
         -------
         None
         """
-        parsed = urlparse(endpoint)
-        if parsed.scheme not in ["http", "https"]:
-            raise BackendError("Invalid endpoint scheme.")
+        if not has_remote_scheme(endpoint):
+            raise BackendError("Invalid endpoint scheme. Must start with http:// or https://.")
 
         endpoint = endpoint.strip()
         return endpoint.removesuffix("/")
@@ -589,19 +589,19 @@ class ClientDHCore(Client):
         -------
         None
         """
-        self._user = os.getenv("DHCORE_USER", FALLBACK_USER)
-        self._refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
-        self._client_id = os.getenv("DHCORE_CLIENT_ID")
+        self._user = os.getenv(EnvVar.USER.value, FALLBACK_USER)
+        self._refresh_token = os.getenv(EnvVar.REFRESH_TOKEN.value)
+        self._client_id = os.getenv(EnvVar.CLIENT_ID.value)
 
-        token = os.getenv("DHCORE_ACCESS_TOKEN")
+        token = os.getenv(EnvVar.ACCESS_TOKEN.value)
         if token is not None and token != "":
-            self._auth_type = "oauth2"
+            self._auth_type = AuthType.OAUTH2.value
             self._access_token = token
             return
 
-        password = os.getenv("DHCORE_PASSWORD")
+        password = os.getenv(EnvVar.PASSWORD.value)
         if self._user is not None and password is not None:
-            self._auth_type = "basic"
+            self._auth_type = AuthType.BASIC.value
             self._password = password
             return
 
@@ -619,12 +619,12 @@ class ClientDHCore(Client):
 
         # Call refresh token endpoint
         # Try token from env
-        refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
+        refresh_token = os.getenv(EnvVar.REFRESH_TOKEN.value)
         response = self._call_refresh_token_endpoint(url, refresh_token)
 
         # Otherwise try token from file
         if response.status_code in (400, 401, 403):
-            refresh_token = get_key(ENV_FILE, "DHCORE_REFRESH_TOKEN")
+            refresh_token = get_key(ENV_FILE, EnvVar.REFRESH_TOKEN.value)
             response = self._call_refresh_token_endpoint(url, refresh_token)
 
         response.raise_for_status()
@@ -694,9 +694,9 @@ class ClientDHCore(Client):
         """
         keys = {}
         if self._access_token is not None:
-            keys["DHCORE_ACCESS_TOKEN"] = self._access_token
+            keys[EnvVar.ACCESS_TOKEN.value] = self._access_token
         if self._refresh_token is not None:
-            keys["DHCORE_REFRESH_TOKEN"] = self._refresh_token
+            keys[EnvVar.REFRESH_TOKEN.value] = self._refresh_token
 
         for k, v in keys.items():
             set_key(dotenv_path=ENV_FILE, key_to_set=k, value_to_set=v)

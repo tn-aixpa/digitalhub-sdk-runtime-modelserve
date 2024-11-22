@@ -8,7 +8,9 @@ import pandas as pd
 from pandas.errors import ParserError
 
 from digitalhub.readers._base.reader import DataframeReader
+from digitalhub.readers._commons.enums import Extensions
 from digitalhub.utils.data_utils import build_data_preview, get_data_preview
+from digitalhub.utils.exceptions import ReaderError
 
 
 class DataframeReaderPandas(DataframeReader):
@@ -38,15 +40,17 @@ class DataframeReaderPandas(DataframeReader):
         pd.DataFrame
             Pandas DataFrame.
         """
-        if extension == "csv":
+        if extension == Extensions.CSV.value:
             method = pd.read_csv
-        elif extension == "parquet":
+        elif extension == Extensions.PARQUET.value:
             method = pd.read_parquet
-        elif extension == "file":
+        elif extension == Extensions.FILE.value:
             try:
-                return self.read_df(path, "csv", **kwargs)
+                return self.read_df(path, Extensions.CSV.value, **kwargs)
             except ParserError:
-                raise ValueError(f"Unable to read from {path}.")
+                raise ReaderError(f"Unable to read from {path}.")
+        else:
+            raise ReaderError(f"Unsupported extension '{extension}' for reading.")
 
         if isinstance(path, list):
             dfs = [method(p, **kwargs) for p in path]
@@ -80,9 +84,11 @@ class DataframeReaderPandas(DataframeReader):
         -------
         None
         """
-        if extension == "csv":
+        if extension == Extensions.CSV.value:
             return self.write_csv(df, dst, **kwargs)
-        self.write_parquet(df, dst, **kwargs)
+        elif extension == Extensions.PARQUET.value:
+            return self.write_parquet(df, dst, **kwargs)
+        raise ReaderError(f"Unsupported extension '{extension}' for writing.")
 
     @staticmethod
     def write_csv(df: pd.DataFrame, dst: str | BytesIO, **kwargs) -> None:
