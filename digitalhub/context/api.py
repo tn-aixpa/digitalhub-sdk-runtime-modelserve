@@ -9,7 +9,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities.project._base.entity import Project
 
 
-def build_context(project: Project) -> None:
+def build_context(project: Project, overwrite: bool = False) -> None:
     """
     Wrapper for ContextBuilder.build().
 
@@ -22,7 +22,7 @@ def build_context(project: Project) -> None:
     -------
     None
     """
-    context_builder.build(project)
+    context_builder.build(project, overwrite)
 
 
 def get_context(project: str) -> Context:

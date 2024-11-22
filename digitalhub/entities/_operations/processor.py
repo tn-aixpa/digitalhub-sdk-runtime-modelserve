@@ -4,7 +4,7 @@ import typing
 
 from digitalhub.client.api import get_client
 from digitalhub.context.api import delete_context, get_context
-from digitalhub.entities._commons.enums import ApiCategories, BackendOperations, EntityTypes
+from digitalhub.entities._commons.enums import ApiCategories, BackendOperations, EntityTypes, Relationship
 from digitalhub.entities._commons.utils import get_project_from_key, parse_entity_key
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import ContextError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
@@ -534,6 +534,8 @@ class OperationsProcessor:
         else:
             context = self._get_context(kwargs["project"])
             obj: ContextEntity = build_entity_from_params(**kwargs)
+        if context.is_running:
+            obj.add_relationship(Relationship.PRODUCEDBY.value, obj.key, context.get_run_ctx())
         new_obj = self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
         return build_entity_from_dict(new_obj)
 

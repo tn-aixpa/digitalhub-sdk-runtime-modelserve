@@ -74,12 +74,8 @@ class Run(UnversionedEntity):
             Run object.
         """
         self.refresh()
-        if self.spec.local_execution:
-            if not self._is_ready_to_run():
-                raise EntityError("Run is not in a state to run.")
-            self._set_state(State.RUNNING.value)
-            self.save(update=True)
 
+        self._start_execution()
         self._setup_execution()
 
         try:
@@ -91,6 +87,8 @@ class Run(UnversionedEntity):
             self._set_message(str(e))
             self.save(update=True)
             raise e
+        finally:
+            self._finish_execution()
 
         self.refresh()
         if not self.spec.local_execution:
@@ -169,12 +167,37 @@ class Run(UnversionedEntity):
 
     def _setup_execution(self) -> None:
         """
-        Setup run execution. In base class, nothing to do.
+        Setup run execution.
 
         Returns
         -------
         None
         """
+
+    def _start_execution(self) -> None:
+        """
+        Start run execution.
+
+        Returns
+        -------
+        None
+        """
+        self._context().set_run(f"{self.key}:{self.id}")
+        if self.spec.local_execution:
+            if not self._is_ready_to_run():
+                raise EntityError("Run is not in a state to run.")
+            self._set_state(State.RUNNING.value)
+            self.save(update=True)
+
+    def _finish_execution(self) -> None:
+        """
+        Finish run execution.
+
+        Returns
+        -------
+        None
+        """
+        self._context().unset_run()
 
     def _is_ready_to_run(self) -> bool:
         """

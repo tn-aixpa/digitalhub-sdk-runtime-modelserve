@@ -20,7 +20,7 @@ class ContextBuilder:
     def __init__(self) -> None:
         self._instances: dict[str, Context] = {}
 
-    def build(self, project_object: Project) -> None:
+    def build(self, project_object: Project, overwrite: bool = False) -> None:
         """
         Add a project as context.
 
@@ -28,12 +28,15 @@ class ContextBuilder:
         ----------
         project_object : Project
             The project to add.
+        overwrite : bool
+            If True, the project will be overwritten if it already exists.
 
         Returns
         -------
         None
         """
-        self._instances[project_object.name] = Context(project_object)
+        if (not project_object.name in self._instances) or overwrite:
+            self._instances[project_object.name] = Context(project_object)
 
     def get(self, project: str) -> Context:
         """
@@ -54,10 +57,10 @@ class ContextBuilder:
         ValueError
             If the project is not in the context.
         """
-        ctx = self._instances.get(project)
-        if ctx is None:
+        try:
+            return self._instances[project]
+        except KeyError:
             raise ContextError(f"Context '{project}' not found. Get or create a project named '{project}'.")
-        return ctx
 
     def remove(self, project: str) -> None:
         """
