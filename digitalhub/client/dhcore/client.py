@@ -6,7 +6,7 @@ import os
 import typing
 from urllib.parse import urlparse
 
-from dotenv import load_dotenv, set_key
+from dotenv import get_key, set_key
 from requests import request
 from requests.exceptions import HTTPError, JSONDecodeError, RequestException
 
@@ -615,14 +615,13 @@ class ClientDHCore(Client):
         url = self._get_refresh_endpoint()
 
         # Call refresh token endpoint
-        try:
-            # Try token from env
-            refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
-            response = self._call_refresh_token_endpoint(url, refresh_token)
+        # Try token from env
+        refresh_token = os.getenv("DHCORE_REFRESH_TOKEN")
+        response = self._call_refresh_token_endpoint(url, refresh_token)
 
-            # Otherwise try token from file
-        except response.status_code == 401:
-            refresh_token = load_dotenv(ENV_FILE)["DHCORE_REFRESH_TOKEN"]
+        # Otherwise try token from file
+        if response.status_code in (400, 401, 403):
+            refresh_token = get_key(ENV_FILE, "DHCORE_REFRESH_TOKEN")
             response = self._call_refresh_token_endpoint(url, refresh_token)
 
         response.raise_for_status()
