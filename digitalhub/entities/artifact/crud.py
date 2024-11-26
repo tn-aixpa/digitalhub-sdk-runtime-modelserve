@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import typing
 
-from digitalhub.entities._base.entity._constructors.uuid import build_uuid
 from digitalhub.entities._commons.enums import EntityTypes
-from digitalhub.entities._commons.utils import build_log_path_from_source
 from digitalhub.entities._operations.processor import processor
 from digitalhub.entities.artifact._base.entity import Artifact
-from digitalhub.utils.file_utils import eval_local_source
+from digitalhub.entities.artifact.utils import eval_source, process_kwargs
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.artifact._base.entity import Artifact
@@ -114,14 +112,15 @@ def log_artifact(
     >>>                    kind="artifact",
     >>>                    source="./local-path")
     """
-    eval_local_source(source)
-    if path is None:
-        uuid = build_uuid()
-        kwargs["uuid"] = uuid
-        path = build_log_path_from_source(project, ENTITY_TYPE, name, uuid, source)
-    obj = new_artifact(project=project, name=name, kind=kind, path=path, **kwargs)
-    obj.upload(source)
-    return obj
+    eval_source(source)
+    kwargs = process_kwargs(project, name, source=source, path=path, **kwargs)
+    return processor.log_material_entity(
+        source=source,
+        project=project,
+        name=name,
+        kind=kind,
+        **kwargs,
+    )
 
 
 def get_artifact(

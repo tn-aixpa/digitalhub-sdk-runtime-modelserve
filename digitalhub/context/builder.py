@@ -35,7 +35,7 @@ class ContextBuilder:
         -------
         None
         """
-        if (not project_object.name in self._instances) or overwrite:
+        if (project_object.name not in self._instances) or overwrite:
             self._instances[project_object.name] = Context(project_object)
 
     def get(self, project: str) -> Context:

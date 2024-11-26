@@ -534,10 +534,33 @@ class OperationsProcessor:
         else:
             context = self._get_context(kwargs["project"])
             obj: ContextEntity = build_entity_from_params(**kwargs)
-        if context.is_running:
-            obj.add_relationship(Relationship.PRODUCEDBY.value, obj.key, context.get_run_ctx())
         new_obj = self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
         return build_entity_from_dict(new_obj)
+
+    def log_material_entity(self, **kwargs) -> MaterialEntity:
+        """
+        Create object in backend and upload file.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Parameters to pass to entity builder.
+
+        Returns
+        -------
+        MaterialEntity
+            Object instance.
+        """
+        source = kwargs.pop("source")
+        context = self._get_context(kwargs["project"])
+        obj = build_entity_from_params(**kwargs)
+        if context.is_running:
+            obj.add_relationship(Relationship.PRODUCEDBY.value, obj.key, context.get_run_ctx())
+
+        new_obj: MaterialEntity = self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
+        new_obj = build_entity_from_dict(new_obj)
+        new_obj.upload(source)
+        return new_obj
 
     def _read_context_entity(
         self,

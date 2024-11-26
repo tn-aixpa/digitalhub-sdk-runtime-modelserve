@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 from digitalhub.readers.api import get_reader_by_engine
 from digitalhub.utils.exceptions import StoreError
-from digitalhub.utils.uri_utils import Scheme, has_local_scheme
+from digitalhub.utils.uri_utils import SchemeCategory, has_local_scheme
 
 
 class Store:
@@ -223,7 +223,7 @@ class StoreParameters(BaseModel):
     name: str
     """Store id."""
 
-    type: Scheme
+    type: SchemeCategory
     """Store type to instantiate."""
 
     config: StoreConfig = None

@@ -176,7 +176,7 @@ class ExecutableEntity(VersionedEntity):
             resp = self._get_task_from_backend(kind)
             if not resp:
                 raise EntityError(f"Task {kind} is not created")
-            self._tasks[kind] = build_entity_from_dict(resp[0])
+            self._tasks[kind] = resp[0]
             return self._tasks[kind]
 
     def update_task(self, kind: str, **kwargs) -> Task:

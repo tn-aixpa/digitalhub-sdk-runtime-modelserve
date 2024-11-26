@@ -11,6 +11,7 @@ from digitalhub.entities.dataitem._base.entity import Dataitem
 from digitalhub.entities.dataitem.crud import log_dataitem
 from digitalhub.entities.model._base.entity import Model
 from digitalhub.readers.api import get_supported_dataframes
+from digitalhub.utils.exceptions import EntityNotExistsError
 from digitalhub.utils.logger import LOGGER
 
 if typing.TYPE_CHECKING:
@@ -58,6 +59,15 @@ def collect_outputs(results: Any, outputs: list[str], project_name: str, run_key
             # Recieve a digitalhub object
             elif isinstance(item, (Dataitem, Artifact, Model)):
                 obj = item
+
+                # Add relationship to object, update it
+                dest = run_key + ":" + run_key.split("/")[-1]
+                obj.add_relationship(relation=Relationship.PRODUCEDBY.value, source=obj.key, dest=dest)
+
+                try:
+                    obj.save(update=True)
+                except EntityNotExistsError:
+                    obj.save()
 
             # Recieve a generic python object
             else:
