@@ -537,7 +537,7 @@ class OperationsProcessor:
         new_obj = self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
         return build_entity_from_dict(new_obj)
 
-    def log_material_entity(self, **kwargs) -> MaterialEntity:
+    def log_material_entity(self, **kwargs,) -> MaterialEntity:
         """
         Create object in backend and upload file.
 
@@ -597,12 +597,14 @@ class OperationsProcessor:
         if not identifier.startswith("store://"):
             if project is None or entity_type is None:
                 raise ValueError("Project and entity type must be specified.")
+            entity_name = identifier
         else:
-            project, entity_type, _, _, entity_id = parse_entity_key(identifier)
+            project, entity_type, _, entity_name, entity_id = parse_entity_key(identifier)
 
         kwargs = self._set_params(**kwargs)
 
         if entity_id is None:
+            kwargs["params"]["name"] = entity_name
             api = context.client.build_api(
                 ApiCategories.CONTEXT.value,
                 BackendOperations.LIST.value,
