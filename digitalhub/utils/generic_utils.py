@@ -4,6 +4,7 @@ import base64
 import importlib.util as imputil
 import json
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
 from zipfile import ZipFile
@@ -204,3 +205,20 @@ def import_function(path: Path, handler: str) -> Callable:
     mod = imputil.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return getattr(mod, handler)
+
+
+def list_enum(enum: Enum) -> list:
+    """
+    Get all values of an enum.
+
+    Parameters
+    ----------
+    enum : Enum
+        Enum to get values from.
+
+    Returns
+    -------
+    list
+        List of enum values.
+    """
+    return [e.value for e in enum]

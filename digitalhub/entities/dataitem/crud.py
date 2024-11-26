@@ -1,19 +1,11 @@
 from __future__ import annotations
 
 import typing
-from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
-from digitalhub.entities._base.entity._constructors.uuid import build_uuid
-from digitalhub.entities._commons.enums import EntityKinds, EntityTypes
-from digitalhub.entities._commons.utils import build_log_path_from_filename, build_log_path_from_source
+from digitalhub.entities._commons.enums import EntityTypes
 from digitalhub.entities._operations.processor import processor
-from digitalhub.factory.api import build_entity_from_params
-from digitalhub.readers.api import get_reader_by_object
-from digitalhub.stores.api import get_store
-from digitalhub.utils.file_utils import eval_local_source
-from digitalhub.utils.generic_utils import slugify_string
+from digitalhub.entities.dataitem.utils import clean_tmp_path, eval_source, post_process, process_kwargs
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities.dataitem._base.entity import Dataitem
@@ -88,7 +80,6 @@ def log_dataitem(
     kind: str,
     source: list[str] | str | None = None,
     data: Any | None = None,
-    extension: str | None = None,
     path: str | None = None,
     **kwargs,
 ) -> Dataitem:
@@ -107,8 +98,6 @@ def log_dataitem(
         Dataitem location on local path.
     data : Any
         Dataframe to log. Alternative to source.
-    extension : str
-        Extension of the output dataframe.
     path : str
         Destination path of the dataitem. If not provided, it's generated.
     **kwargs : dict
@@ -126,52 +115,18 @@ def log_dataitem(
     >>>                    kind="table",
     >>>                    data=df)
     """
-    if (source is None) == (data is None):
-        raise ValueError("You must provide source or data.")
-
-    # Case where source is provided
-    if source is not None:
-        eval_local_source(source)
-        if path is None:
-            uuid = build_uuid()
-            kwargs["uuid"] = uuid
-            path = build_log_path_from_source(project, ENTITY_TYPE, name, uuid, source)
-        obj = new_dataitem(
-            project=project,
-            name=name,
-            kind=kind,
-            path=path,
-            **kwargs,
-        )
-        obj.upload(source)
-
-    # Case where data is provided
-    else:
-        extension = extension if extension is not None else "parquet"
-        if path is None:
-            uuid = build_uuid()
-            kwargs["uuid"] = uuid
-            slug = slugify_string(name) + f".{extension}"
-            path = build_log_path_from_filename(project, ENTITY_TYPE, name, uuid, slug)
-        obj: Dataitem = build_entity_from_params(
-            project=project,
-            name=name,
-            kind=kind,
-            path=path,
-            **kwargs,
-        )
-        if obj.kind == EntityKinds.DATAITEM_TABLE.value:
-            dst = obj.write_df(df=data, extension=extension)
-            reader = get_reader_by_object(data)
-            obj.spec.schema = reader.get_schema(data)
-            obj.status.preview = reader.get_preview(data)
-            store = get_store(obj.spec.path)
-            src = Path(urlparse(obj.spec.path).path).name
-            paths = [(dst, src)]
-            infos = store.get_file_info(paths)
-            obj.add_files_info(infos)
-        obj.save()
-
+    source = eval_source(source, data, kind, name, project)
+    kwargs = process_kwargs(project, name, kind, source=source, data=data, path=path, **kwargs)
+    obj = processor.log_material_entity(
+        source=source,
+        project=project,
+        name=name,
+        kind=kind,
+        **kwargs,
+    )
+    if data is not None:
+        obj = post_process(obj, data)
+        clean_tmp_path(source)
     return obj
 
 

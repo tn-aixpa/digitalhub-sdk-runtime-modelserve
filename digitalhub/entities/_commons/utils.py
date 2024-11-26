@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from digitalhub.entities._commons.enums import EntityTypes
-from digitalhub.utils.file_utils import eval_zip_sources
-from digitalhub.utils.s3_utils import get_s3_bucket
 
 
 def parse_entity_key(key: str) -> tuple[str]:
@@ -85,79 +81,3 @@ def get_project_from_key(key: str) -> str:
     """
     project, _, _, _, _ = parse_entity_key(key)
     return project
-
-
-def build_log_path_from_filename(
-    project: str,
-    entity_type: str,
-    name: str,
-    uuid: str,
-    filename: str,
-) -> str:
-    """
-    Build log path.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    entity_type : str
-        Entity type.
-    name : str
-        Object name.
-    uuid : str
-        Object UUID.
-    filename : str
-        Filename.
-
-    Returns
-    -------
-    str
-        Log path.
-    """
-    return f"s3://{get_s3_bucket()}/{project}/{entity_type}/{name}/{uuid}/{filename}"
-
-
-def build_log_path_from_source(
-    project: str,
-    entity_type: str,
-    name: str,
-    uuid: str,
-    source: str | list[str],
-) -> str:
-    """
-    Build log path.
-
-    Parameters
-    ----------
-    project : str
-        Project name.
-    entity_type : str
-        Entity type.
-    name : str
-        Object name.
-    uuid : str
-        Object UUID.
-    source : str | list[str]
-        Source(s).
-
-    Returns
-    -------
-    str
-        Log path.
-    """
-    is_zip = eval_zip_sources(source)
-    scheme = "zip+s3" if is_zip else "s3"
-    path = f"{scheme}://{get_s3_bucket()}/{project}/{entity_type}/{name}/{uuid}"
-
-    if isinstance(source, list) and len(source) >= 1:
-        if len(source) > 1:
-            path += "/"
-        else:
-            path += f"/{Path(source[0]).name}"
-    elif Path(source).is_dir():
-        path += "/"
-    elif Path(source).is_file():
-        path += f"/{Path(source).name}"
-
-    return path

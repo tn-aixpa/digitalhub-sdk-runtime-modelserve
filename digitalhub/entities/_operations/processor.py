@@ -4,7 +4,7 @@ import typing
 
 from digitalhub.client.api import get_client
 from digitalhub.context.api import delete_context, get_context
-from digitalhub.entities._commons.enums import ApiCategories, BackendOperations, EntityTypes
+from digitalhub.entities._commons.enums import ApiCategories, BackendOperations, EntityTypes, Relationship
 from digitalhub.entities._commons.utils import get_project_from_key, parse_entity_key
 from digitalhub.factory.api import build_entity_from_dict, build_entity_from_params
 from digitalhub.utils.exceptions import ContextError, EntityAlreadyExistsError, EntityError, EntityNotExistsError
@@ -537,6 +537,31 @@ class OperationsProcessor:
         new_obj = self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
         return build_entity_from_dict(new_obj)
 
+    def log_material_entity(self, **kwargs,) -> MaterialEntity:
+        """
+        Create object in backend and upload file.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Parameters to pass to entity builder.
+
+        Returns
+        -------
+        MaterialEntity
+            Object instance.
+        """
+        source = kwargs.pop("source")
+        context = self._get_context(kwargs["project"])
+        obj = build_entity_from_params(**kwargs)
+        if context.is_running:
+            obj.add_relationship(Relationship.PRODUCEDBY.value, obj.key, context.get_run_ctx())
+
+        new_obj: MaterialEntity = self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
+        new_obj = build_entity_from_dict(new_obj)
+        new_obj.upload(source)
+        return new_obj
+
     def _read_context_entity(
         self,
         context: Context,
@@ -572,12 +597,14 @@ class OperationsProcessor:
         if not identifier.startswith("store://"):
             if project is None or entity_type is None:
                 raise ValueError("Project and entity type must be specified.")
+            entity_name = identifier
         else:
-            project, entity_type, _, _, entity_id = parse_entity_key(identifier)
+            project, entity_type, _, entity_name, entity_id = parse_entity_key(identifier)
 
         kwargs = self._set_params(**kwargs)
 
         if entity_id is None:
+            kwargs["params"]["name"] = entity_name
             api = context.client.build_api(
                 ApiCategories.CONTEXT.value,
                 BackendOperations.LIST.value,
