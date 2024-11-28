@@ -83,7 +83,6 @@ class PipelineContext:
             A KFP ContainerOp for the step.
         """
         WORKFLOW_IMAGE = os.environ.get("DHCORE_WORKFLOW_IMAGE")
-        KFPMETA_DIR = os.environ.get("KFPMETA_OUT_DIR", "/tmp")
         DHCORE_ENDPOINT = os.environ.get("DHCORE_ENDPOINT", "http://localhost:8080/")
         DHCORE_ISSUER = os.environ.get("DHCORE_ISSUER", "http://localhost:8080/")
         PROJECT = os.environ.get("PROJECT_NAME")
@@ -120,11 +119,7 @@ class PipelineContext:
         if kwargs is not None:
             args.update(kwargs)
 
-        file_outputs = {
-            "mlpipeline-ui-metadata": KFPMETA_DIR + "/mlpipeline-ui-metadata.json",
-            "mlpipeline-metrics": KFPMETA_DIR + "/mlpipeline-metrics.json",
-            "run_id": "/tmp/run_id",
-        }
+        file_outputs = {"run_id": "/tmp/run_id"}
 
         cmd = [
             "python",
