@@ -95,7 +95,7 @@ def get_run(
     >>> obj = get_run("my-run-id"
     >>>               project="my-project")
     """
-    return processor.read_context_entity(
+    return processor.read_unversioned_entity(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,

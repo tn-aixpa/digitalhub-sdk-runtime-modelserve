@@ -91,7 +91,7 @@ def get_task(
     >>> obj = get_task("my-task-id"
     >>>               project="my-project")
     """
-    return processor.read_context_entity(
+    return processor.read_unversioned_entity(
         identifier,
         entity_type=ENTITY_TYPE,
         project=project,

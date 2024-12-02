@@ -298,7 +298,7 @@ class Run(UnversionedEntity):
             Task from backend.
         """
         task_id = self.spec.task.split("://")[-1].split("/")[-1]
-        return processor.read_context_entity(
+        return processor.read_unversioned_entity(
             task_id,
             entity_type=EntityTypes.TASK.value,
             project=self.project,

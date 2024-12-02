@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
-from typing_extensions import Literal
+from pydantic import BaseModel, Field, ConfigDict
 
 from digitalhub.entities._base._base.entity import Base
 from digitalhub.entities._commons.enums import Relationship
@@ -70,10 +69,9 @@ class RelationshipValidator(BaseModel):
     A class representing the relationship of an entity.
     """
 
-    type_: Literal[
-        Relationship.PRODUCEDBY.value,
-        Relationship.CONSUMES.value,
-    ] = Field(default=None, alias="type")
+    model_config = ConfigDict(use_enum_values=True)
+
+    type_: Relationship = Field(default=None, alias="type")
     """The type of relationship."""
 
     source: str = None

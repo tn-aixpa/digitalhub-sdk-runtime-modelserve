@@ -17,6 +17,7 @@ if typing.TYPE_CHECKING:
     from digitalhub.entities._base.executable.entity import ExecutableEntity
     from digitalhub.entities._base.material.entity import MaterialEntity
     from digitalhub.entities._base.project.entity import ProjectEntity
+    from digitalhub.entities._base.unversioned.entity import UnversionedEntity
 
 
 class OperationsProcessor:
@@ -700,6 +701,45 @@ class OperationsProcessor:
         )
         obj._get_files_info()
         return obj
+
+    def read_unversioned_entity(
+        self,
+        identifier: str,
+        entity_type: str | None = None,
+        project: str | None = None,
+        entity_id: str | None = None,
+        **kwargs,
+    ) -> UnversionedEntity:
+        """
+        Read object from backend.
+
+        Parameters
+        ----------
+        identifier : str
+            Entity key (store://...) or entity name.
+        entity_type : str
+            Entity type.
+        project : str
+            Project name.
+        entity_id : str
+            Entity ID.
+        **kwargs : dict
+            Parameters to pass to the API call.
+
+        Returns
+        -------
+        UnversionedEntity
+            Object instance.
+        """
+        if not identifier.startswith("store://"):
+            entity_id = identifier
+        return self.read_context_entity(
+            identifier,
+            entity_type=entity_type,
+            project=project,
+            entity_id=entity_id,
+            **kwargs,
+        )
 
     def import_context_entity(
         self,
