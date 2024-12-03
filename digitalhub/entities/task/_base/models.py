@@ -210,6 +210,12 @@ class K8s(BaseModel):
     profile: str = None
     """Profile template."""
 
+    runtime_class_name: str = None
+    """Runtime class name."""
+
+    priority_class: str = None
+    """Priority class."""
+
 
 class CorePort(BaseModel):
     """

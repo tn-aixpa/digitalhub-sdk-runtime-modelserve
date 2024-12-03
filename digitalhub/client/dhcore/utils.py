@@ -4,7 +4,7 @@ import os
 import typing
 
 from digitalhub.client.api import get_client
-from digitalhub.client.dhcore.enums import AuthType, EnvVar
+from digitalhub.client.dhcore.enums import AuthType, DhcoreEnvVar
 
 if typing.TYPE_CHECKING:
     from digitalhub.client.dhcore.client import ClientDHCore
@@ -44,17 +44,17 @@ def set_dhcore_env(
     None
     """
     if endpoint is not None:
-        os.environ[EnvVar.ENDPOINT.value] = endpoint
+        os.environ[DhcoreEnvVar.ENDPOINT.value] = endpoint
     if user is not None:
-        os.environ[EnvVar.USER.value] = user
+        os.environ[DhcoreEnvVar.USER.value] = user
     if password is not None:
-        os.environ[EnvVar.PASSWORD.value] = password
+        os.environ[DhcoreEnvVar.PASSWORD.value] = password
     if access_token is not None:
-        os.environ[EnvVar.ACCESS_TOKEN.value] = access_token
+        os.environ[DhcoreEnvVar.ACCESS_TOKEN.value] = access_token
     if refresh_token is not None:
-        os.environ[EnvVar.REFRESH_TOKEN.value] = refresh_token
+        os.environ[DhcoreEnvVar.REFRESH_TOKEN.value] = refresh_token
     if client_id is not None:
-        os.environ[EnvVar.CLIENT_ID.value] = client_id
+        os.environ[DhcoreEnvVar.CLIENT_ID.value] = client_id
 
     update_client_from_env()
 
@@ -70,16 +70,16 @@ def update_client_from_env() -> None:
     client: ClientDHCore = get_client(local=False)
 
     # Update endpoint
-    endpoint = os.getenv(EnvVar.ENDPOINT.value)
+    endpoint = os.getenv(DhcoreEnvVar.ENDPOINT.value)
     if endpoint is not None:
         client._endpoint_core = endpoint
 
     # Update auth
 
     # If token is set, it will override the other auth options
-    access_token = os.getenv(EnvVar.ACCESS_TOKEN.value)
-    refresh_token = os.getenv(EnvVar.REFRESH_TOKEN.value)
-    client_id = os.getenv(EnvVar.CLIENT_ID.value)
+    access_token = os.getenv(DhcoreEnvVar.ACCESS_TOKEN.value)
+    refresh_token = os.getenv(DhcoreEnvVar.REFRESH_TOKEN.value)
+    client_id = os.getenv(DhcoreEnvVar.CLIENT_ID.value)
 
     if access_token is not None:
         if refresh_token is not None:
@@ -91,8 +91,8 @@ def update_client_from_env() -> None:
         return
 
     # Otherwise, if user and password are set, basic auth will be used
-    username = os.getenv(EnvVar.USER.value)
-    password = os.getenv(EnvVar.PASSWORD.value)
+    username = os.getenv(DhcoreEnvVar.USER.value)
+    password = os.getenv(DhcoreEnvVar.PASSWORD.value)
     if username is not None and password is not None:
         client._user = username
         client._password = password

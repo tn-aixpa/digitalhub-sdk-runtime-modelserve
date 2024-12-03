@@ -20,8 +20,10 @@ class TaskSpecContainerDeploy(TaskSpecFunction):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         replicas: int | None = None,
-        fsGroup: int | None = None,
+        fs_group: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -34,10 +36,12 @@ class TaskSpecContainerDeploy(TaskSpecFunction):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.replicas = replicas
-        self.fsGroup = fsGroup
+        self.fs_group = fs_group
 
 
 class TaskValidatorContainerDeploy(TaskValidatorFunction):
@@ -48,5 +52,5 @@ class TaskValidatorContainerDeploy(TaskValidatorFunction):
     replicas: int = Field(default=None, ge=1)
     """Number of replicas."""
 
-    fsGroup: int = Field(default=None, ge=1)
+    fs_group: int = Field(default=None, ge=1)
     """FSGroup."""

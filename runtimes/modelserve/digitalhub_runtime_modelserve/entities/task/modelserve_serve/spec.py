@@ -19,6 +19,8 @@ class TaskSpecModelserveServe(TaskSpecFunction):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         replicas: int | None = None,
         service_type: str | None = None,
         **kwargs,
@@ -33,6 +35,8 @@ class TaskSpecModelserveServe(TaskSpecFunction):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.replicas = replicas

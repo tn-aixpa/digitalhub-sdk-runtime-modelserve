@@ -22,6 +22,8 @@ class RunSpecContainerRun(RunSpec):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         source: dict | None = None,
         image: str | None = None,
         base_image: str | None = None,
@@ -33,7 +35,7 @@ class RunSpecContainerRun(RunSpec):
         service_ports: list | None = None,
         service_type: str | None = None,
         instructions: dict | None = None,
-        fsGroup: int | None = None,
+        fs_group: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -49,6 +51,8 @@ class RunSpecContainerRun(RunSpec):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.source = source
@@ -62,7 +66,7 @@ class RunSpecContainerRun(RunSpec):
         self.service_ports = service_ports
         self.service_type = service_type
         self.instructions = instructions
-        self.fsGroup = fsGroup
+        self.fs_group = fs_group
 
 
 class RunValidatorContainerRun(RunValidator):
@@ -92,4 +96,4 @@ class RunValidatorContainerRun(RunValidator):
     instructions: list[str] = None
 
     # Shared task
-    fsGroup: int = None
+    fs_group: int = None

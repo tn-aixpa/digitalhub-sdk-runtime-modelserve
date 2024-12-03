@@ -18,6 +18,8 @@ class TaskSpecPythonJob(TaskSpecFunction):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         backoff_limit: int | None = None,
         schedule: str | None = None,
         **kwargs,
@@ -32,6 +34,8 @@ class TaskSpecPythonJob(TaskSpecFunction):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.backoff_limit = backoff_limit

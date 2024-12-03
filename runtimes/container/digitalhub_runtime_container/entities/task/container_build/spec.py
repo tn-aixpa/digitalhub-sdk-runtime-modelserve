@@ -19,6 +19,8 @@ class TaskSpecContainerBuild(TaskSpecFunction):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         instructions: list | None = None,
         **kwargs,
     ) -> None:
@@ -32,6 +34,8 @@ class TaskSpecContainerBuild(TaskSpecFunction):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.instructions = instructions

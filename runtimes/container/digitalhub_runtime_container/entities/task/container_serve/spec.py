@@ -21,10 +21,12 @@ class TaskSpecContainerServe(TaskSpecFunction):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         replicas: int | None = None,
         service_ports: list | None = None,
         service_type: str | None = None,
-        fsGroup: int | None = None,
+        fs_group: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -37,12 +39,14 @@ class TaskSpecContainerServe(TaskSpecFunction):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.replicas = replicas
         self.service_ports = service_ports
         self.service_type = service_type
-        self.fsGroup = fsGroup
+        self.fs_group = fs_group
 
 
 class TaskValidatorContainerServe(TaskValidatorFunction):
@@ -59,5 +63,5 @@ class TaskValidatorContainerServe(TaskValidatorFunction):
     service_ports: list[CorePort] = None
     """Service ports mapper."""
 
-    fsGroup: int = Field(default=None, ge=1)
+    fs_group: int = Field(default=None, ge=1)
     """FSGroup."""

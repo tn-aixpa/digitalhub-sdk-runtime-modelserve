@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from digitalhub.entities._base._base.entity import Base
 from digitalhub.entities._commons.enums import Relationship

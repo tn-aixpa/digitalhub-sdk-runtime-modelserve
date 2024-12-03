@@ -538,7 +538,10 @@ class OperationsProcessor:
         new_obj = self._create_context_entity(context, obj.ENTITY_TYPE, obj.to_dict())
         return build_entity_from_dict(new_obj)
 
-    def log_material_entity(self, **kwargs,) -> MaterialEntity:
+    def log_material_entity(
+        self,
+        **kwargs,
+    ) -> MaterialEntity:
         """
         Create object in backend and upload file.
 

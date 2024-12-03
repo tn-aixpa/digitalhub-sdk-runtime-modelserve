@@ -22,6 +22,8 @@ class TaskSpecFunction(TaskSpec):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         **kwargs,
     ) -> None:
         self.function = function
@@ -33,6 +35,8 @@ class TaskSpecFunction(TaskSpec):
         self.envs = envs
         self.secrets = secrets
         self.profile = profile
+        self.runtime_class_name = runtime_class_name
+        self.priority_class = priority_class
 
 
 class TaskSpecWorkflow(TaskSpec):
@@ -49,6 +53,8 @@ class TaskSpecWorkflow(TaskSpec):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         **kwargs,
     ) -> None:
         self.workflow = workflow

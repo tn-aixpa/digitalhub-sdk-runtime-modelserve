@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 
 
-class EnvVar(Enum):
+class DhcoreEnvVar(Enum):
     """
     Environment variables.
     """
@@ -15,6 +15,7 @@ class EnvVar(Enum):
     CLIENT_ID = "DHCORE_CLIENT_ID"
     ACCESS_TOKEN = "DHCORE_ACCESS_TOKEN"
     REFRESH_TOKEN = "DHCORE_REFRESH_TOKEN"
+    WORKFLOW_IMAGE = "DHCORE_WORKFLOW_IMAGE"
 
 
 class AuthType(Enum):

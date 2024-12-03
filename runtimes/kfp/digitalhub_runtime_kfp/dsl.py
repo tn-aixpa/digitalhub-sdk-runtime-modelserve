@@ -5,10 +5,15 @@ import os
 from contextlib import contextmanager
 
 import digitalhub as dh
+from digitalhub.client.dhcore.enums import DhcoreEnvVar
+from digitalhub.runtimes.enums import RuntimeEnvVar
 from kfp import dsl
 from kubernetes import client as k8s_client
 
-label_prefix = "kfp-digitalhub-runtime-"
+LABEL_PREFIX = "kfp-digitalhub-runtime-"
+PROJECT = os.environ.get(RuntimeEnvVar.PROJECT.value)
+ENDPOINT = os.environ.get(DhcoreEnvVar.ENDPOINT.value)
+WORKFLOW_IMAGE = os.environ.get(DhcoreEnvVar.WORKFLOW_IMAGE.value)
 
 
 @contextmanager
@@ -82,11 +87,6 @@ class PipelineContext:
         dsl.ContainerOp
             A KFP ContainerOp for the step.
         """
-        WORKFLOW_IMAGE = os.environ.get("DHCORE_WORKFLOW_IMAGE")
-        DHCORE_ENDPOINT = os.environ.get("DHCORE_ENDPOINT", "http://localhost:8080/")
-        DHCORE_ISSUER = os.environ.get("DHCORE_ISSUER", "http://localhost:8080/")
-        PROJECT = os.environ.get("PROJECT_NAME")
-
         props = {
             "node_selector": node_selector,
             "volumes": volumes,
@@ -162,42 +162,18 @@ class PipelineContext:
 
         cop = dsl.ContainerOp(
             name=name,
-            image=WORKFLOW_IMAGE,
+            image=WKFL_IMG,
             command=cmd,
             file_outputs=file_outputs,
         )
-        cop.add_pod_label(label_prefix + "project", PROJECT)
+        cop.add_pod_label(LABEL_PREFIX + "project", PROJECT)
         if function is not None:
-            cop.add_pod_label(label_prefix + "function", function)
-            cop.add_pod_label(label_prefix + "function_id", function_object.id)
+            cop.add_pod_label(LABEL_PREFIX + "function", function)
+            cop.add_pod_label(LABEL_PREFIX + "function_id", function_object.id)
         if workflow is not None:
-            cop.add_pod_label(label_prefix + "workflow", workflow)
-            cop.add_pod_label(label_prefix + "workflow_id", workflow_object.id)
-        cop.add_pod_label(label_prefix + "action", action)
+            cop.add_pod_label(LABEL_PREFIX + "workflow", workflow)
+            cop.add_pod_label(LABEL_PREFIX + "workflow_id", workflow_object.id)
+        cop.add_pod_label(LABEL_PREFIX + "action", action)
 
-        cop.container.add_env_variable(k8s_client.V1EnvVar(name="DHCORE_ENDPOINT", value=DHCORE_ENDPOINT))
-        cop.container.add_env_variable(k8s_client.V1EnvVar(name="DHCORE_ISSUER", value=DHCORE_ISSUER))
-
-        # RUN_SECRET_NAME = "digitalhub-common-creds"
-        RUN_SECRET_NAME = os.environ.get("DH_RUN_SECRET_NAME")
-
-        if RUN_SECRET_NAME is not None:
-            # user credentials from secret in steps
-            names = [
-                "DHCORE_ACCESS_TOKEN",
-                "DHCORE_REFRESH_TOKEN",
-                "DHCORE_CLIENT_ID",
-                "DHCORE_AUTH_SUB",
-                "DHCORE_USER",
-                "DHCORE_PASSWORD",
-            ]
-            for name in names:
-                cop.container.add_env_variable(
-                    k8s_client.V1EnvVar(
-                        name=name,
-                        value_from=k8s_client.V1EnvVarSource(
-                            secret_key_ref=k8s_client.V1SecretKeySelector(name=RUN_SECRET_NAME, key=name, optional=True)
-                        ),
-                    )
-                )
+        cop.container.add_env_variable(k8s_client.V1EnvVar(name=DhcoreEnvVar.ENDPOINT.value, value=ENDPOINT))
         return cop

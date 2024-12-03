@@ -20,9 +20,11 @@ class TaskSpecContainerJob(TaskSpecFunction):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         backoff_limit: int | None = None,
         schedule: str | None = None,
-        fsGroup: int | None = None,
+        fs_group: int | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -35,11 +37,13 @@ class TaskSpecContainerJob(TaskSpecFunction):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.backoff_limit = backoff_limit
         self.schedule = schedule
-        self.fsGroup = fsGroup
+        self.fs_group = fs_group
 
 
 class TaskValidatorContainerJob(TaskValidatorFunction):
@@ -53,5 +57,5 @@ class TaskValidatorContainerJob(TaskValidatorFunction):
     schedule: str = None
     """Schedule."""
 
-    fsGroup: int = Field(default=None, ge=1)
+    fs_group: int = Field(default=None, ge=1)
     """FSGroup."""

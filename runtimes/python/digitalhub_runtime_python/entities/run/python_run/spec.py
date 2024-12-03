@@ -20,6 +20,8 @@ class RunSpecPythonRun(RunSpec):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
+        runtime_class_name: str | None = None,
+        priority_class: str | None = None,
         source: dict | None = None,
         image: str | None = None,
         base_image: str | None = None,
@@ -48,6 +50,8 @@ class RunSpecPythonRun(RunSpec):
             envs,
             secrets,
             profile,
+            runtime_class_name,
+            priority_class,
             **kwargs,
         )
         self.source = source
