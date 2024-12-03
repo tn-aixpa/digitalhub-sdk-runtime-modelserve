@@ -27,7 +27,7 @@ class TaskSpecHuggingfaceserveServe(TaskSpecModelserveServe):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
-        runtime_class_name: str | None = None,
+        runtime_class: str | None = None,
         priority_class: str | None = None,
         huggingface_task_name: str | None = None,
         backend: str | None = None,
@@ -52,7 +52,7 @@ class TaskSpecHuggingfaceserveServe(TaskSpecModelserveServe):
             envs,
             secrets,
             profile,
-            runtime_class_name,
+            runtime_class,
             priority_class,
             **kwargs,
         )

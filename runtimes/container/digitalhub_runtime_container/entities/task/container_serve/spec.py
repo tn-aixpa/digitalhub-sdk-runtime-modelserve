@@ -21,7 +21,7 @@ class TaskSpecContainerServe(TaskSpecFunction):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
-        runtime_class_name: str | None = None,
+        runtime_class: str | None = None,
         priority_class: str | None = None,
         replicas: int | None = None,
         service_ports: list | None = None,
@@ -39,7 +39,7 @@ class TaskSpecContainerServe(TaskSpecFunction):
             envs,
             secrets,
             profile,
-            runtime_class_name,
+            runtime_class,
             priority_class,
             **kwargs,
         )

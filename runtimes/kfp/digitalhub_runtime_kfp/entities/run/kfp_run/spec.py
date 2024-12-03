@@ -20,7 +20,7 @@ class RunSpecKfpRun(RunSpec):
         envs: list[dict] | None = None,
         secrets: list[str] | None = None,
         profile: str | None = None,
-        runtime_class_name: str | None = None,
+        runtime_class: str | None = None,
         priority_class: str | None = None,
         source: dict | None = None,
         image: str | None = None,
@@ -47,7 +47,7 @@ class RunSpecKfpRun(RunSpec):
             envs,
             secrets,
             profile,
-            runtime_class_name,
+            runtime_class,
             priority_class,
             **kwargs,
         )
