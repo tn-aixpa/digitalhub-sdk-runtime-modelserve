@@ -15,7 +15,7 @@ RUN python -m pip install "digitalhub[pandas]>=${VERSION_LOWER}, <${VERSION_UPPE
                           "digitalhub-runtime-container>=${VERSION_LOWER}, <${VERSION_UPPER}" \
                           "digitalhub-runtime-modelserve>=${VERSION_LOWER}, <${VERSION_UPPER}" \
                           "digitalhub-runtime-dbt>=${VERSION_LOWER}, <${VERSION_UPPER}" --no-deps && \
-    python -m pip install "pydantic>1"
+    python -m pip install "pydantic>=2"
 
 # Copy wrapper and set entry point
 COPY wrapper.py /app/
