@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "digitalhub"
+name = "digitalhub-runtime-modelserve"
 version = "0.9.0b0"
-description = "Python SDK for Digitalhub"
+description = "ML Model serving runtime for DHCore"
 readme = "README.md"
 authors = [
     { name = "Fondazione Bruno Kessler", email = "dslab@fbk.eu" },
@@ -18,51 +18,25 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11"
 ]
-keywords = ["data", "dataops", "kubernetes"]
+keywords = ["ml", "mlops", "kubernetes"]
 requires-python = ">=3.9"
 dependencies = [
-    "boto3",
-    "pydantic",
-    "sqlalchemy<2",
-    "pyarrow",
-    "numpy<2",
-    "requests",
-    "PyYAML",
-    "python-dotenv",
-    "GitPython>=3",
-    "psycopg2-binary",
-    "python-slugify",
+"digitalhub[ml]>=0.9.0b, <0.10",
 ]
 
 [project.optional-dependencies]
-full = [
-    "pandas>=1.2, <2.2",
-    "mlflow",
-]
-pandas = [
-    "pandas>=1.2, <2.2",
+local = [
+    "mlserver==1.4.0",
 ]
 mlflow = [
-    "mlflow",
+    "mlserver-mlflow==1.4.0",
 ]
-dev = [
-    "black",
-    "pytest",
-    "bumpver",
-    "ruff",
-    "moto"
-]
-docs = [
-    "Sphinx>=7",
-    "pydata-sphinx-theme>=0.15",
-    "numpydoc>=1.6"
+sklearn = [
+    "mlserver-sklearn==1.4.0",
 ]
 
 [project.urls]
 Homepage = "https://github.com/scc-digitalhub/digitalhub-sdk"
-
-[tool.setuptools.packages.find]
-exclude = ["wrapper*", "runtimes*"]
 
 [tool.flake8]
 max-line-length = 120
