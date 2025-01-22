@@ -14,8 +14,9 @@ class RunStatusModelserveRun(RunStatus):
         message: str | None = None,
         transitions: list[dict] | None = None,
         k8s: dict | None = None,
+        metrics: dict | None = None,
         service: dict | None = None,
         **kwargs,
     ) -> None:
-        super().__init__(state, message, transitions, k8s, **kwargs)
+        super().__init__(state, message, transitions, k8s, metrics, **kwargs)
         self.service = service
