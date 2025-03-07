@@ -21,7 +21,7 @@ classifiers = [
 keywords = ["ml", "mlops", "kubernetes"]
 requires-python = ">=3.9, <3.13"
 dependencies = [
-"digitalhub[ml]>=0.10.0b, <0.11",
+"digitalhub>=0.10.0b, <0.11",
 ]
 
 [project.optional-dependencies]
