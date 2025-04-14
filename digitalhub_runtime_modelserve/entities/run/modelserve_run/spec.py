@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from digitalhub.entities.run._base.spec import RunSpec, RunValidator
 
 
@@ -59,11 +61,11 @@ class RunValidatorModelserveRun(RunValidator):
     """RunValidatorModelserveRun Validator."""
 
     # Function parameters
-    image: str = None
-    path: str = None
-    model_name: str = None
-    model_key: str = None
+    image: Optional[str] = None
+    path: Optional[str] = None
+    model_name: Optional[str] = None
+    model_key: Optional[str] = None
 
     # Task serve
-    service_type: str = None
-    replicas: int = None
+    service_type: Optional[str] = None
+    replicas: Optional[int] = None

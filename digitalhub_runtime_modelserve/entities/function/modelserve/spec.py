@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from digitalhub.entities.function._base.spec import FunctionSpec, FunctionValidator
 
 
@@ -25,11 +27,11 @@ class FunctionValidatorModelserve(FunctionValidator):
     FunctionValidatorModelserve validator.
     """
 
-    path: str = None
+    path: Optional[str] = None
     "Path to the model files"
 
-    model_name: str = None
+    model_name: Optional[str] = None
     "Name of the model"
 
-    image: str = None
+    image: Optional[str] = None
     "Image where the function will be executed"

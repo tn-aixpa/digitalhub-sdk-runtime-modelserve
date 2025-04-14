@@ -43,3 +43,16 @@ class RuntimeEntityBuilderHuggingfaceserve(RuntimeEntityBuilder):
         ]
     )
     RUN_KIND = EntityKinds.RUN_HUGGINGFACESERVE.value
+
+
+class RuntimeEntityBuilderKubeaiserve(RuntimeEntityBuilder):
+    EXECUTABLE_KIND = EntityKinds.FUNCTION_KUBEAISERVE.value
+    TASKS_KINDS = build_task_actions(
+        [
+            (
+                EntityKinds.TASK_KUBEAISERVE_SERVE.value,
+                TaskActions.SERVE.value,
+            ),
+        ]
+    )
+    RUN_KIND = EntityKinds.RUN_KUBEAISERVE.value

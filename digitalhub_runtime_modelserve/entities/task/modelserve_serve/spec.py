@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from digitalhub.entities.task._base.models import CoreServiceType
 from digitalhub.entities.task._base.spec import TaskSpecFunction, TaskValidatorFunction
 from pydantic import Field
@@ -48,7 +50,7 @@ class TaskValidatorModelserveServe(TaskValidatorFunction):
     TaskValidatorModelserveServe specifications.
     """
 
-    replicas: int = Field(default=None, ge=1)
+    replicas: Optional[int] = Field(default=None, ge=1)
     """Number of replicas."""
 
     service_type: CoreServiceType = Field(default=CoreServiceType.NODE_PORT.value)

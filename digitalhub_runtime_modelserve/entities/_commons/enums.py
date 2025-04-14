@@ -20,6 +20,10 @@ class EntityKinds(Enum):
     TASK_SKLEARNSERVE_SERVE = "sklearnserve+serve"
     RUN_SKLEARNSERVE = "sklearnserve+run"
 
+    FUNCTION_KUBEAISERVE = "kubeaiserve"
+    TASK_KUBEAISERVE_SERVE = "kubeaiserve+serve"
+    RUN_KUBEAISERVE = "kubeaiserve+run"
+
 
 class TaskActions(Enum):
     """

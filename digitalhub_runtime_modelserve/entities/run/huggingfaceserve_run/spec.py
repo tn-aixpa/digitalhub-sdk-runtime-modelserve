@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Optional
 
+from digitalhub_runtime_modelserve.entities.run.huggingfaceserve_run.enums import Backend, DType, HuggingFaceTask
 from digitalhub_runtime_modelserve.entities.run.modelserve_run.spec import (
     RunSpecModelserveRun,
     RunValidatorModelserveRun,
@@ -85,19 +86,13 @@ class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
 class RunValidatorHuggingfaceserveRun(RunValidatorModelserveRun):
     """RunValidatorHuggingfaceserveRun validator."""
 
-    huggingface_task_name: Literal[
-        "SEQUENCE_CLASSIFICATION",
-        "TOKEN_CLASSIFICATION",
-        "FILL_MASK",
-        "TEXT_GENERATION",
-        "TEXT2TEXT_GENERATION",
-    ] = None
-    backend: Literal["AUTO", "VLLM", "HUGGINGFACE"] = None
+    huggingface_task_name: Optional[HuggingFaceTask] = None
+    backend: Optional[Backend] = None
     tokenizer_revision: str = None
     max_length: int = None
     disable_lower_case: bool = None
     disable_special_tokens: bool = None
-    dtype: Literal["AUTO", "FLOAT32", "FLOAT16", "BFLOAT16", "FLOAT", "HALF"] = None
+    dtype: Optional[DType] = None
     trust_remote_code: bool = None
     tensor_input_names: list[str] = None
     return_token_type_ids: bool = None
