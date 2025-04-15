@@ -6,7 +6,7 @@ import typing
 import requests
 from digitalhub.entities._commons.enums import State
 from digitalhub.entities.run._base.entity import Run
-from digitalhub.factory.api import get_action_from_task_kind
+from digitalhub.factory.factory import factory
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
@@ -54,7 +54,7 @@ class RunModelserveRun(Run):
             Run object.
         """
         task_kind = self.spec.task.split("://")[0]
-        action = get_action_from_task_kind(self.kind, task_kind)
+        action = factory.get_action_from_task_kind(self.kind, task_kind)
 
         if action == TaskActions.SERVE.value:
             serve_timeout = 300
