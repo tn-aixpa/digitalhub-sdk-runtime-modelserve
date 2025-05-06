@@ -22,12 +22,12 @@ classifiers = [
 keywords = ["ml", "mlops", "kubernetes"]
 requires-python = ">=3.9, <3.13"
 dependencies = [
-"digitalhub>=0.10.0b, <0.11",
+"digitalhub>=0.11.0b, <0.12",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "digitalhub[dev]>=0.10.0b, <0.11"
+    "digitalhub[dev]>=0.11.0b, <0.12"
 ]
 
 [project.urls]
