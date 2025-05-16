@@ -61,8 +61,8 @@ class FunctionValidatorKubeaiserve(FunctionValidator):
     adapters: Optional[list[KubeaiAdapter]] = None
     "Adapters."
 
-    features: Optional[list[KubeaiFeature]]
+    features: Optional[list[KubeaiFeature]] = None
     "Features."
 
-    engine: Optional[KubeaiEngine]
+    engine: Optional[KubeaiEngine] = None
     "Engine."
