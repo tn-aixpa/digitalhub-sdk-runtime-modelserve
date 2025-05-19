@@ -8,11 +8,12 @@ class HuggingfaceTaskName(Enum):
     Huggingface task name enum.
     """
 
-    SEQUENCE_CLASSIFICATION = "SEQUENCE_CLASSIFICATION"
-    TOKEN_CLASSIFICATION = "TOKEN_CLASSIFICATION"
-    FILL_MASK = "FILL_MASK"
-    TEXT_GENERATION = "TEXT_GENERATION"
-    TEXT2TEXT_GENERATION = "TEXT2TEXT_GENERATION"
+    SEQUENCE_CLASSIFICATION = "sequence_classification"
+    TOKEN_CLASSIFICATION = "token_classification"
+    FILL_MASK = "fill_mask"
+    TEXT_GENERATION = "text_generation"
+    TEXT2TEXT_GENERATION = "text2text_generation"
+    TEXT_EMBEDDING = "text_embedding"
 
 
 class Backend(Enum):
