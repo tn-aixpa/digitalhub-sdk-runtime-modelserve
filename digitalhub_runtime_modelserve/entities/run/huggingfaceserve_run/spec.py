@@ -34,7 +34,7 @@ class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
         model_key: str | None = None,
         service_type: str | None = None,
         replicas: int | None = None,
-        huggingface_task_name: str | None = None,
+        huggingface_task: str | None = None,
         backend: str | None = None,
         tokenizer_revision: str | None = None,
         max_length: int | None = None,
@@ -70,7 +70,7 @@ class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
             replicas,
             **kwargs,
         )
-        self.huggingface_task_name = huggingface_task_name
+        self.huggingface_task = huggingface_task
         self.backend = backend
         self.tokenizer_revision = tokenizer_revision
         self.max_length = max_length
@@ -86,7 +86,7 @@ class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
 class RunValidatorHuggingfaceserveRun(RunValidatorModelserveRun):
     """RunValidatorHuggingfaceserveRun validator."""
 
-    huggingface_task_name: Optional[HuggingFaceTask] = None
+    huggingface_task: Optional[HuggingFaceTask] = None
     backend: Optional[Backend] = None
     tokenizer_revision: str = None
     max_length: int = None

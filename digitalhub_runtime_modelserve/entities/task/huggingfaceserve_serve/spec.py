@@ -3,7 +3,7 @@ from __future__ import annotations
 from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.models import (
     Backend,
     Dtype,
-    HuggingfaceTaskName,
+    HuggingfaceTask,
 )
 from digitalhub_runtime_modelserve.entities.task.modelserve_serve.spec import (
     TaskSpecModelserveServe,
@@ -75,7 +75,7 @@ class TaskValidatorHuggingfaceserveServe(TaskValidatorModelserveServe):
     TaskValidatorHuggingfaceserveServe validator.
     """
 
-    huggingface_task: HuggingfaceTaskName = None
+    huggingface_task: HuggingfaceTask = None
     """
     Huggingface task name.
     """

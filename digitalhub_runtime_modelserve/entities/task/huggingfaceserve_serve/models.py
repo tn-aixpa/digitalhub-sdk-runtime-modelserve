@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 
 
-class HuggingfaceTaskName(Enum):
+class HuggingfaceTask(Enum):
     """
     Huggingface task name enum.
     """
