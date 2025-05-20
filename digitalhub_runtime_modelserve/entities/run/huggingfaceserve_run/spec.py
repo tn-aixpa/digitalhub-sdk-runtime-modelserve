@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-from digitalhub_runtime_modelserve.entities.run.huggingfaceserve_run.enums import Backend, Dtype, HuggingFaceTask
 from digitalhub_runtime_modelserve.entities.run.modelserve_run.spec import (
     RunSpecModelserveRun,
     RunValidatorModelserveRun,
 )
+from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.models import Backend, Dtype, HuggingfaceTask
 
 
 class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
@@ -86,7 +86,7 @@ class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
 class RunValidatorHuggingfaceserveRun(RunValidatorModelserveRun):
     """RunValidatorHuggingfaceserveRun validator."""
 
-    huggingface_task: Optional[HuggingFaceTask] = None
+    huggingface_task: Optional[HuggingfaceTask] = None
     backend: Optional[Backend] = None
     tokenizer_revision: str = None
     max_length: int = None

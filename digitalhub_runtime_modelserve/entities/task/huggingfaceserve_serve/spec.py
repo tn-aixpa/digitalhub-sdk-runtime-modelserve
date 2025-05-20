@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.models import (
-    Backend,
-    Dtype,
-    HuggingfaceTask,
-)
+from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.models import Backend, Dtype, HuggingfaceTask
 from digitalhub_runtime_modelserve.entities.task.modelserve_serve.spec import (
     TaskSpecModelserveServe,
     TaskValidatorModelserveServe,
