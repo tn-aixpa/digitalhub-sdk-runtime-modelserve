@@ -34,6 +34,7 @@ class FunctionSpecKubeaiserve(FunctionSpec):
         adapters: list[dict] | None = None,
         features: list[dict] | None = None,
         engine: str | None = None,
+        processors: int | None = None,
     ) -> None:
         super().__init__()
         self.model_name = model_name
@@ -42,6 +43,7 @@ class FunctionSpecKubeaiserve(FunctionSpec):
         self.adapters = adapters
         self.features = features
         self.engine = engine
+        self.processors = processors
 
 
 class FunctionValidatorKubeaiserve(FunctionValidator):
@@ -66,3 +68,6 @@ class FunctionValidatorKubeaiserve(FunctionValidator):
 
     engine: Optional[KubeaiEngine] = None
     "Engine."
+
+    processors: Optional[int] = Field(default=None, ge=1)
+    "Number of processors."

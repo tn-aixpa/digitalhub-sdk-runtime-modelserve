@@ -32,6 +32,7 @@ class RunSpecKubeaiserveRun(RunSpec):
         adapters: list[dict] | None = None,
         features: list[str] | None = None,
         engine: str | None = None,
+        processors: int | None = None,
         env: dict | None = None,
         args: list[str] | None = None,
         cache_profile: str | None = None,
@@ -60,6 +61,7 @@ class RunSpecKubeaiserveRun(RunSpec):
         self.adapters = adapters
         self.features = features
         self.engine = engine
+        self.processors = processors
         self.env = env
         self.args = args
         self.cache_profile = cache_profile
@@ -77,6 +79,7 @@ class RunValidatorKubeaiserveRun(RunValidator):
     adapters: Optional[list[dict]] = None
     features: Optional[list[str]] = None
     engine: Optional[str] = None
+    processors: Optional[int] = None
 
     # Run parameters
     env: Optional[dict] = None
