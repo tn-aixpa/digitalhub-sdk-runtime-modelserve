@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from digitalhub.entities.run._base.spec import RunSpec, RunValidator
+from pydantic import Field
 
 from digitalhub_runtime_modelserve.entities.run.kubeaiserve_run.models import KubeaiFile, Scaling
 
@@ -79,9 +80,11 @@ class RunValidatorKubeaiserveRun(RunValidator):
     adapters: Optional[list[dict]] = None
     features: Optional[list[str]] = None
     engine: Optional[str] = None
-    processors: Optional[int] = None
 
     # Run parameters
+    processors: Optional[int] = Field(default=None, ge=1)
+    "Number of processors."
+
     env: Optional[dict] = None
     """Environment variables."""
 
