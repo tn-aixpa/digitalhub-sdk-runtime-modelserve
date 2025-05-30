@@ -8,10 +8,10 @@ from digitalhub_runtime_modelserve.entities.function.kubeaiservetext.builder imp
 from digitalhub_runtime_modelserve.entities.function.mlflowserve.builder import FunctionMlflowserveBuilder
 from digitalhub_runtime_modelserve.entities.function.sklearnserve.builder import FunctionSklearnserveBuilder
 from digitalhub_runtime_modelserve.entities.run.huggingfaceserve_run.builder import RunHuggingfaceserveRunBuilder
-from digitalhub_runtime_modelserve.entities.run.kubeaiserve_run.builder import RunKubeaiserveRunBuilder
 from digitalhub_runtime_modelserve.entities.run.kubeaiservespeechtotext_run.builder import (
     RunKubeaiserveSpeechtotextRunBuilder,
 )
+from digitalhub_runtime_modelserve.entities.run.kubeaiservetext_run.builder import RunKubeaiserveTextRunBuilder
 from digitalhub_runtime_modelserve.entities.run.mlflowserve_run.builder import RunMlflowserveRunBuilder
 from digitalhub_runtime_modelserve.entities.run.sklearnserve_run.builder import RunSklearnserveRunBuilder
 from digitalhub_runtime_modelserve.entities.task.huggingfaceserve_serve.builder import TaskHuggingfaceserveServeBuilder
@@ -31,7 +31,7 @@ entity_builders = (
     (EntityKinds.FUNCTION_SKLEARNSERVE.value, FunctionSklearnserveBuilder),
     (EntityKinds.RUN_HUGGINGFACESERVE.value, RunHuggingfaceserveRunBuilder),
     (EntityKinds.RUN_KUBEAISERVESPEECHTOTEXT.value, RunKubeaiserveSpeechtotextRunBuilder),
-    (EntityKinds.RUN_KUBEAISERVETEXT.value, RunKubeaiserveRunBuilder),
+    (EntityKinds.RUN_KUBEAISERVETEXT.value, RunKubeaiserveTextRunBuilder),
     (EntityKinds.RUN_MLFLOWSERVE.value, RunMlflowserveRunBuilder),
     (EntityKinds.RUN_SKLEARNSERVE.value, RunSklearnserveRunBuilder),
     (EntityKinds.TASK_HUGGINGFACESERVE_SERVE.value, TaskHuggingfaceserveServeBuilder),
