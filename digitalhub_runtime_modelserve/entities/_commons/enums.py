@@ -24,13 +24,13 @@ class EntityKinds(Enum):
     TASK_KUBEAISERVE_SERVE = "kubeaiserve+serve"
     RUN_KUBEAISERVE = "kubeaiserve+run"
 
-    FUNCTION_KUBEAISERVETEXT = "kubeaiservetext"
-    TASK_KUBEAISERVETEXT_SERVE = "kubeaiservetext+serve"
-    RUN_KUBEAISERVETEXT = "kubeaiservetext+run"
+    FUNCTION_KUBEAISERVETEXT = "kubeai-text"
+    TASK_KUBEAISERVETEXT_SERVE = "kubeai-text+serve"
+    RUN_KUBEAISERVETEXT = "kubeai-text+run"
 
-    FUNCTION_KUBEAISERVESPEECHTOTEXT = "kubeaiservespeechtotext"
-    TASK_KUBEAISERVESPEECHTOTEXT_SERVE = "kubeaiservespeechtotext+serve"
-    RUN_KUBEAISERVESPEECHTOTEXT = "kubeaiservespeechtotext+run"
+    FUNCTION_KUBEAISERVESPEECHTOTEXT = "kubeai-speech"
+    TASK_KUBEAISERVESPEECHTOTEXT_SERVE = "kubeai-speech+serve"
+    RUN_KUBEAISERVESPEECHTOTEXT = "kubeai-speech+run"
 
 
 class TaskActions(Enum):
