@@ -5,7 +5,6 @@ from typing import Optional
 from digitalhub.entities.function._base.spec import FunctionSpec, FunctionValidator
 from pydantic import Field
 
-from digitalhub_runtime_modelserve.entities.function.kubeaiserve.enums import KubeaiEngine, KubeaiFeature
 from digitalhub_runtime_modelserve.entities.function.kubeaiserve.models import KubeaiAdapter
 
 regexp = (
@@ -60,9 +59,3 @@ class FunctionValidatorKubeaiserve(FunctionValidator):
 
     adapters: Optional[list[KubeaiAdapter]] = None
     "Adapters."
-
-    features: Optional[list[KubeaiFeature]] = None
-    "Features."
-
-    engine: Optional[KubeaiEngine] = None
-    "Engine."

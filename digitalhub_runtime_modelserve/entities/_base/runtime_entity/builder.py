@@ -56,3 +56,29 @@ class RuntimeEntityBuilderKubeaiserve(RuntimeEntityBuilder):
         ]
     )
     RUN_KIND = EntityKinds.RUN_KUBEAISERVE.value
+
+
+class RuntimeEntityBuilderKubeaiserveSpeechtotext(RuntimeEntityBuilder):
+    EXECUTABLE_KIND = EntityKinds.FUNCTION_KUBEAISERVESPEECHTOTEXT.value
+    TASKS_KINDS = build_task_actions(
+        [
+            (
+                EntityKinds.TASK_KUBEAISERVESPEECHTOTEXT_SERVE.value,
+                TaskActions.SERVE.value,
+            ),
+        ]
+    )
+    RUN_KIND = EntityKinds.RUN_KUBEAISERVESPEECHTOTEXT.value
+
+
+class RuntimeEntityBuilderKubeaiserveText(RuntimeEntityBuilder):
+    EXECUTABLE_KIND = EntityKinds.FUNCTION_KUBEAISERVETEXT.value
+    TASKS_KINDS = build_task_actions(
+        [
+            (
+                EntityKinds.TASK_KUBEAISERVETEXT_SERVE.value,
+                TaskActions.SERVE.value,
+            ),
+        ]
+    )
+    RUN_KIND = EntityKinds.RUN_KUBEAISERVETEXT.value
