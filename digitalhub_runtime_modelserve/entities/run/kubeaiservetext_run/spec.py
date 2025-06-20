@@ -35,14 +35,14 @@ class RunSpecKubeaiserveTextRun(RunSpecKubeaiserveRun):
         url: str | None = None,
         image: str | None = None,
         adapters: list[dict] | None = None,
-        features: list[str] | None = None,
-        engine: str | None = None,
         processors: int | None = None,
         env: dict | None = None,
         args: list[str] | None = None,
         cache_profile: str | None = None,
         scaling: dict | None = None,
         files: list[dict] | None = None,
+        features: list[str] | None = None,
+        engine: str | None = None,
     ) -> None:
         super().__init__(
             task,

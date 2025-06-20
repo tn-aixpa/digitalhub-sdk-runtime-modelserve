@@ -35,7 +35,6 @@ class FunctionSpecKubeaiserve(FunctionSpec):
         image: str | None = None,
         url: str | None = None,
         adapters: list[dict] | None = None,
-        features: list[dict] | None = None,
         engine: str | None = None,
     ) -> None:
         super().__init__()
@@ -43,7 +42,6 @@ class FunctionSpecKubeaiserve(FunctionSpec):
         self.image = image
         self.url = url
         self.adapters = adapters
-        self.features = features
         self.engine = engine
 
 

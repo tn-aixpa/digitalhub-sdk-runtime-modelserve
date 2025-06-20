@@ -35,8 +35,6 @@ class RunSpecKubeaiserveRun(RunSpec):
         url: str | None = None,
         image: str | None = None,
         adapters: list[dict] | None = None,
-        features: list[str] | None = None,
-        engine: str | None = None,
         processors: int | None = None,
         env: dict | None = None,
         args: list[str] | None = None,
@@ -64,8 +62,6 @@ class RunSpecKubeaiserveRun(RunSpec):
         self.url = url
         self.image = image
         self.adapters = adapters
-        self.features = features
-        self.engine = engine
         self.processors = processors
         self.env = env
         self.args = args
@@ -82,8 +78,6 @@ class RunValidatorKubeaiserveRun(RunValidator):
     image: Optional[str] = None
     url: Optional[str] = None
     adapters: Optional[list[dict]] = None
-    features: Optional[list[str]] = None
-    engine: Optional[str] = None
 
     # Run parameters
     processors: Optional[int] = Field(default=None, ge=1)
