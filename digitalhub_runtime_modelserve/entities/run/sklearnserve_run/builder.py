@@ -25,4 +25,4 @@ class RunSklearnserveRunBuilder(RunBuilder, RuntimeEntityBuilderSklearnserve):
     ENTITY_SPEC_CLASS = RunSpecSklearnserveRun
     ENTITY_SPEC_VALIDATOR = RunValidatorSklearnserveRun
     ENTITY_STATUS_CLASS = RunStatusSklearnserveRun
-    ENTITY_KIND = EntityKinds.RUN_SKLEARNSERVE.value
+    ENTITY_KIND = EntityKinds.RUN_SKLEARNSERVE_SERVE.value

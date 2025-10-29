@@ -29,4 +29,4 @@ class RunKubeaiserveSpeechtotextRunBuilder(RunBuilder, RuntimeEntityBuilderKubea
     ENTITY_SPEC_CLASS = RunSpecKubeaiserveSpeechtotextRun
     ENTITY_SPEC_VALIDATOR = RunValidatorKubeaiserveSpeechtotextRun
     ENTITY_STATUS_CLASS = RunStatusKubeaiserveSpeechtotextRun
-    ENTITY_KIND = EntityKinds.RUN_KUBEAISERVESPEECHTOTEXT.value
+    ENTITY_KIND = EntityKinds.RUN_KUBEAISERVESPEECHTOTEXT_SERVE.value

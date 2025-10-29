@@ -49,6 +49,7 @@ class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
         tensor_input_names: list[str] | None = None,
         return_token_type_ids: bool | None = None,
         return_probabilities: bool | None = None,
+        args: list[str] | None = None,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -85,11 +86,13 @@ class RunSpecHuggingfaceserveRun(RunSpecModelserveRun):
         self.tensor_input_names = tensor_input_names
         self.return_token_type_ids = return_token_type_ids
         self.return_probabilities = return_probabilities
+        self.args = args
 
 
 class RunValidatorHuggingfaceserveRun(RunValidatorModelserveRun):
     """RunValidatorHuggingfaceserveRun validator."""
 
+    # Task parameters
     huggingface_task: Optional[HuggingfaceTask] = None
     backend: Optional[Backend] = None
     tokenizer_revision: str = None
@@ -103,3 +106,7 @@ class RunValidatorHuggingfaceserveRun(RunValidatorModelserveRun):
     return_probabilities: bool = None
     disable_log_requests: bool = None
     max_log_len: int = None
+
+    # Run parameters
+    args: list[str] = None
+    """Arguments for the huggingface serve command."""

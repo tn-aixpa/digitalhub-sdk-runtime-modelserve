@@ -14,30 +14,30 @@ class EntityKinds(Enum):
 
     FUNCTION_HUGGINGFACESERVE = "huggingfaceserve"
     TASK_HUGGINGFACESERVE_SERVE = "huggingfaceserve+serve"
-    RUN_HUGGINGFACESERVE = "huggingfaceserve+run"
+    RUN_HUGGINGFACESERVE_SERVE = "huggingfaceserve+serve:run"
 
     FUNCTION_MLFLOWSERVE = "mlflowserve"
     TASK_MLFLOWSERVE_SERVE = "mlflowserve+serve"
-    RUN_MLFLOWSERVE = "mlflowserve+run"
+    RUN_MLFLOWSERVE_SERVE = "mlflowserve+serve:run"
 
     FUNCTION_SKLEARNSERVE = "sklearnserve"
     TASK_SKLEARNSERVE_SERVE = "sklearnserve+serve"
-    RUN_SKLEARNSERVE = "sklearnserve+run"
+    RUN_SKLEARNSERVE_SERVE = "sklearnserve+serve:run"
 
     FUNCTION_KUBEAISERVE = "kubeaiserve"
     TASK_KUBEAISERVE_SERVE = "kubeaiserve+serve"
-    RUN_KUBEAISERVE = "kubeaiserve+run"
+    RUN_KUBEAISERVE_SERVE = "kubeaiserve+serve:run"
 
     FUNCTION_KUBEAISERVETEXT = "kubeai-text"
     TASK_KUBEAISERVETEXT_SERVE = "kubeai-text+serve"
-    RUN_KUBEAISERVETEXT = "kubeai-text+run"
+    RUN_KUBEAISERVETEXT_SERVE = "kubeai-text+serve:run"
 
     FUNCTION_KUBEAISERVESPEECHTOTEXT = "kubeai-speech"
     TASK_KUBEAISERVESPEECHTOTEXT_SERVE = "kubeai-speech+serve"
-    RUN_KUBEAISERVESPEECHTOTEXT = "kubeai-speech+run"
+    RUN_KUBEAISERVESPEECHTOTEXT_SERVE = "kubeai-speech+serve:run"
 
 
-class TaskActions(Enum):
+class Actions(Enum):
     """
     Task actions.
     """

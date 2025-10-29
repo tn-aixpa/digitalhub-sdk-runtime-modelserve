@@ -25,4 +25,4 @@ class RunMlflowserveRunBuilder(RunBuilder, RuntimeEntityBuilderMlflowserve):
     ENTITY_SPEC_CLASS = RunSpecMlflowserveRun
     ENTITY_SPEC_VALIDATOR = RunValidatorMlflowserveRun
     ENTITY_STATUS_CLASS = RunStatusMlflowserveRun
-    ENTITY_KIND = EntityKinds.RUN_MLFLOWSERVE.value
+    ENTITY_KIND = EntityKinds.RUN_MLFLOWSERVE_SERVE.value

@@ -25,4 +25,4 @@ class RunKubeaiserveTextRunBuilder(RunBuilder, RuntimeEntityBuilderKubeaiserveTe
     ENTITY_SPEC_CLASS = RunSpecKubeaiserveTextRun
     ENTITY_SPEC_VALIDATOR = RunValidatorKubeaiserveTextRun
     ENTITY_STATUS_CLASS = RunStatusKubeaiserveTextRun
-    ENTITY_KIND = EntityKinds.RUN_KUBEAISERVETEXT.value
+    ENTITY_KIND = EntityKinds.RUN_KUBEAISERVETEXT_SERVE.value

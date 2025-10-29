@@ -25,4 +25,4 @@ class RunHuggingfaceserveRunBuilder(RunBuilder, RuntimeEntityBuilderHuggingfaces
     ENTITY_SPEC_CLASS = RunSpecHuggingfaceserveRun
     ENTITY_SPEC_VALIDATOR = RunValidatorHuggingfaceserveRun
     ENTITY_STATUS_CLASS = RunStatusHuggingfaceserveRun
-    ENTITY_KIND = EntityKinds.RUN_HUGGINGFACESERVE.value
+    ENTITY_KIND = EntityKinds.RUN_HUGGINGFACESERVE_SERVE.value

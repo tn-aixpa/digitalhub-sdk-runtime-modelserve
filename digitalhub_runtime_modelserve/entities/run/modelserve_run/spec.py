@@ -33,6 +33,7 @@ class RunSpecModelserveRun(RunSpec):
         model_name: str | None = None,
         model_key: str | None = None,
         service_type: str | None = None,
+        service_name: str | None = None,
         replicas: int | None = None,
         **kwargs,
     ) -> None:
@@ -58,6 +59,7 @@ class RunSpecModelserveRun(RunSpec):
         self.model_name = model_name
         self.model_key = model_key
         self.service_type = service_type
+        self.service_name = service_name
         self.replicas = replicas
 
 
@@ -72,4 +74,5 @@ class RunValidatorModelserveRun(RunValidator):
 
     # Task serve
     service_type: Optional[str] = None
+    service_name: Optional[str] = None
     replicas: Optional[int] = None

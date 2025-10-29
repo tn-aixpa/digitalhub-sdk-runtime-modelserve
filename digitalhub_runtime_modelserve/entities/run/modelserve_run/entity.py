@@ -10,11 +10,11 @@ import typing
 import requests
 from digitalhub.entities._commons.enums import State
 from digitalhub.entities.run._base.entity import Run
-from digitalhub.factory.factory import factory
+from digitalhub.factory.entity import entity_factory
 from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
-from digitalhub_runtime_modelserve.entities._commons.enums import TaskActions
+from digitalhub_runtime_modelserve.entities._commons.enums import Actions
 
 if typing.TYPE_CHECKING:
     from digitalhub.entities._base.entity.metadata import Metadata
@@ -58,9 +58,9 @@ class RunModelserveRun(Run):
             Run object.
         """
         task_kind = self.spec.task.split("://")[0]
-        action = factory.get_action_from_task_kind(self.kind, task_kind)
+        action = entity_factory.get_action_from_task_kind(self.kind, task_kind)
 
-        if action == TaskActions.SERVE.value:
+        if action == Actions.SERVE.value:
             serve_timeout = 300
             start = time.time()
 
