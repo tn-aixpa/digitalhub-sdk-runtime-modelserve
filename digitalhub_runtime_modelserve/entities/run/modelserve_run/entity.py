@@ -7,11 +7,9 @@ from __future__ import annotations
 import time
 import typing
 
-import requests
 from digitalhub.entities._commons.enums import State
 from digitalhub.entities.run._base.entity import Run
 from digitalhub.factory.entity import entity_factory
-from digitalhub.utils.exceptions import EntityError
 from digitalhub.utils.logger import LOGGER
 
 from digitalhub_runtime_modelserve.entities._commons.enums import Actions
@@ -90,40 +88,3 @@ class RunModelserveRun(Run):
             return self
 
         return super().wait(log_info=log_info)
-
-    def invoke(
-        self,
-        model_name: str | None = None,
-        method: str = "POST",
-        url: str | None = None,
-        **kwargs,
-    ) -> requests.Response:
-        """
-        Invoke served model. By default it exposes infer v2 endpoint.
-
-        Parameters
-        ----------
-        model_name : str
-            Name of the model.
-        method : str
-            Method of the request.
-        url : str
-            URL of the request.
-        **kwargs : dict
-            Keyword arguments to pass to the request.
-
-        Returns
-        -------
-        requests.Response
-            Response from the request.
-        """
-        if self._context().local:
-            raise EntityError("Invoke not supported locally.")
-        if url is None:
-            try:
-                model_name = model_name if model_name is not None else "model"
-                url = f"http://{self.status.service.get('url')}/v2/models/{model_name}/infer"
-            except AttributeError:
-                msg = "Url not specified and service not found on run status. If a service is deploying, use run.wait() or try again later."
-                raise EntityError(msg)
-        return requests.request(method=method, url=url, **kwargs)
